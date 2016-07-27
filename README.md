@@ -1,4 +1,5 @@
 # Wire™
+[![Build Status](https://travis-ci.org/wireapp/wire-ios-data-model.svg?branch=develop)](https://travis-ci.org/wireapp/wire-ios-data-model)
 
 ![Wire logo](https://github.com/wireapp/wire/blob/master/assets/logo.png?raw=true)
 
@@ -8,11 +9,11 @@ You can find the published source code at [github.com/wireapp/wire](https://gith
 
 For licensing information, see the attached LICENSE file and the list of third-party licenses at [wire.com/legal/licenses/](https://wire.com/legal/licenses/).
 
-#ZMCDataModel
+# wire-ios-data-model
 
 This framework is part of Wire iOS SyncEngine. Visit [iOS SyncEngine repository](http://github.com/wireapp/zmessaging-cocoa) for an overview of the architecture.
 
-ZMCDataModel contains our Core Data model and entity classes.
+The wire-ios-data-model framework contains our Core Data model and entity classes.
 
 ###How to build
 
