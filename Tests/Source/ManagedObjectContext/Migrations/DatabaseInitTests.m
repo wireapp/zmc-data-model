@@ -36,6 +36,9 @@
 {
     [self cleanUp];
     [NSManagedObjectContext setUseInMemoryStore:NO];
+    [self performIgnoringZMLogError:^{
+        [NSManagedObjectContext initPersistentStoreCoordinatorBackingUpCorrupedDatabases:NO];
+    }];
     [super setUp];
 }
 
