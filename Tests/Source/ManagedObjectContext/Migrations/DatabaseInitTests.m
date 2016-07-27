@@ -92,6 +92,9 @@
     // given
     id classMock = [OCMockObject mockForClass:[NSManagedObjectContext class]];
     [[[classMock stub] andReturnValue:@(YES)] databaseExistsAndNotReadableDueToEncryption];
+    [[classMock expect] initPersistentStoreCoordinatorBackingUpCorrupedDatabases:NO];
+    [self verifyMockLater:classMock];
+
     __block BOOL completionCalledTimes = 0;
     
     // when
