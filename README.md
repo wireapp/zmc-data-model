@@ -15,7 +15,7 @@ This framework is part of Wire iOS SyncEngine. Visit [iOS SyncEngine repository]
 
 The wire-ios-data-model framework contains our Core Data model and entity classes.
 
-###How to build
+### How to build
 
 This framework is using Carthage to manage its dependencies. To pull the dependencies binaries, `run carthage bootstrap --platform ios`.
 
