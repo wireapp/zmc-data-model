@@ -1484,6 +1484,7 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
     ZMClientMessage *message = [ZMClientMessage insertNewObjectInManagedObjectContext:self.managedObjectContext];
     [message addData:genericMessage.data];
     message.sender = [ZMUser selfUserInContext:self.managedObjectContext];
+    message.isEncrypted = YES;
     
     if(!hidden) {
         [self sortedAppendMessage:message];
