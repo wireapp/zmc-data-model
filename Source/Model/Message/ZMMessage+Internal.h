@@ -70,7 +70,8 @@ extern NSString * const ZMMessageHiddenInConversationKey;
 - (BOOL)shouldGenerateUnreadCount;
 
 - (void)removeMessage;
-+ (void)removeMessageWithRemotelyDeletedMessage:(ZMMsgDeleted *)deletedMessage fromUser:(ZMUser *)user inManagedObjectContext:(NSManagedObjectContext *)moc;
++ (void)removeMessageWithRemotelyHiddenMessage:(ZMMessageHide *)hiddenMessage fromUser:(ZMUser *)user inManagedObjectContext:(NSManagedObjectContext *)moc;
++ (void)removeMessageWithRemotelyDeletedMessage:(ZMMessageDelete *)deletedMessage inConversation:(ZMConversation *)conversation senderID:(NSUUID *)senderID inManagedObjectContext:(NSManagedObjectContext *)moc;
 @end
 
 

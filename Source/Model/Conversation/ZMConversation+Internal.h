@@ -40,6 +40,7 @@
 @class ZMCleared;
 @class ZMUpdateEvent;
 @class ZMLocationData;
+@class ZMGenericMessage;
 
 extern NSString *const ZMConversationConnectionKey;
 extern NSString *const ZMConversationHasUnreadMissedCallKey;
@@ -201,6 +202,7 @@ extern NSString *const ZMConversationLastReadLocalTimestampKey;
 - (ZMClientMessage *)appendOTRSessionResetMessage;
 - (ZMClientMessage *)appendOTRMessageWithText:(NSString *)text nonce:(NSUUID *)nonce;
 - (ZMClientMessage *)appendOTRMessageWithLocationData:(ZMLocationData *)locationData nonce:(NSUUID *)nonce;
+- (ZMClientMessage *)appendNonExpiringGenericMessage:(ZMGenericMessage *)genericMessage hidden:(BOOL)hidden;
 - (ZMAssetClientMessage *)appendOTRMessageWithImageData:(NSData *)imageData nonce:(NSUUID *)nonce;
 - (ZMAssetClientMessage *)appendOTRMessageWithFileMetadata:(ZMFileMetadata *)fileMetadata nonce:(NSUUID *)nonce;
 

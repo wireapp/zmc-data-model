@@ -1477,6 +1477,23 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
     [[NSNotificationCenter defaultCenter] postNotificationName:ZMConversationRequestToLoadConversationEventsNotification object:self userInfo:nil];
 }
 
+- (ZMClientMessage *)appendNonExpiringGenericMessage:(ZMGenericMessage *)genericMessage hidden:(BOOL)hidden
+{
+    VerifyReturnNil(genericMessage != nil);
+    
+    ZMClientMessage *message = [ZMClientMessage insertNewObjectInManagedObjectContext:self.managedObjectContext];
+    [message addData:genericMessage.data];
+    message.sender = [ZMUser selfUserInContext:self.managedObjectContext];
+    
+    if(!hidden) {
+        [self sortedAppendMessage:message];
+    }
+    else {
+        message.hiddenInConversation = self;
+    }
+    return message;
+}
+
 - (ZMClientMessage *)appendClientMessageWithData:(NSData *)data
 {
     VerifyReturnNil(data != nil);
