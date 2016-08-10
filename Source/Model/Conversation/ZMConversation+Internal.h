@@ -202,9 +202,13 @@ extern NSString *const ZMConversationLastReadLocalTimestampKey;
 - (ZMClientMessage *)appendOTRSessionResetMessage;
 - (ZMClientMessage *)appendOTRMessageWithText:(NSString *)text nonce:(NSUUID *)nonce;
 - (ZMClientMessage *)appendOTRMessageWithLocationData:(ZMLocationData *)locationData nonce:(NSUUID *)nonce;
-- (ZMClientMessage *)appendNonExpiringGenericMessage:(ZMGenericMessage *)genericMessage hidden:(BOOL)hidden;
 - (ZMAssetClientMessage *)appendOTRMessageWithImageData:(NSData *)imageData nonce:(NSUUID *)nonce;
 - (ZMAssetClientMessage *)appendOTRMessageWithFileMetadata:(ZMFileMetadata *)fileMetadata nonce:(NSUUID *)nonce;
+
+/// Appends a new message to the conversation.
+/// @param genericMessage: the generic message that should be appended
+/// @param hidden: weather the message should be hidden in the conversation or not
+- (ZMClientMessage *)appendNonExpiringGenericMessage:(ZMGenericMessage *)genericMessage hidden:(BOOL)hidden;
 
 - (void)appendNewConversationSystemMessageIfNeeded;
 

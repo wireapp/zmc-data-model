@@ -365,8 +365,11 @@ NSString * const ZMMessageSenderClientIDKey = @"senderClientID";
         return;
     }
     
-    if (nil != message) {
-        [conversation appendNewDeletedMessageForEveryoneSystemMessageWithTimestamp:message.serverTimestamp sender:message.sender];
+    ZMUser *selfUser = [ZMUser selfUserInContext:moc];
+
+    // Only clients other than self should see the system message
+    if (nil != message && ![senderID isEqual:selfUser.remoteIdentifier]) {
+        [conversation appendDeletedForEveryoneSystemMessageWithTimestamp:message.serverTimestamp sender:message.sender];
     }
     
     [message removeMessage];

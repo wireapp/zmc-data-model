@@ -35,7 +35,7 @@ extension ZMConversation {
 
 extension ZMMessage {
     
-    // NOTE:- This is a free function meant to be call from Objc because you can't call protocol extension from it
+    // NOTE: This is a free function meant to be called from Obj-C because you can't call protocol extension from it
     public static func hideMessage(message: ZMConversationMessage) {
         guard let castedMessage = message as? ZMMessage else { return }
         castedMessage.hideForSelfUser()
@@ -61,7 +61,5 @@ extension ZMMessage {
         
         conversation.appendNonExpiringGenericMessage(deletedMessage, hidden: true)
         managedObjectContext?.deleteObject(self)
-        guard let timestamp = serverTimestamp else { return }
-        conversation.appendNewDeletedMessageForEveryoneSystemMessageWithTimestamp(timestamp, sender: sender)
     }
 }

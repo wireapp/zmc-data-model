@@ -382,7 +382,7 @@
     
 }
 
-- (void)appendNewDeletedMessageForEveryoneSystemMessageWithTimestamp:(NSDate *)timestamp sender:(ZMUser *)sender
+- (void)appendDeletedForEveryoneSystemMessageWithTimestamp:(NSDate *)timestamp sender:(ZMUser *)sender
 {
     [self appendSystemMessageOfType:ZMSystemMessageTypeMessageDeletedForEveryone sender:sender users:nil clients:nil timestamp:timestamp outInsertedAtIndex:nil];
 }
