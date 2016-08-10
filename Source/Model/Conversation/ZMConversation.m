@@ -1496,11 +1496,11 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
     message.sender = [ZMUser selfUserInContext:self.managedObjectContext];
     message.isEncrypted = YES;
     
-    if(!hidden) {
-        [self sortedAppendMessage:message];
+    if(hidden) {
+        message.hiddenInConversation = self;
     }
     else {
-        message.hiddenInConversation = self;
+        [self sortedAppendMessage:message];
     }
     return message;
 }
@@ -1521,11 +1521,11 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
 {
     ZMAssetClientMessage *message = [ZMAssetClientMessage assetClientMessageWithOriginalImageData:imageData nonce:nonce managedObjectContext:self.managedObjectContext];
     message.sender = [ZMUser selfUserInContext:self.managedObjectContext];
-    if(!hidden) {
-        [self sortedAppendMessage:message];
+    if(hidden) {
+        message.hiddenInConversation = self;
     }
     else {
-        message.hiddenInConversation = self;
+        [self sortedAppendMessage:message];
     }
     return message;
 }

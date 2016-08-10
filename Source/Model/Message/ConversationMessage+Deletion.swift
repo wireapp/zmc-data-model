@@ -20,7 +20,7 @@
 import Foundation
 
 extension ZMConversation {
-    static func appendSelfConversationWithDeleteOfMessage(message: ZMMessage) {
+    static func appendHideMessageToSelfConversation(message: ZMMessage) {
         guard let messageNonce = message.nonce,
             let conversation = message.conversation,
             let convID = conversation.remoteIdentifier else {
@@ -43,7 +43,7 @@ extension ZMMessage {
     
     func hideForSelfUser() {
         guard !isZombieObject else { return }
-        ZMConversation.appendSelfConversationWithDeleteOfMessage(self)
+        ZMConversation.appendHideMessageToSelfConversation(self)
         managedObjectContext?.deleteObject(self)
     }
     
