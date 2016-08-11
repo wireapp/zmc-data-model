@@ -38,6 +38,7 @@ class ZMClientMessageTests_Deletion: BaseZMMessageTests {
         XCTAssertTrue(waitForAllGroupsToBeEmptyWithTimeout(0.5))
         
         // then
+        XCTAssertTrue(sut.hasBeenDeleted)
         XCTAssertNil(sut.visibleInConversation)
         XCTAssertEqual(sut.hiddenInConversation, conversation)
     }
@@ -57,6 +58,7 @@ class ZMClientMessageTests_Deletion: BaseZMMessageTests {
         XCTAssertTrue(waitForAllGroupsToBeEmptyWithTimeout(0.5))
         
         // then
+        XCTAssertFalse(sut.hasBeenDeleted)
         XCTAssertEqual(sut.visibleInConversation, conversation)
         XCTAssertNil(sut.hiddenInConversation)
     }
@@ -74,6 +76,7 @@ class ZMClientMessageTests_Deletion: BaseZMMessageTests {
         XCTAssertNil(sut.expirationDate)
         XCTAssertEqual(sut.hiddenInConversation, conversation)
         XCTAssertNil(sut.visibleInConversation)
+        XCTAssertTrue(sut.hasBeenDeleted)
     }
 }
 
@@ -159,6 +162,7 @@ extension ZMClientMessageTests_Deletion {
         XCTAssertTrue(waitForAllGroupsToBeEmptyWithTimeout(0.5))
         
         // then
+        XCTAssertTrue(sut.hasBeenDeleted)
         XCTAssertNil(sut.visibleInConversation)
         XCTAssertEqual(sut.hiddenInConversation, conversation)
         // No system message as the selfUser was the sender
@@ -192,6 +196,7 @@ extension ZMClientMessageTests_Deletion {
         XCTAssertTrue(waitForAllGroupsToBeEmptyWithTimeout(0.5))
         
         // then
+        XCTAssertTrue(message.hasBeenDeleted)
         XCTAssertNil(message.visibleInConversation)
         XCTAssertEqual(message.hiddenInConversation, conversation)
         XCTAssertEqual(conversation.messages.count, 1)
@@ -228,6 +233,7 @@ extension ZMClientMessageTests_Deletion {
         // then
         XCTAssertNil(sut.visibleInConversation)
         XCTAssertEqual(sut.hiddenInConversation, conversation)
+        XCTAssertTrue(sut.hasBeenDeleted)
         
         //when
         let genericMessage = ZMGenericMessage(text: name!, nonce: nonce.transportString())
@@ -241,6 +247,7 @@ extension ZMClientMessageTests_Deletion {
         // then
         XCTAssertNil(sut.visibleInConversation)
         XCTAssertEqual(sut.hiddenInConversation, conversation)
+        XCTAssertTrue(sut.hasBeenDeleted)
         print(conversation.messages)
         // No system message as the selfUser was the sender
         XCTAssertEqual(conversation.messages.count, 0)

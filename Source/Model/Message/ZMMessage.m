@@ -335,7 +335,6 @@ NSString * const ZMMessageSenderClientIDKey = @"senderClientID";
 
 - (void)removeMessage
 {
-    RequireString(self.managedObjectContext.zm_isSyncContext, "Tried to delete a message from the UI context");
     self.hiddenInConversation = self.conversation;
     self.visibleInConversation = nil;
 }
