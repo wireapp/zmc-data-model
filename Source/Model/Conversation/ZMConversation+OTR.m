@@ -380,9 +380,9 @@
 
     [self appendSystemMessageOfType:type sender:sender users:nil clients:clients timestamp:serverTimestamp outInsertedAtIndex:nil];
     
-    // This message is called from inside the `EventDecoder` when a message fails to be decrypted.
+    // This method is called from inside the `EventDecoder` when a message fails to be decrypted.
     // If this was the only message being processed the event decoder will not propagate any events to the `ZMSyncStrategy`,
-    // where a save is enqueued, to ensure we save in this case we manaully enqueue a save here.
+    // where a save is enqueued. To ensure we always save in this case we also manually enqueue a save here.
     [self.managedObjectContext enqueueDelayedSave];
 }
 
