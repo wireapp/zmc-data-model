@@ -26,7 +26,6 @@ class ManagedObjectContextObserverTests : ZMBaseManagedObjectTest {
         super.setUp()
         self.setUpCaches()
         
-//        self.uiMOC.globalManagedObjectContextObserver.propagateChanges = true
         NotificationCenter.default.post(name: Notification.Name(rawValue: "ZMApplicationDidEnterEventProcessingStateNotification"), object: nil)
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
