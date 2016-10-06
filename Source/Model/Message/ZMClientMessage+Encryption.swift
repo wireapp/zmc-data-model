@@ -99,14 +99,17 @@ extension ZMGenericMessage {
             // Reply is only supported on 1-to-1 conversations
             assert(conversation.conversationType == .oneOnOne)
             
-            // In case of confirmation messages, we want to send the confirmation only to the clients of the sender of the original message, not to everyone in the conversation
-            recipientUsers = conversation.otherActiveParticipants.array as! [ZMUser]
+            // In case of confirmation messages, we want to send the confirmation only to the clients of the sender of the original message, 
+            // not to the other clients of the selfUser
+            recipientUsers = [conversation.connectedUser!]
         } else {
             recipientUsers = conversation.activeParticipants.array as! [ZMUser]
         }
         
         let recipients = self.recipientsWithEncryptedData(selfClient, recipients: recipientUsers, sessionDirectory: sessionDirectory)
-        let message = ZMNewOtrMessage.message(withSender: selfClient, nativePush: true, recipients: recipients, blob: externalData)
+
+        let nativePush = !hasConfirmation() // We do not want to send pushes for delivery receipts
+        let message = ZMNewOtrMessage.message(withSender: selfClient, nativePush: nativePush, recipients: recipients, blob: externalData)
         
         let strategy : MissingClientsStrategy =
             replyOnlyToSender ?
