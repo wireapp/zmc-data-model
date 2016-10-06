@@ -41,9 +41,12 @@ static NSString * const DataBaseFileExtensionName = @"wiredatabase";
     
     // given
     NSManagedObjectModel *currentMom = [NSManagedObjectContext loadManagedObjectModel];
+    
+    WaitForAllGroupsToBeEmpty(0.5);
+    
     __block NSManagedObjectContext *syncContext;
     __block NSMutableArray *managedObjects = [[NSMutableArray alloc] init];
-    
+        
     // when
     [self performMockingStoreURLWithVersion:@"1.24" block:^{
 
@@ -565,6 +568,7 @@ static NSString * const DataBaseFileExtensionName = @"wiredatabase";
     NSFileManager *fm = NSFileManager.defaultManager;
     NSURL *directory = [fm URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
     [NSManagedObjectContext prepareLocalStoreSync:YES inDirectory:directory backingUpCorruptedDatabase:NO completionHandler:^{
+        [NSManagedObjectContext createUserInterfaceContextWithStoreDirectory:directory];
         syncContext = [NSManagedObjectContext createSyncContextWithStoreDirectory:directory];
     }];
 

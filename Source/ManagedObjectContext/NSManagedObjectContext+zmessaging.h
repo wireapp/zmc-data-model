@@ -29,8 +29,6 @@
 
 + (NSManagedObjectModel *)loadManagedObjectModel;
 
-- (void)ensureSingletonsExist;
-
 - (id)persistentStoreMetadataForKey:(NSString *)key;
 /// @b Important:  Setting the metadata for a store does not change the information on disk until the store is actually saved.
 - (void)setPersistentStoreMetadata:(id)metaData forKey:(NSString *)key;
