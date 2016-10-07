@@ -100,12 +100,10 @@ static BOOL storeIsReady = NO;
     [self setDatabaseDirectoryURL:directory];
 
     dispatch_block_t finally = ^() {
-        dispatch_async(dispatch_get_main_queue(), ^{
-            storeIsReady = YES;
-            if (nil != completionHandler) {
-                completionHandler();
-            }
-        });
+        storeIsReady = YES;
+        if (nil != completionHandler) {
+            completionHandler();
+        }
     };
     
     //just try to create psc, contexts will be created later when user session is initialized

@@ -567,11 +567,14 @@ static NSString * const DataBaseFileExtensionName = @"wiredatabase";
 
     NSFileManager *fm = NSFileManager.defaultManager;
     NSURL *directory = [fm URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
+    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
     [NSManagedObjectContext prepareLocalStoreSync:YES inDirectory:directory backingUpCorruptedDatabase:NO completionHandler:^{
         [NSManagedObjectContext createUserInterfaceContextWithStoreDirectory:directory];
         syncContext = [NSManagedObjectContext createSyncContextWithStoreDirectory:directory];
+        dispatch_semaphore_signal(sem);
     }];
 
+    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
     WaitForAllGroupsToBeEmpty(0.5);
     XCTAssertNotNil(syncContext);
     
