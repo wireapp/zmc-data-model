@@ -1,4 +1,4 @@
-//
+// 
 // Wire
 // Copyright (C) 2016 Wire Swiss GmbH
 // 
@@ -166,9 +166,7 @@ extension ClientMessageTests_OTR {
             }
         }
     }
-    
 }
-
 
 // MARK: - Delivery
 extension ClientMessageTests_OTR {
