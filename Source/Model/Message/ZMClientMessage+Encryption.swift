@@ -119,7 +119,7 @@ extension ZMGenericMessage {
                 if let recipient = recipient {
                     recipientUsers = [recipient]
                 } else {
-                    fatal("confirmation cannot have not recipient")
+                    fatal("confirmation need a recipient\n ConvID: \(conversation.remoteIdentifier) ConvType: \(conversation.conversationType), connection: \(conversation.connection), original message: \(self.confirmation.messageId)")
                 }
             }
         } else {
