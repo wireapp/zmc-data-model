@@ -51,6 +51,9 @@ public extension NSManagedObjectContext {
     /// Tears down zm_messageObfuscationTimer and zm_messageDeletionTimer
     /// Call inside a performGroupedBlock(AndWait) when calling it from another context
     public func zm_teardownMessageObfuscationTimer() {
+        if !zm_isSyncContext {
+            preconditionFailure("MessageObfuscationTimer is located on the syncContext")
+        }
         if let timer = userInfo[MessageObfuscationTimerKey] as? ZMMessageDestructionTimer {
             timer.tearDown()
             userInfo.removeObject(forKey: MessageObfuscationTimerKey)
@@ -60,6 +63,9 @@ public extension NSManagedObjectContext {
     /// Tears down zm_messageDeletionTimer
     /// Call inside a performGroupedBlock(AndWait) when calling it from another context
     public func zm_teardownMessageDeletionTimer() {
+        if !zm_isUserInterfaceContext {
+            preconditionFailure("MessageDeletionTimerKey is located on the uiContext")
+        }
         if let timer = userInfo[MessageDeletionTimerKey] as? ZMMessageDestructionTimer {
             timer.tearDown()
             userInfo.removeObject(forKey: MessageDeletionTimerKey)
