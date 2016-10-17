@@ -315,6 +315,8 @@ extension ZMAssetClientMessageTests_Encryption {
             expiresAfter: self.syncConversation.messageDestructionTimeout
         )
         self.syncConversation.mutableMessages.add(sut)
+        let (otrKey, sha256) = (Data.randomEncryptionKey(), Data.zmRandomSHA256Key())
+        sut.add(.genericMessage(withUploadedOTRKey: otrKey, sha256: sha256, messageID: sut.nonce.transportString(), expiresAfter: NSNumber(value: sut.deletionTimeout)))
         return sut
     }
     
@@ -325,8 +327,6 @@ extension ZMAssetClientMessageTests_Encryption {
             self.setupConversation(conversation: self.syncConversation)
             self.syncConversation.messageDestructionTimeout = 10
             let sut = self.insertFileMessage()
-            let (otrKey, sha256) = (Data.randomEncryptionKey(), Data.zmRandomSHA256Key())
-            sut.add(.genericMessage(withUploadedOTRKey: otrKey, sha256: sha256, messageID: sut.nonce.transportString(), expiresAfter: NSNumber(value: 10)))
             XCTAssertTrue(sut.isEphemeral)
 
             // when
@@ -343,8 +343,6 @@ extension ZMAssetClientMessageTests_Encryption {
             // given
             self.setupConversation(conversation: self.syncConversation)
             let sut = self.insertFileMessage()
-            let (otrKey, sha256) = (Data.randomEncryptionKey(), Data.zmRandomSHA256Key())
-            sut.add(.genericMessage(withUploadedOTRKey: otrKey, sha256: sha256, messageID: sut.nonce.transportString()))
             XCTAssertFalse(sut.isEphemeral)
 
             // when
