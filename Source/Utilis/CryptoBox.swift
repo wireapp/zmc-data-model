@@ -26,6 +26,37 @@ extension NSManagedObjectContext {
     
     fileprivate static let ZMUserClientKeysStoreKey = "ZMUserClientKeysStore"
     
+    @objc(setupUserKeyStoreForDirectory:)
+    public func setupUserKeyStore(for directory: URL) -> Void
+    {
+        if !self.zm_isSyncContext {
+            fatal("Can't initiliazie crypto box on non-sync context")
+        }
+        
+        let sharedDirectory = directory.appendingPathComponent(UserClientKeysStore.otrFolderPrefix)
+        // Moving directories needed here
+        if UserClientKeysStore.isPreviousOTRDirectoryPresent {
+            do {
+                try FileManager.default.moveItem(at: UserClientKeysStore.legacyOtrDirectory, to: sharedDirectory)
+            }
+            catch let err {
+                fatal("Cannot move legacy directory: \(err)")
+            }
+        }
+        
+        if FileManager.default.fileExists(atPath: UserClientKeysStore.otrDirectoryURL.path) {
+            do {
+                try FileManager.default.moveItem(at: UserClientKeysStore.otrDirectoryURL, to: sharedDirectory)
+            }
+            catch let err {
+                fatal("Cannot move otr to shared container \(err)")
+            }
+        }
+
+        let newKeyStore = UserClientKeysStore(in: directory)
+        self.userInfo.setObject(newKeyStore, forKey: NSManagedObjectContext.ZMUserClientKeysStoreKey as NSCopying)
+    }
+    
     /// Returns the cryptobox instance associated with this managed object context
     public var zm_cryptKeyStore : UserClientKeysStore! {
         if !self.zm_isSyncContext {
@@ -34,10 +65,10 @@ extension NSManagedObjectContext {
         let keyStore = self.userInfo.object(forKey: NSManagedObjectContext.ZMUserClientKeysStoreKey)
         if let keyStore = keyStore as? UserClientKeysStore {
             return keyStore
+        } else {
+            fatal("What?! where is your keystore?!")
         }
-        let newKeyStore = UserClientKeysStore()
-        self.userInfo.setObject(newKeyStore, forKey: NSManagedObjectContext.ZMUserClientKeysStoreKey as NSCopying)
-        return newKeyStore
+        
     }
     
     public func zm_tearDownCryptKeyStore() {
@@ -59,28 +90,18 @@ open class UserClientKeysStore: NSObject {
     open var encryptionContext : EncryptionContext
     fileprivate var internalLastPreKey: String?
     
-    public override init() {
-        encryptionContext = UserClientKeysStore.setupContext()!
+    public init(in directory: URL) {
+        encryptionContext = UserClientKeysStore.setupContext(in: directory)!
     }
     
-    static func setupContext() -> EncryptionContext? {
+    static func setupContext(in directory: URL) -> EncryptionContext? {
         let encryptionContext : EncryptionContext
         do {
-            if self.isPreviousOTRDirectoryPresent {
-                do {
-                    try FileManager.default.moveItem(at: self.legacyOtrDirectory, to: self.otrDirectoryURL)
-                }
-                catch let err {
-                    fatal("Cannot move legacy directory: \(err)")
-                }
-            }
-            
-            let otrDirectoryURL = UserClientKeysStore.otrDirectory
-            encryptionContext = EncryptionContext(path: otrDirectoryURL)
-            try (otrDirectoryURL as NSURL).setResourceValue(true, forKey: URLResourceKey.isExcludedFromBackupKey)
+            encryptionContext = EncryptionContext(path: directory)
+            try (finalURL as NSURL).setResourceValue(true, forKey: URLResourceKey.isExcludedFromBackupKey)
 
             let attributes = [FileAttributeKey.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication]
-            try FileManager.default.setAttributes(attributes, ofItemAtPath: otrDirectoryURL.path)
+            try FileManager.default.setAttributes(attributes, ofItemAtPath: directory.path)
 
             return encryptionContext
         }
@@ -95,9 +116,6 @@ open class UserClientKeysStore: NSObject {
         let fm = FileManager.default
         _ = try? fm.removeItem(at: UserClientKeysStore.otrDirectory)
         internalLastPreKey = nil
-        
-         encryptionContext = UserClientKeysStore.setupContext()!
-        
     }
     
     /// Legacy URL for cryptobox storage (transition phase)
@@ -127,6 +145,14 @@ open class UserClientKeysStore: NSObject {
                 fatal("Unable to initialize otrDirectory = error: \(err)")
             }
         }
+        return url!
+    }
+    
+    static open var sharedOtrDirectoryURL : URL {
+        var url : URL?
+        url = try! FileManager.default.url(for: FileManager.SearchPathDirectory.sharedPublicDirectory, in: FileManager.SearchPathDomainMask.userDomainMask, appropriateFor: nil, create: false)
+        url = url!.appendingPathComponent(otrFolderPrefix)
+        
         return url!
     }
     

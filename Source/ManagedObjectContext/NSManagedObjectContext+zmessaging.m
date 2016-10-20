@@ -205,6 +205,7 @@ static BOOL storeIsReady = NO;
         [moc markAsSyncContext];
         [moc configureWithPersistentStoreCoordinator:psc];
         [moc setupLocalCachedSessionAndSelfUser];
+        [moc setupUserKeyStoreForDirectory:storeDirectory]; //TODO: implement this
         moc.undoManager = nil;
         moc.mergePolicy = [[ZMSyncMergePolicy alloc] initWithMergeType:NSMergeByPropertyObjectTrumpMergePolicyType];
     }];
