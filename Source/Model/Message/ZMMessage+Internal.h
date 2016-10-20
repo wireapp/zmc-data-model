@@ -25,8 +25,6 @@
 #import "ZMManagedObject+Internal.h"
 #import "ZMFetchRequestBatch.h"
 
-
-@class ZMEventID;
 @class ZMUser;
 @class Reaction;
 @class ZMConversation;
@@ -164,7 +162,6 @@ inManagedObjectContext:(NSManagedObjectContext * _Nonnull)moc;
 @interface ZMMessage ()
 
 @property (nonatomic) NSString * _Nullable senderClientID;
-@property (nonatomic) ZMEventID * _Nullable eventID;
 @property (nonatomic) NSUUID * _Null_unspecified nonce;
 @property (nonatomic, readonly) NSDate * _Nullable destructionDate;
 
@@ -205,8 +202,6 @@ inManagedObjectContext:(NSManagedObjectContext * _Nonnull)moc;
 /// Returns a predicate that matches messages that might expire if they are not sent in time
 + (NSPredicate * _Nonnull)predicateForMessagesThatWillExpire;
 
-/// Adds the event ID of the update event to the list of downloaded event IDs in the conversation
-+ (void)addEventToDownloadedEvents:(ZMUpdateEvent * _Nonnull)event inConversation:(ZMConversation * _Nonnull)conversation;
 
 + (void)setDefaultExpirationTime:(NSTimeInterval)defaultExpiration;
 + (NSTimeInterval)defaultExpirationTime;
@@ -226,8 +221,8 @@ inManagedObjectContext:(NSManagedObjectContext * _Nonnull)moc;
 - (void)updateWithUpdateEvent:(ZMUpdateEvent * _Nonnull)updateEvent forConversation:(ZMConversation * _Nonnull)conversation isUpdatingExistingMessage:(BOOL)isUpdate;
 
 - (void)removePendingDeliveryReceipts;
+- (void)updateWithTimestamp:(NSDate * _Nonnull)serverTimestamp senderUUID:(NSUUID * _Nonnull)senderUUID forConversation:(ZMConversation * _Nonnull)conversation isUpdatingExistingMessage:(BOOL)isUpdate;
 
-- (void)updateWithTimestamp:(NSDate * _Nonnull)serverTimestamp senderUUID:(NSUUID * _Nonnull)senderUUID eventID:(ZMEventID * _Nullable)eventID forConversation:(ZMConversation * _Nonnull)conversation isUpdatingExistingMessage:(BOOL)isUpdate;
 
 /// Returns whether the data represents animated GIF
 + (BOOL)isDataAnimatedGIF:(NSData * _Nonnull)data;

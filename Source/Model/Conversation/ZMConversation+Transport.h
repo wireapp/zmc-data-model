@@ -32,10 +32,6 @@ extern NSString *const ZMConversationInfoOTRMutedReferenceKey;
 extern NSString *const ZMConversationInfoOTRArchivedValueKey;
 extern NSString *const ZMConversationInfoOTRArchivedReferenceKey;
 
-extern NSString *const ZMConversationInfoArchivedValueKey;
-extern NSString *const ZMConversationInfoMutedValueKey;
-extern NSString *const ZMConversationInfoClearedValueKey;
-
 @interface ZMConversation (Transport)
 
 - (void)updateLastReadFromPostPayloadEvent:(ZMUpdateEvent *)event;

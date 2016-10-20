@@ -95,12 +95,6 @@
     }
 }
 
-
-- (ZMEventID *)eventID
-{
-    return [self.payload optionalEventForKey:@"id"];
-}
-
 - (NSDate *)timeStamp
 {
     if (self.isTransient || self.type == ZMUpdateEventCallState || self.type == ZMUpdateEventUserConnection) {

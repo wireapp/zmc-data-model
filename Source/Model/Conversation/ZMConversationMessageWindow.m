@@ -92,11 +92,6 @@ typedef NS_ENUM(int, ZMMessageWindowEvent) {
     const NSUInteger numberOfMessages = self.activeSize;
     const NSRange range = NSMakeRange(messages.count - numberOfMessages, numberOfMessages);
     NSMutableOrderedSet *newMessages = [NSMutableOrderedSet orderedSetWithOrderedSet:messages range:range copyItems:NO];
-    if (self.conversation.clearedEventID != nil) {
-        [newMessages filterUsingPredicate:[NSPredicate predicateWithFormat:@"%K == NULL OR %K > conversation.%K",
-                                                                     ZMMessageEventIDDataKey,
-                                                                     ZMMessageEventIDDataKey, ZMConversationClearedEventIDDataKey]];
-    }
     [self.mutableMessages removeAllObjects];
     [self.mutableMessages unionOrderedSet:newMessages];
 }

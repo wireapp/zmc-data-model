@@ -29,11 +29,8 @@
 
 @class ZMClientMessage;
 @class ZMAssetClientMessage;
-@class ZMEventID;
-@class ZMEventIDRangeSet;
 @class ZMConnection;
 @class ZMUser;
-@class ZMEventIDRange;
 @class ZMConversationMessageWindow;
 @class ZMConversationList;
 @class ZMLastRead;
@@ -72,9 +69,6 @@ extern NSString *const ZMConversationLastServerTimeStampKey;
 extern NSString *const ZMConversationClearedTimeStampKey;
 extern NSString *const ZMConversationArchivedChangedTimeStampKey;
 extern NSString *const ZMConversationSilencedChangedTimeStampKey;
-
-extern NSString *const ZMConversationClearedEventIDDataKey;
-extern NSString *const ZMConversationClearedEventIDKey;
 
 extern NSString *const ZMNotificationConversationKey;
 
@@ -140,11 +134,6 @@ NS_ASSUME_NONNULL_END
 
 @property (nonatomic) BOOL internalIsArchived;
 
-@property (nonatomic, nullable) ZMEventID *lastEventID;
-@property (nonatomic, nullable) ZMEventID *lastReadEventID;
-@property (nonatomic, readonly, nullable) ZMEventID *archivedEventID;
-@property (nonatomic, nullable) ZMEventID *clearedEventID;
-
 @property (nonatomic, nullable) NSDate *lastServerTimeStamp;
 @property (nonatomic, nullable) NSDate *lastReadServerTimeStamp;
 @property (nonatomic, nullable) NSDate *clearedTimeStamp;
@@ -159,7 +148,6 @@ NS_ASSUME_NONNULL_END
 @property (nonatomic, nonnull) ZMUser *creator;
 @property (nonatomic, nullable) NSDate *lastModifiedDate;
 @property (nonatomic) ZMConversationType conversationType;
-@property (nonatomic, nullable) ZMEventIDRangeSet *downloadedMessageIDs;
 @property (nonatomic, copy, nullable) NSString *normalizedUserDefinedName;
 @property (nonatomic) NSTimeInterval lastReadEventIDSaveDelay;
 @property (nonatomic) BOOL callStateNeedsToBeUpdatedFromBackend;
@@ -195,7 +183,7 @@ NS_ASSUME_NONNULL_END
 + (nonnull ZMConversation *)selfConversationInContext:(nonnull NSManagedObjectContext *)managedObjectContext;
 
 
-- (void)updateWithMessage:(nonnull ZMMessage *)message timeStamp:(nullable NSDate *)timeStamp eventID:(nullable ZMEventID *)eventID;
+- (void)updateWithMessage:(nonnull ZMMessage *)message timeStamp:(nullable NSDate *)timeStamp;
 
 /// This method loads messages in a window when there are NO visible messages
 - (void)startFetchingMessages;
@@ -256,23 +244,6 @@ NS_ASSUME_NONNULL_END
 
 /// List of users which have been added to the conversation locally but not one the backend
 @property (readonly, nonatomic, nullable) NSOrderedSet<ZMUser *> *unsyncedActiveParticipants;
-
-@end
-
-
-
-@interface ZMConversation (DownloadedMessagesGaps)
-
-- (void)addEventToDownloadedEvents:(nullable ZMEventID *)eventID timeStamp:(nullable NSDate *)timeStamp;
-- (void)addEventRangeToDownloadedEvents:(nullable ZMEventIDRange *)eventIDRange;
-
-
-/// Returns the last gap in messages inside the given visible window + window bleed of 50
-- (nullable ZMEventIDRange *)lastEventIDGapForVisibleWindow:(nullable ZMEventIDRange *)visibleWindow;
-
-/// Returns the last gap in messages inside the entire conversation
-- (nullable ZMEventIDRange *)lastEventIDGap;
-
 
 @end
 
