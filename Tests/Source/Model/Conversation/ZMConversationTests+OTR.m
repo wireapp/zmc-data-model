@@ -27,6 +27,17 @@
 
 @implementation ZMConversationTests (OTR)
 
+- (void)setUp;
+{
+    [super setUp];
+    
+    [self performPretendingUiMocIsSyncMoc:^{
+        [self.uiMOC setupUserKeyStoreForDirectory:self.testSession.databaseDirectory];
+    }];
+    
+}
+
+
 - (NSArray<ZMUser *> *)createUsersWithClientsOnSyncMOC
 {
     self.selfUser = [ZMUser selfUserInContext:self.syncMOC];

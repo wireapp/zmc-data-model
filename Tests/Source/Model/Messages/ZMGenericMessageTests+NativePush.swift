@@ -37,6 +37,10 @@ class GenericMessageTests_NativePush: BaseZMMessageTests {
     }
 
     func assertThatItSetsNativePush(to nativePush: Bool, for message: ZMGenericMessage, line: UInt = #line) {
+        self.performPretendingUiMocIsSyncMoc {
+            self.uiMOC.setupUserKeyStore(for: self.testSession.databaseDirectory)
+        }
+        
         createSelfClient()
 
         syncMOC.performGroupedBlock {

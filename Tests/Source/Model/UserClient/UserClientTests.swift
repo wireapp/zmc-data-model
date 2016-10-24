@@ -26,6 +26,16 @@ class UserClientTests: ZMBaseManagedObjectTest {
     override func setUp() {
         super.setUp()
         self.setUpCaches()
+        
+        self.performPretendingUiMocIsSyncMoc {
+            self.uiMOC.setupUserKeyStore(for: self.testSession.databaseDirectory)
+        }
+    }
+    
+    override func tearDown() {
+        
+        
+        super.tearDown()
     }
     
     func clientWithTrustedClientCount(_ trustedCount: UInt, ignoredClientCount: UInt, missedClientCount: UInt) -> UserClient

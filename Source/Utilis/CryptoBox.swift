@@ -53,7 +53,7 @@ extension NSManagedObjectContext {
             }
         }
 
-        let newKeyStore = UserClientKeysStore(in: directory)
+        let newKeyStore = UserClientKeysStore(in: sharedDirectory)
         self.userInfo.setObject(newKeyStore, forKey: NSManagedObjectContext.ZMUserClientKeysStoreKey as NSCopying)
     }
     
@@ -97,8 +97,11 @@ open class UserClientKeysStore: NSObject {
     static func setupContext(in directory: URL) -> EncryptionContext? {
         let encryptionContext : EncryptionContext
         do {
+            if !FileManager.default.fileExists(atPath: directory.path) {
+                try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true, attributes: nil)
+            }
             encryptionContext = EncryptionContext(path: directory)
-            try (finalURL as NSURL).setResourceValue(true, forKey: URLResourceKey.isExcludedFromBackupKey)
+            try (directory as NSURL).setResourceValue(true, forKey: URLResourceKey.isExcludedFromBackupKey)
 
             let attributes = [FileAttributeKey.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication]
             try FileManager.default.setAttributes(attributes, ofItemAtPath: directory.path)
