@@ -112,7 +112,7 @@ extension ZMMessageTests_Confirmation {
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         XCTAssertTrue(uiMOC.saveOrRollback())
         
-        guard let confirmation = message.confirmations?.first else {
+        guard let confirmation = message.confirmations.first else {
             XCTFail()
             return
         }
@@ -306,7 +306,7 @@ extension ZMMessageTests_Confirmation {
     
     func insertMessage(_ conversation: ZMConversation, fromSender: ZMUser? = nil, moc: NSManagedObjectContext? = nil, eventSource: ZMUpdateEventSource = .download) -> MessageUpdateResult {
         let nonce = UUID.create()
-        let genericMessage = ZMGenericMessage(text: "foo", nonce: nonce.transportString())
+        let genericMessage = ZMGenericMessage.message(text: "foo", nonce: nonce.transportString())
         let messageEvent = createUpdateEvent(nonce, conversationID: conversation.remoteIdentifier!, genericMessage: genericMessage, senderID: fromSender?.remoteIdentifier ?? UUID.create(), eventSource: eventSource)
         
         var messageUpdateResult : MessageUpdateResult!

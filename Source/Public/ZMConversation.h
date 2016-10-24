@@ -68,15 +68,11 @@ extern NSString * _Null_unspecified const ZMConversationIsVerifiedNotificationNa
 
 @property (nonatomic, copy, nullable) NSString *userDefinedName;
 @property (nonatomic, readonly, nonnull) NSString *displayName;
-@property (nonatomic, readonly, nonnull) NSAttributedString *attributedDisplayName; ///< Uses @c ZMIsDimmedKey for parts that should be dimmed.
 
 @property (readonly, nonatomic) ZMConversationType conversationType;
 @property (readonly, nonatomic, nonnull) NSDate *lastModifiedDate;
 @property (readonly, nonatomic, nonnull) NSOrderedSet *messages;
 @property (readonly, nonatomic, nonnull) NSOrderedSet<ZMUser *> *activeParticipants;
-@property (readonly, nonatomic, nonnull) NSOrderedSet<ZMUser *> *inactiveParticipants;
-// The union of inactive and active participants.
-@property (readonly, nonatomic, nonnull) NSOrderedSet<ZMUser *> *allParticipants;
 @property (readonly, nonatomic, nonnull) ZMUser *creator;
 @property (nonatomic, readonly) BOOL isPendingConnectionConversation;
 @property (nonatomic, readonly) NSUInteger estimatedUnreadCount;
@@ -104,6 +100,11 @@ extern NSString * _Null_unspecified const ZMConversationIsVerifiedNotificationNa
 
 /// For group conversation this will be nil, for one to one or connection conversation this will be the other user
 @property (nonatomic, readonly, nullable) ZMUser *connectedUser;
+
+/// Defines the time interval until an inserted messages is deleted / "self-destructs" on all clients
+/// Use [updateMessageDestructionTimeout:(ZMConversationMessageDestructionTimeout)timeout] for setting it
+/// Or import the internal header for testing
+@property (nonatomic, readonly) NSTimeInterval messageDestructionTimeout;
 
 - (void)addParticipant:(nonnull ZMUser *)participant;
 - (void)removeParticipant:(nonnull ZMUser *)participant;
@@ -161,6 +162,5 @@ extern NSString * _Null_unspecified const ZMConversationIsVerifiedNotificationNa
 @property (nonatomic, copy, readonly, nonnull) NSString *connectionMessage;
 
 @end
-
 
 

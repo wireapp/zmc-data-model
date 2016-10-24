@@ -111,7 +111,6 @@ static NSString *const LastReadEventIDKey = @"lastReadEventID";
 static NSString *const LastReadMessageKey = @"lastReadMessage";
 static NSString *const LastServerSyncedActiveParticipantsKey = @"lastServerSyncedActiveParticipants";
 static NSString *const NeedsToBeUpdatedFromBackendKey = @"needsToBeUpdatedFromBackend";
-static NSString *const OtherInactiveParticipantsKey = @"otherInactiveParticipants";
 static NSString *const RemoteIdentifierKey = @"remoteIdentifier";
 static NSString *const VoiceChannelKey = @"voiceChannel";
 static NSString *const VoiceChannelStateKey = @"voiceChannelState";
@@ -119,6 +118,7 @@ static NSString *const CallDeviceIsActiveKey = @"callDeviceIsActive";
 static NSString *const IsFlowActiveKey = @"isFlowActive";
 
 static NSString *const SecurityLevelKey = @"securityLevel";
+static NSString *const MessageDestructionTimeoutKey = @"messageDestructionTimeout";
 
 
 NSTimeInterval ZMConversationDefaultLastReadEventIDSaveDelay = 3.0;
@@ -161,7 +161,6 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
 @property (nonatomic) ZMVoiceChannel *primitiveVoiceChannel;
 
 @property (nonatomic) ZMConversationSecurityLevel securityLevel;
-
 @end
 
 
@@ -186,6 +185,7 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
 @dynamic internalIsArchived;
 @dynamic archivedChangedTimestamp;
 @dynamic silencedChangedTimestamp;
+@dynamic messageDestructionTimeout;
 
 @synthesize tempMaximumLastReadEventID;
 @synthesize tempMaxLastReadServerTimeStamp;
@@ -335,39 +335,6 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
     return [NSSet setWithObjects:ZMConversationOtherActiveParticipantsKey, ZMConversationIsSelfAnActiveMemberKey, nil];
 }
 
--(NSOrderedSet *)inactiveParticipants
-{
-    if (self.conversationType != ZMConversationTypeGroup) {
-        return [NSOrderedSet orderedSet];
-    }
-    if(self.isSelfAnActiveMember)
-    {
-        return self.otherInactiveParticipants;
-    }
-    else {
-        NSMutableOrderedSet *otherInactive = [self.otherInactiveParticipants mutableCopy];
-        [otherInactive addObject:[ZMUser selfUserInContext:self.managedObjectContext]];
-        return otherInactive;
-    }
-}
-
-+ (NSSet *)keyPathsForValuesAffectingInactiveParticipants
-{
-    return [NSSet setWithObjects:OtherInactiveParticipantsKey, ZMConversationIsSelfAnActiveMemberKey, nil];
-}
-
-- (NSOrderedSet *)allParticipants;
-{
-    NSMutableOrderedSet *result = [self.activeParticipants mutableCopy];
-    [result unionOrderedSet:self.inactiveParticipants];
-    return result;
-}
-
-+ (NSSet *)keyPathsForValuesAffectingAllParticipants;
-{
-    return [NSSet setWithObjects:ZMConversationOtherActiveParticipantsKey, OtherInactiveParticipantsKey, ZMConversationIsSelfAnActiveMemberKey, nil];
-}
-
 - (ZMUser *)connectedUser
 {
     if(self.conversationType == ZMConversationTypeOneOnOne || self.conversationType == ZMConversationTypeConnection) {
@@ -415,7 +382,6 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
             LastServerSyncedActiveParticipantsKey,
             ZMNormalizedUserDefinedNameKey,
             ZMConversationOtherActiveParticipantsKey,
-            OtherInactiveParticipantsKey,
             VoiceChannelKey,
             ZMConversationArchivedEventIDKey,
             ZMConversationHasUnreadMissedCallKey,
@@ -429,7 +395,8 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
             ZMConversationLastReadLocalTimestampKey,
             ZMConversationInternalEstimatedUnreadCountKey,
             ZMConversationIsArchivedKey,
-            ZMConversationIsSilencedKey
+            ZMConversationIsSilencedKey,
+            MessageDestructionTimeoutKey,
         };
         
         NSSet *additionalKeys = [NSSet setWithObjects:KeysIgnoredForTrackingModifications count:(sizeof(KeysIgnoredForTrackingModifications) / sizeof(*KeysIgnoredForTrackingModifications))];
@@ -452,33 +419,12 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
     return [NSSet setWithObjects:ConversationTypeKey, ZMConversationIsSelfAnActiveMemberKey, nil];
 }
 
-- (NSString *)displayName
-{
-    NSAttributedString *s = self.attributedDisplayName;
-    NSString *result;
-    if (0 < s.length) {
-        // Get the range of the first part that is not dimmed:
-        NSRange range = {};
-        NSNumber *isDimmed = [s attribute:ZMIsDimmedKey atIndex:0 longestEffectiveRange:&range inRange:NSMakeRange(0, s.length)];
-        if (! [isDimmed boolValue]) {
-            result = [s.string substringWithRange:range];
-        }
-    }
-    if ((result.length < 1) && (self.conversationType == ZMConversationTypeGroup)) {
-        return NSLocalizedString(@"conversation.displayname.emptygroup", @"");
-    }
-    return result ?: @"";
-}
-
 + (NSSet *)keyPathsForValuesAffectingAttributedDisplayName;
 {
-    NSMutableSet *finalSet = [NSMutableSet setWithSet:[ZMConversation keyPathsForValuesAffectingDisplayName]];
-    [finalSet addObject: [NSString stringWithFormat:@"%@.%@", OtherInactiveParticipantsKey, @"displayName"]];
-
-    return finalSet;
+    return [ZMConversation keyPathsForValuesAffectingDisplayName];
 }
 
-- (NSAttributedString *)attributedDisplayName
+- (NSString *)displayName
 {
     switch (self.conversationType) {
         case ZMConversationTypeConnection:
@@ -487,12 +433,11 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
             if (name.length == 0) {
                 name = self.userDefinedName;
             }
-            return [[NSAttributedString alloc] initWithString:name ?: @"…"];
+            return name ?: @"…";
         }
-            break;
         case ZMConversationTypeGroup:
             if (0 < self.userDefinedName.length) {
-                return [[NSAttributedString alloc] initWithString:self.userDefinedName];
+                return self.userDefinedName;
             }
             else {
                 ZMUser *selfUser = [ZMUser selfUserInContext:self.managedObjectContext];
@@ -503,52 +448,30 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
                     return user.displayName;
                 }];
                 
-                NSArray *inactiveNames = [self.otherInactiveParticipants.array mapWithBlock:^NSString*(ZMUser *user) {
-                    if(user == selfUser || user.name.length < 1) {
-                        return nil;
-                    }
-                    return user.displayName;
-                }];
                 
                 NSString *joiner = @", ";
-                NSDictionary *dimmed = @{ZMIsDimmedKey: @YES};
                 NSString *activeNamesString = [activeNames componentsJoinedByString:joiner];
-                NSString *inactiveNamesString = [inactiveNames componentsJoinedByString:joiner];
-                
-                NSMutableAttributedString *allNames = [[NSMutableAttributedString alloc] initWithString:activeNamesString attributes:@{}];
-                
-                if (inactiveNamesString.length > 0) {
-                    NSAttributedString *attributedInactiveNames = [[NSAttributedString alloc] initWithString:inactiveNamesString attributes:dimmed];
-                    [allNames appendAttributedString:[[NSAttributedString alloc] initWithString:joiner attributes:dimmed]];
-                    [allNames appendAttributedString:attributedInactiveNames];
-                }
-                
-                return allNames;
+                return activeNamesString;
             }
-            
-            break;
             
         case ZMConversationTypeOneOnOne:
         {
             ZMUser *other = self.otherActiveParticipants.firstObject ?: self.connectedUser;
             NSString *name = other.name;
             if (0 < name.length) {
-                return [[NSAttributedString alloc] initWithString:name];
+                return name;
             }
             else {
                 // The user is most probably deleted
-                return [[NSAttributedString alloc] initWithString:@"…"];
+                return @"…";
             }
         }
-            break;
             
         case ZMConversationTypeSelf:
-            return [[NSAttributedString alloc] initWithString:[ZMUser selfUserInContext:self.managedObjectContext].displayName ?: @""];
-            break;
+            return [ZMUser selfUserInContext:self.managedObjectContext].displayName ?: @"";
             
         case ZMConversationTypeInvalid:
-            return [[NSAttributedString alloc] initWithString:@""];
-            break;
+            return @"";
     }
 }
 
@@ -725,6 +648,7 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
         NOT_USED(oldestMessage);
         newestMessage = tempMsg;
     }
+
     [self updateLastReadServerTimeStampWithMessage:newestMessage];
     
     NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
@@ -1102,6 +1026,7 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
 @dynamic normalizedUserDefinedName;
 @dynamic callStateNeedsToBeUpdatedFromBackend;
 @dynamic hiddenMessages;
+@dynamic messageDestructionTimeout;
 
 
 + (NSPredicate *)callConversationPredicate;
@@ -1480,9 +1405,6 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
     return [ZMConversation conversationWithRemoteID:selfUserID createIfNeeded:NO inContext:managedObjectContext];
 }
 
-
-
-
 - (void)startFetchingMessages
 {
     [[NSNotificationCenter defaultCenter] postNotificationName:ZMConversationRequestToLoadConversationEventsNotification object:self userInfo:nil];
@@ -1523,7 +1445,7 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
 
 - (ZMAssetClientMessage *)appendAssetClientMessageWithNonce:(NSUUID *)nonce hidden:(BOOL)hidden imageData:(NSData *)imageData
 {
-    ZMAssetClientMessage *message = [ZMAssetClientMessage assetClientMessageWithOriginalImageData:imageData nonce:nonce managedObjectContext:self.managedObjectContext];
+    ZMAssetClientMessage *message = [ZMAssetClientMessage assetClientMessageWithOriginalImageData:imageData nonce:nonce managedObjectContext:self.managedObjectContext expiresAfter:self.messageDestructionTimeout];
     message.sender = [ZMUser selfUserInContext:self.managedObjectContext];
     if(hidden) {
         message.hiddenInConversation = self;
@@ -1536,7 +1458,7 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
 
 - (ZMAssetClientMessage *)appendOTRMessageWithFileMetadata:(ZMFileMetadata *)fileMetadata nonce:(NSUUID *)nonce
 {
-    ZMAssetClientMessage *message = [ZMAssetClientMessage assetClientMessageWithFileMetadata:fileMetadata nonce:nonce managedObjectContext:self.managedObjectContext];
+    ZMAssetClientMessage *message = [ZMAssetClientMessage assetClientMessageWithFileMetadata:fileMetadata nonce:nonce managedObjectContext:self.managedObjectContext expiresAfter:self.messageDestructionTimeout];
     message.sender = [ZMUser selfUserInContext:self.managedObjectContext];
     message.isEncrypted = YES;
     [self sortedAppendMessage:message];
@@ -1545,7 +1467,7 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
 
 - (ZMClientMessage *)appendOTRMessageWithLocationData:(ZMLocationData *)locationData nonce:(NSUUID *)nonce
 {
-    ZMGenericMessage *genericMessage = [ZMGenericMessage genericMessageWithLocation:locationData.zmLocation messageID:nonce.transportString];
+    ZMGenericMessage *genericMessage = [ZMGenericMessage genericMessageWithLocation:locationData.zmLocation messageID:nonce.transportString expiresAfter:@(self.messageDestructionTimeout)];
     ZMClientMessage *message = [self appendClientMessageWithData:genericMessage.data];
     message.isEncrypted = YES;
     return message;
@@ -1553,7 +1475,7 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
 
 - (ZMClientMessage *)appendOTRKnockMessageWithNonce:(NSUUID *)nonce
 {
-    ZMGenericMessage *genericMessage = [ZMGenericMessage knockWithNonce:nonce.transportString];
+    ZMGenericMessage *genericMessage = [ZMGenericMessage knockWithNonce:nonce.transportString expiresAfter:@(self.messageDestructionTimeout)];
     ZMClientMessage *message = [self appendClientMessageWithData:genericMessage.data];
     message.isEncrypted = YES;
     return message;
@@ -1561,7 +1483,7 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
 
 - (ZMClientMessage *)appendOTRMessageWithText:(NSString *)text nonce:(NSUUID *)nonce
 {
-    ZMGenericMessage *genericMessage = [ZMGenericMessage messageWithText:text nonce:nonce.transportString];
+    ZMGenericMessage *genericMessage = [ZMGenericMessage messageWithText:text nonce:nonce.transportString expiresAfter:@(self.messageDestructionTimeout)];
     ZMClientMessage *message = [self appendClientMessageWithData:genericMessage.data];
     message.linkPreviewState = ZMLinkPreviewStateWaitingToBeProcessed;
     message.isEncrypted = YES;
@@ -1761,7 +1683,6 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
         self.needsToBeUpdatedFromBackend = YES;
     } else {
         [self.mutableOtherActiveParticipants addObject:participant];
-        [self.mutableOtherInactiveParticipants removeObject:participant];
         if(isAuthoritative) {
             [self.mutableLastServerSyncedActiveParticipants addObject:participant];
         }
@@ -1784,18 +1705,11 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
         return;
     }
     [self.mutableOtherActiveParticipants removeObject:participant];
-    [self.mutableOtherInactiveParticipants addObject:participant];
     [self increaseSecurityLevelIfNeededAfterRemovingClientForUser:participant];
 }
 
 @dynamic isSelfAnActiveMember;
 @dynamic otherActiveParticipants;
-@dynamic otherInactiveParticipants;
-
-- (NSMutableOrderedSet *)mutableOtherInactiveParticipants;
-{
-    return [self mutableOrderedSetValueForKey:OtherInactiveParticipantsKey];
-}
 
 - (NSMutableOrderedSet *)mutableOtherActiveParticipants;
 {
