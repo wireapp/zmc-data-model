@@ -23,16 +23,6 @@ import Cryptobox
 
 class CryptoBoxTest: OtrBaseTest {
     
-    override func setUp() {
-        try! FileManager.default.createDirectory(at: UserClientKeysStore.otrDirectoryURL, withIntermediateDirectories: true, attributes: nil)
-    }
-    
-    override func tearDown() {
-        if FileManager.default.fileExists(atPath: UserClientKeysStore.otrDirectoryURL.path) {
-            try! FileManager.default.removeItem(at: UserClientKeysStore.otrDirectoryURL)
-        }
-    }
-    
     func testThatCryptoBoxFolderIsForbiddenFromBackup() {
         // when
         _ = UserClientKeysStore.setupContext(in: UserClientKeysStore.otrDirectoryURL)

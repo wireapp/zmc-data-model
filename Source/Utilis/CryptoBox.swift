@@ -35,23 +35,6 @@ extension NSManagedObjectContext {
         
         let sharedDirectory = directory.appendingPathComponent(UserClientKeysStore.otrFolderPrefix)
         // Moving directories needed here
-        if UserClientKeysStore.isPreviousOTRDirectoryPresent {
-            do {
-                try FileManager.default.moveItem(at: UserClientKeysStore.legacyOtrDirectory, to: sharedDirectory)
-            }
-            catch let err {
-                fatal("Cannot move legacy directory: \(err)")
-            }
-        }
-        
-        if FileManager.default.fileExists(atPath: UserClientKeysStore.otrDirectoryURL.path) {
-            do {
-                try FileManager.default.moveItem(at: UserClientKeysStore.otrDirectoryURL, to: sharedDirectory)
-            }
-            catch let err {
-                fatal("Cannot move otr to shared container \(err)")
-            }
-        }
 
         let newKeyStore = UserClientKeysStore(in: sharedDirectory)
         self.userInfo.setObject(newKeyStore, forKey: NSManagedObjectContext.ZMUserClientKeysStoreKey as NSCopying)
@@ -97,6 +80,24 @@ open class UserClientKeysStore: NSObject {
     static func setupContext(in directory: URL) -> EncryptionContext? {
         let encryptionContext : EncryptionContext
         do {
+            if UserClientKeysStore.isPreviousOTRDirectoryPresent {
+                do {
+                    try FileManager.default.moveItem(at: UserClientKeysStore.legacyOtrDirectory, to: directory)
+                }
+                catch let err {
+                    fatal("Cannot move legacy directory: \(err)")
+                }
+            }
+            
+            if FileManager.default.fileExists(atPath: UserClientKeysStore.otrDirectoryURL.path) {
+                do {
+                    try FileManager.default.moveItem(at: UserClientKeysStore.otrDirectoryURL, to: directory)
+                }
+                catch let err {
+                    fatal("Cannot move otr to shared container \(err)")
+                }
+            }
+
             if !FileManager.default.fileExists(atPath: directory.path) {
                 try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true, attributes: nil)
             }

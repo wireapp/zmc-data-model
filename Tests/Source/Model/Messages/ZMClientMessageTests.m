@@ -43,10 +43,6 @@
 {
     [super setUp];
     [self setUpCaches];
-    
-    [self performPretendingUiMocIsSyncMoc:^{
-        [self.uiMOC setupUserKeyStoreForDirectory:self.testSession.databaseDirectory];
-    }];
 }
 
 - (void)testThatItDoesNotCreateTextMessagesFromUpdateEventIfThereIsAlreadyAClientMessageWithTheSameNonce
@@ -670,12 +666,6 @@
 {
     // given
     [self.syncMOC performGroupedBlockAndWait:^{
-        
-        [self performPretendingUiMocIsSyncMoc:^{
-            [self.uiMOC setupUserKeyStoreForDirectory:self.testSession.databaseDirectory];
-        }];
-        
-        
         [self createSelfClient];
         ZMUser *otherUser = [ZMUser insertNewObjectInManagedObjectContext:self.syncMOC];
         otherUser.remoteIdentifier = NSUUID.createUUID;
