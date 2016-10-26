@@ -373,6 +373,7 @@
 
     ZMConversationMessageWindow *sut = [conversation conversationWindowWithSize:30];
     ZMClientMessage *newMessage = [ZMClientMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    newMessage.isEncrypted = YES;
     [conversation.mutableMessages addObject:newMessage];
 
     // when

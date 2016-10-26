@@ -94,8 +94,8 @@ typedef NS_ENUM(int, ZMMessageWindowEvent) {
     const NSRange range = NSMakeRange(messages.count - numberOfMessages, numberOfMessages);
     NSMutableOrderedSet *newMessages = [NSMutableOrderedSet orderedSetWithOrderedSet:messages range:range copyItems:NO];
     if (self.conversation.clearedTimeStamp != nil) {
-        [newMessages filterUsingPredicate:[NSPredicate predicateWithFormat:@"(self isKindOfClass: %@ AND %K == 0) OR %K > conversation.%K",
-                                           [ZMOTRMessage class], DeliveredKey,
+        [newMessages filterUsingPredicate:[NSPredicate predicateWithFormat:@"(%K == TRUE AND %K == FALSE) OR %K > conversation.%K",
+                                           ZMMessageIsEncryptedKey, DeliveredKey,
                                            ZMMessageServerTimestampKey, ZMConversationClearedTimeStampKey]];
     }
     [self.mutableMessages removeAllObjects];

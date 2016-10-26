@@ -42,7 +42,7 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
 @interface ZMBaseManagedObjectTest ()
 
 @property (nonatomic) ZMTestSession *testSession;
-@property (nonatomic) NSTimeInterval originalConversationLastReadEventIDTimerValue; // this will speed up the tests A LOT
+@property (nonatomic) NSTimeInterval originalConversationLastReadTimestampTimerValue; // this will speed up the tests A LOT
 
 @end
 
