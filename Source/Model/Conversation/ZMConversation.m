@@ -46,15 +46,13 @@
 #import <ZMCDataModel/ZMCDataModel-Swift.h>
 #import "NSPredicate+ZMSearch.h"
 
-NSString *const ZMConversationArchivedEventIDDataKey = @"archivedEventID_data";
-NSString *const ZMConversationArchivedEventIDKey = @"archivedEventID";
+
 NSString *const ZMConversationConnectionKey = @"connection";
 NSString *const ZMConversationHasUnreadMissedCallKey = @"hasUnreadMissedCall";
 NSString *const ZMConversationHasUnreadUnsentMessageKey = @"hasUnreadUnsentMessage";
 NSString *const ZMConversationIsArchivedKey = @"internalIsArchived";
 NSString *const ZMConversationIsSelfAnActiveMemberKey = @"isSelfAnActiveMember";
 NSString *const ZMConversationIsSilencedKey = @"isSilenced";
-NSString *const ZMConversationLastReadEventIDDataKey = @"lastReadEventID_data";
 NSString *const ZMConversationMessagesKey = @"messages";
 NSString *const ZMConversationHiddenMessagesKey = @"hiddenMessages";
 NSString *const ZMConversationOtherActiveParticipantsKey = @"otherActiveParticipants";
@@ -81,7 +79,6 @@ NSString *const ZMConversationIsIgnoringCallKey = @"isIgnoringCall";
 
 NSString *const ZMConversationWillStartFetchingMessages = @"ZMConversationWillStartFetchingMessages";
 NSString *const ZMConversationDidFinishFetchingMessages = @"ZMConversationDidFinishFetchingMessages";
-NSString *const ZMConversationDidChangeVisibleWindowNotification = @"ZMConversationDidChangeVisibileWindow";
 NSString *const ZMConversationVoiceChannelJoinFailedNotification = @"ZMConversationVoiceChannelJoinFailedNotification";
 NSString *const ZMConversationRequestToLoadConversationEventsNotification = @"ZMConversationRequestToLoadConversationEvents";
 NSString *const ZMConversationEstimatedUnreadCountKey = @"estimatedUnreadCount";
@@ -112,11 +109,17 @@ static NSString *const SecurityLevelKey = @"securityLevel";
 static NSString *const MessageDestructionTimeoutKey = @"messageDestructionTimeout";
 
 
-NSTimeInterval ZMConversationDefaultLastReadEventIDSaveDelay = 3.0;
+static NSString *const DownloadedMessageIDsDataKey = @"downloadedMessageIDs_data";
+static NSString *const LastEventIDDataKey = @"lastEventID_data";
+static NSString *const ClearedEventIDDataKey = @"clearedEventID_data";
+static NSString *const ArchivedEventIDDataKey = @"archivedEventID_data";
+static NSString *const LastReadEventIDDataKey = @"lastReadEventID_data";
+
+
+NSTimeInterval ZMConversationDefaultLastReadTimestampSaveDelay = 3.0;
 
 const NSUInteger ZMConversationMaxEncodedTextMessageLength = 1500;
 const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTextMessageLength - 50; // Empirically we verified that the encoding adds 44 bytes
-const NSUInteger ZMLeadingEventIDWindowBleed = 50;
 
 
 @interface ZMConversation ()
@@ -127,8 +130,8 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
 @property (nonatomic) NSDate *tempMaxLastReadServerTimeStamp;
 @property (nonatomic) NSMutableOrderedSet *unreadTimeStamps;
 
-@property (nonatomic) NSTimeInterval lastReadEventIDSaveDelay;
-@property (nonatomic) int64_t lastReadEventIDUpdateCounter;
+@property (nonatomic) NSTimeInterval lastReadTimestampSaveDelay;
+@property (nonatomic) int64_t lastReadTimestampUpdateCounter;
 @property (nonatomic) BOOL internalIsArchived;
 
 @property (nonatomic) NSDate *lastReadServerTimeStamp;
@@ -174,8 +177,8 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
 @dynamic messageDestructionTimeout;
 
 @synthesize tempMaxLastReadServerTimeStamp;
-@synthesize lastReadEventIDSaveDelay;
-@synthesize lastReadEventIDUpdateCounter;
+@synthesize lastReadTimestampSaveDelay;
+@synthesize lastReadTimestampUpdateCounter;
 @synthesize unreadTimeStamps;
 
 - (BOOL)isArchived
@@ -261,7 +264,7 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
 - (void)awakeFromFetch;
 {
     [super awakeFromFetch];
-    self.lastReadEventIDSaveDelay = ZMConversationDefaultLastReadEventIDSaveDelay;
+    self.lastReadTimestampSaveDelay = ZMConversationDefaultLastReadTimestampSaveDelay;
     if (self.managedObjectContext.zm_isSyncContext) {
         // From the documentation: The managed object context’s change processing is explicitly disabled around this method so that you can use public setters to establish transient values and other caches without dirtying the object or its context.
         // Therefore we need to do a dispatch async  here in a performGroupedBlock to update the unread properties outside of awakeFromFetch
@@ -274,7 +277,7 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
 - (void)awakeFromInsert;
 {
     [super awakeFromInsert];
-    self.lastReadEventIDSaveDelay = ZMConversationDefaultLastReadEventIDSaveDelay;
+    self.lastReadTimestampSaveDelay = ZMConversationDefaultLastReadTimestampSaveDelay;
     if (self.managedObjectContext.zm_isSyncContext) {
         // From the documentation: You are typically discouraged from performing fetches within an implementation of awakeFromInsert. Although it is allowed, execution of the fetch request can trigger the sending of internal Core Data notifications which may have unwanted side-effects. Since we fetch the unread messages here, we should do a dispatch async
         [self.managedObjectContext performGroupedBlock:^{
@@ -359,14 +362,12 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
             ZMConversationConnectionKey,
             ConversationTypeKey,
             CreatorKey,
-            ZMConversationLastReadEventIDDataKey,
             DraftMessageTextKey,
             LastModifiedDateKey,
             LastServerSyncedActiveParticipantsKey,
             ZMNormalizedUserDefinedNameKey,
             ZMConversationOtherActiveParticipantsKey,
             VoiceChannelKey,
-            ZMConversationArchivedEventIDKey,
             ZMConversationHasUnreadMissedCallKey,
             ZMConversationHasUnreadUnsentMessageKey,
             ZMConversationMessagesKey,
@@ -380,6 +381,11 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
             ZMConversationIsArchivedKey,
             ZMConversationIsSilencedKey,
             MessageDestructionTimeoutKey,
+            DownloadedMessageIDsDataKey,
+            LastEventIDDataKey,
+            ClearedEventIDDataKey,
+            ArchivedEventIDDataKey,
+            LastReadEventIDDataKey,
         };
         
         NSSet *additionalKeys = [NSSet setWithObjects:KeysIgnoredForTrackingModifications count:(sizeof(KeysIgnoredForTrackingModifications) / sizeof(*KeysIgnoredForTrackingModifications))];
@@ -563,10 +569,6 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
     }
 
     [self updateLastReadServerTimeStampWithMessage:newestMessage];
-    
-    NSMutableDictionary *userInfo = [NSMutableDictionary dictionary];
-    [[NSNotificationCenter defaultCenter] postNotificationName:ZMConversationDidChangeVisibleWindowNotification object:self userInfo:userInfo];
-    
     if (self.hasUnreadUnsentMessage) {
         self.hasUnreadUnsentMessage = NO;
     }
@@ -576,7 +578,7 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
 {
     [self updateLastReadServerTimeStampIfNeededWithTimeStamp:self.tempMaxLastReadServerTimeStamp andSync:NO];
     self.tempMaxLastReadServerTimeStamp = nil;
-    self.lastReadEventIDUpdateCounter = 0;
+    self.lastReadTimestampUpdateCounter = 0;
     [self.managedObjectContext enqueueDelayedSave];
 }
 
@@ -646,23 +648,23 @@ const NSUInteger ZMLeadingEventIDWindowBleed = 50;
             // Since the message was created by the selfUser, we don't want to sync the lastRead
             // To stop syncing of previously stored values, we need to reset the tempMaxLastRead to 0
             self.tempMaxLastReadServerTimeStamp = nil;
-            self.lastReadEventIDUpdateCounter = 0;
+            self.lastReadTimestampUpdateCounter = 0;
             return;
         }
     }
     
     if (self.managedObjectContext.zm_isUserInterfaceContext) {
-        self.lastReadEventIDUpdateCounter++;
-        int64_t currentCount = self.lastReadEventIDUpdateCounter;
+        self.lastReadTimestampUpdateCounter++;
+        int64_t currentCount = self.lastReadTimestampUpdateCounter;
         
         __block NSArray *groups = [self.managedObjectContext enterAllGroups];
         ZM_WEAK(self);
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.lastReadEventIDSaveDelay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(self.lastReadTimestampSaveDelay * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             ZM_STRONG(self);
             if (self == nil) {
                 return;
             }
-            if (currentCount != self.lastReadEventIDUpdateCounter) {
+            if (currentCount != self.lastReadTimestampUpdateCounter) {
                 [self.managedObjectContext leaveAllGroups:groups];
                 return;
             }

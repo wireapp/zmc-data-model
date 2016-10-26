@@ -35,7 +35,6 @@
 
 @protocol UserClientType;
 
-extern NSString * _Nonnull const ZMMessageEventIDDataKey;
 extern NSString * _Nonnull const ZMMessageIsEncryptedKey;
 extern NSString * _Nonnull const ZMMessageIsPlainTextKey;
 extern NSString * _Nonnull const ZMMessageIsExpiredKey;
@@ -48,7 +47,6 @@ extern NSString * _Nonnull const ZMMessageOriginalDataProcessedKey;
 extern NSString * _Nonnull const ZMMessageOriginalSizeDataKey;
 extern NSString * _Nonnull const ZMMessageOriginalSizeKey;
 extern NSString * _Nonnull const ZMMessageConversationKey;
-extern NSString * _Nonnull const ZMMessageEventIDKey;
 extern NSString * _Nonnull const ZMMessageExpirationDateKey;
 extern NSString * _Nonnull const ZMMessageNameKey;
 extern NSString * _Nonnull const ZMMessageNeedsToBeUpdatedFromBackendKey;

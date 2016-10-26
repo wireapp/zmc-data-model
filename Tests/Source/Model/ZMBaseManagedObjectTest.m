@@ -36,9 +36,6 @@
 
 #import "NSString+RandomString.h"
 
-static const int32_t Mersenne1 = 524287;
-static const int32_t Mersenne2 = 131071;
-static const int32_t Mersenne3 = 8191;
 NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
 
 
@@ -122,21 +119,6 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
     [self.testSession resetUIandSyncContextsAndResetPersistentStore:resetPersistentStore];
 }
 
-static int32_t eventIdCounter;
-
-- (ZMEventID *)createEventID
-{
-    return [self.class createEventID];
-}
-
-+ (ZMEventID *)createEventID
-{
-    int32_t major = OSAtomicIncrement32(&eventIdCounter) + 1;
-    major += 1;
-    int32_t minor = ((Mersenne1 * OSAtomicIncrement32(&eventIdCounter)) % Mersenne2) + Mersenne3;
-    return [ZMEventID eventIDWithMajor:(uint64_t)major
-                                 minor:(uint64_t)minor];
-}
 
 @end
 

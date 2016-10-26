@@ -33,13 +33,12 @@ class MessageWindowChangeTokenTests : ZMBaseManagedObjectTest
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
     }
     
-    func createMessagesWithCount(_ messageCount: UInt, startEventIDMajor: UInt) -> [ZMTextMessage] {
+    func createMessagesWithCount(_ messageCount: UInt) -> [ZMTextMessage] {
         
         var messages = [ZMTextMessage]()
         
-        for i in startEventIDMajor..<(messageCount + startEventIDMajor) {
+        (0..<messageCount).forEach {_ in
             let message = ZMTextMessage.insertNewObject(in: self.uiMOC)
-            message.eventID = ZMEventID(major: UInt64(i), minor: 0)
             messages.append(message)
         }
         return messages
@@ -60,9 +59,6 @@ class MessageWindowChangeTokenTests : ZMBaseManagedObjectTest
         for message in messages {
             message.visibleInConversation = conversation
         }
-        let range = ZMEventIDRange(eventIDs: [messages.first!.eventID, messages.last!.eventID])
-        conversation.addEventRange(toDownloadedEvents: range)
-        conversation.updateLastEventIDIfNeeded(with: messages.last!.eventID)
         return conversation
     }
     
@@ -97,9 +93,7 @@ class MessageWindowChangeTokenTests : ZMBaseManagedObjectTest
         let window = self.createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
         let conversation = window.conversation
         message1.serverTimestamp = Date()
-        message1.eventID = self.createEventID()
         message2.serverTimestamp = message1.serverTimestamp!.addingTimeInterval(5);
-        message2.eventID = self.createEventID()
         conversation.lastServerTimeStamp = message2.serverTimestamp
         
         self.uiMOC.saveOrRollback()
@@ -130,9 +124,7 @@ class MessageWindowChangeTokenTests : ZMBaseManagedObjectTest
     {
         // given
         let message1 = ZMTextMessage.insertNewObject(in: self.uiMOC)
-        message1.eventID = ZMEventID(string: "1.aabb")
         let message2 = ZMImageMessage.insertNewObject(in: self.uiMOC)
-        message2.eventID = ZMEventID(string: "2.aabb")
         let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
         self.uiMOC.saveOrRollback()
         
@@ -159,10 +151,8 @@ class MessageWindowChangeTokenTests : ZMBaseManagedObjectTest
         // given
         let message1 = ZMTextMessage.insertNewObject(in: self.uiMOC)
         message1.text = "First"
-        message1.eventID = ZMEventID(string: "1.aabb")
         let message2 = ZMTextMessage.insertNewObject(in: self.uiMOC)
         message2.text = "Second"
-        message2.eventID = ZMEventID(string: "2.aabb")
         let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
         self.uiMOC.saveOrRollback()
         
@@ -182,11 +172,8 @@ class MessageWindowChangeTokenTests : ZMBaseManagedObjectTest
     {
         // given
         let message1 = ZMTextMessage.insertNewObject(in: self.uiMOC)
-        message1.eventID = ZMEventID(string: "1.aabb")
         let message2 = ZMTextMessage.insertNewObject(in: self.uiMOC)
-        message2.eventID = ZMEventID(string: "2.aabb")
         let message3 = ZMTextMessage.insertNewObject(in: self.uiMOC)
-        message3.eventID = ZMEventID(string: "3.aabb")
         let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
 
         self.uiMOC.saveOrRollback()
@@ -216,9 +203,7 @@ class MessageWindowChangeTokenTests : ZMBaseManagedObjectTest
     {
         // given
         let message1 = ZMTextMessage.insertNewObject(in: self.uiMOC)
-        message1.eventID = ZMEventID(string: "1.aabb")
         let message2 = ZMImageMessage.insertNewObject(in: self.uiMOC)
-        message2.eventID = ZMEventID(string: "2.aabb")
         let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
         self.uiMOC.saveOrRollback()
         
@@ -248,9 +233,7 @@ class MessageWindowChangeTokenTests : ZMBaseManagedObjectTest
     {
         // given
         let message1 = ZMTextMessage.insertNewObject(in: self.uiMOC)
-        message1.eventID = ZMEventID(string: "1.aabb")
         let message2 = ZMImageMessage.insertNewObject(in: self.uiMOC)
-        message2.eventID = ZMEventID(string: "2.aabb")
         let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
         self.uiMOC.saveOrRollback()
         
@@ -282,11 +265,8 @@ class MessageWindowChangeTokenTests : ZMBaseManagedObjectTest
         let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
         
         let message1 = ZMTextMessage.insertNewObject(in: self.uiMOC)
-        message1.eventID = ZMEventID(string: "1.aabb")
         let message2 = ZMTextMessage.insertNewObject(in: self.uiMOC)
-        message2.eventID = ZMEventID(string: "2.aabb")
         let message3 = ZMTextMessage.insertNewObject(in: self.uiMOC)
-        message3.eventID = ZMEventID(string: "3.aabb")
         
         message1.visibleInConversation = conversation
         message2.visibleInConversation = conversation
@@ -321,11 +301,8 @@ class MessageWindowChangeTokenTests : ZMBaseManagedObjectTest
         
         // given
         let message1 = ZMTextMessage.insertNewObject(in: self.uiMOC)
-        message1.eventID = ZMEventID(string: "1.aabb")
         let message2 = ZMTextMessage.insertNewObject(in: self.uiMOC)
-        message2.eventID = ZMEventID(string: "2.aabb")
         let message3 = ZMTextMessage.insertNewObject(in: self.uiMOC)
-        message3.eventID = ZMEventID(string: "3.aabb")
         let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
         
         self.uiMOC.saveOrRollback()
@@ -346,9 +323,7 @@ class MessageWindowChangeTokenTests : ZMBaseManagedObjectTest
         
         // given
         let message1 = ZMTextMessage.insertNewObject(in: self.uiMOC)
-        message1.eventID = ZMEventID(string: "1.aabb")
         let message2 = ZMTextMessage.insertNewObject(in: self.uiMOC)
-        message2.eventID = ZMEventID(string: "2.aabb")
         let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
 
         self.uiMOC.saveOrRollback()
@@ -375,9 +350,7 @@ class MessageWindowChangeTokenTests : ZMBaseManagedObjectTest
         
         // given
         let message1 = ZMTextMessage.insertNewObject(in: self.uiMOC)
-        message1.eventID = ZMEventID(string: "1.aabb")
         let message2 = ZMTextMessage.insertNewObject(in: self.uiMOC)
-        message2.eventID = ZMEventID(string: "2.aabb")
         let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
         
         self.uiMOC.saveOrRollback()
@@ -405,9 +378,7 @@ class MessageWindowChangeTokenTests : ZMBaseManagedObjectTest
         
         // given
         let message1 = ZMTextMessage.insertNewObject(in: self.uiMOC)
-        message1.eventID = ZMEventID(string: "1.aabb")
         let message2 = ZMTextMessage.insertNewObject(in: self.uiMOC)
-        message2.eventID = ZMEventID(string: "2.aabb")
         let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
         
         self.uiMOC.saveOrRollback()
@@ -430,9 +401,7 @@ class MessageWindowChangeTokenTests : ZMBaseManagedObjectTest
         
         // given
         let message1 = ZMTextMessage.insertNewObject(in: self.uiMOC)
-        message1.eventID = ZMEventID(string: "1.aabb")
         let message2 = ZMTextMessage.insertNewObject(in: self.uiMOC)
-        message2.eventID = ZMEventID(string: "2.aabb")
         let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
         
         self.uiMOC.saveOrRollback()
@@ -460,9 +429,7 @@ class MessageWindowChangeTokenTests : ZMBaseManagedObjectTest
         
         // given
         let message1 = ZMTextMessage.insertNewObject(in: self.uiMOC)
-        message1.eventID = ZMEventID(string: "1.aabb")
         let message2 = ZMTextMessage.insertNewObject(in: self.uiMOC)
-        message2.eventID = ZMEventID(string: "2.aabb")
         let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
         
         self.uiMOC.saveOrRollback()

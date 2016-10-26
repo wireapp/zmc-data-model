@@ -62,7 +62,6 @@
             return !olderEvent && !olderClearTimestamp;
         }
             
-            // these events have no eventID
         case ZMUpdateEventConversationClientMessageAdd:
         case ZMUpdateEventConversationOtrMessageAdd:
         case ZMUpdateEventConversationOtrAssetAdd:

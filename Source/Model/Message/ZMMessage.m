@@ -55,7 +55,6 @@ NSString * const ZMMessageMediumDataLoadedKey = @"mediumDataLoaded";
 NSString * const ZMMessageOriginalSizeDataKey = @"originalSize_data";
 NSString * const ZMMessageOriginalSizeKey = @"originalSize";
 NSString * const ZMMessageConversationKey = @"visibleInConversation";
-NSString * const ZMMessageEventIDKey = @"eventID";
 NSString * const ZMMessageExpirationDateKey = @"expirationDate";
 NSString * const ZMMessageNameKey = @"name";
 NSString * const ZMMessageNeedsToBeUpdatedFromBackendKey = @"needsToBeUpdatedFromBackend";
@@ -262,11 +261,6 @@ NSString * const ZMMessageIsObfuscatedKey = @"isObfuscated";
 - (void)setNonce:(NSUUID *)nonce;
 {
     [self setTransientUUID:nonce forKey:@"nonce"];
-}
-
-+ (NSSet *)keyPathsForValuesAffectingEventID;
-{
-    return [NSSet setWithObject:ZMMessageEventIDDataKey];
 }
 
 + (NSArray *)defaultSortDescriptors;
@@ -622,9 +616,7 @@ NSString * const ZMMessageIsObfuscatedKey = @"isObfuscated";
 
 + (NSPredicate *)predicateForObjectsThatNeedToBeInsertedUpstream;
 {
-    return [NSPredicate predicateWithFormat:@"%K == NULL && %K == 0",
-            ZMMessageEventIDDataKey,
-            ZMMessageIsExpiredKey];
+    return [NSPredicate predicateWithValue:NO];
 }
 
 - (NSSet *)ignoredKeys;
@@ -765,6 +757,11 @@ NSString * const ZMMessageIsObfuscatedKey = @"isObfuscated";
     [super removeMessageClearingSender:clearingSender];
 }
 
+- (ZMDeliveryState)deliveryState
+{
+    return ZMDeliveryStateDelivered;
+}
+
 @end
 
 
@@ -893,9 +890,9 @@ NSString * const ZMMessageIsObfuscatedKey = @"isObfuscated";
 + (ZMSystemMessage *)fetchStartedUsingOnThisDeviceMessageForConversation:(ZMConversation *)conversation
 {
     NSPredicate *conversationPredicate = [NSPredicate predicateWithFormat:@"%K == %@ OR %K == %@", ZMMessageConversationKey, conversation, ZMMessageHiddenInConversationKey, conversation];
-    NSPredicate *eventIDPredicate = [NSPredicate predicateWithFormat:@"%K == %d", ZMMessageSystemMessageTypeKey, ZMSystemMessageTypeNewClient];
+    NSPredicate *newClientPredicate = [NSPredicate predicateWithFormat:@"%K == %d", ZMMessageSystemMessageTypeKey, ZMSystemMessageTypeNewClient];
     NSPredicate *containsSelfClient = [NSPredicate predicateWithFormat:@"ANY %K == %@", ZMMessageSystemMessageClientsKey, [ZMUser selfUserInContext:conversation.managedObjectContext].selfClient];
-    NSCompoundPredicate *compound = [NSCompoundPredicate andPredicateWithSubpredicates:@[conversationPredicate, eventIDPredicate, containsSelfClient]];
+    NSCompoundPredicate *compound = [NSCompoundPredicate andPredicateWithSubpredicates:@[conversationPredicate, newClientPredicate, containsSelfClient]];
     
     NSArray *result = [conversation.managedObjectContext executeFetchRequestOrAssert:[ZMSystemMessage sortedFetchRequestWithPredicate:compound]];
     if(result.count) {
@@ -924,7 +921,32 @@ NSString * const ZMMessageIsObfuscatedKey = @"isObfuscated";
 
 + (NSPredicate *)predicateForSystemMessagesInsertedLocally
 {
-    return [NSPredicate predicateWithFormat:@"class == %@ AND %K == NULL", [ZMSystemMessage class], ZMMessageEventIDDataKey];
+    return [NSPredicate predicateWithBlock:^BOOL(ZMSystemMessage *msg, id ZM_UNUSED bindings) {
+        if (![msg isKindOfClass:[ZMSystemMessage class]]){
+            return NO;
+        }
+        switch (msg.systemMessageType) {
+            case ZMSystemMessageTypeNewClient:
+            case ZMSystemMessageTypePotentialGap:
+            case ZMSystemMessageTypeIgnoredClient:
+            case ZMSystemMessageTypeUsingNewDevice:
+            case ZMSystemMessageTypeDecryptionFailed:
+            case ZMSystemMessageTypeReactivatedDevice:
+            case ZMSystemMessageTypeConversationIsSecure:
+            case ZMSystemMessageTypeMessageDeletedForEveryone:
+            case ZMSystemMessageTypeDecryptionFailed_RemoteIdentityChanged:
+                return YES;
+            case ZMSystemMessageTypeInvalid:
+            case ZMSystemMessageTypeConversationNameChanged:
+            case ZMSystemMessageTypeConnectionRequest:
+            case ZMSystemMessageTypeConnectionUpdate:
+            case ZMSystemMessageTypeNewConversation:
+            case ZMSystemMessageTypeParticipantsAdded:
+            case ZMSystemMessageTypeParticipantsRemoved:
+            case ZMSystemMessageTypeMissedCall:
+                return NO;
+        }
+    }];
 }
 
 - (void)updateNeedsUpdatingUsersIfNeeded

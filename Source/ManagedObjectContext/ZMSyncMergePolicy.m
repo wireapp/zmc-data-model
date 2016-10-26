@@ -28,7 +28,7 @@
 #define ZMTAG_CORE_DATA "Core Data"
 
 static char* const ZMLogTag ZM_UNUSED = ZMTAG_CORE_DATA;
-static NSString * const MessageKeyForDebugging = @"eventID";
+static NSString * const MessageKeyForDebugging = @"nonce";
 
 
 @interface ZMSyncMergePolicy ()

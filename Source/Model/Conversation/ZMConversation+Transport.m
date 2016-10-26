@@ -33,6 +33,7 @@ static NSString *const ConversationInfoIDKey = @"id";
 static NSString *const ConversationInfoOthersKey = @"others";
 static NSString *const ConversationInfoMembersKey = @"members";
 static NSString *const ConversationInfoCreatorKey = @"creator";
+static NSString *const ConversationInfoLastEventTimeKey = @"last_event_time";
 
 NSString *const ZMConversationInfoOTRMutedValueKey = @"otr_muted";
 NSString *const ZMConversationInfoOTRMutedReferenceKey = @"otr_muted_ref";
@@ -72,9 +73,12 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
     
     self.conversationType = [self conversationTypeFromTransportData:[transportData numberForKey:ConversationInfoTypeKey]];
     
+    NSDate *lastTimeStamp = [transportData dateForKey:ConversationInfoLastEventTimeKey];
+    [self updateLastModifiedDateIfNeeded:lastTimeStamp];
+    [self updateLastServerTimeStampIfNeeded:lastTimeStamp];
+    
     NSDictionary *selfStatus = [[transportData dictionaryForKey:ConversationInfoMembersKey] dictionaryForKey:@"self"];
     if(selfStatus != nil) {
-        // we pass nil as timeStamp because we don't know when the lastReadEventID / clearedEventID was set
         [self updateSelfStatusFromDictionary:selfStatus timeStamp:nil];
     }
     else {
@@ -138,12 +142,6 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
 /// Pass timeStamp when the timeStamp equals the time of the lastRead / cleared event, otherwise pass nil
 - (void)updateSelfStatusFromDictionary:(NSDictionary __unused *)dictionary timeStamp:(NSDate __unused *)timeStamp
 {
-    // TODO MARCO
-    /*
-    if (dictionary[ConversationInfoLastReadKey] != nil && timeStamp != nil) {
-        [self updateLastReadServerTimeStampIfNeededWithTimeStamp:timeStamp andSync:NO];
-    }
-    
     NSNumber *status = [dictionary optionalNumberForKey:ConversationInfoStatusKey];
     if(status != nil) {
         self.isSelfAnActiveMember = status.integerValue == 0;
@@ -151,18 +149,6 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
     
     [self updateIsSilencedWithPayload:dictionary];
     [self updateIsArchivedWithPayload:dictionary];
-
-    
-    ZMEventID *clearedEventID = [dictionary optionalEventForKey:ZMConversationInfoClearedValueKey];
-    if ([self updateClearedEventIDIfNeededWithEventID:clearedEventID andSync:NO]) {
-        if (timeStamp != nil) {
-            [self updateClearedServerTimeStampIfNeeded:timeStamp andSync:NO];
-        }
-        else if ([self.lastEventID isEqualToEventID:self.clearedEventID]){
-            [self updateClearedServerTimeStampIfNeeded:self.lastServerTimeStamp andSync:NO];
-        }
-    }
-     */
 }
 
 - (void)updateIsArchivedWithPayload:(NSDictionary *)dictionary

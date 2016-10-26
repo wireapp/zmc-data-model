@@ -42,8 +42,6 @@
 NS_ASSUME_NONNULL_BEGIN
 extern NSString *const ZMConversationConnectionKey;
 extern NSString *const ZMConversationHasUnreadMissedCallKey;
-extern NSString *const ZMConversationArchivedEventIDDataKey;
-extern NSString *const ZMConversationArchivedEventIDKey;
 extern NSString *const ZMConversationHasUnreadUnsentMessageKey;
 extern NSString *const ZMConversationIsArchivedKey;
 extern NSString *const ZMConversationIsSelfAnActiveMemberKey;
@@ -52,7 +50,6 @@ extern NSString *const ZMConversationMessagesKey;
 extern NSString *const ZMConversationHiddenMessagesKey;
 extern NSString *const ZMConversationOtherActiveParticipantsKey;
 extern NSString *const ZMConversationHasUnreadKnock;
-extern NSString *const ZMConversationLastReadEventIDDataKey;
 extern NSString *const ZMConversationUnsyncedActiveParticipantsKey;
 extern NSString *const ZMConversationUnsyncedInactiveParticipantsKey;
 extern NSString *const ZMConversationUserDefinedNameKey;
@@ -78,7 +75,6 @@ extern NSString *const ZMConversationIsIgnoringCallKey;
 
 extern NSString *const ZMConversationWillStartFetchingMessages;
 extern NSString *const ZMConversationDidFinishFetchingMessages;
-extern NSString *const ZMConversationDidChangeVisibleWindowNotification;
 extern NSString *const ZMConversationVoiceChannelJoinFailedNotification;
 extern NSString *const ZMConversationRequestToLoadConversationEventsNotification;
 extern NSString *const ZMConversationClearTypingNotificationName;
@@ -86,10 +82,9 @@ extern NSString *const ZMConversationLastReadDidChangeNotificationName;
 
 extern NSString *const ZMConversationRemoteIdentifierDataKey;
 
-/// Add this number of events before the window, to add a buffer of events that are already available when the UI scrolls down
-extern const NSUInteger ZMLeadingEventIDWindowBleed;
+
 extern const NSUInteger ZMConversationMaxTextMessageLength;
-extern NSTimeInterval ZMConversationDefaultLastReadEventIDSaveDelay;
+extern NSTimeInterval ZMConversationDefaultLastReadTimestampSaveDelay;
 extern NSString *const ZMConversationEstimatedUnreadCountKey;
 
 extern NSString *const ZMConversationInternalEstimatedUnreadCountKey;
@@ -149,7 +144,7 @@ NS_ASSUME_NONNULL_END
 @property (nonatomic, nullable) NSDate *lastModifiedDate;
 @property (nonatomic) ZMConversationType conversationType;
 @property (nonatomic, copy, nullable) NSString *normalizedUserDefinedName;
-@property (nonatomic) NSTimeInterval lastReadEventIDSaveDelay;
+@property (nonatomic) NSTimeInterval lastReadTimestampSaveDelay;
 @property (nonatomic) BOOL callStateNeedsToBeUpdatedFromBackend;
 
 
