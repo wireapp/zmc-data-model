@@ -124,52 +124,20 @@ class UserClientKeysStoreTests: OtrBaseTest {
         
     }
     
+    func testThatTheOTRFolderHasTheRightPath() {
+        
+        // given
+        let otrURL = try! FileManager.default.url(for: FileManager.SearchPathDirectory.applicationSupportDirectory, in: FileManager.SearchPathDomainMask.userDomainMask, appropriateFor: nil, create: false).appendingPathComponent("otr")
+        
+        // then
+        XCTAssertEqual(UserClientKeysStore.otrDirectory, otrURL)
+    }
+    
     fileprivate func createFakeOTRFolder() {
         try! FileManager.default.createDirectory(atPath: UserClientKeysStore.legacyOtrDirectory.path, withIntermediateDirectories: true, attributes: [:])
     }
-    
-    func testThatTheNonEmptyLegacyOTRFolderIsDetected() {
-        
-        // given
-        self.createFakeOTRFolder()
-        try! "foo".data(using: String.Encoding.utf8)!.write(to: UserClientKeysStore.legacyOtrDirectory.appendingPathComponent("dummy.txt"), options: Data.WritingOptions.atomic)
-        
-        // then
-        XCTAssertTrue(UserClientKeysStore.needToMigrateIdentity)
-    }
-    
-    func testThatANonEmptyLegacyOTRFolderIsDeleted() {
-        
-        // given
-        self.createFakeOTRFolder()
-        XCTAssertTrue(UserClientKeysStore.needToMigrateIdentity)
-        
-        // when
-        UserClientKeysStore.removeOldIdentityFolder()
-        
-        // then
-        XCTAssertFalse(UserClientKeysStore.needToMigrateIdentity)
-    }
-    
-    func testThatItCanDeleteANonExistingOldIdentityFolder() {
-        
-        // when
-        UserClientKeysStore.removeOldIdentityFolder()
-        
-        // then
-        XCTAssertFalse(UserClientKeysStore.needToMigrateIdentity)
-    }
 
-    func testThatTheEmptyLegacyOTRFolderIsDetected() {
-        
-        // given
-        self.createFakeOTRFolder()
-        
-        // then
-        XCTAssertTrue(UserClientKeysStore.needToMigrateIdentity)
-    }
-
-    func testThatItMovesTheLegacyCryptobox() {
+    func testThatItMovesTheLegacyCryptoboxToTheGivenURL() {
         
         // given
         self.sut = nil
@@ -188,21 +156,28 @@ class UserClientKeysStoreTests: OtrBaseTest {
         XCTAssertEqual(fooString, "foo")
         XCTAssertFalse(UserClientKeysStore.needToMigrateIdentity)
     }
+    
+    func testThatItMovesTheOTRFolderToTheGivenURL() {
+        // given
+        self.sut = nil
+        self.cleanOTRFolder()
+        
+        try! FileManager.default.createDirectory(at: UserClientKeysStore.otrDirectoryURL, withIntermediateDirectories: true, attributes: [:])
+        try! "foo".data(using: String.Encoding.utf8)!.write(to: UserClientKeysStore.otrDirectoryURL.appendingPathComponent("dummy.txt"), options: Data.WritingOptions.atomic)
+        
+        // when
+        print(sharedOtrFolderURL)
+        let _ = UserClientKeysStore(in: sharedOtrFolderURL)
+        
+        // then
+        let fooData = try! Data(contentsOf: sharedOtrFolderURL.appendingPathComponent("dummy.txt"))
+        let fooString = String(data: fooData, encoding: String.Encoding.utf8)!
+        XCTAssertEqual(fooString, "foo")
+        XCTAssertFalse(UserClientKeysStore.needToMigrateIdentity)
+
+    }
 
     
-    func testThatTheLegacyOTRFolderIsNotDetected() {
-        
-        // then
-        XCTAssertFalse(UserClientKeysStore.needToMigrateIdentity)
-    }
     
-    func testThatTheOTRFolderHasTheRightPath() {
-        
-        // given
-        let otrURL = try! FileManager.default.url(for: FileManager.SearchPathDirectory.applicationSupportDirectory, in: FileManager.SearchPathDomainMask.userDomainMask, appropriateFor: nil, create: false).appendingPathComponent("otr")
-        
-        // then
-        XCTAssertEqual(UserClientKeysStore.otrDirectory, otrURL)
-    }
     
 }

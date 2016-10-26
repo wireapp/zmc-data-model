@@ -72,8 +72,10 @@ open class UserClientKeysStore: NSObject {
     static fileprivate let otrFolderPrefix = "otr"
     open var encryptionContext : EncryptionContext
     fileprivate var internalLastPreKey: String?
+    public private(set) var cryptoboxDirectoryURL : URL
     
     public init(in directory: URL) {
+        cryptoboxDirectoryURL = directory
         encryptionContext = UserClientKeysStore.setupContext(in: directory)!
     }
     
@@ -118,7 +120,8 @@ open class UserClientKeysStore: NSObject {
     
     open func deleteAndCreateNewBox() {
         let fm = FileManager.default
-        _ = try? fm.removeItem(at: UserClientKeysStore.otrDirectory)
+        _ = try? fm.removeItem(at: cryptoboxDirectoryURL)
+        encryptionContext = UserClientKeysStore.setupContext(in: cryptoboxDirectoryURL)!
         internalLastPreKey = nil
     }
     
@@ -149,14 +152,6 @@ open class UserClientKeysStore: NSObject {
                 fatal("Unable to initialize otrDirectory = error: \(err)")
             }
         }
-        return url!
-    }
-    
-    static open var sharedOtrDirectoryURL : URL {
-        var url : URL?
-        url = try! FileManager.default.url(for: FileManager.SearchPathDirectory.sharedPublicDirectory, in: FileManager.SearchPathDomainMask.userDomainMask, appropriateFor: nil, create: false)
-        url = url!.appendingPathComponent(otrFolderPrefix)
-        
         return url!
     }
     
