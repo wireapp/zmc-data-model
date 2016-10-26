@@ -41,7 +41,7 @@ extern NSString *const ZMConversationInfoOTRArchivedReferenceKey;
 - (void)updatePotentialGapSystemMessagesIfNeededWithUsers:(NSSet <ZMUser *>*)users;
 
 /// Pass timeStamp when the timeStamp equals the time of the lastRead / cleared event, otherwise pass nil
-- (void)updateSelfStatusFromDictionary:(NSDictionary *)dictionary timeStamp:(NSDate *)timeStamp;
+- (void)updateSelfStatusFromDictionary:(NSDictionary *)dictionary timeStamp:(NSDate *)timeStamp previousLastServerTimeStamp:(NSDate *)previousLastServerTimestamp;
 
 + (ZMConversationType)conversationTypeFromTransportData:(NSNumber *)transportType;
 

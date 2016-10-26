@@ -79,7 +79,7 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
     
     NSDictionary *selfStatus = [[transportData dictionaryForKey:ConversationInfoMembersKey] dictionaryForKey:@"self"];
     if(selfStatus != nil) {
-        [self updateSelfStatusFromDictionary:selfStatus timeStamp:nil];
+        [self updateSelfStatusFromDictionary:selfStatus timeStamp:nil previousLastServerTimeStamp:nil];
     }
     else {
         ZMLogError(@"Missing self status in conversation data");
@@ -140,7 +140,7 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
 }
 
 /// Pass timeStamp when the timeStamp equals the time of the lastRead / cleared event, otherwise pass nil
-- (void)updateSelfStatusFromDictionary:(NSDictionary __unused *)dictionary timeStamp:(NSDate __unused *)timeStamp
+- (void)updateSelfStatusFromDictionary:(NSDictionary *)dictionary timeStamp:(NSDate *)timeStamp previousLastServerTimeStamp:(NSDate *)previousLastServerTimestamp
 {
     NSNumber *status = [dictionary optionalNumberForKey:ConversationInfoStatusKey];
     if(status != nil) {
@@ -148,18 +148,24 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
     }
     
     [self updateIsSilencedWithPayload:dictionary];
-    [self updateIsArchivedWithPayload:dictionary];
+    if ([self updateIsArchivedWithPayload:dictionary] && self.isArchived && previousLastServerTimestamp != nil) {
+        if (self.clearedTimeStamp != nil && [self.clearedTimeStamp isEqualToDate:previousLastServerTimestamp]) {
+            [self updateClearedServerTimeStampIfNeeded:timeStamp andSync:NO];
+        }
+    }
 }
 
-- (void)updateIsArchivedWithPayload:(NSDictionary *)dictionary
+- (BOOL)updateIsArchivedWithPayload:(NSDictionary *)dictionary
 {
     if(dictionary[ZMConversationInfoOTRArchivedReferenceKey] != nil && dictionary[ZMConversationInfoOTRArchivedReferenceKey] != [NSNull null]) {
         NSDate *silencedRef = [dictionary dateForKey:ZMConversationInfoOTRArchivedReferenceKey];
         if ([self updateArchivedChangedTimeStampIfNeeded:silencedRef andSync:NO]) {
             NSNumber *archived = [dictionary optionalNumberForKey:ZMConversationInfoOTRArchivedValueKey];
             self.internalIsArchived = [archived isEqual:@1];
+            return YES;
         }
     }
+    return NO;
 }
 
 - (void)updateIsSilencedWithPayload:(NSDictionary *)dictionary
