@@ -73,10 +73,7 @@ extern NSString *const ZMConversationIsSendingVideoKey;
 extern NSString *const ZMConversationCallDeviceIsActiveKey;
 extern NSString *const ZMConversationIsIgnoringCallKey;
 
-extern NSString *const ZMConversationWillStartFetchingMessages;
-extern NSString *const ZMConversationDidFinishFetchingMessages;
 extern NSString *const ZMConversationVoiceChannelJoinFailedNotification;
-extern NSString *const ZMConversationRequestToLoadConversationEventsNotification;
 extern NSString *const ZMConversationClearTypingNotificationName;
 extern NSString *const ZMConversationLastReadDidChangeNotificationName;
 
@@ -179,9 +176,6 @@ NS_ASSUME_NONNULL_END
 
 
 - (void)updateWithMessage:(nonnull ZMMessage *)message timeStamp:(nullable NSDate *)timeStamp;
-
-/// This method loads messages in a window when there are NO visible messages
-- (void)startFetchingMessages;
 
 - (nonnull ZMClientMessage *)appendClientMessageWithData:(nonnull NSData *)data;
 - (nonnull ZMClientMessage *)appendOTRKnockMessageWithNonce:(nonnull NSUUID *)nonce;

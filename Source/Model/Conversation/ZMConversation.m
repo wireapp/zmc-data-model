@@ -77,10 +77,7 @@ NSString *const ZMConversationCallDeviceIsActiveKey = @"callDeviceIsActive";
 NSString *const ZMConversationIsSendingVideoKey = @"isSendingVideo";
 NSString *const ZMConversationIsIgnoringCallKey = @"isIgnoringCall";
 
-NSString *const ZMConversationWillStartFetchingMessages = @"ZMConversationWillStartFetchingMessages";
-NSString *const ZMConversationDidFinishFetchingMessages = @"ZMConversationDidFinishFetchingMessages";
 NSString *const ZMConversationVoiceChannelJoinFailedNotification = @"ZMConversationVoiceChannelJoinFailedNotification";
-NSString *const ZMConversationRequestToLoadConversationEventsNotification = @"ZMConversationRequestToLoadConversationEvents";
 NSString *const ZMConversationEstimatedUnreadCountKey = @"estimatedUnreadCount";
 NSString *const ZMConversationRemoteIdentifierDataKey = @"remoteIdentifier_data";
 
@@ -1266,11 +1263,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 {
     NSUUID *selfUserID = [ZMConversation selfConversationIdentifierInContext:managedObjectContext];
     return [ZMConversation conversationWithRemoteID:selfUserID createIfNeeded:NO inContext:managedObjectContext];
-}
-
-- (void)startFetchingMessages
-{
-    [[NSNotificationCenter defaultCenter] postNotificationName:ZMConversationRequestToLoadConversationEventsNotification object:self userInfo:nil];
 }
 
 - (ZMClientMessage *)appendGenericMessage:(ZMGenericMessage *)genericMessage expires:(BOOL)expires hidden:(BOOL)hidden

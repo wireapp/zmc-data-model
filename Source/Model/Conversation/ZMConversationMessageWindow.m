@@ -137,7 +137,6 @@ typedef NS_ENUM(int, ZMMessageWindowEvent) {
 
 - (ZMConversationMessageWindow *)conversationWindowWithSize:(NSUInteger)size
 {
-    [self startFetchingMessages];
     return [[ZMConversationMessageWindow alloc] initWithConversation:self size:size];
 }
 
