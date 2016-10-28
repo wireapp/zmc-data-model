@@ -512,6 +512,23 @@ static NSString * const KeysForCachedValuesKey = @"ZMKeysForCachedValues";
     }
 }
 
+- (void)awakeFromFetch
+{
+    [super awakeFromFetch];
+    [self removeObsoleteKeys];
+}
+
+/// Removes keys that were previously tracked but are not tracked anymore from the modifiedKeys
+- (void)removeObsoleteKeys
+{
+    if (self.modifiedKeys == nil || [self.modifiedKeys isSubsetOfSet:self.keysTrackedForLocalModifications]) {
+        return;
+    }
+    NSMutableSet *remainingKeys = [self.modifiedKeys mutableCopy];
+    [remainingKeys intersectSet:self.keysTrackedForLocalModifications];
+    self.modifiedKeys = (remainingKeys.count == 0) ? nil : remainingKeys;
+}
+
 - (void)updateKeysThatHaveLocalModifications;
 {
     if (![self.class isTrackingLocalModifications]) {
