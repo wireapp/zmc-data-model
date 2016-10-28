@@ -521,6 +521,9 @@ static NSString * const KeysForCachedValuesKey = @"ZMKeysForCachedValues";
 /// Removes keys that were previously tracked but are not tracked anymore from the modifiedKeys
 - (void)removeObsoleteKeys
 {
+    if (![self.class isTrackingLocalModifications]) {
+        return;
+    }
     if (self.modifiedKeys == nil || [self.modifiedKeys isSubsetOfSet:self.keysTrackedForLocalModifications]) {
         return;
     }

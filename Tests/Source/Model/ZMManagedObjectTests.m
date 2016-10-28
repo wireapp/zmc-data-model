@@ -627,4 +627,36 @@
     XCTAssertNil([ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:@"Zfoo" inUserSession:mockUserSession]);
 }
 
+- (void)testPerformanceRetrievingLocallyModifiedKeys;
+{
+    // measured with NSSet implementation: average: 0.000, relative standard deviation: 45.526%, values: [0.000716, 0.000402, 0.000347, 0.000345, 0.000232, 0.000231, 0.000230, 0.000231, 0.000232, 0.000232],
+    
+    MockEntity *entity = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
+    [self.testMOC saveOrRollback];
+    [self.testMOC refreshAllObjects];
+    XCTAssertTrue(entity.isFault);
+
+    __block int count = 1;
+    [self measureMetrics:@[XCTPerformanceMetric_WallClockTime] automaticallyStartMeasuring:NO forBlock:^{
+        // given
+        entity.field2 = (count % 2 == 0) ? @"foo" : @"bar";
+        count++;
+        
+        // when
+        [self startMeasuring];
+        [self.testMOC saveOrRollback];
+        NSSet *locallyModifiedKeys = [entity keysThatHaveLocalModifications];
+        [self stopMeasuring];
+        
+        // then
+        XCTAssertTrue([locallyModifiedKeys containsObject:@"field2"]);
+        
+        // reset
+        [entity resetLocallyModifiedKeys:[NSSet setWithObject:@"field2"]];
+        [self.testMOC saveOrRollback];
+        [self.testMOC refreshAllObjects];
+        XCTAssertTrue(entity.isFault);
+    }];
+}
+
 @end
