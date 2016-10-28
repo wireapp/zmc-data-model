@@ -3193,8 +3193,6 @@
     XCTAssertTrue([sut evaluateWithObject:conversation]);
 }
 
-//TODO: test all other predicates
-
 - (void)testThatItFetchesSharableConversations
 {
     //given
