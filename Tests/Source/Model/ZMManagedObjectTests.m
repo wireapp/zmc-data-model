@@ -629,9 +629,19 @@
 
 - (void)testPerformanceRetrievingLocallyModifiedKeys;
 {
-    // measured with NSSet implementation: average: 0.000, relative standard deviation: 45.526%, values: [0.000716, 0.000402, 0.000347, 0.000345, 0.000232, 0.000231, 0.000230, 0.000231, 0.000232, 0.000232],
+    // measured with NSSet implementation: average: 0.000, relative standard deviation: 33.239%, values: [0.000581, 0.000390, 0.000353, 0.000351, 0.000269, 0.000238, 0.000249, 0.000239, 0.000239, 0.000237], 
+    
+    // measured with NSString implementation average: 0.000, relative standard deviation: 34.962%, values: [0.000638, 0.000414, 0.000386, 0.000380, 0.000258, 0.000259, 0.000257, 0.000258, 0.000257, 0.000257], 
     
     MockEntity *entity = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
+    entity.field = 3;
+    entity.field3 = @"barfoo";
+    [self.testMOC saveOrRollback];
+
+    NSSet *modifiedKeys = [entity keysThatHaveLocalModifications];
+    XCTAssertTrue([modifiedKeys containsObject:@"field"]);
+    XCTAssertTrue([modifiedKeys containsObject:@"field3"]);
+    
     [self.testMOC saveOrRollback];
     [self.testMOC refreshAllObjects];
     XCTAssertTrue(entity.isFault);

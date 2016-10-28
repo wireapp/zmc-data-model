@@ -432,7 +432,7 @@ static NSString * const KeysForCachedValuesKey = @"ZMKeysForCachedValues";
                   "Trying to set keys that are not being tracked: %s",
                   [keys.allObjects componentsJoinedByString:@", "].UTF8String);
     
-    NSMutableOrderedSet *newKeys = [self.keysThatHaveLocalModifications mutableCopy];
+    NSMutableSet *newKeys = [self.keysThatHaveLocalModifications mutableCopy];
     [newKeys unionSet:keys];
     self.modifiedKeys = [newKeys copy];
 }
