@@ -93,7 +93,7 @@ public class UserClient: ZMManagedObject, UserClientType {
     /// Clients that ignore this client trust (currently can contain only self client)
     @NSManaged public var ignoredByClients: Set<UserClient>
     
-    public var keysStore: UserClientKeysStore {
+    public var keysStore: KeyStore {
         return managedObjectContext!.zm_cryptKeyStore
     }
     
