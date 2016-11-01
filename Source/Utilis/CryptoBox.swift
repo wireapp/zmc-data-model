@@ -50,7 +50,7 @@ public enum UserClientKeyStoreError: Error {
 }
 
 @objc(UserClientKeysStore)
-open class UserClientKeysStore: NSObject {
+public class UserClientKeysStore: NSObject {
     
     open static let MaxPreKeyID : UInt16 = UInt16.max-1;
     static fileprivate let otrFolderPrefix = "otr"
@@ -89,7 +89,7 @@ open class UserClientKeysStore: NSObject {
         return nil
     }
     
-    open func deleteAndCreateNewBox() {
+    public func deleteAndCreateNewBox() {
         let fm = FileManager.default
         _ = try? fm.removeItem(at: UserClientKeysStore.otrDirectory)
         internalLastPreKey = nil
@@ -99,13 +99,13 @@ open class UserClientKeysStore: NSObject {
     }
     
     /// Legacy URL for cryptobox storage (transition phase)
-    static open var legacyOtrDirectory : URL {
+    static public var legacyOtrDirectory : URL {
         let url = try? FileManager.default.url(for: FileManager.SearchPathDirectory.libraryDirectory, in: FileManager.SearchPathDomainMask.userDomainMask, appropriateFor: nil, create: false)
         return url!.appendingPathComponent(otrFolderPrefix)
     }
     
     /// URL for cryptobox storage (read-only)
-    static open var otrDirectoryURL : URL {
+    static public var otrDirectoryURL : URL {
         var url : URL?
         url = try! FileManager.default.url(for: FileManager.SearchPathDirectory.applicationSupportDirectory, in: FileManager.SearchPathDomainMask.userDomainMask, appropriateFor: nil, create: false)
         url = url!.appendingPathComponent(otrFolderPrefix)
@@ -114,7 +114,7 @@ open class UserClientKeysStore: NSObject {
     }
     
     /// URL for cryptobox storage
-    static open var otrDirectory : URL {
+    static public var otrDirectory : URL {
         var url : URL?
         do {
             url = self.otrDirectoryURL
@@ -134,12 +134,12 @@ open class UserClientKeysStore: NSObject {
     }
     
     /// Whether we need to migrate to a new identity (legacy e2ee transition phase)
-    open static var needToMigrateIdentity : Bool {
+    public static var needToMigrateIdentity : Bool {
         return self.isPreviousOTRDirectoryPresent
     }
     
     /// Remove the old legacy identity folder
-    open static func removeOldIdentityFolder() {
+    public static func removeOldIdentityFolder() {
         let oldIdentityPath = self.legacyOtrDirectory.path
         guard FileManager.default.fileExists(atPath: oldIdentityPath) else {
             return
@@ -156,7 +156,7 @@ open class UserClientKeysStore: NSObject {
         }
     }
 
-    open func lastPreKey() throws -> String {
+    public func lastPreKey() throws -> String {
         var error: NSError?
         if internalLastPreKey == nil {
             encryptionContext.perform({ [weak self] (sessionsDirectory) in
@@ -174,7 +174,7 @@ open class UserClientKeysStore: NSObject {
         return internalLastPreKey!
     }
     
-    open func generateMoreKeys(_ count: UInt16 = 1, start: UInt16 = 0) throws -> [(id: UInt16, prekey: String)] {
+    public func generateMoreKeys(_ count: UInt16 = 1, start: UInt16 = 0) throws -> [(id: UInt16, prekey: String)] {
         if count > 0 {
             var error : Error?
             var newPreKeys : [(id: UInt16, prekey: String)] = []
