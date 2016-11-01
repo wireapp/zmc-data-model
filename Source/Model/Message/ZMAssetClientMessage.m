@@ -358,6 +358,8 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
     
     if (message.assetData.hasUploaded) {
         NSDictionary *eventData = [updateEvent.payload dictionaryForKey:@"data"];
+
+        // TODO: Asset v3 check generic message for v3 asset_id
         self.assetId = [NSUUID uuidWithTransportString:[eventData stringForKey:@"id"]];
         self.transferState = ZMFileTransferStateUploaded;
     }
@@ -375,6 +377,8 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
     
     if (message.assetData.preview.hasRemote && !message.assetData.hasUploaded) {
         NSDictionary *eventData = [updateEvent.payload dictionaryForKey:@"data"];
+
+        // TODO: Asset v3 check generic message for v3 asset_id
         NSString *thumbnailId = [eventData stringForKey:@"id"];
         
 
@@ -771,6 +775,7 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 
 - (CGSize)originalImageSize
 {
+    // TODO: Asset v3 check if we have a file with image mimetype and return the image size
     ZMGenericMessage *genericMessage = self.mediumGenericMessage ?: self.previewGenericMessage;
     if(genericMessage.imageAssetData.originalWidth != 0) {
         return CGSizeMake(genericMessage.imageAssetData.originalWidth, genericMessage.imageAssetData.originalHeight);
@@ -1043,6 +1048,11 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 - (BOOL)isAudio
 {
     return [self.mimeType isAudioMimeType];
+}
+
+- (BOOL)isImage
+{
+    return [self.mimeType isImageMimeType];
 }
 
 - (CGSize)videoDimensions

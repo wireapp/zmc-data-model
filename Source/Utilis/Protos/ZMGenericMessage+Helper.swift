@@ -141,6 +141,40 @@ public extension ZMGenericMessage {
         knockBuilder.setHotKnock(false)
         return genericMessage(pbMessage: knockBuilder.build(), messageID: nonce, expiresAfter: timeout)
     }
+
+    // MARK: Updating assets with asset ID and token
+    public func updated(withAssetId assetId: String, token: String?) -> ZMGenericMessage? {
+        guard let asset = assetData, let remote = asset.uploaded, asset.hasUploaded() else { return nil }
+        let newRemote = remote.updated(withId: assetId, token: token)
+        let builder = toBuilder()!
+        if hasAsset() {
+            let assetBuilder = asset.toBuilder()
+            _ = assetBuilder?.setUploaded(newRemote)
+            builder.setAsset(assetBuilder)
+        } else if hasEphemeral() && ephemeral.hasAsset() {
+            let ephemeralBuilder = ephemeral.toBuilder()
+            let assetBuilder = ephemeral.asset.toBuilder()
+            _ = assetBuilder?.setUploaded(newRemote)
+            _ = ephemeralBuilder?.setAsset(assetBuilder)
+            builder.setEphemeral(ephemeralBuilder)
+        } else {
+            return nil
+        }
+
+        return builder.build()
+    }
+
+}
+
+extension ZMAssetRemoteData {
+
+    public func updated(withId assetId: String, token: String?) -> ZMAssetRemoteData {
+        let builder = toBuilder()!
+        builder.setAssetId(assetId)
+        builder.setAssetToken(token)
+        return builder.build()
+    }
+
 }
 
 extension ZMGenericMessage {
