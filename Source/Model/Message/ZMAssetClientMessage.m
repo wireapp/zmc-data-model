@@ -286,9 +286,14 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 
 - (id<ZMImageMessageData>)imageMessageData
 {
+    // V2
     BOOL isImageMessage = self.mediumGenericMessage.imageAssetData != nil ||
                           self.previewGenericMessage.imageAssetData != nil;
-    return isImageMessage ? self : nil;
+
+    // V3
+    BOOL isAssetV3Image = self.fileMessageData.isImage;
+
+    return isImageMessage || isAssetV3Image ? self : nil;
 }
 
 - (id <ZMFileMessageData>)fileMessageData
@@ -359,7 +364,7 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
     if (message.assetData.hasUploaded) {
         NSDictionary *eventData = [updateEvent.payload dictionaryForKey:@"data"];
 
-        // TODO: Asset v3 check generic message for v3 asset_id
+        // TODO: Asset V3 check generic message for v3 asset_id
         self.assetId = [NSUUID uuidWithTransportString:[eventData stringForKey:@"id"]];
         self.transferState = ZMFileTransferStateUploaded;
     }
@@ -775,7 +780,15 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 
 - (CGSize)originalImageSize
 {
-    // TODO: Asset v3 check if we have a file with image mimetype and return the image size
+    // V3
+    if (nil != self.fileMessageData && self.isImage) {
+        ZMAsset *asset = self.genericAssetMessage.assetData;
+        if (asset.original.hasImage && asset.original.image.width != 0) {
+            ZMAssetImageMetaData *imageMeta = asset.original.image;
+            return CGSizeMake(imageMeta.width, imageMeta.height);
+        }
+    }
+
     ZMGenericMessage *genericMessage = self.mediumGenericMessage ?: self.previewGenericMessage;
     if(genericMessage.imageAssetData.originalWidth != 0) {
         return CGSizeMake(genericMessage.imageAssetData.originalWidth, genericMessage.imageAssetData.originalHeight);
@@ -830,6 +843,13 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 
 - (NSData *)imageDataForFormat:(ZMImageFormat)format encrypted:(BOOL)encrypted
 {
+    // V3
+    // TODO: Create fileame with suffix for diffenrent formats, see StringFromImageFormat(format)
+    if (format == ZMImageFormatMedium && self.fileMessageData != nil && self.isImage) {
+        return [self.managedObjectContext.zm_fileAssetCache assetData:self.nonce fileName:self.filename encrypted:encrypted];
+    }
+
+    // V2
     if (format != ZMImageFormatOriginal) {
         ZMGenericMessage *genericMessage = (format == ZMImageFormatMedium)? self.mediumGenericMessage : self.previewGenericMessage;
         if (genericMessage.imageAssetData.size == 0) {
@@ -840,7 +860,8 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
             return nil;
         }
     }
-    
+
+
     return [self.managedObjectContext.zm_imageAssetCache assetData:self.nonce format:format encrypted:encrypted];
 }
 
@@ -876,17 +897,22 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 
 - (NSData *)mediumData
 {
+    // V3
+    if (self.genericAssetMessage.asset.original.image.width > 0) {
+        return [self imageDataForFormat:ZMImageFormatMedium encrypted:NO];
+    }
+
+    // V2
     if (self.mediumGenericMessage.imageAssetData.width > 0) {
         NSData *imageData = [self imageDataForFormat:ZMImageFormatMedium encrypted:NO];
         return imageData;
-
     }
     return nil;
 }
 
 - (NSData *)previewData
 {
-    if (nil != self.fileMessageData && self.hasDownloadedImage) {
+    if (nil != self.fileMessageData && self.hasDownloadedImage && !self.isImage) {
         // File message preview
         NSData *originalData =  [self.managedObjectContext.zm_imageAssetCache assetData:self.nonce
                                                                                  format:ZMImageFormatOriginal
@@ -1052,7 +1078,7 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 
 - (BOOL)isImage
 {
-    return [self.mimeType isImageMimeType];
+    return self.genericAssetMessage.assetData.original.hasImage;
 }
 
 - (CGSize)videoDimensions
