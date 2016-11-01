@@ -156,6 +156,8 @@ public class UserClientKeysStore: NSObject {
         }
     }
 
+    /// Generates the last prekey (fallback prekey). This should not be
+    /// generated more than once, or the previous last prekey will be invalidated.
     public func lastPreKey() throws -> String {
         var error: NSError?
         if internalLastPreKey == nil {
@@ -174,6 +176,8 @@ public class UserClientKeysStore: NSObject {
         return internalLastPreKey!
     }
     
+    /// Generates prekeys in a range. This should not be called more than once
+    /// for a given range, or the previously generated prekeys will be invalidated.
     public func generateMoreKeys(_ count: UInt16 = 1, start: UInt16 = 0) throws -> [(id: UInt16, prekey: String)] {
         if count > 0 {
             var error : Error?
