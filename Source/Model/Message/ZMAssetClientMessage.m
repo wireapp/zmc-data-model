@@ -324,6 +324,8 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 - (BOOL)hasDownloadedImage
 {
     if(self.imageMessageData != nil || self.fileMessageData != nil) {
+        // TODO: Check if it's v3 and then use file cache
+
         return [self.managedObjectContext.zm_imageAssetCache assetData:self.nonce format:ZMImageFormatMedium encrypted:NO] != nil // processed or downloaded
         || [self.managedObjectContext.zm_imageAssetCache assetData:self.nonce format:ZMImageFormatOriginal encrypted:NO] != nil; // original
     }
@@ -332,6 +334,7 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 
 - (BOOL)hasDownloadedFile
 {
+    // TODO: V3 If we receive an image as asset we might not have a filename
     return self.fileMessageData != nil && self.filename != nil &&
         [self.managedObjectContext.zm_fileAssetCache hasDataOnDisk:self.nonce fileName:self.filename encrypted:NO];
 }

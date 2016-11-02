@@ -2000,3 +2000,9 @@ extension ZMAssetClientMessageTests {
     }
     
 }
+
+// MARK: - Asset V3
+
+extension ZMAssetClientMessageTests {
+
+}
