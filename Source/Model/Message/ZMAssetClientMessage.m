@@ -180,6 +180,7 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 }
 
 - (NSURL *)fileURL {
+
     if (self.version == 3 && self.genericAssetMessage.assetData.uploaded.hasAssetId) { // V3
         NSString *cacheKeySuffix = self.genericAssetMessage.assetData.uploaded.assetId;
         return [self.managedObjectContext.zm_fileAssetCache accessAssetURL:self.nonce fileName:cacheKeySuffix];
@@ -400,13 +401,11 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
     }
     
     if (message.assetData.hasUploaded) {
-        NSDictionary *eventData = [updateEvent.payload dictionaryForKey:@"data"];
-
-        // V2, we directly access the protobuf for the assetId when using V3
         BOOL isVersion_3 = message.assetData.hasUploaded && message.assetData.uploaded.hasAssetId;
-        if (isVersion_3) {
+        if (isVersion_3) { // V3, we directly access the protobuf for the assetId
             self.version = 3;
-        } else {
+        } else { // V2
+            NSDictionary *eventData = [updateEvent.payload dictionaryForKey:@"data"];
             self.assetId = [NSUUID uuidWithTransportString:[eventData stringForKey:@"id"]];
         }
 

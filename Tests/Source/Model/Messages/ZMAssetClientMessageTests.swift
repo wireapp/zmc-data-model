@@ -225,6 +225,7 @@ class ZMAssetClientMessageTests : BaseZMAssetClientMessageTests {
         
         XCTAssertNil(message.imageMessageData?.mediumData)
         XCTAssertFalse(message.hasDownloadedImage)
+        XCTAssertEqual(message.version, 2)
     }
     
 }
@@ -252,6 +253,7 @@ extension ZMAssetClientMessageTests {
         XCTAssertEqual(sut.transferState, ZMFileTransferState.uploading)
         XCTAssertEqual(sut.filename, currentTestURL!.lastPathComponent)
         XCTAssertNotNil(sut.fileMessageData)
+        XCTAssertEqual(sut.version, 2)
     }
     
     func testThatItHasDownloadedFileWhenTheFileIsOnDisk()
@@ -2003,6 +2005,114 @@ extension ZMAssetClientMessageTests {
 
 // MARK: - Asset V3
 
+
+// MARK: Receiving
+
 extension ZMAssetClientMessageTests {
+
+    private func uploadedGenericMessage(nonce: String, otr: Data = .randomEncryptionKey(), sha: Data = .zmRandomSHA256Key(), assetId: String = UUID.create().transportString(), token: String? = UUID.create().transportString()) -> ZMGenericMessage {
+
+        let assetBuilder = ZMAsset.builder()!
+        let remoteBuilder = ZMAssetRemoteData.builder()!
+
+        _ = remoteBuilder.setOtrKey(otr)
+        _ = remoteBuilder.setSha256(sha)
+        _ = remoteBuilder.setAssetId(assetId)
+        _ = remoteBuilder.setAssetToken(token)
+
+        assetBuilder.setUploaded(remoteBuilder)
+        return ZMGenericMessage.genericMessage(asset: assetBuilder.build(), messageID: nonce)
+    }
+
+
+    func previewGenericMessage(with nonce: String, otr: Data = .randomEncryptionKey(), sha: Data = .randomEncryptionKey()) -> (ZMGenericMessage, PreviewMeta) {
+        let (assetId, token) = (UUID.create().transportString(), UUID.create().transportString())
+        let assetBuilder = ZMAsset.builder()
+        let previewBuilder = ZMAssetPreview.builder()
+        let remoteBuilder = ZMAssetRemoteData.builder()
+
+        _ = remoteBuilder?.setOtrKey(otr)
+        _ = remoteBuilder?.setSha256(sha)
+        _ = remoteBuilder?.setAssetId(assetId)
+        _ = remoteBuilder?.setAssetToken(token)
+        _ = previewBuilder?.setSize(512)
+        _ = previewBuilder?.setMimeType("image/jpg")
+        _ = previewBuilder?.setRemote(remoteBuilder)
+        _ = assetBuilder?.setPreview(previewBuilder)
+
+        let previewMeta = (otr, sha, assetId, token)
+        return (ZMGenericMessage.genericMessage(asset: assetBuilder!.build(), messageID: nonce), previewMeta)
+    }
+
+    func testThatItSetsVersion3WhenAMessageIsUpdatedWithAnAssetUploadedWithAssetId_V3() {
+        // given
+        let nonce = UUID.create()
+        let sut = ZMAssetClientMessage.insertNewObject(in: uiMOC)
+        sut.nonce = nonce
+        XCTAssertTrue(uiMOC.saveOrRollback())
+        XCTAssertNotNil(sut)
+
+        // when
+        let uploaded = uploadedGenericMessage(nonce: nonce.transportString())
+
+        sut.update(with: uploaded, updateEvent: ZMUpdateEvent())
+
+        // then
+        XCTAssertEqual(sut.version, 3)
+    }
+
+    func testThatItSetsVersion3WhenAMessageIsUpdatedWithAnAssetPreviewWithAssetId_V3() {
+        XCTFail()
+    }
+
+    func testThatItDoesNotSetVersion3WhenAMessageIsUpdatedWithAnAssetUploadedWithoutAssetId_V3() {
+        XCTFail()
+    }
+
+    func testThatItDoesNotSetVersion3WhenAMessageIsUpdatedWithAnAssetPreviewWithoutAssetId_V3() {
+        XCTFail()
+    }
+
+    func testThatItCreatesAnAssetMessageFromUpdateEventWithAssetId_V3() {
+        XCTFail()
+    }
+
+    func testThatItReportsDownloadedFileWhenThereIsAFileOnDisk_V3() {
+        XCTFail()
+    }
+
+    func testThatItReportsDownloadedImageWhenThereIsAFileInTheCache_V3() {
+        XCTFail()
+    }
+
+    func testThatItReportsIsImageWhenItHaseImageMetaData() {
+        XCTFail()
+    }
+
+    func testThatItReturnsTheAssetIdAsImageDataIdentifierWhenItRepresentsAnImage_V3() {
+        XCTFail()
+    }
+
+    func testThatItReturnsTheThumbnailIdWhenItHasAPreviewRemoteData_V3() {
+        XCTFail()
+    }
+
+    func testThatItReturnsTheThumbnailDataWhenItHasItOnisk_V3() {
+        XCTFail()
+    }
+
+    func testThatDoesNotHaveDownloadedImageWhenTheImageIsNotOnDisk_V3() {
+        XCTFail()
+    }
+
+    func testThatRequestingImageDownloadFiresANotification_V3() {
+        XCTFail()
+    }
+
+    func testThatItReturnsTheImageDataFromTheFileAssetCacheIfItRepresentsAnImage_V3() {
+        XCTFail()
+    }
+
+
 
 }
