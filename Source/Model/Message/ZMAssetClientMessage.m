@@ -180,7 +180,10 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 }
 
 - (NSURL *)fileURL {
-    if(self.filename) {
+    if (self.version == 3 && self.genericAssetMessage.assetData.uploaded.hasAssetId) { // V3
+        NSString *cacheKeySuffix = self.genericAssetMessage.assetData.uploaded.assetId;
+        return [self.managedObjectContext.zm_fileAssetCache accessAssetURL:self.nonce fileName:cacheKeySuffix];
+    } else if (nil != self.filename) { // V2
         return [self.managedObjectContext.zm_fileAssetCache accessAssetURL:self.nonce fileName:self.filename];
     } else {
         return nil;
@@ -301,7 +304,7 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
                           self.previewGenericMessage.imageAssetData != nil;
 
     // V3
-    BOOL isAssetV3Image = self.fileMessageData.isImage;
+    BOOL isAssetV3Image = self.version == 3 && self.fileMessageData.isImage;
 
     return isImageMessage || isAssetV3Image ? self : nil;
 }
@@ -341,7 +344,10 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
             } else if (self.genericAssetMessage.assetData.preview.remote.hasAssetId) {
                 cacheKeySyffix = self.genericAssetMessage.assetData.preview.remote.assetId;
             }
-            return [self.managedObjectContext.zm_fileAssetCache assetData:self.nonce fileName:cacheKeySyffix encrypted:NO] != nil;
+            if (nil != cacheKeySyffix) {
+                return [self.managedObjectContext.zm_fileAssetCache assetData:self.nonce fileName:cacheKeySyffix encrypted:NO] != nil;
+            }
+            return NO;
         }
 
         // V2
@@ -354,11 +360,16 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 - (BOOL)hasDownloadedFile
 {
     // V3 If we receive an image as asset we do not have a filename and use the assetId as key
-    if (self.fileMessageData != nil && self.isImage && self.version == 3) {
-        NSString *keySuffix = self.genericAssetMessage.assetData.uploaded.assetId;
-        return [self.managedObjectContext.zm_fileAssetCache hasDataOnDisk:self.nonce fileName:keySuffix encrypted:NO];
+    if (self.version == 3 && nil != self.fileMessageData) {
+        if (self.isImage) {
+            return self.hasDownloadedImage;
+        } else {
+            NSString *keySuffix = self.genericAssetMessage.assetData.uploaded.assetId;
+            return [self.managedObjectContext.zm_fileAssetCache hasDataOnDisk:self.nonce fileName:keySuffix encrypted:NO];
+        }
     }
 
+    // V2
     return self.fileMessageData != nil && self.filename != nil &&
         [self.managedObjectContext.zm_fileAssetCache hasDataOnDisk:self.nonce fileName:self.filename encrypted:NO];
 }
@@ -392,10 +403,11 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
         NSDictionary *eventData = [updateEvent.payload dictionaryForKey:@"data"];
 
         // V2, we directly access the protobuf for the assetId when using V3
-        if (! message.assetData.uploaded.hasAssetId) {
-            self.assetId = [NSUUID uuidWithTransportString:[eventData stringForKey:@"id"]];
-        } else {
+        BOOL isVersion_3 = message.assetData.hasUploaded && message.assetData.uploaded.hasAssetId;
+        if (isVersion_3) {
             self.version = 3;
+        } else {
+            self.assetId = [NSUUID uuidWithTransportString:[eventData stringForKey:@"id"]];
         }
 
         self.transferState = ZMFileTransferStateUploaded;
@@ -414,14 +426,17 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 
     // V2, we do not set the thumbnail assetId in case there is one in the protobuf, then we can access it directly for V3
     if (message.assetData.preview.hasRemote && !message.assetData.hasUploaded && ! message.assetData.preview.remote.hasAssetId) {
-        NSDictionary *eventData = [updateEvent.payload dictionaryForKey:@"data"];
-        NSString *thumbnailId = [eventData stringForKey:@"id"];
+        if (! message.assetData.preview.remote.hasAssetId) {
+            NSDictionary *eventData = [updateEvent.payload dictionaryForKey:@"data"];
+            NSString *thumbnailId = [eventData stringForKey:@"id"];
 
-        if (nil != thumbnailId) {
-            self.fileMessageData.thumbnailAssetID = thumbnailId;
+            if (nil != thumbnailId) {
+                self.fileMessageData.thumbnailAssetID = thumbnailId;
+            }
+        } else {
+            self.version = 3;
         }
-    } else {
-        self.version = 3;
+
     }
 }
 
@@ -482,7 +497,6 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
         [self startDestructionIfNeeded];
     }
 }
-
 
 - (NSString *)filename
 {
@@ -813,7 +827,7 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 - (CGSize)originalImageSize
 {
     // V3
-    if (nil != self.fileMessageData && self.isImage) {
+    if (nil != self.fileMessageData && self.isImage && self.version == 3) {
         ZMAsset *asset = self.genericAssetMessage.assetData;
         if (asset.original.hasImage && asset.original.image.width != 0) {
             ZMAssetImageMetaData *imageMeta = asset.original.image;
@@ -877,9 +891,9 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 - (NSData *)imageDataForFormat:(ZMImageFormat)format encrypted:(BOOL)encrypted
 {
     // V3
-    // TODO: Create fileame with suffix for diffenrent formats, see StringFromImageFormat(format)
     if (format == ZMImageFormatMedium && self.fileMessageData != nil && self.isImage) {
-        return [self.managedObjectContext.zm_fileAssetCache assetData:self.nonce fileName:self.filename encrypted:encrypted];
+        NSString *cacheKeySuffix = self.genericAssetMessage.assetData.uploaded.assetId;
+        return [self.managedObjectContext.zm_fileAssetCache assetData:self.nonce fileName:cacheKeySuffix encrypted:encrypted];
     }
 
     // V2
@@ -948,7 +962,7 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
     if (nil != self.fileMessageData && self.hasDownloadedImage && !self.isImage) {
 
         if (self.version == 3) { // V3
-            // TODO: Original data for sending
+            // TODO: Check original data when sending
             NSString *previewAssetId = self.genericAssetMessage.assetData.preview.remote.assetId;
             return [self.managedObjectContext.zm_fileAssetCache assetData:self.nonce fileName:previewAssetId encrypted:NO];
         } else { // V2
@@ -1048,7 +1062,7 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
     }
 
     // V3
-    if (self.isImage) {
+    if (self.version == 3 && self.isImage) {
         return self.genericAssetMessage.assetData.uploaded.assetId;
     }
 
