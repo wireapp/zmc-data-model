@@ -424,7 +424,7 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
     }
 
     // V2, we do not set the thumbnail assetId in case there is one in the protobuf, then we can access it directly for V3
-    if (message.assetData.preview.hasRemote && !message.assetData.hasUploaded && ! message.assetData.preview.remote.hasAssetId) {
+    if (message.assetData.preview.hasRemote && !message.assetData.hasUploaded) {
         if (! message.assetData.preview.remote.hasAssetId) {
             NSDictionary *eventData = [updateEvent.payload dictionaryForKey:@"data"];
             NSString *thumbnailId = [eventData stringForKey:@"id"];
