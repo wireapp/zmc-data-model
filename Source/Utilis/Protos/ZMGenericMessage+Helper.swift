@@ -69,6 +69,28 @@ public extension ZMGenericMessage {
 
 public extension ZMGenericMessage {
 
+    var v3_isImage: Bool {
+        return assetData?.original.hasImage() == true
+    }
+
+    var v3_uploadedAssetId: String? {
+        guard assetData?.uploaded.hasAssetId() == true else { return nil }
+        return assetData?.uploaded.assetId
+    }
+
+    var previewAssetId: String? {
+        guard assetData?.preview.remote.hasAssetId() == true else { return nil }
+        return assetData?.preview.remote.assetId
+    }
+
+    var v3_imageCacheKey: String? {
+        return v3_isImage ? v3_uploadedAssetId : previewAssetId
+    }
+
+}
+
+public extension ZMGenericMessage {
+
     public static func genericMessage(external: ZMExternal, messageID: String) -> ZMGenericMessage {
         return genericMessage(pbMessage: external, messageID: messageID)
     }

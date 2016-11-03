@@ -225,7 +225,7 @@ class ZMAssetClientMessageTests : BaseZMAssetClientMessageTests {
         
         XCTAssertNil(message.imageMessageData?.mediumData)
         XCTAssertFalse(message.hasDownloadedImage)
-        XCTAssertEqual(message.version, 2)
+        XCTAssertEqual(message.version, 0)
     }
     
 }
@@ -253,7 +253,7 @@ extension ZMAssetClientMessageTests {
         XCTAssertEqual(sut.transferState, ZMFileTransferState.uploading)
         XCTAssertEqual(sut.filename, currentTestURL!.lastPathComponent)
         XCTAssertNotNil(sut.fileMessageData)
-        XCTAssertEqual(sut.version, 2)
+        XCTAssertEqual(sut.version, 0)
     }
     
     func testThatItHasDownloadedFileWhenTheFileIsOnDisk()
@@ -2011,32 +2011,39 @@ extension ZMAssetClientMessageTests {
 
 extension ZMAssetClientMessageTests {
 
-    typealias PreviewMeta = (otr: Data, sha: Data, assetId: String, token: String)
+    typealias PreviewMeta = (otr: Data, sha: Data, assetId: String?, token: String?)
 
-    private func uploadedGenericMessage(nonce: String, otr: Data = .randomEncryptionKey(), sha: Data = .zmRandomSHA256Key(), assetId: String = UUID.create().transportString(), token: String? = UUID.create().transportString()) -> ZMGenericMessage {
+    private func uploadedGenericMessage(nonce: String, otr: Data = .randomEncryptionKey(), sha: Data = .zmRandomSHA256Key(), assetId: String? = UUID.create().transportString(), token: String? = UUID.create().transportString()) -> ZMGenericMessage {
 
         let assetBuilder = ZMAsset.builder()!
         let remoteBuilder = ZMAssetRemoteData.builder()!
 
         _ = remoteBuilder.setOtrKey(otr)
         _ = remoteBuilder.setSha256(sha)
-        _ = remoteBuilder.setAssetId(assetId)
-        _ = remoteBuilder.setAssetToken(token)
+        if let assetId = assetId {
+            _ = remoteBuilder.setAssetId(assetId)
+        }
+        if let token = token {
+            _ = remoteBuilder.setAssetToken(token)
+        }
 
         assetBuilder.setUploaded(remoteBuilder)
         return ZMGenericMessage.genericMessage(asset: assetBuilder.build(), messageID: nonce)
     }
 
-    func previewGenericMessage(with nonce: String, otr: Data = .randomEncryptionKey(), sha: Data = .randomEncryptionKey()) -> (ZMGenericMessage, PreviewMeta) {
-        let (assetId, token) = (UUID.create().transportString(), UUID.create().transportString())
+    func previewGenericMessage(with nonce: String, assetId: String? = UUID.create().transportString(), token: String? = UUID.create().transportString(), otr: Data = .randomEncryptionKey(), sha: Data = .randomEncryptionKey()) -> (ZMGenericMessage, PreviewMeta) {
         let assetBuilder = ZMAsset.builder()
         let previewBuilder = ZMAssetPreview.builder()
         let remoteBuilder = ZMAssetRemoteData.builder()
 
         _ = remoteBuilder?.setOtrKey(otr)
         _ = remoteBuilder?.setSha256(sha)
-        _ = remoteBuilder?.setAssetId(assetId)
-        _ = remoteBuilder?.setAssetToken(token)
+        if let assetId = assetId {
+            _ = remoteBuilder?.setAssetId(assetId)
+        }
+        if let token = token {
+            _ = remoteBuilder?.setAssetToken(token)
+        }
         _ = previewBuilder?.setSize(512)
         _ = previewBuilder?.setMimeType("image/jpg")
         _ = previewBuilder?.setRemote(remoteBuilder)
@@ -2079,11 +2086,35 @@ extension ZMAssetClientMessageTests {
     }
 
     func testThatItDoesNotSetVersion3WhenAMessageIsUpdatedWithAnAssetUploadedWithoutAssetId_V3() {
-        XCTFail()
+        // given
+        let nonce = UUID.create()
+        let sut = ZMAssetClientMessage.insertNewObject(in: uiMOC)
+        sut.nonce = nonce
+        XCTAssertTrue(uiMOC.saveOrRollback())
+        XCTAssertNotNil(sut)
+
+        // when
+        let uploaded = uploadedGenericMessage(nonce: nonce.transportString(), assetId: nil, token: nil)
+        sut.update(with: uploaded, updateEvent: ZMUpdateEvent())
+
+        // then
+        XCTAssertEqual(sut.version, 0)
     }
 
     func testThatItDoesNotSetVersion3WhenAMessageIsUpdatedWithAnAssetPreviewWithoutAssetId_V3() {
-        XCTFail()
+        // given
+        let nonce = UUID.create()
+        let sut = ZMAssetClientMessage.insertNewObject(in: uiMOC)
+        sut.nonce = nonce
+        XCTAssertTrue(uiMOC.saveOrRollback())
+        XCTAssertNotNil(sut)
+
+        // when
+        let (preview, _) = previewGenericMessage(with: nonce.transportString(), assetId: nil, token: nil)
+        sut.update(with: preview, updateEvent: ZMUpdateEvent())
+
+        // then
+        XCTAssertEqual(sut.version, 0)
     }
 
     func testThatItCreatesAnAssetMessageFromUpdateEventWithAssetId_V3() {

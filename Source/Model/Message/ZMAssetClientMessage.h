@@ -48,6 +48,8 @@ extern NSString * _Nonnull const ZMAssetClientMessageUploadedStateKey;
 
 - (ZMGenericMessage * _Nullable )genericMessageForFormat:(ZMImageFormat)format;
 
+- (CGSize)preprocessedSize;
+
 @end
 
 
