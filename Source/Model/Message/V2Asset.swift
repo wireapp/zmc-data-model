@@ -35,7 +35,7 @@ extension String {
 
     fileprivate let assetClientMessage: ZMAssetClientMessage
     fileprivate let moc: NSManagedObjectContext
-    private let assetStorage: ZMImageAssetStorage
+    fileprivate let assetStorage: ZMImageAssetStorage
 
     public init?(with message: ZMAssetClientMessage) {
         guard message.version < 3, let storage = message.imageAssetStorage else { return nil }
@@ -43,6 +43,13 @@ extension String {
         assetStorage = storage
         moc = message.managedObjectContext!
     }
+
+    public var imageMessageData: ZMImageMessageData? {
+        guard nil != assetStorage.mediumGenericMessage || nil != assetStorage.previewGenericMessage else { return nil }
+        return self
+    }
+
+    // MARK: - ZMImageMessageData
 
     public var mediumData: Data? {
         if assetStorage.mediumGenericMessage?.imageAssetData?.width > 0 {
@@ -127,6 +134,18 @@ extension V2ImageAsset: AssetProxyType {
     public var fileURL: URL? {
         guard let name = assetClientMessage.filename else { return nil }
         return moc.zm_fileAssetCache.accessAssetURL(assetClientMessage.nonce, fileName: name)
+    }
+
+    public func imageData(for format: ZMImageFormat, encrypted: Bool) -> Data? {
+        if format != .original {
+            let message = format == .medium ? assetStorage.mediumGenericMessage : assetStorage.previewGenericMessage
+            guard message?.imageAssetData?.size > 0 else { return nil }
+            if encrypted && message?.imageAssetData?.otrKey.count == 0 {
+                return nil
+            }
+        }
+
+        return moc.zm_imageAssetCache.assetData(assetClientMessage.nonce, format: format, encrypted: encrypted)
     }
 
 }

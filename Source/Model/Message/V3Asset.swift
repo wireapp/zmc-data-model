@@ -24,8 +24,11 @@ import MobileCoreServices
 @objc public protocol AssetProxyType {
     var hasDownloadedImage: Bool { get }
     var hasDownloadedFile: Bool { get }
-
+    var imageMessageData: ZMImageMessageData? { get }
     var fileURL: URL? { get }
+
+    @objc(imageDataForFormat:encrypted:)
+    func imageData(for: ZMImageFormat, encrypted: Bool) -> Data?
 }
 
 
@@ -44,6 +47,11 @@ import MobileCoreServices
         assetClientMessage = message
         assetStorage = storage
         moc = message.managedObjectContext!
+    }
+
+    public var imageMessageData: ZMImageMessageData? {
+        guard isImage || (nil != assetClientMessage.fileMessageData && hasDownloadedImage) else { return nil }
+        return self
     }
 
     public var mediumData: Data? {
@@ -70,7 +78,7 @@ import MobileCoreServices
     }
 
     public var previewData: Data? {
-        guard nil != assetClientMessage.fileMessageData, isImage, assetClientMessage.hasDownloadedImage else { return nil }
+        guard nil != assetClientMessage.fileMessageData, !isImage, assetClientMessage.hasDownloadedImage else { return nil }
         guard let cacheKey = assetClientMessage.genericAssetMessage?.previewAssetId else { return nil }
         return moc.zm_fileAssetCache.assetData(assetClientMessage.nonce, fileName: cacheKey, encrypted: false)
     }
@@ -100,13 +108,19 @@ extension V3ImageAsset: AssetProxyType {
     }
 
     public var hasDownloadedFile: Bool {
-        let isImageAndDownloaded = isImage && hasDownloadedImage
-        return isImageAndDownloaded || hasFile(for: assetClientMessage.genericAssetMessage?.v3_uploadedAssetId)
+        guard !isImage else { return false }
+        return hasFile(for: assetClientMessage.genericAssetMessage?.v3_uploadedAssetId)
     }
 
     public var fileURL: URL? {
         guard let key = assetClientMessage.genericAssetMessage?.v3_uploadedAssetId else { return nil }
         return moc.zm_fileAssetCache.accessAssetURL(assetClientMessage.nonce, fileName: key)
+    }
+
+    public func imageData(for format: ZMImageFormat, encrypted: Bool) -> Data? {
+        guard format == .medium, assetClientMessage.fileMessageData != nil, isImage else { return nil }
+        guard let key = assetClientMessage.genericAssetMessage?.v3_uploadedAssetId else { return nil }
+        return moc.zm_fileAssetCache.assetData(assetClientMessage.nonce, fileName: key, encrypted: encrypted)
     }
 
     // MARK: - Helper
