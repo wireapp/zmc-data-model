@@ -29,6 +29,12 @@ extension ZMAssetClientMessage {
     }
     
     public override func requestImageDownload() {
+        // V3
+        if let fileData = fileMessageData, fileData.isImage() {
+            return requestFileDownload()
+        }
+
+        // V2
         // objects with temp ID on the UI must just have been inserted so no need to download
         guard !self.objectID.isTemporaryID else { return }
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: type(of: self).ImageDownloadNotificationName), object: self.objectID)
@@ -38,6 +44,7 @@ extension ZMAssetClientMessage {
 extension ZMImageMessage {
     
     public override func requestImageDownload() {
+        // V2
         // objects with temp ID on the UI must just have been inserted so no need to download
         guard !self.objectID.isTemporaryID else { return }
         NotificationCenter.default.post(name: NSNotification.Name(rawValue: ZMAssetClientMessage.ImageDownloadNotificationName), object: self.objectID)

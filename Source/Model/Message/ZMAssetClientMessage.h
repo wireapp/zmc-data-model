@@ -48,6 +48,8 @@ extern NSString * _Nonnull const ZMAssetClientMessageUploadedStateKey;
 
 - (ZMGenericMessage * _Nullable )genericMessageForFormat:(ZMImageFormat)format;
 
+- (CGSize)preprocessedSize;
+
 @end
 
 
@@ -102,6 +104,10 @@ typedef NS_ENUM(int16_t, ZMAssetUploadState) {
 /// Whether the file was downloaded
 @property (nonatomic, readonly) BOOL hasDownloadedFile;
 
+/// The asset endpoint version used to generate this message
+/// values lower than 3 represent an enpoint version of 2
+@property (nonatomic, readonly) int16_t version;
+
 // The image metaData if if this @c ZMAssetClientMessage represents an image or @c nil otherwise
 @property (nonatomic, readonly) id <ZMImageAssetStorage> _Nullable imageAssetStorage;
 
@@ -121,6 +127,12 @@ typedef NS_ENUM(int16_t, ZMAssetUploadState) {
                                                      nonce:(nonnull NSUUID *)nonce
                                       managedObjectContext:(nonnull NSManagedObjectContext *)moc
                                               expiresAfter:(NSTimeInterval)timeout;
+
++ (nonnull instancetype)assetClientMessageWithFileMetadata:(nonnull ZMFileMetadata *)metadata
+                                                     nonce:(nonnull NSUUID *)nonce
+                                      managedObjectContext:(nonnull NSManagedObjectContext *)moc
+                                              expiresAfter:(NSTimeInterval)timeout
+                                                  version3:(BOOL)version3;
 
 /// Adds a (protobuf) data entry to the list of generic message data
 - (void)addGenericMessage:(ZMGenericMessage * _Nonnull)genericMessage;

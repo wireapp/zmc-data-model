@@ -183,7 +183,7 @@ typedef NS_ENUM(int16_t, ZMFileTransferState) {
 - (BOOL)isAudio;
 
 /// Image-message related properties
-/// if MIME type is indicating image content, only used for v3 assets
+/// if the file message represents an image (presence of image meta data in the protobuf)
 - (BOOL)isImage;
 
 @end
