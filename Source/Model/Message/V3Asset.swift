@@ -27,8 +27,13 @@ import MobileCoreServices
     var imageMessageData: ZMImageMessageData? { get }
     var fileURL: URL? { get }
 
+    var previewData: Data? { get }
+    var imagePreviewDataIdentifier: String? { get }
+
     @objc(imageDataForFormat:encrypted:)
     func imageData(for: ZMImageFormat, encrypted: Bool) -> Data?
+
+    func requestFileDownload()
 }
 
 
@@ -96,7 +101,12 @@ import MobileCoreServices
         guard nil != assetClientMessage.fileMessageData, isImage else { return .zero }
         guard let asset = assetClientMessage.genericAssetMessage?.assetData else { return .zero }
         guard asset.original.hasImage(), asset.original.image.width > 0 else { return .zero }
-        return CGSize(width: Int(asset.original.image.width), height: Int(asset.original.image.height))
+        let size =  CGSize(width: Int(asset.original.image.width), height: Int(asset.original.image.height))
+        if size != .zero {
+            return size
+        }
+
+        return assetClientMessage.preprocessedSize
     }
 
 }
@@ -121,6 +131,12 @@ extension V3ImageAsset: AssetProxyType {
         guard format == .medium, assetClientMessage.fileMessageData != nil, isImage else { return nil }
         guard let key = assetClientMessage.genericAssetMessage?.v3_uploadedAssetId else { return nil }
         return moc.zm_fileAssetCache.assetData(assetClientMessage.nonce, fileName: key, encrypted: encrypted)
+    }
+
+    public func requestFileDownload() {
+        guard assetClientMessage.fileMessageData != nil else { return }
+        let hasDownloaded = isImage ? hasDownloadedImage : hasDownloadedFile
+        assetClientMessage.transferState = hasDownloaded ? .downloaded : .downloading
     }
 
     // MARK: - Helper

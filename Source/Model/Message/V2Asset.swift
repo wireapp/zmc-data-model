@@ -97,7 +97,12 @@ extension String {
     public var originalSize: CGSize {
         let genericMessage = assetStorage.mediumGenericMessage ?? assetStorage.previewGenericMessage
         guard let asset = genericMessage?.imageAssetData, asset.originalWidth > 0 else { return assetStorage.preprocessedSize() }
-        return CGSize(width: Int(asset.originalWidth), height: Int(asset.originalHeight))
+        let size = CGSize(width: Int(asset.originalWidth), height: Int(asset.originalHeight))
+        if size != .zero {
+            return size
+        }
+
+        return assetClientMessage.preprocessedSize
     }
 
     // MARK: - Helper
@@ -146,6 +151,11 @@ extension V2ImageAsset: AssetProxyType {
         }
 
         return moc.zm_imageAssetCache.assetData(assetClientMessage.nonce, format: format, encrypted: encrypted)
+    }
+
+    public func requestFileDownload() {
+        guard assetClientMessage.fileMessageData != nil else { return }
+        assetClientMessage.transferState = hasDownloadedFile ? .downloaded : .downloading
     }
 
 }
