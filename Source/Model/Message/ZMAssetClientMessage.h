@@ -80,6 +80,9 @@ typedef NS_ENUM(int16_t, ZMAssetUploadState) {
 /// Whether the asset was delivered to the Backend
 @property (nonatomic) BOOL delivered;
 
+
+@property (nonatomic, readonly) CGSize preprocessedSize;
+
 /// MIME type of the file being transfered (implied from file extension)
 @property (nonatomic, readonly) NSString * _Nullable mimeType;
 

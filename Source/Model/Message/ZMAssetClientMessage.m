@@ -49,7 +49,7 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 
 
 
-@interface ZMAssetClientMessage (ImageAndFileMessageData) <ZMImageMessageData, ZMFileMessageData>
+@interface ZMAssetClientMessage (ImageAndFileMessageData) <ZMFileMessageData>
 
 @end
 
@@ -144,7 +144,7 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
     return message;
 }
 
-- (id <ZMImageMessageData, AssetProxyType>)asset
+- (id <AssetProxyType>)asset
 {
     return self.v2ImageAsset ?: self.v3ImageAsset;
 }
@@ -198,24 +198,14 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
     return self.asset.fileURL;
 }
 
-// Unfotunately we can not create the assets in -awakeFromInsert, as
-// the version is not yet set at that point.
 - (V2ImageAsset *)v2ImageAsset
 {
-    if (! _v2ImageAsset) {
-        _v2ImageAsset = [[V2ImageAsset alloc] initWith:self];
-    }
-
-    return _v2ImageAsset;
+    return [[V2ImageAsset alloc] initWith:self];
 }
 
 - (V3ImageAsset *)v3ImageAsset
 {
-    if (! _v3ImageAsset) {
-        _v3ImageAsset = [[V3ImageAsset alloc] initWith:self];
-    }
-
-    return _v3ImageAsset;
+    return [[V3ImageAsset alloc] initWith:self];
 }
 
 - (ZMGenericMessage *)genericAssetMessage
@@ -496,14 +486,7 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 
 - (void)requestFileDownload
 {
-    if (self.fileMessageData != nil) {
-        if (self.hasDownloadedFile) {
-            self.transferState = ZMFileTransferStateDownloaded;
-            return;
-        }
-        
-        self.transferState = ZMFileTransferStateDownloading;
-    }
+    [self.asset requestFileDownload];
 }
 
 - (void)setAndSyncNotUploaded:(ZMAssetNotUploaded)notUploaded
@@ -817,7 +800,7 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 
 - (CGSize)originalImageSize
 {
-    return self.originalSize;
+    return self.imageMessageData.originalSize;
 }
 
 - (NSOrderedSet *)requiredImageFormats
@@ -881,22 +864,12 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 
 
 
-#pragma mark - ZMImageMessageData, ZMFileMessageData
+#pragma mark - ZMFileMessageData
 
 
 
 @implementation ZMAssetClientMessage (ImageAndFileMessageData)
 
-/// Returns original data.
-- (NSData *)imageData
-{
-    return self.asset.imageData;
-}
-
-- (NSData *)mediumData
-{
-    return self.asset.mediumData;
-}
 
 - (NSData *)previewData
 {
@@ -964,34 +937,9 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
     [self replaceGenericMessageForThumbnailWithGenericMessage:[messageBuilder build]];
 }
 
-- (NSString *)imageDataIdentifier;
-{
-    return self.asset.imageDataIdentifier;
-}
-
 - (NSString *)imagePreviewDataIdentifier;
 {
     return self.asset.imagePreviewDataIdentifier;
-}
-
-- (BOOL)isAnimatedGIF
-{
-    return self.asset.isAnimatedGIF;
-}
-
-- (NSString *)imageType
-{
-    return self.asset.imageType;
-}
-
-- (CGSize)originalSize
-{
-    CGSize size = self.asset.originalSize;
-    if (! CGSizeEqualToSize(size, CGSizeZero)) {
-        return size;
-    } else {
-        return self.preprocessedSize;
-    }
 }
 
 - (void)cancelTransfer
