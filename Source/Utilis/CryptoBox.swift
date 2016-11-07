@@ -34,7 +34,6 @@ extension NSManagedObjectContext {
         }
         
         let sharedDirectory = directory.appendingPathComponent(UserClientKeysStore.otrFolderPrefix)
-        // Moving directories needed here
 
         let newKeyStore = UserClientKeysStore(in: sharedDirectory)
         self.userInfo.setObject(newKeyStore, forKey: NSManagedObjectContext.ZMUserClientKeysStoreKey as NSCopying)
@@ -43,13 +42,13 @@ extension NSManagedObjectContext {
     /// Returns the cryptobox instance associated with this managed object context
     public var zm_cryptKeyStore : UserClientKeysStore! {
         if !self.zm_isSyncContext {
-            fatal("Can't initiliazie crypto box on non-sync context")
+            fatal("Can't access key store: Currently not on sync context")
         }
         let keyStore = self.userInfo.object(forKey: NSManagedObjectContext.ZMUserClientKeysStoreKey)
         if let keyStore = keyStore as? UserClientKeysStore {
             return keyStore
         } else {
-            fatal("What?! where is your keystore?!")
+            fatal("Can't access key store: not keystore found.")
         }
         
     }
