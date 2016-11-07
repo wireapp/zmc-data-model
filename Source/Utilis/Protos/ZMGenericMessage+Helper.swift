@@ -73,9 +73,20 @@ public extension ZMGenericMessage {
         return assetData?.original.hasImage() == true
     }
 
-    var v3_uploadedAssetId: String? {
+    private var v3_uploadedAssetId: String? {
         guard assetData?.uploaded.hasAssetId() == true else { return nil }
         return assetData?.uploaded.assetId
+    }
+
+    var v3_fileCacheKey: String {
+        if let original = assetData?.original,
+            original.hasName(),
+            let assetId = v3_uploadedAssetId,
+            let name = original.name {
+            return assetId + "_" + name
+        }
+
+        return v3_uploadedAssetId ?? ""
     }
 
     var previewAssetId: String? {
@@ -84,7 +95,7 @@ public extension ZMGenericMessage {
     }
 
     var v3_imageCacheKey: String? {
-        return v3_isImage ? v3_uploadedAssetId : previewAssetId
+        return v3_isImage ? v3_fileCacheKey : previewAssetId
     }
 
 }

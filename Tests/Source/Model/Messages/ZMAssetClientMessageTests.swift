@@ -2228,7 +2228,7 @@ extension ZMAssetClientMessageTests {
         sut.update(with: original, updateEvent: ZMUpdateEvent())
         sut.update(with: uploaded, updateEvent: ZMUpdateEvent())
 
-        guard let key = sut.genericAssetMessage?.v3_uploadedAssetId else { return XCTFail() }
+        guard let key = sut.genericAssetMessage?.v3_fileCacheKey else { return XCTFail() }
         uiMOC.zm_fileAssetCache.storeAssetData(nonce, fileName: key, encrypted: false, data: data)
 
         // then

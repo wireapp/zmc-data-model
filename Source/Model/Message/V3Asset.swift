@@ -61,7 +61,7 @@ import MobileCoreServices
 
     public var mediumData: Data? {
         guard nil != assetClientMessage.fileMessageData, isImage else { return nil }
-        guard let cacheKey = assetClientMessage.genericAssetMessage?.v3_uploadedAssetId else { return nil }
+        guard let cacheKey = assetClientMessage.genericAssetMessage?.v3_fileCacheKey else { return nil }
         return moc.zm_fileAssetCache.assetData(assetClientMessage.nonce, fileName: cacheKey, encrypted: false)
     }
 
@@ -72,7 +72,7 @@ import MobileCoreServices
 
     public var imageDataIdentifier: String? {
         if nil != assetClientMessage.fileMessageData, isImage {
-            return assetClientMessage.genericAssetMessage?.v3_uploadedAssetId
+            return assetClientMessage.genericAssetMessage?.v3_fileCacheKey
         }
 
         return imageData.map { String(format: "orig-%p", $0 as NSData) }
@@ -119,17 +119,17 @@ extension V3ImageAsset: AssetProxyType {
 
     public var hasDownloadedFile: Bool {
         guard !isImage else { return false }
-        return hasFile(for: assetClientMessage.genericAssetMessage?.v3_uploadedAssetId)
+        return hasFile(for: assetClientMessage.genericAssetMessage?.v3_fileCacheKey)
     }
 
     public var fileURL: URL? {
-        guard let key = assetClientMessage.genericAssetMessage?.v3_uploadedAssetId else { return nil }
+        guard let key = assetClientMessage.genericAssetMessage?.v3_fileCacheKey else { return nil }
         return moc.zm_fileAssetCache.accessAssetURL(assetClientMessage.nonce, fileName: key)
     }
 
     public func imageData(for format: ZMImageFormat, encrypted: Bool) -> Data? {
         guard format == .medium, assetClientMessage.fileMessageData != nil, isImage else { return nil }
-        guard let key = assetClientMessage.genericAssetMessage?.v3_uploadedAssetId else { return nil }
+        guard let key = assetClientMessage.genericAssetMessage?.v3_fileCacheKey else { return nil }
         return moc.zm_fileAssetCache.assetData(assetClientMessage.nonce, fileName: key, encrypted: encrypted)
     }
 
