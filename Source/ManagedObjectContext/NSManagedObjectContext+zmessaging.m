@@ -47,6 +47,7 @@ static NSString * const IsFailingToSave = @"ZMIsFailingToSave";
 
 static BOOL UsesInMemoryStore;
 static NSURL * DatabaseDirectoryURL;
+static NSString * DatabaseIdentifier;
 static NSPersistentStoreCoordinator *sharedPersistentStoreCoordinator;
 static NSPersistentStoreCoordinator *inMemorySharedPersistentStoreCoordinator;
 static NSString * const ClearPersistentStoreOnStartKey = @"ZMClearPersistentStoreOnStart";
@@ -80,9 +81,10 @@ static NSString* ZMLogTag ZM_UNUSED = @"NSManagedObjectContext";
 
 static BOOL storeIsReady = NO;
 
-+ (BOOL)needsToPrepareLocalStoreInDirectory:(NSURL *)databaseDirectory;
++ (BOOL)needsToPrepareLocalStoreInDirectory:(NSURL *)databaseDirectory identifier:(NSString *)databaseIdentifier
 {
     [self setDatabaseDirectoryURL:databaseDirectory];
+    [self setDatabaseIdentifier:databaseIdentifier];
 
     NSManagedObjectModel *mom = self.loadManagedObjectModel;
     NSDictionary *sharedContainerMetadata = [self metadataForStoreAtURL:self.storeURL];
@@ -94,10 +96,12 @@ static BOOL storeIsReady = NO;
 }
 
 + (void)prepareLocalStoreInternalBackingUpCorruptedDatabase:(BOOL)backupCorruptedDatabase
-                                                inDirectory:(NSURL *)directory
+                                                inDirectory:(NSURL *)databaseDirectory
+                                                 identifier:(NSString *)databaseIdentifier
                                           completionHandler:(void (^)())completionHandler
 {
-    [self setDatabaseDirectoryURL:directory];
+    [self setDatabaseDirectoryURL:databaseDirectory];
+    [self setDatabaseIdentifier:databaseIdentifier];
 
     dispatch_block_t finally = ^() {
         storeIsReady = YES;
@@ -145,12 +149,13 @@ static BOOL storeIsReady = NO;
 }
 
 + (void)prepareLocalStoreSync:(BOOL)sync
-                  inDirectory:(NSURL *)directory
+                  inDirectory:(NSURL *)databaseDirectory
+                   identifier:(NSString *)databaseIdentifier
    backingUpCorruptedDatabase:(BOOL)backupCorruptedDatabase
             completionHandler:(void(^)())completionHandler;
 {
     (sync ? dispatch_sync : dispatch_async)(UIContextCreationQueue(), ^{
-        [self prepareLocalStoreInternalBackingUpCorruptedDatabase:backupCorruptedDatabase inDirectory:directory completionHandler:completionHandler];
+        [self prepareLocalStoreInternalBackingUpCorruptedDatabase:backupCorruptedDatabase inDirectory:databaseDirectory identifier:databaseIdentifier completionHandler:completionHandler];
     });
 }
 
@@ -159,12 +164,12 @@ static BOOL storeIsReady = NO;
     return storeIsReady;
 }
 
-+ (NSPersistentStoreCoordinator *)requirePersistentStoreCoordinatorInDirectory:(NSURL *)directory
++ (NSPersistentStoreCoordinator *)requirePersistentStoreCoordinatorInDirectory:(NSURL *)databaseDirectory identifier:(NSString *)databaseIdentifier
 {
     NSPersistentStoreCoordinator *psc = UsesInMemoryStore ? inMemorySharedPersistentStoreCoordinator : sharedPersistentStoreCoordinator;
     
     if (psc == nil) {
-        [self prepareLocalStoreInternalBackingUpCorruptedDatabase:NO inDirectory:directory completionHandler:nil];
+        [self prepareLocalStoreInternalBackingUpCorruptedDatabase:NO inDirectory:databaseDirectory identifier:databaseIdentifier completionHandler:nil];
         psc = UsesInMemoryStore ? inMemorySharedPersistentStoreCoordinator : sharedPersistentStoreCoordinator;
         Require(psc != nil);
     }
@@ -172,9 +177,9 @@ static BOOL storeIsReady = NO;
     return psc;
 }
 
-+ (instancetype)createUserInterfaceContextWithStoreDirectory:(NSURL *)storeDirectory;
++ (instancetype)createUserInterfaceContextWithStoreDirectory:(NSURL *)storeDirectory storeIdentifier:(NSString *)storeIdentifier;
 {
-    NSPersistentStoreCoordinator *psc = [self requirePersistentStoreCoordinatorInDirectory:storeDirectory];
+    NSPersistentStoreCoordinator *psc = [self requirePersistentStoreCoordinatorInDirectory:storeDirectory identifier:storeIdentifier];
     RequireString(psc != nil, "No persistent store coordinator, call -prepareLocalStore: first.");
     
     SharedUserInterfaceContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
@@ -195,9 +200,9 @@ static BOOL storeIsReady = NO;
     });
 }
 
-+ (instancetype)createSyncContextWithStoreDirectory:(NSURL *)storeDirectory;
++ (instancetype)createSyncContextWithStoreDirectory:(NSURL *)storeDirectory storeIdentifier:(NSString *)storeIdentifier
 {
-    NSPersistentStoreCoordinator *psc = [self requirePersistentStoreCoordinatorInDirectory:storeDirectory];
+    NSPersistentStoreCoordinator *psc = [self requirePersistentStoreCoordinatorInDirectory:storeDirectory identifier:storeIdentifier];
     RequireString(psc != nil, "No persistent store coordinator, call -prepareLocalStore: first.");
 
     NSManagedObjectContext *moc = [[self alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
@@ -212,10 +217,9 @@ static BOOL storeIsReady = NO;
     return moc;
 }
 
-+ (instancetype)createSearchContextWithStoreDirectory:(NSURL *)storeDirectory;
++ (instancetype)createSearchContextWithStoreDirectory:(NSURL *)storeDirectory storeIdentifier:(NSString *)storeIdentifier
 {
-    [self setDatabaseDirectoryURL:storeDirectory];
-    NSPersistentStoreCoordinator *psc = [self requirePersistentStoreCoordinatorInDirectory:storeDirectory];
+    NSPersistentStoreCoordinator *psc = [self requirePersistentStoreCoordinatorInDirectory:storeDirectory identifier:storeIdentifier];
     RequireString(psc != nil, "No persistent store coordinator, call -prepareLocalStore: first.");
     
     NSManagedObjectContext *moc = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
@@ -316,14 +320,20 @@ static BOOL storeIsReady = NO;
     UsesInMemoryStore = useInMemoryStore;
 }
 
-+ (void)resetDatabaseDirectory;
++ (void)resetDatabaseDirectoryAndIdentifier;
 {
     DatabaseDirectoryURL = nil;
+    DatabaseIdentifier = nil;
 }
 
 + (void)setDatabaseDirectoryURL:(NSURL *)directory
 {
     DatabaseDirectoryURL = directory;
+}
+
++ (void)setDatabaseIdentifier:(NSString *)identifier
+{
+    DatabaseIdentifier = identifier;
 }
 
 + (NSPersistentStoreCoordinator *)inMemoryPersistentStoreCoordinator;
@@ -570,12 +580,9 @@ static dispatch_once_t clearStoreOnceToken;
     NSFileManager *fm = [NSFileManager defaultManager];
     NSURL * const directory = [fm URLForDirectory:searchPathDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
     RequireString(directory != nil, "Failed to get or create directory: %lu", (long) error.code);
-    NSString *identifier = [NSBundle mainBundle].bundleIdentifier;
-    if (identifier == nil) {
-        identifier = ((NSBundle *)[NSBundle bundleForClass:[ZMUser class]]).bundleIdentifier;
-    }
+    RequireString(DatabaseIdentifier != nil, "Database identifier not set");
     
-    return [directory URLByAppendingPathComponent:identifier];
+    return [directory URLByAppendingPathComponent:DatabaseIdentifier];
 }
 
 + (NSURL *)storeURLInDirectory:(NSSearchPathDirectory)directory;
@@ -603,12 +610,9 @@ static dispatch_once_t clearStoreOnceToken;
 + (NSURL *)storeURL;
 {
     RequireString(DatabaseDirectoryURL != nil, "Database directory not set");
-    NSString *identifier = [NSBundle mainBundle].bundleIdentifier;
-    if (identifier == nil) {
-        identifier = [NSBundle bundleForClass:ZMUser.class].bundleIdentifier;
-    }
+    RequireString(DatabaseIdentifier != nil, "Database identifier not set");
     
-    NSURL * const directory = [DatabaseDirectoryURL URLByAppendingPathComponent:identifier];
+    NSURL * const directory = [DatabaseDirectoryURL URLByAppendingPathComponent:DatabaseIdentifier];
     NSFileManager *fm = NSFileManager.defaultManager;
     
     if (! [fm fileExistsAtPath:directory.path]) {

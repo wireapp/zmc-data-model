@@ -24,6 +24,7 @@
 @interface DatabaseBaseTest : ZMTBaseTest
 
 @property (nonatomic, readonly) NSFileManager *fm;
+@property (nonatomic, readonly) NSString *databaseIdentifier;
 @property (nonatomic, readonly) NSURL *cachesDirectoryStoreURL;
 @property (nonatomic, readonly) NSURL *applicationSupportDirectoryStoreURL;
 @property (nonatomic, readonly) NSURL *sharedContainerDirectoryURL;

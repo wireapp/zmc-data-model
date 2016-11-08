@@ -23,6 +23,8 @@
 #import "DatabaseBaseTest.h"
 
 
+static NSString * const DatabaseIdentifier = @"TestDatabase";
+
 
 @interface DatabaseMovingTests : DatabaseBaseTest
 
@@ -44,7 +46,7 @@
     // given
     [self performIgnoringZMLogError:^{
         XCTAssertTrue([self moveDatabaseToCachesDirectory]);
-        XCTAssertTrue([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL]);
+        XCTAssertTrue([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL identifier:DatabaseIdentifier]);
     }];
     
     XCTAssertTrue([NSManagedObjectContext databaseExistsInCachesDirectory]);
@@ -85,7 +87,7 @@
     // given
     [self performIgnoringZMLogError:^{
         XCTAssertTrue([self moveDatabaseToApplicationSupportDirectory]);
-        XCTAssertTrue([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL]);
+        XCTAssertTrue([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL identifier:DatabaseIdentifier]);
     }];
     
     XCTAssertTrue([NSManagedObjectContext databaseExistsInApplicationSupportDirectory]);
@@ -111,7 +113,7 @@
     
     XCTAssertFalse([NSManagedObjectContext databaseExistsInApplicationSupportDirectory]);
     XCTAssertFalse([NSManagedObjectContext databaseExistsInCachesDirectory]);
-    XCTAssertFalse([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL]);
+    XCTAssertFalse([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL identifier:DatabaseIdentifier]);
 
      NSString *supportURL = [self.sharedContainerStoreURL.URLByDeletingLastPathComponent URLByAppendingPathComponent:@".store_SUPPORT"].path;
      XCTAssertTrue([self.fm fileExistsAtPath:supportURL]);
@@ -122,7 +124,7 @@
     // given
     [self performIgnoringZMLogError:^{
         XCTAssertTrue([self moveDatabaseToApplicationSupportDirectory]);
-        XCTAssertTrue([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL]);
+        XCTAssertTrue([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL identifier:DatabaseIdentifier]);
     }];
     
     XCTAssertTrue([NSManagedObjectContext databaseExistsInApplicationSupportDirectory]);
@@ -150,7 +152,7 @@
     
     XCTAssertTrue([NSManagedObjectContext databaseExistsInApplicationSupportDirectory]);
     XCTAssertFalse([NSManagedObjectContext databaseExistsInCachesDirectory]);
-    XCTAssertFalse([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL]);
+    XCTAssertFalse([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL identifier:DatabaseIdentifier]);
     
     NSString *supportURL = [self.applicationSupportDirectoryStoreURL.URLByDeletingLastPathComponent URLByAppendingPathComponent:@".store_SUPPORT"].path;
     XCTAssertTrue([self.fm fileExistsAtPath:supportURL]);
@@ -161,7 +163,7 @@
     // given
     [self performIgnoringZMLogError:^{
         XCTAssertTrue([self moveDatabaseToApplicationSupportDirectory]);
-        XCTAssertTrue([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL]);
+        XCTAssertTrue([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL identifier:DatabaseIdentifier]);
     }];
     
     XCTAssertTrue([NSManagedObjectContext databaseExistsInApplicationSupportDirectory]);
@@ -197,7 +199,7 @@
     
     XCTAssertFalse([NSManagedObjectContext databaseExistsInApplicationSupportDirectory]);
     XCTAssertFalse([NSManagedObjectContext databaseExistsInCachesDirectory]);
-    XCTAssertFalse([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL]);
+    XCTAssertFalse([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL identifier:DatabaseIdentifier]);
     
     NSString *supportURL = [self.sharedContainerStoreURL.URLByDeletingLastPathComponent URLByAppendingPathComponent:@".store_SUPPORT"].path;
     XCTAssertTrue([self.fm fileExistsAtPath:supportURL]);
@@ -235,7 +237,7 @@
     
     XCTAssertFalse([NSManagedObjectContext databaseExistsInApplicationSupportDirectory]);
     XCTAssertFalse([NSManagedObjectContext databaseExistsInCachesDirectory]);
-    XCTAssertFalse([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL]);
+    XCTAssertFalse([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL identifier:DatabaseIdentifier]);
     
     NSString *supportURL = [self.sharedContainerStoreURL.URLByDeletingLastPathComponent URLByAppendingPathComponent:@".store_SUPPORT"].path;
     XCTAssertTrue([self.fm fileExistsAtPath:supportURL]);
@@ -246,7 +248,7 @@
     // given
     [self performIgnoringZMLogError:^{
         XCTAssertTrue([self createdUnreadableLocalStore]);
-        XCTAssertFalse([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL]);
+        XCTAssertFalse([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL identifier:DatabaseIdentifier]);
     }];
     
     NSString *storeFile = [self.sharedContainerStoreURL.path stringByAppendingString:@""];
@@ -268,7 +270,7 @@
     // given
     [self performIgnoringZMLogError:^{
         XCTAssertTrue([self createdUnreadableLocalStore]);
-        XCTAssertFalse([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL]);
+        XCTAssertFalse([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL identifier:DatabaseIdentifier]);
     }];
     
     NSString *storeFile = [self.sharedContainerStoreURL.path stringByAppendingString:@""];
@@ -323,7 +325,7 @@
 
     // There is no store in the shared container, thus reading the metadata will fail
     [self performIgnoringZMLogError:^{
-        XCTAssertTrue([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL]);
+        XCTAssertTrue([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL identifier:DatabaseIdentifier]);
     }];
 }
 
@@ -345,7 +347,7 @@
 
     // There is no store in the shared container, thus reading the metadata will fail
     [self performIgnoringZMLogError:^{
-        XCTAssertTrue([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL]);
+        XCTAssertTrue([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL identifier:DatabaseIdentifier]);
     }];
 }
 

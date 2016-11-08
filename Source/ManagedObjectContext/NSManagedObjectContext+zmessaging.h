@@ -34,31 +34,34 @@
 - (void)setPersistentStoreMetadata:(id)metaData forKey:(NSString *)key;
 
 /// Checks if migration is needed or the database has to be moved
-+ (BOOL)needsToPrepareLocalStoreInDirectory:(NSURL *)databaseDirectory;
++ (BOOL)needsToPrepareLocalStoreInDirectory:(NSURL *)databaseDirectory identifier:(NSString *)databaseIdentifier;
 
 /// Creates persistent store coordinator and migrates store if needed
 /// @param sync defines if the method should execute sycnhronously or not (ususally it makes sence to execute it
 ///         synchronously when @c +needsToPrepareLocalStore is YES)
+/// @param databaseDirectory where database should we created / moved to
+/// @param databaseIdentifier identifier of the database. Has historally been the bundle identifier. 
 /// @param backupCorruptedDatabase if true, will copy a corrupted database to another folder for later investigation
 /// @param completionHandler callback to be executed on completion (nullable), will be invoked on an arbitrary queue, it's the
 ///     caller responsibility to ensure this is switched back to the correct queue
 + (void)prepareLocalStoreSync:(BOOL)sync
-                  inDirectory:(NSURL *)directory
+                  inDirectory:(NSURL *)databaseDirectory
+                   identifier:(NSString *)databaseIdentifier
    backingUpCorruptedDatabase:(BOOL)backupCorruptedDatabase
             completionHandler:(void(^)())completionHandler;
 
 /// Returns whether the store is ready to be opened
 + (BOOL)storeIsReady;
 
-+ (instancetype)createUserInterfaceContextWithStoreDirectory:(NSURL *)storeDirectory;
++ (instancetype)createUserInterfaceContextWithStoreDirectory:(NSURL *)storeDirectory storeIdentifier:(NSString *)storeIdentifier;
 + (void)resetUserInterfaceContext;
 
 /// This context will mark updates to objects in such a way that these fields are "up to date", ie. that these fields have been fetched.
 /// C.f. @c zm_isSyncContext
-+ (instancetype)createSyncContextWithStoreDirectory:(NSURL *)storeDirectory;
++ (instancetype)createSyncContextWithStoreDirectory:(NSURL *)storeDirectory storeIdentifier:(NSString *)storeIdentifier;
 
 /// Context used for searching
-+ (instancetype)createSearchContextWithStoreDirectory:(NSURL *)storeDirectory;
++ (instancetype)createSearchContextWithStoreDirectory:(NSURL *)storeDirectory storeIdentifier:(NSString *)storeIdentifier;
 
 /// Returns @c YES if the receiver is a context that is used for synchronisation with the backend.
 ///

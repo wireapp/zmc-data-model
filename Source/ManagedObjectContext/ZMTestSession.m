@@ -25,6 +25,7 @@
 
 
 NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
+NSString *const TestDatabaseIdentifier = @"TestDatabase";
 
 
 @interface ZMTestSession ()
@@ -86,7 +87,7 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
     [self resetUIandSyncContextsAndResetPersistentStore:YES];
     [ZMPersistentCookieStorage deleteAllKeychainItems];
     
-    self.searchMOC = [NSManagedObjectContext createSearchContextWithStoreDirectory:self.databaseDirectory];
+    self.searchMOC = [NSManagedObjectContext createSearchContextWithStoreDirectory:self.databaseDirectory storeIdentifier:TestDatabaseIdentifier];
     [self.searchMOC addGroup:self.dispatchGroup];
 }
 
@@ -158,7 +159,7 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
     }
     
     // NOTE this produces logs if self.useInMemoryStore = NO
-    self.uiMOC = [NSManagedObjectContext createUserInterfaceContextWithStoreDirectory:self.databaseDirectory];
+    self.uiMOC = [NSManagedObjectContext createUserInterfaceContextWithStoreDirectory:self.databaseDirectory storeIdentifier:TestDatabaseIdentifier];
     self.uiMOC.globalManagedObjectContextObserver.propagateChanges = YES;
     [self.uiMOC addGroup:self.dispatchGroup];
     self.uiMOC.userInfo[@"TestName"] = self.testName;
@@ -167,7 +168,7 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
     }];
     
     
-    self.syncMOC = [NSManagedObjectContext createSyncContextWithStoreDirectory:self.databaseDirectory];
+    self.syncMOC = [NSManagedObjectContext createSyncContextWithStoreDirectory:self.databaseDirectory storeIdentifier:TestDatabaseIdentifier];
     [self.syncMOC performGroupedBlockAndWait:^{
         self.syncMOC.userInfo[@"TestName"] = self.testName;
         [self.syncMOC addGroup:self.dispatchGroup];

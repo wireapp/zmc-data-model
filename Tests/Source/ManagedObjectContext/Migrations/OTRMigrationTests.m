@@ -27,6 +27,7 @@
 
 
 static NSString * const DataBaseFileExtensionName = @"wiredatabase";
+static NSString * const DataBaseIdentifier = @"TestDatabase";
 
 
 @interface OTRMigrationTests : DatabaseBaseTest
@@ -568,9 +569,9 @@ static NSString * const DataBaseFileExtensionName = @"wiredatabase";
     NSFileManager *fm = NSFileManager.defaultManager;
     NSURL *directory = [fm URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-    [NSManagedObjectContext prepareLocalStoreSync:YES inDirectory:directory backingUpCorruptedDatabase:NO completionHandler:^{
-        [NSManagedObjectContext createUserInterfaceContextWithStoreDirectory:directory];
-        syncContext = [NSManagedObjectContext createSyncContextWithStoreDirectory:directory];
+    [NSManagedObjectContext prepareLocalStoreSync:YES inDirectory:directory identifier:DataBaseIdentifier backingUpCorruptedDatabase:NO completionHandler:^{
+        [NSManagedObjectContext createUserInterfaceContextWithStoreDirectory:directory storeIdentifier:DataBaseIdentifier];
+        syncContext = [NSManagedObjectContext createSyncContextWithStoreDirectory:directory storeIdentifier:DataBaseIdentifier];
         dispatch_semaphore_signal(sem);
     }];
 

@@ -61,13 +61,13 @@
     [[[classMock stub] andReturnValue:@NO] databaseExistsInApplicationSupportDirectory];
     [self verifyMockLater:classMock];
 
-    XCTAssertFalse([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL]);
+    XCTAssertFalse([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL identifier:self.databaseIdentifier]);
     
     // when
     [[[classMock stub] andReturnValue:@YES] databaseExistsAndNotReadableDueToEncryption];
     
     // then
-    XCTAssertTrue([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL]);
+    XCTAssertTrue([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL identifier:self.databaseIdentifier]);
     [classMock stopMocking];
 }
 
@@ -78,13 +78,13 @@
     [[classMock expect] initPersistentStoreCoordinatorBackingUpCorrupedDatabases:NO];
     [self verifyMockLater:classMock];
     
-    XCTAssertFalse([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL]);
+    XCTAssertFalse([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL identifier:self.databaseIdentifier]);
     
     // when
     [[[classMock stub] andReturnValue:@YES] databaseExistsInApplicationSupportDirectory];
     
     // then
-    XCTAssertTrue([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL]);
+    XCTAssertTrue([NSManagedObjectContext needsToPrepareLocalStoreInDirectory:self.sharedContainerDirectoryURL identifier:self.databaseIdentifier]);
     [classMock stopMocking];
 }
 
@@ -101,7 +101,7 @@
     // when
     [NSManagedObjectContext resetSharedPersistentStoreCoordinator];
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-    [NSManagedObjectContext prepareLocalStoreSync:YES inDirectory:self.sharedContainerDirectoryURL backingUpCorruptedDatabase:NO completionHandler:^{
+    [NSManagedObjectContext prepareLocalStoreSync:YES inDirectory:self.sharedContainerDirectoryURL identifier:self.databaseIdentifier backingUpCorruptedDatabase:NO completionHandler:^{
         completionCalled = YES;
         dispatch_semaphore_signal(sem);
     }];
@@ -132,7 +132,7 @@
     
     // when
     dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-    [NSManagedObjectContext prepareLocalStoreSync:YES inDirectory:self.sharedContainerDirectoryURL backingUpCorruptedDatabase:NO completionHandler:^{
+    [NSManagedObjectContext prepareLocalStoreSync:YES inDirectory:self.sharedContainerDirectoryURL identifier:self.databaseIdentifier backingUpCorruptedDatabase:NO completionHandler:^{
         completionCalledTimes++;
         dispatch_semaphore_signal(sem);
     }];

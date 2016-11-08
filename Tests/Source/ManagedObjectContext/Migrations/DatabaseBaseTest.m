@@ -27,10 +27,12 @@
 @interface DatabaseBaseTest ()
 
 @property (nonatomic) NSFileManager *fm;
+@property (nonatomic) NSString *databaseIdentifier;
 @property (nonatomic) NSURL *cachesDirectoryStoreURL;
 @property (nonatomic) NSURL *applicationSupportDirectoryStoreURL;
 @property (nonatomic) NSURL *sharedContainerDirectoryURL;
 @property (nonatomic) NSURL *sharedContainerStoreURL;
+
 
 @end
 
@@ -45,6 +47,7 @@
     
     [NSManagedObjectContext setUseInMemoryStore:NO];
     self.fm = [NSFileManager defaultManager];
+    self.databaseIdentifier = @"TestDatabase";
     self.cachesDirectoryStoreURL = [NSManagedObjectContext storeURLInDirectory:NSCachesDirectory];
     self.applicationSupportDirectoryStoreURL = [NSManagedObjectContext storeURLInDirectory:NSApplicationSupportDirectory];
     self.sharedContainerStoreURL = [NSManagedObjectContext storeURLInDirectory:NSDocumentDirectory];
@@ -102,7 +105,7 @@
     NSURL *fromStoreURL = NSManagedObjectContext.storeURL;
 
     // We need to create a database before we move it.
-    [NSManagedObjectContext prepareLocalStoreSync:YES inDirectory:self.sharedContainerDirectoryURL backingUpCorruptedDatabase:NO completionHandler:nil];
+    [NSManagedObjectContext prepareLocalStoreSync:YES inDirectory:self.sharedContainerDirectoryURL identifier:self.databaseIdentifier backingUpCorruptedDatabase:NO completionHandler:nil];
 
     for (NSString *extension in self.databaseFileExtensions) {
         NSString *toPath = [toStoreURL.path stringByAppendingString:extension];
@@ -175,6 +178,7 @@
     [self performIgnoringZMLogError:^{
         [NSManagedObjectContext prepareLocalStoreSync:YES
                                           inDirectory:self.sharedContainerDirectoryURL
+                                           identifier:self.databaseIdentifier
                            backingUpCorruptedDatabase:backupCorruptedDatabase
                                     completionHandler:nil];
         WaitForAllGroupsToBeEmpty(0.5);
