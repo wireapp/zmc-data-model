@@ -155,6 +155,13 @@ public extension ZMGenericMessage {
         let asset = ZMImageAsset(mediumProperties: mediumImageProperties, processedProperties: processedImageProperties, encryptionKeys: encryptionKeys, format: format)
         return genericMessage(pbMessage: asset, messageID: nonce, expiresAfter: timeout)
     }
+
+    public static func genericMessage(withImageSize imageSize: CGSize, mimeType: String, size: UInt64, nonce: String, expiresAfter timeout: NSNumber? = nil) -> ZMGenericMessage {
+        let imageMeta = ZMAssetImageMetaData.imageMetaData(withWidth: Int32(imageSize.width), height: Int32(imageSize.height))
+        let original = ZMAssetOriginal.original(withSize: size, mimeType: mimeType, name: nil, imageMetaData: imageMeta)
+        let asset = ZMAsset.asset(withOriginal: original, preview: nil)
+        return ZMGenericMessage.genericMessage(asset: asset, messageID: nonce, expiresAfter: timeout)
+    }
     
     // MARK: Text
 

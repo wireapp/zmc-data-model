@@ -20,8 +20,14 @@
 import Foundation
 import MobileCoreServices
 
+private let zmLog = ZMSLog(tag: "AssetV3")
 
+
+/// This protocol is used to hide the implementation of the different 
+/// asset types (v2 image & file vs. v3 file) from ZMAssetClientMessage.
+/// It only includes methods in which these two versions differentiate.
 @objc public protocol AssetProxyType {
+
     var hasDownloadedImage: Bool { get }
     var hasDownloadedFile: Bool { get }
     var imageMessageData: ZMImageMessageData? { get }
@@ -34,6 +40,11 @@ import MobileCoreServices
     func imageData(for: ZMImageFormat, encrypted: Bool) -> Data?
 
     func requestFileDownload()
+
+    // Image preprocessing
+    var requiredImageFormats: NSOrderedSet { get }
+    func processAddedImage(format: ZMImageFormat, properties: ZMIImageProperties, keys: ZMImageAssetEncryptionKeys)
+
 }
 
 
@@ -137,6 +148,31 @@ extension V3ImageAsset: AssetProxyType {
         guard assetClientMessage.fileMessageData != nil else { return }
         let hasDownloaded = isImage ? hasDownloadedImage : hasDownloadedFile
         assetClientMessage.transferState = hasDownloaded ? .downloaded : .downloading
+    }
+
+    public var requiredImageFormats: NSOrderedSet {
+        return NSOrderedSet(object: ZMImageFormat.medium.rawValue)
+    }
+
+    public func processAddedImage(format: ZMImageFormat, properties: ZMIImageProperties, keys: ZMImageAssetEncryptionKeys) {
+        guard format == .medium, let sha256 = keys.sha256 else { return zmLog.warn("Tried to process non-medium image on \(assetClientMessage)") }
+        let messageID = assetClientMessage.nonce.transportString()
+        let original = ZMGenericMessage.genericMessage(
+            withImageSize: properties.size,
+            mimeType: properties.mimeType,
+            size: UInt64(properties.length),
+            nonce: messageID,
+            expiresAfter: NSNumber(value: assetClientMessage.deletionTimeout)
+        )
+        let uploaded = ZMGenericMessage.genericMessage(
+            withUploadedOTRKey: keys.otrKey,
+            sha256: sha256,
+            messageID: messageID,
+            expiresAfter: NSNumber(value: assetClientMessage.deletionTimeout)
+        )
+
+        assetClientMessage.add(original)
+        assetClientMessage.add(uploaded)
     }
 
     // MARK: - Helper
