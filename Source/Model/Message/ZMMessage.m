@@ -303,10 +303,10 @@ NSString * const ZMMessageIsObfuscatedKey = @"isObfuscated";
     
     self.visibleInConversation = conversation;
     ZMUser *sender = [ZMUser userWithRemoteID:senderUUID createIfNeeded:YES inContext:self.managedObjectContext];
-    if (sender != nil && self.managedObjectContext == sender.managedObjectContext) {
+    if (sender != nil && !sender.isZombieObject && self.managedObjectContext == sender.managedObjectContext) {
         self.sender = sender;
     } else {
-        ZMLogError(@"Sender %@ is nil or from a different context than message %@", sender, self);
+        ZMLogError(@"Sender is nil or from a different context than message. \n Sender is zombie %@: %@ \n Message: %@", @(sender.isZombieObject), sender, self);
     }
     
     if (self.sender.isSelfUser) {
