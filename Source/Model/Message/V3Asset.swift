@@ -48,7 +48,7 @@ private let zmLog = ZMSLog(tag: "AssetV3")
 }
 
 
-@objc public class V3ImageAsset: NSObject, ZMImageMessageData {
+@objc public class V3Asset: NSObject, ZMImageMessageData {
 
     fileprivate let assetClientMessage: ZMAssetClientMessage
     private let assetStorage: ZMImageAssetStorage
@@ -81,8 +81,8 @@ private let zmLog = ZMSLog(tag: "AssetV3")
     }
 
     public var imageDataIdentifier: String? {
-        if nil != assetClientMessage.fileMessageData, isImage {
-            return assetClientMessage.genericAssetMessage?.v3_fileCacheKey
+        if nil != assetClientMessage.fileMessageData, isImage, let image = assetClientMessage.genericAssetMessage?.assetData?.original.image {
+            return "\(assetClientMessage.nonce.transportString())-\(image.width)x\(image.height)"
         }
 
         return imageData.map { String(format: "orig-%p", $0 as NSData) }
@@ -120,7 +120,7 @@ private let zmLog = ZMSLog(tag: "AssetV3")
 
 }
 
-extension V3ImageAsset: AssetProxyType {
+extension V3Asset: AssetProxyType {
 
     public var hasDownloadedImage: Bool {
         var downloaded = nil != imageData(for: .medium, encrypted: false)

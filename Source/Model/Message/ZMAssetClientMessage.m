@@ -64,8 +64,8 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 @property (nonatomic) ZMGenericMessage *cachedGenericAssetMessage;
 @property (nonatomic) int16_t version;
 
-@property (nonatomic) V2ImageAsset *v2ImageAsset;
-@property (nonatomic) V3ImageAsset *v3ImageAsset;
+@property (nonatomic) V2Asset *v2Asset;
+@property (nonatomic) V3Asset *v3Asset;
 
 @end
 
@@ -90,8 +90,8 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 @dynamic associatedTaskIdentifier_data;
 
 @synthesize cachedGenericAssetMessage;
-@synthesize v2ImageAsset = _v2ImageAsset;
-@synthesize v3ImageAsset = _v3ImageAsset;
+@synthesize v2Asset = _v2Asset;
+@synthesize v3Asset = _v3Asset;
 
 + (instancetype)assetClientMessageWithOriginalImageData:(NSData *)imageData nonce:(NSUUID *)nonce managedObjectContext:(NSManagedObjectContext *)moc expiresAfter:(NSTimeInterval)timeout;
 {
@@ -174,7 +174,7 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 
 - (id <AssetProxyType>)asset
 {
-    return self.v2ImageAsset ?: self.v3ImageAsset;
+    return self.v2Asset ?: self.v3Asset;
 }
 
 - (void)awakeFromInsert
@@ -226,14 +226,14 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
     return self.asset.fileURL;
 }
 
-- (V2ImageAsset *)v2ImageAsset
+- (V2Asset *)v2Asset
 {
-    return [[V2ImageAsset alloc] initWith:self];
+    return [[V2Asset alloc] initWith:self];
 }
 
-- (V3ImageAsset *)v3ImageAsset
+- (V3Asset *)v3Asset
 {
-    return [[V3ImageAsset alloc] initWith:self];
+    return [[V3Asset alloc] initWith:self];
 }
 
 - (ZMGenericMessage *)genericAssetMessage

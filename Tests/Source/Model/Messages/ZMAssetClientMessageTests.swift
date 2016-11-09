@@ -2169,7 +2169,7 @@ extension ZMAssetClientMessageTests {
         XCTAssertEqual(sut.version, 3)
     }
 
-    func testThatItReturnsTheAssetIdAsImageDataIdentifierWhenItRepresentsAnImage_V3() {
+    func testThatItReturnsAValidImageDataIdentifierContainingTheNonceAndSizeWhenItRepresentsAnImage_V3() {
         // given
         let (sut, nonce) = createMessageWithNonce()
         let assetId = UUID.create().transportString()
@@ -2183,7 +2183,7 @@ extension ZMAssetClientMessageTests {
         sut.update(with: uploaded, updateEvent: ZMUpdateEvent())
 
         // then
-        XCTAssertEqual(assetId, sut.imageMessageData?.imageDataIdentifier)
+        XCTAssertEqual("\(nonce.transportString())-123x4569", sut.imageMessageData?.imageDataIdentifier)
     }
 
     func testThatItReturnsTheThumbnailIdWhenItHasAPreviewRemoteData_V3() {
