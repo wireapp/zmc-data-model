@@ -949,8 +949,7 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 
 - (BOOL)isImage
 {
-    return [self.mimeType isImageMimeType] &&
-    self.genericAssetMessage.v3_isImage;
+    return self.genericAssetMessage.v3_isImage;
 }
 
 - (CGSize)videoDimensions

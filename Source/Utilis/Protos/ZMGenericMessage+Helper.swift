@@ -211,7 +211,9 @@ extension ZMAssetRemoteData {
     public func updated(withId assetId: String, token: String?) -> ZMAssetRemoteData {
         let builder = toBuilder()!
         builder.setAssetId(assetId)
-        builder.setAssetToken(token)
+        if let token = token {
+            builder.setAssetToken(token)
+        }
         return builder.build()
     }
 
