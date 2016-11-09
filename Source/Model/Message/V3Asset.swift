@@ -71,8 +71,8 @@ import MobileCoreServices
     }
 
     public var imageDataIdentifier: String? {
-        if nil != assetClientMessage.fileMessageData, isImage {
-            return assetClientMessage.genericAssetMessage?.v3_fileCacheKey
+        if nil != assetClientMessage.fileMessageData, isImage, let image = assetClientMessage.genericAssetMessage?.assetData?.original.image {
+            return "\(assetClientMessage.nonce.transportString())-\(image.width)x\(image.height)"
         }
 
         return imageData.map { String(format: "orig-%p", $0 as NSData) }
