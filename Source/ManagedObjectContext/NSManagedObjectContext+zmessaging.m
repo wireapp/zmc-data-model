@@ -236,14 +236,24 @@ static BOOL storeIsReady = NO;
     self.persistentStoreCoordinator = psc;
 }
 
+- (id)validUserInfoValueOfClass:(Class)class forKey:(NSString *)key;
+{
+    id value = self.userInfo[key];
+    if (value == nil) {
+        return nil;
+    }
+    RequireString([value isKindOfClass:class], "Value for key %s is not of class %s - userInfo contains: %s", key.UTF8String, NSStringFromClass(class).UTF8String, self.userInfo.debugDescription.UTF8String);
+    return value;
+}
+
 - (BOOL)zm_isSyncContext;
 {
-    return [self.userInfo[IsSyncContextKey] boolValue];
+    return [[self validUserInfoValueOfClass:[NSNumber class] forKey:IsSyncContextKey] boolValue];
 }
 
 - (BOOL)zm_isUserInterfaceContext;
 {
-    return [self.userInfo[IsUserInterfaceContextKey] boolValue];
+    return [[self validUserInfoValueOfClass:[NSNumber class] forKey:IsUserInterfaceContextKey] boolValue];
 }
 
 - (BOOL)zm_isSearchContext;
