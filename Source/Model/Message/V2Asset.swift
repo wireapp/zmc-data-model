@@ -31,7 +31,7 @@ extension String {
 }
 
 
-@objc public class V2ImageAsset: NSObject, ZMImageMessageData {
+@objc public class V2Asset: NSObject, ZMImageMessageData {
 
     fileprivate let assetClientMessage: ZMAssetClientMessage
     fileprivate let moc: NSManagedObjectContext
@@ -124,7 +124,7 @@ extension String {
 }
 
 
-extension V2ImageAsset: AssetProxyType {
+extension V2Asset: AssetProxyType {
 
     public var hasDownloadedImage: Bool {
         guard assetClientMessage.imageMessageData != nil || assetClientMessage.fileMessageData != nil else { return false }

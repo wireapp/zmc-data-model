@@ -37,7 +37,7 @@ import MobileCoreServices
 }
 
 
-@objc public class V3ImageAsset: NSObject, ZMImageMessageData {
+@objc public class V3Asset: NSObject, ZMImageMessageData {
 
     fileprivate let assetClientMessage: ZMAssetClientMessage
     private let assetStorage: ZMImageAssetStorage
@@ -111,7 +111,7 @@ import MobileCoreServices
 
 }
 
-extension V3ImageAsset: AssetProxyType {
+extension V3Asset: AssetProxyType {
 
     public var hasDownloadedImage: Bool {
         return hasFile(for: assetClientMessage.genericAssetMessage?.v3_imageCacheKey)
