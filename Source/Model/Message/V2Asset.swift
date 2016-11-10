@@ -77,7 +77,7 @@ extension String {
         if assetStorage.previewGenericMessage?.imageAssetData?.width > 0 {
             // Image preview data
             return assetStorage.imageData(for: .original, encrypted: false)
-        } else if let fileMessage = assetClientMessage.fileMessageData, assetClientMessage.hasDownloadedImage, !fileMessage.isImage() {
+        } else if nil != assetClientMessage.fileMessageData, assetClientMessage.hasDownloadedImage {
             // File preview data
             return imageData(for: .original) ?? imageData(for: .medium)
         }
@@ -156,6 +156,14 @@ extension V2Asset: AssetProxyType {
     public func requestFileDownload() {
         guard assetClientMessage.fileMessageData != nil else { return }
         assetClientMessage.transferState = hasDownloadedFile ? .downloaded : .downloading
+    }
+
+    public func requestImageDownload() {
+        guard !assetClientMessage.objectID.isTemporaryID else { return }
+        NotificationCenter.default.post(
+            name: NSNotification.Name(rawValue: ZMAssetClientMessage.ImageDownloadNotificationName),
+            object: assetClientMessage.objectID
+        )
     }
 
     public var requiredImageFormats: NSOrderedSet {

@@ -2162,7 +2162,7 @@ extension ZMAssetClientMessageTests {
         sut.update(with: uploaded, updateEvent: ZMUpdateEvent())
 
         // then
-        XCTAssertTrue(sut.fileMessageData!.isImage())
+        XCTAssertTrue(sut.genericAssetMessage!.v3_isImage)
         XCTAssertFalse(sut.hasDownloadedFile)
         XCTAssertFalse(sut.hasDownloadedImage)
         XCTAssertEqual(sut.imageMessageData?.originalSize, CGSize(width: 123, height: 4569))
@@ -2231,7 +2231,7 @@ extension ZMAssetClientMessageTests {
         uiMOC.zm_imageAssetCache.storeAssetData(nonce, format: .medium, encrypted: false, data: data)
 
         // then
-        XCTAssertTrue(sut.fileMessageData!.isImage())
+        XCTAssertTrue(sut.genericAssetMessage!.v3_isImage)
         XCTAssertFalse(sut.hasDownloadedFile)
         XCTAssertTrue(sut.hasDownloadedImage)
         XCTAssertEqual(sut.imageMessageData?.imageData, data)
