@@ -64,8 +64,8 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 @property (nonatomic) ZMGenericMessage *cachedGenericAssetMessage;
 @property (nonatomic) int16_t version;
 
-@property (nonatomic) V2Asset *v2Asset;
-@property (nonatomic) V3Asset *v3Asset;
+@property (nonatomic, readonly) V2Asset *v2Asset;
+@property (nonatomic, readonly) V3Asset *v3Asset;
 
 @end
 
@@ -90,8 +90,7 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 @dynamic associatedTaskIdentifier_data;
 
 @synthesize cachedGenericAssetMessage;
-@synthesize v2Asset = _v2Asset;
-@synthesize v3Asset = _v3Asset;
+
 
 + (instancetype)assetClientMessageWithOriginalImageData:(NSData *)imageData nonce:(NSUUID *)nonce managedObjectContext:(NSManagedObjectContext *)moc expiresAfter:(NSTimeInterval)timeout;
 {
@@ -487,6 +486,11 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 - (void)requestFileDownload
 {
     [self.asset requestFileDownload];
+}
+
+- (void)requestImageDownload
+{
+    [self.asset requestImageDownload];
 }
 
 - (void)setAndSyncNotUploaded:(ZMAssetNotUploaded)notUploaded
@@ -974,11 +978,6 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 - (BOOL)isAudio
 {
     return [self.mimeType isAudioMimeType];
-}
-
-- (BOOL)isImage
-{
-    return self.genericAssetMessage.v3_isImage;
 }
 
 - (CGSize)videoDimensions

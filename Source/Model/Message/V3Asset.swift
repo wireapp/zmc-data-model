@@ -21,6 +21,12 @@ import Foundation
 import MobileCoreServices
 
 
+private let zmLog = ZMSLog(tag: "AssetV3")
+
+
+/// This protocol is used to hide the implementation of the different
+/// asset types (v2 image & file vs. v3 file) from ZMAssetClientMessage.
+/// It only includes methods in which these two versions differentiate.
 @objc public protocol AssetProxyType {
     var hasDownloadedImage: Bool { get }
     var hasDownloadedFile: Bool { get }
@@ -34,6 +40,7 @@ import MobileCoreServices
     func imageData(for: ZMImageFormat, encrypted: Bool) -> Data?
 
     func requestFileDownload()
+    func requestImageDownload()
 }
 
 
@@ -61,13 +68,12 @@ import MobileCoreServices
 
     public var mediumData: Data? {
         guard nil != assetClientMessage.fileMessageData, isImage else { return nil }
-        guard let cacheKey = assetClientMessage.genericAssetMessage?.v3_fileCacheKey else { return nil }
-        return moc.zm_fileAssetCache.assetData(assetClientMessage.nonce, fileName: cacheKey, encrypted: false)
+        return imageData(for: .medium, encrypted: false)
     }
 
     public var imageData: Data? {
         guard nil != assetClientMessage.fileMessageData, isImage else { return nil }
-        return mediumData ?? moc.zm_fileAssetCache.assetData(assetClientMessage.nonce, fileName: "", encrypted: false)
+        return mediumData ?? imageData(for: .original, encrypted: false)
     }
 
     public var imageDataIdentifier: String? {
@@ -84,8 +90,7 @@ import MobileCoreServices
 
     public var previewData: Data? {
         guard nil != assetClientMessage.fileMessageData, !isImage, assetClientMessage.hasDownloadedImage else { return nil }
-        guard let cacheKey = assetClientMessage.genericAssetMessage?.previewAssetId else { return nil }
-        return moc.zm_fileAssetCache.assetData(assetClientMessage.nonce, fileName: cacheKey, encrypted: false)
+        return imageData(for: .medium, encrypted: false)
     }
 
     public var isAnimatedGIF: Bool {
@@ -100,8 +105,8 @@ import MobileCoreServices
     public var originalSize: CGSize {
         guard nil != assetClientMessage.fileMessageData, isImage else { return .zero }
         guard let asset = assetClientMessage.genericAssetMessage?.assetData else { return .zero }
-        guard asset.original.hasImage(), asset.original.image.width > 0 else { return .zero }
-        let size =  CGSize(width: Int(asset.original.image.width), height: Int(asset.original.image.height))
+        guard asset.original.hasImage(), asset.original.image.width > 0 else { return assetClientMessage.preprocessedSize }
+        let size = CGSize(width: Int(asset.original.image.width), height: Int(asset.original.image.height))
         if size != .zero {
             return size
         }
@@ -114,7 +119,11 @@ import MobileCoreServices
 extension V3Asset: AssetProxyType {
 
     public var hasDownloadedImage: Bool {
-        return hasFile(for: assetClientMessage.genericAssetMessage?.v3_imageCacheKey)
+        var downloaded = nil != imageData(for: .medium, encrypted: false)
+        if isImage {
+            downloaded = downloaded || nil != imageData(for: .original, encrypted: false)
+        }
+        return downloaded
     }
 
     public var hasDownloadedFile: Bool {
@@ -128,15 +137,20 @@ extension V3Asset: AssetProxyType {
     }
 
     public func imageData(for format: ZMImageFormat, encrypted: Bool) -> Data? {
-        guard format == .medium, assetClientMessage.fileMessageData != nil, isImage else { return nil }
-        guard let key = assetClientMessage.genericAssetMessage?.v3_fileCacheKey else { return nil }
-        return moc.zm_fileAssetCache.assetData(assetClientMessage.nonce, fileName: key, encrypted: encrypted)
+        guard assetClientMessage.fileMessageData != nil else { return nil }
+        return moc.zm_imageAssetCache.assetData(assetClientMessage.nonce, format: format, encrypted: encrypted)
     }
 
     public func requestFileDownload() {
         guard assetClientMessage.fileMessageData != nil else { return }
-        let hasDownloaded = isImage ? hasDownloadedImage : hasDownloadedFile
-        assetClientMessage.transferState = hasDownloaded ? .downloaded : .downloading
+        if (isImage && !hasDownloadedImage) || (!isImage && !hasDownloadedFile) {
+            assetClientMessage.transferState = .downloading
+        }
+    }
+
+    public func requestImageDownload() {
+        guard isImage else { return zmLog.info("Called \(#function) on a v3 asset that doesn't represent an image") }
+        requestFileDownload()
     }
 
     // MARK: - Helper

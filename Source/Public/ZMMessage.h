@@ -182,10 +182,6 @@ typedef NS_ENUM(int16_t, ZMFileTransferState) {
 /// if MIME type is indicating the audio content
 - (BOOL)isAudio;
 
-/// Image-message related properties
-/// if the file message represents an image (presence of image meta data in the protobuf)
-- (BOOL)isImage;
-
 @end
 
 #pragma mark - ZMLocationMessageData

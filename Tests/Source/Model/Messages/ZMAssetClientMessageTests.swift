@@ -2162,7 +2162,7 @@ extension ZMAssetClientMessageTests {
         sut.update(with: uploaded, updateEvent: ZMUpdateEvent())
 
         // then
-        XCTAssertTrue(sut.fileMessageData!.isImage())
+        XCTAssertTrue(sut.genericAssetMessage!.v3_isImage)
         XCTAssertFalse(sut.hasDownloadedFile)
         XCTAssertFalse(sut.hasDownloadedImage)
         XCTAssertEqual(sut.imageMessageData?.originalSize, CGSize(width: 123, height: 4569))
@@ -2204,9 +2204,9 @@ extension ZMAssetClientMessageTests {
 
         // when
         let previewData = Data.secureRandomData(length: 512)
-        let (preview, previewMeta) = previewGenericMessage(with: nonce.transportString())
+        let (preview, _) = previewGenericMessage(with: nonce.transportString())
         sut.update(with: preview, updateEvent: ZMUpdateEvent())
-        uiMOC.zm_fileAssetCache.storeAssetData(nonce, fileName: previewMeta.assetId!, encrypted: false, data: previewData)
+        uiMOC.zm_imageAssetCache.storeAssetData(nonce, format: .medium, encrypted: false, data: previewData)
 
         // then
         XCTAssertFalse(sut.hasDownloadedFile)
@@ -2228,11 +2228,10 @@ extension ZMAssetClientMessageTests {
         sut.update(with: original, updateEvent: ZMUpdateEvent())
         sut.update(with: uploaded, updateEvent: ZMUpdateEvent())
 
-        guard let key = sut.genericAssetMessage?.v3_fileCacheKey else { return XCTFail() }
-        uiMOC.zm_fileAssetCache.storeAssetData(nonce, fileName: key, encrypted: false, data: data)
+        uiMOC.zm_imageAssetCache.storeAssetData(nonce, format: .medium, encrypted: false, data: data)
 
         // then
-        XCTAssertTrue(sut.fileMessageData!.isImage())
+        XCTAssertTrue(sut.genericAssetMessage!.v3_isImage)
         XCTAssertFalse(sut.hasDownloadedFile)
         XCTAssertTrue(sut.hasDownloadedImage)
         XCTAssertEqual(sut.imageMessageData?.imageData, data)
