@@ -79,14 +79,11 @@ public extension ZMGenericMessage {
     }
 
     var v3_fileCacheKey: String {
-        if let original = assetData?.original,
-            original.hasName(),
-            let assetId = v3_uploadedAssetId,
-            let name = original.name {
-            return assetId + "_" + name
+        if let original = assetData?.original, original.hasName() {
+            return original.name
         }
 
-        return v3_uploadedAssetId ?? ""
+        return ""
     }
 
     var previewAssetId: String? {
