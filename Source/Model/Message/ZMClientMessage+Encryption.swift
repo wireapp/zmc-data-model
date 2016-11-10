@@ -72,7 +72,7 @@ extension ZMClientMessage: EncryptedPayloadGenerator {
     public var debugInfo: String {
         var info = "\(genericMessage)"
         if let genericMessage = genericMessage, genericMessage.hasExternal() {
-            info = "External message: " + debugInfo
+            info = "External message: " + info
         }
         return info
     }
