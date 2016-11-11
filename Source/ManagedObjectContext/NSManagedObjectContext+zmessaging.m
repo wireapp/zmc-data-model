@@ -242,7 +242,18 @@ static BOOL storeIsReady = NO;
     if (value == nil) {
         return nil;
     }
-    RequireString([value isKindOfClass:class], "Value for key %s is not of class %s - userInfo contains: %s", key.UTF8String, NSStringFromClass(class).UTF8String, self.userInfo.debugDescription.UTF8String);
+    if (![value isKindOfClass:class]) {
+        if ([value isKindOfClass:NSDictionary.class]) {
+            NSMutableString *keys = [NSMutableString string];
+            for (key in ((NSDictionary*) value).allKeys) {
+                [keys appendString:[NSString stringWithFormat:@"%@, ", key]];
+            }
+            RequireString([value isKindOfClass:class], "Value for key %s is a dictionary: keys %s", key.UTF8String, keys.UTF8String);
+
+        } else {
+            RequireString([value isKindOfClass:class], "Value for key %s is not of class %s - userInfo contains: %s", key.UTF8String, NSStringFromClass(class).UTF8String, self.userInfo.debugDescription.UTF8String);
+        }
+    }
     return value;
 }
 
