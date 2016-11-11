@@ -2122,9 +2122,11 @@ extension ZMAssetClientMessageTests {
         // when
         let assetId = UUID.create().transportString()
         let assetData = Data.secureRandomData(length: 512)
+
         sut.update(with: originalGenericMessage(nonce: nonce.transportString(), name: "document.pdf"), updateEvent: ZMUpdateEvent())
         sut.update(with: uploadedGenericMessage(nonce: nonce.transportString(), assetId: assetId), updateEvent: ZMUpdateEvent())
         uiMOC.zm_fileAssetCache.storeAssetData(nonce, fileName: "document.pdf", encrypted: false, data: assetData)
+
 
         // then
         XCTAssertTrue(sut.hasDownloadedFile)

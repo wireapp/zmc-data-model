@@ -292,6 +292,9 @@ NSString * const ZMMessageIsObfuscatedKey = @"isObfuscated";
 
 - (void)updateWithTimestamp:(NSDate *)serverTimestamp senderUUID:(NSUUID *)senderUUID forConversation:(ZMConversation *)conversation isUpdatingExistingMessage:(BOOL)isUpdate;
 {
+    if (self.isZombieObject) {
+        return;
+    }
     [self updateTimestamp:serverTimestamp isUpdatingExistingMessage:isUpdate];
 
     if (self.managedObjectContext != conversation.managedObjectContext) {
@@ -299,7 +302,12 @@ NSString * const ZMMessageIsObfuscatedKey = @"isObfuscated";
     }
     
     self.visibleInConversation = conversation;
-    self.sender = [ZMUser userWithRemoteID:senderUUID createIfNeeded:YES inContext:self.managedObjectContext];
+    ZMUser *sender = [ZMUser userWithRemoteID:senderUUID createIfNeeded:YES inContext:self.managedObjectContext];
+    if (sender != nil && !sender.isZombieObject && self.managedObjectContext == sender.managedObjectContext) {
+        self.sender = sender;
+    } else {
+        ZMLogError(@"Sender is nil or from a different context than message. \n Sender is zombie %@: %@ \n Message: %@", @(sender.isZombieObject), sender, self);
+    }
     
     if (self.sender.isSelfUser) {
         // if the message was sent by the selfUser we don't want to send a lastRead event, since we consider this message to be already read
@@ -383,8 +391,33 @@ NSString * const ZMMessageIsObfuscatedKey = @"isObfuscated";
     if (nil != message && ![senderID isEqual:selfUser.remoteIdentifier] && !message.isEphemeral) {
         [conversation appendDeletedForEveryoneSystemMessageWithTimestamp:message.serverTimestamp sender:message.sender];
     }
+    // If we receive a delete for an ephemeral message that was not originally sent by the selfUser, we need to stop the deletion timer
+    if (nil != message && message.isEphemeral && ![message.sender.remoteIdentifier isEqual:selfUser.remoteIdentifier]) {
+        [self stopDeletionTimerForMessage:message];
+    } else {
+        [message removeMessageClearingSender:YES];
+    }
+}
 
-    [message removeMessageClearingSender:YES];
++ (void)stopDeletionTimerForMessage:(ZMMessage *)message
+{
+    NSManagedObjectContext *uiMOC = message.managedObjectContext;
+    if (!uiMOC.zm_isUserInterfaceContext) {
+        uiMOC = uiMOC.zm_userInterfaceContext;
+    }
+    NSManagedObjectID *messageID = message.objectID;
+    [uiMOC performGroupedBlock:^{
+        NSError *error;
+        ZMMessage *uiMessage =  [uiMOC existingObjectWithID:messageID error:&error];
+        if (error != nil || uiMessage == nil) {
+            return;
+        }
+        [uiMOC.zm_messageDeletionTimer stopTimerForMessage:uiMessage];
+        
+        [uiMOC.zm_syncContext performGroupedBlock:^{
+            [message removeMessageClearingSender:YES];
+        }];
+    }];
 }
 
 - (void)removePendingDeliveryReceipts
@@ -1036,8 +1069,10 @@ NSString * const ZMMessageIsObfuscatedKey = @"isObfuscated";
 
 - (void)deleteEphemeral;
 {
+    if (self.conversation.conversationType != ZMConversationTypeGroup) {
+        self.destructionDate = nil;
+    }
     [ZMMessage deleteForEveryone:self];
-    self.destructionDate = nil;
     self.isObfuscated = NO;
 }
 

@@ -366,6 +366,7 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
         if (data.genericMessage.assetData != nil && data.genericMessage.assetData.hasNotUploaded) {
             data.asset = nil;
             [self.managedObjectContext deleteObject:data];
+            self.cachedGenericAssetMessage = nil;
             return;
         }
     }
@@ -949,6 +950,11 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 - (BOOL)isAudio
 {
     return [self.mimeType isAudioMimeType];
+}
+
+- (BOOL)v3_isImage
+{
+    return self.genericAssetMessage.v3_isImage;
 }
 
 - (CGSize)videoDimensions
