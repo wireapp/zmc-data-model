@@ -67,7 +67,7 @@ private let zmLog = ZMSLog(tag: "AssetV3")
     }
 
     public var imageMessageData: ZMImageMessageData? {
-        guard isImage || (nil != assetClientMessage.fileMessageData && hasDownloadedImage) else { return nil }
+        guard isImage else { return nil }
         return self
     }
 
@@ -94,8 +94,8 @@ private let zmLog = ZMSLog(tag: "AssetV3")
     }
 
     public var previewData: Data? {
-        guard nil != assetClientMessage.fileMessageData, !isImage, assetClientMessage.hasDownloadedImage else { return nil }
-        return imageData(for: .medium, encrypted: false)
+        guard nil != assetClientMessage.fileMessageData, !isImage, hasDownloadedImage else { return nil }
+        return imageData(for: .medium, encrypted: false) ?? imageData(for: .original, encrypted: false)
     }
 
     public var isAnimatedGIF: Bool {
@@ -124,11 +124,8 @@ private let zmLog = ZMSLog(tag: "AssetV3")
 extension V3Asset: AssetProxyType {
 
     public var hasDownloadedImage: Bool {
-        var downloaded = nil != imageData(for: .medium, encrypted: false)
-        if isImage {
-            downloaded = downloaded || nil != imageData(for: .original, encrypted: false)
-        }
-        return downloaded
+        return nil != imageData(for: .medium, encrypted: false)
+            || nil != imageData(for: .original, encrypted: false)
     }
 
     public var hasDownloadedFile: Bool {
@@ -174,6 +171,7 @@ extension V3Asset: AssetProxyType {
     public func processAddedImage(format: ZMImageFormat, properties: ZMIImageProperties, keys: ZMImageAssetEncryptionKeys) {
         guard format == .medium, let sha256 = keys.sha256 else { return zmLog.error("Tried to process non-medium v3 image for \(assetClientMessage)") }
         let messageID = assetClientMessage.nonce.transportString()
+
         let original = ZMGenericMessage.genericMessage(
             withImageSize: properties.size,
             mimeType: properties.mimeType,

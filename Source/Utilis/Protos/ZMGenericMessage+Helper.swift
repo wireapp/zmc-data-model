@@ -180,7 +180,7 @@ public extension ZMGenericMessage {
     }
 
     // MARK: Updating assets with asset ID and token
-    public func updated(withAssetId assetId: String, token: String?) -> ZMGenericMessage? {
+    public func updatedUploaded(withAssetId assetId: String, token: String?) -> ZMGenericMessage? {
         guard let asset = assetData, let remote = asset.uploaded, asset.hasUploaded() else { return nil }
         let newRemote = remote.updated(withId: assetId, token: token)
         let builder = toBuilder()!
@@ -192,6 +192,29 @@ public extension ZMGenericMessage {
             let ephemeralBuilder = ephemeral.toBuilder()
             let assetBuilder = ephemeral.asset.toBuilder()
             _ = assetBuilder?.setUploaded(newRemote)
+            _ = ephemeralBuilder?.setAsset(assetBuilder)
+            builder.setEphemeral(ephemeralBuilder)
+        } else {
+            return nil
+        }
+
+        return builder.build()
+    }
+
+    public func updatedPreview(withAssetId assetId: String, token: String?) -> ZMGenericMessage? {
+        guard let asset = assetData, let preview = asset.preview, let remote = preview.remote, preview.hasRemote() else { return nil }
+        let newRemote = remote.updated(withId: assetId, token: token)
+        let previewBuilder = preview.toBuilder()
+        _ = previewBuilder?.setRemote(newRemote)
+        let builder = toBuilder()!
+        if hasAsset() {
+            let assetBuilder = asset.toBuilder()
+            _ = assetBuilder?.setPreview(previewBuilder)
+            builder.setAsset(assetBuilder)
+        } else if hasEphemeral() && ephemeral.hasAsset() {
+            let ephemeralBuilder = ephemeral.toBuilder()
+            let assetBuilder = ephemeral.asset.toBuilder()
+            _ = assetBuilder?.setPreview(previewBuilder)
             _ = ephemeralBuilder?.setAsset(assetBuilder)
             builder.setEphemeral(ephemeralBuilder)
         } else {

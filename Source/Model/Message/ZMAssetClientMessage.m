@@ -151,7 +151,6 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
         return nil;
     }
 
-    // TODO: V3 use different file url / cache key
     [moc.zm_fileAssetCache storeAssetData:nonce fileName:metadata.fileURL.lastPathComponent encrypted:NO data:data];
 
     ZMAssetClientMessage *message = [ZMAssetClientMessage insertNewObjectInManagedObjectContext:moc];

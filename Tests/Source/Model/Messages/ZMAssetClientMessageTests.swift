@@ -2215,7 +2215,7 @@ extension ZMAssetClientMessageTests {
         XCTAssertFalse(sut.hasDownloadedFile)
         XCTAssertTrue(sut.hasDownloadedImage)
         XCTAssertEqual(sut.version, 3)
-        XCTAssertEqual(sut.imageMessageData?.previewData, previewData)
+        XCTAssertEqual(sut.fileMessageData?.previewData, previewData)
     }
 
     func testThatIsHasDownloadedImageAndReturnsItWhenTheImageIsOnDisk_V3() {
