@@ -39,8 +39,8 @@
 /// Creates persistent store coordinator and migrates store if needed
 /// @param sync defines if the method should execute sycnhronously or not (ususally it makes sence to execute it
 ///         synchronously when @c +needsToPrepareLocalStore is YES)
-/// @param databaseDirectory where database should we created / moved to
-/// @param databaseIdentifier identifier of the database. Has historally been the bundle identifier. 
+/// @param databaseDirectory where database should be created / moved to
+/// @param databaseIdentifier identifier of the database. Has historically been the bundle identifier.
 /// @param backupCorruptedDatabase if true, will copy a corrupted database to another folder for later investigation
 /// @param completionHandler callback to be executed on completion (nullable), will be invoked on an arbitrary queue, it's the
 ///     caller responsibility to ensure this is switched back to the correct queue
