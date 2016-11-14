@@ -195,9 +195,9 @@ NSString *const TestDatabaseIdentifier = @"TestDatabase";
 /// Sets up the asset caches on the managed object contexts
 - (void)setUpCaches
 {
-    self.uiMOC.zm_imageAssetCache = [[ImageAssetCache alloc] initWithMBLimit:5];
-    self.uiMOC.zm_userImageCache = [[UserImageLocalCache alloc] init];
-    self.uiMOC.zm_fileAssetCache = [[FileAssetCache alloc] init];
+    self.uiMOC.zm_imageAssetCache = [[ImageAssetCache alloc] initWithMBLimit:5 location:nil];
+    self.uiMOC.zm_userImageCache = [[UserImageLocalCache alloc] initWithLocation:nil];
+    self.uiMOC.zm_fileAssetCache = [[FileAssetCache alloc] initWithLocation:nil];
 
     [self.syncMOC performGroupedBlockAndWait:^{
         self.syncMOC.zm_imageAssetCache = self.uiMOC.zm_imageAssetCache;
@@ -208,11 +208,12 @@ NSString *const TestDatabaseIdentifier = @"TestDatabase";
 
 - (void)wipeCaches
 {
-    [FileAssetCache wipeCaches];
+    [self.uiMOC.zm_fileAssetCache wipeCaches];
     [self.uiMOC.zm_userImageCache wipeCache];
     [self.uiMOC.zm_imageAssetCache wipeCache];
 
-    [self.syncMOC performGroupedBlockAndWait:^{        
+    [self.syncMOC performGroupedBlockAndWait:^{
+        [self.syncMOC.zm_fileAssetCache wipeCaches];
         [self.syncMOC.zm_imageAssetCache wipeCache];
         [self.syncMOC.zm_userImageCache wipeCache];
     }];

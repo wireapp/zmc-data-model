@@ -76,6 +76,8 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
         [self.testSession prepareForTestNamed:self.name];
     }];
     
+    [self.testSession setUpCaches];
+    
     NSString *testName = NSStringFromSelector(self.invocation.selector);
     NSString *methodName = [NSString stringWithFormat:@"setup%@%@", [testName substringToIndex:1].capitalizedString, [testName substringFromIndex:1]];
     SEL selector = NSSelectorFromString(methodName);
