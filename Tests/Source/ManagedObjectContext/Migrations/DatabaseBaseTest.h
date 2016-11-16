@@ -33,12 +33,11 @@
 
 
 - (void)cleanUp;
-- (BOOL)moveDatabaseToCachesDirectory;
-- (BOOL)moveDatabaseToApplicationSupportDirectory;
+- (BOOL)createDatabaseInDirectory:(NSSearchPathDirectory)directory;
 - (NSData *)invalidData;
-- (void)useApplicationSupportDirectoryAsDefault;
 - (BOOL)createdUnreadableLocalStore;
 - (void)prepareLocalStoreInSharedContainerBackingUpDatabase:(BOOL)backupCorruptedDatabase;
 - (BOOL)createExternalSupportFileForDatabaseAtURL:(NSURL *)databaseURL;
+- (void)createDirectoryForStoreAtURL:(NSURL *)storeURL;
 
 @end

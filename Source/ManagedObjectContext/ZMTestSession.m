@@ -25,7 +25,6 @@
 
 
 NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
-NSString *const TestDatabaseIdentifier = @"TestDatabase";
 
 
 @interface ZMTestSession ()
@@ -36,6 +35,7 @@ NSString *const TestDatabaseIdentifier = @"TestDatabase";
 @property (nonatomic) ZMSDispatchGroup *dispatchGroup;
 @property (nonatomic) NSString *testName;
 @property (nonatomic) NSURL *databaseDirectory;
+@property (nonatomic) NSURL *storeURL;
 
 
 @property (nonatomic) NSTimeInterval originalConversationLastReadTimestampTimerValue; // this will speed up the tests A LOT
@@ -79,6 +79,7 @@ NSString *const TestDatabaseIdentifier = @"TestDatabase";
     
     NSFileManager *fm = NSFileManager.defaultManager;
     self.databaseDirectory = [fm URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
+    self.storeURL = [self.databaseDirectory URLByAppendingPathComponent:@"store.wiredatabase"];
     [NSManagedObjectContext setUseInMemoryStore:self.shouldUseInMemoryStore];
     
     [self resetState];
@@ -87,7 +88,7 @@ NSString *const TestDatabaseIdentifier = @"TestDatabase";
     [self resetUIandSyncContextsAndResetPersistentStore:YES];
     [ZMPersistentCookieStorage deleteAllKeychainItems];
     
-    self.searchMOC = [NSManagedObjectContext createSearchContextWithStoreDirectory:self.databaseDirectory storeIdentifier:TestDatabaseIdentifier];
+    self.searchMOC = [NSManagedObjectContext createSearchContextWithStoreAtURL:self.storeURL];
     [self.searchMOC addGroup:self.dispatchGroup];
 }
 
@@ -159,7 +160,7 @@ NSString *const TestDatabaseIdentifier = @"TestDatabase";
     }
     
     // NOTE this produces logs if self.useInMemoryStore = NO
-    self.uiMOC = [NSManagedObjectContext createUserInterfaceContextWithStoreDirectory:self.databaseDirectory storeIdentifier:TestDatabaseIdentifier];
+    self.uiMOC = [NSManagedObjectContext createUserInterfaceContextWithStoreAtURL:self.storeURL];
     self.uiMOC.globalManagedObjectContextObserver.propagateChanges = YES;
     [self.uiMOC addGroup:self.dispatchGroup];
     self.uiMOC.userInfo[@"TestName"] = self.testName;
@@ -167,8 +168,7 @@ NSString *const TestDatabaseIdentifier = @"TestDatabase";
         [self.uiMOC setupUserKeyStoreForDirectory:self.databaseDirectory];
     }];
     
-    
-    self.syncMOC = [NSManagedObjectContext createSyncContextWithStoreDirectory:self.databaseDirectory storeIdentifier:TestDatabaseIdentifier];
+    self.syncMOC = [NSManagedObjectContext createSyncContextWithStoreAtURL:self.storeURL keyStoreURL:self.databaseDirectory];
     [self.syncMOC performGroupedBlockAndWait:^{
         self.syncMOC.userInfo[@"TestName"] = self.testName;
         [self.syncMOC addGroup:self.dispatchGroup];

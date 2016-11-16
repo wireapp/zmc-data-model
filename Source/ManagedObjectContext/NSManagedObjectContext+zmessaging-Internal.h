@@ -22,13 +22,8 @@
 
 @interface NSManagedObjectContext (zmessaging_Internal)
 
-+ (BOOL)databaseExistsInCachesDirectory;
-+ (BOOL)databaseExistsInApplicationSupportDirectory;
-+ (BOOL)databaseExistsAndNotReadableDueToEncryption;
++ (BOOL)databaseExistsButIsNotReadableDueToEncryptionAtURL:(NSURL *)storeURL;
 + (NSURL *)storeURLInDirectory:(NSSearchPathDirectory)directory;
-+ (NSPersistentStoreCoordinator *)initPersistentStoreCoordinatorBackingUpCorrupedDatabases:(BOOL)backupCorruptedDatabase;
-+ (void)resetDatabaseDirectoryAndIdentifier;
-+ (void)setDatabaseDirectoryURL:(NSURL *)directory;
-+ (void)setDatabaseIdentifier:(NSString *)identifier;
++ (NSPersistentStoreCoordinator *)initPersistentStoreCoordinatorAtURL:(NSURL *)storeURL backupCorrupedDatabase:(BOOL)backupCorruptedDatabase;
 
 @end
