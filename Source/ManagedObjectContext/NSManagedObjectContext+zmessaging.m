@@ -78,14 +78,6 @@ static NSString* ZMLogTag ZM_UNUSED = @"NSManagedObjectContext";
 
 static BOOL storeIsReady = NO;
 
-//+ (NSURL *)storeURLInDirectory:(NSSearchPathDirectory)directory;
-//{
-//    NSError *error = nil;
-//    NSURL * const directoryURL = [[NSFileManager defaultManager] URLForDirectory:directory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:&error];
-//    
-//    return [directoryURL URLByAppendingPathComponent:@"store.wiredatabase"];
-//}
-
 + (BOOL)needsToPrepareLocalStoreAtURL:(NSURL *)storeURL
 {
     BOOL needsMigration = NO;
