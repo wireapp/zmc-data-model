@@ -41,9 +41,8 @@
 
 - (void)setUp
 {
-    NSFileManager *fm = [NSFileManager defaultManager];    
-    NSURL *documentDirectory = [fm URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
-    NSURL *storeURL = [documentDirectory URLByAppendingPathComponent:@"store.wiredatabase"];
+    NSFileManager *fm = [NSFileManager defaultManager];
+    NSURL *storeURL = [PersistentStoreRelocator storeURLInDirectory:NSDocumentDirectory];
     
     if ([fm fileExistsAtPath:storeURL.path]) {
         NSError *error = nil;

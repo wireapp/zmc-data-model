@@ -77,9 +77,9 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
     self.originalConversationLastReadTimestampTimerValue = ZMConversationDefaultLastReadTimestampSaveDelay;
     ZMConversationDefaultLastReadTimestampSaveDelay = 0.02;
     
-    NSFileManager *fm = NSFileManager.defaultManager;
-    self.databaseDirectory = [fm URLForDirectory:NSDocumentDirectory inDomain:NSUserDomainMask appropriateForURL:nil create:YES error:nil];
-    self.storeURL = [self.databaseDirectory URLByAppendingPathComponent:@"store.wiredatabase"];
+    self.storeURL = [PersistentStoreRelocator storeURLInDirectory:NSDocumentDirectory];
+    self.databaseDirectory = self.storeURL.URLByDeletingLastPathComponent;
+    
     [NSManagedObjectContext setUseInMemoryStore:self.shouldUseInMemoryStore];
     
     [self resetState];
