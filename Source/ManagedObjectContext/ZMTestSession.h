@@ -64,14 +64,6 @@
 /// Wait until all contexts have completed their task and tear them down
 - (void)waitAndDeleteAllManagedObjectContexts;
 
-@end
-
-
-@interface ZMTestSession (FilesInCache)
-
-/// Sets up the asset caches on the managed object contexts
-- (void)setUpCaches;
-
 /// Wipes the asset caches on the managed object contexts
 - (void)wipeCaches;
 

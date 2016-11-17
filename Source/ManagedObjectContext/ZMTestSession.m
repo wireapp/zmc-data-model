@@ -37,7 +37,6 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
 @property (nonatomic) NSURL *databaseDirectory;
 @property (nonatomic) NSURL *storeURL;
 
-
 @property (nonatomic) NSTimeInterval originalConversationLastReadTimestampTimerValue; // this will speed up the tests A LOT
 
 @end
@@ -183,16 +182,10 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
     [self.syncMOC performGroupedBlockAndWait:^{        
         [self.syncMOC setZm_userInterfaceContext:self.uiMOC];
     }];
-    [self.uiMOC setZm_syncContext:self.syncMOC];    
+    [self.uiMOC setZm_syncContext:self.syncMOC];
+    [self setUpCaches];
 }
 
-@end
-
-
-
-@implementation ZMTestSession (FilesInCache)
-
-/// Sets up the asset caches on the managed object contexts
 - (void)setUpCaches
 {
     self.uiMOC.zm_imageAssetCache = [[ImageAssetCache alloc] initWithMBLimit:5 location:nil];

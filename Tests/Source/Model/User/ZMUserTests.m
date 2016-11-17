@@ -764,7 +764,6 @@ static NSString *const ValidEmail = @"foo77@example.com";
     
     //reset all contexts
     [self resetUIandSyncContextsAndResetPersistentStore:YES];
-    [self setUpCaches];
     WaitForAllGroupsToBeEmpty(0.5);
 
     [self checkSelfUserIsCreatedCorrectlyInContext:self.uiMOC];
