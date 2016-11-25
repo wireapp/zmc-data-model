@@ -62,7 +62,7 @@ class TokenCollection<T : NSObject> where T : ChangeNotifierToken {
     }
 }
 
-final class GlobalConversationObserver : NSObject, ObjectsDidChangeDelegate, ZMGeneralConversationObserver, ZMConversationListObserver {
+final class GlobalConversationObserver : NSObject, ObjectsDidChangeDelegate, ZMGeneralConversationObserver, ZMConversationListObserver, WireCallCenterObserver {
     
     fileprivate var internalConversationListObserverTokens : [String :InternalConversationListObserverToken] = [:]
     fileprivate var globalVoiceChannelObserverTokens : Set<GlobalVoiceChannelStateObserverToken> = Set()
@@ -82,6 +82,8 @@ final class GlobalConversationObserver : NSObject, ObjectsDidChangeDelegate, ZMG
     var isTornDown : Bool = false
     fileprivate (set) var isReady : Bool  = false
     
+    fileprivate var callCenterToken : WireCallCenterObserverToken?
+    
     init(managedObjectContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext
         super.init()
@@ -99,6 +101,7 @@ final class GlobalConversationObserver : NSObject, ObjectsDidChangeDelegate, ZMG
         let observedListsIdentifiers = conversationListObserverTokens.observerTokens.keys
         let lists = conversationLists.flatMap{$0.unbox}.filter{observedListsIdentifiers.contains($0.identifier)}
         registerTokensForConversationList(lists)
+        callCenterToken = WireCallCenter.addObserver(observer: self)
     }
     
     // adding and removing lists
@@ -145,6 +148,14 @@ final class GlobalConversationObserver : NSObject, ObjectsDidChangeDelegate, ZMG
             self.conversationObserverTokens.removeTokensForObject(conv.objectID)
             self.voiceChannelStateObserverTokens.removeTokensForObject(conv.objectID)
             self.voiceChannelParticipantsObserverTokens.removeTokensForObject(conv.objectID)
+        }
+    }
+    
+    // MARK - Wire Call center observer
+    
+    func callCenterDidChange(callState: CallState, conversationId: UUID, userId: UUID, callCloseReason: CallClosedReason?) {
+        self.managedObjectContext?.performGroupedBlock {
+            self.checkAllConversationsForChanges()
         }
     }
     
@@ -264,6 +275,10 @@ final class GlobalConversationObserver : NSObject, ObjectsDidChangeDelegate, ZMG
     func tearDown() {
         if isTornDown { return }
         isTornDown = true
+        
+        if let callCenterToken = callCenterToken {
+            WireCallCenter.removeObserver(token: callCenterToken)
+        }
         
         conversationTokens.values.forEach{$0.tearDown()}
         conversationTokens = [:]

@@ -47,10 +47,9 @@ static NSString * const ZMVoiceChannelParticipantVoiceGainChangedNotificationNam
 
 @implementation ZMVoiceChannel (ChangeNotification)
 
-- (id<ZMVoiceChannelStateObserverOpaqueToken>)addVoiceChannelStateObserver:(id<ZMVoiceChannelStateObserver>)observer;
++ (id<ZMVoiceChannelStateObserverOpaqueToken>)addVoiceChannelStateObserver:(id<ZMVoiceChannelStateObserver>)observer inConversation:(ZMConversation *)conversation;
 {
     TokensContainer* token = [[TokensContainer alloc] init];
-    ZMConversation *conversation = self.conversation;
     token.stateToken = [conversation.managedObjectContext.globalManagedObjectContextObserver addVoiceChannelStateObserver:observer conversation:conversation];
     NSManagedObjectID *conversationId = conversation.objectID;
     ZM_WEAK(observer);
@@ -68,7 +67,7 @@ static NSString * const ZMVoiceChannelParticipantVoiceGainChangedNotificationNam
     return token;
 }
 
-- (void)removeVoiceChannelStateObserverForToken:(id<ZMVoiceChannelStateObserverOpaqueToken>)token;
++ (void)removeVoiceChannelStateObserverForToken:(id<ZMVoiceChannelStateObserverOpaqueToken>)token;
 {
     [(TokensContainer *)token tearDown];
 }
@@ -93,15 +92,14 @@ static NSString * const ZMVoiceChannelParticipantVoiceGainChangedNotificationNam
     [self removeGlobalVoiceChannelStateObserverForToken:token managedObjectContext:userSession.managedObjectContext];
 }
 
-
-- (id<ZMVoiceChannelParticipantsObserverOpaqueToken>)addCallParticipantsObserver:(id<ZMVoiceChannelParticipantsObserver>)observer
++ (id<ZMVoiceChannelParticipantsObserverOpaqueToken>)addCallParticipantsObserver:(id<ZMVoiceChannelParticipantsObserver>)observer inConversation:(ZMConversation *)conversation voiceChannel:(VoiceChannelRouter *)voiceChannel
 {
-    return (id)[self.conversation.managedObjectContext.globalManagedObjectContextObserver addCallParticipantsObserver:observer voiceChannel:self];
+    return (id)[conversation.managedObjectContext.globalManagedObjectContextObserver addCallParticipantsObserver:observer voiceChannel:voiceChannel.v2];
 }
 
-- (void)removeCallParticipantsObserverForToken:(id<ZMVoiceChannelParticipantsObserverOpaqueToken>)token
++ (void)removeCallParticipantsObserverForToken:(id<ZMVoiceChannelParticipantsObserverOpaqueToken>)token inConversation:(ZMConversation *)conversation
 {
-    [self.conversation.managedObjectContext.globalManagedObjectContextObserver removeCallParticipantsObserverForToken:(id)token];
+    [conversation.managedObjectContext.globalManagedObjectContextObserver removeCallParticipantsObserverForToken:(id)token];
 }
 
 @end
@@ -139,7 +137,7 @@ static NSString * const ZMVoiceChannelParticipantVoiceGainChangedNotificationNam
     [[NSNotificationCenter defaultCenter] removeObserver:observer name:ZMVoiceChannelParticipantVoiceGainChangedNotificationName object:nil];
 }
 
-- (ZMVoiceChannel *)voiceChannel;
+- (id<VoiceChannel>)voiceChannel;
 {
     ZMConversation *conversation = self.object;
     return conversation.voiceChannel;

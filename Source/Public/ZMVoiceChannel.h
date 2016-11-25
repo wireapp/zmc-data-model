@@ -21,6 +21,8 @@
 
 #import "ZMConversation.h"
 
+NS_ASSUME_NONNULL_BEGIN
+
 @class ZMUserSession;
 @class ZMUser;
 @class ZMVoiceChannelParticipantState;
@@ -60,7 +62,6 @@ typedef NS_ENUM(uint8_t, ZMVoiceChannelCallEndReason) {
     ZMVoiceChannelCallEndReasonDisconnected ///< When the client disconnects from the service due to other technical reasons
 };
 
-
 // The voice channel of a conversation.
 //
 // N.B.: The conversation owns the voice channel, but the voice channel only has a weak reference back to the conversations. Users of the voice channel @b must hold onto a strong reference to the owning conversations. Failure to do so can lead to undefined behaviour.
@@ -71,13 +72,16 @@ typedef NS_ENUM(uint8_t, ZMVoiceChannelCallEndReason) {
 - (instancetype)init NS_UNAVAILABLE;
 
 @property (nonatomic, readonly) ZMVoiceChannelState state;
-@property (nonatomic, readonly, weak) ZMConversation *conversation; ///< The owning conversation
+@property (nonatomic, readonly, weak, nullable) ZMConversation *conversation; ///< The owning conversation
 
 /// The current  Video device ID used. Nil if no video. Default to the front camera
 @property (nonatomic, copy, readonly) NSString *currentVideoDeviceID;
 
 /// The date and time of current call start
-@property (nonatomic, copy, readonly) NSDate *callStartDate;
+@property (nonatomic, copy, readonly, nullable) NSDate *callStartDate;
+
+/// Voice channel participants. May be a subset of conversation participants.
+@property (nonatomic, readonly) NSOrderedSet *participants;
 
 /// Returns @c nil if there's no active voice channel
 + (instancetype)activeVoiceChannelInSession:(id<ZMManagedObjectContextProvider>)session;
@@ -86,10 +90,7 @@ typedef NS_ENUM(uint8_t, ZMVoiceChannelCallEndReason) {
 /// For each participant call the block with that user and the user's connection state and muted state.
 - (void)enumerateParticipantStatesWithBlock:(void(^)(ZMUser *user, ZMVoiceChannelConnectionState connectionState, BOOL muted))block ZM_NON_NULL(1);
 
-/// Voice channel participants. May be a subset of conversation participants.
-- (NSOrderedSet *)participants;
-
-- (ZMVoiceChannelParticipantState *)participantStateForUser:(ZMUser *)user;
+- (ZMVoiceChannelParticipantState *)stateForParticipant:(ZMUser *)participant;
 
 @property (nonatomic, readonly) ZMVoiceChannelConnectionState selfUserConnectionState;
 
@@ -104,8 +105,6 @@ typedef NS_ENUM(uint8_t, ZMVoiceChannelCallEndReason) {
 
 @end
 
-
-
 @interface ZMVoiceChannelParticipantState : NSObject
 
 @property (nonatomic, readonly) ZMVoiceChannelConnectionState connectionState;
@@ -115,18 +114,11 @@ typedef NS_ENUM(uint8_t, ZMVoiceChannelCallEndReason) {
 @end
 
 
-
-@interface ZMConversation (ZMVoiceChannel)
-
-@property (nonatomic, readonly) ZMVoiceChannel *voiceChannel; ///< NOTE: this object is transient, and will be re-created periodically. Do not hold on to this object, hold on to the owning conversation instead.
-
-@end
-
-
-
 @interface ZMVoiceChannel (ZMDebug)
 
 /// Attributed string to be displayed to the user to help tracking down calling related bugs.
 + (NSAttributedString *)voiceChannelDebugInformation;
 
 @end
+
+NS_ASSUME_NONNULL_END

@@ -146,7 +146,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @property (nonatomic) NSDate *primitiveLastServerTimeStamp;
 @property (nonatomic) NSUUID *primitiveRemoteIdentifier;
 @property (nonatomic) NSData *remoteIdentifier_data;
-@property (nonatomic) ZMVoiceChannel *primitiveVoiceChannel;
+@property (nonatomic) VoiceChannelRouter *primitiveVoiceChannel;
 
 @property (nonatomic) ZMConversationSecurityLevel securityLevel;
 @end
@@ -792,6 +792,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     } else if (self.voiceChannelState == ZMVoiceChannelStateIncomingCallInactive) {
         return ZMConversationListIndicatorInactiveCall;
     }
+    
     return [self unreadListIndicator];
 }
 
@@ -1046,12 +1047,19 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 + (NSPredicate *)predicateForConversationsExcludingArchivedAndInCall;
 {
-    return [NSCompoundPredicate andPredicateWithSubpredicates:@[
-                                                                [self predicateForConversationsIncludingArchived],
-                                                                [NSPredicate predicateWithFormat:@"%K == NO AND %K != %d",
-                                                                 ZMConversationIsArchivedKey,
-                                                                 VoiceChannelStateKey, ZMVoiceChannelStateSelfConnectedToActiveChannel]
-                                                                ]];
+    NSPredicate *notArchivedPredicate = [NSPredicate predicateWithFormat:@"%K == NO", ZMConversationIsArchivedKey];
+    NSPredicate *callingPredicateV2 = [NSPredicate predicateWithFormat:@"%K != %d", VoiceChannelStateKey, ZMVoiceChannelStateSelfConnectedToActiveChannel];
+    NSPredicate *callingPredicateV3 = [NSPredicate predicateWithBlock:^BOOL(ZMConversation *conversation, __unused NSDictionary<NSString *,id> * _Nullable bindings) {
+        if (conversation.remoteIdentifier == nil) {
+            return YES;
+        }
+        
+        return [WireCallCenter callStateForConversationID:conversation.remoteIdentifier] != AVSCallStateEstablished;
+    }];
+    
+    return [NSCompoundPredicate andPredicateWithSubpredicates:@[[self predicateForConversationsIncludingArchived],
+                                                                notArchivedPredicate,
+                                                                [NSCompoundPredicate andPredicateWithSubpredicates:@[callingPredicateV2, callingPredicateV3]]]];
 }
 
 + (NSPredicate *)predicateForPendingConversations;
@@ -1067,10 +1075,18 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 + (NSPredicate *)predicateForConversationsWithNonIdleVoiceChannel;
 {
     NSPredicate *basePredicate = [self predicateForFilteringResults];
-
-    NSPredicate *callingPredicate = [NSPredicate predicateWithFormat:@"%K != %d AND %K != %d",
-                                     VoiceChannelStateKey, ZMVoiceChannelStateNoActiveUsers,
-                                     ConversationTypeKey, ZMConversationTypeConnection];
+    
+    NSPredicate *notConnectionPredicate = [NSPredicate predicateWithFormat:@"%K != %d", ConversationTypeKey, ZMConversationTypeConnection];
+    NSPredicate *callingPredicateV2 = [NSPredicate predicateWithFormat:@"%K != %d", VoiceChannelStateKey, ZMVoiceChannelStateNoActiveUsers];
+    NSPredicate *callingPredicateV3 = [NSPredicate predicateWithBlock:^BOOL(ZMConversation *conversation, __unused NSDictionary<NSString *,id> * _Nullable bindings) {
+        if (conversation.remoteIdentifier == nil) {
+            return NO;
+        }
+        
+        return [WireCallCenter callStateForConversationID:conversation.remoteIdentifier] != AVSCallStateNone;
+    }];
+    
+    NSPredicate *callingPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[notConnectionPredicate, [NSCompoundPredicate orPredicateWithSubpredicates:@[callingPredicateV2, callingPredicateV3]]]];
     
     return [NSCompoundPredicate andPredicateWithSubpredicates:@[basePredicate, callingPredicate]];
 }
@@ -1078,9 +1094,16 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 + (NSPredicate *)predicateForConversationWithActiveCalls;
 {
     NSPredicate *basePredicate = [self predicateForFilteringResults];
-    NSPredicate *callingPredicate = [NSPredicate predicateWithFormat:@"%K == %d", VoiceChannelStateKey, ZMVoiceChannelStateSelfConnectedToActiveChannel];
+    NSPredicate *callingPredicateV2 = [NSPredicate predicateWithFormat:@"%K == %d", VoiceChannelStateKey, ZMVoiceChannelStateSelfConnectedToActiveChannel];
+    NSPredicate *callingPredicateV3 = [NSPredicate predicateWithBlock:^BOOL(ZMConversation *conversation, __unused NSDictionary<NSString *,id> * _Nullable bindings) {
+        if (conversation.remoteIdentifier == nil) {
+            return NO;
+        }
+        
+        return [WireCallCenter callStateForConversationID:conversation.remoteIdentifier] == AVSCallStateEstablished;
+    }];
     
-    return [NSCompoundPredicate andPredicateWithSubpredicates:@[basePredicate, callingPredicate]];
+    return [NSCompoundPredicate andPredicateWithSubpredicates:@[basePredicate, [NSCompoundPredicate orPredicateWithSubpredicates:@[callingPredicateV2, callingPredicateV3]]]];
 }
 
 + (NSPredicate *)predicateForSharableConversations
@@ -1631,19 +1654,19 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @end
 
 
-@implementation ZMConversation (ZMVoiceChannel)
+@implementation ZMConversation (VoiceChannel)
 
-- (ZMVoiceChannel *)voiceChannel;
+- (VoiceChannelRouter *)voiceChannel
 {
     // The 'voiceChannel' is a transient property in the model.
     [self willAccessValueForKey:VoiceChannelKey];
-    ZMVoiceChannel *voiceChannel = self.primitiveVoiceChannel;
+    id<VoiceChannel> voiceChannel = self.primitiveVoiceChannel;
     [self didAccessValueForKey:VoiceChannelKey];
     if (voiceChannel == nil) {
         if ((self.conversationType == ZMConversationTypeOneOnOne) ||
             (self.conversationType == ZMConversationTypeGroup))
         {
-            voiceChannel = [[ZMVoiceChannel alloc] initWithConversation:self];
+            voiceChannel = [[VoiceChannelRouter alloc] initWithConversation:self];
             self.primitiveVoiceChannel = voiceChannel;
         }
     }

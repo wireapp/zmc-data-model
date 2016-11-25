@@ -521,7 +521,7 @@ extension ManagedObjectContextObserver  {
     }
     
     /// Adds a voiceChannel participant observer
-    public func addCallParticipantsObserver(_ observer: ZMVoiceChannelParticipantsObserver, voiceChannel: ZMVoiceChannel) -> AnyObject
+    public func addCallParticipantsObserver(_ observer: ZMVoiceChannelParticipantsObserver, voiceChannel: VoiceChannel) -> AnyObject
     {
         let token = self.globalConversationObserver.addVoiceChannelParticipantsObserver(observer, conversation: voiceChannel.conversation!)
         return token
