@@ -121,7 +121,7 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
                                           data: data,
                                           dataLength: dataLength)
             },
-            { (conversationId, userId, context) -> Void in
+            { (conversationId, userId, isVideoCall, context) -> Void in
                 guard let context = context, let conversationId = conversationId, let userId = userId else {
                     return
                 }
@@ -129,7 +129,8 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
                 let selfReference = Unmanaged<WireCallCenter>.fromOpaque(context).takeUnretainedValue()
                 
                 selfReference.incoming(conversationId: String.init(cString: conversationId),
-                                       userId: String.init(cString: userId))
+                                       userId: String.init(cString: userId),
+                                       isVideoCall: isVideoCall != 0)
             },
             {(conversationId, userId, context) in
                 guard let context = context, let conversationId = conversationId, let userId = userId else {
@@ -172,7 +173,7 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
         return 0
     }
     
-    private func incoming(conversationId: String, userId: String) {
+    private func incoming(conversationId: String, userId: String, isVideoCall: Bool) {
         zmLog.debug("incoming call")
         
         WireCallCenterNotification(callState: .incoming, conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!).post()
@@ -221,9 +222,9 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
         return wcall_answer(conversationId.transportString()) == 0
     }
     
-    @objc(startCallForConversationID:)
-    public class func startCall(conversationId: UUID) -> Bool {
-        return wcall_start(conversationId.transportString()) == 0
+    @objc(startCallForConversationID:video:)
+    public class func startCall(conversationId: UUID, video: Bool) -> Bool {
+        return wcall_start(conversationId.transportString(), video ? 1 : 0) == 0
     }
     
     @objc(closeCallForConversationID:)
@@ -231,9 +232,20 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
         wcall_end(conversationId.transportString())
     }
     
+    @objc(ignoreCallForConversationID:)
+    public class func ignoreCall(conversationId: UUID) {
+        wcall_end(conversationId.transportString())
+        WireCallCenterNotification(callState: .terminating, conversationId: conversationId, userId: conversationId).post() // FIXME
+    }
+    
     @objc(toogleVideoForConversationID:isActive:)
     public class func toogleVideo(conversationID: UUID, active: Bool) {
         wcall_set_video_send_active(conversationID.transportString(), active ? 1 : 0)
+    }
+    
+    @objc(isVideoCallForConversationID:)
+    public class func isVideoCall(conversationId: UUID) -> Bool {
+        return wcall_is_video_call(conversationId.transportString()) == 1 ? true : false
     }
  
     @objc(callStateForConversationID:)
