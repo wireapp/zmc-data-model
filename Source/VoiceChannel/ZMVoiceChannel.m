@@ -117,23 +117,6 @@
 - (ZMVoiceChannelState)voiceChannelState
 {
     return self.voiceChannel.state;
-    
-    
-//    VerifyReturnValue(self.managedObjectContext != nil, ZMVoiceChannelStateInvalid);
-    
-//    ZMUser *selfUser = [ZMUser selfUserInContext:self.managedObjectContext];
-//    ZMUser *otherUser = [self.callParticipants.array firstObjectMatchingWithBlock:^BOOL(ZMUser *user) {
-//        return user != selfUser;
-//    }];
-    
-//    const BOOL selfJoined = [self.callParticipants containsObject:selfUser];
-//    const BOOL otherJoined = otherUser != nil;
-//    const BOOL isDeviceActive = self.callDeviceIsActive;
-//    const BOOL flowActive = self.isFlowActive;
-    
-//    return ZMVoiceChannelStateInvalid;
-    
-//    return [self.voiceChannel stateForIsSelfJoined:selfJoined otherJoined:otherJoined isDeviceActive:isDeviceActive flowActive:flowActive isIgnoringCall:self.isIgnoringCall];
 }
 
 + (NSSet *)keyPathsForValuesAffectingVoiceChannelState {
