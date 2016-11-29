@@ -91,6 +91,10 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
     
     public var transport : WireCallCenterTransport? = nil
     
+    deinit {
+        wcall_close()
+    }
+    
     public init(userId: String, clientId: String) {
         
         super.init()
