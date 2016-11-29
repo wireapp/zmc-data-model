@@ -21,14 +21,14 @@ import Foundation
 public class AddressBookEntry : ZMManagedObject {
     
     enum Fields : String {
-        case idIOS10 = "idIOS10"
-        case idIOS9 = "idIOS9"
+        case idIOS9 = "idIOS10"
+        case idIOS8 = "idIOS9"
         case user = "user"
         case cachedName = "cachedName"
     }
     
-    @NSManaged var idIOS10 : String?
-    @NSManaged var idIOS9 : Int32
+    @NSManaged var idIOS9 : String?
+    @NSManaged var idIOS8 : Int32
     @NSManaged var user : ZMUser?
     @NSManaged var cachedName : String?
     
@@ -41,6 +41,10 @@ public class AddressBookEntry : ZMManagedObject {
     }
     
     public override static func sortKey() -> String? {
-        return Fields.idIOS10.rawValue
+        if #available(iOS 9.0, *) {
+            return Fields.idIOS9.rawValue
+        } else {
+            return Fields.idIOS8.rawValue
+        }
     }
 }
