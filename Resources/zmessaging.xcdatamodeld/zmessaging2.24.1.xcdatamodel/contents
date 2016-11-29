@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="11232" systemVersion="15G1108" minimumToolsVersion="Xcode 4.3" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="2.24">
-    <entity name="AddressBookEntry" syncable="YES">
+    <entity name="AddressBookEntry" representedClassName=".AddressBookEntry" syncable="YES">
         <attribute name="cachedName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="idIOS9" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="idIOS10" optional="YES" attributeType="String" syncable="YES"/>
@@ -205,6 +205,7 @@
         <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="clients" inverseEntity="User" syncable="YES"/>
     </entity>
     <elements>
+        <element name="AddressBookEntry" positionX="9" positionY="153" width="128" height="105"/>
         <element name="AssetClientMessage" positionX="9" positionY="153" width="128" height="225"/>
         <element name="ClientMessage" positionX="9" positionY="153" width="128" height="105"/>
         <element name="Connection" positionX="0" positionY="0" width="128" height="165"/>
@@ -220,6 +221,5 @@
         <element name="TextMessage" positionX="0" positionY="0" width="128" height="60"/>
         <element name="User" positionX="0" positionY="0" width="128" height="570"/>
         <element name="UserClient" positionX="9" positionY="153" width="128" height="450"/>
-        <element name="AddressBookEntry" positionX="9" positionY="153" width="128" height="105"/>
     </elements>
 </model>

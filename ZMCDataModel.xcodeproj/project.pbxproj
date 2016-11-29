@@ -20,6 +20,7 @@
 		544034341D6DFE8500860F2D /* ZMAddressBookContactTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 544034331D6DFE8500860F2D /* ZMAddressBookContactTests.swift */; };
 		546D3DE61CE5D0B100A6047F /* MimeType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 546D3DE51CE5D0B100A6047F /* MimeType.swift */; };
 		546D3DE91CE5D24C00A6047F /* MimeTypeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 546D3DE81CE5D24C00A6047F /* MimeTypeTests.swift */; };
+		5476BA3E1DEDABCC00D047F8 /* AddressBookEntryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5476BA3D1DEDABCC00D047F8 /* AddressBookEntryTests.swift */; };
 		54829DAD1DE6F7BA009100D3 /* store1-24.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 54829D951DE6F782009100D3 /* store1-24.wiredatabase */; };
 		54829DAE1DE6F7BA009100D3 /* store1-25.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 54829D961DE6F782009100D3 /* store1-25.wiredatabase */; };
 		54829DAF1DE6F7BA009100D3 /* store1-27.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 54829D971DE6F782009100D3 /* store1-27.wiredatabase */; };
@@ -382,6 +383,7 @@
 		544034331D6DFE8500860F2D /* ZMAddressBookContactTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZMAddressBookContactTests.swift; sourceTree = "<group>"; };
 		546D3DE51CE5D0B100A6047F /* MimeType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MimeType.swift; sourceTree = "<group>"; };
 		546D3DE81CE5D24C00A6047F /* MimeTypeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MimeTypeTests.swift; sourceTree = "<group>"; };
+		5476BA3D1DEDABCC00D047F8 /* AddressBookEntryTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressBookEntryTests.swift; sourceTree = "<group>"; };
 		54829D951DE6F782009100D3 /* store1-24.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; name = "store1-24.wiredatabase"; path = "Tests/Resources/store1-24.wiredatabase"; sourceTree = SOURCE_ROOT; };
 		54829D961DE6F782009100D3 /* store1-25.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; name = "store1-25.wiredatabase"; path = "Tests/Resources/store1-25.wiredatabase"; sourceTree = SOURCE_ROOT; };
 		54829D971DE6F782009100D3 /* store1-27.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; name = "store1-27.wiredatabase"; path = "Tests/Resources/store1-27.wiredatabase"; sourceTree = SOURCE_ROOT; };
@@ -1206,6 +1208,7 @@
 				F9A7085A1CAEED1B00C2F5FE /* ZMBaseManagedObjectTest.h */,
 				F9A7085B1CAEED1B00C2F5FE /* ZMBaseManagedObjectTest.m */,
 				544034331D6DFE8500860F2D /* ZMAddressBookContactTests.swift */,
+				5476BA3D1DEDABCC00D047F8 /* AddressBookEntryTests.swift */,
 			);
 			name = Model;
 			path = Tests/Source/Model;
@@ -2057,6 +2060,7 @@
 				F9B71FEC1CB2C4C6001DB03F /* ChangedObjectSetTests.swift in Sources */,
 				546D3DE91CE5D24C00A6047F /* MimeTypeTests.swift in Sources */,
 				F9A708371CAEEB7500C2F5FE /* PersistentStoreCoordinatorTests.m in Sources */,
+				5476BA3E1DEDABCC00D047F8 /* AddressBookEntryTests.swift in Sources */,
 				F93A302F1D6F2633005CCB1D /* ZMMessageTests+Confirmation.swift in Sources */,
 				F9B71FFD1CB2C4C6001DB03F /* ObjectSnapshotTests.swift in Sources */,
 				F9331C561CB3BCF300139ECC /* OtrBaseTest.swift in Sources */,

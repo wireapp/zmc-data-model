@@ -16,31 +16,22 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-import Foundation
 
-public class AddressBookEntry : ZMManagedObject {
-    
-    enum Fields : String {
-        case idIOS10 = "idIOS10"
-        case idIOS9 = "idIOS9"
-        case user = "user"
-        case cachedName = "cachedName"
-    }
-    
-    @NSManaged var idIOS10 : String?
-    @NSManaged var idIOS9 : Int32
-    @NSManaged var user : ZMUser?
-    @NSManaged var cachedName : String?
-    
-    public override func keysTrackedForLocalModifications() -> Set<String> {
-        return []
-    }
-    
-    public override static func entityName() -> String {
-        return "AddressBookEntry"
-    }
-    
-    public override static func sortKey() -> String? {
-        return Fields.idIOS10.rawValue
-    }
+import XCTest
+import ZMUtilities
+import Cryptobox
+
+class AddressBookEntryTests : ZMBaseManagedObjectTest {
+
+    func testThatItReturnsTrackedKeys() {
+        
+        // GIVEN
+        let entry = AddressBookEntry.insertNewObject(in: self.uiMOC)
+        
+        // WHEN
+        let keys = entry.keysTrackedForLocalModifications()
+        
+        // THEN
+        XCTAssertTrue(keys.isEmpty)
+    }    
 }
