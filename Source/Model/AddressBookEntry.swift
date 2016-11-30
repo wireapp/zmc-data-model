@@ -17,18 +17,18 @@
 //
 
 import Foundation
+import Contacts
+import AddressBook
 
 public class AddressBookEntry : ZMManagedObject {
     
     enum Fields : String {
-        case idIOS9 = "idIOS10"
-        case idIOS8 = "idIOS9"
+        case localIdentifier = "localIdentifier"
         case user = "user"
         case cachedName = "cachedName"
     }
     
-    @NSManaged var idIOS9 : String?
-    @NSManaged var idIOS8 : Int32
+    @NSManaged var localIdentifier : String?
     @NSManaged var user : ZMUser?
     @NSManaged var cachedName : String?
     
@@ -41,10 +41,20 @@ public class AddressBookEntry : ZMManagedObject {
     }
     
     public override static func sortKey() -> String? {
-        if #available(iOS 9.0, *) {
-            return Fields.idIOS9.rawValue
-        } else {
-            return Fields.idIOS8.rawValue
-        }
+        return Fields.localIdentifier.rawValue
     }
 }
+
+extension AddressBookEntry {
+    
+    @available(iOSApplicationExtension 9.0, *)
+    @objc(createFromContact:managedObjectContext:user:)
+    static public func create(from contact: CNContact, managedObjectContext: NSManagedObjectContext, user: ZMUser? = nil) -> AddressBookEntry {
+        let entry = AddressBookEntry.insertNewObject(in: managedObjectContext)
+        entry.localIdentifier = contact.identifier
+        entry.cachedName = CNContactFormatter.string(from: contact, style: .fullName)
+        entry.user = user
+        return entry
+    }
+}
+
