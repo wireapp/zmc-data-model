@@ -28,9 +28,9 @@ public class AddressBookEntry : ZMManagedObject {
         case cachedName = "cachedName"
     }
     
-    @NSManaged var localIdentifier : String?
-    @NSManaged var user : ZMUser?
-    @NSManaged var cachedName : String?
+    @NSManaged public var localIdentifier : String?
+    @NSManaged public var user : ZMUser?
+    @NSManaged public var cachedName : String?
     
     public override func keysTrackedForLocalModifications() -> Set<String> {
         return []
