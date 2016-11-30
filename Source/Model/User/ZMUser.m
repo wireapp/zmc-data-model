@@ -182,6 +182,7 @@ static NSString *const UserBotEmailRegex = @"^(welcome|anna)(|\\+(.*))@wire\\.co
 @dynamic originalProfileImageData;
 @dynamic clients;
 @dynamic handle;
+@dynamic addressBookEntry;
 
 - (UserClient *)selfClient
 {
