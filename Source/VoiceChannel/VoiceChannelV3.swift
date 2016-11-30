@@ -10,9 +10,6 @@ import Foundation
 
 public class VoiceChannelV3 : NSObject, VoiceChannel {
     
-    /// The current  Video device ID used. Nil if no video. Default to the front camera
-    public var currentVideoDeviceID: String = ""
-
     public var selfUserConnectionState: ZMVoiceChannelConnectionState {
         if let remoteIdentifier = conversation?.remoteIdentifier {
             return WireCallCenter.callState(conversationId:remoteIdentifier).connectionState

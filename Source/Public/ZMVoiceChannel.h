@@ -74,9 +74,6 @@ typedef NS_ENUM(uint8_t, ZMVoiceChannelCallEndReason) {
 @property (nonatomic, readonly) ZMVoiceChannelState state;
 @property (nonatomic, readonly, weak, nullable) ZMConversation *conversation; ///< The owning conversation
 
-/// The current  Video device ID used. Nil if no video. Default to the front camera
-@property (nonatomic, copy, readonly) NSString *currentVideoDeviceID;
-
 /// The date and time of current call start
 @property (nonatomic, copy, readonly, nullable) NSDate *callStartDate;
 

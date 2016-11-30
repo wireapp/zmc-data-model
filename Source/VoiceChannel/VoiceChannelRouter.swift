@@ -39,16 +39,7 @@ public class VoiceChannelRouter : NSObject, VoiceChannel {
     public var state: ZMVoiceChannelState {
         return currentVoiceChannel.state
     }
-    
-    public var currentVideoDeviceID: String {
-        get {
-            return currentVoiceChannel.currentVideoDeviceID
-        }
-        set {
-            currentVoiceChannel.currentVideoDeviceID = newValue
-        }
-    }
-    
+        
     public var callStartDate: Date? {
         return currentVoiceChannel.callStartDate
     }

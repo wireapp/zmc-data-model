@@ -25,8 +25,6 @@
 
 @interface ZMVoiceChannel ()
 
-@property (nonatomic, copy) NSString *currentVideoDeviceID;
-
 @property (nonatomic, copy) NSDate *callStartDate;
 
 - (instancetype)initWithConversation:(ZMConversation *)conversation NS_DESIGNATED_INITIALIZER;

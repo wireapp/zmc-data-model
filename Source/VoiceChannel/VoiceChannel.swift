@@ -26,9 +26,6 @@ public protocol VoiceChannel : NSObjectProtocol {
     
     weak var conversation : ZMConversation? { get }
     
-    /// The current  Video device ID used. Nil if no video. Default to the front camera
-    var currentVideoDeviceID : String { get set }
-    
     /// The date and time of current call start
     var callStartDate : Date? { get }
     
