@@ -153,7 +153,7 @@ final class GlobalConversationObserver : NSObject, ObjectsDidChangeDelegate, ZMG
     
     // MARK - Wire Call center observer
     
-    func callCenterDidChange(callState: CallState, conversationId: UUID, userId: UUID, callCloseReason: CallClosedReason?) {
+    func callCenterDidChange(callState: CallState, conversationId: UUID, userId: UUID) {
         self.managedObjectContext?.performGroupedBlock {
             self.checkAllConversationsForChanges()
         }

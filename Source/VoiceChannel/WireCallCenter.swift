@@ -24,22 +24,41 @@ public enum CallClosedReason : Int32 {
     case internalError
     case timeout
     case lostMedia
+    case unknown
 }
 
-@objc(AVSCallState)
-public enum CallState : Int32 {
+public enum CallState : Equatable {
     /// There's no call
     case none
     /// Outgoing call is pending
     case outgoing
     /// Incoming call is pending
-    case incoming
+    case incoming(video: Bool)
     /// Established call
     case established
     /// Call in process of being terminated
-    case terminating
+    case terminating(reason: CallClosedReason)
     /// Unknown call state
     case unknown
+    
+    public static func ==(lhs: CallState, rhs: CallState) -> Bool {
+        switch (lhs, rhs) {
+        case (.none, .none):
+            fallthrough
+        case (.outgoing, .outgoing):
+            fallthrough
+        case (.incoming, .incoming):
+            fallthrough
+        case (.established, .established):
+            fallthrough
+        case (.terminating, .terminating):
+            fallthrough
+        case (.unknown, .unknown):
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 @objc(AVSVideoReceiveState)
@@ -79,12 +98,6 @@ public protocol WireCallCenterVideoObserver : class {
     
 }
 
-enum WireCallCenterNotificationType {
-    case incoming
-    case established
-    case closed
-}
-
 struct WireCallCenterNotification {
     
     static let notificationName = Notification.Name("WireCallCenterNotification")
@@ -93,13 +106,11 @@ struct WireCallCenterNotification {
     let callState : CallState
     let conversationId : UUID
     let userId : UUID
-    var callClosedReason : CallClosedReason?
     
-    init(callState: CallState, conversationId: UUID, userId: UUID, callClosedReason: CallClosedReason? = nil) {
+    init(callState: CallState, conversationId: UUID, userId: UUID) {
         self.callState = callState
         self.conversationId = conversationId
         self.userId = userId
-        self.callClosedReason = callClosedReason
     }
     
     func post() {
@@ -111,7 +122,7 @@ struct WireCallCenterNotification {
 
 public protocol WireCallCenterObserver : class {
     
-    func callCenterDidChange(callState: CallState, conversationId: UUID, userId: UUID, callCloseReason: CallClosedReason?)
+    func callCenterDidChange(callState: CallState, conversationId: UUID, userId: UUID)
 }
 
 @objc
@@ -222,7 +233,7 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
     private func incoming(conversationId: String, userId: String, isVideoCall: Bool) {
         zmLog.debug("incoming call")
         
-        WireCallCenterNotification(callState: .incoming, conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!).post()
+        WireCallCenterNotification(callState: .incoming(video: isVideoCall), conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!).post()
     }
     
     private func established(conversationId: String, userId: String) {
@@ -238,7 +249,7 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
     private func closed(conversationId: String, userId: String, reason: CallClosedReason) {
         zmLog.debug("closed call")
         
-        WireCallCenterNotification(callState: .terminating, conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!, callClosedReason: reason).post()
+        WireCallCenterNotification(callState: .terminating(reason: reason), conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!).post()
     }
     
     // TODO find a better place for this method
@@ -257,7 +268,7 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
     public class func addObserver(observer: WireCallCenterObserver) -> WireCallCenterObserverToken  {
         return NotificationCenter.default.addObserver(forName: WireCallCenterNotification.notificationName, object: nil, queue: nil) { (note) in
             if let note = note.userInfo?[WireCallCenterNotification.userInfoKey] as? WireCallCenterNotification {
-                observer.callCenterDidChange(callState: note.callState, conversationId: note.conversationId, userId: note.userId, callCloseReason: note.callClosedReason)
+                observer.callCenterDidChange(callState: note.callState, conversationId: note.conversationId, userId: note.userId)
             }
         }
     }
@@ -294,12 +305,13 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
     @objc(closeCallForConversationID:)
     public class func closeCall(conversationId: UUID) {
         wcall_end(conversationId.transportString())
+        WireCallCenterNotification(callState: .terminating(reason: .normal), conversationId: conversationId, userId: conversationId).post() // FIXME
     }
     
     @objc(ignoreCallForConversationID:)
     public class func ignoreCall(conversationId: UUID) {
         wcall_end(conversationId.transportString())
-        WireCallCenterNotification(callState: .terminating, conversationId: conversationId, userId: conversationId).post() // FIXME
+        WireCallCenterNotification(callState: .terminating(reason: .normal), conversationId: conversationId, userId: conversationId).post() // FIXME
     }
     
     @objc(toogleVideoForConversationID:isActive:)
@@ -312,8 +324,20 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
         return wcall_is_video_call(conversationId.transportString()) == 1 ? true : false
     }
  
-    @objc(callStateForConversationID:)
     public class func callState(conversationId: UUID) -> CallState {
-        return CallState(rawValue: wcall_get_state(conversationId.transportString())) ?? .unknown
+        switch wcall_get_state(conversationId.transportString()) {
+        case WCALL_STATE_NONE:
+            return .none
+        case WCALL_STATE_INCOMING:
+            return .incoming(video: false)
+        case WCALL_STATE_OUTGOING:
+            return .outgoing
+        case WCALL_STATE_ESTABLISHED:
+            return .established
+        case WCALL_STATE_TERMINATING:
+            return .terminating(reason: .unknown)
+        default:
+            return .unknown
+        }
     }
 }
