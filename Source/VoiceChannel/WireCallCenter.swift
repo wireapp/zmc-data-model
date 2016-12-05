@@ -160,9 +160,21 @@ public protocol WireCallCenterTransport: class {
 
 private typealias WireCallMessageToken = UnsafeMutableRawPointer
 
+/** 
+ * WireCallCenter is used for making wire calls and observing their state. There can only be one instance of the WireCallCenter. You should instantiate WireCallCenter once a keep a strong reference to it, other consumers can access this instance via the `activeInstance` property.
+ * Thread safety: WireCallCenter instance methods should only be called from the main thread, class method can be called from any thread.
+ */
 @objc public class WireCallCenter : NSObject {
     
     private let zmLog = ZMSLog(tag: "Calling")
+    
+    private let userId : UUID
+    
+    /// activeInstance - Currenly active instance of the WireCallCenter.
+    public private(set) static weak var activeInstance : WireCallCenter?
+    
+    /// establishedDate - Date of when the call was established (Participants can talk to each other). This property is only valid when the call state is .established.
+    public private(set) var establishedDate : Date?
     
     public var transport : WireCallCenterTransport? = nil
     
@@ -170,15 +182,20 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
         wcall_close()
     }
     
-    public init(userId: String, clientId: String) {
+    public init(userId: UUID, clientId: String) {
+        self.userId = userId
         
         super.init()
+        
+        if WireCallCenter.activeInstance != nil {
+            fatal("Only one WireCallCenter can be instantiated")
+        }
         
         let observer = Unmanaged.passUnretained(self).toOpaque()
         
         let resultValue = wcall_init(
-            (userId as NSString).utf8String,
-            (clientId as NSString).utf8String,
+            userId.transportString(),
+            clientId,
             { (version, context) in
                 if let context = context {
                     _ = Unmanaged<WireCallCenter>.fromOpaque(context).takeUnretainedValue()
@@ -277,6 +294,8 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
             guard let state = VideoReceiveState(rawValue: state.rawValue) else { return }
             WireCallCenterVideoNotification(videoReceiveState: state).post()
         })
+        
+        WireCallCenter.activeInstance = self
     }
     
     private func send(token: WireCallMessageToken, conversationId: String, userId: String, clientId: String, data: UnsafePointer<UInt8>, dataLength: Int) -> Int32 {
@@ -318,6 +337,10 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
         
         if wcall_is_video_call(conversationId) == 1 {
             wcall_set_video_send_active(conversationId, 1)
+        }
+        
+        DispatchQueue.main.async {
+            self.establishedDate = Date()
         }
         
         WireCallCenterCallStateNotification(callState: .established, conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!).post()
@@ -381,25 +404,31 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
     // MARK - Call state methods
     
     @objc(answerCallForConversationID:)
-    public class func answerCall(conversationId: UUID) -> Bool {
+    public func answerCall(conversationId: UUID) -> Bool {
         return wcall_answer(conversationId.transportString()) == 0
     }
     
     @objc(startCallForConversationID:video:)
-    public class func startCall(conversationId: UUID, video: Bool) -> Bool {
-        return wcall_start(conversationId.transportString(), video ? 1 : 0) == 0
+    public func startCall(conversationId: UUID, video: Bool) -> Bool {
+        let started = wcall_start(conversationId.transportString(), video ? 1 : 0) == 0
+        
+        if started {
+            WireCallCenterCallStateNotification(callState: .outgoing, conversationId: conversationId, userId: userId).post()
+        }
+        
+        return started
     }
     
     @objc(closeCallForConversationID:)
-    public class func closeCall(conversationId: UUID) {
+    public func closeCall(conversationId: UUID) {
         wcall_end(conversationId.transportString())
-        WireCallCenterCallStateNotification(callState: .terminating(reason: .normal), conversationId: conversationId, userId: conversationId).post() // FIXME
+        WireCallCenterCallStateNotification(callState: .terminating(reason: .normal), conversationId: conversationId, userId: userId).post()
     }
     
     @objc(ignoreCallForConversationID:)
-    public class func ignoreCall(conversationId: UUID) {
+    public func ignoreCall(conversationId: UUID) {
         wcall_end(conversationId.transportString())
-        WireCallCenterCallStateNotification(callState: .terminating(reason: .normal), conversationId: conversationId, userId: conversationId).post() // FIXME
+        WireCallCenterCallStateNotification(callState: .terminating(reason: .normal), conversationId: conversationId, userId: userId).post()
     }
     
     @objc(toogleVideoForConversationID:isActive:)

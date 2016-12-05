@@ -19,7 +19,9 @@ public class VoiceChannelV3 : NSObject, VoiceChannel {
     }
 
     /// The date and time of current call start
-    public var callStartDate: Date?
+    public var callStartDate: Date? {
+        return WireCallCenter.activeInstance?.establishedDate
+    }
     
     weak public var conversation: ZMConversation?
     
