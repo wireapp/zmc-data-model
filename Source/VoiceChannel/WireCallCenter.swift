@@ -61,8 +61,6 @@ public enum CallState : Equatable {
     }
 }
 
-/// MARK - Video State Observer
-
 @objc(AVSVideoReceiveState)
 public enum VideoReceiveState : UInt32 {
     /// Sender is not sending video
@@ -74,6 +72,15 @@ public enum VideoReceiveState : UInt32 {
 }
 
 public typealias WireCallCenterObserverToken = NSObjectProtocol
+
+/// MARK - Video State Observer
+
+@objc
+public protocol WireCallCenterVideoObserver : class {
+    
+    func receivingVideoDidChange(state: VideoReceiveState)
+    
+}
 
 struct WireCallCenterVideoNotification {
     
@@ -93,16 +100,15 @@ struct WireCallCenterVideoNotification {
     }
 }
 
-@objc
-public protocol WireCallCenterVideoObserver : class {
+/// MARK - Call state observer
+
+public protocol WireCallCenterCallStateObserver : class {
     
-    func receivingVideoDidChange(state: VideoReceiveState)
+    func callCenterDidChange(callState: CallState, conversationId: UUID, userId: UUID)
     
 }
 
-/// MARK - Call center Observer
-
-struct WireCallCenterNotification {
+struct WireCallCenterCallStateNotification {
     
     static let notificationName = Notification.Name("WireCallCenterNotification")
     static let userInfoKey = notificationName.rawValue
@@ -111,24 +117,36 @@ struct WireCallCenterNotification {
     let conversationId : UUID
     let userId : UUID
     
-    init(callState: CallState, conversationId: UUID, userId: UUID) {
-        self.callState = callState
-        self.conversationId = conversationId
-        self.userId = userId
-    }
-    
     func post() {
-        NotificationCenter.default.post(name: WireCallCenterNotification.notificationName,
+        NotificationCenter.default.post(name: WireCallCenterCallStateNotification.notificationName,
                                         object: nil,
-                                        userInfo: [WireCallCenterNotification.userInfoKey : self])
+                                        userInfo: [WireCallCenterCallStateNotification.userInfoKey : self])
     }
 }
 
-public protocol WireCallCenterObserver : class {
+/// MARK - Missed call observer
+
+public protocol WireCallCenterMissedCallObserver : class {
     
-    func callCenterDidChange(callState: CallState, conversationId: UUID, userId: UUID)
-//    func callCenterMissedCall(conversationId: UUID, userId: UUID, timestamp: Date, video: Bool)
+    func callCenterMissedCall(conversationId: UUID, userId: UUID, timestamp: Date, video: Bool)
     
+}
+
+struct WireCallCenterMissedCallNotification {
+    
+    static let notificationName = Notification.Name("WireCallCenterNotification")
+    static let userInfoKey = notificationName.rawValue
+    
+    let conversationId : UUID
+    let userId : UUID
+    let timestamp: Date
+    let video: Bool
+    
+    func post() {
+        NotificationCenter.default.post(name: WireCallCenterMissedCallNotification.notificationName,
+                                        object: nil,
+                                        userInfo: [WireCallCenterMissedCallNotification.userInfoKey : self])
+    }
 }
 
 /// MARK - Call center transport
@@ -170,6 +188,7 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
             },
             { (token, conversationId, userId, clientId, data, dataLength, context) in
                 guard let token = token, let context = context, let conversationId = conversationId, let userId = userId, let clientId = clientId, let data = data else {
+                    print("BAD callback")
                     return EINVAL // invalid argument
                 }
                 
@@ -184,6 +203,7 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
             },
             { (conversationId, userId, isVideoCall, context) -> Void in
                 guard let context = context, let conversationId = conversationId, let userId = userId else {
+                    print("BAD callback")
                     return
                 }
                 
@@ -195,6 +215,7 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
             },
             { (conversationId, messageTime, userId, isVideoCall, context) in
                 guard let context = context, let conversationId = conversationId, let userId = userId else {
+                    print("BAD callback")
                     return
                 }
                 
@@ -208,6 +229,7 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
             },
             { (conversationId, userId, context) in
                 guard let context = context, let conversationId = conversationId, let userId = userId else {
+                    print("BAD callback")
                     return
                 }
                 
@@ -218,6 +240,7 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
             },
             { (reason, conversationId, userId, metrics, context) in
                 guard let context = context, let conversationId = conversationId, let userId = userId else {
+                    print("BAD callback")
                     return
                 }
                 
@@ -254,13 +277,13 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
     private func incoming(conversationId: String, userId: String, isVideoCall: Bool) {
         zmLog.debug("incoming call")
         
-        WireCallCenterNotification(callState: .incoming(video: isVideoCall), conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!).post()
+        WireCallCenterCallStateNotification(callState: .incoming(video: isVideoCall), conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!).post()
     }
     
     private func missed(conversationId: String, userId: String, timestamp: Date, isVideoCall: Bool) {
         zmLog.debug("missed call")
         
-        // TODO post notification
+        WireCallCenterMissedCallNotification(conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!, timestamp: timestamp, video: isVideoCall).post()
     }
     
     private func established(conversationId: String, userId: String) {
@@ -270,13 +293,13 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
             wcall_set_video_send_active(conversationId, 1)
         }
         
-        WireCallCenterNotification(callState: .established, conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!).post()
+        WireCallCenterCallStateNotification(callState: .established, conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!).post()
     }
     
     private func closed(conversationId: String, userId: String, reason: CallClosedReason) {
         zmLog.debug("closed call")
         
-        WireCallCenterNotification(callState: .terminating(reason: reason), conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!).post()
+        WireCallCenterCallStateNotification(callState: .terminating(reason: reason), conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!).post()
     }
     
     // TODO find a better place for this method
@@ -292,16 +315,21 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
     // MARK - Observer
     
     /// Register observer of the call center call state. This will inform you when there's an incoming call etc.
-    public class func addObserver(observer: WireCallCenterObserver) -> WireCallCenterObserverToken  {
-        return NotificationCenter.default.addObserver(forName: WireCallCenterNotification.notificationName, object: nil, queue: nil) { (note) in
-            if let note = note.userInfo?[WireCallCenterNotification.userInfoKey] as? WireCallCenterNotification {
+    public class func addCallStateObserver(observer: WireCallCenterCallStateObserver) -> WireCallCenterObserverToken  {
+        return NotificationCenter.default.addObserver(forName: WireCallCenterCallStateNotification.notificationName, object: nil, queue: nil) { (note) in
+            if let note = note.userInfo?[WireCallCenterCallStateNotification.userInfoKey] as? WireCallCenterCallStateNotification {
                 observer.callCenterDidChange(callState: note.callState, conversationId: note.conversationId, userId: note.userId)
             }
         }
     }
     
-    public class func removeObserver(token: WireCallCenterObserverToken) {
-        NotificationCenter.default.removeObserver(token)
+    /// Register observer of missed calls.
+    public class func addMissedCallObserver(observer: WireCallCenterMissedCallObserver) -> WireCallCenterObserverToken  {
+        return NotificationCenter.default.addObserver(forName: WireCallCenterMissedCallNotification.notificationName, object: nil, queue: nil) { (note) in
+            if let note = note.userInfo?[WireCallCenterMissedCallNotification.userInfoKey] as? WireCallCenterMissedCallNotification {
+                observer.callCenterMissedCall(conversationId: note.conversationId, userId: note.userId, timestamp: note.timestamp, video: note.video)
+            }
+        }
     }
     
     /// Register observer of the video state. This will inform you when the remote caller starts, stops sending video.
@@ -313,7 +341,7 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
         }
     }
     
-    public class func removeVideoObserver(token: WireCallCenterObserverToken) {
+    public class func removeObserver(token: WireCallCenterObserverToken) {
         NotificationCenter.default.removeObserver(token)
     }
     
@@ -332,13 +360,13 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
     @objc(closeCallForConversationID:)
     public class func closeCall(conversationId: UUID) {
         wcall_end(conversationId.transportString())
-        WireCallCenterNotification(callState: .terminating(reason: .normal), conversationId: conversationId, userId: conversationId).post() // FIXME
+        WireCallCenterCallStateNotification(callState: .terminating(reason: .normal), conversationId: conversationId, userId: conversationId).post() // FIXME
     }
     
     @objc(ignoreCallForConversationID:)
     public class func ignoreCall(conversationId: UUID) {
         wcall_end(conversationId.transportString())
-        WireCallCenterNotification(callState: .terminating(reason: .normal), conversationId: conversationId, userId: conversationId).post() // FIXME
+        WireCallCenterCallStateNotification(callState: .terminating(reason: .normal), conversationId: conversationId, userId: conversationId).post() // FIXME
     }
     
     @objc(toogleVideoForConversationID:isActive:)

@@ -62,7 +62,7 @@ class TokenCollection<T : NSObject> where T : ChangeNotifierToken {
     }
 }
 
-final class GlobalConversationObserver : NSObject, ObjectsDidChangeDelegate, ZMGeneralConversationObserver, ZMConversationListObserver, WireCallCenterObserver {
+final class GlobalConversationObserver : NSObject, ObjectsDidChangeDelegate, ZMGeneralConversationObserver, ZMConversationListObserver, WireCallCenterCallStateObserver {
     
     fileprivate var internalConversationListObserverTokens : [String :InternalConversationListObserverToken] = [:]
     fileprivate var globalVoiceChannelObserverTokens : Set<GlobalVoiceChannelStateObserverToken> = Set()
@@ -101,7 +101,7 @@ final class GlobalConversationObserver : NSObject, ObjectsDidChangeDelegate, ZMG
         let observedListsIdentifiers = conversationListObserverTokens.observerTokens.keys
         let lists = conversationLists.flatMap{$0.unbox}.filter{observedListsIdentifiers.contains($0.identifier)}
         registerTokensForConversationList(lists)
-        callCenterToken = WireCallCenter.addObserver(observer: self)
+        callCenterToken = WireCallCenter.addCallStateObserver(observer: self)
     }
     
     // adding and removing lists
