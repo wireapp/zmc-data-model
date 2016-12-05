@@ -1210,6 +1210,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     message.sender = [ZMUser selfUserInContext:self.managedObjectContext];
     [message setExpirationDate];
     [self sortedAppendMessage:message];
+    [self unarchiveIfNeeded];
+
     return message;
 }
 
@@ -1227,6 +1229,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
     else {
         [self sortedAppendMessage:message];
+        [self unarchiveIfNeeded];
     }
     return message;
 }
@@ -1242,6 +1245,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     message.sender = [ZMUser selfUserInContext:self.managedObjectContext];
     message.isEncrypted = YES;
     [self sortedAppendMessage:message];
+    [self unarchiveIfNeeded];
     return message;
 }
 
@@ -1345,6 +1349,13 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
     
     return index;
+}
+
+- (void)unarchiveIfNeeded
+{
+    if (self.isArchived) {
+        self.isArchived = NO;
+    }
 }
 
 - (void)deleteOlderMessages

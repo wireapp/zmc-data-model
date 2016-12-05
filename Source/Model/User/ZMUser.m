@@ -69,6 +69,7 @@ static NSString *const SmallProfileRemoteIdentifierDataKey = @"smallProfileRemot
 static NSString *const SmallProfileRemoteIdentifierKey = @"smallProfileRemoteIdentifier";
 static NSString *const OriginalProfileImageDataKey = @"originalProfileImageData";
 static NSString *const NameKey = @"name";
+static NSString *const HandleKey = @"handle";
 static NSString *const ImageMediumDataKey = @"imageMediumData";
 static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
 static NSString *const SystemMessagesKey = @"systemMessages";
@@ -76,6 +77,7 @@ static NSString *const ShowingUserAddedKey = @"showingUserAdded";
 static NSString *const ShowingUserRemovedKey = @"showingUserRemoved";
 static NSString *const UserClientsKey = @"clients";
 static NSString *const ReactionsKey = @"reactions";
+static NSString *const AddressBookEntryKey = @"addressBookEntry";
 
 static NSString *const UserBotEmailRegex = @"^(welcome|anna)(|\\+(.*))@wire\\.com$";
 
@@ -179,6 +181,8 @@ static NSString *const UserBotEmailRegex = @"^(welcome|anna)(|\\+(.*))@wire\\.co
 @dynamic phoneNumber;
 @dynamic originalProfileImageData;
 @dynamic clients;
+@dynamic handle;
+@dynamic addressBookEntry;
 
 - (UserClient *)selfClient
 {
@@ -350,6 +354,10 @@ static NSString *const UserBotEmailRegex = @"^(welcome|anna)(|\\+(.*))@wire\\.co
     return clientsRequiringUserAttention;
 }
 
+- (void)refreshData {
+    self.needsToBeUpdatedFromBackend = true;
+}
+
 @end
 
 
@@ -395,7 +403,9 @@ static NSString *const UserBotEmailRegex = @"^(welcome|anna)(|\\+(.*))@wire\\.co
                                            UserClientsKey,
                                            ShowingUserAddedKey,
                                            ShowingUserRemovedKey,
-                                           ReactionsKey
+                                           ReactionsKey,
+                                           AddressBookEntryKey,
+                                           HandleKey, // this is not set on the user directly
                                            ]];
         keys = [ignoredKeys copy];
     });
@@ -504,6 +514,11 @@ static NSString *const UserBotEmailRegex = @"^(welcome|anna)(|\\+(.*))@wire\\.co
     NSString *name = [transportData optionalStringForKey:@"name"];
     if (name != nil || authoritative) {
         self.name = name;
+    }
+    
+    NSString *handle = [transportData optionalStringForKey:@"handle"];
+    if (handle != nil || authoritative) {
+        self.handle = handle;
     }
     
     NSString *email = [transportData optionalStringForKey:@"email"];
@@ -798,6 +813,12 @@ static NSString *const UserBotEmailRegex = @"^(welcome|anna)(|\\+(.*))@wire\\.co
 
 @dynamic originalProfileImageData;
 
+
+- (void)setHandle:(NSString *)aHandle {
+    [self willChangeValueForKey:HandleKey];
+    [self setPrimitiveValue:[aHandle copy] forKey:HandleKey];
+    [self didChangeValueForKey:HandleKey];
+}
 
 - (void)setName:(NSString *)aName {
     

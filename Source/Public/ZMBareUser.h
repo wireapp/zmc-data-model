@@ -31,6 +31,8 @@
 /// The display name will be short e.g. "John A" for connected users, but always the full name for non-connected users.
 @property (nonatomic, readonly) NSString *displayName;
 @property (nonatomic, readonly) NSString *initials;
+/// The "@name" handle
+@property (nonatomic, readonly) NSString *handle;
 
 /// whether this is the self user
 @property (nonatomic, readonly) BOOL isSelfUser;
@@ -49,6 +51,9 @@
 /// Is @c YES if we can send a connection request to this user.
 @property (nonatomic, readonly) BOOL canBeConnected;
 
+/// Request a refresh of the user data from the backend.
+/// This is useful for non-connected user, that we will otherwise never refetch
+- (void)refreshData;
 
 /// Sends a connection request to the given user. May be a no-op, eg. if we're already connected.
 /// A ZMUserChangeNotification with the searchUser as object will be sent notifiying about the connection status change
