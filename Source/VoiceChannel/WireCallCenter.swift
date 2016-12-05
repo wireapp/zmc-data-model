@@ -61,6 +61,8 @@ public enum CallState : Equatable {
     }
 }
 
+/// MARK - Video State Observer
+
 @objc(AVSVideoReceiveState)
 public enum VideoReceiveState : UInt32 {
     /// Sender is not sending video
@@ -98,6 +100,8 @@ public protocol WireCallCenterVideoObserver : class {
     
 }
 
+/// MARK - Call center Observer
+
 struct WireCallCenterNotification {
     
     static let notificationName = Notification.Name("WireCallCenterNotification")
@@ -123,7 +127,11 @@ struct WireCallCenterNotification {
 public protocol WireCallCenterObserver : class {
     
     func callCenterDidChange(callState: CallState, conversationId: UUID, userId: UUID)
+//    func callCenterMissedCall(conversationId: UUID, userId: UUID, timestamp: Date, video: Bool)
+    
 }
+
+/// MARK - Call center transport
 
 @objc
 public protocol WireCallCenterTransport: class {
@@ -185,7 +193,20 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
                                        userId: String.init(cString: userId),
                                        isVideoCall: isVideoCall != 0)
             },
-            {(conversationId, userId, context) in
+            { (conversationId, messageTime, userId, isVideoCall, context) in
+                guard let context = context, let conversationId = conversationId, let userId = userId else {
+                    return
+                }
+                
+                let selfReference = Unmanaged<WireCallCenter>.fromOpaque(context).takeUnretainedValue()
+                let timestamp = Date(timeIntervalSince1970: TimeInterval(messageTime))
+                
+                selfReference.missed(conversationId: String.init(cString: conversationId),
+                                     userId: String.init(cString: userId),
+                                     timestamp: timestamp,
+                                     isVideoCall: isVideoCall != 0)
+            },
+            { (conversationId, userId, context) in
                 guard let context = context, let conversationId = conversationId, let userId = userId else {
                     return
                 }
@@ -234,6 +255,12 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
         zmLog.debug("incoming call")
         
         WireCallCenterNotification(callState: .incoming(video: isVideoCall), conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!).post()
+    }
+    
+    private func missed(conversationId: String, userId: String, timestamp: Date, isVideoCall: Bool) {
+        zmLog.debug("missed call")
+        
+        // TODO post notification
     }
     
     private func established(conversationId: String, userId: String) {
