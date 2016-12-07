@@ -292,7 +292,10 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
         
         wcall_set_video_state_handler({ (state, _) in
             guard let state = VideoReceiveState(rawValue: state.rawValue) else { return }
-            WireCallCenterVideoNotification(videoReceiveState: state).post()
+            
+            DispatchQueue.main.async {
+                WireCallCenterVideoNotification(videoReceiveState: state).post()
+            }
         })
         
         WireCallCenter.activeInstance = self
@@ -357,7 +360,9 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
         
         print("posting closed call")
         
-        WireCallCenterCallStateNotification(callState: .terminating(reason: reason), conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!).post()
+        DispatchQueue.main.async {
+            WireCallCenterCallStateNotification(callState: .terminating(reason: reason), conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!).post()
+        }
         
         print("done posting closed call")
     }
