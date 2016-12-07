@@ -315,7 +315,9 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
         
         print("posting Incoming call")
         
-        WireCallCenterCallStateNotification(callState: .incoming(video: isVideoCall), conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!).post()
+        DispatchQueue.main.async {
+            WireCallCenterCallStateNotification(callState: .incoming(video: isVideoCall), conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!).post()
+        }
         
         print("done posting Incoming call")
     }
@@ -325,7 +327,9 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
         
         print("post missed call")
         
-        WireCallCenterMissedCallNotification(conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!, timestamp: timestamp, video: isVideoCall).post()
+        DispatchQueue.main.async {
+            WireCallCenterMissedCallNotification(conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!, timestamp: timestamp, video: isVideoCall).post()
+        }
         
         print("done posting missed call")
     }
@@ -341,9 +345,9 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
         
         DispatchQueue.main.async {
             self.establishedDate = Date()
+            
+            WireCallCenterCallStateNotification(callState: .established, conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!).post()
         }
-        
-        WireCallCenterCallStateNotification(callState: .established, conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!).post()
         
         print("done posting established call")
     }
