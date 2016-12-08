@@ -154,7 +154,7 @@ struct WireCallCenterMissedCallNotification {
 @objc
 public protocol WireCallCenterTransport: class {
     
-    func send(data: Data, conversationId: NSUUID, userId: NSUUID, completionHandler:((_ status: Int) -> Void))
+    func send(data: Data, conversationId: UUID, userId: UUID, completionHandler: @escaping ((_ status: Int) -> Void))
     
 }
 
@@ -306,7 +306,7 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
         let bytes = UnsafeBufferPointer<UInt8>(start: data, count: dataLength)
         let transformedData = Data(buffer: bytes)
         
-        transport?.send(data: transformedData, conversationId: NSUUID(uuidString: conversationId)!, userId: NSUUID(uuidString: userId)!, completionHandler: { status in
+        transport?.send(data: transformedData, conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!, completionHandler: { status in
             wcall_resp(Int32(status), "", token)
         })
         
