@@ -22,7 +22,7 @@ import AddressBook
 
 public class AddressBookEntry : ZMManagedObject {
     
-    enum Fields : String {
+    public enum Fields : String {
         case localIdentifier = "localIdentifier"
         case user = "user"
         case cachedName = "cachedName"
@@ -43,6 +43,11 @@ public class AddressBookEntry : ZMManagedObject {
     public override static func sortKey() -> String? {
         return Fields.localIdentifier.rawValue
     }
+
+    public override static func isTrackingLocalModifications() -> Bool {
+        return false
+    }
+    
 }
 
 extension AddressBookEntry {
