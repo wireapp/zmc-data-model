@@ -88,7 +88,6 @@ NSString *const ZMConversationLastReadDidChangeNotificationName = @"ZMConversati
 
 static NSString *const CallStateNeedsToBeUpdatedFromBackendKey = @"callStateNeedsToBeUpdatedFromBackend";
 static NSString *const ConnectedUserKey = @"connectedUser";
-static NSString *const ConversationTypeKey = @"conversationType";
 static NSString *const CreatorKey = @"creator";
 static NSString *const DraftMessageTextKey = @"draftMessageText";
 static NSString *const IsPendingConnectionConversationKey = @"isPendingConnectionConversation";
@@ -146,7 +145,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @property (nonatomic) NSDate *primitiveLastServerTimeStamp;
 @property (nonatomic) NSUUID *primitiveRemoteIdentifier;
 @property (nonatomic) NSData *remoteIdentifier_data;
-@property (nonatomic) ZMVoiceChannel *primitiveVoiceChannel;
+@property (nonatomic) VoiceChannelRouter *primitiveVoiceChannel;
 
 @property (nonatomic) ZMConversationSecurityLevel securityLevel;
 @end
@@ -222,8 +221,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         predicate = [NSPredicate predicateWithFormat:@"%K != %d && %K != %d",
-                     ConversationTypeKey, ZMConversationTypeInvalid,
-                     ConversationTypeKey, ZMConversationTypeSelf];
+                     ZMConversationConversationTypeKey, ZMConversationTypeInvalid,
+                     ZMConversationConversationTypeKey, ZMConversationTypeSelf];
     });
     return predicate;
 }
@@ -244,7 +243,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 + (NSPredicate *)predicateForObjectsThatNeedToBeInsertedUpstream;
 {
     NSPredicate *superPredicate = [super predicateForObjectsThatNeedToBeInsertedUpstream];
-    NSPredicate *onlyGoupPredicate = [NSPredicate predicateWithFormat:@"%K == %@", ConversationTypeKey, @(ZMConversationTypeGroup)];
+    NSPredicate *onlyGoupPredicate = [NSPredicate predicateWithFormat:@"%K == %@", ZMConversationConversationTypeKey, @(ZMConversationTypeGroup)];
     return [NSCompoundPredicate andPredicateWithSubpredicates:@[superPredicate, onlyGoupPredicate]];
 }
 
@@ -253,7 +252,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     NSPredicate *superPredicate = [super predicateForObjectsThatNeedToBeUpdatedUpstream];
     NSPredicate *onlyGoupPredicate = [NSPredicate predicateWithFormat:@"(%K != NULL) AND (%K != %@) AND (%K == 0)",
                                       [self remoteIdentifierDataKey],
-                                      ConversationTypeKey, @(ZMConversationTypeInvalid),
+                                      ZMConversationConversationTypeKey, @(ZMConversationTypeInvalid),
                                       NeedsToBeUpdatedFromBackendKey];
     return [NSCompoundPredicate andPredicateWithSubpredicates:@[superPredicate, onlyGoupPredicate]];
 }
@@ -330,7 +329,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 + (NSSet *)keyPathsForValuesAffectingConnectedUser
 {
-    return [NSSet setWithObject:ConversationTypeKey];
+    return [NSSet setWithObject:ZMConversationConversationTypeKey];
 }
 
 
@@ -357,7 +356,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
             ZMConversationCallParticipantsKey,
             CallStateNeedsToBeUpdatedFromBackendKey,
             ZMConversationConnectionKey,
-            ConversationTypeKey,
+            ZMConversationConversationTypeKey,
             CreatorKey,
             DraftMessageTextKey,
             LastModifiedDateKey,
@@ -402,7 +401,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 + (NSSet *)keyPathsForValuesAffectingIsReadOnly;
 {
-    return [NSSet setWithObjects:ConversationTypeKey, ZMConversationIsSelfAnActiveMemberKey, nil];
+    return [NSSet setWithObjects:ZMConversationConversationTypeKey, ZMConversationIsSelfAnActiveMemberKey, nil];
 }
 
 + (NSSet *)keyPathsForValuesAffectingAttributedDisplayName;
@@ -463,7 +462,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 + (NSSet *)keyPathsForValuesAffectingDisplayName;
 {
-    return [NSSet setWithObjects:ConversationTypeKey, @"connection",
+    return [NSSet setWithObjects:ZMConversationConversationTypeKey, @"connection",
             ZMConversationUserDefinedNameKey, nil];
 }
 
@@ -792,6 +791,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     } else if (self.voiceChannelState == ZMVoiceChannelStateIncomingCallInactive) {
         return ZMConversationListIndicatorInactiveCall;
     }
+    
     return [self unreadListIndicator];
 }
 
@@ -952,8 +952,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 {
     return [NSPredicate predicateWithFormat:@"(%K != NULL) AND ((%K == %@) OR (%K == %@))",
             [self remoteIdentifierDataKey],
-            ConversationTypeKey, @(ZMConversationTypeOneOnOne),
-            ConversationTypeKey, @(ZMConversationTypeGroup)];
+            ZMConversationConversationTypeKey, @(ZMConversationTypeOneOnOne),
+            ZMConversationConversationTypeKey, @(ZMConversationTypeGroup)];
 }
 
 + (NSPredicate *)predicateForObjectsThatNeedCallStateToBeUpdatedUpstream;
@@ -982,7 +982,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return [NSCompoundPredicate andPredicateWithSubpredicates:@[predicate, [self callConversationPredicate]]];
 }
 
-
 + (NSSet *)keyPathsForValuesAffectingIsArchived
 {
     return [NSSet setWithObject:ZMConversationIsArchivedKey];
@@ -991,109 +990,11 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 + (NSString *)entityName;
 {
     return @"Conversation";
-} 
-
+}
 
 - (NSMutableOrderedSet *)mutableMessages;
 {
     return [self mutableOrderedSetValueForKey:ZMConversationMessagesKey];
-}
-
-+ (NSPredicate *)predicateForValidConversations;
-{
-    NSPredicate *basePredicate = [self predicateForFilteringResults];
-    NSPredicate *notAConnection = [NSPredicate predicateWithFormat:@"%K != %d", ConversationTypeKey, ZMConversationTypeConnection]; //one-to-one conversations
-    NSPredicate *activeConnection = [NSPredicate predicateWithFormat:@"NOT %K.status IN %@", ZMConversationConnectionKey, @[@(ZMConnectionStatusPending), @(ZMConnectionStatusIgnored), @(ZMConnectionStatusCancelled)]]; //pending connections should be in other list, ignored and cancelled are not displayed
-    
-    NSPredicate *predicate1 = [NSCompoundPredicate orPredicateWithSubpredicates:@[notAConnection, activeConnection]]; // one-to-one conversations and not pending and not ignored connections
-    
-    NSPredicate *noConnection = [NSPredicate predicateWithFormat:@"%K == nil", ZMConversationConnectionKey]; //group conversations
-    NSPredicate *notBlocked = [NSPredicate predicateWithFormat:@"%K.status != %d",
-                               ZMConversationConnectionKey, ZMConnectionStatusBlocked];
-    
-    NSPredicate *predicate2 = [NSCompoundPredicate orPredicateWithSubpredicates:@[noConnection, notBlocked]]; //group conversations and not blocked connections
-    return [NSCompoundPredicate andPredicateWithSubpredicates:@[basePredicate, predicate1, predicate2]];
-}
-
-+ (NSPredicate *)predicateForConversationsIncludingArchived;
-{
-    
-    NSPredicate *notClearedTimeStamp = [NSPredicate predicateWithFormat:@"%K == NULL OR %K > %K OR (%K == %K AND %K == NO)",
-                                        ZMConversationClearedTimeStampKey,
-                                        ZMConversationLastServerTimeStampKey, ZMConversationClearedTimeStampKey,
-                                        ZMConversationLastServerTimeStampKey, ZMConversationClearedTimeStampKey,
-                                        ZMConversationIsArchivedKey];
-    
-    return [NSCompoundPredicate andPredicateWithSubpredicates:@[notClearedTimeStamp, [self predicateForValidConversations]]];
-}
-
-+ (NSPredicate *)predicateForArchivedConversations;
-{
-    return [NSCompoundPredicate andPredicateWithSubpredicates:@[
-                                                                [self predicateForConversationsIncludingArchived],
-                                                                [NSPredicate predicateWithFormat:@"%K == YES", ZMConversationIsArchivedKey]
-                                                                ]];
-}
-
-+ (NSPredicate *)predicateForClearedConversations
-{
-    NSPredicate *cleared = [NSPredicate predicateWithFormat:@"%K != NULL AND %K == YES",
-                                ZMConversationClearedTimeStampKey,
-                                ZMConversationIsArchivedKey];
-
-    return [NSCompoundPredicate andPredicateWithSubpredicates:@[cleared, [self predicateForValidConversations]]];
-}
-
-+ (NSPredicate *)predicateForConversationsExcludingArchivedAndInCall;
-{
-    return [NSCompoundPredicate andPredicateWithSubpredicates:@[
-                                                                [self predicateForConversationsIncludingArchived],
-                                                                [NSPredicate predicateWithFormat:@"%K == NO AND %K != %d",
-                                                                 ZMConversationIsArchivedKey,
-                                                                 VoiceChannelStateKey, ZMVoiceChannelStateSelfConnectedToActiveChannel]
-                                                                ]];
-}
-
-+ (NSPredicate *)predicateForPendingConversations;
-{
-    NSPredicate *basePredicate = [self predicateForFilteringResults];
-    NSPredicate *pendingConversationPredicate = [NSPredicate predicateWithFormat:@"%K == %d AND %K.status == %d",
-                                     ConversationTypeKey, ZMConversationTypeConnection,
-                                     ZMConversationConnectionKey, ZMConnectionStatusPending];
-    
-    return [NSCompoundPredicate andPredicateWithSubpredicates:@[basePredicate, pendingConversationPredicate]];
-}
-
-+ (NSPredicate *)predicateForConversationsWithNonIdleVoiceChannel;
-{
-    NSPredicate *basePredicate = [self predicateForFilteringResults];
-
-    NSPredicate *callingPredicate = [NSPredicate predicateWithFormat:@"%K != %d AND %K != %d",
-                                     VoiceChannelStateKey, ZMVoiceChannelStateNoActiveUsers,
-                                     ConversationTypeKey, ZMConversationTypeConnection];
-    
-    return [NSCompoundPredicate andPredicateWithSubpredicates:@[basePredicate, callingPredicate]];
-}
-
-+ (NSPredicate *)predicateForConversationWithActiveCalls;
-{
-    NSPredicate *basePredicate = [self predicateForFilteringResults];
-    NSPredicate *callingPredicate = [NSPredicate predicateWithFormat:@"%K == %d", VoiceChannelStateKey, ZMVoiceChannelStateSelfConnectedToActiveChannel];
-    
-    return [NSCompoundPredicate andPredicateWithSubpredicates:@[basePredicate, callingPredicate]];
-}
-
-+ (NSPredicate *)predicateForSharableConversations
-{
-    NSPredicate *basePredication = [self predicateForConversationsIncludingArchived];
-    
-    NSPredicate *hasOtherActiveParticipants = [NSPredicate predicateWithFormat:@"%K.@count > 0", ZMConversationOtherActiveParticipantsKey];
-    NSPredicate *oneOnOneOrGroupConversation = [NSPredicate predicateWithFormat:@"%K == %i OR %K == %i",
-                                                ZMConversationConversationTypeKey, ZMConversationTypeOneOnOne,
-                                                ZMConversationConversationTypeKey, ZMConversationTypeGroup];
-    NSPredicate *selfIsActiveMember = [NSPredicate predicateWithFormat:@"isSelfAnActiveMember == YES"];
-    NSPredicate *synced = [NSPredicate predicateWithFormat:@"%K != NULL", [self remoteIdentifierDataKey]];
-    return [NSCompoundPredicate andPredicateWithSubpredicates:@[basePredication, oneOnOneOrGroupConversation, hasOtherActiveParticipants, selfIsActiveMember, synced]];
 }
 
 + (ZMConversationList *)conversationsIncludingArchivedInContext:(NSManagedObjectContext *)moc;
@@ -1179,7 +1080,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     [self updateUnreadMessagesWithMessage:message];
 }
 
-
 + (instancetype)conversationWithRemoteID:(NSUUID *)UUID createIfNeeded:(BOOL)create inContext:(NSManagedObjectContext *)moc
 {
     return [self conversationWithRemoteID:UUID createIfNeeded:create inContext:moc created:NULL];
@@ -1253,7 +1153,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
                                           ZMConversationIsSelfAnActiveMemberKey];
     
     NSPredicate *basePredicate = [NSPredicate predicateWithFormat:@"(%K == %@)",
-                                  ConversationTypeKey, @(ZMConversationTypeGroup)];
+                                  ZMConversationConversationTypeKey, @(ZMConversationTypeGroup)];
     
     NSPredicate *fullPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[basePredicate, searchPredicate,activeMemberPredicate]];
     return fullPredicate;
@@ -1642,19 +1542,19 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @end
 
 
-@implementation ZMConversation (ZMVoiceChannel)
+@implementation ZMConversation (VoiceChannel)
 
-- (ZMVoiceChannel *)voiceChannel;
+- (VoiceChannelRouter *)voiceChannel
 {
     // The 'voiceChannel' is a transient property in the model.
     [self willAccessValueForKey:VoiceChannelKey];
-    ZMVoiceChannel *voiceChannel = self.primitiveVoiceChannel;
+    id<VoiceChannel> voiceChannel = self.primitiveVoiceChannel;
     [self didAccessValueForKey:VoiceChannelKey];
     if (voiceChannel == nil) {
         if ((self.conversationType == ZMConversationTypeOneOnOne) ||
             (self.conversationType == ZMConversationTypeGroup))
         {
-            voiceChannel = [[ZMVoiceChannel alloc] initWithConversation:self];
+            voiceChannel = [[VoiceChannelRouter alloc] initWithConversation:self];
             self.primitiveVoiceChannel = voiceChannel;
         }
     }

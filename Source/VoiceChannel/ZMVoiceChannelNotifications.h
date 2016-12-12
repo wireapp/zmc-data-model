@@ -23,11 +23,14 @@
 
 
 @class ZMUser;
+@class ZMConversation;
 @class VoiceChannelStateChangeInfo;
 @class VoiceChannelParticipantsChangeInfo;
+@class VoiceChannelRouter;
 @protocol ZMVoiceChannelStateObserver;
 @protocol ZMVoiceChannelVoiceGainObserver;
 @protocol ZMVoiceChannelParticipantsObserver;
+@protocol VoiceChannel;
 
 @protocol ZMVoiceChannelStateObserverOpaqueToken
 @end
@@ -37,8 +40,8 @@
 
 @interface ZMVoiceChannel (ChangeNotification)
 
-- (nullable id<ZMVoiceChannelStateObserverOpaqueToken>)addVoiceChannelStateObserver:(nonnull id<ZMVoiceChannelStateObserver>)observer;
-- (void)removeVoiceChannelStateObserverForToken:(nonnull id<ZMVoiceChannelStateObserverOpaqueToken>)token;
++ (nullable id<ZMVoiceChannelStateObserverOpaqueToken>)addVoiceChannelStateObserver:(nonnull id<ZMVoiceChannelStateObserver>)observer inConversation:(nonnull ZMConversation *)conversation;
++ (void)removeVoiceChannelStateObserverForToken:(nonnull id<ZMVoiceChannelStateObserverOpaqueToken>)token;
 
 + (nullable id<ZMVoiceChannelStateObserverOpaqueToken>)addGlobalVoiceChannelStateObserver:(nonnull id<ZMVoiceChannelStateObserver>)observer managedObjectContext:(nonnull NSManagedObjectContext *)managedObjectContext;
 + (void)removeGlobalVoiceChannelStateObserverForToken:(nonnull id<ZMVoiceChannelStateObserverOpaqueToken>)token managedObjectContext:(nonnull NSManagedObjectContext *)managedObjectContext;
@@ -46,8 +49,8 @@
 + (nonnull id<ZMVoiceChannelStateObserverOpaqueToken>)addGlobalVoiceChannelStateObserver:(nonnull id<ZMVoiceChannelStateObserver>)observer inUserSession:(nonnull id<ZMManagedObjectContextProvider>)userSession;
 + (void)removeGlobalVoiceChannelStateObserverForToken:(nonnull id<ZMVoiceChannelStateObserverOpaqueToken>)token inUserSession:(nonnull id<ZMManagedObjectContextProvider>)userSession;
 
-- (nonnull id<ZMVoiceChannelParticipantsObserverOpaqueToken>)addCallParticipantsObserver:(nullable id<ZMVoiceChannelParticipantsObserver>)callParticipantsObserver;
-- (void)removeCallParticipantsObserverForToken:(nonnull  id<ZMVoiceChannelParticipantsObserverOpaqueToken>)token;
++ (nonnull id<ZMVoiceChannelParticipantsObserverOpaqueToken>)addCallParticipantsObserver:(nullable id<ZMVoiceChannelParticipantsObserver>)callParticipantsObserver inConversation:(nonnull ZMConversation *)conversation voiceChannel:(nonnull VoiceChannelRouter *)voiceChannel;
++ (void)removeCallParticipantsObserverForToken:(nonnull  id<ZMVoiceChannelParticipantsObserverOpaqueToken>)token inConversation:(nonnull ZMConversation *)conversation;
 
 @end
 
@@ -56,7 +59,7 @@
 
 @interface ZMVoiceChannelParticipantVoiceGainChangedNotification : ZMNotification
 
-@property (nonatomic, readonly, nonnull) ZMVoiceChannel *voiceChannel;
+@property (nonatomic, readonly, nonnull) id<VoiceChannel> voiceChannel;
 @property (nonatomic, readonly, nonnull) ZMUser *participant;
 @property (nonatomic, readonly) double voiceGain;
 

@@ -116,19 +116,7 @@
 
 - (ZMVoiceChannelState)voiceChannelState
 {
-    VerifyReturnValue(self.managedObjectContext != nil, ZMVoiceChannelStateInvalid);
-    
-    ZMUser *selfUser = [ZMUser selfUserInContext:self.managedObjectContext];
-    ZMUser *otherUser = [self.callParticipants.array firstObjectMatchingWithBlock:^BOOL(ZMUser *user) {
-        return user != selfUser;
-    }];
-    
-    const BOOL selfJoined = [self.callParticipants containsObject:selfUser];
-    const BOOL otherJoined = otherUser != nil;
-    const BOOL isDeviceActive = self.callDeviceIsActive;
-    const BOOL flowActive = self.isFlowActive;
-    
-    return [self.voiceChannel stateForIsSelfJoined:selfJoined otherJoined:otherJoined isDeviceActive:isDeviceActive flowActive:flowActive isIgnoringCall:self.isIgnoringCall];
+    return self.voiceChannel.state;
 }
 
 + (NSSet *)keyPathsForValuesAffectingVoiceChannelState {
@@ -269,7 +257,21 @@ static dispatch_queue_t lastSessionIdentifierIsolation(void)
 
 - (ZMVoiceChannelState)state;
 {
-    return self.conversation.voiceChannelState;
+    ZMConversation *conversation = self.conversation;
+    
+    VerifyReturnValue(conversation.managedObjectContext != nil, ZMVoiceChannelStateInvalid);
+    
+    ZMUser *selfUser = [ZMUser selfUserInContext:conversation.managedObjectContext];
+    ZMUser *otherUser = [conversation.callParticipants.array firstObjectMatchingWithBlock:^BOOL(ZMUser *user) {
+        return user != selfUser;
+    }];
+    
+    const BOOL selfJoined = [conversation.callParticipants containsObject:selfUser];
+    const BOOL otherJoined = otherUser != nil;
+    const BOOL isDeviceActive = conversation.callDeviceIsActive;
+    const BOOL flowActive = conversation.isFlowActive;
+    
+    return [self stateForIsSelfJoined:selfJoined otherJoined:otherJoined isDeviceActive:isDeviceActive flowActive:flowActive isIgnoringCall:conversation.isIgnoringCall];
 }
 
 + (instancetype)activeVoiceChannelInSession:(id<ZMManagedObjectContextProvider>)session;
@@ -287,7 +289,7 @@ static dispatch_queue_t lastSessionIdentifierIsolation(void)
             activeConversation = conversation;
         }
     }];
-    return activeConversation.voiceChannel;
+    return activeConversation.voiceChannel.v2;
 }
 
 
@@ -308,7 +310,7 @@ static dispatch_queue_t lastSessionIdentifierIsolation(void)
 {
     [self.conversation.callParticipants.array enumerateObjectsUsingBlock:^(ZMUser *user, ZM_UNUSED NSUInteger idx, ZM_UNUSED BOOL *stop) {
         if(block) {
-            ZMVoiceChannelParticipantState *state = [self participantStateForUser:user];
+            ZMVoiceChannelParticipantState *state = [self stateForParticipant:user];
             block(user, state.connectionState, state.muted);
         }
     }];
@@ -336,7 +338,8 @@ static dispatch_queue_t lastSessionIdentifierIsolation(void)
     return state;
 }
 
-- (ZMVoiceChannelParticipantState *)participantStateForUser:(ZMUser *)user;
+
+- (ZMVoiceChannelParticipantState *)stateForParticipant:(ZMUser *)user
 {
     ZMConversation *conversation = self.conversation;
     const BOOL joined = [conversation.callParticipants containsObject:user];
@@ -349,7 +352,7 @@ static dispatch_queue_t lastSessionIdentifierIsolation(void)
 - (ZMVoiceChannelConnectionState)selfUserConnectionState;
 {
     ZMConversation *conv = self.conversation;
-    ZMVoiceChannelParticipantState *state = [self participantStateForUser:[ZMUser selfUserInContext:conv.managedObjectContext]];
+    ZMVoiceChannelParticipantState *state = [self stateForParticipant:[ZMUser selfUserInContext:conv.managedObjectContext]];
     return state.connectionState;
 }
 

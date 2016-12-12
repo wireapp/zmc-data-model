@@ -71,7 +71,8 @@ public extension NSOrderedSet {
         }
         return .invalid
     }
-    public var voiceChannel : ZMVoiceChannel? { return (object as? ZMConversation)?.voiceChannel }
+    
+    public var voiceChannel : VoiceChannel? { return (object as? ZMConversation)?.voiceChannel }
     
     public override var description: String {
         return "Call state changed from \(previousState) to \(currentState)"
@@ -156,7 +157,7 @@ public final class GlobalVoiceChannelStateObserverToken : NSObject {
     }
     
     let conversation : ZMConversation
-    public var voiceChannel : ZMVoiceChannel { return conversation.voiceChannel }
+    public var voiceChannel : VoiceChannel? { return conversation.voiceChannel }
     public var otherActiveVideoCallParticipantsChanged : Bool = false
 }
 
@@ -201,7 +202,7 @@ class InternalVoiceChannelParticipantsObserverToken: NSObject, ObjectsDidChangeD
         self.globalObserver = observer
         self.conversation = conversation
         
-        state = SetSnapshot(set: conversation.voiceChannel.participants(), moveType: .uiCollectionView)
+        state = SetSnapshot(set: conversation.voiceChannel!.participants, moveType: .uiCollectionView)
         activeFlowParticipantsState = conversation.activeFlowParticipants.copy() as! NSOrderedSet
         
         super.init()
@@ -227,7 +228,7 @@ class InternalVoiceChannelParticipantsObserverToken: NSObject, ObjectsDidChangeD
     func recalculateSet() {
         
         shouldRecalculate = false
-        let newParticipants = conversation.voiceChannel.participants() ?? NSOrderedSet()
+        let newParticipants = conversation.voiceChannel!.participants
         let newFlowParticipants = conversation.activeFlowParticipants
 
         // participants who have an updated flow, but are still in the voiceChannel
