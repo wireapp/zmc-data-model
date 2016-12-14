@@ -110,30 +110,87 @@ class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
     func testThatItCategorizesFile() {
         
         // GIVEN
-        let message = self.conversation.appendMessage(with: ZMFileMetadata(fileURL: self.fileURL(forResource: "Lorem Ipsum", extension: "txt")!))
+        let message = self.conversation.appendMessage(with: ZMFileMetadata(fileURL: self.fileURL(forResource: "Lorem Ipsum", extension: "txt")!))!
         
         // THEN
-        XCTAssertEqual(message?.categorization, MessageCategory.file)
+        XCTAssertEqual(message.categorization, MessageCategory.file)
     }
     
-//    func testThatItCategorizesAudioFile() {
-//        
-//        // GIVEN
-//        let message = self.conversation.appendMessage(with: ZMAudioMetadata(fileURL: self.fileURL(forResource: <#T##String!#>, extension: <#T##String!#>), duration: <#T##TimeInterval#>)
-//        
-//        // THEN
-//        XCTAssertEqual(message?.categorization, MessageCategory.file)
-//    }
+    func testThatItCategorizesAudioFile() {
+        
+        // GIVEN
+        let message = self.conversation.appendMessage(with: ZMAudioMetadata(fileURL: self.fileURL(forResource: "audio", extension: "m4a"), duration: 12.2))!
+        
+        // THEN
+        XCTAssertEqual(message.categorization, [MessageCategory.file, MessageCategory.audio])
+    }
+    
+    func testThatItCategorizesVideoFile() {
+        
+        // GIVEN
+        let message = self.conversation.appendMessage(with: ZMVideoMetadata(fileURL: self.fileURL(forResource: "video", extension: "mp4"), thumbnail: self.verySmallJPEGData()))!
+        
+        // THEN
+        XCTAssertEqual(message.categorization, [MessageCategory.file, MessageCategory.video])
+    }
+    
+    func testThatItCategorizesLocation() {
+        
+        // GIVEN
+        let message = self.conversation.appendMessage(with: LocationData.locationData(withLatitude: 40.42, longitude: 50.2, name: "Fooland", zoomLevel: Int32(2)))!
+        
+        // THEN
+        XCTAssertEqual(message.categorization, MessageCategory.location)
+    }
+    
+    func testThatItCategorizesSystemMessage() {
+        
+        // GIVEN
+        let message = ZMSystemMessage.insertNewObject(in: self.conversation.managedObjectContext!)
+        message.systemMessageType = .conversationNameChanged
+        
+        // THEN
+        XCTAssertEqual(message.categorization, MessageCategory.systemMessage)
+    }
+    
+    func testThatItCategorizesLikedTextMessageWhenLikedBySelfUser() {
+        
+        // GIVEN
+        let message = self.conversation.appendMessage(withText: "ramble on!")! as! ZMClientMessage
+        message.delivered = true
+        ZMMessage.addReaction("❤️", toMessage: message)
+        XCTAssertFalse(message.usersReaction.isEmpty)
+        self.conversation.managedObjectContext?.saveOrRollback()
+        
+        // THEN
+        XCTAssertEqual(message.categorization, [MessageCategory.text, MessageCategory.liked])
+    }
+    
+    func testThatItCategorizesLikedFileMessageWhenLikedBySelfUser() {
+        
+        // GIVEN
+        let message = self.conversation.appendMessage(with: ZMFileMetadata(fileURL: self.fileURL(forResource: "Lorem Ipsum", extension: "txt")!))! as! ZMAssetClientMessage
+        message.delivered = true
+        ZMMessage.addReaction("❤️", toMessage: message)
+        XCTAssertFalse(message.usersReaction.isEmpty)
+        self.conversation.managedObjectContext?.saveOrRollback()
+        
+        // THEN
+        XCTAssertEqual(message.categorization, [MessageCategory.file, MessageCategory.liked])
+    }
+    
+    func testThatItCategorizesLikedTextMessageWhenNotLikedBySelfUser() {
+        
+        // GIVEN
+        let otherUser = ZMUser.insertNewObject(in: self.conversation.managedObjectContext!)
+        otherUser.remoteIdentifier = UUID.create()
+        let message = self.conversation.appendMessage(withText: "ramble on!")! as! ZMClientMessage
+        message.delivered = true
+        message.addReaction("❤️", forUser: otherUser)
+        XCTAssertFalse(message.usersReaction.isEmpty)
+        self.conversation.managedObjectContext?.saveOrRollback()
+        
+        // THEN
+        XCTAssertEqual(message.categorization, MessageCategory.text)
+    }
 }
-
-/*
- 
- public static let none = MessageCategory(rawValue: 0)
- public static let undefined = MessageCategory(rawValue: 1 << 0)
- public static let audio = MessageCategory(rawValue: 1 << 6)
- public static let video = MessageCategory(rawValue: 1 << 7)
- public static let location = MessageCategory(rawValue: 1 << 8)
- public static let liked = MessageCategory(rawValue: 1 << 9)
- public static let systemMessage = MessageCategory(rawValue: 1 << 11)
- 
- */

@@ -43,6 +43,13 @@ public struct MessageCategory : OptionSet {
     }
 }
 
+extension MessageCategory : Hashable {
+    
+    public var hashValue : Int {
+        return self.rawValue.hashValue
+    }
+}
+
 extension ZMMessage {
     
     /// Type of content present in the message
