@@ -20,8 +20,8 @@ import Foundation
 
 public class WireCallCenterMock : WireCallCenter {
     
-    public required init(userId: UUID, clientId: String, dontRegisterObservers: Bool) {
-        super.init(userId: userId, clientId: clientId, dontRegisterObservers: true)
+    public required init(userId: UUID, clientId: String, registerObservers: Bool) {
+        super.init(userId: userId, clientId: clientId, registerObservers: false)
     }
     
     override public func startCall(conversationId: UUID, video: Bool) -> Bool {
@@ -41,6 +41,14 @@ public class WireCallCenterMock : WireCallCenter {
     }
     
     override public func received(data: Data, currentTimestamp: Date, serverTimestamp: Date, conversationId: UUID, userId: UUID, clientId: String) {
+        
+    }
+    
+    public override func callState(conversationId: UUID) -> CallState {
+        return .none
+    }
+    
+    public override func toogleVideo(conversationID: UUID, active: Bool) {
         
     }
     

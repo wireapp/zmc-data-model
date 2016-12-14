@@ -182,7 +182,7 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
         wcall_close()
     }
     
-    public required init(userId: UUID, clientId: String, dontRegisterObservers : Bool = false) {
+    public required init(userId: UUID, clientId: String, registerObservers : Bool = true) {
         self.userId = userId
         
         super.init()
@@ -191,7 +191,7 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
             fatal("Only one WireCallCenter can be instantiated")
         }
         
-        if (dontRegisterObservers) {
+        if (registerObservers) {
             
             let observer = Unmanaged.passUnretained(self).toOpaque()
             
