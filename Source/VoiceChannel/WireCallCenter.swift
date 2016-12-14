@@ -182,7 +182,7 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
         wcall_close()
     }
     
-    public required init(userId: UUID, clientId: String) {
+    public required init(userId: UUID, clientId: String, dontRegisterObservers : Bool = false) {
         self.userId = userId
         
         super.init()
@@ -191,112 +191,115 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
             fatal("Only one WireCallCenter can be instantiated")
         }
         
-        let observer = Unmanaged.passUnretained(self).toOpaque()
-        
-        let resultValue = wcall_init(
-            userId.transportString(),
-            clientId,
-            { (version, context) in
-                if let context = context {
-                    _ = Unmanaged<WireCallCenter>.fromOpaque(context).takeUnretainedValue()
-                    
-                    
-                }
-            },
-            { (token, conversationId, userId, clientId, data, dataLength, context) in
-                guard let token = token, let context = context, let conversationId = conversationId, let userId = userId, let clientId = clientId, let data = data else {
-                    print("BAD callback")
-                    return EINVAL // invalid argument
-                }
-                
-                let selfReference = Unmanaged<WireCallCenter>.fromOpaque(context).takeUnretainedValue()
-                
-                return selfReference.send(token: token,
-                                          conversationId: String.init(cString: conversationId),
-                                          userId: String.init(cString: userId),
-                                          clientId: String.init(cString: clientId),
-                                          data: data,
-                                          dataLength: dataLength)
-            },
-            { (conversationId, userId, isVideoCall, context) -> Void in
-                guard let context = context, let conversationId = conversationId, let userId = userId else {
-                    print("BAD callback")
-                    return
-                }
-                
-                let selfReference = Unmanaged<WireCallCenter>.fromOpaque(context).takeUnretainedValue()
-                
-                print("entering incoming")
-                
-                selfReference.incoming(conversationId: String.init(cString: conversationId),
-                                       userId: String.init(cString: userId),
-                                       isVideoCall: isVideoCall != 0)
-                
-                print("exiting incoming")
-            },
-            { (conversationId, messageTime, userId, isVideoCall, context) in
-                guard let context = context, let conversationId = conversationId, let userId = userId else {
-                    print("BAD callback")
-                    return
-                }
-                
-                let selfReference = Unmanaged<WireCallCenter>.fromOpaque(context).takeUnretainedValue()
-                let timestamp = Date(timeIntervalSince1970: TimeInterval(messageTime))
-                
-                print("entering missed")
-                
-                selfReference.missed(conversationId: String.init(cString: conversationId),
-                                     userId: String.init(cString: userId),
-                                     timestamp: timestamp,
-                                     isVideoCall: isVideoCall != 0)
-                
-                print("exiting missed")
-            },
-            { (conversationId, userId, context) in
-                guard let context = context, let conversationId = conversationId, let userId = userId else {
-                    print("BAD callback")
-                    return
-                }
-                
-                let selfReference = Unmanaged<WireCallCenter>.fromOpaque(context).takeUnretainedValue()
-                
-                print("entering established")
-                
-                selfReference.established(conversationId: String.init(cString: conversationId),
-                                          userId: String.init(cString: userId))
-                
-                
-                print("exiting established")
-            },
-            { (reason, conversationId, userId, metrics, context) in
-                guard let context = context, let conversationId = conversationId, let userId = userId else {
-                    print("BAD callback")
-                    return
-                }
-                
-                let selfReference = Unmanaged<WireCallCenter>.fromOpaque(context).takeUnretainedValue()
-                
-                print("entering closed")
-                
-                selfReference.closed(conversationId: String.init(cString: conversationId),
-                                     userId: String.init(cString: userId),
-                                     reason: CallClosedReason(rawValue: reason) ?? .internalError)
-                
-                print("exiting closed")
-            },
-            observer)
-        
-        if resultValue != 0 {
-            fatal("Failed to initialise WireCallCenter")
-        }
-        
-        wcall_set_video_state_handler({ (state, _) in
-            guard let state = VideoReceiveState(rawValue: state.rawValue) else { return }
+        if (dontRegisterObservers) {
             
-            DispatchQueue.main.async {
-                WireCallCenterVideoNotification(videoReceiveState: state).post()
+            let observer = Unmanaged.passUnretained(self).toOpaque()
+            
+            let resultValue = wcall_init(
+                userId.transportString(),
+                clientId,
+                { (version, context) in
+                    if let context = context {
+                        _ = Unmanaged<WireCallCenter>.fromOpaque(context).takeUnretainedValue()
+                        
+                        
+                    }
+                },
+                { (token, conversationId, userId, clientId, data, dataLength, context) in
+                    guard let token = token, let context = context, let conversationId = conversationId, let userId = userId, let clientId = clientId, let data = data else {
+                        print("BAD callback")
+                        return EINVAL // invalid argument
+                    }
+                    
+                    let selfReference = Unmanaged<WireCallCenter>.fromOpaque(context).takeUnretainedValue()
+                    
+                    return selfReference.send(token: token,
+                                              conversationId: String.init(cString: conversationId),
+                                              userId: String.init(cString: userId),
+                                              clientId: String.init(cString: clientId),
+                                              data: data,
+                                              dataLength: dataLength)
+                },
+                { (conversationId, userId, isVideoCall, context) -> Void in
+                    guard let context = context, let conversationId = conversationId, let userId = userId else {
+                        print("BAD callback")
+                        return
+                    }
+                    
+                    let selfReference = Unmanaged<WireCallCenter>.fromOpaque(context).takeUnretainedValue()
+                    
+                    print("entering incoming")
+                    
+                    selfReference.incoming(conversationId: String.init(cString: conversationId),
+                                           userId: String.init(cString: userId),
+                                           isVideoCall: isVideoCall != 0)
+                    
+                    print("exiting incoming")
+                },
+                { (conversationId, messageTime, userId, isVideoCall, context) in
+                    guard let context = context, let conversationId = conversationId, let userId = userId else {
+                        print("BAD callback")
+                        return
+                    }
+                    
+                    let selfReference = Unmanaged<WireCallCenter>.fromOpaque(context).takeUnretainedValue()
+                    let timestamp = Date(timeIntervalSince1970: TimeInterval(messageTime))
+                    
+                    print("entering missed")
+                    
+                    selfReference.missed(conversationId: String.init(cString: conversationId),
+                                         userId: String.init(cString: userId),
+                                         timestamp: timestamp,
+                                         isVideoCall: isVideoCall != 0)
+                    
+                    print("exiting missed")
+                },
+                { (conversationId, userId, context) in
+                    guard let context = context, let conversationId = conversationId, let userId = userId else {
+                        print("BAD callback")
+                        return
+                    }
+                    
+                    let selfReference = Unmanaged<WireCallCenter>.fromOpaque(context).takeUnretainedValue()
+                    
+                    print("entering established")
+                    
+                    selfReference.established(conversationId: String.init(cString: conversationId),
+                                              userId: String.init(cString: userId))
+                    
+                    
+                    print("exiting established")
+                },
+                { (reason, conversationId, userId, metrics, context) in
+                    guard let context = context, let conversationId = conversationId, let userId = userId else {
+                        print("BAD callback")
+                        return
+                    }
+                    
+                    let selfReference = Unmanaged<WireCallCenter>.fromOpaque(context).takeUnretainedValue()
+                    
+                    print("entering closed")
+                    
+                    selfReference.closed(conversationId: String.init(cString: conversationId),
+                                         userId: String.init(cString: userId),
+                                         reason: CallClosedReason(rawValue: reason) ?? .internalError)
+                    
+                    print("exiting closed")
+                },
+                observer)
+            
+            if resultValue != 0 {
+                fatal("Failed to initialise WireCallCenter")
             }
-        })
+            
+            wcall_set_video_state_handler({ (state, _) in
+                guard let state = VideoReceiveState(rawValue: state.rawValue) else { return }
+                
+                DispatchQueue.main.async {
+                    WireCallCenterVideoNotification(videoReceiveState: state).post()
+                }
+            })
+        }
         
         WireCallCenter.activeInstance = self
     }
@@ -441,7 +444,7 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
     }
     
     @objc(toogleVideoForConversationID:isActive:)
-    public class func toogleVideo(conversationID: UUID, active: Bool) {
+    public func toogleVideo(conversationID: UUID, active: Bool) {
         wcall_set_video_send_active(conversationID.transportString(), active ? 1 : 0)
     }
     
@@ -450,7 +453,7 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
         return wcall_is_video_call(conversationId.transportString()) == 1 ? true : false
     }
  
-    public class func callState(conversationId: UUID) -> CallState {
+    public func callState(conversationId: UUID) -> CallState {
         switch wcall_get_state(conversationId.transportString()) {
         case WCALL_STATE_NONE:
             return .none

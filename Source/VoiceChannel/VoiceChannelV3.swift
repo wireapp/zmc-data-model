@@ -11,8 +11,8 @@ import Foundation
 public class VoiceChannelV3 : NSObject, VoiceChannel {
     
     public var selfUserConnectionState: ZMVoiceChannelConnectionState {
-        if let remoteIdentifier = conversation?.remoteIdentifier {
-            return WireCallCenter.callState(conversationId:remoteIdentifier).connectionState
+        if let remoteIdentifier = conversation?.remoteIdentifier, let callCenter = WireCallCenter.activeInstance {
+            return callCenter.callState(conversationId:remoteIdentifier).connectionState
         } else {
             return .invalid
         }
@@ -47,8 +47,8 @@ public class VoiceChannelV3 : NSObject, VoiceChannel {
     }
 
     public var state: ZMVoiceChannelState {
-        if let remoteIdentifier = conversation?.remoteIdentifier {
-            return WireCallCenter.callState(conversationId:remoteIdentifier).voiceChannelState
+        if let remoteIdentifier = conversation?.remoteIdentifier, let callCenter = WireCallCenter.activeInstance {
+            return callCenter.callState(conversationId:remoteIdentifier).voiceChannelState
         } else {
             return .invalid
         }
