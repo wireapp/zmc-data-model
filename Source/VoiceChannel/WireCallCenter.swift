@@ -176,7 +176,7 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
     /// establishedDate - Date of when the call was established (Participants can talk to each other). This property is only valid when the call state is .established.
     public private(set) var establishedDate : Date?
     
-    public var transport : WireCallCenterTransport? = nil
+    public weak var transport : WireCallCenterTransport? = nil
     
     deinit {
         wcall_close()
