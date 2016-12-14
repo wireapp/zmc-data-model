@@ -182,7 +182,7 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
         wcall_close()
     }
     
-    public init(userId: UUID, clientId: String) {
+    public required init(userId: UUID, clientId: String) {
         self.userId = userId
         
         super.init()
