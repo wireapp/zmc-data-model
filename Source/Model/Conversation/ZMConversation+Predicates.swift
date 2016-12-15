@@ -117,7 +117,7 @@ extension ZMConversation {
                     return true
             }
             
-            return WireCallCenter.callState(conversationId: remoteIdentifier) == callState
+            return WireCallCenter.activeInstance?.callState(conversationId: remoteIdentifier) == callState
         }
     }
     
