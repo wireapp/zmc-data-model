@@ -39,7 +39,7 @@ public protocol AssetCollectionDelegate : NSObjectProtocol {
 public class AssetCollection : NSObject, ZMCollection {
 
     private unowned var delegate : AssetCollectionDelegate
-    private var assets : PagedAssetFetchResult?
+    private var assets : CategorizedFetchResult?
     private let conversation: ZMConversation
     private let categoriesToFetch : [MessageCategory]
     public static let initialFetchCount = 100
@@ -73,6 +73,7 @@ public class AssetCollection : NSObject, ZMCollection {
     /// Cancels further fetch requests
     public func tearDown() {
         tornDown = true
+        doneFetching = true
     }
     
     deinit {
@@ -83,13 +84,6 @@ public class AssetCollection : NSObject, ZMCollection {
     public func assets(for category: MessageCategory) -> [ZMMessage] {
         return assets?.messagesByFilter[category] ?? []
     }
-    
-    private static func fetchMessageCount(for conversation: ZMConversation) -> Int {
-        let countRequest = NSFetchRequest<ZMAssetClientMessage>(entityName: ZMAssetClientMessage.entityName())
-        countRequest.predicate = NSPredicate(format: "visibleInConversation == %@", conversation)
-        guard let count = try? conversation.managedObjectContext?.count(for: countRequest) else { return 0 }
-        return count ?? 0
-    }
 
     private func fetchNextIfNotTornDown(limit: Int){
         guard !doneFetching else { return }
@@ -98,12 +92,7 @@ public class AssetCollection : NSObject, ZMCollection {
         }
 
         syncMOC?.performGroupedBlock { [weak self] in
-            guard let `self` = self else { return }
-            guard !self.tornDown
-            else {
-                self.doneFetching = true
-                return
-            }
+            guard let `self` = self, !self.tornDown else { return }
             guard let syncConversation = (try? self.syncMOC?.existingObject(with: self.conversation.objectID)) as? ZMConversation
             else {
                 self.doneFetching = true
@@ -111,13 +100,14 @@ public class AssetCollection : NSObject, ZMCollection {
                 return
             }
             
-            guard let newAssets = PagedAssetFetchResult(conversation: syncConversation, startAfter: self.assets?.lastMessage, fetchLimit: limit,categoriesToFetch: self.categoriesToFetch)
-            else {
+            let messagesToAnalyze = self.messages(for: syncConversation, startAfter: self.assets?.lastMessage, fetchLimit: limit)
+            if messagesToAnalyze.count == 0 {
                 self.doneFetching = true
                 self.notifyDelegateFetchingIsDone(result: (self.assets == nil) ? .noAssetsToFetch : .success)
                 return
             }
             
+            let newAssets = CategorizedFetchResult(messages: messagesToAnalyze, categories: self.categoriesToFetch)
             if let assets = self.assets {
                 self.assets = assets.merged(with: newAssets)
             } else {
@@ -128,7 +118,7 @@ public class AssetCollection : NSObject, ZMCollection {
         }
     }
     
-    private func notifyDelegate(newAssets: [MessageCategory : [ZMAssetClientMessage]]) {
+    private func notifyDelegate(newAssets: [MessageCategory : [ZMMessage]]) {
         uiMOC?.performGroupedBlock { [weak self] in
             guard let `self` = self, !self.tornDown else { return }
             var uiAssets = [MessageCategory : [ZMMessage]]()
@@ -147,34 +137,7 @@ public class AssetCollection : NSObject, ZMCollection {
         }
     }
     
-}
-
-
-
-struct PagedAssetFetchResult {
-
-    let totalFetchCount : Int = 0
-    let lastMessage : ZMAssetClientMessage
-    let messagesByFilter : [MessageCategory : [ZMAssetClientMessage]]
-    
-    init?(conversation: ZMConversation,
-          startAfter previousMessage: ZMMessage?,
-          fetchLimit: Int,
-          categoriesToFetch: [MessageCategory])
-    {
-        let allMessages = PagedAssetFetchResult.messages(for: conversation, startAfter: previousMessage, fetchLimit: fetchLimit)
-        guard let lastMessage = allMessages.last else {return nil}
-        
-        let messagesByFilter = PagedAssetFetchResult.categorize(messages: allMessages, categoriesToFetch: categoriesToFetch)
-        self.init(lastMessage: lastMessage, messagesByFilter: messagesByFilter)
-    }
-    
-    init(lastMessage : ZMAssetClientMessage, messagesByFilter : [MessageCategory : [ZMAssetClientMessage]]){
-        self.lastMessage = lastMessage
-        self.messagesByFilter = messagesByFilter
-    }
-    
-    static func messages(for conversation: ZMConversation, startAfter previousMessage: ZMMessage?, fetchLimit: Int) -> [ZMAssetClientMessage]  {
+    func messages(for conversation: ZMConversation, startAfter previousMessage: ZMMessage?, fetchLimit: Int) -> [ZMAssetClientMessage]  {
         var predicate = NSPredicate(format: "visibleInConversation == %@", conversation)
         if let serverTimestamp = previousMessage?.serverTimestamp {
             let messagePredicate = NSPredicate(format: "serverTimestamp < %@", serverTimestamp as NSDate)
@@ -191,41 +154,7 @@ struct PagedAssetFetchResult {
         return result
     }
     
-    static func categorize(messages: [ZMAssetClientMessage], categoriesToFetch: [MessageCategory]) -> [MessageCategory : [ZMAssetClientMessage]] {
-        // setup dictionary with keys we are interested in
-        var sorted = [MessageCategory : [ZMAssetClientMessage]]()
-        for category in categoriesToFetch {
-            sorted[category] = []
-        }
-        // loop through all messages and all dictionary keys
-        messages.forEach{ message in
-            categoriesToFetch.forEach {
-                let category = message.category
-                if category.contains($0) {
-                    sorted[$0]?.append(message)
-                }
-            }
-        }
-        return sorted
-    }
-    
-    func merged(with other: PagedAssetFetchResult) -> PagedAssetFetchResult? {
-        guard let lastMessageTimestamp = lastMessage.serverTimestamp,
-              let otherLastMessageTimestamp = other.lastMessage.serverTimestamp
-        else {return nil }
-        
-        let (newer, older) = (lastMessageTimestamp.compare(otherLastMessageTimestamp) == .orderedAscending) ?
-                             (other, self) : (self, other)
-        
-        var newSortedMessages = [MessageCategory : [ZMAssetClientMessage]]()
-        older.messagesByFilter.forEach {
-            let newerValues = newer.messagesByFilter[$0] ?? []
-            let allValues = newerValues + $1
-            newSortedMessages[$0] = allValues
-        }
-        return PagedAssetFetchResult(lastMessage: older.lastMessage, messagesByFilter: newSortedMessages)
-    }
-    
 }
+
 
 
