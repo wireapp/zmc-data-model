@@ -383,6 +383,7 @@
 		54363A001D7876200048FD7D /* ZMClientMessage+Encryption.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZMClientMessage+Encryption.swift"; sourceTree = "<group>"; };
 		54363A021D787D0E0048FD7D /* ZMAssetClientMessage+Encryption.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZMAssetClientMessage+Encryption.swift"; sourceTree = "<group>"; };
 		544034331D6DFE8500860F2D /* ZMAddressBookContactTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZMAddressBookContactTests.swift; sourceTree = "<group>"; };
+		5454C0911E01AEF700D13C4B /* zmessaging2.25.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = zmessaging2.25.0.xcdatamodel; sourceTree = "<group>"; };
 		546D3DE51CE5D0B100A6047F /* MimeType.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MimeType.swift; sourceTree = "<group>"; };
 		546D3DE81CE5D24C00A6047F /* MimeTypeTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MimeTypeTests.swift; sourceTree = "<group>"; };
 		5476BA3D1DEDABCC00D047F8 /* AddressBookEntryTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AddressBookEntryTests.swift; sourceTree = "<group>"; };
@@ -2371,6 +2372,7 @@
 		F9331C8D1CB42FCF00139ECC /* zmessaging.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				5454C0911E01AEF700D13C4B /* zmessaging2.25.0.xcdatamodel */,
 				54CD46081DED860C00BA3429 /* zmessaging2.24.1.xcdatamodel */,
 				5496B2E51DE4B84E0092A949 /* zmessaging2.24.xcdatamodel */,
 				BF260C4E1DCA1640009C97D9 /* zmessaging2.21.2.xcdatamodel */,
@@ -2392,7 +2394,7 @@
 				F9331C901CB42FCF00139ECC /* zmessaging1.28.xcdatamodel */,
 				F9331C911CB42FCF00139ECC /* zmessaging2.3.xcdatamodel */,
 			);
-			currentVersion = 54CD46081DED860C00BA3429 /* zmessaging2.24.1.xcdatamodel */;
+			currentVersion = 5454C0911E01AEF700D13C4B /* zmessaging2.25.0.xcdatamodel */;
 			path = zmessaging.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
