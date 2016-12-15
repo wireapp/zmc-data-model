@@ -197,7 +197,8 @@ struct PagedAssetFetchResult {
         // loop through all messages and all dictionary keys
         messages.forEach{ message in
             categoriesToFetch.forEach {
-                if message.category.contains($0) {
+                let category = message.category
+                if category.contains($0) {
                     sorted[$0]?.append(message)
                 }
             }
