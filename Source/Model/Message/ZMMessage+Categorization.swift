@@ -63,10 +63,14 @@ extension ZMMessage {
         return categoryToStore
     }
     
-    /// Sorted fetch request by category
-    public static func fetchRequestByCategory(matching category: MessageCategory) -> NSFetchRequest<NSFetchRequestResult> {
-        let predicate = NSPredicate(format: "(%K & %d) = %d", ZMMessageCachedCategoryKey, category.rawValue, category.rawValue)
-        return self.sortedFetchRequest(with: predicate)!
+    /// Sorted fetch request by category. It will match a Core Data object if the intersection of the Core Data value and ANY of the passed
+    /// in categories is matching that category (in other words, the Core Data value can have more bits set that a certain category and it will
+    /// still match).
+    public static func fetchRequestMatching(categories: Set<MessageCategory>) -> NSFetchRequest<NSFetchRequestResult> {
+        let predicates = categories.map {
+            return NSPredicate(format: "(%K & %d) = %d", ZMMessageCachedCategoryKey, $0.rawValue, $0.rawValue)
+        }
+        return self.sortedFetchRequest(with: NSCompoundPredicate(orPredicateWithSubpredicates: predicates))!
     }
     
 }
