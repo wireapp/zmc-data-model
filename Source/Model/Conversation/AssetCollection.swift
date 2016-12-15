@@ -19,7 +19,12 @@
 import Foundation
 
 public enum AssetFetchResult : Int {
-    case success, failed, cancelled, noAssetsToFetch
+    case success, failed, noAssetsToFetch
+}
+
+public protocol ZMCollection : NSObjectProtocol {
+    func tearDown()
+    func assets(for category: MessageCategory) -> [ZMMessage]
 }
 
 public protocol AssetCollectionDelegate : NSObjectProtocol {
@@ -31,7 +36,7 @@ public protocol AssetCollectionDelegate : NSObjectProtocol {
     func assetCollectionDidFinishFetching(result : AssetFetchResult)
 }
 
-public class AssetCollection : NSObject {
+public class AssetCollection : NSObject, ZMCollection {
 
     private unowned var delegate : AssetCollectionDelegate
     private var assets : PagedAssetFetchResult?
@@ -89,29 +94,27 @@ public class AssetCollection : NSObject {
     private func fetchNextIfNotTornDown(limit: Int){
         guard !doneFetching else { return }
         guard !tornDown else {
-            self.notifyDelegateFetchingIsDone(result: .cancelled)
             return
         }
 
         syncMOC?.performGroupedBlock { [weak self] in
             guard let `self` = self else { return }
-            guard !self.tornDown else {
-                self.notifyDelegateFetchingIsDone(result: .cancelled)
+            guard !self.tornDown
+            else {
+                self.doneFetching = true
+                return
+            }
+            guard let syncConversation = (try? self.syncMOC?.existingObject(with: self.conversation.objectID)) as? ZMConversation
+            else {
+                self.doneFetching = true
+                self.notifyDelegateFetchingIsDone(result: .failed)
                 return
             }
             
-            guard let syncConversation = (try? self.syncMOC?.existingObject(with: self.conversation.objectID)) as? ZMConversation,
-                  let newAssets = PagedAssetFetchResult(conversation: syncConversation,
-                                                        startAfter: self.assets?.lastMessage,
-                                                        fetchLimit: limit,
-                                                        categoriesToFetch: self.categoriesToFetch)
+            guard let newAssets = PagedAssetFetchResult(conversation: syncConversation, startAfter: self.assets?.lastMessage, fetchLimit: limit,categoriesToFetch: self.categoriesToFetch)
             else {
                 self.doneFetching = true
-                if self.assets == nil {
-                    self.notifyDelegateFetchingIsDone(result: .noAssetsToFetch)
-                } else {
-                    self.notifyDelegateFetchingIsDone(result: .success)
-                }
+                self.notifyDelegateFetchingIsDone(result: (self.assets == nil) ? .noAssetsToFetch : .success)
                 return
             }
             
@@ -128,11 +131,10 @@ public class AssetCollection : NSObject {
     private func notifyDelegate(newAssets: [MessageCategory : [ZMAssetClientMessage]]) {
         uiMOC?.performGroupedBlock { [weak self] in
             guard let `self` = self, !self.tornDown else { return }
-            
             var uiAssets = [MessageCategory : [ZMMessage]]()
-            newAssets.forEach {
-                let uiValues = $1.flatMap{ (try? self.uiMOC?.existingObject(with: $0.objectID)) as? ZMMessage}
-                uiAssets[$0] = uiValues
+            newAssets.forEach { (category, messages) in
+                let uiValues = messages.flatMap{ (try? self.uiMOC?.existingObject(with: $0.objectID)) as? ZMMessage}
+                uiAssets[category] = uiValues
             }
             self.delegate.assetCollectionDidFetch(messages: uiAssets)
         }
@@ -140,7 +142,8 @@ public class AssetCollection : NSObject {
     
     private func notifyDelegateFetchingIsDone(result: AssetFetchResult){
         self.uiMOC?.performGroupedBlock { [weak self] in
-            self?.delegate.assetCollectionDidFinishFetching(result: result)
+            guard let `self` = self, !self.tornDown else { return }
+            self.delegate.assetCollectionDidFinishFetching(result: result)
         }
     }
     

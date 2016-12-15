@@ -19,7 +19,7 @@
 @testable import ZMCDataModel
 
 class MockAssetCollectionDelegate : NSObject, AssetCollectionDelegate {
-
+    
     var messagesByFilter = [[MessageCategory: [ZMMessage]]]()
     var didCallDelegate = false
     var result : AssetFetchResult?
@@ -45,6 +45,7 @@ class AssetColletionTests : ModelObjectsTests {
         super.setUp()
         delegate = MockAssetCollectionDelegate()
         conversation = ZMConversation.insertNewObject(in: uiMOC)
+        uiMOC.saveOrRollback()
     }
     
     override func tearDown() {
@@ -160,7 +161,6 @@ class AssetColletionTests : ModelObjectsTests {
         
         // then
         // messages would filtered in three batches if the fetching was not cancelled
-        XCTAssertEqual(delegate.result, .cancelled)
         XCTAssertNotEqual(delegate.messagesByFilter.count, 3)
         XCTAssertTrue(sut.doneFetching)
     }
