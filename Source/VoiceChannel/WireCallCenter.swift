@@ -166,7 +166,7 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
  */
 @objc public class WireCallCenter : NSObject {
     
-    private let zmLog = ZMSLog(tag: "Calling")
+    private let zmLog = ZMSLog(tag: "calling")
     
     private let userId : UUID
     
@@ -207,7 +207,6 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
                 },
                 { (token, conversationId, userId, clientId, data, dataLength, context) in
                     guard let token = token, let context = context, let conversationId = conversationId, let userId = userId, let clientId = clientId, let data = data else {
-                        print("BAD callback")
                         return EINVAL // invalid argument
                     }
                     
@@ -222,69 +221,48 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
                 },
                 { (conversationId, userId, isVideoCall, context) -> Void in
                     guard let context = context, let conversationId = conversationId, let userId = userId else {
-                        print("BAD callback")
                         return
                     }
                     
                     let selfReference = Unmanaged<WireCallCenter>.fromOpaque(context).takeUnretainedValue()
                     
-                    print("entering incoming")
-                    
                     selfReference.incoming(conversationId: String.init(cString: conversationId),
                                            userId: String.init(cString: userId),
                                            isVideoCall: isVideoCall != 0)
-                    
-                    print("exiting incoming")
                 },
                 { (conversationId, messageTime, userId, isVideoCall, context) in
                     guard let context = context, let conversationId = conversationId, let userId = userId else {
-                        print("BAD callback")
                         return
                     }
                     
                     let selfReference = Unmanaged<WireCallCenter>.fromOpaque(context).takeUnretainedValue()
                     let timestamp = Date(timeIntervalSince1970: TimeInterval(messageTime))
                     
-                    print("entering missed")
-                    
                     selfReference.missed(conversationId: String.init(cString: conversationId),
                                          userId: String.init(cString: userId),
                                          timestamp: timestamp,
                                          isVideoCall: isVideoCall != 0)
-                    
-                    print("exiting missed")
                 },
                 { (conversationId, userId, context) in
                     guard let context = context, let conversationId = conversationId, let userId = userId else {
-                        print("BAD callback")
                         return
                     }
                     
                     let selfReference = Unmanaged<WireCallCenter>.fromOpaque(context).takeUnretainedValue()
-                    
-                    print("entering established")
                     
                     selfReference.established(conversationId: String.init(cString: conversationId),
                                               userId: String.init(cString: userId))
-                    
-                    
-                    print("exiting established")
                 },
                 { (reason, conversationId, userId, metrics, context) in
                     guard let context = context, let conversationId = conversationId, let userId = userId else {
-                        print("BAD callback")
                         return
                     }
                     
                     let selfReference = Unmanaged<WireCallCenter>.fromOpaque(context).takeUnretainedValue()
-                    
-                    print("entering closed")
                     
                     selfReference.closed(conversationId: String.init(cString: conversationId),
                                          userId: String.init(cString: userId),
                                          reason: CallClosedReason(rawValue: reason) ?? .internalError)
-                    
-                    print("exiting closed")
                 },
                 observer)
             
@@ -319,31 +297,21 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
     private func incoming(conversationId: String, userId: String, isVideoCall: Bool) {
         zmLog.debug("incoming call")
         
-        print("posting Incoming call")
-        
         DispatchQueue.main.async {
             WireCallCenterCallStateNotification(callState: .incoming(video: isVideoCall), conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!).post()
         }
-        
-        print("done posting Incoming call")
     }
     
     private func missed(conversationId: String, userId: String, timestamp: Date, isVideoCall: Bool) {
         zmLog.debug("missed call")
         
-        print("post missed call")
-        
         DispatchQueue.main.async {
             WireCallCenterMissedCallNotification(conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!, timestamp: timestamp, video: isVideoCall).post()
         }
-        
-        print("done posting missed call")
     }
     
     private func established(conversationId: String, userId: String) {
         zmLog.debug("established call")
-        
-        print("posting established call")
         
         if wcall_is_video_call(conversationId) == 1 {
             wcall_set_video_send_active(conversationId, 1)
@@ -354,20 +322,14 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
             
             WireCallCenterCallStateNotification(callState: .established, conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!).post()
         }
-        
-        print("done posting established call")
     }
     
     private func closed(conversationId: String, userId: String, reason: CallClosedReason) {
         zmLog.debug("closed call")
         
-        print("posting closed call")
-        
         DispatchQueue.main.async {
             WireCallCenterCallStateNotification(callState: .terminating(reason: reason), conversationId: UUID(uuidString: conversationId)!, userId: UUID(uuidString: userId)!).post()
         }
-        
-        print("done posting closed call")
     }
     
     // TODO find a better place for this method
