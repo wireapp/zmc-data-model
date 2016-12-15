@@ -19,6 +19,8 @@
 		166902401D7493EB000FE4AF /* ZMTestSession.h in Headers */ = {isa = PBXBuildFile; fileRef = 1669023E1D7493EB000FE4AF /* ZMTestSession.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		166902411D7493EB000FE4AF /* ZMTestSession.m in Sources */ = {isa = PBXBuildFile; fileRef = 1669023F1D7493EB000FE4AF /* ZMTestSession.m */; };
 		166A8BF71E01650300F5EEEA /* WireCallCenterMock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 166A8BF61E01650300F5EEEA /* WireCallCenterMock.swift */; };
+		166A8BFB1E02EAAF00F5EEEA /* avs.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 166A8BFA1E02EAAF00F5EEEA /* avs.framework */; };
+		166A8BFC1E02EB2300F5EEEA /* avs.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = 166A8BFA1E02EAAF00F5EEEA /* avs.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		16746B081D2EAF8E00831771 /* ZMClientMessageTests+ZMImageOwner.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16746B071D2EAF8E00831771 /* ZMClientMessageTests+ZMImageOwner.swift */; };
 		16D68E971CEF2EC4003AB9E0 /* ZMFileMetadata.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16D68E961CEF2EC4003AB9E0 /* ZMFileMetadata.swift */; };
 		16DCB6631DDA2715002A7AC2 /* PersistentStoreRelocator.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16DCB6621DDA2715002A7AC2 /* PersistentStoreRelocator.swift */; };
@@ -364,6 +366,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				166A8BFC1E02EB2300F5EEEA /* avs.framework in Embed Frameworks */,
 				F9A707361CAEE3FA00C2F5FE /* ocmock.framework in Embed Frameworks */,
 				BF76998C1D3500F0009C378B /* Ono.framework in Embed Frameworks */,
 				F9C9A8111CAED9A00039E10C /* ZMTesting.framework in Embed Frameworks */,
@@ -388,6 +391,7 @@
 		1669023E1D7493EB000FE4AF /* ZMTestSession.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZMTestSession.h; sourceTree = "<group>"; };
 		1669023F1D7493EB000FE4AF /* ZMTestSession.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZMTestSession.m; sourceTree = "<group>"; };
 		166A8BF61E01650300F5EEEA /* WireCallCenterMock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = WireCallCenterMock.swift; sourceTree = "<group>"; };
+		166A8BFA1E02EAAF00F5EEEA /* avs.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = avs.framework; path = Carthage/Build/iOS/avs.framework; sourceTree = "<group>"; };
 		16746B071D2EAF8E00831771 /* ZMClientMessageTests+ZMImageOwner.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZMClientMessageTests+ZMImageOwner.swift"; sourceTree = "<group>"; };
 		16D68E961CEF2EC4003AB9E0 /* ZMFileMetadata.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZMFileMetadata.swift; sourceTree = "<group>"; };
 		16DCB6621DDA2715002A7AC2 /* PersistentStoreRelocator.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PersistentStoreRelocator.swift; sourceTree = "<group>"; };
@@ -797,6 +801,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				166A8BFB1E02EAAF00F5EEEA /* avs.framework in Frameworks */,
 				F963E98A1D9D80A200098AD3 /* Cryptobox.framework in Frameworks */,
 				F93265281D895C1C0076AAD6 /* ZMUtilities.framework in Frameworks */,
 				F93265271D895A910076AAD6 /* ZMTransport.framework in Frameworks */,
@@ -1450,6 +1455,7 @@
 		F9C9A6701CAD779E0039E10C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				166A8BFA1E02EAAF00F5EEEA /* avs.framework */,
 				BF7699891D3500D6009C378B /* Ono.framework */,
 				162F860F1D2D542B00ABE1F5 /* ZMCLinkPreview.framework */,
 				F9A7070E1CAEE3AA00C2F5FE /* iOS */,

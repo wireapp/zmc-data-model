@@ -122,7 +122,7 @@ class ManagedObjectContextObserverTests : ZMBaseManagedObjectTest {
         self.uiMOC.saveOrRollback()
         
         let observer = TestObserver()
-        let voiceChannelToken = conversation.voiceChannel.add(observer)
+        let voiceChannelToken = ZMVoiceChannel.add(observer, in: conversation)!
         
         // when
         conversation.callDeviceIsActive = true;
@@ -137,7 +137,7 @@ class ManagedObjectContextObserverTests : ZMBaseManagedObjectTest {
         // then
         XCTAssertEqual(observer.voiceChannelNotes.count, 1)
         
-        conversation.voiceChannel.removeStateObserver(for: voiceChannelToken!)
+        ZMVoiceChannel.removeStateObserver(for: voiceChannelToken)
     }
     
     func testThatItAddsCallStateChangesAndProcessesThemDirectly() {
@@ -147,7 +147,7 @@ class ManagedObjectContextObserverTests : ZMBaseManagedObjectTest {
         self.uiMOC.saveOrRollback()
         
         let observer = TestObserver()
-        let voiceChannelToken = conversation.voiceChannel.add(observer)
+        let voiceChannelToken = ZMVoiceChannel.add(observer, in: conversation)!
         
         // when
         conversation.callDeviceIsActive = true;
@@ -163,7 +163,7 @@ class ManagedObjectContextObserverTests : ZMBaseManagedObjectTest {
         // then
         XCTAssertEqual(observer.voiceChannelNotes.count, 0)
         
-        conversation.voiceChannel.removeStateObserver(for: voiceChannelToken!)
+        ZMVoiceChannel.removeStateObserver(for: voiceChannelToken)
     }
     
     func testThatItFiltersZombieObjectsFromManagedObjectChangesInsertedAndUpdated() {

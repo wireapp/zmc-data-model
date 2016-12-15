@@ -2812,7 +2812,7 @@
         
         // then
         XCTAssertEqual(conversation.conversationListIndicator, ZMConversationListIndicatorActiveCall);
-        [conversation.voiceChannel tearDown];
+        [conversation.voiceChannel.v2 tearDown];
     }];
     WaitForAllGroupsToBeEmpty(0.5);
 }
@@ -2832,7 +2832,7 @@
         
         // then
         XCTAssertEqual(conversation.conversationListIndicator, ZMConversationListIndicatorPending);
-        [conversation.voiceChannel tearDown];
+        [conversation.voiceChannel.v2 tearDown];
 
     }];
     WaitForAllGroupsToBeEmpty(0.5);
