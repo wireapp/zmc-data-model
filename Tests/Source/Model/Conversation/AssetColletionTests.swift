@@ -20,11 +20,17 @@
 
 class MockAssetCollectionDelegate : NSObject, AssetCollectionDelegate {
 
-    var messagesByFilter = [[AssetFilter: [ZMMessage]]]()
+    var messagesByFilter = [[MessageCategory: [ZMMessage]]]()
     var hadMore = false
     var didCallDelegate = false
-
-    public func assetCollectionDidFetch(messages: [AssetFilter : [ZMMessage]], hasMore: Bool) {
+    var result : AssetFetchResult?
+    
+    public func assetCollectionDidFinishFetching(result: AssetFetchResult) {
+        self.result = result
+        didCallDelegate = true
+    }
+    
+    public func assetCollectionDidFetch(messages: [MessageCategory : [ZMMessage]], hasMore: Bool) {
         messagesByFilter.append(messages)
         hadMore = hasMore
         didCallDelegate = true
@@ -45,7 +51,9 @@ class AssetColletionTests : ModelObjectsTests {
     
     override func tearDown() {
         delegate = nil
-        //sut.tearDown()
+        sut.tearDown()
+
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         sut = nil
         super.tearDown()
     }
@@ -63,21 +71,23 @@ class AssetColletionTests : ModelObjectsTests {
     func testThatItCanGetMessages_TotalMessageCountSmallerThanInitialFetchCount() {
         // given
         let totalMessageCount = AssetCollection.initialFetchCount - 10
+        XCTAssertGreaterThan(totalMessageCount, 0)
         insertAssetMessages(count: totalMessageCount)
         
         // when
-        sut = AssetCollection(conversation: conversation, delegate: delegate)
+        sut = AssetCollection(conversation: conversation, categoriesToFetch: [.image], delegate: delegate)
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
-        XCTAssertEqual(delegate.messagesByFilter.count, 1)
+        XCTAssertEqual(delegate.result, .success)
         XCTAssertFalse(delegate.hadMore)
+        XCTAssertEqual(delegate.messagesByFilter.count, 1)
         XCTAssertTrue(sut.doneFetching)
 
-        let receivedMessageCount = delegate.messagesByFilter.first?[.images]?.count
+        let receivedMessageCount = delegate.messagesByFilter.first?[.image]?.count
         XCTAssertEqual(receivedMessageCount, 90)
         
-        guard let lastMessage =  delegate.messagesByFilter.last?[.images]?.last,
+        guard let lastMessage =  delegate.messagesByFilter.last?[.image]?.last,
               let context = lastMessage.managedObjectContext else { return XCTFail() }
         XCTAssertTrue(context.zm_isUserInterfaceContext)
     }
@@ -88,18 +98,19 @@ class AssetColletionTests : ModelObjectsTests {
         insertAssetMessages(count: totalMessageCount)
         
         // when
-        sut = AssetCollection(conversation: conversation, delegate: delegate)
+        sut = AssetCollection(conversation: conversation, categoriesToFetch: [.image], delegate: delegate)
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
+        XCTAssertEqual(delegate.result, .success)
         XCTAssertEqual(delegate.messagesByFilter.count, 1)
         XCTAssertFalse(delegate.hadMore)
         XCTAssertTrue(sut.doneFetching)
         
-        let receivedMessageCount = delegate.messagesByFilter.first?[.images]?.count
+        let receivedMessageCount = delegate.messagesByFilter.first?[.image]?.count
         XCTAssertEqual(receivedMessageCount, 100)
         
-        guard let lastMessage =  delegate.messagesByFilter.last?[.images]?.last,
+        guard let lastMessage =  delegate.messagesByFilter.last?[.image]?.last,
             let context = lastMessage.managedObjectContext else { return XCTFail() }
         XCTAssertTrue(context.zm_isUserInterfaceContext)
     }
@@ -107,39 +118,38 @@ class AssetColletionTests : ModelObjectsTests {
     func testThatItCanGetMessages_TotalMessageCountGreaterThanInitialFetchCount() {
         // given
         let totalMessageCount = 2 * AssetCollection.defaultFetchCount
+        XCTAssertGreaterThan(totalMessageCount, AssetCollection.initialFetchCount)
+
         insertAssetMessages(count: totalMessageCount)
         
         // when
-        sut = AssetCollection(conversation: conversation, delegate: delegate)
+        sut = AssetCollection(conversation: conversation, categoriesToFetch: [.image], delegate: delegate)
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
         // messages were filtered in three batches
+        XCTAssertEqual(delegate.result, .success)
         XCTAssertEqual(delegate.messagesByFilter.count, 3)
         XCTAssertFalse(delegate.hadMore)
         XCTAssertTrue(sut.doneFetching)
         
-        let receivedMessageCount = delegate.messagesByFilter.reduce(0){$0 + ($1[.images]?.count ?? 0)}
+        let receivedMessageCount = delegate.messagesByFilter.reduce(0){$0 + ($1[.image]?.count ?? 0)}
         XCTAssertEqual(receivedMessageCount, 1000)
         
-        guard let lastMessage =  delegate.messagesByFilter.last?[.images]?.last,
+        guard let lastMessage =  delegate.messagesByFilter.last?[.image]?.last,
             let context = lastMessage.managedObjectContext else { return XCTFail() }
         XCTAssertTrue(context.zm_isUserInterfaceContext)
     }
     
     func testThatItCallsTheDelegateWhenTheMessageCountIsZero() {
         // when
-        sut = AssetCollection(conversation: conversation, delegate: delegate)
+        sut = AssetCollection(conversation: conversation, categoriesToFetch: [.image], delegate: delegate)
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
+        XCTAssertEqual(delegate.result, .noAssetsToFetch)
         XCTAssertTrue(delegate.didCallDelegate)
-        XCTAssertEqual(delegate.messagesByFilter.count, 1)
-        XCTAssertFalse(delegate.hadMore)
         XCTAssertTrue(sut.doneFetching)
-        
-        guard let messages =  delegate.messagesByFilter.last else { return XCTFail() }
-        XCTAssertEqual(messages.count, 0)
     }
     
     func testThatItCanCancelFetchingMessages() {
@@ -148,14 +158,15 @@ class AssetColletionTests : ModelObjectsTests {
         insertAssetMessages(count: totalMessageCount)
         
         // when
-        sut = AssetCollection(conversation: conversation, delegate: delegate)
+        sut = AssetCollection(conversation: conversation, categoriesToFetch: [.image], delegate: delegate)
         sut.tearDown()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
         // messages would filtered in three batches if the fetching was not cancelled
+        XCTAssertEqual(delegate.result, .cancelled)
         XCTAssertNotEqual(delegate.messagesByFilter.count, 3)
         XCTAssertTrue(sut.doneFetching)
     }
-
+    
 }
