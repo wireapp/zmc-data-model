@@ -32,6 +32,11 @@ extension ZMMessage {
         return category.union(self.likedCategory)
     }
     
+    /// Obj-c compatible function
+    @objc public func updateCategoryCache() {
+        _ = self.storeCategoryCache()
+    }
+    
     /// A cached version of the cateogry. The getter will recalculate the category if not set already
     public var cachedCategory : MessageCategory {
         

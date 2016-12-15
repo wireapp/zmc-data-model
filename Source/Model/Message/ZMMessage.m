@@ -128,7 +128,9 @@ NSString * const ZMMessageCachedCategoryKey = @"cachedCategory";
 + (instancetype)createOrUpdateMessageFromUpdateEvent:(ZMUpdateEvent *)updateEvent
                               inManagedObjectContext:(NSManagedObjectContext *)moc
 {
-    return [self createOrUpdateMessageFromUpdateEvent:updateEvent inManagedObjectContext:moc prefetchResult:nil];
+    ZMMessage *message = [self createOrUpdateMessageFromUpdateEvent:updateEvent inManagedObjectContext:moc prefetchResult:nil];
+    [message updateCategoryCache];
+    return message;
 }
 
 + (BOOL)isDataAnimatedGIF:(NSData *)data

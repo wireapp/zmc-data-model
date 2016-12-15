@@ -216,9 +216,9 @@ extension ZMMessageCategorizationTests {
         
         // GIVEN
         let message = self.conversation.appendMessage(withText: "ramble on!")! as! ZMMessage
-        message.willAccessValue(forKey: ZMMessageCachedCategoryKey)
+        message.willChangeValue(forKey: ZMMessageCachedCategoryKey)
         message.setPrimitiveValue(NSNumber(value: MessageCategory.audio.rawValue), forKey: ZMMessageCachedCategoryKey)
-        message.didAccessValue(forKey: ZMMessageCachedCategoryKey)
+        message.didChangeValue(forKey: ZMMessageCachedCategoryKey)
         
         // WHEN
         let category = message.cachedCategory
@@ -227,6 +227,23 @@ extension ZMMessageCategorizationTests {
         XCTAssertEqual(category, MessageCategory.audio)
         XCTAssertEqual(message.primitiveValue(forKey: ZMMessageCachedCategoryKey) as? NSNumber, NSNumber(value: MessageCategory.audio.rawValue))
 
+    }
+    
+    func testThatItComputestheCachedCategoryWhenAsked() {
+        
+        // GIVEN
+        let message = self.conversation.appendMessage(withText: "ramble on!")! as! ZMMessage
+        XCTAssertEqual(message.primitiveValue(forKey: ZMMessageCachedCategoryKey) as? NSNumber, NSNumber(value: 0))
+        
+        // WHEN
+        message.updateCategoryCache()
+        
+        // THEN
+        message.willAccessValue(forKey: ZMMessageCachedCategoryKey)
+        let category = message.primitiveValue(forKey: ZMMessageCachedCategoryKey) as? NSNumber
+        message.didAccessValue(forKey: ZMMessageCachedCategoryKey)
+        
+        XCTAssertEqual(category?.int32Value, MessageCategory.text.rawValue)
     }
 }
 
