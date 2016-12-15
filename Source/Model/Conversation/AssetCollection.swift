@@ -25,7 +25,7 @@ public enum AssetFetchResult : Int {
 public protocol AssetCollectionDelegate : NSObjectProtocol {
     /// The AssetCollection calls this when the fetching completes
     /// To get all messages for any category defined in categoriesToFetch, call `assets(for category: MessageCategory)`
-    func assetCollectionDidFetch(messages: [MessageCategory: [ZMMessage]], hasMore: Bool)
+    func assetCollectionDidFetch(messages: [MessageCategory: [ZMMessage]])
     
     /// This method is called when all assets in the conversation have been fetched & analyzed / categorized
     func assetCollectionDidFinishFetching(result : AssetFetchResult)
@@ -37,11 +37,15 @@ public class AssetCollection : NSObject {
     private var assets : PagedAssetFetchResult?
     private let conversation: ZMConversation
     private let categoriesToFetch : [MessageCategory]
-    private var assetCount: Int
     public static let initialFetchCount = 100
     public static let defaultFetchCount = 500
-    
-    private var tornDown = false
+    public private (set) var doneFetching : Bool = false
+
+    private var tornDown = false {
+        didSet {
+            doneFetching = true
+        }
+    }
 
     private var syncMOC: NSManagedObjectContext? {
         return conversation.managedObjectContext?.zm_sync
@@ -50,27 +54,15 @@ public class AssetCollection : NSObject {
         return conversation.managedObjectContext
     }
     
-    /// Returns true when there are no assets to fetch OR when all assets have been fetched OR the collection has been tornDown
-    public var doneFetching : Bool {
-        return tornDown || assetCount == 0 || currentAssetCount == assetCount
-    }
-
-    private var currentAssetCount : Int  = 0
-    
     /// Returns a collection that automatically fetches the assets in batches
     /// @param categoriesToFetch: The AssetCollection only returns and calls the delegate for these categories
     public init(conversation: ZMConversation, categoriesToFetch : [MessageCategory],  delegate: AssetCollectionDelegate){
         self.conversation = conversation
         self.delegate = delegate
-        self.assetCount = AssetCollection.fetchMessageCount(for: conversation)
         self.categoriesToFetch = categoriesToFetch
         super.init()
         
-        if assetCount == 0 {
-            notifyDelegateFetchingIsDone(result: .noAssetsToFetch)
-        } else {
-            fetchNextIfNotTornDown(limit: min(assetCount, AssetCollection.initialFetchCount))
-        }
+        fetchNextIfNotTornDown(limit: AssetCollection.initialFetchCount)
     }
     
     /// Cancels further fetch requests
@@ -114,19 +106,22 @@ public class AssetCollection : NSObject {
                                                         fetchLimit: limit,
                                                         categoriesToFetch: self.categoriesToFetch)
             else {
-                // This would be an error and would happen when messages got deleted between now and when the Collection as initialized
-                self.notifyDelegateFetchingIsDone(result: .failed)
+                self.doneFetching = true
+                if self.assets == nil {
+                    self.notifyDelegateFetchingIsDone(result: .noAssetsToFetch)
+                } else {
+                    self.notifyDelegateFetchingIsDone(result: .success)
+                }
                 return
             }
             
-            self.currentAssetCount = self.currentAssetCount + limit
             if let assets = self.assets {
                 self.assets = assets.merged(with: newAssets)
             } else {
                 self.assets = newAssets
             }
             self.notifyDelegate(newAssets: newAssets.messagesByFilter)
-            self.fetchNextIfNotTornDown(limit:  min(self.assetCount - self.currentAssetCount, AssetCollection.defaultFetchCount))
+            self.fetchNextIfNotTornDown(limit:  AssetCollection.defaultFetchCount)
         }
     }
     
@@ -139,10 +134,7 @@ public class AssetCollection : NSObject {
                 let uiValues = $1.flatMap{ (try? self.uiMOC?.existingObject(with: $0.objectID)) as? ZMMessage}
                 uiAssets[$0] = uiValues
             }
-            self.delegate.assetCollectionDidFetch(messages: uiAssets, hasMore: !self.doneFetching)
-            if self.doneFetching {
-                self.delegate.assetCollectionDidFinishFetching(result: .success)
-            }
+            self.delegate.assetCollectionDidFetch(messages: uiAssets)
         }
     }
     
