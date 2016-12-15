@@ -36,7 +36,7 @@ extension ZMConversation {
     
     class func predicateForPendingConversations() -> NSPredicate {
         let basePredicate = predicateForFilteringResults()
-        let pendingConversationPredicate = NSPredicate(format: "\(ZMConversationConversationTypeKey) == \(ZMConversationType.connection.rawValue) AND \(ZMConversationConnectionKey) == \(ZMConnectionStatus.pending.rawValue)")
+        let pendingConversationPredicate = NSPredicate(format: "\(ZMConversationConversationTypeKey) == \(ZMConversationType.connection.rawValue) AND \(ZMConversationConnectionKey).status == \(ZMConnectionStatus.pending.rawValue)")
         
         return NSCompoundPredicate(andPredicateWithSubpredicates: [basePredicate, pendingConversationPredicate])
     }
@@ -68,11 +68,11 @@ extension ZMConversation {
     class func predicateForConversationsWithNonIdleVoiceChannel() -> NSPredicate {
         let basePredicate = predicateForFilteringResults()
         let notConnectionPredicate = NSPredicate(format: "\(ZMConversationConversationTypeKey) != \(ZMConversationType.connection.rawValue)")
-        let callingPredicateV2 = predicate(forConversationWithVoiceChannelState: .selfConnectedToActiveChannel).negated()
-        let callingPredicateV3 = predicate(forConversationWithCallState: .none).negated()
-        let callingPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [notConnectionPredicate, NSCompoundPredicate(orPredicateWithSubpredicates: [callingPredicateV2, callingPredicateV3])])
+        let callingPredicateV2 = predicate(forConversationWithVoiceChannelState: .noActiveUsers).negated()
+        let callingPredicateV3 = predicate(forConversationWithCallState: .established)
+        let callingPredicate = NSCompoundPredicate(orPredicateWithSubpredicates: [callingPredicateV2, callingPredicateV3])
         
-        return NSCompoundPredicate(andPredicateWithSubpredicates: [basePredicate, callingPredicate])
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [basePredicate, notConnectionPredicate, callingPredicate])
     }
     
     class func predicateForConversationWithActiveCalls() -> NSPredicate {
@@ -85,10 +85,10 @@ extension ZMConversation {
     
     class func predicateForSharableConversations() -> NSPredicate {
         let basePredicate = predicateForConversationsIncludingArchived()
-        let hasOtherActiveParticipants = NSPredicate(format: "\(ZMConversationOtherActiveParticipantsKey).count > 0")
+        let hasOtherActiveParticipants = NSPredicate(format: "\(ZMConversationOtherActiveParticipantsKey).@count > 0")
         let oneOnOneOrGroupConversation = NSPredicate(format: "\(ZMConversationConversationTypeKey) == \(ZMConversationType.oneOnOne.rawValue) OR \(ZMConversationConversationTypeKey) == \(ZMConversationType.group.rawValue)")
         let selfIsActiveMember = NSPredicate(format: "isSelfAnActiveMember == YES")
-        let synced = NSPredicate(format: "\(remoteIdentifierDataKey()) != NULL")
+        let synced = NSPredicate(format: "\(remoteIdentifierDataKey()!) != NULL")
         
         return NSCompoundPredicate(andPredicateWithSubpredicates: [basePredicate, oneOnOneOrGroupConversation, hasOtherActiveParticipants, selfIsActiveMember, synced])
     }
@@ -96,7 +96,9 @@ extension ZMConversation {
     private class func predicateForValidConversations() -> NSPredicate {
         let basePredicate = predicateForFilteringResults()
         let notAConnection = NSPredicate(format: "\(ZMConversationConversationTypeKey) != \(ZMConversationType.connection.rawValue)")
-        let activeConnection = NSPredicate(format: "NOT \(ZMConversationConnectionKey).status IN %@", [ZMConnectionStatus.pending.rawValue, ZMConnectionStatus.ignored.rawValue, ZMConnectionStatus.cancelled.rawValue]) //pending connections should be in other list, ignored and cancelled are not displayed
+        let activeConnection = NSPredicate(format: "NOT \(ZMConversationConnectionKey).status IN %@", [NSNumber(value: ZMConnectionStatus.pending.rawValue),
+                                                                                                       NSNumber(value: ZMConnectionStatus.ignored.rawValue),
+                                                                                                       NSNumber(value: ZMConnectionStatus.cancelled.rawValue)]) //pending connections should be in other list, ignored and cancelled are not displayed
         let predicate1 = NSCompoundPredicate(orPredicateWithSubpredicates: [notAConnection, activeConnection]) // one-to-one conversations and not pending and not ignored connections
         let noConnection = NSPredicate(format: "\(ZMConversationConnectionKey) == nil") // group conversations
         let notBlocked = NSPredicate(format: "\(ZMConversationConnectionKey).status != \(ZMConnectionStatus.blocked.rawValue)")
@@ -114,7 +116,7 @@ extension ZMConversation {
             guard
                 let conversation = object as? ZMConversation,
                 let remoteIdentifier = conversation.remoteIdentifier else {
-                    return true
+                    return false
             }
             
             return WireCallCenter.activeInstance?.callState(conversationId: remoteIdentifier) == callState

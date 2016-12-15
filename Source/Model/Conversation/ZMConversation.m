@@ -215,18 +215,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return [NSSet setWithObject:ZMConversationIsSilencedKey];
 }
 
-+ (NSPredicate *)predicateForFilteringResults
-{
-    static NSPredicate *predicate;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        predicate = [NSPredicate predicateWithFormat:@"%K != %d && %K != %d",
-                     ZMConversationConversationTypeKey, ZMConversationTypeInvalid,
-                     ZMConversationConversationTypeKey, ZMConversationTypeSelf];
-    });
-    return predicate;
-}
-
 + (NSFetchRequest *)sortedFetchRequest
 {
     NSFetchRequest *request = [super sortedFetchRequest];

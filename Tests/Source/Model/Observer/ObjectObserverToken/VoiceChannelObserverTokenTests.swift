@@ -83,7 +83,7 @@ class VoiceChannelObserverTokenTests : ZMBaseManagedObjectTest{
         conversation.conversationType = .oneOnOne
         self.uiMOC.saveOrRollback()
         
-        let token = conversation.voiceChannel.add(observer)
+        let token = ZMVoiceChannel.add(observer, in: conversation)
         
         // when
         conversation.callDeviceIsActive = true
@@ -96,11 +96,11 @@ class VoiceChannelObserverTokenTests : ZMBaseManagedObjectTest{
         if let note = observer.receivedChangeInfo.first {
             XCTAssertEqual(note.previousState, ZMVoiceChannelState.noActiveUsers)
             XCTAssertEqual(note.currentState, ZMVoiceChannelState.outgoingCall)
-            XCTAssertEqual(note.voiceChannel, conversation.voiceChannel)
+            XCTAssertTrue(note.voiceChannel === conversation.voiceChannel)
         }
         
         XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        conversation.voiceChannel.removeStateObserver(for: token!)
+        ZMVoiceChannel.removeStateObserver(for: token!)
     }
     
     func testThatItSendsAChannelStateChangeNotificationsWhenSomeoneIsCalling()
@@ -113,7 +113,7 @@ class VoiceChannelObserverTokenTests : ZMBaseManagedObjectTest{
         let otherParticipant = self.addConversationParticipant(conversation)
         self.uiMOC.saveOrRollback()
 
-        let token = conversation.voiceChannel.add(observer)
+        let token = ZMVoiceChannel.add(observer, in: conversation)
         
         // when
         conversation.mutableCallParticipants.add(otherParticipant)
@@ -122,13 +122,13 @@ class VoiceChannelObserverTokenTests : ZMBaseManagedObjectTest{
         // then
         XCTAssertEqual(observer.receivedChangeInfo.count, 1)
         if let note = observer.receivedChangeInfo.first {
-            XCTAssertEqual(note.voiceChannel, conversation.voiceChannel)
+            XCTAssertTrue(note.voiceChannel === conversation.voiceChannel)
             XCTAssertEqual(note.previousState, ZMVoiceChannelState.noActiveUsers)
             XCTAssertEqual(note.currentState, ZMVoiceChannelState.incomingCall)
         }
         
         XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        conversation.voiceChannel.removeStateObserver(for: token!)
+        ZMVoiceChannel.removeStateObserver(for: token!)
     }
     
     func testThatItSendsAChannelStateChangeNotificationsWhenSomeoneLeavesTheConversation()
@@ -142,7 +142,7 @@ class VoiceChannelObserverTokenTests : ZMBaseManagedObjectTest{
         conversation.mutableCallParticipants.add(otherParticipant)
         self.uiMOC.saveOrRollback()
 
-        let token = conversation.voiceChannel.add(observer)
+        let token = ZMVoiceChannel.add(observer, in: conversation)
         
         // when
         conversation.mutableCallParticipants.remove(otherParticipant)
@@ -151,13 +151,13 @@ class VoiceChannelObserverTokenTests : ZMBaseManagedObjectTest{
         // then
         XCTAssertEqual(observer.receivedChangeInfo.count, 1)
         if let note = observer.receivedChangeInfo.first {
-            XCTAssertEqual(note.voiceChannel, conversation.voiceChannel)
+            XCTAssertTrue(note.voiceChannel === conversation.voiceChannel)
             XCTAssertEqual(note.previousState, ZMVoiceChannelState.incomingCall)
             XCTAssertEqual(note.currentState, ZMVoiceChannelState.noActiveUsers)
         }
         
         XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        conversation.voiceChannel.removeStateObserver(for: token!)
+        ZMVoiceChannel.removeStateObserver(for: token!)
 
     }
     
@@ -177,7 +177,7 @@ class VoiceChannelObserverTokenTests : ZMBaseManagedObjectTest{
         conversation.callDeviceIsActive = true
         self.uiMOC.saveOrRollback()
         
-        let token = conversation.voiceChannel.add(observer)
+        let token = ZMVoiceChannel.add(observer, in: conversation)
         
         // when
         conversation.isFlowActive = true
@@ -186,13 +186,13 @@ class VoiceChannelObserverTokenTests : ZMBaseManagedObjectTest{
         // then
         XCTAssertEqual(observer.receivedChangeInfo.count, 1)
         if let note = observer.receivedChangeInfo.first {
-            XCTAssertEqual(note.voiceChannel, conversation.voiceChannel)
+            XCTAssertTrue(note.voiceChannel === conversation.voiceChannel)
             XCTAssertEqual(note.previousState, ZMVoiceChannelState.selfIsJoiningActiveChannel)
             XCTAssertEqual(note.currentState, ZMVoiceChannelState.selfConnectedToActiveChannel)
         }
         
         XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        conversation.voiceChannel.removeStateObserver(for: token!)
+        ZMVoiceChannel.removeStateObserver(for: token!)
 
     }
     
@@ -212,7 +212,7 @@ class VoiceChannelObserverTokenTests : ZMBaseManagedObjectTest{
         conversation.isFlowActive = true
         self.uiMOC.saveOrRollback()
 
-        let token = conversation.voiceChannel.add(observer)
+        let token = ZMVoiceChannel.add(observer, in: conversation)
         
         // when
         conversation.isFlowActive = false
@@ -222,12 +222,12 @@ class VoiceChannelObserverTokenTests : ZMBaseManagedObjectTest{
         // then
         XCTAssertEqual(observer.receivedChangeInfo.count, 1)
         if let note = observer.receivedChangeInfo.first {
-            XCTAssertEqual(note.voiceChannel, conversation.voiceChannel)
+            XCTAssertTrue(note.voiceChannel === conversation.voiceChannel)
             XCTAssertEqual(note.previousState, ZMVoiceChannelState.selfConnectedToActiveChannel)
             XCTAssertEqual(note.currentState, ZMVoiceChannelState.selfIsJoiningActiveChannel)
         }
 
-        conversation.voiceChannel.removeStateObserver(for: token!)
+        ZMVoiceChannel.removeStateObserver(for: token!)
 
     }
     
@@ -248,7 +248,7 @@ class VoiceChannelObserverTokenTests : ZMBaseManagedObjectTest{
         conversation.callDeviceIsActive = true
         self.uiMOC.saveOrRollback()
 
-        let token = conversation.voiceChannel.add(observer)
+        let token = ZMVoiceChannel.add(observer, in: conversation)
         
         // when
         conversation.isFlowActive = false
@@ -258,11 +258,11 @@ class VoiceChannelObserverTokenTests : ZMBaseManagedObjectTest{
         // then
         XCTAssertEqual(observer.receivedChangeInfo.count, 1)
         if let note = observer.receivedChangeInfo.first {
-            XCTAssertEqual(note.voiceChannel, conversation.voiceChannel)
+            XCTAssertTrue(note.voiceChannel === conversation.voiceChannel)
             XCTAssertEqual(note.previousState, ZMVoiceChannelState.selfConnectedToActiveChannel)
             XCTAssertEqual(note.currentState, ZMVoiceChannelState.deviceTransferReady)
         }
-        conversation.voiceChannel.removeStateObserver(for: token!)
+        ZMVoiceChannel.removeStateObserver(for: token!)
     }
     
     func testThatItSendsAChannelStateChangeNotificationsWhenCallIsBeingTransfered()
@@ -284,7 +284,7 @@ class VoiceChannelObserverTokenTests : ZMBaseManagedObjectTest{
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
         let observer = TestVoiceChannelObserver()
-        let token = conversation.voiceChannel.add(observer)
+        let token = ZMVoiceChannel.add(observer, in: conversation)
         
         // when
         conversation.isFlowActive = true
@@ -295,11 +295,11 @@ class VoiceChannelObserverTokenTests : ZMBaseManagedObjectTest{
         // then
         XCTAssertEqual(observer.receivedChangeInfo.count, 1)
         if let note = observer.receivedChangeInfo.first {
-            XCTAssertEqual(note.voiceChannel, conversation.voiceChannel)
+            XCTAssertTrue(note.voiceChannel === conversation.voiceChannel)
             XCTAssertEqual(note.previousState, ZMVoiceChannelState.deviceTransferReady)
             XCTAssertEqual(note.currentState, ZMVoiceChannelState.selfConnectedToActiveChannel)
         }
-        conversation.voiceChannel.removeStateObserver(for: token!)
+        ZMVoiceChannel.removeStateObserver(for: token!)
     }
     
     func testThatItSendsACallStateChangeNotificationWhenIgnoringACall()
@@ -313,7 +313,7 @@ class VoiceChannelObserverTokenTests : ZMBaseManagedObjectTest{
         conversation.mutableCallParticipants.add(otherParticipant)
         self.uiMOC.saveOrRollback()
 
-        let token = conversation.voiceChannel.add(observer)
+        let token = ZMVoiceChannel.add(observer, in: conversation)
         
         // when
         conversation.isIgnoringCall = true
@@ -323,11 +323,11 @@ class VoiceChannelObserverTokenTests : ZMBaseManagedObjectTest{
         // then
         XCTAssertEqual(observer.receivedChangeInfo.count, 1)
         if let note = observer.receivedChangeInfo.first {
-            XCTAssertEqual(note.voiceChannel, conversation.voiceChannel)
+            XCTAssertTrue(note.voiceChannel === conversation.voiceChannel)
             XCTAssertEqual(note.previousState, ZMVoiceChannelState.incomingCall)
             XCTAssertEqual(note.currentState, ZMVoiceChannelState.noActiveUsers)
         }
-        conversation.voiceChannel.removeStateObserver(for: token!)
+        ZMVoiceChannel.removeStateObserver(for: token!)
     }
     
     func testThatItStopsNotifyingAfterUnregisteringTheToken() {
@@ -338,8 +338,8 @@ class VoiceChannelObserverTokenTests : ZMBaseManagedObjectTest{
         conversation.conversationType = .oneOnOne
         self.uiMOC.saveOrRollback()
         
-        let token = conversation.voiceChannel.add(observer)
-        conversation.voiceChannel.removeStateObserver(for: token!)
+        let token = ZMVoiceChannel.add(observer, in: conversation)
+        ZMVoiceChannel.removeStateObserver(for: token!)
         
         // when
         conversation.callDeviceIsActive = true
@@ -368,7 +368,7 @@ extension VoiceChannelObserverTokenTests {
         conversation.isFlowActive = true
         self.uiMOC.saveOrRollback()
         
-        let token = conversation.voiceChannel.addCall(observer)
+        let token = ZMVoiceChannel.addCall(observer, in: conversation, voiceChannel: conversation.voiceChannel!)
         
         /// when
         conversation.mutableCallParticipants.add(otherParticipant)
@@ -383,14 +383,14 @@ extension VoiceChannelObserverTokenTests {
         
         XCTAssertEqual(observer.receivedChangeInfo.count, 1)
         if let note = observer.receivedChangeInfo.first {
-            XCTAssertEqual(note.voiceChannel, conversation.voiceChannel)
-            XCTAssertEqual(note.insertedIndexes, IndexSet(integersIn: 0..<conversation.voiceChannel.participants().count))
+            XCTAssertTrue(note.voiceChannel === conversation.voiceChannel)
+            XCTAssertEqual(note.insertedIndexes, IndexSet(integersIn: 0..<conversation.voiceChannel!.participants.count))
             XCTAssertEqual(note.deletedIndexes, IndexSet())
             XCTAssertEqual(note.updatedIndexes, IndexSet())
         } else {
             XCTFail("did not send notification")
         }
-        conversation.voiceChannel.removeCallParticipantsObserver(for: token as ZMVoiceChannelParticipantsObserverOpaqueToken)
+        ZMVoiceChannel.removeCallParticipantsObserver(for: token, in: conversation)
 
     }
     
@@ -406,7 +406,7 @@ extension VoiceChannelObserverTokenTests {
         conversation.isFlowActive = true
         self.uiMOC.saveOrRollback()
 
-        let token = conversation.voiceChannel.addCall(observer)
+        let token = ZMVoiceChannel.addCall(observer, in: conversation, voiceChannel: conversation.voiceChannel!)
         
         // when
         conversation.mutableCallParticipants.add(otherParticipant1)
@@ -422,14 +422,14 @@ extension VoiceChannelObserverTokenTests {
         
         XCTAssertEqual(observer.receivedChangeInfo.count, 1)
         if let note = observer.receivedChangeInfo.first {
-            XCTAssertEqual(note.voiceChannel, conversation.voiceChannel)
-            XCTAssertEqual(note.insertedIndexes, IndexSet(integersIn: 0..<conversation.voiceChannel.participants().count))
+            XCTAssertTrue(note.voiceChannel === conversation.voiceChannel)
+            XCTAssertEqual(note.insertedIndexes, IndexSet(integersIn: 0..<conversation.voiceChannel!.participants.count))
             XCTAssertEqual(note.deletedIndexes, IndexSet())
             XCTAssertEqual(note.updatedIndexes, IndexSet())
         } else {
             XCTFail("did not send notification")
         }
-        conversation.voiceChannel.removeCallParticipantsObserver(for: token as ZMVoiceChannelParticipantsObserverOpaqueToken)
+        ZMVoiceChannel.removeCallParticipantsObserver(for: token, in: conversation)
 
     }
     
@@ -449,7 +449,7 @@ extension VoiceChannelObserverTokenTests {
         conversation.mutableCallParticipants.add(otherParticipant2)
         self.uiMOC.saveOrRollback()
 
-        let token = conversation.voiceChannel.addCall(observer)
+        let token = ZMVoiceChannel.addCall(observer, in: conversation, voiceChannel: conversation.voiceChannel!)
         
         // when
         conversation.activeFlowParticipants = NSOrderedSet(objects: selfParticipant, otherParticipant1)
@@ -461,15 +461,15 @@ extension VoiceChannelObserverTokenTests {
         
         XCTAssertEqual(observer.receivedChangeInfo.count, 1)
         if let note = observer.receivedChangeInfo.first {
-            XCTAssertEqual(note.voiceChannel, conversation.voiceChannel)
+            XCTAssertTrue(note.voiceChannel === conversation.voiceChannel)
             XCTAssertEqual(note.insertedIndexes, IndexSet())
             XCTAssertEqual(note.deletedIndexes, IndexSet())
-            XCTAssertEqual(note.updatedIndexes, IndexSet(integersIn: 0..<conversation.voiceChannel.participants().count - 1))
+            XCTAssertEqual(note.updatedIndexes, IndexSet(integersIn: 0..<conversation.voiceChannel!.participants.count - 1))
         }
         else {
             XCTFail("did not send notification")
         }
-        conversation.voiceChannel.removeCallParticipantsObserver(for: token as ZMVoiceChannelParticipantsObserverOpaqueToken)
+        ZMVoiceChannel.removeCallParticipantsObserver(for: token, in: conversation)
 
     }
     
@@ -489,7 +489,7 @@ extension VoiceChannelObserverTokenTests {
         conversation.activeFlowParticipants = NSOrderedSet(array: [otherParticipant1, selfParticipant, otherParticipant2])
         self.uiMOC.saveOrRollback()
 
-        let token = conversation.voiceChannel.addCall(observer)
+        let token = ZMVoiceChannel.addCall(observer, in: conversation, voiceChannel: conversation.voiceChannel!)
         
         // when
         conversation.mutableCallParticipants.remove(otherParticipant2)
@@ -503,7 +503,7 @@ extension VoiceChannelObserverTokenTests {
         
         XCTAssertEqual(observer.receivedChangeInfo.count, 1)
         if let note = observer.receivedChangeInfo.first {
-            XCTAssertEqual(note.voiceChannel, conversation.voiceChannel)
+            XCTAssertTrue(note.voiceChannel === conversation.voiceChannel)
             XCTAssertEqual(note.deletedIndexes, IndexSet(integer: 1))
             XCTAssertEqual(note.insertedIndexes, IndexSet())
             XCTAssertEqual(note.updatedIndexes, IndexSet())
@@ -512,7 +512,7 @@ extension VoiceChannelObserverTokenTests {
         } else {
             XCTFail("did not send notification")
         }
-        conversation.voiceChannel.removeCallParticipantsObserver(for: token as ZMVoiceChannelParticipantsObserverOpaqueToken)
+        ZMVoiceChannel.removeCallParticipantsObserver(for: token, in: conversation)
 
     }
     
@@ -531,7 +531,7 @@ extension VoiceChannelObserverTokenTests {
         conversation.activeFlowParticipants = NSOrderedSet(array: [otherParticipant1, selfParticipant, otherParticipant2])
         self.uiMOC.saveOrRollback()
 
-        let token = conversation.voiceChannel.addCall(observer)
+        let token = ZMVoiceChannel.addCall(observer, in: conversation, voiceChannel: conversation.voiceChannel!)
         
         // when
         conversation.activeFlowParticipants = NSOrderedSet(array: [otherParticipant1, selfParticipant])
@@ -541,7 +541,7 @@ extension VoiceChannelObserverTokenTests {
         
         XCTAssertEqual(observer.receivedChangeInfo.count, 1)
         if let note = observer.receivedChangeInfo.first {
-            XCTAssertEqual(note.voiceChannel, conversation.voiceChannel)
+            XCTAssertTrue(note.voiceChannel === conversation.voiceChannel)
             XCTAssertEqual(note.deletedIndexes, IndexSet())
             XCTAssertEqual(note.insertedIndexes, IndexSet())
             XCTAssertEqual(note.updatedIndexes, IndexSet(integer: 0))
@@ -550,7 +550,7 @@ extension VoiceChannelObserverTokenTests {
         } else {
             XCTFail("did not send notification")
         }
-        conversation.voiceChannel.removeCallParticipantsObserver(for: token as ZMVoiceChannelParticipantsObserverOpaqueToken)
+        ZMVoiceChannel.removeCallParticipantsObserver(for: token, in: conversation)
 
     }
     
@@ -571,7 +571,7 @@ extension VoiceChannelObserverTokenTests {
         conversation.activeFlowParticipants = NSOrderedSet(objects: otherParticipant1)
         self.uiMOC.saveOrRollback()
 
-        let token = conversation.voiceChannel.addCall(observer)
+        let token = ZMVoiceChannel.addCall(observer, in: conversation, voiceChannel: conversation.voiceChannel!)
         
         // when
         conversation.activeFlowParticipants = NSOrderedSet(array: [otherParticipant2, otherParticipant1])
@@ -581,7 +581,7 @@ extension VoiceChannelObserverTokenTests {
         
         XCTAssertEqual(observer.receivedChangeInfo.count, 1)
         if let note = observer.receivedChangeInfo.first {
-            XCTAssertEqual(note.voiceChannel, conversation.voiceChannel)
+            XCTAssertTrue(note.voiceChannel === conversation.voiceChannel)
             XCTAssertEqual(note.deletedIndexes, IndexSet())
             XCTAssertEqual(note.insertedIndexes, IndexSet())
             XCTAssertEqual(note.updatedIndexes, IndexSet(integer: conversation.callParticipants.index(of: otherParticipant2)))
@@ -590,7 +590,7 @@ extension VoiceChannelObserverTokenTests {
         } else {
             XCTFail("did not send notification")
         }
-        conversation.voiceChannel.removeCallParticipantsObserver(for: token as ZMVoiceChannelParticipantsObserverOpaqueToken)
+        ZMVoiceChannel.removeCallParticipantsObserver(for: token, in: conversation)
 
     }
 }
@@ -612,7 +612,7 @@ extension VoiceChannelObserverTokenTests {
         conversation.isFlowActive = true
         self.uiMOC.saveOrRollback()
         
-        let token = conversation.voiceChannel.addCall(observer)
+        let token = ZMVoiceChannel.addCall(observer, in: conversation, voiceChannel: conversation.voiceChannel!)
         
         // when
         conversation.addActiveVideoCallParticipant(otherParticipant1)
@@ -627,7 +627,7 @@ extension VoiceChannelObserverTokenTests {
         } else {
             XCTFail("did not send notification")
         }
-        conversation.voiceChannel.removeCallParticipantsObserver(for: token)
+        ZMVoiceChannel.removeCallParticipantsObserver(for: token, in: conversation)
     }
     
     func testThatItDoesNotSendTheUpdateForParticipantsWhoActivatesVideoStreamWhenFLowIsNotActive()
@@ -641,7 +641,7 @@ extension VoiceChannelObserverTokenTests {
         conversation.isFlowActive = false
         self.uiMOC.saveOrRollback()
         
-        let token = conversation.voiceChannel.addCall(observer)
+        let token = ZMVoiceChannel.addCall(observer, in: conversation, voiceChannel: conversation.voiceChannel!)
         
         // when
         conversation.addActiveVideoCallParticipant(otherParticipant1)
@@ -650,7 +650,7 @@ extension VoiceChannelObserverTokenTests {
         // then
         
         XCTAssertEqual(observer.receivedChangeInfo.count, 0)
-        conversation.voiceChannel.removeCallParticipantsObserver(for: token)
+        ZMVoiceChannel.removeCallParticipantsObserver(for: token, in: conversation)
     }
     
     func testThatItSendsTheUpdateForSecondParticipantsWhoActivatesVideoStream()
@@ -668,7 +668,7 @@ extension VoiceChannelObserverTokenTests {
         conversation.addActiveVideoCallParticipant(otherParticipant1)
         self.uiMOC.saveOrRollback()
 
-        let token = conversation.voiceChannel.addCall(observer)
+        let token = ZMVoiceChannel.addCall(observer, in: conversation, voiceChannel: conversation.voiceChannel!)
         
         // when
         conversation.addActiveVideoCallParticipant(otherParticipant2)
@@ -683,7 +683,7 @@ extension VoiceChannelObserverTokenTests {
         } else {
             XCTFail("did not send notification")
         }
-        conversation.voiceChannel.removeCallParticipantsObserver(for: token)
+        ZMVoiceChannel.removeCallParticipantsObserver(for: token, in: conversation)
     }
     
     func testThatItSendsTheUpdateForParticipantWhenFlowIsEstablished()
@@ -700,7 +700,7 @@ extension VoiceChannelObserverTokenTests {
         conversation.addActiveVideoCallParticipant(otherParticipant1)
         self.uiMOC.saveOrRollback()
         
-        let token = conversation.voiceChannel.addCall(observer)
+        let token = ZMVoiceChannel.addCall(observer, in: conversation, voiceChannel: conversation.voiceChannel!)
         
         // when
         conversation.isFlowActive = true
@@ -714,7 +714,7 @@ extension VoiceChannelObserverTokenTests {
         } else {
             XCTFail("did not send notification")
         }
-        conversation.voiceChannel.removeCallParticipantsObserver(for: token)
+        ZMVoiceChannel.removeCallParticipantsObserver(for: token, in: conversation)
     }
     
     
@@ -733,7 +733,7 @@ extension VoiceChannelObserverTokenTests {
         self.uiMOC.globalManagedObjectContextObserver.notifyUpdatedCallState(Set(arrayLiteral: conversation), notifyDirectly: true)
         XCTAssertEqual(conversation.otherActiveVideoCallParticipants.count, 1)
         
-        let token = conversation.voiceChannel.addCall(observer)
+        let token = ZMVoiceChannel.addCall(observer, in: conversation, voiceChannel: conversation.voiceChannel!)
         
         // when
         conversation.removeActiveVideoCallParticipant(otherParticipant1)
@@ -748,7 +748,7 @@ extension VoiceChannelObserverTokenTests {
         } else {
             XCTFail("did not send notification")
         }
-        conversation.voiceChannel.removeCallParticipantsObserver(for: token)
+        ZMVoiceChannel.removeCallParticipantsObserver(for: token, in: conversation)
     }
     
 }
