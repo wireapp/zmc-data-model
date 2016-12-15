@@ -92,7 +92,7 @@
     </entity>
     <entity name="KnockMessage" representedClassName="ZMKnockMessage" parentEntity="Message" syncable="YES"/>
     <entity name="Message" representedClassName="ZMMessage" isAbstract="YES" syncable="YES">
-        <attribute name="category" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="cachedCategory" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="destructionDate" optional="YES" attributeType="Date" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
         <attribute name="expirationDate" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="isEncrypted" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>

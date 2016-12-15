@@ -75,6 +75,7 @@ NSString * const ZMMessageReactionKey = @"reactions";
 NSString * const ZMMessageConfirmationKey = @"confirmations";
 NSString * const ZMMessageDestructionDateKey = @"destructionDate";
 NSString * const ZMMessageIsObfuscatedKey = @"isObfuscated";
+NSString * const ZMMessageCachedCategoryKey = @"cachedCategory";
 
 
 @interface ZMMessage ()
@@ -685,7 +686,8 @@ NSString * const ZMMessageIsObfuscatedKey = @"isObfuscated";
                              ZMMessageConfirmationKey,
                              ZMMessageReactionKey,
                              ZMMessageDestructionDateKey,
-                             ZMMessageIsObfuscatedKey
+                             ZMMessageIsObfuscatedKey,
+                             ZMMessageCachedCategoryKey
                              ];
         ignoredKeys = [keys setByAddingObjectsFromArray:newKeys];
     });

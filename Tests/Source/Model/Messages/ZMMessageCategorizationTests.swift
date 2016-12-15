@@ -194,3 +194,136 @@ class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
         XCTAssertEqual(message.categorization, MessageCategory.text)
     }
 }
+
+// MARK: - Cache
+extension ZMMessageCategorizationTests {
+    
+    func testThatItComputesTheCachedCategoryLazily() {
+        
+        // GIVEN
+        let message = self.conversation.appendMessage(withText: "ramble on!")! as! ZMMessage
+        XCTAssertEqual(message.primitiveValue(forKey: ZMMessageCachedCategoryKey) as? NSNumber, NSNumber(value: 0))
+        
+        // WHEN
+        let category = message.cachedCategory
+        
+        // THEN
+        XCTAssertEqual(category, MessageCategory.text)
+        XCTAssertEqual(message.primitiveValue(forKey: ZMMessageCachedCategoryKey) as? NSNumber, NSNumber(value: MessageCategory.text.rawValue))
+    }
+    
+    func testThatItUsedCachedCategoryValueIfPresent() {
+        
+        // GIVEN
+        let message = self.conversation.appendMessage(withText: "ramble on!")! as! ZMMessage
+        message.willAccessValue(forKey: ZMMessageCachedCategoryKey)
+        message.setPrimitiveValue(NSNumber(value: MessageCategory.audio.rawValue), forKey: ZMMessageCachedCategoryKey)
+        message.didAccessValue(forKey: ZMMessageCachedCategoryKey)
+        
+        // WHEN
+        let category = message.cachedCategory
+        
+        // THEN
+        XCTAssertEqual(category, MessageCategory.audio)
+        XCTAssertEqual(message.primitiveValue(forKey: ZMMessageCachedCategoryKey) as? NSNumber, NSNumber(value: MessageCategory.audio.rawValue))
+
+    }
+}
+
+// MARK: - Fetch request
+extension ZMMessageCategorizationTests {
+    
+    func testThatItCreatesAFetchRequestToFetchText() {
+        
+        // GIVEN
+        let textMessage = self.conversation.appendMessage(withText: "in the still of the night")! as! ZMMessage
+        textMessage.cachedCategory = MessageCategory.text
+        textMessage.serverTimestamp = Date(timeIntervalSince1970: 100)
+        let nonTextMessage = self.conversation.appendMessage(withText: "in the still of the night")! as! ZMMessage
+        nonTextMessage.cachedCategory = MessageCategory.knock
+        nonTextMessage.serverTimestamp = Date(timeIntervalSince1970: 2000)
+        let linkTextMessage = self.conversation.appendMessage(withText: "in the still of the night")! as! ZMMessage
+        linkTextMessage.cachedCategory = [MessageCategory.link, MessageCategory.text]
+        linkTextMessage.serverTimestamp = Date(timeIntervalSince1970: 3000)
+        let likedTextMessage = self.conversation.appendMessage(withText: "in the still of the night")! as! ZMMessage
+        likedTextMessage.cachedCategory = [MessageCategory.liked, MessageCategory.text]
+        likedTextMessage.serverTimestamp = Date(timeIntervalSince1970: 5000)
+        self.conversation.managedObjectContext?.saveOrRollback()
+        
+        // WHEN
+        let fetchRequest = ZMMessage.fetchRequestByCategory(matching: MessageCategory.text)
+        let results = try? self.conversation.managedObjectContext!.fetch(fetchRequest)
+        
+        // THEN
+        guard let messages = results as? [ZMMessage] else {
+            XCTFail("Result is \(results)")
+            return
+        }
+        XCTAssertTrue(messages.contains(textMessage))
+        XCTAssertFalse(messages.contains(nonTextMessage))
+        XCTAssertTrue(messages.contains(linkTextMessage))
+        XCTAssertTrue(messages.contains(likedTextMessage))
+    }
+    
+    func testThatItCreatesAFetchRequestToFetchLikedText() {
+        
+        // GIVEN
+        let textMessage = self.conversation.appendMessage(withText: "in the still of the night")! as! ZMMessage
+        textMessage.cachedCategory = MessageCategory.text
+        textMessage.serverTimestamp = Date(timeIntervalSince1970: 100)
+        let nonTextMessage = self.conversation.appendMessage(withText: "in the still of the night")! as! ZMMessage
+        nonTextMessage.cachedCategory = MessageCategory.knock
+        nonTextMessage.serverTimestamp = Date(timeIntervalSince1970: 2000)
+        let linkTextMessage = self.conversation.appendMessage(withText: "in the still of the night")! as! ZMMessage
+        linkTextMessage.cachedCategory = [MessageCategory.link, MessageCategory.text]
+        linkTextMessage.serverTimestamp = Date(timeIntervalSince1970: 3000)
+        let likedTextMessage = self.conversation.appendMessage(withText: "in the still of the night")! as! ZMMessage
+        likedTextMessage.cachedCategory = [MessageCategory.liked, MessageCategory.text]
+        likedTextMessage.serverTimestamp = Date(timeIntervalSince1970: 5000)
+        self.conversation.managedObjectContext?.saveOrRollback()
+        
+        // WHEN
+        let fetchRequest = ZMMessage.fetchRequestByCategory(matching: [MessageCategory.text, MessageCategory.liked])
+        let results = try? self.conversation.managedObjectContext!.fetch(fetchRequest)
+        
+        // THEN
+        guard let messages = results as? [ZMMessage] else {
+            XCTFail("Result is \(results)")
+            return
+        }
+        XCTAssertFalse(messages.contains(textMessage))
+        XCTAssertFalse(messages.contains(nonTextMessage))
+        XCTAssertFalse(messages.contains(linkTextMessage))
+        XCTAssertTrue(messages.contains(likedTextMessage))
+    }
+    
+    func testPerformanceOfFetch() {
+        
+        // GIVEN
+        let numberOfMessages = 10_000
+        let cachedCategories : [MessageCategory] = [
+            [MessageCategory.file, MessageCategory.audio],
+            [MessageCategory.text],
+            [MessageCategory.text, MessageCategory.liked],
+            [MessageCategory.text, MessageCategory.liked, MessageCategory.link],
+            [MessageCategory.image]
+        ]
+        (0..<numberOfMessages).forEach {
+            if $0 % 1000 == 0 {
+                self.conversation.managedObjectContext?.saveOrRollback()
+            }
+            let msg = self.conversation.appendMessage(withText: "foo")! as! ZMMessage
+            msg.cachedCategory = cachedCategories[$0 % cachedCategories.count]
+        }
+        self.conversation.managedObjectContext?.saveOrRollback()
+        
+        // WHEN
+        let fetchRequest = ZMMessage.fetchRequestByCategory(matching: [MessageCategory.text, MessageCategory.liked])
+        
+        self.measure {
+            let results = try? self.conversation.managedObjectContext!.fetch(fetchRequest)
+            XCTAssertFalse(results?.isEmpty ?? false)
+        }
+        
+    }
+}
