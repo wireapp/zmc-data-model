@@ -186,6 +186,7 @@ struct PagedAssetFetchResult {
             predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate, messagePredicate])
         }
         let request = NSFetchRequest<ZMAssetClientMessage>(entityName: ZMAssetClientMessage.entityName())
+        request.predicate = predicate
         request.sortDescriptors = [NSSortDescriptor(key: "serverTimestamp", ascending: false)]
         request.fetchLimit = fetchLimit
         request.returnsObjectsAsFaults = false
