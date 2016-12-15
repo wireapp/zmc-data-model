@@ -114,7 +114,7 @@ public class AssetCollection : NSObject {
                                                         fetchLimit: limit,
                                                         categoriesToFetch: self.categoriesToFetch)
             else {
-                // This would be an error and should in theory never happen
+                // This would be an error and would happen when messages got deleted between now and when the Collection as initialized
                 self.notifyDelegateFetchingIsDone(result: .failed)
                 return
             }
@@ -132,7 +132,8 @@ public class AssetCollection : NSObject {
     
     private func notifyDelegate(newAssets: [MessageCategory : [ZMAssetClientMessage]]) {
         uiMOC?.performGroupedBlock { [weak self] in
-            guard let `self` = self else { return }
+            guard let `self` = self, !self.tornDown else { return }
+            
             var uiAssets = [MessageCategory : [ZMMessage]]()
             newAssets.forEach {
                 let uiValues = $1.flatMap{ (try? self.uiMOC?.existingObject(with: $0.objectID)) as? ZMMessage}

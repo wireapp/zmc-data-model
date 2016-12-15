@@ -51,10 +51,11 @@ class AssetColletionTests : ModelObjectsTests {
     
     override func tearDown() {
         delegate = nil
-        sut.tearDown()
-
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        sut = nil
+        if sut != nil {
+            sut.tearDown()
+            XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+            sut = nil
+        }
         super.tearDown()
     }
     
@@ -169,4 +170,27 @@ class AssetColletionTests : ModelObjectsTests {
         XCTAssertTrue(sut.doneFetching)
     }
     
+    func testPerformanceOfMessageFetching() {
+        // average: 0.275, relative standard deviation: 8.967%, values: [0.348496, 0.263188, 0.266409, 0.268903, 0.265612, 0.265829, 0.271573, 0.265206, 0.268697, 0.264837]
+        
+        // given
+        insertAssetMessages(count: 1000)
+        uiMOC.registeredObjects.forEach{uiMOC.refresh($0, mergeChanges: false)}
+        
+        self.measureMetrics([XCTPerformanceMetric_WallClockTime], automaticallyStartMeasuring: false) {
+            
+            // when
+            self.startMeasuring()
+            self.sut = AssetCollection(conversation: self.conversation, categoriesToFetch: [.image], delegate: self.delegate)
+            XCTAssert(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+            
+            self.stopMeasuring()
+            
+            // then
+            self.sut.tearDown()
+            self.sut = nil
+            self.uiMOC.registeredObjects.forEach{self.uiMOC.refresh($0, mergeChanges: false)}
+        }
+    
+    }
 }
