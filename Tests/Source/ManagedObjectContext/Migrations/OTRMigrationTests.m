@@ -996,4 +996,31 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
              ];
 }
 
+- (NSArray <NSDictionary *>*)userDictionaryFixture2_25
+{
+    return @[
+             @{
+                 @"accentColorValue": @3,
+                 @"name": @"Andreas",
+                 @"normalizedName": @"Andreas",
+                 @"handle": @"andre"
+                 },
+             @{
+                 @"accentColorValue": @3,
+                 @"emailAddress": @"574@example.com",
+                 @"name": @"Chad",
+                 @"normalizedEmailAddress": @"574@example.com",
+                 @"normalizedName": @"Chad",
+                 @"handle":@"titus"
+                 },
+             @{
+                 @"accentColorValue": @5,
+                 @"emailAddress": @"183@example.com",
+                 @"name": @"Daniel",
+                 @"normalizedEmailAddress": @"183@example.com",
+                 @"normalizedName": @"Daniel",
+                 },
+             ];
+}
+
 @end
