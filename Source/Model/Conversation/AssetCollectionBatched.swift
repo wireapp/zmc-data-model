@@ -34,7 +34,6 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
     public static let defaultFetchCount = 200
     
     private var tornDown = false
-    private var currentOffset = 0
     
     private var syncMOC: NSManagedObjectContext? {
         return conversation.managedObjectContext?.zm_sync
@@ -43,13 +42,14 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
         return conversation.managedObjectContext
     }
     
-    /// Returns true when there are no assets to fetch OR when all assets have been fetched OR the collection has been tornDown
+    /// Returns true when there are no assets to fetch OR when all assets have been processed OR the collection has been tornDown
     public var doneFetching : Bool {
         return tornDown || (allAssetMessages.count == 0 && allClientMessages.count == 0)
     }
     
     /// Returns a collection that automatically fetches the assets in batches
-    /// @param categoriesToFetch: The AssetCollection only returns and calls the delegate for these categories
+    /// @param including: The AssetCollection only returns and calls the delegate for these categories
+    /// @param excluding: These categories are excluded when fetching messages (e.g if you want files, but not videos)
     public init(conversation: ZMConversation, including : [MessageCategory], excluding: [MessageCategory] = [],  delegate: AssetCollectionDelegate){
         self.conversation = conversation
         self.delegate = delegate
@@ -95,8 +95,10 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
         let messages : [ZMMessage] = (type == .asset) ? self.allAssetMessages : self.allClientMessages
         
         let numberToAnalyze = min(messages.count, AssetCollectionBatched.defaultFetchCount)
-        if numberToAnalyze == 0 && self.doneFetching {
-            self.notifyDelegateFetchingIsDone(result: (self.assets != nil) ? .success : .noAssetsToFetch)
+        if numberToAnalyze == 0 {
+            if self.doneFetching {
+                self.notifyDelegateFetchingIsDone(result: (self.assets != nil) ? .success : .noAssetsToFetch)
+            }
             return
         }
         let messagesToAnalyze = Array(messages[0..<numberToAnalyze])
@@ -109,7 +111,7 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
         }
         
         if let assets = self.assets {
-            self.assets = assets.merged(with: newAssets)
+            self.assets = assets.merging(with: newAssets)
         } else {
             self.assets = newAssets
         }
@@ -172,18 +174,15 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
 
 struct CategorizedFetchResult {
     
-    let totalFetchCount : Int = 0
-    let lastMessage : ZMMessage
     let messagesByFilter : [MessageCategory : [ZMMessage]]
     
     init(messages: [ZMMessage], including: [MessageCategory], excluding: MessageCategory) {
         precondition(messages.count > 0, "messages should contain at least one value")
         let messagesByFilter = CategorizedFetchResult.categorize(messages: messages, including: including, excluding:excluding)
-        self.init(lastMessage: messages.last!, messagesByFilter: messagesByFilter)
+        self.init(messagesByFilter: messagesByFilter)
     }
     
-    init(lastMessage : ZMMessage, messagesByFilter : [MessageCategory : [ZMMessage]]){
-        self.lastMessage = lastMessage
+    init(messagesByFilter : [MessageCategory : [ZMMessage]]){
         self.messagesByFilter = messagesByFilter
     }
     
@@ -211,21 +210,25 @@ struct CategorizedFetchResult {
         return sorted
     }
     
-    func merged(with other: CategorizedFetchResult) -> CategorizedFetchResult? {
-        guard let lastMessageTimestamp = lastMessage.serverTimestamp,
-            let otherLastMessageTimestamp = other.lastMessage.serverTimestamp
-            else {return nil }
-        
-        let (newer, older) = (lastMessageTimestamp.compare(otherLastMessageTimestamp) == .orderedAscending) ?
-            (other, self) : (self, other)
-        
+    func merging(with other: CategorizedFetchResult) -> CategorizedFetchResult? {
         var newSortedMessages = [MessageCategory : [ZMMessage]]()
-        older.messagesByFilter.forEach {
-            let newerValues = newer.messagesByFilter[$0] ?? []
-            let allValues = newerValues + $1
-            newSortedMessages[$0] = allValues
+        
+        self.messagesByFilter.forEach {
+            var newValues = $1
+            if let otherValues = other.messagesByFilter[$0] {
+                newValues = newValues + otherValues
+            }
+            newSortedMessages[$0] = newValues
         }
-        return CategorizedFetchResult(lastMessage: older.lastMessage, messagesByFilter: newSortedMessages)
+        
+        let notIncluded = Set(other.messagesByFilter.keys).subtracting(Set(other.messagesByFilter.keys))
+        notIncluded.forEach{
+            if let value = other.messagesByFilter[$0] {
+                newSortedMessages[$0] = value
+            }
+        }
+        
+        return CategorizedFetchResult(messagesByFilter: newSortedMessages)
     }
     
 }

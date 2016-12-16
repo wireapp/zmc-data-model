@@ -35,6 +35,7 @@ class MockAssetCollectionDelegate : NSObject, AssetCollectionDelegate {
     }
 }
 
+
 class AssetColletionTests : ModelObjectsTests {
 
     var sut : AssetCollection!
@@ -75,7 +76,7 @@ class AssetColletionTests : ModelObjectsTests {
         insertAssetMessages(count: totalMessageCount)
         
         // when
-        sut = AssetCollection(conversation: conversation, categoriesToFetch: [.image], delegate: delegate)
+        sut = AssetCollection(conversation: conversation, including: [.image], delegate: delegate)
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
@@ -97,7 +98,7 @@ class AssetColletionTests : ModelObjectsTests {
         insertAssetMessages(count: totalMessageCount)
         
         // when
-        sut = AssetCollection(conversation: conversation, categoriesToFetch: [.image], delegate: delegate)
+        sut = AssetCollection(conversation: conversation, including: [.image], delegate: delegate)
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
@@ -121,7 +122,7 @@ class AssetColletionTests : ModelObjectsTests {
         insertAssetMessages(count: totalMessageCount)
         
         // when
-        sut = AssetCollection(conversation: conversation, categoriesToFetch: [.image], delegate: delegate)
+        sut = AssetCollection(conversation: conversation, including: [.image], delegate: delegate)
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
@@ -140,7 +141,7 @@ class AssetColletionTests : ModelObjectsTests {
     
     func testThatItCallsTheDelegateWhenTheMessageCountIsZero() {
         // when
-        sut = AssetCollection(conversation: conversation, categoriesToFetch: [.image], delegate: delegate)
+        sut = AssetCollection(conversation: conversation, including: [.image], delegate: delegate)
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
@@ -155,7 +156,7 @@ class AssetColletionTests : ModelObjectsTests {
         insertAssetMessages(count: totalMessageCount)
         
         // when
-        sut = AssetCollection(conversation: conversation, categoriesToFetch: [.image], delegate: delegate)
+        sut = AssetCollection(conversation: conversation, including: [.image], delegate: delegate)
         sut.tearDown()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
@@ -166,6 +167,7 @@ class AssetColletionTests : ModelObjectsTests {
     }
     
     func testPerformanceOfMessageFetching() {
+        // Before caching:
         // 1000 messages, 1 category, 500 defaultpaging, average: 0.275, relative standard deviation: 8.967%, values: [0.348496, 0.263188, 0.266409, 0.268903, 0.265612, 0.265829, 0.271573, 0.265206, 0.268697, 0.264837]
         // 1000 messages, 1 category, 200 defaultpaging, average: 0.304, relative standard deviation: 9.818%, values: [0.390736, 0.285759, 0.293118, 0.290341, 0.293730, 0.281093, 0.292787, 0.305865, 0.306954, 0.302983]
         // 1000 messages, 2 categories, 500 defaultpaging, average: 0.570, relative standard deviation: 5.990%, values: [0.656057, 0.526296, 0.530267, 0.572129, 0.557102, 0.586183, 0.574734, 0.580168, 0.563595, 0.556718]
@@ -179,7 +181,7 @@ class AssetColletionTests : ModelObjectsTests {
             
             // when
             self.startMeasuring()
-            self.sut = AssetCollection(conversation: self.conversation, categoriesToFetch: [.image], delegate: self.delegate)
+            self.sut = AssetCollection(conversation: self.conversation, including: [.image], delegate: self.delegate)
             XCTAssert(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
             
             self.stopMeasuring()
@@ -192,3 +194,5 @@ class AssetColletionTests : ModelObjectsTests {
     
     }
 }
+ 
+

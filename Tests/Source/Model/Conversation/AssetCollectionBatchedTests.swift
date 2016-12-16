@@ -148,6 +148,7 @@ class AssetColletionBatchedTests : ModelObjectsTests {
     }
     
     func testPerformanceOfMessageFetching() {
+        // Before caching:
         // 1 category, 100 paging, messages: average: 0.270, relative standard deviation: 8.876%, values: [0.341864, 0.262725, 0.264362, 0.266097, 0.260730, 0.264372, 0.257983, 0.262659, 0.260060, 0.261362],
         // 1 category, 200 paging, messages: average: 0.273, relative standard deviation: 9.173%, values: [0.346403, 0.260432, 0.262388, 0.263736, 0.262131, 0.278030, 0.264735, 0.265317, 0.262637, 0.261326],
         // 1 category, 500 paging, messages: average: 0.286, relative standard deviation: 9.671%, values: [0.368397, 0.275279, 0.274547, 0.276134, 0.275657, 0.275912, 0.274775, 0.274407, 0.278609, 0.288635]

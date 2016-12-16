@@ -29,19 +29,21 @@ public protocol ZMCollection : NSObjectProtocol {
 
 public protocol AssetCollectionDelegate : NSObjectProtocol {
     /// The AssetCollection calls this when the fetching completes
-    /// To get all messages for any category defined in categoriesToFetch, call `assets(for category: MessageCategory)`
+    /// To get all messages for any category defined in `including`, call `assets(for category: MessageCategory)`
     func assetCollectionDidFetch(messages: [MessageCategory: [ZMMessage]])
     
     /// This method is called when all assets in the conversation have been fetched & analyzed / categorized
     func assetCollectionDidFinishFetching(result : AssetFetchResult)
 }
 
+
 public class AssetCollection : NSObject, ZMCollection {
 
     private unowned var delegate : AssetCollectionDelegate
     private var assets : CategorizedFetchResult?
+    private var lastFetchedMessage : ZMMessage?
     private let conversation: ZMConversation
-    private let categoriesToFetch : [MessageCategory]
+    private let including : [MessageCategory]
     public static let initialFetchCount = 100
     public static let defaultFetchCount = 500
     public private (set) var doneFetching : Bool = false
@@ -61,10 +63,10 @@ public class AssetCollection : NSObject, ZMCollection {
     
     /// Returns a collection that automatically fetches the assets in batches
     /// @param categoriesToFetch: The AssetCollection only returns and calls the delegate for these categories
-    public init(conversation: ZMConversation, categoriesToFetch : [MessageCategory],  delegate: AssetCollectionDelegate){
+    public init(conversation: ZMConversation, including : [MessageCategory],  delegate: AssetCollectionDelegate){
         self.conversation = conversation
         self.delegate = delegate
-        self.categoriesToFetch = categoriesToFetch
+        self.including = including
         super.init()
         
         fetchNextIfNotTornDown(limit: AssetCollection.initialFetchCount)
@@ -100,16 +102,17 @@ public class AssetCollection : NSObject, ZMCollection {
                 return
             }
             
-            let messagesToAnalyze = self.messages(for: syncConversation, startAfter: self.assets?.lastMessage, fetchLimit: limit)
+            let messagesToAnalyze = self.messages(for: syncConversation, startAfter: self.lastFetchedMessage, fetchLimit: limit)
+            self.lastFetchedMessage = messagesToAnalyze.last
             if messagesToAnalyze.count == 0 {
                 self.doneFetching = true
                 self.notifyDelegateFetchingIsDone(result: (self.assets == nil) ? .noAssetsToFetch : .success)
                 return
             }
             
-            let newAssets = CategorizedFetchResult(messages: messagesToAnalyze, including: self.categoriesToFetch, excluding: [])
+            let newAssets = CategorizedFetchResult(messages: messagesToAnalyze, including: self.including, excluding: [])
             if let assets = self.assets {
-                self.assets = assets.merged(with: newAssets)
+                self.assets = assets.merging(with: newAssets)
             } else {
                 self.assets = newAssets
             }
