@@ -23,15 +23,19 @@ class MockAssetCollectionDelegate : NSObject, AssetCollectionDelegate {
     var messagesByFilter = [[MessageCategory: [ZMMessage]]]()
     var didCallDelegate = false
     var result : AssetFetchResult?
+    var finished: [MessageCategory] = []
     
     public func assetCollectionDidFinishFetching(result: AssetFetchResult) {
         self.result = result
         didCallDelegate = true
     }
     
-    public func assetCollectionDidFetch(messages: [MessageCategory : [ZMMessage]]) {
+    public func assetCollectionDidFetch(messages: [MessageCategory : [ZMMessage]], hasMore: Bool) {
         messagesByFilter.append(messages)
         didCallDelegate = true
+        if !hasMore {
+            finished = finished + messages.keys
+        }
     }
 }
 
@@ -191,7 +195,6 @@ class AssetColletionTests : ModelObjectsTests {
             self.sut = nil
             self.uiMOC.registeredObjects.forEach{self.uiMOC.refresh($0, mergeChanges: false)}
         }
-    
     }
 }
  

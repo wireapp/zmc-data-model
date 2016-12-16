@@ -63,13 +63,14 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
             guard let syncConversation = (try? self.syncMOC?.existingObject(with: self.conversation.objectID)) as? ZMConversation else {
                 return
             }
+            self.allAssetMessages = self.unCategorizedMessages(for: syncConversation)
+            self.allClientMessages = self.unCategorizedMessages(for: syncConversation)
+            
             let categorizedMessages : [ZMMessage] = self.categorizedMessages(for: syncConversation)
             if categorizedMessages.count > 0 {
                 self.assets = CategorizedFetchResult(messages: categorizedMessages, including: self.including, excluding: self.excluding)
-                self.notifyDelegate(newAssets: self.assets!.messagesByFilter)
+                self.notifyDelegate(newAssets: self.assets!.messagesByFilter, type: nil)
             }
-            self.allAssetMessages = self.unCategorizedMessages(for: syncConversation)
-            self.allClientMessages = self.unCategorizedMessages(for: syncConversation)
 
             self.categorizeNextBatch(type: .asset)
             self.categorizeNextBatch(type: .client)
@@ -115,7 +116,7 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
         } else {
             self.assets = newAssets
         }
-        self.notifyDelegate(newAssets: newAssets.messagesByFilter)
+        self.notifyDelegate(newAssets: newAssets.messagesByFilter, type: type)
         if self.doneFetching {
             self.delegate.assetCollectionDidFinishFetching(result: .success)
             return
@@ -127,7 +128,7 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
         }
     }
     
-    private func notifyDelegate(newAssets: [MessageCategory : [ZMMessage]]) {
+    private func notifyDelegate(newAssets: [MessageCategory : [ZMMessage]], type: MessagesToFetch?) {
         uiMOC?.performGroupedBlock { [weak self] in
             guard let `self` = self, !self.tornDown else { return }
             
@@ -136,7 +137,13 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
                 let uiValues = $1.flatMap{ (try? self.uiMOC?.existingObject(with: $0.objectID)) as? ZMMessage}
                 uiAssets[$0] = uiValues
             }
-            self.delegate.assetCollectionDidFetch(messages: uiAssets)
+            let hasMore : Bool
+            if let type = type {
+                hasMore = (type == .client) ? self.allClientMessages.count != 0 : self.allAssetMessages.count != 0
+            } else {
+                hasMore = !self.doneFetching
+            }
+            self.delegate.assetCollectionDidFetch(messages: uiAssets, hasMore: hasMore)
         }
     }
     
@@ -221,8 +228,8 @@ struct CategorizedFetchResult {
             newSortedMessages[$0] = newValues
         }
         
-        let notIncluded = Set(other.messagesByFilter.keys).subtracting(Set(other.messagesByFilter.keys))
-        notIncluded.forEach{
+        let newKeys = Set(other.messagesByFilter.keys).subtracting(Set(other.messagesByFilter.keys))
+        newKeys.forEach{
             if let value = other.messagesByFilter[$0] {
                 newSortedMessages[$0] = value
             }

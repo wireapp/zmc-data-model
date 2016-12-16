@@ -259,5 +259,7 @@ class AssetColletionBatchedTests : ModelObjectsTests {
         XCTAssertEqual(receivedTextCount, 1)
         
         XCTAssertEqual(delegate.result, .success)
+        XCTAssertTrue(delegate.finished.contains(.image))
+        XCTAssertTrue(delegate.finished.contains(.text))
     }
 }

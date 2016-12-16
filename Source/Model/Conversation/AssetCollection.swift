@@ -30,7 +30,7 @@ public protocol ZMCollection : NSObjectProtocol {
 public protocol AssetCollectionDelegate : NSObjectProtocol {
     /// The AssetCollection calls this when the fetching completes
     /// To get all messages for any category defined in `including`, call `assets(for category: MessageCategory)`
-    func assetCollectionDidFetch(messages: [MessageCategory: [ZMMessage]])
+    func assetCollectionDidFetch(messages: [MessageCategory: [ZMMessage]], hasMore: Bool)
     
     /// This method is called when all assets in the conversation have been fetched & analyzed / categorized
     func assetCollectionDidFinishFetching(result : AssetFetchResult)
@@ -63,7 +63,7 @@ public class AssetCollection : NSObject, ZMCollection {
     
     /// Returns a collection that automatically fetches the assets in batches
     /// @param categoriesToFetch: The AssetCollection only returns and calls the delegate for these categories
-    public init(conversation: ZMConversation, including : [MessageCategory],  delegate: AssetCollectionDelegate){
+    public init(conversation: ZMConversation, including : [MessageCategory], excluding: [MessageCategory] = [], delegate: AssetCollectionDelegate){
         self.conversation = conversation
         self.delegate = delegate
         self.including = including
@@ -129,7 +129,7 @@ public class AssetCollection : NSObject, ZMCollection {
                 let uiValues = messages.flatMap{ (try? self.uiMOC?.existingObject(with: $0.objectID)) as? ZMMessage}
                 uiAssets[category] = uiValues
             }
-            self.delegate.assetCollectionDidFetch(messages: uiAssets)
+            self.delegate.assetCollectionDidFetch(messages: uiAssets, hasMore: !self.doneFetching)
         }
     }
     
