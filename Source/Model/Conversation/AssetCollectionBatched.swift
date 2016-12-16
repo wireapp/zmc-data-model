@@ -23,6 +23,7 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
     private var assets : CategorizedFetchResult?
     private let conversation: ZMConversation
     private let categoriesToFetch : [MessageCategory]
+    private let exludingCategories: [MessageCategory]
     private var allMessages: [ZMAssetClientMessage] = []
     public static let defaultFetchCount = 200
     
@@ -43,10 +44,11 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
     
     /// Returns a collection that automatically fetches the assets in batches
     /// @param categoriesToFetch: The AssetCollection only returns and calls the delegate for these categories
-    public init(conversation: ZMConversation, categoriesToFetch : [MessageCategory],  delegate: AssetCollectionDelegate){
+    public init(conversation: ZMConversation, categoriesToFetch : [MessageCategory], exludingCategories: [MessageCategory] = [],  delegate: AssetCollectionDelegate){
         self.conversation = conversation
         self.delegate = delegate
         self.categoriesToFetch = categoriesToFetch
+        self.exludingCategories = exludingCategories
         super.init()
         
         syncMOC?.performGroupedBlock {
@@ -54,7 +56,13 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
             guard let syncConversation = (try? self.syncMOC?.existingObject(with: self.conversation.objectID)) as? ZMConversation else {
                 return
             }
-            self.allMessages = AssetCollectionBatched.messages(for: syncConversation)
+            let categorizedMessages = self.categorizedMessages(for: syncConversation)
+            if categorizedMessages.count > 0 {
+                self.assets = CategorizedFetchResult(messages: categorizedMessages, categories: self.categoriesToFetch)
+                dump(self.assets!.messagesByFilter)
+                self.notifyDelegate(newAssets: self.assets!.messagesByFilter)
+            }
+            self.allMessages = self.unCategorizedMessages(for: syncConversation)
             self.categorizeNextBatch()
         }
     }
@@ -122,9 +130,20 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
         }
     }
     
-    static func messages(for conversation: ZMConversation) -> [ZMAssetClientMessage]  {
+    func categorizedMessages(for conversation: ZMConversation) -> [ZMMessage] {
+        precondition(conversation.managedObjectContext!.zm_isSyncContext, "Fetch should only be performed on the sync context")
+        print(conversation.managedObjectContext?.registeredObjects)
+        let request = ZMMessage.fetchRequestMatching(categories: Set(self.categoriesToFetch))
+        
+        guard let result = conversation.managedObjectContext?.fetchOrAssert(request: request as! NSFetchRequest<ZMMessage>) else {return []}
+        return result
+    }
+    
+    func unCategorizedMessages(for conversation: ZMConversation) -> [ZMAssetClientMessage]  {
+        precondition(conversation.managedObjectContext!.zm_isSyncContext, "Fetch should only be performed on the sync context")
+        
         let request = NSFetchRequest<ZMAssetClientMessage>(entityName: ZMAssetClientMessage.entityName())
-        request.predicate = NSPredicate(format: "visibleInConversation == %@", conversation)
+        request.predicate = NSPredicate(format: "visibleInConversation == %@ && %K == %@", conversation, ZMMessageCachedCategoryKey, MessageCategory.none.rawValue)
         request.sortDescriptors = [NSSortDescriptor(key: "serverTimestamp", ascending: false)]
         request.fetchBatchSize = AssetCollectionBatched.defaultFetchCount
         request.relationshipKeyPathsForPrefetching = ["dataSet"]
@@ -165,7 +184,7 @@ struct CategorizedFetchResult {
         let unionCategory : MessageCategory = categoriesToFetch.reduce(.none){$0.union($1)}
         messages.forEach{ message in
             categoriesToFetch.forEach {
-                let category = message.category
+                let category = message.cachedCategory
                 guard (category.intersection(unionCategory) != .none) else { return }
                 if category.contains($0) {
                     sorted[$0]?.append(message)

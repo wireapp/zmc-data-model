@@ -176,4 +176,20 @@ class AssetColletionBatchedTests : ModelObjectsTests {
         }
         
     }
+    
+    func testThatItReturnsPreCategorizedItems(){
+        // given
+        insertAssetMessages(count: 10)
+        
+        // when
+        conversation.messages.forEach{_ = ($0 as? ZMMessage)?.cachedCategory}
+        uiMOC.saveOrRollback()
+        
+        sut = AssetCollectionBatched(conversation: self.conversation, categoriesToFetch: [.image], delegate: self.delegate)
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+
+        // then
+        let receivedMessageCount = delegate.messagesByFilter.first?[.image]?.count
+        XCTAssertEqual(receivedMessageCount, 10)
+    }
 }
