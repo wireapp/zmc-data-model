@@ -84,7 +84,7 @@ extension ZMMessage {
             ? NSPredicate(format: "(%K & %d) = 0", ZMMessageCachedCategoryKey, excluding.rawValue)
             : nil
         let conversationPredicate : NSPredicate? = (conversation != nil)
-            ? NSPredicate(format: "%K = %@ OR %K = %@", ZMMessageConversationKey, conversation!, ZMMessageHiddenInConversationKey, conversation!)
+            ? NSPredicate(format: "%K = %@", ZMMessageConversationKey, conversation!)
             : nil
         
         let finalPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [orPredicate, excludingPredicate, conversationPredicate].flatMap { $0 })
