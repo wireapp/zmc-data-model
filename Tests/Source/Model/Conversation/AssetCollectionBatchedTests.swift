@@ -59,7 +59,7 @@ class AssetColletionBatchedTests : ModelObjectsTests {
         insertAssetMessages(count: totalMessageCount)
         
         // when
-        sut = AssetCollectionBatched(conversation: conversation, includingCategories: [.image], delegate: delegate)
+        sut = AssetCollectionBatched(conversation: conversation, including: [.image], delegate: delegate)
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
@@ -81,7 +81,7 @@ class AssetColletionBatchedTests : ModelObjectsTests {
         insertAssetMessages(count: totalMessageCount)
         
         // when
-        sut = AssetCollectionBatched(conversation: conversation, includingCategories: [.image], delegate: delegate)
+        sut = AssetCollectionBatched(conversation: conversation, including: [.image], delegate: delegate)
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
@@ -103,7 +103,7 @@ class AssetColletionBatchedTests : ModelObjectsTests {
         insertAssetMessages(count: totalMessageCount)
         
         // when
-        sut = AssetCollectionBatched(conversation: conversation, includingCategories: [.image], delegate: delegate)
+        sut = AssetCollectionBatched(conversation: conversation, including: [.image], delegate: delegate)
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
@@ -122,7 +122,7 @@ class AssetColletionBatchedTests : ModelObjectsTests {
     
     func testThatItCallsTheDelegateWhenTheMessageCountIsZero() {
         // when
-        sut = AssetCollectionBatched(conversation: self.conversation, includingCategories: [.image], delegate: self.delegate)
+        sut = AssetCollectionBatched(conversation: self.conversation, including: [.image], delegate: self.delegate)
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
         // then
@@ -137,7 +137,7 @@ class AssetColletionBatchedTests : ModelObjectsTests {
         insertAssetMessages(count: totalMessageCount)
         
         // when
-        sut = AssetCollectionBatched(conversation: conversation, includingCategories: [.image], delegate: delegate)
+        sut = AssetCollectionBatched(conversation: conversation, including: [.image], delegate: delegate)
         sut.tearDown()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
@@ -164,7 +164,7 @@ class AssetColletionBatchedTests : ModelObjectsTests {
             
             // when
             self.startMeasuring()
-            self.sut = AssetCollectionBatched(conversation: self.conversation, includingCategories: [.image], delegate: self.delegate)
+            self.sut = AssetCollectionBatched(conversation: self.conversation, including: [.image], delegate: self.delegate)
             XCTAssert(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
             
             self.stopMeasuring()
@@ -185,11 +185,58 @@ class AssetColletionBatchedTests : ModelObjectsTests {
         conversation.messages.forEach{_ = ($0 as? ZMMessage)?.cachedCategory}
         uiMOC.saveOrRollback()
         
-        sut = AssetCollectionBatched(conversation: self.conversation, includingCategories: [.image], delegate: self.delegate)
+        sut = AssetCollectionBatched(conversation: self.conversation, including: [.image], delegate: self.delegate)
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
         // then
         let receivedMessageCount = delegate.messagesByFilter.first?[.image]?.count
         XCTAssertEqual(receivedMessageCount, 10)
+    }
+    
+    func testThatItExcludesDefinedCategories_PreCategorized(){
+        // given
+        let data = self.data(forResource: "animated", extension: "gif")!
+        let message = ZMAssetClientMessage(originalImageData: data, nonce: .create(), managedObjectContext: uiMOC, expiresAfter: 0)
+        message.isEncrypted = true
+        let testProperties = ZMIImageProperties(size: CGSize(width: 33, height: 55), length: UInt(10), mimeType: "image/gif")
+        message.imageAssetStorage!.setImageData(data, for: .medium, properties: testProperties)
+        conversation.mutableMessages.add(message)
+        uiMOC.saveOrRollback()
+        
+        // when
+        conversation.messages.forEach{_ = ($0 as? ZMMessage)?.cachedCategory}
+        uiMOC.saveOrRollback()
+        
+        sut = AssetCollectionBatched(conversation: self.conversation, including: [.image], excluding:[.GIF], delegate: self.delegate)
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        
+        // then
+        let receivedMessages = delegate.messagesByFilter.first?[.image]?.count
+        XCTAssertNil(receivedMessages)
+        
+        XCTAssertTrue(delegate.didCallDelegate)
+        XCTAssertEqual(delegate.result, .noAssetsToFetch)
+    }
+    
+    func testThatItExcludesDefinedCategories_NotPreCategorized(){
+        // given
+        let data = self.data(forResource: "animated", extension: "gif")!
+        let message = ZMAssetClientMessage(originalImageData: data, nonce: .create(), managedObjectContext: uiMOC, expiresAfter: 0)
+        message.isEncrypted = true
+        let testProperties = ZMIImageProperties(size: CGSize(width: 33, height: 55), length: UInt(10), mimeType: "image/gif")
+        message.imageAssetStorage!.setImageData(data, for: .medium, properties: testProperties)
+        conversation.mutableMessages.add(message)
+        uiMOC.saveOrRollback()
+        
+        // when
+        sut = AssetCollectionBatched(conversation: self.conversation, including: [.image], excluding:[.GIF], delegate: self.delegate)
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        
+        // then
+        let receivedMessages = delegate.messagesByFilter.first?[.image]?.count
+        XCTAssertEqual(receivedMessages, 0)
+        
+        XCTAssertTrue(delegate.didCallDelegate)
+        XCTAssertEqual(delegate.result, .success)
     }
 }

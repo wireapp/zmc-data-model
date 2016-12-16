@@ -22,8 +22,8 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
     private unowned var delegate : AssetCollectionDelegate
     private var assets : CategorizedFetchResult?
     private let conversation: ZMConversation
-    private let includingCategories : [MessageCategory]
-    private let excludingCategories: [MessageCategory]
+    private let including : [MessageCategory]
+    private let excluding: MessageCategory
     private var allMessages: [ZMAssetClientMessage] = []
     public static let defaultFetchCount = 200
     
@@ -44,11 +44,12 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
     
     /// Returns a collection that automatically fetches the assets in batches
     /// @param categoriesToFetch: The AssetCollection only returns and calls the delegate for these categories
-    public init(conversation: ZMConversation, includingCategories : [MessageCategory], exludingCategories: [MessageCategory] = [],  delegate: AssetCollectionDelegate){
+    public init(conversation: ZMConversation, including : [MessageCategory], excluding: [MessageCategory] = [],  delegate: AssetCollectionDelegate){
         self.conversation = conversation
         self.delegate = delegate
-        self.includingCategories = includingCategories
-        self.excludingCategories = exludingCategories
+        self.including = including
+        self.excluding = excluding.reduce(.none){$0.union($1)}
+
         super.init()
         
         syncMOC?.performGroupedBlock {
@@ -58,8 +59,7 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
             }
             let categorizedMessages : [ZMAssetClientMessage] = self.categorizedMessages(for: syncConversation)
             if categorizedMessages.count > 0 {
-                self.assets = CategorizedFetchResult(messages: categorizedMessages, includingCategories: self.includingCategories, excludingCategories: self.excludingCategories)
-                dump(self.assets!.messagesByFilter)
+                self.assets = CategorizedFetchResult(messages: categorizedMessages, including: self.including, excluding: self.excluding)
                 self.notifyDelegate(newAssets: self.assets!.messagesByFilter)
             }
             self.allMessages = self.unCategorizedMessages(for: syncConversation)
@@ -90,7 +90,7 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
             return
         }
         let messagesToAnalyze = Array(self.allMessages[0..<numberToAnalyze])
-        let newAssets = CategorizedFetchResult(messages: messagesToAnalyze, includingCategories: self.includingCategories, excludingCategories: self.excludingCategories)
+        let newAssets = CategorizedFetchResult(messages: messagesToAnalyze, including: self.including, excluding: self.excluding)
         
         self.allMessages = Array(self.allMessages.dropFirst(numberToAnalyze))
         if let assets = self.assets {
@@ -132,8 +132,7 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
     
     func categorizedMessages<T : ZMMessage>(for conversation: ZMConversation) -> [T] {
         precondition(conversation.managedObjectContext!.zm_isSyncContext, "Fetch should only be performed on the sync context")
-        print(conversation.managedObjectContext?.registeredObjects)
-        let request = T.fetchRequestMatching(categories: Set(self.includingCategories))
+        let request = T.fetchRequestMatching(categories: Set(self.including), excluding: self.excluding, conversation: conversation)
         
         guard let result = conversation.managedObjectContext?.fetchOrAssert(request: request as! NSFetchRequest<T>) else {return []}
         return result
@@ -162,9 +161,9 @@ struct CategorizedFetchResult {
     let lastMessage : ZMMessage
     let messagesByFilter : [MessageCategory : [ZMMessage]]
     
-    init(messages: [ZMMessage], includingCategories: [MessageCategory], excludingCategories: [MessageCategory]) {
+    init(messages: [ZMMessage], including: [MessageCategory], excluding: MessageCategory) {
         precondition(messages.count > 0, "messages should contain at least one value")
-        let messagesByFilter = CategorizedFetchResult.categorize(messages: messages, includingCategories: includingCategories, excludingCategories:excludingCategories)
+        let messagesByFilter = CategorizedFetchResult.categorize(messages: messages, including: including, excluding:excluding)
         self.init(lastMessage: messages.last!, messagesByFilter: messagesByFilter)
     }
     
@@ -174,22 +173,21 @@ struct CategorizedFetchResult {
     }
     
     
-    static func categorize(messages: [ZMMessage], includingCategories: [MessageCategory], excludingCategories: [MessageCategory])
+    static func categorize(messages: [ZMMessage], including: [MessageCategory], excluding: MessageCategory)
         -> [MessageCategory : [ZMMessage]]
     {
         // setup dictionary with keys we are interested in
         var sorted = [MessageCategory : [ZMMessage]]()
-        for category in includingCategories {
+        for category in including {
             sorted[category] = []
         }
         
-        let unionIncluding : MessageCategory = includingCategories.reduce(.none){$0.union($1)}
-        let unionExcluding : MessageCategory = excludingCategories.reduce(.none){$0.union($1)}
+        let unionIncluding : MessageCategory = including.reduce(.none){$0.union($1)}
         messages.forEach{ message in
             let category = message.cachedCategory
-            guard (category.intersection(unionIncluding) != .none) && (category.intersection(unionExcluding) == .none) else { return }
+            guard (category.intersection(unionIncluding) != .none) && (category.intersection(excluding) == .none) else { return }
 
-            includingCategories.forEach {
+            including.forEach {
                 if category.contains($0) {
                     sorted[$0]?.append(message)
                 }
