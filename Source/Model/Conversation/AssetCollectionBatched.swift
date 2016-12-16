@@ -93,8 +93,9 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
     
     private func categorizeNextBatch(type: MessagesToFetch){
         guard !tornDown else { return }
-        let messages : [ZMMessage] = (type == .asset) ? self.allAssetMessages : self.allClientMessages
         
+        // get next batch to categorize
+        let messages : [ZMMessage] = (type == .asset) ? self.allAssetMessages : self.allClientMessages
         let numberToAnalyze = min(messages.count, AssetCollectionBatched.defaultFetchCount)
         if numberToAnalyze == 0 {
             if self.doneFetching {
@@ -103,20 +104,30 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
             return
         }
         let messagesToAnalyze = Array(messages[0..<numberToAnalyze])
+        
+        // categorize batch
         let newAssets = CategorizedFetchResult(messages: messagesToAnalyze, including: self.including, excluding: self.excluding)
         
+        // Remove analyzed results from fetched messages
+        // TODO Sabine: I am not sure what effect this has on the array proxy we received through the fetch. The alternativ would be storing the offset
+        // Profile this!
         if type == .asset {
             self.allAssetMessages = Array(self.allAssetMessages.dropFirst(numberToAnalyze))
         } else {
             self.allClientMessages = Array(self.allClientMessages.dropFirst(numberToAnalyze))
         }
         
+        // Merge result with existing result
         if let assets = self.assets {
             self.assets = assets.merging(with: newAssets)
         } else {
             self.assets = newAssets
         }
+        
+        // Notify delegate
         self.notifyDelegate(newAssets: newAssets.messagesByFilter, type: type)
+        
+        // Return if done and return 
         if self.doneFetching {
             self.delegate.assetCollectionDidFinishFetching(result: .success)
             return
@@ -129,6 +140,9 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
     }
     
     private func notifyDelegate(newAssets: [MessageCategory : [ZMMessage]], type: MessagesToFetch?) {
+        if newAssets.count == 0 {
+            return
+        }
         uiMOC?.performGroupedBlock { [weak self] in
             guard let `self` = self, !self.tornDown else { return }
             
@@ -165,16 +179,23 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
     func unCategorizedMessages<T : ZMMessage>(for conversation: ZMConversation) -> [T]  {
         precondition(conversation.managedObjectContext!.zm_isSyncContext, "Fetch should only be performed on the sync context")
         
-        let request = NSFetchRequest<T>(entityName: T.entityName())
-        request.predicate = NSPredicate(format: "visibleInConversation == %@ && (%K == NULL || %K == %d)", conversation, ZMMessageCachedCategoryKey, ZMMessageCachedCategoryKey, MessageCategory.none.rawValue)
-        request.sortDescriptors = [NSSortDescriptor(key: "serverTimestamp", ascending: false)]
+        let request : NSFetchRequest<T> = AssetCollectionBatched.fetchRequestForUnCategorizedMessages(in: conversation)
         request.fetchBatchSize = AssetCollectionBatched.defaultFetchCount
-        request.relationshipKeyPathsForPrefetching = ["dataSet"]
         
         guard let result = conversation.managedObjectContext?.fetchOrAssert(request: request) else {return []}
         return result
     }
     
+    static func fetchRequestForUnCategorizedMessages<T : ZMMessage>(in conversation: ZMConversation) -> NSFetchRequest<T> {
+        let request = NSFetchRequest<T>(entityName: T.entityName())
+        request.predicate = NSPredicate(format: "visibleInConversation == %@ && (%K == NULL || %K == %d)",
+                                        conversation,
+                                        ZMMessageCachedCategoryKey,
+                                        ZMMessageCachedCategoryKey, MessageCategory.none.rawValue)
+        request.sortDescriptors = [NSSortDescriptor(key: "serverTimestamp", ascending: false)]
+        request.relationshipKeyPathsForPrefetching = ["dataSet"]
+        return request
+    }
 }
 
 
