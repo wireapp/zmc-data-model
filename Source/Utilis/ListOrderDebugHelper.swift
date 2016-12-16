@@ -72,5 +72,10 @@ private let zmLog = ZMSLog(tag: "List Order")
 
         zmLog.info("Conversation \"\(conversation.displayName)\" did update lastModifiedDate to \(conversation.lastModifiedDate), callStack:\n\n\(callStack.joined(separator: "\n"))\n\nLast message:\n\n\(conversation.messages.lastObject)")
     }
+
+    @objc(logResortingConversation:inList:)
+    public class func logResorting(conversation: ZMConversation, in list: ZMConversationList) {
+        zmLog.info("Resorting \(conversation.displayName) in \(list.identifier)")
+    }
     
 }
