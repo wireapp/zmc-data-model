@@ -107,7 +107,7 @@ public class AssetCollection : NSObject, ZMCollection {
                 return
             }
             
-            let newAssets = CategorizedFetchResult(messages: messagesToAnalyze, categories: self.categoriesToFetch)
+            let newAssets = CategorizedFetchResult(messages: messagesToAnalyze, includingCategories: self.categoriesToFetch, excludingCategories: [])
             if let assets = self.assets {
                 self.assets = assets.merged(with: newAssets)
             } else {
