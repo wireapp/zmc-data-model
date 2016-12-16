@@ -239,4 +239,24 @@ class AssetColletionBatchedTests : ModelObjectsTests {
         XCTAssertTrue(delegate.didCallDelegate)
         XCTAssertEqual(delegate.result, .success)
     }
+    
+    func testThatItFetchesImagesAndTextMessages(){
+        // given
+        insertAssetMessages(count: 10)
+        conversation.appendMessage(withText: "foo")
+        uiMOC.saveOrRollback()
+        
+        // when
+        sut = AssetCollectionBatched(conversation: self.conversation, including: [.image, .text], delegate: self.delegate)
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        
+        // then
+        let receivedAssetCount = delegate.messagesByFilter.reduce(0){$0 + ($1[.image]?.count ?? 0)}
+        XCTAssertEqual(receivedAssetCount, 10)
+        
+        let receivedTextCount = delegate.messagesByFilter.reduce(0){$0 + ($1[.text]?.count ?? 0)}
+        XCTAssertEqual(receivedTextCount, 1)
+        
+        XCTAssertEqual(delegate.result, .success)
+    }
 }
