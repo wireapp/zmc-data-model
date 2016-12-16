@@ -377,4 +377,92 @@ extension ZMMessageCategorizationTests {
         XCTAssertFalse(messages.contains(linkTextMessage))
         XCTAssertTrue(messages.contains(likedTextMessage))
     }
+    
+    func testThatItCreatesAFetchRequestToFetchTextExcludingLinksAndLiked() {
+        
+        // GIVEN
+        let textMessage = self.conversation.appendMessage(withText: "in the still of the night")! as! ZMMessage
+        textMessage.cachedCategory = MessageCategory.text
+        textMessage.serverTimestamp = Date(timeIntervalSince1970: 100)
+        let knockMessage = self.conversation.appendMessage(withText: "in the still of the night")! as! ZMMessage
+        knockMessage.cachedCategory = MessageCategory.knock
+        knockMessage.serverTimestamp = Date(timeIntervalSince1970: 2000)
+        let linkTextMessage = self.conversation.appendMessage(withText: "in the still of the night")! as! ZMMessage
+        linkTextMessage.cachedCategory = [MessageCategory.link, MessageCategory.text]
+        linkTextMessage.serverTimestamp = Date(timeIntervalSince1970: 3000)
+        let likedTextMessage = self.conversation.appendMessage(withText: "in the still of the night")! as! ZMMessage
+        likedTextMessage.cachedCategory = [MessageCategory.liked, MessageCategory.text]
+        likedTextMessage.serverTimestamp = Date(timeIntervalSince1970: 5000)
+        self.conversation.managedObjectContext?.saveOrRollback()
+        
+        // WHEN
+        let fetchRequest = ZMMessage.fetchRequestMatching(categories: Set(arrayLiteral: MessageCategory.text), excluding: [MessageCategory.link, MessageCategory.liked])
+        let results = try? self.conversation.managedObjectContext!.fetch(fetchRequest)
+        
+        // THEN
+        guard let messages = results as? [ZMMessage] else {
+            XCTFail("Result is \(results)")
+            return
+        }
+        XCTAssertTrue(messages.contains(textMessage))
+        XCTAssertFalse(messages.contains(knockMessage))
+        XCTAssertFalse(messages.contains(linkTextMessage))
+        XCTAssertFalse(messages.contains(likedTextMessage))
+    }
+    
+    func testThatItFetchesFromAllConversations() {
+        
+        // GIVEN
+        let otherConversation = ZMConversation.insertNewObject(in: self.uiMOC)
+        otherConversation.conversationType = .group
+        otherConversation.remoteIdentifier = UUID.create()
+        
+        let textMessage1 = self.conversation.appendMessage(withText: "hey jude!")! as! ZMMessage
+        textMessage1.cachedCategory = MessageCategory.text
+        textMessage1.serverTimestamp = Date(timeIntervalSince1970: 100)
+        
+        let textMessage2 = otherConversation.appendMessage(withText: "hey jude!")! as! ZMMessage
+        textMessage2.cachedCategory = MessageCategory.text
+        textMessage2.serverTimestamp = Date(timeIntervalSince1970: 300)
+        
+        // WHEN
+        let fetchRequest = ZMMessage.fetchRequestMatching(categories: Set(arrayLiteral: MessageCategory.text))
+        let results = try? self.conversation.managedObjectContext!.fetch(fetchRequest)
+
+        // THEN
+        guard let messages = results as? [ZMMessage] else {
+            XCTFail("Result is \(results)")
+            return
+        }
+        XCTAssertTrue(messages.contains(textMessage1))
+        XCTAssertTrue(messages.contains(textMessage2))
+    }
+    
+    func testThatItFetchesFromASpecificConversations() {
+        
+        // GIVEN
+        let otherConversation = ZMConversation.insertNewObject(in: self.uiMOC)
+        otherConversation.conversationType = .group
+        otherConversation.remoteIdentifier = UUID.create()
+        
+        let textMessage1 = self.conversation.appendMessage(withText: "hey jude!")! as! ZMMessage
+        textMessage1.cachedCategory = MessageCategory.text
+        textMessage1.serverTimestamp = Date(timeIntervalSince1970: 100)
+        
+        let textMessage2 = otherConversation.appendMessage(withText: "hey jude!")! as! ZMMessage
+        textMessage2.cachedCategory = MessageCategory.text
+        textMessage2.serverTimestamp = Date(timeIntervalSince1970: 300)
+        
+        // WHEN
+        let fetchRequest = ZMMessage.fetchRequestMatching(categories: Set(arrayLiteral: MessageCategory.text), conversation: otherConversation)
+        let results = try? self.conversation.managedObjectContext!.fetch(fetchRequest)
+        
+        // THEN
+        guard let messages = results as? [ZMMessage] else {
+            XCTFail("Result is \(results)")
+            return
+        }
+        XCTAssertFalse(messages.contains(textMessage1))
+        XCTAssertTrue(messages.contains(textMessage2))
+    }
 }
