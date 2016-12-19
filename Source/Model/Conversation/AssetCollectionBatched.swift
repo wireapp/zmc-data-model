@@ -22,8 +22,7 @@ public struct CategoryMatch : Hashable {
     public let excluding: MessageCategory
     
     public var hashValue: Int {
-        // TODO Sabine: this is a baaaad hashValue
-        return excluding.hashValue + including.hashValue
+        return excluding.hashValue ^ including.hashValue
     }
 }
 
