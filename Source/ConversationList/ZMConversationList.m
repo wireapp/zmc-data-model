@@ -189,7 +189,6 @@
 {
     [self.backingList removeObject:conversation];
     [self sortInsertConversation:conversation];
-    [ListOrderDebugHelper logResortingConversation:conversation inList:self];
 }
 
 - (void)removeConversations:(NSSet *)conversations

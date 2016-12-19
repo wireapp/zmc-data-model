@@ -65,7 +65,6 @@
     NSDate *newTime =  [ZMConversation updateTimeStamp:self.lastModifiedDate ifNeededWithTimeStamp:date];
     if (newTime != nil) {
         self.lastModifiedDate = newTime;
-        [ListOrderDebugHelper logUpdatedLastModifiedDateOfConversation:self callStack:NSThread.callStackSymbols];
     }
 
     return (newTime != nil);

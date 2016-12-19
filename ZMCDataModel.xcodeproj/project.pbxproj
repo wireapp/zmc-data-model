@@ -54,7 +54,6 @@
 		BF7D9C491D90286700949267 /* MessagingTest+UUID.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C8622A1D87DC18009AAC33 /* MessagingTest+UUID.swift */; };
 		BF85CF5F1D227A78006EDB97 /* LocationData.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF85CF5E1D227A78006EDB97 /* LocationData.swift */; };
 		BF949E5B1D3D17FB00587597 /* LinkPreview+ProtobufTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF949E5A1D3D17FB00587597 /* LinkPreview+ProtobufTests.swift */; };
-		BFBAE9E11E02B0FB003FCE49 /* ListOrderDebugHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFBAE9E01E02B0FB003FCE49 /* ListOrderDebugHelper.swift */; };
 		BFCD8A2D1DCB4E8A00C6FCCF /* V2Asset.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCD8A2C1DCB4E8A00C6FCCF /* V2Asset.swift */; };
 		BFCF31DB1DA50C650039B3DC /* ZMGenericMessageTests+NativePush.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCF31DA1DA50C650039B3DC /* ZMGenericMessageTests+NativePush.swift */; };
 		BFD2E7991CBE796600BF195A /* ZMGenericMessage+UpdateEvent.h in Headers */ = {isa = PBXBuildFile; fileRef = BFD2E7971CBE796600BF195A /* ZMGenericMessage+UpdateEvent.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -430,7 +429,6 @@
 		BF7AFFCD1D747EFD00B2E089 /* DatabaseBaseTest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DatabaseBaseTest.h; sourceTree = "<group>"; };
 		BF85CF5E1D227A78006EDB97 /* LocationData.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = LocationData.swift; sourceTree = "<group>"; };
 		BF949E5A1D3D17FB00587597 /* LinkPreview+ProtobufTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "LinkPreview+ProtobufTests.swift"; sourceTree = "<group>"; };
-		BFBAE9E01E02B0FB003FCE49 /* ListOrderDebugHelper.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ListOrderDebugHelper.swift; sourceTree = "<group>"; };
 		BFC387681CB7BC1E00F08415 /* zmessaging2.4.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = zmessaging2.4.xcdatamodel; sourceTree = "<group>"; };
 		BFCD8A2C1DCB4E8A00C6FCCF /* V2Asset.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = V2Asset.swift; sourceTree = "<group>"; };
 		BFCF31DA1DA50C650039B3DC /* ZMGenericMessageTests+NativePush.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZMGenericMessageTests+NativePush.swift"; sourceTree = "<group>"; };
@@ -1126,7 +1124,6 @@
 				54EDE67F1CBBF1860044A17E /* PINCache+ZMessaging.swift */,
 				546D3DE51CE5D0B100A6047F /* MimeType.swift */,
 				F963E97E1D9C09E700098AD3 /* ZMMessageTimer.h */,
-				BFBAE9E01E02B0FB003FCE49 /* ListOrderDebugHelper.swift */,
 				F963E97F1D9C09E700098AD3 /* ZMMessageTimer.m */,
 			);
 			name = Utilis;
@@ -1879,7 +1876,6 @@
 			files = (
 				F9A706AE1CAEE01D00C2F5FE /* SetSnapshot.swift in Sources */,
 				CE4EDC0B1D6DC2D2002A20AA /* ConversationMessage+Reaction.swift in Sources */,
-				BFBAE9E11E02B0FB003FCE49 /* ListOrderDebugHelper.swift in Sources */,
 				F9A706AF1CAEE01D00C2F5FE /* ManagedObjectContextObserver.swift in Sources */,
 				BFD2E79A1CBE796600BF195A /* ZMGenericMessage+UpdateEvent.m in Sources */,
 				54EDE67E1CBBF0AB0044A17E /* ZMGenericMessageImageOwner.swift in Sources */,

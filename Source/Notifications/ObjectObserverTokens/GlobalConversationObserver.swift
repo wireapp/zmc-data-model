@@ -166,7 +166,11 @@ final class GlobalConversationObserver : NSObject, ObjectsDidChangeDelegate, ZMG
         
         for listWrapper in self.conversationLists {
             if let list = listWrapper.unbox {
-                self.updateListAndNotifyObservers(list, inserted: inserted, deleted: deleted)
+                if accumulated {
+                    self.recomputeListAndNotifyObserver(list)
+                } else {
+                    self.updateListAndNotifyObservers(list, inserted: inserted, deleted: deleted)
+                }
             }
         }
         self.registerTokensForConversations(inserted)
@@ -191,6 +195,13 @@ final class GlobalConversationObserver : NSObject, ObjectsDidChangeDelegate, ZMG
         list.removeConversations(conversationsToRemove)
         
         if (!conversationsToInsert.isEmpty || !conversationsToRemove.isEmpty) && isSyncComplete {
+            self.notifyTokensForConversationList(list, updatedConversation: nil, changes: nil)
+        }
+    }
+    
+    fileprivate func recomputeListAndNotifyObserver(_ list: ZMConversationList) {
+        list.resort()
+        if (isSyncComplete) {
             self.notifyTokensForConversationList(list, updatedConversation: nil, changes: nil)
         }
     }
