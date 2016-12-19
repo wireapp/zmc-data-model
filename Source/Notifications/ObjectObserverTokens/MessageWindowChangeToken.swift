@@ -89,7 +89,7 @@ import Foundation
         self.computeChanges()
     }
     
-    public func objectsDidChange(_ changes: ManagedObjectChanges) {
+    public func objectsDidChange(_ changes: ManagedObjectChanges, accumulated: Bool) {
         if(self.shouldRecalculate || self.updatedMessages.count > 0) {
             self.computeChanges()
         }
@@ -131,7 +131,7 @@ import Foundation
     
     fileprivate func registerObserversForMessages(_ messages: NSOrderedSet) {
         messages.forEach{
-            guard let message = $0 as? ZMMessage else {return }
+            guard let message = $0 as? ZMMessage, message.managedObjectContext != nil else {return }
             self.messageTokens[message] = ZMMessageNotification.add(self, for: message) as? MessageObserverToken
         }
     }
