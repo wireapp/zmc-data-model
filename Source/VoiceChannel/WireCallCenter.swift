@@ -346,27 +346,27 @@ private typealias WireCallMessageToken = UnsafeMutableRawPointer
     
     /// Register observer of the call center call state. This will inform you when there's an incoming call etc.
     public class func addCallStateObserver(observer: WireCallCenterCallStateObserver) -> WireCallCenterObserverToken  {
-        return NotificationCenter.default.addObserver(forName: WireCallCenterCallStateNotification.notificationName, object: nil, queue: .main) { (note) in
+        return NotificationCenter.default.addObserver(forName: WireCallCenterCallStateNotification.notificationName, object: nil, queue: .main) { [weak observer] (note) in
             if let note = note.userInfo?[WireCallCenterCallStateNotification.userInfoKey] as? WireCallCenterCallStateNotification {
-                observer.callCenterDidChange(callState: note.callState, conversationId: note.conversationId, userId: note.userId)
+                observer?.callCenterDidChange(callState: note.callState, conversationId: note.conversationId, userId: note.userId)
             }
         }
     }
     
     /// Register observer of missed calls.
     public class func addMissedCallObserver(observer: WireCallCenterMissedCallObserver) -> WireCallCenterObserverToken  {
-        return NotificationCenter.default.addObserver(forName: WireCallCenterMissedCallNotification.notificationName, object: nil, queue: .main) { (note) in
+        return NotificationCenter.default.addObserver(forName: WireCallCenterMissedCallNotification.notificationName, object: nil, queue: .main) { [weak observer] (note) in
             if let note = note.userInfo?[WireCallCenterMissedCallNotification.userInfoKey] as? WireCallCenterMissedCallNotification {
-                observer.callCenterMissedCall(conversationId: note.conversationId, userId: note.userId, timestamp: note.timestamp, video: note.video)
+                observer?.callCenterMissedCall(conversationId: note.conversationId, userId: note.userId, timestamp: note.timestamp, video: note.video)
             }
         }
     }
     
     /// Register observer of the video state. This will inform you when the remote caller starts, stops sending video.
     public class func addVideoObserver(observer: WireCallCenterVideoObserver) -> WireCallCenterObserverToken {
-        return NotificationCenter.default.addObserver(forName: WireCallCenterVideoNotification.notificationName, object: nil, queue: .main) { (note) in
+        return NotificationCenter.default.addObserver(forName: WireCallCenterVideoNotification.notificationName, object: nil, queue: .main) { [weak observer] (note) in
             if let note = note.userInfo?[WireCallCenterVideoNotification.userInfoKey] as? WireCallCenterVideoNotification {
-                observer.receivingVideoDidChange(state: note.videoReceiveState)
+                observer?.receivingVideoDidChange(state: note.videoReceiveState)
             }
         }
     }
