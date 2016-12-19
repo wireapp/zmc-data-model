@@ -37,6 +37,9 @@ public protocol AssetCollectionDelegate : NSObjectProtocol {
 }
 
 
+/// This class fetches messages and groups them by `MessageCategory` (e.g. files, images, videos etc.)
+/// It first fetches all objects that have previously categorized and then performs consecutive request of limited batch-size and categorizes them
+/// For every categorized batch it will call the delegate with the newly categorized objects and then once again when it finished categorizing all objects
 public class AssetCollection : NSObject, ZMCollection {
 
     private unowned var delegate : AssetCollectionDelegate
