@@ -40,7 +40,7 @@ public protocol AssetCollectionDelegate : NSObjectProtocol {
 public class AssetCollection : NSObject, ZMCollection {
 
     private unowned var delegate : AssetCollectionDelegate
-    private var assets : CategorizedFetchResult?
+    private var assets : Dictionary<MessageCategory, [ZMMessage]>?
     private var lastAssetMessage : ZMAssetClientMessage?
     private var lastClientMessage : ZMClientMessage?
     private let conversation: ZMConversation
@@ -91,8 +91,8 @@ public class AssetCollection : NSObject, ZMCollection {
             
             let categorizedMessages : [ZMMessage] = self.categorizedMessages(for: syncConversation)
             if categorizedMessages.count > 0 {
-                self.assets = CategorizedFetchResult(messages: categorizedMessages, including: self.including, excluding: self.excluding)
-                self.notifyDelegate(newAssets: self.assets!.messagesByFilter, type: nil, didReachLastMessage: false)
+                self.assets = AssetCollectionBatched.messageMap(messages: categorizedMessages, including: self.including, excluding: self.excluding)
+                self.notifyDelegate(newAssets: self.assets!, type: nil, didReachLastMessage: false)
             }
             
             self.fetchNextIfNotTornDown(limit: AssetCollection.initialFetchCount, type: .asset, syncConversation: syncConversation)
@@ -114,7 +114,13 @@ public class AssetCollection : NSObject, ZMCollection {
     
     /// Returns all assets that have been fetched thus far
     public func assets(for category: MessageCategory) -> [ZMMessage] {
-        return assets?.messagesByFilter[category] ?? []
+        // Remove zombie objects and return remaining
+        if let values = assets?[category] {
+            let withoutZombie = values.filter{!$0.isZombieObject}
+            assets?[category] = withoutZombie
+            return withoutZombie
+        }
+        return []
     }
     
     private func setFetchingCompleteFor(type: MessagesToFetch) {
@@ -164,21 +170,13 @@ public class AssetCollection : NSObject, ZMCollection {
         }
         
         // Categorize messages and merge results with existing result
-        let newAssets = CategorizedFetchResult(messages: messagesToAnalyze, including: self.including, excluding: self.excluding)
-        if let assets = self.assets {
-            self.assets = assets.merging(with: newAssets)
-        } else {
-            self.assets = newAssets
-        }
+        let newAssets = AssetCollectionBatched.messageMap(messages: messagesToAnalyze, including: self.including, excluding: self.excluding)
         
         // Notify delegate
-        self.notifyDelegate(newAssets: newAssets.messagesByFilter, type: type, didReachLastMessage: didReachLastMessage)
+        self.notifyDelegate(newAssets: newAssets, type: type, didReachLastMessage: didReachLastMessage)
         
         // Return if done
         if didReachLastMessage {
-            if (self.doneFetching) {
-                self.notifyDelegateFetchingIsDone(result: (self.assets == nil) ? .noAssetsToFetch : .success)
-            }
             return
         }
         
@@ -195,14 +193,26 @@ public class AssetCollection : NSObject, ZMCollection {
 
         uiMOC?.performGroupedBlock { [weak self] in
             guard let `self` = self, !self.tornDown else { return }
+            
+            // Map to ui assets
             var uiAssets = [MessageCategory : [ZMMessage]]()
             newAssets.forEach { (category, messages) in
                 let uiValues = messages.flatMap{ (try? self.uiMOC?.existingObject(with: $0.objectID)) as? ZMMessage}
                 uiAssets[category] = uiValues
             }
 
+            // Merge with existing assets
+            if let assets = self.assets {
+                self.assets = AssetCollectionBatched.merge(messageMap: assets, with: newAssets)
+            } else {
+                self.assets = newAssets
+            }
             
+            // Notify delegate
             self.delegate.assetCollectionDidFetch(messages: uiAssets, hasMore: didReachLastMessage)
+            if (self.doneFetching) {
+                self.notifyDelegateFetchingIsDone(result: (self.assets == nil) ? .noAssetsToFetch : .success)
+            }
         }
     }
     

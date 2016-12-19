@@ -20,7 +20,7 @@
 public class AssetCollectionBatched : NSObject, ZMCollection {
     
     private unowned var delegate : AssetCollectionDelegate
-    private var assets : CategorizedFetchResult?
+    private var assets : Dictionary<MessageCategory, [ZMMessage]>?
     private let conversation: ZMConversation
     private let including : [MessageCategory]
     private let excluding: MessageCategory
@@ -68,8 +68,9 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
             
             let categorizedMessages : [ZMMessage] = self.categorizedMessages(for: syncConversation)
             if categorizedMessages.count > 0 {
-                self.assets = CategorizedFetchResult(messages: categorizedMessages, including: self.including, excluding: self.excluding)
-                self.notifyDelegate(newAssets: self.assets!.messagesByFilter, type: nil)
+                let categorized = AssetCollectionBatched.messageMap(messages: categorizedMessages, including: self.including, excluding: self.excluding)
+                self.assets = categorized
+                self.notifyDelegate(newAssets: self.assets!, type: nil)
             }
 
             self.categorizeNextBatch(type: .asset)
@@ -88,7 +89,13 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
     
     /// Returns all assets that have been fetched thus far
     public func assets(for category: MessageCategory) -> [ZMMessage] {
-        return assets?.messagesByFilter[category] ?? []
+        // Remove zombie objects and return remaining
+        if let values = assets?[category] {
+            let withoutZombie = values.filter{!$0.isZombieObject}
+            assets?[category] = withoutZombie
+            return withoutZombie
+        }
+        return []
     }
     
     private func categorizeNextBatch(type: MessagesToFetch){
@@ -99,17 +106,17 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
         let numberToAnalyze = min(messages.count, AssetCollectionBatched.defaultFetchCount)
         if numberToAnalyze == 0 {
             if self.doneFetching {
-                self.notifyDelegateFetchingIsDone(result: (self.assets != nil) ? .success : .noAssetsToFetch)
+                self.notifyDelegateFetchingIsDone(result: .success)
             }
             return
         }
         let messagesToAnalyze = Array(messages[0..<numberToAnalyze])
         
         // categorize batch
-        let newAssets = CategorizedFetchResult(messages: messagesToAnalyze, including: self.including, excluding: self.excluding)
+        let newAssets = AssetCollectionBatched.messageMap(messages: messagesToAnalyze, including: self.including, excluding: self.excluding)
         
         // Remove analyzed results from fetched messages
-        // TODO Sabine: I am not sure what effect this has on the array proxy we received through the fetch. The alternativ would be storing the offset
+        // TODO Sabine: I am not sure what effect this has on the array proxy we received through the fetch. The alternative would be storing the offset
         // Profile this!
         if type == .asset {
             self.allAssetMessages = Array(self.allAssetMessages.dropFirst(numberToAnalyze))
@@ -117,19 +124,11 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
             self.allClientMessages = Array(self.allClientMessages.dropFirst(numberToAnalyze))
         }
         
-        // Merge result with existing result
-        if let assets = self.assets {
-            self.assets = assets.merging(with: newAssets)
-        } else {
-            self.assets = newAssets
-        }
-        
         // Notify delegate
-        self.notifyDelegate(newAssets: newAssets.messagesByFilter, type: type)
+        self.notifyDelegate(newAssets: newAssets, type: type)
         
-        // Return if done and return 
+        // Return if done
         if self.doneFetching {
-            self.delegate.assetCollectionDidFinishFetching(result: .success)
             return
         }
         
@@ -146,24 +145,42 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
         uiMOC?.performGroupedBlock { [weak self] in
             guard let `self` = self, !self.tornDown else { return }
             
+            // Map assets to UI assets
             var uiAssets = [MessageCategory : [ZMMessage]]()
             newAssets.forEach {
                 let uiValues = $1.flatMap{ (try? self.uiMOC?.existingObject(with: $0.objectID)) as? ZMMessage}
                 uiAssets[$0] = uiValues
             }
-            let hasMore : Bool
-            if let type = type {
-                hasMore = (type == .client) ? self.allClientMessages.count != 0 : self.allAssetMessages.count != 0
+            
+            // Merge result with existing result
+            if let assets = self.assets {
+                self.assets = AssetCollectionBatched.merge(messageMap: assets, with: uiAssets)
             } else {
-                hasMore = !self.doneFetching
+                self.assets = uiAssets
+            }
+
+            // Notify delegate
+            let hasMore : Bool
+            switch type {
+            case .some(.client): hasMore = self.allClientMessages.count != 0
+            case .some(.asset):  hasMore = self.allAssetMessages.count != 0
+            case .none:          hasMore = !self.doneFetching
             }
             self.delegate.assetCollectionDidFetch(messages: uiAssets, hasMore: hasMore)
+            if self.doneFetching {
+                self.delegate.assetCollectionDidFinishFetching(result: .success)
+            }
         }
     }
     
     private func notifyDelegateFetchingIsDone(result: AssetFetchResult){
         self.uiMOC?.performGroupedBlock { [weak self] in
             guard let `self` = self else { return }
+            var result = result
+            if result == .success {
+                // Since we are setting the assets in a performGroupedBlock on the uiMOC, we might not know if there are assets or not when we call notifyDelegateFetchingIsDone. Therefore we check for assets here.
+                result = (self.assets != nil) ? .success : .noAssetsToFetch
+            }
             self.delegate.assetCollectionDidFinishFetching(result: result)
         }
     }
@@ -200,20 +217,14 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
 
 
 
-struct CategorizedFetchResult {
+extension AssetCollectionBatched  {
     
-    let messagesByFilter : [MessageCategory : [ZMMessage]]
     
-    init(messages: [ZMMessage], including: [MessageCategory], excluding: MessageCategory) {
+    static func messageMap(messages: [ZMMessage], including: [MessageCategory], excluding: MessageCategory) -> Dictionary<MessageCategory, [ZMMessage]> {
         precondition(messages.count > 0, "messages should contain at least one value")
-        let messagesByFilter = CategorizedFetchResult.categorize(messages: messages, including: including, excluding:excluding)
-        self.init(messagesByFilter: messagesByFilter)
+        let messagesByFilter = AssetCollectionBatched.categorize(messages: messages, including: including, excluding:excluding)
+        return messagesByFilter
     }
-    
-    init(messagesByFilter : [MessageCategory : [ZMMessage]]){
-        self.messagesByFilter = messagesByFilter
-    }
-    
     
     static func categorize(messages: [ZMMessage], including: [MessageCategory], excluding: MessageCategory)
         -> [MessageCategory : [ZMMessage]]
@@ -238,25 +249,25 @@ struct CategorizedFetchResult {
         return sorted
     }
     
-    func merging(with other: CategorizedFetchResult) -> CategorizedFetchResult? {
+    static func merge(messageMap: Dictionary<MessageCategory, [ZMMessage]>, with other: Dictionary<MessageCategory, [ZMMessage]>) -> Dictionary<MessageCategory, [ZMMessage]>? {
         var newSortedMessages = [MessageCategory : [ZMMessage]]()
-        
-        self.messagesByFilter.forEach {
+
+        messageMap.forEach {
             var newValues = $1
-            if let otherValues = other.messagesByFilter[$0] {
+            if let otherValues = other[$0] {
                 newValues = newValues + otherValues
             }
             newSortedMessages[$0] = newValues
         }
         
-        let newKeys = Set(other.messagesByFilter.keys).subtracting(Set(other.messagesByFilter.keys))
+        let newKeys = Set(other.keys).subtracting(Set(messageMap.keys))
         newKeys.forEach{
-            if let value = other.messagesByFilter[$0] {
+            if let value = other[$0] {
                 newSortedMessages[$0] = value
             }
         }
         
-        return CategorizedFetchResult(messagesByFilter: newSortedMessages)
+        return newSortedMessages
     }
     
 }
