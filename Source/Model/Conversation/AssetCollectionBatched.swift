@@ -166,9 +166,9 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
             case .some(.asset):  hasMore = self.allAssetMessages.count != 0
             case .none:          hasMore = !self.doneFetching
             }
-            self.delegate.assetCollectionDidFetch(messages: uiAssets, hasMore: hasMore)
+            self.delegate.assetCollectionDidFetch(collection: self, messages: uiAssets, hasMore: hasMore)
             if self.doneFetching {
-                self.delegate.assetCollectionDidFinishFetching(result: .success)
+                self.delegate.assetCollectionDidFinishFetching(collection: self, result: .success)
             }
         }
     }
@@ -181,7 +181,7 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
                 // Since we are setting the assets in a performGroupedBlock on the uiMOC, we might not know if there are assets or not when we call notifyDelegateFetchingIsDone. Therefore we check for assets here.
                 result = (self.assets != nil) ? .success : .noAssetsToFetch
             }
-            self.delegate.assetCollectionDidFinishFetching(result: result)
+            self.delegate.assetCollectionDidFinishFetching(collection: self, result: result)
         }
     }
     

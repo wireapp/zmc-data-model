@@ -30,10 +30,10 @@ public protocol ZMCollection : NSObjectProtocol {
 public protocol AssetCollectionDelegate : NSObjectProtocol {
     /// The AssetCollection calls this when the fetching completes
     /// To get all messages for any category defined in `including`, call `assets(for category: MessageCategory)`
-    func assetCollectionDidFetch(messages: [MessageCategory: [ZMMessage]], hasMore: Bool)
+    func assetCollectionDidFetch(collection: ZMCollection, messages: [MessageCategory: [ZMMessage]], hasMore: Bool)
     
     /// This method is called when all assets in the conversation have been fetched & analyzed / categorized
-    func assetCollectionDidFinishFetching(result : AssetFetchResult)
+    func assetCollectionDidFinishFetching(collection: ZMCollection, result : AssetFetchResult)
 }
 
 
@@ -209,7 +209,7 @@ public class AssetCollection : NSObject, ZMCollection {
             }
             
             // Notify delegate
-            self.delegate.assetCollectionDidFetch(messages: uiAssets, hasMore: didReachLastMessage)
+            self.delegate.assetCollectionDidFetch(collection: self, messages: uiAssets, hasMore: didReachLastMessage)
             if (self.doneFetching) {
                 self.notifyDelegateFetchingIsDone(result: (self.assets == nil) ? .noAssetsToFetch : .success)
             }
@@ -219,7 +219,7 @@ public class AssetCollection : NSObject, ZMCollection {
     private func notifyDelegateFetchingIsDone(result: AssetFetchResult){
         self.uiMOC?.performGroupedBlock { [weak self] in
             guard let `self` = self, !self.tornDown else { return }
-            self.delegate.assetCollectionDidFinishFetching(result: result)
+            self.delegate.assetCollectionDidFinishFetching(collection: self, result: result)
         }
     }
     

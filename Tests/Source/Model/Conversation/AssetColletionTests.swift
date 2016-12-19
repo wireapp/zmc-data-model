@@ -25,12 +25,12 @@ class MockAssetCollectionDelegate : NSObject, AssetCollectionDelegate {
     var result : AssetFetchResult?
     var finished: [MessageCategory] = []
     
-    public func assetCollectionDidFinishFetching(result: AssetFetchResult) {
+    public func assetCollectionDidFinishFetching(collection: ZMCollection, result: AssetFetchResult) {
         self.result = result
         didCallDelegate = true
     }
     
-    public func assetCollectionDidFetch(messages: [MessageCategory : [ZMMessage]], hasMore: Bool) {
+    public func assetCollectionDidFetch(collection: ZMCollection, messages: [MessageCategory : [ZMMessage]], hasMore: Bool) {
         messagesByFilter.append(messages)
         didCallDelegate = true
         if !hasMore {
