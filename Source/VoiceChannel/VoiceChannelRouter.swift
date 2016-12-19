@@ -25,11 +25,15 @@ public class VoiceChannelRouter : NSObject, VoiceChannel {
     }
     
     public var currentVoiceChannel : VoiceChannel {
-        if v2.state != .noActiveUsers || v2.conversation?.conversationType != .oneOnOne || !VoiceChannelRouter.isCallingV3Enabled {
+        if v2.state != .noActiveUsers || v2.conversation?.conversationType != .oneOnOne {
             return v2
-        } else {
+        }
+        
+        if v3.state != .noActiveUsers {
             return v3
         }
+        
+        return VoiceChannelRouter.isCallingV3Enabled ? v3 : v2
     }
     
     public var conversation: ZMConversation? {
