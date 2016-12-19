@@ -234,7 +234,7 @@ final class GlobalConversationObserver : NSObject, ObjectsDidChangeDelegate, ZMG
                 if list.contains(conversation)
                 {
                     var didRemoveConversation = false
-                    if !list.predicateMatchesConversation(conversation){
+                    if !list.predicateMatchesConversation(conversation) {
                         list.removeConversations(Set(arrayLiteral: conversation))
                         didRemoveConversation = true
                     }
