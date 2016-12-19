@@ -149,7 +149,7 @@ final class GlobalConversationObserver : NSObject, ObjectsDidChangeDelegate, ZMG
     }
     
     // handling object changes
-    func objectsDidChange(_ changes: ManagedObjectChanges) {
+    func objectsDidChange(_ changes: ManagedObjectChanges, accumulated: Bool) {
         let updatedConnections = changes.updated as? [ZMConnection] ?? []
         let insertedConnection  = changes.inserted as? [ZMConnection] ?? []
         

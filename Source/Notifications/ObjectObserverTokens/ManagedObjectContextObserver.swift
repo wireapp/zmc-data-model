@@ -232,7 +232,7 @@ public func +(lhs: ManagedObjectChanges, rhs: ManagedObjectChanges) -> ManagedOb
 }
 
 public protocol ObjectsDidChangeDelegate: NSObjectProtocol {
-    func objectsDidChange(_ changes: ManagedObjectChanges)
+    func objectsDidChange(_ changes: ManagedObjectChanges, accumulated: Bool)
     func tearDown()
     var isTornDown : Bool { get }
 }
@@ -356,7 +356,7 @@ public final class ManagedObjectContextObserver: NSObject {
         guard isReady else { return }
 
         if propagateChanges {
-            propagateChangesToObservers(changes)
+            propagateChangesToObservers(changes, accumulated: false)
         } else {
             accumulatedChanges = accumulatedChanges + changes
         }
@@ -380,13 +380,12 @@ public final class ManagedObjectContextObserver: NSObject {
             }
             let changes = self.accumulatedChanges
             self.accumulatedChanges = ManagedObjectChanges()
-            self.propagateChangesToObservers(changes)
+            self.propagateChangesToObservers(changes, accumulated: true)
         }
     }
     
-    fileprivate func propagateChangesToObservers(_ changes: ManagedObjectChanges) {
+    fileprivate func propagateChangesToObservers(_ changes: ManagedObjectChanges, accumulated: Bool) {
         
-        let tp = ZMSTimePoint(interval: 10, label: "ManagedObjectContextObserver propagateChangesToObserver")
         let changesByType = ManagedObjectChangesByObserverType(changes: changes)
         
         var index = 1
@@ -396,10 +395,9 @@ public final class ManagedObjectContextObserver: NSObject {
                 continue
             }
             let changesForObservers = changesByType.changesForObserverType(observerType)
-            propagateChangesForObservers(changesForObservers, observerType: observerType)
+            propagateChangesForObservers(changesForObservers, observerType: observerType, accumulated: accumulated)
             index += 1
         }
-        tp?.warnIfLongerThanInterval()
     }
     
     func count(forEntityWithName entityName: String) -> Int? {
@@ -426,7 +424,7 @@ public final class ManagedObjectContextObserver: NSObject {
         guard isReady else { return }
 
         let changes = ManagedObjectChanges(inserted: [], deleted: [], updated: [user])
-        propagateChangesForObservers(changes, observerType: .searchUser)
+        propagateChangesForObservers(changes, observerType: .searchUser, accumulated: false)
     }
         
     @objc public func notifyUpdatedCallState(_ conversations: Set<ZMConversation>, notifyDirectly: Bool) {
@@ -447,11 +445,11 @@ public final class ManagedObjectContextObserver: NSObject {
     }
     
     
-    func propagateChangesForObservers(_ changes: ManagedObjectChanges, observerType: ObjectObserverType) {
+    func propagateChangesForObservers(_ changes: ManagedObjectChanges, observerType: ObjectObserverType, accumulated: Bool) {
         if let observersOfType = self.observers[observerType] {
             let filteredChanges = changes.changesWithoutZombies
             for observer in observersOfType.allObjects {
-                (observer as? ObjectsDidChangeDelegate)?.objectsDidChange(filteredChanges)
+                (observer as? ObjectsDidChangeDelegate)?.objectsDidChange(filteredChanges, accumulated: accumulated)
             }
         }
     }
