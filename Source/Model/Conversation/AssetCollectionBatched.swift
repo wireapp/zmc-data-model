@@ -266,7 +266,7 @@ extension AssetCollectionBatched  {
         
         let unionIncluding : MessageCategory = matchingCategories.reduce(.none){$0.union($1.including)}
         messages.forEach{ message in
-            let category = message.category
+            let category = message.cachedCategory
             guard (category.intersection(unionIncluding) != .none) else { return }
 
             matchingCategories.forEach {
