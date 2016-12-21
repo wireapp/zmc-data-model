@@ -84,9 +84,10 @@ public class AssetCollection : NSObject, ZMCollection {
         self.matchingCategories = matchingCategories
         super.init()
         
+        let syncMoc = self.syncMOC
         syncMOC?.performGroupedBlock {
             guard !self.tornDown else { return }
-            guard let syncConversation = (try? self.syncMOC?.existingObject(with: self.conversation.objectID)) as? ZMConversation else {
+            guard let syncConversation = (try? syncMoc!.existingObject(with: self.conversation.objectID)) as? ZMConversation else {
                 return
             }
             
