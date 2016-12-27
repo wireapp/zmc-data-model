@@ -32,6 +32,11 @@ class NSPersistentStoreMetadataTests : BaseZMMessageTests {
     override func tearDown() {
         super.tearDown()
     }
+    
+    func forceSave() {
+        // I need to insert or modify an entity, or core data will not save
+        self.uiMOC.forceSaveOrRollback()
+    }
 }
 
 extension NSPersistentStoreMetadataTests {
@@ -85,7 +90,7 @@ extension NSPersistentStoreMetadataTests {
         self.uiMOC.setPersistentStoreMetadata(data, key: key)
         
         // WHEN
-        self.uiMOC.saveOrRollback()
+        self.forceSave()
         self.resetUIandSyncContextsAndResetPersistentStore(false)
         
         // THEN
@@ -101,7 +106,7 @@ extension NSPersistentStoreMetadataTests {
         
         // WHEN
         self.uiMOC.enableForceRollback()
-        self.uiMOC.saveOrRollback()
+        self.forceSave()
         
         // THEN
         XCTAssertEqual(nil, self.uiMOC.persistentStoreMetadata(key: key) as? String)
@@ -116,7 +121,7 @@ extension NSPersistentStoreMetadataTests {
         let data = "foo"
         let key = "boo"
         self.uiMOC.setPersistentStoreMetadata(data, key: key)
-        self.uiMOC.saveOrRollback()
+        self.forceSave()
         
         // WHEN
         self.uiMOC.setPersistentStoreMetadata(nil as String?, key: key)
@@ -131,7 +136,7 @@ extension NSPersistentStoreMetadataTests {
         let data = "foo"
         let key = "boo"
         self.uiMOC.setPersistentStoreMetadata(data, key: key)
-        self.uiMOC.saveOrRollback()
+        self.forceSave()
         self.uiMOC.setPersistentStoreMetadata(nil as String?, key: key)
         
         // WHEN
@@ -147,11 +152,11 @@ extension NSPersistentStoreMetadataTests {
         let data = "foo"
         let key = "boo"
         self.uiMOC.setPersistentStoreMetadata(data, key: key)
-        self.uiMOC.saveOrRollback()
+        self.forceSave()
         self.uiMOC.setPersistentStoreMetadata(nil as String?, key: key)
         
         // WHEN
-        self.uiMOC.saveOrRollback()
+        self.forceSave()
         self.resetUIandSyncContextsAndResetPersistentStore(false)
         
         // THEN
@@ -169,7 +174,7 @@ extension NSPersistentStoreMetadataTests {
         self.uiMOC.setPersistentStoreMetadata(data, key: key)
         
         // WHEN
-        self.uiMOC.saveOrRollback()
+        self.forceSave()
         self.resetUIandSyncContextsAndResetPersistentStore(false)
         
         // THEN
@@ -187,7 +192,7 @@ extension NSPersistentStoreMetadataTests {
     func testThatItCanStoreData() {
         self.checkThatItCanSave(data: Data(bytes: [21,3]))
     }
-    
+        
     func testThatItCanStoreArrayOfString() {
         // GIVEN
         let key = "boo"
@@ -195,7 +200,7 @@ extension NSPersistentStoreMetadataTests {
         self.uiMOC.setPersistentStoreMetadata(array: data, key: key)
         
         // WHEN
-        self.uiMOC.saveOrRollback()
+        self.forceSave()
         self.resetUIandSyncContextsAndResetPersistentStore(false)
         
         // THEN
