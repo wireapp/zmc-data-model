@@ -62,7 +62,7 @@ extension NSManagedObjectContext {
         self.setPersistentStoreMetadata(data: data, key: key)
     }
     
-    public func setPersistentStoreMetadata<T: SwiftPersistableInMetadata>(array: [T], for key: String) {
+    public func setPersistentStoreMetadata<T: SwiftPersistableInMetadata>(array: [T], key: String) {
         self.setPersistentStoreMetadata(data: array as NSArray, key: key)
     }
 }
