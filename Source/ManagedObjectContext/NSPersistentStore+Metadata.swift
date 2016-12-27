@@ -54,7 +54,7 @@ extension NSManagedObjectContext {
         return nil
     }
     
-    @objc(setPersistentStoreMetadata:forKey:) func setPersistentStoreMetadata(_ persistable: PersistableInMetadata?, key: String) {
+    @objc(setPersistentStoreMetadata:forKey:) public func setPersistentStoreMetadata(_ persistable: PersistableInMetadata?, key: String) {
         self.setPersistentStoreMetadata(data: persistable, key: key)
     }
     
