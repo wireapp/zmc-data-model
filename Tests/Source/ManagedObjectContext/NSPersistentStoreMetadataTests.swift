@@ -183,4 +183,12 @@ extension NSPersistentStoreMetadataTests {
     func testThatItCanStoreDates() {
         self.checkThatItCanSave(data: Date())
     }
+    
+    func testThatItCanStoreData() {
+        self.checkThatItCanSave(data: Data(bytes: [21,3])
+    }
+    
+    func testThatItCanStoreArrayOfString() {
+        self.checkThatItCanSave(data: ["foo", "bar"])
+    }
 }
