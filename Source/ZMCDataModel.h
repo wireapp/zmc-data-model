@@ -23,7 +23,7 @@
 
 
 
-
+#import <ZMCDataModel/ZMPersistableInStoreMetadata.h>
 #import <ZMCDataModel/NSError+ZMConversation.h>
 #import <ZMCDataModel/NSError+ZMConversationInternal.h>
 

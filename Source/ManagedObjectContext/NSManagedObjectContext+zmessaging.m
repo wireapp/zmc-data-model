@@ -903,7 +903,7 @@ static dispatch_once_t clearStoreOnceToken;
     return result;
 }
 
-- (void)setPersistentStoreMetadata:(id)value forKey:(NSString *)key;
+- (void)setPersistentStoreMetadata:(id<ZMPersistableInMetadata>)value forKey:(NSString *)key;
 {
     VerifyReturn(key != nil);
     NSMutableDictionary *mutableMetadata = [self metadataInfo];

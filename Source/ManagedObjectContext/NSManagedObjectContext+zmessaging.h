@@ -21,9 +21,9 @@
 @import ZMCSystem;
 @import ZMUtilities;
 @import PINCache;
+@protocol ZMPersistableInMetadata;
 
 @class NSOperationQueue;
-
 
 @interface NSManagedObjectContext (zmessaging)
 
@@ -31,7 +31,7 @@
 
 - (id)persistentStoreMetadataForKey:(NSString *)key;
 /// @b Important:  Setting the metadata for a store does not change the information on disk until the store is actually saved.
-- (void)setPersistentStoreMetadata:(id)metaData forKey:(NSString *)key;
+- (void)setPersistentStoreMetadata:(id<ZMPersistableInMetadata>)metaData forKey:(NSString *)key;
 
 /// Checks if migration is needed or the database has to be moved
 + (BOOL)needsToPrepareLocalStoreAtURL:(NSURL *)storeURL;
