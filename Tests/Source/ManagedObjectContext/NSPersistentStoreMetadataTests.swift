@@ -185,10 +185,22 @@ extension NSPersistentStoreMetadataTests {
     }
     
     func testThatItCanStoreData() {
-        self.checkThatItCanSave(data: Data(bytes: [21,3])
+        self.checkThatItCanSave(data: Data(bytes: [21,3]))
     }
     
     func testThatItCanStoreArrayOfString() {
-        self.checkThatItCanSave(data: ["foo", "bar"])
+        // GIVEN
+        let key = "boo"
+        let data = ["a", "z"]
+        self.uiMOC.setPersistentStoreMetadata(array: data, key: key)
+        
+        // WHEN
+        self.uiMOC.saveOrRollback()
+        self.resetUIandSyncContextsAndResetPersistentStore(false)
+        
+        // THEN
+        for i in 0..<data.count {
+            XCTAssertEqual(data[i], (self.uiMOC.persistentStoreMetadata(key: key) as? [String])?[i])
+        }
     }
 }
