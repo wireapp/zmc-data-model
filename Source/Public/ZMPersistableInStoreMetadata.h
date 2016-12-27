@@ -22,6 +22,10 @@
 
 
 
-
 @interface NSString (Persistable) <ZMPersistableInMetadata>
+@end
+
+
+
+@interface NSNumber (Persistable) <ZMPersistableInMetadata>
 @end
