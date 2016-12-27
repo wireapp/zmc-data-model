@@ -25,9 +25,11 @@ import Foundation
 
 extension NSString : PersistableInMetadata {}
 extension NSNumber : PersistableInMetadata {}
+extension NSDate : PersistableInMetadata {}
 
 public protocol SwiftPersistableInMetadata {}
 extension String : SwiftPersistableInMetadata {}
+extension Date : SwiftPersistableInMetadata {}
 
 extension NSManagedObjectContext {
     

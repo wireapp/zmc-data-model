@@ -20,55 +20,18 @@
 import Foundation
 import XCTest
 
-/*
- 
- 
- - (void)testThatWeCanStoreMetadataInStore
- {
- XCTAssertNil([self.uiMOC persistentStoreMetadataForKey:@"TestKey"]);
- [self.uiMOC setPersistentStoreMetadata:@"value_172653" forKey:@"TestKey"];
- XCTAssertEqualObjects([self.uiMOC persistentStoreMetadataForKey:@"TestKey"], @"value_172653");
- }
- 
- - (void)testThatItSavesMetadataWhenSaveIsSuccessfull;
- {
- //given
- NSManagedObjectContext *sut = self.alternativeTestMOC;
- NSString *key = @"Good stuff", *value = @"Jambon";
- [sut setPersistentStoreMetadata:value forKey:key];
- 
- //when
- [sut saveOrRollback]; //will save
- 
- //then
- XCTAssertNil(sut.userInfo[@"ZMMetadataKey"]);
- XCTAssertNotNil([sut persistentStoreMetadataForKey:key]);
- XCTAssertEqualObjects([sut persistentStoreMetadataForKey:key], value);
- }
- 
- - (void)testThatItRevertsMetadataWhenRollback;
- {
- //given
- NSManagedObjectContext *sut = self.alternativeTestMOC;
- NSString *key = @"Good stuff", *value = @"Jambon";
- [sut setPersistentStoreMetadata:value forKey:key];
- [sut enableForceRollback];
- 
- //when
- [sut saveOrRollback]; // will rollback
- 
- //then
- XCTAssertNil(sut.userInfo[@"ZMMetadataKey"]);
- XCTAssertNil([sut persistentStoreMetadataForKey:key]);
- }
- 
-
- 
- 
- */
-
 class NSPersistentStoreMetadataTests : BaseZMMessageTests {
     
+    var shouldUseInMemoryStore : Bool {
+        return false
+    }
+    
+    override func setUp() {
+        super.setUp()
+    }
+    override func tearDown() {
+        super.tearDown()
+    }
 }
 
 extension NSPersistentStoreMetadataTests {
@@ -193,5 +156,31 @@ extension NSPersistentStoreMetadataTests {
         
         // THEN
         XCTAssertEqual(nil, self.uiMOC.persistentStoreMetadata(key: key) as? String)
+    }
+}
+
+// MARK: - What can be saved
+extension NSPersistentStoreMetadataTests {
+    
+    func checkThatItCanSave<T: Equatable & SwiftPersistableInMetadata>(data: T, file: StaticString = #file, line: UInt = #line) {
+        
+        // GIVEN
+        let key = "boo"
+        self.uiMOC.setPersistentStoreMetadata(data, key: key)
+        
+        // WHEN
+        self.uiMOC.saveOrRollback()
+        self.resetUIandSyncContextsAndResetPersistentStore(false)
+        
+        // THEN
+        XCTAssertEqual(data, self.uiMOC.persistentStoreMetadata(key: key) as? T, file: file, line: line)
+    }
+    
+    func testThatItCanStoreStrings() {
+        self.checkThatItCanSave(data: "Foo")
+    }
+    
+    func testThatItCanStoreDates() {
+        self.checkThatItCanSave(data: Date())
     }
 }
