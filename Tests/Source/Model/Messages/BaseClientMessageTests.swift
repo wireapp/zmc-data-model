@@ -61,7 +61,7 @@ class BaseZMClientMessageTests : BaseZMMessageTests {
             self.syncSelfUser = ZMUser.selfUser(in: self.syncMOC)
             
             self.syncSelfClient1 = self.createSelfClient(onMOC: self.syncMOC)
-            self.syncMOC.setPersistentStore(metadata: self.syncSelfClient1.remoteIdentifier, for: "PersistedClientId")
+            self.syncMOC.setPersistentStoreMetadata(self.syncSelfClient1.remoteIdentifier, key: "PersistedClientId")
             
             self.syncSelfClient2 = self.createClient(for: self.syncSelfUser, createSessionWithSelfUser: true, onMOC: self.syncMOC)
             
@@ -97,7 +97,7 @@ class BaseZMClientMessageTests : BaseZMMessageTests {
         
         self.selfUser = try! self.uiMOC.existingObject(with: self.syncSelfUser.objectID) as! ZMUser
         self.selfClient1 = try! self.uiMOC.existingObject(with: self.syncSelfClient1.objectID) as! UserClient
-        self.uiMOC.setPersistentStore(metadata: self.selfClient1.remoteIdentifier!, for: "PersistedClientId")
+        self.uiMOC.setPersistentStoreMetadata(self.selfClient1.remoteIdentifier!, key: "PersistedClientId")
         
         self.selfClient2 = try! self.uiMOC.existingObject(with: self.syncSelfClient2.objectID) as! UserClient
         
@@ -129,7 +129,7 @@ class BaseZMClientMessageTests : BaseZMMessageTests {
     
     override func tearDown() {
         syncMOC.performGroupedBlockAndWait {
-            self.syncMOC.setPersistentStore(metadata: nil, for: "PersistedClientId")
+            self.syncMOC.setPersistentStoreMetadata(nil as String?, key: "PersistedClientId")
         }
         wipeCaches()
         super.tearDown()
