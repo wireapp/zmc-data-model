@@ -45,7 +45,7 @@ extension NSManagedObjectContext {
             return valueInMetadata
         }
         
-        if self.nonCommitedDeletedMetadataKeys.contains(key) {
+        if self.nonCommittedDeletedMetadataKeys.contains(key) {
             return nil
         }
         
@@ -87,7 +87,7 @@ extension NSManagedObjectContext {
     
     /// Non-persisted deleted metadata (need to keep around to know what to remove
     /// from the store when persisting)
-    fileprivate var nonCommitedDeletedMetadataKeys : Set<String> {
+    fileprivate var nonCommittedDeletedMetadataKeys : Set<String> {
         get {
             return self.userInfo[metadataKeysToRemove] as? Set<String> ?? Set<String>()
         }
@@ -106,7 +106,7 @@ extension NSManagedObjectContext {
         var storedMetadata = self.persistentStoreCoordinator!.metadata(for: store)
         
         // remove keys
-        self.nonCommitedDeletedMetadataKeys.forEach { storedMetadata.removeValue(forKey: $0) }
+        self.nonCommittedDeletedMetadataKeys.forEach { storedMetadata.removeValue(forKey: $0) }
         
         // set keys
         self.nonCommittedMetadata.forEach { (key: String, value: Any) in
@@ -117,16 +117,17 @@ extension NSManagedObjectContext {
         self.discardNonCommitedMetadata()
     }
     
-    /// Remove key from keys that are deleted
+    /// Remove key from list of keys that will be deleted next time
+    /// the metadata is persisted to disk
     fileprivate func removeFromNonCommittedDeteledMetadataKeys(key: String) {
-        var deletedKeys = self.nonCommitedDeletedMetadataKeys
+        var deletedKeys = self.nonCommittedDeletedMetadataKeys
         deletedKeys.remove(key)
         self.userInfo[metadataKeysToRemove] = deletedKeys
     }
     
-    /// Add a key to the keys that are deleted
+    /// Adds a key to the list of keys to be deleted next time the metadata is persisted to disk
     fileprivate func addNonCommittedDeletedMetadataKey(key: String) {
-        var deletedKeys = self.nonCommitedDeletedMetadataKeys
+        var deletedKeys = self.nonCommittedDeletedMetadataKeys
         deletedKeys.insert(key)
         self.userInfo[metadataKeysToRemove] = deletedKeys
     }
