@@ -50,7 +50,6 @@ static NSPersistentStoreCoordinator *inMemorySharedPersistentStoreCoordinator;
 static NSString * const ClearPersistentStoreOnStartKey = @"ZMClearPersistentStoreOnStart";
 static NSString * const TimeOfLastSaveKey = @"ZMTimeOfLastSave";
 static NSString * const FirstEnqueuedSaveKey = @"ZMTimeOfLastSave";
-static NSString * const MetadataKey = @"ZMMetadataKey";
 static NSString * const FailedToEstablishSessionStoreKey = @"FailedToEstablishSessionStoreKey";
 
 
@@ -661,6 +660,7 @@ static dispatch_once_t clearStoreOnceToken;
         ZMSTimePoint *tp = [ZMSTimePoint timePointWithInterval:10 label:[NSString stringWithFormat:@"Saving context %@", self.zm_isSyncContext ? @"sync": @"ui"]];
         if (! [self save:&error]) {
             ZMLogError(@"Failed to save: %@", error);
+            [self reportSaveErrorWithError:error];
             [self rollbackWithOldMetadata:oldMetadata];
             [tp warnIfLongerThanInterval];
             return NO;
@@ -859,59 +859,6 @@ static dispatch_once_t clearStoreOnceToken;
     ZMSession *session = (ZMSession *)[self executeFetchRequestOrAssert:[ZMSession sortedFetchRequest]].firstObject;
     self.userInfo[SessionObjectIDKey] = session.objectID;
     [ZMUser boxSelfUser:session.selfUser inContextUserInfo:self];
-}
-
-- (NSMutableDictionary *)metadataInfo;
-{
-    NSMutableDictionary *metadataInfo = self.userInfo[MetadataKey];
-    if (!metadataInfo) {
-        metadataInfo = [NSMutableDictionary dictionary];
-        self.userInfo[MetadataKey] = metadataInfo;
-    }
-    return metadataInfo;
-}
-
-- (void)makeMetadataPersistent;
-{
-    NSDictionary *metadata = self.userInfo[MetadataKey];
-    if (nil != metadata) {
-        NSMutableDictionary *newStoredMetadata = [[self.persistentStoreCoordinator metadataForPersistentStore:[self firstPersistentStore]] mutableCopy];
-        
-        [metadata enumerateKeysAndObjectsUsingBlock:^(id  _Nonnull key, id  _Nonnull obj, BOOL * _Nonnull stop ZM_UNUSED)
-        {
-            if ([obj isKindOfClass:[NSNull class]]) {
-                [newStoredMetadata removeObjectForKey:key];
-            } else if (obj) {
-                newStoredMetadata[key] = obj;
-            }
-        }];
-        [self.persistentStoreCoordinator setMetadata:newStoredMetadata forPersistentStore:[self firstPersistentStore]];
-        self.userInfo[MetadataKey] = nil;
-    }
-}
-
-- (id)persistentStoreMetadataForKey:(NSString *)key;
-{
-    NSMutableDictionary *userInfoMetadata = [self metadataInfo];
-    id result = userInfoMetadata[key];
-    if (nil == result) {
-        NSDictionary *storedMetadata = [self.persistentStoreCoordinator metadataForPersistentStore:[self firstPersistentStore]];
-        result = storedMetadata[key];
-    }
-    if ([result isKindOfClass:[NSNull class]]) return nil;
-    
-    return result;
-}
-
-- (void)setPersistentStoreMetadata:(id)value forKey:(NSString *)key;
-{
-    VerifyReturn(key != nil);
-    NSMutableDictionary *mutableMetadata = [self metadataInfo];
-    if (value) {
-        mutableMetadata[key] = value;
-    } else {
-        mutableMetadata[key] = [NSNull null];
-    }
 }
 
 - (NSPersistentStore *)firstPersistentStore

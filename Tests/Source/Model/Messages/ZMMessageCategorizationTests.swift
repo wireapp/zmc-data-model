@@ -82,13 +82,13 @@ class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
         message.linkPreviewState = .processed
         
         // THEN
-        XCTAssertEqual(message.categorization, [MessageCategory.text, MessageCategory.link])
+        XCTAssertEqual(message.categorization, [MessageCategory.text, MessageCategory.link, MessageCategory.linkPreview])
     }
     
     func testThatItCategorizesAnImageMessage() {
         
         // GIVEN
-        let message = self.conversation.appendMessage(withImageData: self.verySmallJPEGData())!
+        let message = self.conversation.appendMessage(withImageData: self.verySmallJPEGData(), version3: false)!
         
         // THEN
         XCTAssertEqual(message.categorization, MessageCategory.image)
@@ -190,6 +190,16 @@ class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
         
         // THEN
         XCTAssertEqual(message.categorization, MessageCategory.location)
+    }
+    
+    func testThatItCategorizesV3Images() {
+        
+        // GIVEN
+        let message = self.conversation.appendMessage(withImageData: self.verySmallJPEGData(), version3: true)!
+        
+        // THEN
+        XCTAssertEqual(message.categorization, MessageCategory.image)
+        
     }
     
     func testThatItCategorizesSystemMessage() {

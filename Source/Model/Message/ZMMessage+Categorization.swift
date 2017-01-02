@@ -145,7 +145,11 @@ extension ZMMessage {
             return .none
         }
         var category = MessageCategory.image
-        if let asset = self as? ZMAssetClientMessage, (asset.imageAssetStorage?.mediumGenericMessage == nil && imageData.mediumData == nil) {
+        if let asset = self as? ZMAssetClientMessage,
+            (asset.imageAssetStorage?.originalImageData() == nil
+                && asset.imageAssetStorage?.mediumGenericMessage == nil
+                && imageData.mediumData == nil)
+        {
             category.update(with: .excludedFromCollection)
         }
         if imageData.isAnimatedGIF {
@@ -162,17 +166,21 @@ extension ZMMessage {
         var category = MessageCategory.text
         if textData.linkPreview != nil {
             category.update(with: .link)
+            category.update(with: .linkPreview)
         }
-        // now check in the msg text
-        let matches = linkParser.matches(in: text, range: NSRange(location: 0, length: text.characters.count))
-        if matches.count > 0 {
-            category.update(with: .link)
+        else {
+            // does the text itself includes a link?
+            let matches = linkParser.matches(in: text, range: NSRange(location: 0, length: text.characters.count))
+            if matches.count > 0 {
+                category.update(with: .link)
+            }
         }
         return category
     }
     
     fileprivate var fileCategory : MessageCategory {
-        guard let fileData = self.fileMessageData else {
+        guard let fileData = self.fileMessageData,
+            self.imageCategory == .none else {
             return .none
         }
         var category = MessageCategory.file
@@ -243,6 +251,7 @@ public struct MessageCategory : OptionSet {
     public static let knock = MessageCategory(rawValue: 1 << 10)
     public static let systemMessage = MessageCategory(rawValue: 1 << 11)
     public static let excludedFromCollection = MessageCategory(rawValue: 1 << 12)
+    public static let linkPreview = MessageCategory(rawValue: 1 << 13)
     
     public init(rawValue: Int32) {
         self.rawValue = rawValue
