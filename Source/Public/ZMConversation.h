@@ -33,7 +33,6 @@
 @class ZMFileMetadata;
 @class ZMLocationData;
 @class LinkPreview;
-@class VoiceChannelRouter;
 
 @protocol ZMConversationMessage;
 
@@ -74,6 +73,7 @@ extern NSString * _Null_unspecified const ZMConversationIsVerifiedNotificationNa
 @property (readonly, nonatomic, nonnull) NSDate *lastModifiedDate;
 @property (readonly, nonatomic, nonnull) NSOrderedSet *messages;
 @property (readonly, nonatomic, nonnull) NSOrderedSet<ZMUser *> *activeParticipants;
+@property (readonly, nonatomic, nonnull) NSOrderedSet<ZMUser *> *callParticipants;
 @property (readonly, nonatomic, nonnull) ZMUser *creator;
 @property (nonatomic, readonly) BOOL isPendingConnectionConversation;
 @property (nonatomic, readonly) NSUInteger estimatedUnreadCount;
@@ -151,15 +151,6 @@ extern NSString * _Null_unspecified const ZMConversationIsVerifiedNotificationNa
 - (void)revealClearedConversation;
 
 @end
-
-
-@interface ZMConversation (VoiceChannel)
-
-/// NOTE: this object is transient, and will be re-created periodically. Do not hold on to this object, hold on to the owning conversation instead.
-@property (nonatomic, readonly, nullable) VoiceChannelRouter *voiceChannel;
-
-@end
-
 
 @interface ZMConversation (Connections)
 

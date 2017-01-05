@@ -99,7 +99,7 @@ NS_ASSUME_NONNULL_END
 + (nonnull ZMConversationList *)conversationsIncludingArchivedInContext:(nonnull NSManagedObjectContext *)moc;
 + (nonnull ZMConversationList *)archivedConversationsInContext:(nonnull NSManagedObjectContext *)moc;
 + (nonnull ZMConversationList *)clearedConversationsInContext:(nonnull NSManagedObjectContext *)moc;
-+ (nonnull ZMConversationList *)conversationsExcludingArchivedAndCallingInContext:(nonnull NSManagedObjectContext *)moc;
++ (nonnull ZMConversationList *)conversationsExcludingArchivedInContext:(nonnull NSManagedObjectContext *)moc;
 + (nonnull ZMConversationList *)pendingConversationsInContext:(nonnull NSManagedObjectContext *)moc;
 
 + (nonnull NSPredicate *)predicateForSearchString:(nonnull NSString *)searchString;
