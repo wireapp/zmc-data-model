@@ -31,7 +31,7 @@ public protocol ZMCollection : NSObjectProtocol {
 public protocol AssetCollectionDelegate : NSObjectProtocol {
     /// The AssetCollection calls this when the fetching completes
     /// To get all messages for any category defined in `including`, call `assets(for category: CategoryMatch)`
-    func assetCollectionDidFetch(collection: ZMCollection, messages: [CategoryMatch: [ZMMessage]], hasMore: Bool)
+    func assetCollectionDidFetch(collection: ZMCollection, messages: [CategoryMatch: [ZMConversationMessage]], hasMore: Bool)
     
     /// This method is called when all assets in the conversation have been fetched & analyzed / categorized
     func assetCollectionDidFinishFetching(collection: ZMCollection, result : AssetFetchResult)
