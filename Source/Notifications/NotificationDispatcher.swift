@@ -19,8 +19,11 @@
 import Foundation
 import CoreData
 
+private var zmLog = ZMSLog(tag: "notifications")
+
 protocol OpaqueConversationToken : NSObjectProtocol {}
 
+let ChangedKeysAndOldValuesKey = "ZMChangedKeysAndOldValues"
 
 extension Notification.Name {
     
@@ -32,7 +35,7 @@ extension Notification.Name {
 
 extension ZMUser : SideEffectSource {
     
-    func affectedObjectsAndKeys(observable: Observable) -> [SideEffect] {
+    func affectedObjectsAndKeys(observable: Observable) -> [NSObject : Changes] {
         switch observable.classIdentifier {
         case ZMConversation.entityName():
             let otherPartKeys = changedValues().keys.map{"otherActiveParticipants.\($0)"}
@@ -42,13 +45,14 @@ extension ZMUser : SideEffectSource {
             let affectedKeys = Set(observable.observableKeys.filter {
                 return !observable.keyPathsForValuesAffectingValue(for: $0).isDisjoint(with: mappedKeys)
             })
-            guard affectedKeys.count > 0 else { return [] }
+            guard affectedKeys.count > 0 else { return [:] }
             
-            guard let activeConversations = activeConversations.array as? [ZMConversation] else { return []}
-            let conversationMap : [SideEffect] = activeConversations.map{SideEffect(object: $0, changedKeys: affectedKeys)}
+            guard let conversations = activeConversations.array as? [ZMConversation], conversations.count > 0 else { return [:]}
+            let conversationMap : [NSObject : Changes] = Dictionary(keys: conversations,
+                                                                    repeatedValue: Changes(changedKeys: affectedKeys))
             return conversationMap
         default:
-            return []
+            return [:]
         }
     }
 }
@@ -61,7 +65,7 @@ extension ConversationChangeInfo {
                                                queue: nil)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                  let changedKeysAndValues = note.userInfo?["changedKeysAndOldValues"] as? [String : NSObject?]
+                  let changedKeysAndValues = note.userInfo?[ChangedKeysAndOldValuesKey] as? [String : NSObject?]
             else { return }
             
             let changeInfo = ConversationChangeInfo(object: conversation)
@@ -83,7 +87,7 @@ extension UserChangeInfo {
                                                       queue: nil)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                let changedKeysAndValues = note.userInfo?["changedKeysAndOldValues"] as? [String : NSObject?]
+                let changedKeysAndValues = note.userInfo?[ChangedKeysAndOldValuesKey] as? [String : NSObject?]
             else { return }
             
             let changeInfo = UserChangeInfo(object: user)
@@ -97,13 +101,83 @@ extension UserChangeInfo {
     }
 }
 
-struct SideEffect {
-    let object : NSObject
-    let changedKeys : Set<String>
+extension Dictionary {
+
+    init(keys: [Key], repeatedValue: Value) {
+        self.init()
+        for key in keys {
+            updateValue(repeatedValue, forKey: key)
+        }
+    }
+    
+    static func mappingKeysToValues(keys: [Key], valueMapping: ((Key) -> Value?)) -> Dictionary {
+        var dict = Dictionary()
+        for key in keys {
+            if let value = valueMapping(key) {
+                dict.updateValue(value, forKey: key)
+            }
+        }
+        return dict
+    }
+    
+    func updated(other:Dictionary) -> Dictionary {
+        var newDict = self
+        for (key,value) in other {
+            newDict.updateValue(value, forKey:key)
+        }
+        return newDict
+    }
+    
+    func mappingValues<NewValue : Any>(_ transform:((Value) -> NewValue)) -> Dictionary<Key, NewValue> {
+        var dict = Dictionary<Key, NewValue>()
+        for (key, value) in self {
+            dict[key] = transform(value)
+        }
+        return dict
+    }
+
+    func removingKeysNotIn(set: Set<Key>) -> Dictionary {
+        var newDict = self
+        self.keys.forEach{
+            if !set.contains($0) {
+                newDict.removeValue(forKey: $0)
+            }
+        }
+        return newDict
+    }
+}
+
+struct Changes {
+    private let changedKeys : Set<String>
+    let changedKeysAndOldValues : [String : NSObject?]
+    
+    init(changedKeys: Set<String>) {
+        self.changedKeys = changedKeys
+        self.changedKeysAndOldValues = changedKeys.reduce([:]){ (dict, value) in
+            var newDict = dict
+            if dict[value] == nil {
+                newDict[value] = .none as NSObject?
+            }
+            return newDict
+        }
+    }
+
+    init(changedKeysAndOldValues : [String : NSObject?]){
+        self.init(changedKeys: Set(changedKeysAndOldValues.keys), changedKeysAndOldValues: changedKeysAndOldValues)
+    }
+    
+    init(changedKeys: Set<String>, changedKeysAndOldValues : [String : NSObject?]) {
+        self.changedKeys = changedKeys
+        self.changedKeysAndOldValues = changedKeysAndOldValues
+    }
+    
+    func joined(other: Changes) -> Changes {
+        return Changes(changedKeys: changedKeys.union(other.changedKeys), changedKeysAndOldValues: changedKeysAndOldValues.updated(other: other.changedKeysAndOldValues))
+    }
 }
 
 protocol SideEffectSource {
-    func affectedObjectsAndKeys(observable: Observable) -> [SideEffect]
+    func affectedObjectsAndKeys(observable: Observable) -> [NSObject : Changes]
 }
 
 
@@ -121,6 +195,7 @@ struct Observable {
         case ZMUser.entityName():
             return Notification.Name.UserChangeNotification
         default:
+            zmLog.warn("There is no NotificationName defined for this classIdentifier")
             return nil
         }
     }
@@ -128,7 +203,7 @@ struct Observable {
     init(classIdentifier: String) {
         self.classIdentifier = classIdentifier
         self.observableKeys = Observable.setupObservableKeys(classIdentifier: classIdentifier)
-        self.affectingKeys = Observable.setupAffectedKeys(observableKeys: observableKeys)
+        self.affectingKeys = Observable.setupAffectedKeys(classIdentifier: classIdentifier, observableKeys: observableKeys)
         self.allKeys = Observable.setupAllKeys(observableKeys: observableKeys, affectingKeys: affectingKeys)
     }
     
@@ -137,19 +212,23 @@ struct Observable {
         case ZMConversation.entityName():
             return Set(arrayLiteral: "messages", "lastModifiedDate", "isArchived", "conversationListIndicator", "voiceChannelState", "activeFlowParticipants", "callParticipants", "isSilenced", "securityLevel", "otherActiveVideoCallParticipants", "displayName", "estimatedUnreadCount", "clearedTimeStamp", "otherActiveParticipants", "isSelfAnActiveMember", "relatedConnectionState")
         case ZMUser.entityName():
-            return Set(arrayLiteral: "name")
+            return Set(arrayLiteral: "name", "displayName", "accentColorValue", "imageMediumData", "imageSmallProfileData","emailAddress", "phoneNumber", "canBeConnected", "isConnected", "isPendingApprovalByOtherUser", "isPendingApprovalBySelfUser", "clients", "handle")
         default:
+            zmLog.warn("There are no observable keys defined for this classIdentifier")
             return Set()
         }
     }
     
-    private static func setupAffectedKeys(observableKeys: Set<String>) -> [String : Set<String>] {
-        let affectingKeys :  [String : Set<String>] = observableKeys.reduce([:]){ (dict, key) in
-            var newDict = dict
-            newDict[key] = ZMConversation.keyPathsForValuesAffectingValue(forKey: key)
-            return newDict
+    private static func setupAffectedKeys(classIdentifier: String, observableKeys: Set<String>) -> [String : Set<String>] {
+        switch classIdentifier {
+        case ZMConversation.entityName():
+            return Dictionary.mappingKeysToValues(keys: Array(observableKeys)){ZMConversation.keyPathsForValuesAffectingValue(forKey: $0)}
+        case ZMUser.entityName():
+            return Dictionary.mappingKeysToValues(keys: Array(observableKeys)){ZMUser.keyPathsForValuesAffectingValue(forKey: $0)}
+        default:
+            zmLog.warn("There is path to affecting keys defined")
+            return [:]
         }
-        return affectingKeys
     }
     
     private static func setupAllKeys(observableKeys: Set<String>, affectingKeys: [String : Set<String>]) -> Set<String> {
@@ -169,6 +248,7 @@ public class NotificationDispatcher : NSObject {
     private var tornDown = false
     private let observables : [Observable] = [Observable(classIdentifier: ZMConversation.entityName()),
                                               Observable(classIdentifier: ZMUser.entityName())]
+    private var allChanges : [String : [NSObject : [String: NSObject?]]] = [:]
     
     public init(managedObjectContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext
@@ -199,66 +279,47 @@ public class NotificationDispatcher : NSObject {
         let updatedObjects = extractObjects(for: [NSRefreshedObjectsKey, NSUpdatedObjectsKey], from: userInfo)
         //let insertedObjects = extractObjects(for: [NSInsertedObjectsKey], from: userInfo)
         
-        let sideEffects : [String: [SideEffect]] = observables.reduce([:]){ (dict, observable) in
-            var newDict = dict
-            let allUpdatedObjects : Set<ZMManagedObject> = updatedObjects.reduce(Set<ZMManagedObject>()){$0.union($1.value)}
-            allUpdatedObjects.forEach{ (object) in
-                guard let object = object as? SideEffectSource else { return }
-
+        let allUpdatedObjects = updatedObjects.reduce(Set()){$0.union($1.value)}
+        var sideEffects = [String: [NSObject: Changes]]()
+        observables.forEach{ observable in
+            allUpdatedObjects.forEach{ (obj) in
+                guard let object = obj as? SideEffectSource else { return }
                 let changedObjectsAndKeys = object.affectedObjectsAndKeys(observable: observable)
-
-                let values = (newDict[observable.classIdentifier] ?? [])+changedObjectsAndKeys
-                newDict[observable.classIdentifier] = values
+                let values = sideEffects[observable.classIdentifier]
+                sideEffects[observable.classIdentifier] = values?.updated(other: changedObjectsAndKeys) ?? changedObjectsAndKeys
             }
-            return newDict
         }
         
-        let reducedSideEffects : [String : [NSObject : Set<String>]] = sideEffects.reduce([:]){ (dict, sideEffects) in
-            var newDict = dict
-            let value : [NSObject : Set<String>] = sideEffects.value.reduce([:]){ (innerDict, sideEffect) in
-                var newInnerDict = innerDict
-                let newValue = (newInnerDict[sideEffect.object] ?? Set()).union(sideEffect.changedKeys)
-                newInnerDict[sideEffect.object] = newValue
-                return newInnerDict
-            }
-            newDict[sideEffects.key] = value
-            return newDict
-        }
-        
-        reducedSideEffects.forEach{ (classIdentifier, changes) in
+        var reducedChanges = sideEffects
+        updatedObjects.forEach{ (classIdentifier, changedObjects) in
             let observable = Observable(classIdentifier: classIdentifier)
-            let notifications : [Notification] = changes.flatMap{
-                guard let notificationName = observable.notificationName else {
-                    return nil
-                }
-                let mappedKeys : [String : NSObject?] = $0.1.reduce([:]){
-                    var newDict = $0
-                    newDict[$1] = .none as NSObject?
-                    return newDict
-                }
-                return Notification(name: notificationName,
-                                    object: $0.key,
-                                    userInfo: ["changedKeysAndOldValues" : mappedKeys])}
-            notifyObservers(changes: notifications)
+            
+            let changes : [NSObject: Changes] = Dictionary.mappingKeysToValues(keys: Array(changedObjects)){ object in
+                let relevantKeysAndOldValues = object.changedValuesForCurrentEvent().removingKeysNotIn(set: observable.allKeys)
+                guard relevantKeysAndOldValues.count > 0 else { return nil }
+                
+                let newChanges = Changes(changedKeys: Set(), changedKeysAndOldValues: relevantKeysAndOldValues as! [String : NSObject?])
+                let existingChanges = reducedChanges[classIdentifier]?[object]
+                return existingChanges?.joined(other: newChanges) ?? newChanges
+            }
+            
+            let value = reducedChanges[classIdentifier]
+            reducedChanges[classIdentifier] = value?.updated(other: changes) ?? changes
         }
         
-        observables.forEach{ obs in
-            guard let changes = updatedObjects[obs.classIdentifier] else { return }
-            let notifications : [Notification] = changes.flatMap{
-                guard let notificationName = obs.notificationName else { return nil }
-                let relevantKeysAndOldValues = $0.changedValuesForCurrentEvent().reduce([:]){ (dict, pair) in
-                    if obs.allKeys.contains(pair.key){
-                        var newDict = dict
-                        newDict[pair.key] = pair.value
-                        return newDict
-                    }
-                    return dict
-                }
-
-                guard relevantKeysAndOldValues.count > 0 else { return nil }
-                return Notification(name: notificationName,
-                                    object: $0,
-                                    userInfo: ["changedKeysAndOldValues" : relevantKeysAndOldValues])}
+        allChanges = reducedChanges.mappingValues{ (values) in
+            return values.mappingValues{$0.changedKeysAndOldValues}
+        }
+        fireAllNotifications()
+    }
+    
+    func fireAllNotifications(){
+        allChanges.forEach{ (classIdentifier, changes) in
+            let observable = Observable(classIdentifier: classIdentifier)
+            guard let notificationName = observable.notificationName else { return }
+            let notifications : [Notification] = changes.flatMap{Notification(name: notificationName,
+                                                                              object: $0,
+                                                                              userInfo: [ChangedKeysAndOldValuesKey : $1])}
             notifyObservers(changes: notifications)
         }
     }
