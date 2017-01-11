@@ -192,7 +192,7 @@ class GeneralConversationObserverToken<T: NSObject> : ObjectObserverTokenContain
     }
 
     public var nameChanged : Bool {
-        return changedKeysAndOldValues.keys.contains("displayName")
+        return changedKeysAndOldValues.keys.contains{$0 == "displayName" || $0 == "userDefinedName"}
     }
 
     public var lastModifiedDateChanged : Bool {
