@@ -19,14 +19,6 @@
 import Foundation
 
 
-extension NSPredicate {
-    
-    func negated() -> NSCompoundPredicate {
-        return NSCompoundPredicate(notPredicateWithSubpredicate: self)
-    }
-    
-}
-
 extension ZMConversation {
     
     override open class func predicateForFilteringResults() -> NSPredicate {
@@ -57,30 +49,10 @@ extension ZMConversation {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [predicateForConversationsIncludingArchived(), NSPredicate(format: "\(ZMConversationIsArchivedKey) == YES")])
     }
     
-    class func predicateForConversationsExcludingArchivedAndInCall() -> NSPredicate {
+    class func predicateForConversationsExcludingArchived() -> NSPredicate {
         let notArchivedPredicate = NSPredicate(format: "\(ZMConversationIsArchivedKey) == NO")
-        let callingPredicateV2 = predicate(forConversationWithVoiceChannelState: .selfConnectedToActiveChannel).negated()
-        let callingPredicateV3 = predicate(forConversationWithCallState: .established).negated()
         
-        return NSCompoundPredicate(andPredicateWithSubpredicates: [predicateForConversationsIncludingArchived(), notArchivedPredicate, callingPredicateV2, callingPredicateV3])
-    }
-    
-    class func predicateForConversationsWithNonIdleVoiceChannel() -> NSPredicate {
-        let basePredicate = predicateForFilteringResults()
-        let notConnectionPredicate = NSPredicate(format: "\(ZMConversationConversationTypeKey) != \(ZMConversationType.connection.rawValue)")
-        let callingPredicateV2 = predicate(forConversationWithVoiceChannelState: .noActiveUsers).negated()
-        let callingPredicateV3 = predicate(forConversationWithCallState: .established)
-        let callingPredicate = NSCompoundPredicate(orPredicateWithSubpredicates: [callingPredicateV2, callingPredicateV3])
-        
-        return NSCompoundPredicate(andPredicateWithSubpredicates: [basePredicate, notConnectionPredicate, callingPredicate])
-    }
-    
-    class func predicateForConversationWithActiveCalls() -> NSPredicate {
-        let basePredicate = predicateForFilteringResults()
-        let callingPredicateV2 = predicate(forConversationWithVoiceChannelState: .selfConnectedToActiveChannel)
-        let callingPredicateV3 = predicate(forConversationWithCallState: .established)
-        
-        return NSCompoundPredicate(andPredicateWithSubpredicates: [basePredicate, NSCompoundPredicate(orPredicateWithSubpredicates: [callingPredicateV2, callingPredicateV3])])
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [predicateForConversationsIncludingArchived(), notArchivedPredicate])
     }
     
     class func predicateForSharableConversations() -> NSPredicate {
@@ -105,22 +77,6 @@ extension ZMConversation {
         let predicate2 = NSCompoundPredicate(orPredicateWithSubpredicates: [noConnection, notBlocked]) //group conversations and not blocked connections
         
         return NSCompoundPredicate(andPredicateWithSubpredicates: [basePredicate, predicate1, predicate2])
-    }
-    
-    private class func predicate(forConversationWithVoiceChannelState voiceChannelState: ZMVoiceChannelState) -> NSPredicate {
-        return NSPredicate(format: "voiceChannelState == %d", voiceChannelState.rawValue)
-    }
-    
-    private class func predicate(forConversationWithCallState callState: CallState) -> NSPredicate {
-        return NSPredicate { (object, _) -> Bool in
-            guard
-                let conversation = object as? ZMConversation,
-                let remoteIdentifier = conversation.remoteIdentifier else {
-                    return false
-            }
-            
-            return WireCallCenter.activeInstance?.callState(conversationId: remoteIdentifier) == callState
-        }
     }
     
 }

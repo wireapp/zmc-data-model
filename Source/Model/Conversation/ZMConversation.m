@@ -30,7 +30,6 @@
 #import "ZMConversation+Timestamps.h"
 #import "ZMConversation+UnreadCount.h"
 #import "ZMConversation+OTR.h"
-#import "ZMVoiceChannel.h"
 
 #import "ZMUser+Internal.h"
 
@@ -145,7 +144,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @property (nonatomic) NSDate *primitiveLastServerTimeStamp;
 @property (nonatomic) NSUUID *primitiveRemoteIdentifier;
 @property (nonatomic) NSData *remoteIdentifier_data;
-@property (nonatomic) VoiceChannelRouter *primitiveVoiceChannel;
 
 @property (nonatomic) ZMConversationSecurityLevel securityLevel;
 @end
@@ -171,6 +169,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @dynamic archivedChangedTimestamp;
 @dynamic silencedChangedTimestamp;
 @dynamic messageDestructionTimeout;
+@dynamic callParticipants;
 
 @synthesize tempMaxLastReadServerTimeStamp;
 @synthesize lastReadTimestampSaveDelay;
@@ -772,12 +771,14 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (ZMConversationListIndicator)conversationListIndicator;
 {
-    if(self.connectedUser.isPendingApprovalByOtherUser) {
+    if (self.connectedUser.isPendingApprovalByOtherUser) {
         return ZMConversationListIndicatorPending;
-    } else if (self.callDeviceIsActive) {
-            return ZMConversationListIndicatorActiveCall;
-    } else if (self.voiceChannelState == ZMVoiceChannelStateIncomingCallInactive) {
-        return ZMConversationListIndicatorInactiveCall;
+    }
+    
+    // NOTE only works for v2 calls, but this only relevant for group calls so until v3
+    // also does group calls it can stay like this.
+    if (self.isIgnoringCall && self.callParticipants.count > 0) {
+        return ZMConversationListIndicatorInactiveCall;        
     }
     
     return [self unreadListIndicator];
@@ -1000,9 +1001,9 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return [moc.conversationListDirectory clearedConversations];
 }
 
-+ (ZMConversationList *)conversationsExcludingArchivedAndCallingInContext:(NSManagedObjectContext *)moc;
++ (ZMConversationList *)conversationsExcludingArchivedInContext:(NSManagedObjectContext *)moc;
 {
-    return [moc.conversationListDirectory unarchivedAndNotCallingConversations];
+    return [moc.conversationListDirectory unarchivedConversations];
 }
 
 + (ZMConversationList *)pendingConversationsInContext:(NSManagedObjectContext *)moc;
@@ -1533,30 +1534,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @end
 
 
-@implementation ZMConversation (VoiceChannel)
-
-- (VoiceChannelRouter *)voiceChannel
-{
-    // The 'voiceChannel' is a transient property in the model.
-    [self willAccessValueForKey:VoiceChannelKey];
-    id<VoiceChannel> voiceChannel = self.primitiveVoiceChannel;
-    [self didAccessValueForKey:VoiceChannelKey];
-    if (voiceChannel == nil) {
-        if ((self.conversationType == ZMConversationTypeOneOnOne) ||
-            (self.conversationType == ZMConversationTypeGroup))
-        {
-            voiceChannel = [[VoiceChannelRouter alloc] initWithConversation:self];
-            self.primitiveVoiceChannel = voiceChannel;
-        }
-    }
-    return voiceChannel;
-}
-
-@end
-
-
-
-
 @implementation ZMConversation (KeyValueValidation)
 
 - (BOOL)validateUserDefinedName:(NSString **)ioName error:(NSError **)outError
@@ -1577,9 +1554,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @end
 
 
-
-
-
 @implementation NSUUID (ZMSelfConversation)
 
 - (BOOL)isSelfConversationRemoteIdentifierInContext:(NSManagedObjectContext *)moc;
@@ -1589,7 +1563,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 }
 
 @end
-
 
 
 @implementation ZMConversation (Optimization)
@@ -1681,7 +1654,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @end
 
 
-
 @implementation ZMConversation (History)
 
 
@@ -1698,5 +1670,3 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 }
 
 @end
-
-
