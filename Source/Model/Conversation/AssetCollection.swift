@@ -24,7 +24,7 @@ public enum AssetFetchResult : Int {
 
 public protocol ZMCollection : NSObjectProtocol {
     func tearDown()
-    func assets(for category: CategoryMatch) -> [ZMMessage]
+    func assets(for category: CategoryMatch) -> [ZMConversationMessage]
     var fetchingDone : Bool { get }
 }
 
@@ -119,7 +119,7 @@ public class AssetCollection : NSObject, ZMCollection {
     }
     
     /// Returns all assets that have been fetched thus far
-    public func assets(for category: CategoryMatch) -> [ZMMessage] {
+    public func assets(for category: CategoryMatch) -> [ZMConversationMessage] {
         // Remove zombie objects and return remaining
         if let values = assets?[category] {
             let withoutZombie = values.filter{!$0.isZombieObject}
