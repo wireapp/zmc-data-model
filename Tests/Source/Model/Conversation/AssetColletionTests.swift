@@ -30,8 +30,14 @@ class MockAssetCollectionDelegate : NSObject, AssetCollectionDelegate {
         didCallDelegate = true
     }
     
-    public func assetCollectionDidFetch(collection: ZMCollection, messages: [CategoryMatch : [ZMMessage]], hasMore: Bool) {
-        messagesByFilter.append(messages)
+    public func assetCollectionDidFetch(collection: ZMCollection, messages: [CategoryMatch : [ZMConversationMessage]], hasMore: Bool) {
+        // For testing purposes it's easier to work with ZMMessage directly
+        var toAppend = [CategoryMatch: [ZMMessage]]()
+        for (key, value) in messages {
+            toAppend[key] = value.map { $0 as! ZMMessage }
+        }
+        messagesByFilter.append(toAppend)
+        
         didCallDelegate = true
         if !hasMore {
             finished = finished + messages.keys
