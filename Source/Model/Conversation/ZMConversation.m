@@ -646,7 +646,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (id <ZMConversationMessage>)appendMessageWithText:(NSString *)text;
 {
-    return [self appendMessageWithText:text fetchLinkPreview:NO];
+    return [self appendMessageWithText:text fetchLinkPreview:YES];
 }
 
 - (nullable id <ZMConversationMessage>)appendMessageWithText:(nullable NSString *)text fetchLinkPreview:(BOOL)fetchPreview;
