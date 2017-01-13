@@ -26,8 +26,7 @@ class SharedModifiedConversationsListTests: BaseZMMessageTests {
 
     override func setUp() {
         super.setUp()
-        let url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        sut = SharedModifiedConversationsList(url: url)
+        sut = SharedModifiedConversationsList()
     }
 
     override func tearDown() {
@@ -41,24 +40,24 @@ class SharedModifiedConversationsListTests: BaseZMMessageTests {
         conversation.remoteIdentifier = .create()
 
         // When
-        sut.add(conversations: [conversation])
+        sut.add(conversation)
 
         // Then
-        XCTAssertEqual(sut.storedIdentifiers(), [conversation.remoteIdentifier!])
+        XCTAssertEqual(sut.storedIdentifiers, [conversation.remoteIdentifier!])
     }
 
     func testThatItCanClearTheStoredIdentifiers() {
         // Given
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.remoteIdentifier = .create()
-        sut.add(conversations: [conversation])
-        XCTAssertEqual(sut.storedIdentifiers(), [conversation.remoteIdentifier!])
+        sut.add(conversation)
+        XCTAssertEqual(sut.storedIdentifiers, [conversation.remoteIdentifier!])
 
         // When
         sut.clear()
 
         // Then
-        XCTAssertEqual(sut.storedIdentifiers(), [])
+        XCTAssertEqual(sut.storedIdentifiers, [])
 
     }
 
@@ -70,16 +69,16 @@ class SharedModifiedConversationsListTests: BaseZMMessageTests {
         secondConversation.remoteIdentifier = .create()
 
         // When
-        sut.add(conversations: [firstConversation])
+        sut.add(firstConversation)
 
         // Then
-        XCTAssertEqual(sut.storedIdentifiers(), [firstConversation.remoteIdentifier!])
+        XCTAssertEqual(sut.storedIdentifiers, [firstConversation.remoteIdentifier!])
 
         // When
-        sut.add(conversations: [secondConversation])
+        sut.add(secondConversation)
 
         // Then
-        XCTAssertEqual(sut.storedIdentifiers(), [firstConversation.remoteIdentifier!, secondConversation.remoteIdentifier!])
+        XCTAssertEqual(sut.storedIdentifiers, [firstConversation.remoteIdentifier!, secondConversation.remoteIdentifier!])
     }
 
     func testThatItAddsAConversationAddedMultipleTimesOnce() {
@@ -88,16 +87,16 @@ class SharedModifiedConversationsListTests: BaseZMMessageTests {
         conversation.remoteIdentifier = .create()
 
         // When
-        sut.add(conversations: [conversation])
+        sut.add(conversation)
 
         // Then
-        XCTAssertEqual(sut.storedIdentifiers(), [conversation.remoteIdentifier!])
+        XCTAssertEqual(sut.storedIdentifiers, [conversation.remoteIdentifier!])
 
         // When
-        sut.add(conversations: [conversation])
+        sut.add(conversation)
 
         // Then
-        XCTAssertEqual(sut.storedIdentifiers(), [conversation.remoteIdentifier!])
+        XCTAssertEqual(sut.storedIdentifiers, [conversation.remoteIdentifier!])
     }
 
 }

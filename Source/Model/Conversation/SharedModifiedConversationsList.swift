@@ -30,7 +30,7 @@ private let zmLog = ZMSLog(tag: "modified conversations")
     private let defaults = UserDefaults.shared()
     private let modifiedKey = "modifiedConversations"
 
-    public func add(conversation: ZMConversation) {
+    public func add(_ conversation: ZMConversation) {
         guard let identifier = conversation.remoteIdentifier else { return }
         let identifiers = storedIdentifiers + [identifier]
         let identifiersAsString = identifiers.map { $0.uuidString }
