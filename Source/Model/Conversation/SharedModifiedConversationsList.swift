@@ -20,33 +20,55 @@
 import Foundation
 
 
+private let zmLog = ZMSLog(tag: "modified conversations")
+
+
 /// This class is used to mark conversations as modified in an extension 
 /// context in order to refetch them in the main application.
 @objc public class SharedModifiedConversationsList: NSObject {
 
-    private let url: URL
+    private let defaults = UserDefaults.shared()
+    private let modifiedKey = "modifiedConversations"
 
-    public init(url: URL) {
-        self.url = url
-    }
-
-    public func add(conversations: [ZMConversation]) {
-        let identifiers = storedIdentifiers() + conversations.flatMap { $0.remoteIdentifier }
+    public func add(conversation: ZMConversation) {
+        guard let identifier = conversation.remoteIdentifier else { return }
+        let identifiers = storedIdentifiers + [identifier]
         let identifiersAsString = identifiers.map { $0.uuidString }
-        let unique = Array(Set(identifiersAsString))
-        (unique as NSArray).write(to: url, atomically: true)
+        defaults?.set(Array(identifiersAsString), forKey: modifiedKey)
     }
 
     public func clear() {
-        try? FileManager.default.removeItem(at: url)
+        defaults?.set(nil, forKey: modifiedKey)
     }
 
-    public func storedIdentifiers() -> Set<UUID> {
-        let stored = NSArray(contentsOf: url) as? [String]
+    public var storedIdentifiers: Set<UUID> {
+        let stored = defaults?.object(forKey: modifiedKey) as? [String]
         if let identifiers = stored?.flatMap(UUID.init) {
             return Set(identifiers)
         }
         return []
+    }
+
+}
+
+
+public extension NSManagedObjectContext {
+
+    @objc(notifyMessagesChangedInConversationWithRemoteIdentifiers:)
+    public func notifyMessagesChanged(with identifiers: Set<UUID>) {
+        guard !identifiers.isEmpty else { return zmLog.warn("Call made to notify without remote identifiers") }
+        let conversations = ZMConversation.fetchObjects(withRemoteIdentifiers: NSOrderedSet(set: identifiers), in: self)?.array as? [ZMConversation]
+
+        conversations?.forEach { conversation in
+            refresh(conversation, mergeChanges: true)
+        }
+
+        if zm_isUserInterfaceContext {
+            conversations?.forEach {
+                guard let message = $0.messages.lastObject as? ZMMessage else { return }
+                globalManagedObjectContextObserver.notifyNonCoreDataChangeInManagedObject(message)
+            }
+        }
     }
 
 }
