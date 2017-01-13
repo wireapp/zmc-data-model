@@ -672,6 +672,7 @@ class ConversationObserverTokenTests : ZMBaseManagedObjectTest {
     
     func testPerformanceOfCalculatingChangeNotificationsWhenANewMessageArrives()
     {
+        // measured [Time, seconds] average: 0.058, relative standard deviation: 14.553%, values: [0.082845, 0.054582, 0.053719, 0.053366, 0.053231, 0.055812, 0.053711, 0.058502, 0.056946, 0.059161], 
         let count = 50
         
         self.measureMetrics([XCTPerformanceMetric_WallClockTime], automaticallyStartMeasuring: false) {

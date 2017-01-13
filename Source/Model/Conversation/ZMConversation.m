@@ -196,7 +196,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 + (NSSet *)keyPathsForValuesAffectingEstimatedUnreadCount
 {
-    return [NSSet setWithObject: ZMConversationInternalEstimatedUnreadCountKey];
+    return [NSSet setWithObjects: ZMConversationInternalEstimatedUnreadCountKey, ZMConversationLastReadServerTimeStampKey, nil];
 }
 
 
@@ -344,7 +344,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 + (NSSet *)keyPathsForValuesAffectingRelatedConnectionState
 {
-    return [NSSet setWithObject:@"connection"];
+    return [NSSet setWithObject:@"connection.status"];
 }
 
 - (NSSet *)ignoredKeys;
@@ -463,7 +463,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 + (NSSet *)keyPathsForValuesAffectingDisplayName;
 {
-    return [NSSet setWithObjects:ConversationTypeKey, @"connection", @"otherActiveParticipants.name", @"connection.to.name",
+    return [NSSet setWithObjects:ConversationTypeKey, @"connection", @"otherActiveParticipants", @"connection.to",
             ZMConversationUserDefinedNameKey, nil];
 }
 
