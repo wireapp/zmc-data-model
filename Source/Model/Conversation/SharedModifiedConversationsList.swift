@@ -65,6 +65,8 @@ public extension NSManagedObjectContext {
 
         if zm_isUserInterfaceContext {
             conversations?.forEach {
+                // When notifying the last message changed, the message window will be
+                // recalculated and a notification about a potentially added message will be fired.
                 guard let message = $0.messages.lastObject as? ZMMessage else { return }
                 globalManagedObjectContextObserver.notifyNonCoreDataChangeInManagedObject(message)
             }
