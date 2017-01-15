@@ -412,6 +412,11 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     return nil;
 }
 
++ (NSSet *)keyPathsForValuesAffectingLinkPreview
+{
+    return [NSSet setWithObjects:@"dataSet", @"dataSet.data", nil];
+}
+
 - (ZMLinkPreview *)firstZMLinkPreview
 {
     return self.genericMessage.linkPreviews.firstObject;

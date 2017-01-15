@@ -10,6 +10,19 @@ import Foundation
 
 private var zmLog = ZMSLog(tag: "DependencyKeyStore")
 
+private enum MessageKey: String {
+    case deliveryState = "deliveryState"
+    case mediumData = "mediumData"
+    case mediumRemoteIdentifier = "mediumRemoteIdentifier"
+    case previewGenericMessage = "previewGenericMessage"
+    case mediumGenericMessage = "mediumGenericMessage"
+    case linkPreviewState = "linkPreviewState"
+    case linkPreview = "linkPreview"
+    case genericMessage = "genericMessage"
+    case reactions = "reactions"
+    case isObfuscated = "isObfuscated"
+}
+
 class DependencyKeyStore {
     
     let observableKeys : [String: Set<String>]
@@ -42,8 +55,30 @@ class DependencyKeyStore {
             return Set(arrayLiteral: "status")
         case UserClient.entityName():
             return Set([ZMUserClientTrusted_ByKey, ZMUserClientIgnored_ByKey, ZMUserClientNeedsToNotifyUserKey, ZMUserClientFingerprintKey])
+        case ZMMessage.entityName(), ZMSystemMessage.entityName():
+            return Set([MessageKey.deliveryState.rawValue, MessageKey.isObfuscated.rawValue])
+        case ZMAssetClientMessage.entityName():
+            var keys = [MessageKey.deliveryState.rawValue, MessageKey.isObfuscated.rawValue]
+            keys.append(ZMAssetClientMessageTransferStateKey)
+            keys.append(MessageKey.previewGenericMessage.rawValue)
+            keys.append(MessageKey.mediumGenericMessage.rawValue)
+            keys.append(ZMAssetClientMessageDownloadedImageKey)
+            keys.append(ZMAssetClientMessageDownloadedFileKey)
+            keys.append(ZMAssetClientMessageProgressKey)
+            keys.append(MessageKey.reactions.rawValue)
+            return Set(keys)
+        case ZMClientMessage.entityName():
+            var keys = [MessageKey.deliveryState.rawValue, MessageKey.isObfuscated.rawValue]
+            keys.append(ZMAssetClientMessageDownloadedImageKey)
+            keys.append(MessageKey.linkPreviewState.rawValue)
+            keys.append(MessageKey.genericMessage.rawValue)
+            keys.append(MessageKey.reactions.rawValue)
+            keys.append(MessageKey.linkPreview.rawValue)
+            return Set(keys)
+        case Reaction.entityName(), ZMGenericMessageData.entityName():
+            return Set()
         default:
-            zmLog.warn("There are no observable keys defined for this \(classIdentifier)")
+            zmLog.warn("There are no observable keys defined for \(classIdentifier)")
             return Set()
         }
     }
@@ -60,8 +95,18 @@ class DependencyKeyStore {
             return [:]
         case UserClient.entityName():
             return Dictionary.mappingKeysToValues(keys: Array(observableKeys)){UserClient.keyPathsForValuesAffectingValue(forKey: $0)}
+        case ZMMessage.entityName():
+            return Dictionary.mappingKeysToValues(keys: Array(observableKeys)){ZMMessage.keyPathsForValuesAffectingValue(forKey: $0)}
+        case ZMAssetClientMessage.entityName():
+            return Dictionary.mappingKeysToValues(keys: Array(observableKeys)){ZMAssetClientMessage.keyPathsForValuesAffectingValue(forKey: $0)}
+        case ZMClientMessage.entityName():
+            return Dictionary.mappingKeysToValues(keys: Array(observableKeys)){ZMClientMessage.keyPathsForValuesAffectingValue(forKey: $0)}
+        case Reaction.entityName():
+            return Dictionary.mappingKeysToValues(keys: Array(observableKeys)){Reaction.keyPathsForValuesAffectingValue(forKey: $0)}
+        case ZMGenericMessageData.entityName():
+            return Dictionary.mappingKeysToValues(keys: Array(observableKeys)){ZMGenericMessageData.keyPathsForValuesAffectingValue(forKey: $0)}
         default:
-            zmLog.warn("There is no path to affecting keys defined")
+            zmLog.warn("There is no path to affecting keys defined for \(classIdentifier)")
             return [:]
         }
     }

@@ -141,7 +141,7 @@
 		F9A706781CAEE01D00C2F5FE /* ZMClientMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = F9A705F71CAEE01D00C2F5FE /* ZMClientMessage.m */; };
 		F9A706791CAEE01D00C2F5FE /* ZMGenericMessage+External.h in Headers */ = {isa = PBXBuildFile; fileRef = F9A705F81CAEE01D00C2F5FE /* ZMGenericMessage+External.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F9A7067A1CAEE01D00C2F5FE /* ZMGenericMessage+External.m in Sources */ = {isa = PBXBuildFile; fileRef = F9A705F91CAEE01D00C2F5FE /* ZMGenericMessage+External.m */; };
-		F9A7067D1CAEE01D00C2F5FE /* ZMGenericMessageData.h in Headers */ = {isa = PBXBuildFile; fileRef = F9A705FC1CAEE01D00C2F5FE /* ZMGenericMessageData.h */; };
+		F9A7067D1CAEE01D00C2F5FE /* ZMGenericMessageData.h in Headers */ = {isa = PBXBuildFile; fileRef = F9A705FC1CAEE01D00C2F5FE /* ZMGenericMessageData.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F9A7067E1CAEE01D00C2F5FE /* ZMGenericMessageData.m in Sources */ = {isa = PBXBuildFile; fileRef = F9A705FD1CAEE01D00C2F5FE /* ZMGenericMessageData.m */; };
 		F9A7067F1CAEE01D00C2F5FE /* ZMImageMessage.m in Sources */ = {isa = PBXBuildFile; fileRef = F9A705FE1CAEE01D00C2F5FE /* ZMImageMessage.m */; };
 		F9A706801CAEE01D00C2F5FE /* ZMMessage+Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = F9A705FF1CAEE01D00C2F5FE /* ZMMessage+Internal.h */; settings = {ATTRIBUTES = (Public, ); }; };

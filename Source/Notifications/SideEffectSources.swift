@@ -33,21 +33,43 @@ extension ZMUser : SideEffectSource {
     func affectedObjectsAndKeys(observable: Observable) -> [NSObject : Changes] {
         switch observable.classIdentifier {
         case ZMConversation.entityName():
-            let otherPartKeys = changedValues().keys.map{"otherActiveParticipants.\($0)"}
-            let selfUserKeys = changedValues().keys.map{"connection.to.\($0)"}
-            let mappedKeys = Array(otherPartKeys)+Array(selfUserKeys)
-            
-            let keys = affectedKeys(for: mappedKeys, affecting: observable)
-            guard keys.count > 0 else { return [:] }
+            let changes = changedValues()
+            guard changes.count > 0 else { return [:] }
             
             var conversations = activeConversations.array as? [ZMConversation] ?? []
             if let connectedConversation = connection?.conversation {
                 conversations.append(connectedConversation)
             }
             guard conversations.count > 0 else { return  [:] }
+            
+            let otherPartKeys = changedValues().keys.map{"otherActiveParticipants.\($0)"}
+            let selfUserKeys = changedValues().keys.map{"connection.to.\($0)"}
+            let mappedKeys = Array(otherPartKeys)+Array(selfUserKeys)
+            let keys = affectedKeys(for: mappedKeys, affecting: observable)
+            guard keys.count > 0 else { return [:] }
+            
             let conversationMap : [NSObject : Changes] = Dictionary(keys: conversations,
                                                                     repeatedValue: Changes(changedKeys: keys))
             return conversationMap
+        case ZMMessage.entityName():
+            let changes = changedValues()
+            guard changes.count > 0 else { return [:] }
+            
+            var conversations = activeConversations.array as? [ZMConversation] ?? []
+            if let connectedConversation = connection?.conversation {
+                conversations.append(connectedConversation)
+            }
+            guard conversations.count > 0 else { return  [:] }
+            
+            // TODO Sabine: this could be quite expensive :-/
+            let messages : [ZMMessage] = conversations.reduce([]){$0 + ($1.messages.array as? [ZMMessage] ?? [])}
+                                                      .filter{$0.sender == self}
+            let mappedKeys = changedValues().keys.map{"sender.\($0)"}
+            let keys = affectedKeys(for: Array(mappedKeys), affecting: observable)            
+            
+            return Dictionary(keys: messages,
+                              repeatedValue: Changes(changedKeys: keys,
+                                                     changedKeysAndNewValues: ["userChanges" : [self : changes] as Optional<NSObject>]))
         default:
             return [:]
         }
@@ -144,6 +166,65 @@ extension UserClient : SideEffectSource {
         case ZMUser.entityName():
             guard let user = user else { return [:] }
             return [user : Changes(changedKeys: observable.keyPathsAffectedByValue(for: "clients"))]
+        default:
+            return [:]
+        }
+    }
+}
+
+extension Reaction : SideEffectSource {
+
+    func affectedObjectsAndKeys(observable: Observable) -> [NSObject : Changes] {
+        switch observable.classIdentifier {
+        case ZMMessage.entityName():
+            guard let message = message else { return [:] }
+            let changes = changedValues()
+            guard changes.count > 0  else { return [:] }
+            
+            let mappedKeys = changes.keys.map{"reactions.\($0)"}
+            let keys = affectedKeys(for: Array(mappedKeys), affecting: observable)
+            
+            return [message: Changes(changedKeys: keys,
+                                     changedKeysAndNewValues: ["reactionChanges" : [self : changes] as Optional<NSObject>])]
+        default:
+            return [:]
+        }
+    }
+    
+    func affectedObjectsAndKeysForInsertion(observable: Observable) -> [NSObject : Changes] {
+        switch observable.classIdentifier {
+        case ZMMessage.entityName():
+            guard let message = message else { return [:] }
+            return [message : Changes(changedKeys: observable.keyPathsAffectedByValue(for: "reactions"))]
+        default:
+            return [:]
+        }
+    }
+}
+
+extension ZMGenericMessageData : SideEffectSource {
+
+    func affectedObjectsAndKeys(observable: Observable) -> [NSObject : Changes] {
+        switch observable.classIdentifier {
+        case ZMMessage.entityName():
+            guard let msg : ZMMessage = message ?? asset else { return [:] }
+            let changes = changedValues()
+            guard changes.count > 0  else { return [:] }
+            
+            let mappedKeys = changes.keys.map{"dataSet.\($0)"}
+            let keys = affectedKeys(for: Array(mappedKeys), affecting: observable)
+            print(">>>>>>>>",observable.classIdentifier, Array(mappedKeys), observable.observableKeys, keys)
+            return [msg: Changes(changedKeys: keys)]
+        default:
+            return [:]
+        }
+    }
+    
+    func affectedObjectsAndKeysForInsertion(observable: Observable) -> [NSObject : Changes] {
+        switch observable.classIdentifier {
+        case ZMMessage.entityName():
+            guard let msg : ZMMessage = message ?? asset else { return [:] }
+            return [msg : Changes(changedKeys: observable.keyPathsAffectedByValue(for: "dataSet"))]
         default:
             return [:]
         }

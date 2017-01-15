@@ -33,6 +33,10 @@ extension Notification.Name {
     static let ConnectionChangeNotification = Notification.Name("ZMConnectionChangeNotification")
     static let UserClientChangeNotification = Notification.Name("ZMUserClientChangeNotification")
 
+    static var ignoredObservableIdentifiers : [String] {
+        return [Reaction.entityName(), ZMGenericMessageData.entityName()]
+    }
+    
     static func nameForObservable(with classIdentifier : String) -> Notification.Name? {
         switch classIdentifier {
         case ZMConversation.entityName():
@@ -43,8 +47,12 @@ extension Notification.Name {
             return .ConnectionChangeNotification
         case UserClient.entityName():
             return .UserClientChangeNotification
+        case ZMMessage.entityName(), ZMClientMessage.entityName(), ZMAssetClientMessage.entityName():
+            return .MessageChangeNotification
         default:
-            zmLog.warn("There is no NotificationName defined for \(classIdentifier)")
+            if !ignoredObservableIdentifiers.contains(classIdentifier) {
+                zmLog.warn("There is no NotificationName defined for \(classIdentifier)")
+            }
             return nil
         }
     }
@@ -98,6 +106,54 @@ extension UserChangeInfo {
     
     public static func remove(observer: NSObjectProtocol, for user: ZMUser?) {
         NotificationCenter.default.removeObserver(observer, name: Notification.Name.UserChangeNotification, object: user)
+    }
+}
+
+extension MessageChangeInfo {
+    
+    public static func add(observer: ZMMessageObserver, for message: ZMMessage) -> NSObjectProtocol {
+        return NotificationCenter.default.addObserver(forName: NSNotification.Name.MessageChangeNotification,
+                                                      object: message,
+                                                      queue: nil)
+        { [weak observer] (note) in
+            guard let `observer` = observer,
+                let changes = note.userInfo?[ChangedKeysAndNewValuesKey] as? [String : NSObject?]
+                else { return }
+            var changedKeysAndValues = changes
+            let userChanges = changedKeysAndValues.removeValue(forKey: "userChanges") as? [NSObject : [String : Any]]
+            let clientChanges = changedKeysAndValues.removeValue(forKey: "reactionChanges") as? [NSObject : [String : Any]]
+            
+            var reactionChangeInfo : ReactionChangeInfo?
+            if let clientChanges = clientChanges {
+                clientChanges.forEach {
+                    reactionChangeInfo = ReactionChangeInfo(object: $0)
+                    reactionChangeInfo?.changedKeysAndOldValues = $1 as! [String : NSObject?]
+                }
+            }
+            var userChangeInfo : UserChangeInfo?
+            if let userChanges = userChanges {
+                userChanges.forEach {
+                    let changeInfo = UserChangeInfo(object: $0)
+                    changeInfo.changedKeysAndOldValues = $1 as! [String : NSObject?]
+                    if (changeInfo.nameChanged            || changeInfo.accentColorValueChanged ||
+                        changeInfo.imageMediumDataChanged || changeInfo.imageSmallProfileDataChanged)
+                    {
+                        userChangeInfo = changeInfo
+                    }
+                }
+            }
+            guard reactionChangeInfo != nil || userChangeInfo != nil || changedKeysAndValues.count > 0 else { return }
+            
+            let changeInfo = MessageChangeInfo(object: message)
+            changeInfo.reactionChangeInfo = reactionChangeInfo
+            changeInfo.userChangeInfo = userChangeInfo
+            changeInfo.changedKeysAndOldValues = changedKeysAndValues
+            observer.messageDidChange(changeInfo)
+        }
+    }
+    
+    public static func remove(observer: NSObjectProtocol, for message: ZMMessage?) {
+        NotificationCenter.default.removeObserver(observer, name: Notification.Name.MessageChangeNotification, object: message)
     }
 }
 
@@ -181,28 +237,39 @@ struct Observable {
     
     private let affectingKeyStore: DependencyKeyStore
     let classIdentifier : String
-    
+    let internalClassIdentifier : String?
+
     /// Keys that we want to report changes for
     var observableKeys : Set<String> {
-        return affectingKeyStore.observableKeys[classIdentifier] ?? Set()
+        return affectingKeyStore.observableKeys[internalClassIdentifier ?? classIdentifier] ?? Set()
     }
     
     /// Union of observable keys and their affecting keys
     var allKeys : Set<String> {
-        return affectingKeyStore.allKeys[classIdentifier] ?? Set()
+        return affectingKeyStore.allKeys[internalClassIdentifier ?? classIdentifier] ?? Set()
     }
-
+    
     init(classIdentifier: String, affectingKeyStore: DependencyKeyStore) {
+        switch classIdentifier {
+        case ZMClientMessage.entityName(), ZMAssetClientMessage.entityName(), ZMSystemMessage.entityName():
+            self.init(classIdentifier: ZMMessage.entityName(), affectingKeyStore: affectingKeyStore, internalClassIdentifier: classIdentifier)
+        default:
+            self.init(classIdentifier: classIdentifier, affectingKeyStore: affectingKeyStore, internalClassIdentifier:nil)
+        }
+    }
+    
+    init(classIdentifier: String, affectingKeyStore: DependencyKeyStore, internalClassIdentifier: String?) {
         self.classIdentifier = classIdentifier
         self.affectingKeyStore = affectingKeyStore
+        self.internalClassIdentifier = internalClassIdentifier
     }
     
     func keyPathsForValuesAffectingValue(for key: String) -> Set<String>{
-        return affectingKeyStore.keyPathsForValuesAffectingValue(classIdentifier, key: key)
+        return affectingKeyStore.keyPathsForValuesAffectingValue(internalClassIdentifier ?? classIdentifier, key: key)
     }
     
     func keyPathsAffectedByValue(for key: String) -> Set<String>{
-        return affectingKeyStore.keyPathsAffectedByValue(classIdentifier, key: key)
+        return affectingKeyStore.keyPathsAffectedByValue(internalClassIdentifier ?? classIdentifier, key: key)
     }
 }
 
@@ -221,7 +288,15 @@ public class NotificationDispatcher : NSObject {
     public init(managedObjectContext: NSManagedObjectContext, syncContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext
         self.syncContext = syncContext
-        let classIdentifiers = [ZMConversation.entityName(), ZMUser.entityName(), ZMConnection.entityName(), UserClient.entityName()]
+        let classIdentifiers : [String] = [ZMConversation.entityName(),
+                                           ZMUser.entityName(),
+                                           ZMConnection.entityName(),
+                                           UserClient.entityName(),
+                                           ZMMessage.entityName(),
+                                           ZMClientMessage.entityName(),
+                                           ZMAssetClientMessage.entityName(),
+                                           Reaction.entityName(),
+                                           ZMGenericMessageData.entityName()]
         let affectingKeysStore = DependencyKeyStore(classIdentifiers : classIdentifiers)
         self.observables = classIdentifiers.map{Observable(classIdentifier: $0, affectingKeyStore: affectingKeysStore)}
         self.affectingKeysStore = affectingKeysStore
@@ -240,6 +315,7 @@ public class NotificationDispatcher : NSObject {
     }
     
     @objc func objectsDidChange(_ note: Notification){
+        print(note.userInfo)
         process(note: note)
     }
     
@@ -271,6 +347,8 @@ public class NotificationDispatcher : NSObject {
         let insertedObjects = userInfo[NSInsertedObjectsKey] as? Set<ZMManagedObject> ?? Set()
         let deletedObjects = userInfo[NSDeletedObjectsKey] as? Set<ZMManagedObject> ?? Set()
         
+        print(updatedObjects)
+
         let updatedAndRefreshedObjects = updatedObjects.union(refreshedObjects)
         extractChangesAffectedByChangeInObjects(insertedObjects: insertedObjects,
                                                 updatedObjects: updatedAndRefreshedObjects,
@@ -346,12 +424,12 @@ public class NotificationDispatcher : NSObject {
                 
                 // (3) Merge the changes with the other ones
                 let newChanges = Changes(changedKeys: affectedKeys, changedKeysAndNewValues: relevantKeysAndOldValues)
-                let existingChanges = allChanges[classIdentifier]?[object]
+                let existingChanges = allChanges[observable.classIdentifier]?[object]
                 return existingChanges?.joined(other: newChanges) ?? newChanges
             }
             
-            let value = allChanges[classIdentifier]
-            allChanges[classIdentifier] = value?.updated(other: changes) ?? changes
+            let value = allChanges[observable.classIdentifier]
+            allChanges[observable.classIdentifier] = value?.updated(other: changes) ?? changes
         }
     }
     
@@ -394,6 +472,7 @@ public class NotificationDispatcher : NSObject {
     }
     
     func fireAllNotifications(){
+        print(allChanges)
         allChanges.forEach{ (classIdentifier, changes) in
             guard let notificationName = Notification.Name.nameForObservable(with: classIdentifier) else { return }
             let notifications : [Notification] = changes.flatMap{Notification(name: notificationName,

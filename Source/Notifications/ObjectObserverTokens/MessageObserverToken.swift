@@ -123,7 +123,7 @@ extension ZMMessage : ObjectInSnapshot {
     }
     
     public var userChangeInfo : UserChangeInfo?
-    fileprivate var reactionChangeInfo : ReactionChangeInfo?
+    var reactionChangeInfo : ReactionChangeInfo?
     
     public let message : ZMMessage
 }
