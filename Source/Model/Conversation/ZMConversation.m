@@ -463,7 +463,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 + (NSSet *)keyPathsForValuesAffectingDisplayName;
 {
-    return [NSSet setWithObjects:ConversationTypeKey, @"connection", @"otherActiveParticipants", @"otherActiveParticipants.name", @"connection.to.name", @"otherActiveParticipants.displayName", @"connection.to.displayName", ZMConversationUserDefinedNameKey, nil];
+    return [NSSet setWithObjects:ConversationTypeKey, @"otherActiveParticipants", @"otherActiveParticipants.name", @"connection.to.name", @"otherActiveParticipants.displayName", @"connection.to.displayName", ZMConversationUserDefinedNameKey, nil];
 }
 
 + (instancetype)insertGroupConversationIntoUserSession:(id<ZMManagedObjectContextProvider>)session withParticipants:(NSArray *)participants

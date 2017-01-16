@@ -74,9 +74,13 @@ public final class NewUnreadMessagesChangeInfo : NSObject  {
 
 @objc public final class NewUnreadKnockMessagesChangeInfo : ObjectChangeInfo {
     
+    public required init(messages: [ZMConversationMessage]) {
+        self.messages = messages
+        super.init(object: messages as NSObject)
+    }
+    
     public required init(object: NSObject) {
-        self.messages = object as! [ZMConversationMessage]
-        super.init(object: object)
+        fatalError("init(object:) has not been implemented")
     }
     
     public let messages : [ZMConversationMessage]

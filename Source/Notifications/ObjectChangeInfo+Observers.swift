@@ -27,10 +27,11 @@ extension ConversationChangeInfo {
                                                       queue: nil)
         { [weak observer] (note) in
             guard let `observer` = observer,
+                let object = note.object as? ZMConversation,
                 let changedKeysAndValues = note.userInfo?[ChangedKeysAndNewValuesKey] as? [String : NSObject?]
                 else { return }
             
-            let changeInfo = ConversationChangeInfo(object: conversation)
+            let changeInfo = ConversationChangeInfo(object: object)
             changeInfo.changedKeysAndOldValues = changedKeysAndValues
             observer.conversationDidChange(changeInfo)
         }
@@ -49,18 +50,25 @@ extension UserChangeInfo {
                                                       queue: nil)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                let changedKeysAndValues = note.userInfo?[ChangedKeysAndNewValuesKey] as? [String : NSObject?]
+                let object = note.object as? ZMUser,
+                let changes = note.userInfo?[ChangedKeysAndNewValuesKey] as? [String : NSObject?]
                 else { return }
             
-            let changeInfo = UserChangeInfo(object: user)
-            changeInfo.changedKeysAndOldValues = changedKeysAndValues
-            if let clientChanges = changedKeysAndValues["clientChanges"] as? [NSObject : [String : Any]] {
+            var changedKeysAndValues = changes
+            let clientChanges = changedKeysAndValues.removeValue(forKey: "clientChanges") as? [NSObject : [String : Any]]
+            
+            var userClientChangeInfo : UserClientChangeInfo?
+            if let clientChanges = clientChanges {
                 clientChanges.forEach {
-                    let userClientInfo = UserClientChangeInfo(object: $0)
-                    userClientInfo.changedKeysAndOldValues = $1 as! [String : NSObject?]
-                    changeInfo.userClientChangeInfo = userClientInfo
+                    userClientChangeInfo = UserClientChangeInfo(object: $0)
+                    userClientChangeInfo?.changedKeysAndOldValues = $1 as! [String : NSObject?]
                 }
             }
+            guard userClientChangeInfo != nil || changedKeysAndValues.count > 0 else { return }
+            
+            let changeInfo = UserChangeInfo(object: object)
+            changeInfo.changedKeysAndOldValues = changedKeysAndValues
+            changeInfo.userClientChangeInfo = userClientChangeInfo
             observer.userDidChange(changeInfo)
         }
     }
@@ -78,6 +86,7 @@ extension MessageChangeInfo {
                                                       queue: nil)
         { [weak observer] (note) in
             guard let `observer` = observer,
+                let object = note.object as? ZMMessage,
                 let changes = note.userInfo?[ChangedKeysAndNewValuesKey] as? [String : NSObject?]
                 else { return }
             var changedKeysAndValues = changes
@@ -94,18 +103,13 @@ extension MessageChangeInfo {
             var userChangeInfo : UserChangeInfo?
             if let userChanges = userChanges {
                 userChanges.forEach {
-                    let changeInfo = UserChangeInfo(object: $0)
-                    changeInfo.changedKeysAndOldValues = $1 as! [String : NSObject?]
-                    if (changeInfo.nameChanged            || changeInfo.accentColorValueChanged ||
-                        changeInfo.imageMediumDataChanged || changeInfo.imageSmallProfileDataChanged)
-                    {
-                        userChangeInfo = changeInfo
-                    }
+                    userChangeInfo = UserChangeInfo(object: $0)
+                    userChangeInfo?.changedKeysAndOldValues = $1 as! [String : NSObject?]
                 }
             }
             guard reactionChangeInfo != nil || userChangeInfo != nil || changedKeysAndValues.count > 0 else { return }
             
-            let changeInfo = MessageChangeInfo(object: message)
+            let changeInfo = MessageChangeInfo(object: object)
             changeInfo.reactionChangeInfo = reactionChangeInfo
             changeInfo.userChangeInfo = userChangeInfo
             changeInfo.changedKeysAndOldValues = changedKeysAndValues
@@ -128,10 +132,11 @@ extension UserClientChangeInfo {
                                                       queue: nil)
         { [weak observer] (note) in
             guard let `observer` = observer,
+                let object = note.object as? UserClient,
                 let changedKeysAndValues = note.userInfo?[ChangedKeysAndNewValuesKey] as? [String : NSObject?]
                 else { return }
             
-            let changeInfo = UserClientChangeInfo(object: client)
+            let changeInfo = UserClientChangeInfo(object: object)
             changeInfo.changedKeysAndOldValues = changedKeysAndValues
             observer.userClientDidChange(changeInfo)
         }
@@ -148,9 +153,11 @@ extension NewUnreadMessagesChangeInfo {
                                                       object: nil,
                                                       queue: nil)
         { [weak observer] (note) in
-            guard let `observer` = observer else { return }
+            guard let `observer` = observer,
+                  let object = note.object as? [ZMConversationMessage]
+            else { return }
             
-            let changeInfo = NewUnreadMessagesChangeInfo(messages: note.object as! [ZMConversationMessage])
+            let changeInfo = NewUnreadMessagesChangeInfo(messages: object)
             observer.didReceiveNewUnreadMessages(changeInfo)
         }
     }
@@ -166,9 +173,11 @@ extension NewUnreadKnockMessagesChangeInfo {
                                                       object: nil,
                                                       queue: nil)
         { [weak observer] (note) in
-            guard let `observer` = observer else { return }
+            guard let `observer` = observer,
+                  let object = note.object as? [ZMConversationMessage]
+            else { return }
             
-            let changeInfo = NewUnreadKnockMessagesChangeInfo(object: note.object as! NSObject)
+            let changeInfo = NewUnreadKnockMessagesChangeInfo(messages: object)
             observer.didReceiveNewUnreadKnockMessages(changeInfo)
         }
     }

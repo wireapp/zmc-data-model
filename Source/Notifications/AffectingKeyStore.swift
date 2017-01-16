@@ -10,25 +10,12 @@ import Foundation
 
 private var zmLog = ZMSLog(tag: "DependencyKeyStore")
 
-//private enum MessageKey: String {
-//    case deliveryState = "deliveryState"
-//    case mediumData = "mediumData"
-//    case mediumRemoteIdentifier = "mediumRemoteIdentifier"
-//    case previewGenericMessage = "previewGenericMessage"
-//    case mediumGenericMessage = "mediumGenericMessage"
-//    case linkPreviewState = "linkPreviewState"
-//    case linkPreview = "linkPreview"
-//    case genericMessage = "genericMessage"
-//    case reactions = "reactions"
-//    case isObfuscated = "isObfuscated"
-//}
-
 class DependencyKeyStore {
     
     let observableKeys : [String: Set<String>]
     let allKeys : [String : Set<String>]
-    private let affectingKeys : [String : [String : Set<String>]]
-    private let effectedKeys : [String : [String : Set<String>]]
+    let affectingKeys : [String : [String : Set<String>]]
+    let effectedKeys : [String : [String : Set<String>]]
     
     init(classIdentifiers: [String]) {
         let observable = Dictionary.mappingKeysToValues(keys:classIdentifiers){DependencyKeyStore.setupObservableKeys(classIdentifier: $0)}
@@ -58,22 +45,22 @@ class DependencyKeyStore {
         case ZMMessage.entityName(), ZMSystemMessage.entityName():
             return Set([MessageKey.deliveryState.rawValue, MessageKey.isObfuscated.rawValue])
         case ZMAssetClientMessage.entityName():
-            var keys = [MessageKey.deliveryState.rawValue, MessageKey.isObfuscated.rawValue]
-            keys.append(ZMAssetClientMessageTransferStateKey)
-            keys.append(MessageKey.previewGenericMessage.rawValue)
-            keys.append(MessageKey.mediumGenericMessage.rawValue)
-            keys.append(ZMAssetClientMessageDownloadedImageKey)
-            keys.append(ZMAssetClientMessageDownloadedFileKey)
-            keys.append(ZMAssetClientMessageProgressKey)
-            keys.append(MessageKey.reactions.rawValue)
+            var keys = setupObservableKeys(classIdentifier: ZMMessage.entityName())
+            keys.insert(ZMAssetClientMessageTransferStateKey)
+            keys.insert(MessageKey.previewGenericMessage.rawValue)
+            keys.insert(MessageKey.mediumGenericMessage.rawValue)
+            keys.insert(ZMAssetClientMessageDownloadedImageKey)
+            keys.insert(ZMAssetClientMessageDownloadedFileKey)
+            keys.insert(ZMAssetClientMessageProgressKey)
+            keys.insert(MessageKey.reactions.rawValue)
             return Set(keys)
         case ZMClientMessage.entityName():
-            var keys = [MessageKey.deliveryState.rawValue, MessageKey.isObfuscated.rawValue]
-            keys.append(ZMAssetClientMessageDownloadedImageKey)
-            keys.append(MessageKey.linkPreviewState.rawValue)
-            keys.append(MessageKey.genericMessage.rawValue)
-            keys.append(MessageKey.reactions.rawValue)
-            keys.append(MessageKey.linkPreview.rawValue)
+            var keys = setupObservableKeys(classIdentifier: ZMMessage.entityName())
+            keys.insert(ZMAssetClientMessageDownloadedImageKey)
+            keys.insert(MessageKey.linkPreviewState.rawValue)
+            keys.insert(MessageKey.genericMessage.rawValue)
+            keys.insert(MessageKey.reactions.rawValue)
+            keys.insert(MessageKey.linkPreview.rawValue)
             return Set(keys)
         case Reaction.entityName(), ZMGenericMessageData.entityName():
             return Set()
@@ -143,5 +130,16 @@ class DependencyKeyStore {
             keys.insert(key)
         }
         return keys
+    }
+    
+    func requiredKeysForIncludingRawChanges(classIdentifier: String, for object: ZMManagedObject) -> Set<String> {
+        switch (classIdentifier, object) {
+        case (ZMUser.entityName(), is UserClient):
+            return Set([ZMUserClientTrustedKey, ZMUserClientTrusted_ByKey])
+        case (ZMClientMessage.entityName(), is ZMUser), (ZMAssetClientMessage.entityName(), is ZMUser), (ZMMessage.entityName(), is ZMUser):
+            return Set(["name", "displayName", "imageMediumData", "imageSmallProfileData", "accentColorValue"])
+        default:
+            return Set()
+        }
     }
 }

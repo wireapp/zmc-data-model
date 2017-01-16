@@ -23,7 +23,7 @@ private var zmLog = ZMSLog(tag: "notifications")
 
 protocol OpaqueConversationToken : NSObjectProtocol {}
 
-let ChangedKeysAndNewValuesKey = "ZMchangedKeysAndNewValues"
+let ChangedKeysAndNewValuesKey = "ZMChangedKeysAndNewValues"
 
 extension Notification.Name {
     
@@ -101,7 +101,22 @@ extension Dictionary {
     }
 }
 
-struct Changes {
+protocol Mergeable {
+    func merged(with other: Self) -> Self
+}
+
+extension Dictionary where Value : Mergeable {
+    
+    func merged(with other: Dictionary) -> Dictionary {
+        var newDict = self
+        other.forEach{ (key, value) in
+            newDict[key] = newDict[key]?.merged(with: value) ?? value
+        }
+        return newDict
+    }
+}
+
+struct Changes : Mergeable {
     private let changedKeys : Set<String>
     let changedKeysAndNewValues : [String : NSObject?]
     
@@ -132,7 +147,7 @@ struct Changes {
         self.changedKeysAndNewValues = mappedChangedKeys.updated(other: changedKeysAndNewValues)
     }
     
-    func joined(other: Changes) -> Changes {
+    func merged(with other: Changes) -> Changes {
         return Changes(changedKeys: changedKeys.union(other.changedKeys), changedKeysAndNewValues: changedKeysAndNewValues.updated(other: other.changedKeysAndNewValues))
     }
 }
@@ -143,6 +158,8 @@ struct Observable {
     
     private let affectingKeyStore: DependencyKeyStore
     let classIdentifier : String
+    private let affectingKeys : [String : Set<String>]
+    private let affectedKeys : [String : Set<String>]
 
     /// Keys that we want to report changes for
     var observableKeys : Set<String> {
@@ -157,14 +174,20 @@ struct Observable {
     init(classIdentifier: String, affectingKeyStore: DependencyKeyStore) {
         self.classIdentifier = classIdentifier
         self.affectingKeyStore = affectingKeyStore
+        self.affectingKeys = affectingKeyStore.affectingKeys[classIdentifier] ?? [:]
+        self.affectedKeys = affectingKeyStore.effectedKeys[classIdentifier] ?? [:]
     }
     
     func keyPathsForValuesAffectingValue(for key: String) -> Set<String>{
-        return affectingKeyStore.keyPathsForValuesAffectingValue(classIdentifier, key: key)
+        return affectingKeys[key] ?? Set()
     }
     
     func keyPathsAffectedByValue(for key: String) -> Set<String>{
-        return affectingKeyStore.keyPathsAffectedByValue(classIdentifier, key: key)
+        var keys = affectedKeys[key] ?? Set()
+        if observableKeys.contains(key) {
+            keys.insert(key)
+        }
+        return keys
     }
 }
 
@@ -177,6 +200,7 @@ public class NotificationDispatcher : NSObject {
     private var tornDown = false
     private let affectingKeysStore : DependencyKeyStore
     private let voicechannelObserverCenter : VoicechannelObserverCenter
+    
     private var allChanges : [String : [NSObject : Changes]] = [:]
     private var snapshots : [NSManagedObjectID : [String : NSObject?]] = [:]
     private var userChanges : [ZMManagedObject : Set<String>] = [:]
@@ -212,7 +236,6 @@ public class NotificationDispatcher : NSObject {
     }
     
     @objc func objectsDidChange(_ note: Notification){
-//        print(note.userInfo)
         process(note: note)
     }
     
@@ -254,8 +277,6 @@ public class NotificationDispatcher : NSObject {
         
         let usersWithNewImage = checkForChangedImages()
         let usersWithNewName = checkForDisplayNameUpdates(with: note)
-//        print(usersWithNewName)
-//        print(updatedObjects)
 
         let updatedAndRefreshedObjects = updatedObjects.union(refreshedObjects).union(usersWithNewImage).union(usersWithNewName)
         extractChangesAffectedByChangeInObjects(insertedObjects: insertedObjects,
@@ -272,44 +293,37 @@ public class NotificationDispatcher : NSObject {
     }
     
     func checkForUnreadMessages(insertedObjects: Set<ZMManagedObject>, updatedObjects: Set<ZMManagedObject>){
-        let insertedMessages = insertedObjects.flatMap{$0 as? ZMMessage}
-
         let unreadUnsent : [ZMMessage] = updatedObjects.flatMap{
             guard let msg = $0 as? ZMMessage else { return nil}
             return (msg.deliveryState == .failedToSend) ? msg : nil
         }
-        let (newUnreadMessages, newUnreadKnocks) = insertedMessages.reduce(([ZMMessage](),[ZMMessage]())) {
-            guard $1.isUnreadMessage else { return $0 }
+        let (newUnreadMessages, newUnreadKnocks) = insertedObjects.reduce(([ZMMessage](),[ZMMessage]())) {
+            guard let msg = $1 as? ZMMessage, msg.isUnreadMessage else { return $0 }
             var (messages, knocks) = $0
-            if $1.knockMessageData == nil {
-                messages.append($1)
+            if msg.knockMessageData == nil {
+                messages.append(msg)
             } else {
-                knocks.append($1)
+                knocks.append(msg)
             }
             return (messages, knocks)
         }
         
-        let existingUnreadUnsent = unreadMessages[.NewUnreadUnsentMessageNotification]
-        unreadMessages[.NewUnreadUnsentMessageNotification] = existingUnreadUnsent?.union(unreadUnsent) ?? Set(unreadUnsent)
-        
-        let existingMessages = unreadMessages[.NewUnreadMessageNotification]
-        unreadMessages[.NewUnreadMessageNotification] = existingMessages?.union(newUnreadMessages) ?? Set(newUnreadMessages)
-        
-        let existingKnocks = unreadMessages[.NewUnreadKnockNotification]
-        unreadMessages[.NewUnreadKnockNotification] = existingKnocks?.union(newUnreadKnocks) ?? Set(newUnreadKnocks)
+        updateExisting(name: .NewUnreadUnsentMessageNotification, newSet: unreadUnsent)
+        updateExisting(name: .NewUnreadMessageNotification, newSet: newUnreadMessages)
+        updateExisting(name: .NewUnreadKnockNotification, newSet: newUnreadKnocks)
+    }
+    
+    func updateExisting(name: Notification.Name, newSet: [ZMMessage]) {
+        let existingUnreadUnsent = unreadMessages[name]
+        unreadMessages[name] = existingUnreadUnsent?.union(newSet) ?? Set(newSet)
     }
     
     /// Gets additional user changes from userImageCache
     func checkForChangedImages() -> Set<ZMManagedObject> {
         let changedUsers = managedObjectContext.zm_userImageCache.changedUsersSinceLastSave
         changedUsers.forEach { user in
-            var newValue : Set<String>
-            if let oldValue = userChanges[user] {
-                newValue = oldValue
-                newValue.insert("imageMediumData")
-            } else {
-                newValue = Set(arrayLiteral: "imageMediumData")
-            }
+            var newValue = userChanges[user] ?? Set()
+            newValue.insert("imageMediumData")
             userChanges[user] = newValue
         }
         managedObjectContext.zm_userImageCache.changedUsersSinceLastSave = []
@@ -321,13 +335,8 @@ public class NotificationDispatcher : NSObject {
     func checkForDisplayNameUpdates(with note: Notification) -> Set<ZMManagedObject> {
         let updatedUsers = managedObjectContext.updateDisplayNameGenerator(withChanges: note) as! Set<ZMUser>
         updatedUsers.forEach{ user in
-            var newValue : Set<String>
-            if let oldValue = userChanges[user] {
-                newValue = oldValue
-                newValue.insert("displayName")
-            } else {
-                newValue = Set(arrayLiteral: "displayName")
-            }
+            var newValue = userChanges[user] ?? Set()
+            newValue.insert("displayName")
             userChanges[user] = newValue
         }
         return updatedUsers
@@ -336,42 +345,43 @@ public class NotificationDispatcher : NSObject {
     /// Extracts changes from the updated objects
     func extractChanges(from changedObjects: [String : Set<ZMManagedObject>]) {
         
+        func getChangedKeysSinceLastSave(object: ZMManagedObject) -> [String : NSObject?] {
+            var changedKeysAndNewValues = object.changedValues() as? [String : NSObject?] ?? [:]
+            if changedKeysAndNewValues.count == 0 && object.isFault {
+                // If the object is a fault, calling changedValues() will return an empty set
+                // Luckily we created a snapshot of the object before the merge happend which we can use to compare the values
+                if let snapshot = snapshots[object.objectID] {
+                    changedKeysAndNewValues = extractChangedKeysFromSnapshot(snapshot: snapshot, for: object)
+                    snapshots.removeValue(forKey: object.objectID)
+                }
+            }
+            if let knownKeys = userChanges[object] {
+                changedKeysAndNewValues = changedKeysAndNewValues.updated(other: Dictionary(keys: Array(knownKeys), repeatedValue: .none as Optional<NSObject>))
+            }
+            return changedKeysAndNewValues
+        }
+        
         // Check for changed keys and affected keys
         changedObjects.forEach{ (classIdentifier, objects) in
             let observable = Observable(classIdentifier: classIdentifier, affectingKeyStore: affectingKeysStore)
             
             let changes : [NSObject: Changes] = Dictionary.mappingKeysToValues(keys: Array(objects)){ object in
                 // (1) Get all the changed keys since last Save
-                var changedKeysAndNewValues = object.changedValues() as! [String : NSObject?]
-                if changedKeysAndNewValues.count == 0 && object.isFault {
-                    // (1a)
-                    // If the object is a fault, calling changedValues() will return an empty set
-                    // Luckily we created a snapshot of the object before the merge happend which we can use to compare the values
-                    if let snapshot = snapshots[object.objectID] {
-                        changedKeysAndNewValues = extractChangedKeysFromSnapshot(snapshot: snapshot, for: object)
-                        snapshots.removeValue(forKey: object.objectID)
-                    }
-                }
-                if let knownKeys = userChanges[object] {
-                    changedKeysAndNewValues = changedKeysAndNewValues.updated(other: Dictionary(keys: Array(knownKeys), repeatedValue: .none as Optional<NSObject>))
-                }
+                let changedKeysAndNewValues = getChangedKeysSinceLastSave(object: object)
                 guard changedKeysAndNewValues.count > 0 else { return nil }
-                
+
                 // (2) Map the changed keys to affected keys, remove the ones that we are not reporting
                 let relevantKeysAndOldValues = changedKeysAndNewValues.removingKeysNotIn(set: observable.observableKeys)
                 let affectedKeys = changedKeysAndNewValues.keys.map{observable.keyPathsAffectedByValue(for: $0)}
                     .reduce(Set()){$0.union($1)}
                     .intersection(observable.observableKeys)
                 guard relevantKeysAndOldValues.count > 0 || affectedKeys.count > 0 else { return nil }
-                
-                // (3) Merge the changes with the other ones
-                let newChanges = Changes(changedKeys: affectedKeys, changedKeysAndNewValues: relevantKeysAndOldValues)
-                let existingChanges = allChanges[observable.classIdentifier]?[object]
-                return existingChanges?.joined(other: newChanges) ?? newChanges
+                return Changes(changedKeys: affectedKeys, changedKeysAndNewValues: relevantKeysAndOldValues)
             }
             
+            // (3) Merge the changes with the other ones
             let value = allChanges[observable.classIdentifier]
-            allChanges[observable.classIdentifier] = value?.updated(other: changes) ?? changes
+            allChanges[observable.classIdentifier] = value?.merged(with: changes) ?? changes
         }
     }
     
@@ -384,10 +394,10 @@ public class NotificationDispatcher : NSObject {
             // e.g. changing a users name affects the conversation displayName
             updatedObjects.forEach{ (obj) in
                 guard let object = obj as? SideEffectSource else { return }
-                let changedObjectsAndKeys = object.affectedObjectsAndKeys(keyStore: affectingKeysStore, knownKeys: userChanges[obj] ?? Set())
-                changedObjectsAndKeys.forEach{
-                    let values = allChanges[$0]
-                    allChanges[$0] = values?.updated(other: $1) ?? $1
+                let knownKeys = obj is ZMUser ? (userChanges[obj] ?? Set()) : Set()
+                let changedObjectsAndKeys = object.affectedObjectsAndKeys(keyStore: affectingKeysStore, knownKeys: knownKeys)
+                changedObjectsAndKeys.forEach{ classIdentifier, changedObjects in
+                    allChanges[classIdentifier] = allChanges[classIdentifier]?.merged(with: changedObjects) ?? changedObjects
                 }
             }
             // (2) All inserts of other objects resulting in changes in others
@@ -395,9 +405,8 @@ public class NotificationDispatcher : NSObject {
             insertedObjects.forEach{ (obj) in
                 guard let object = obj as? SideEffectSource else { return }
                 let changedObjectsAndKeys = object.affectedObjectsAndKeysForInsertion(keyStore: affectingKeysStore)
-                changedObjectsAndKeys.forEach{
-                    let values = allChanges[$0]
-                    allChanges[$0] = values?.updated(other: $1) ?? $1
+                changedObjectsAndKeys.forEach{ classIdentifier, changedObjects in
+                    allChanges[classIdentifier] = allChanges[classIdentifier]?.merged(with: changedObjects) ?? changedObjects
                 }
             }
     }
@@ -416,7 +425,6 @@ public class NotificationDispatcher : NSObject {
     }
     
     func fireAllNotifications(){
-//        print(allChanges)
         allChanges.forEach{ (classIdentifier, changes) in
             guard let notificationName = Notification.Name.nameForObservable(with: classIdentifier) else { return }
             let notifications : [Notification] = changes.flatMap{Notification(name: notificationName,
@@ -432,6 +440,7 @@ public class NotificationDispatcher : NSObject {
         }
         unreadMessages = [:]
         allChanges = [:]
+        snapshots = [:]
     }
     
     /// Sorts all objects by entityName, e.g. ["ZMConversation" : Set(conversation1, conversation2), "ZMUser" : Set(user1, user2)]
@@ -448,667 +457,3 @@ public class NotificationDispatcher : NSObject {
         return objectsSortedByClass
     }
 }
-
-
-/*
- //
- //  ZMNotificationDispatcher.m
- //
- //
- //  Created by Arne Schroppe on 01/07/14.
- //  Copyright (c) 2014 Zeta Project Gmbh. All rights reserved.
- //
- 
- #import "ZMNotificationDispatcher.h"
- #import "ZMNotificationDispatcher+Private.h"
- #import "ZMNotifications+Internal.h"
- #import "ZMFunctional.h"
- #import "ZMMessage+Internal.h"
- #import "ZMConversation+Internal.h"
- #import "ZMUser+Internal.h"
- #import "ZMConnection+Internal.h"
- #import "NSManagedObjectContext+zmessaging.h"
- #import "ZMFunctional.h"
- #import "ZMManagedObjectContext.h"
- #import "ZMConversationList+Internal.h"
- #import "ZMCallParticipant.h"
- #import "ZMVoiceChannelNotifications+Internal.h"
- #import "ZMVoiceChannel+Internal.h"
- #import "ZMUserDisplayNameGenerator.h"
- #import "ZMEventID.h"
- #import "ZMConversationList+Internal.h"
- #import "ZMConversationListDirectory.h"
- #import "ZMConversationMessageWindow+Internal.h"
- 
- #import <zmessaging/zmessaging-Swift.h>
- 
- NSString * const ZMNotificationDispatcherWillMergeChangesFromContextDidSave = @"ZMNotificationDispatcherWillMergeChangesFromContextDidSave";
- static ZMLogLevel_t const ZMLogLevel ZM_UNUSED = ZMLogLevelWarn;
- 
- // This array is not thread safe and is supposed to be used on the UI thread only
- static NSMutableSet *WindowTokenList;
- 
- @interface ZMNotificationDispatcher ()
- 
- @property (nonatomic) NSManagedObjectContext *moc;
- 
- @property (nonatomic) NSSet *insertedConversationsOnOtherContext;
- @property (nonatomic) NSSet *updatedConversationsOnOtherContext;
- 
- @property (nonatomic) NSMutableArray *notificationsToFire;
- @property (nonatomic, readonly) NSMutableArray *userInfosFromWillMerge;
- 
- @property (nonatomic) NSMutableSet *updatedConversations;
- @property (nonatomic) NSMutableSet *updatedConnections;
- @property (nonatomic) NSMutableSet *updatedUsers;
- @property (nonatomic) NSMutableSet *updatedMessages;
- @property (nonatomic) NSMutableSet *updatedAndInsertedConnections;
- @property (nonatomic) NSMutableSet *updatedCallParticipants;
- @property (nonatomic) NSMutableSet *insertedCallParticipants;
- @property (nonatomic) NSMutableSet *insertedMessages;
- @property (nonatomic) NSSet *usersWithUpdatedDisplayNames;
- @property (nonatomic) NSSet *insertedConversations;
- 
- @property (nonatomic) ZMConversation *previousActiveVoiceChannelConversation;
- @property (nonatomic) BOOL didChangeConnectionStatus;
- @end
- 
- 
- 
- @implementation ZMNotificationDispatcher
- 
- - (instancetype)initWithContext:(NSManagedObjectContext *)moc
- {
- ZMLogDebug(@"%@ %@: %@", self.class, NSStringFromSelector(_cmd), moc);
- VerifyReturnNil(moc != nil);
- Check(moc.zm_isUserInterfaceContext);
- self = [super init];
- if (self) {
- self.moc = moc;
- _userInfosFromWillMerge = [NSMutableArray array];
- NSNotificationCenter *center = [NSNotificationCenter defaultCenter];
- [center addObserver:self selector:@selector(willMergeChanges:) name:ZMNotificationDispatcherWillMergeChangesFromContextDidSave object:moc];
- [center addObserver:self selector:@selector(processChangeNotification:) name:NSManagedObjectContextObjectsDidChangeNotification object:moc];
- 
- WindowTokenList = [NSMutableSet set];
- }
- return self;
- }
- 
- - (void)dealloc
- {
- [[NSNotificationCenter defaultCenter] removeObserver:self];
- }
- 
- - (void)willMergeChanges:(NSNotification *)note;
- {
- [self.userInfosFromWillMerge addObject:[note.userInfo copy] ?: @{}];
- }
- 
- 
- 
- - (void)checkForConversationListChanges;
- {
- NSEntityDescription *conversationEntity = self.moc.persistentStoreCoordinator.managedObjectModel.entitiesByName[ZMConversation.entityName];
- 
- NSMutableSet *insertedObjectIDs = [NSMutableSet set];
- for (NSDictionary *userInfo in self.userInfosFromWillMerge) {
- NSSet *inserted = userInfo[NSInsertedObjectsKey];
- for (NSManagedObject *mo in inserted) {
- NSManagedObjectID *moid = mo.objectID;
- if (moid.entity == conversationEntity) {
- [insertedObjectIDs addObject:moid];
- }
- }
- }
- 
- [self.userInfosFromWillMerge removeAllObjects];
- NSArray *insertedConversations = [[insertedObjectIDs allObjects] mapWithBlock:^id(NSManagedObjectID *moid) {
- // Get the same object in the other context:
- return [self.moc objectWithID:moid];
- }];
- self.insertedConversationsOnOtherContext = [NSSet setWithArray:insertedConversations];
- }
- 
- - (void)checkForConversationChangesInDidSaveNotification:(NSNotification *)note;
- {
- NSSet *updated = note.userInfo[NSUpdatedObjectsKey];
- NSEntityDescription *conversationEntity = self.moc.persistentStoreCoordinator.managedObjectModel.entitiesByName[ZMConversation.entityName];
- NSArray *updatedConversations = [[updated allObjects] mapWithBlock:^id(NSManagedObject *mo) {
- if (mo.entity != conversationEntity) {
- return nil;
- }
- // Get the same object in the other context:
- return [self.moc objectWithID:mo.objectID];
- }];
- self.updatedConversationsOnOtherContext = [NSSet setWithArray:updatedConversations];
- }
- 
- - (void)logChangeNotification:(NSNotification *)note;
- {
- ZMLogDebug(@"%@", note.name);
- for (NSString *key in @[NSInsertedObjectsKey, NSUpdatedObjectsKey, NSRefreshedObjectsKey, NSDeletedObjectsKey]) {
- NSSet *objects = note.userInfo[key];
- if (objects.count == 0) {
- continue;
- }
- BOOL const isUpdateOrRefresh = ([key isEqual:NSUpdatedObjectsKey] || [key isEqual:NSRefreshedObjectsKey]);
- ZMLogDebug(@"[%@]:", key);
- NSMutableArray *lines = [NSMutableArray array];
- for (NSManagedObject *mo in objects) {
- if (isUpdateOrRefresh) {
- [lines addObject:[NSString stringWithFormat:@"    <%@: %p> %@, keys: {%@}",
- mo.class, mo, mo.objectID.URIRepresentation,
- [[mo updatedKeysForChangeNotification].allObjects componentsJoinedByString:@", "]]];
- } else {
- [lines addObject:[NSString stringWithFormat:@"    <%@: %p> %@",
- mo.class, mo, mo.objectID.URIRepresentation]];
- }
- }
- ZM_ALLOW_MISSING_SELECTOR([lines sortUsingSelector:@selector(compare:)]);
- for (NSString *line in lines) {
- ZMLogDebug(@"%@", line);
- }
- }
- }
- 
- - (void)processChangeNotification:(NSNotification *)note
- {
- if (__builtin_expect((ZMLogLevelDebug <= ZMLogLevel),0)) { \
- [self logChangeNotification:note];
- }
- 
- [self calculateNotificationsFromChangeNotification:note withBlock:^NSArray *(){
- 
- NSArray *voiceChannelChangeNotifications = [self createVoiceChannelChangeNotifications];
- NSArray *userChangeNotifications = [self createUserChangeNotification];
- NSArray *messageChangeNotifications = [self createMessagesChangeNotificationWithUserChangeNotifications:userChangeNotifications];
- NSArray *conversationChangeNotifications = [self createConversationChangeNotificationsWithUserChangeNotifications:userChangeNotifications
- messageChangeNotifications:messageChangeNotifications];
- NSArray *connectionChangeNotifications = [self createConnectionChangeNotification];
- NSArray *newUnreadMessagesNotifications = [self createNewUnreadMessagesNotification];
- NSArray *updatedKnocksNotifications = [self createNewUnreadKnocksNotificationsForUpdatedKnocks];
- NSArray *conversationListChangeNotifications = [self createConversationListChangeNotificationsWithConversationChangeNotification:conversationChangeNotifications connectionChangedNotifications:connectionChangeNotifications];
- 
- [ZMNotificationDispatcher notifyConversationWindowChangeTokensWithUpdatedMessages:self.updatedMessages];
- 
- return [self combineArrays:@[voiceChannelChangeNotifications,
- userChangeNotifications,
- messageChangeNotifications,
- conversationChangeNotifications,
- connectionChangeNotifications,
- newUnreadMessagesNotifications,
- updatedKnocksNotifications,
- conversationListChangeNotifications,
- ]];
- 
- }];
- 
- 
- }
- 
- - (NSArray *)combineArrays:(NSArray *)arrays {
- NSArray *accum = @[];
- 
- for (NSArray *array in arrays) {
- accum = [accum arrayByAddingObjectsFromArray:array];
- }
- 
- return accum;
- 
- }
- 
- 
- - (void)calculateNotificationsFromChangeNotification:(NSNotification *)changeNotification withBlock:(NSArray *(^)())block;
- {
- [self checkForConversationListChanges];
- 
- [self extractUpdatedObjectsFromChangeNotification:changeNotification];
- self.notificationsToFire = [NSMutableArray array];
- self.didChangeConnectionStatus = NO;
- 
- NSArray *newNotifications = block();
- 
- for (NSNotification *note in newNotifications) {
- [self addNotification:note];
- }
- 
- [self fireAllNotifications];
- 
- self.updatedConversations = nil;
- self.updatedConnections = nil;
- self.updatedUsers = nil;
- self.updatedMessages = nil;
- self.updatedAndInsertedConnections = nil;
- self.updatedCallParticipants = nil;
- self.insertedCallParticipants = nil;
- self.insertedConversations = nil;
- self.didChangeConnectionStatus = NO;
- self.usersWithUpdatedDisplayNames = nil;
- self.insertedMessages = nil;
- self.insertedConversationsOnOtherContext = nil;
- 
- NSManagedObjectContext *moc = changeNotification.object;
- [moc clearCustomSnapshotsWithObjectChangeNotification:changeNotification];
- }
- 
- - (void)extractUpdatedObjectsFromChangeNotification:(NSNotification *)changeNotification;
- {
- self.updatedConversations = [NSMutableSet setWithSet:[((NSSet *) changeNotification.userInfo[NSUpdatedObjectsKey]) objectsOfClass:ZMConversation.class]];
- [self.updatedConversations unionSet:[((NSSet *) changeNotification.userInfo[NSRefreshedObjectsKey]) objectsOfClass:ZMConversation.class]];
- 
- self.updatedConnections = [NSMutableSet setWithSet:[((NSSet *) changeNotification.userInfo[NSUpdatedObjectsKey]) objectsOfClass:ZMConnection.class]];
- [self.updatedConnections unionSet:[((NSSet *) changeNotification.userInfo[NSRefreshedObjectsKey]) objectsOfClass:ZMConnection.class]];
- 
- self.updatedUsers = [NSMutableSet setWithSet:[((NSSet *) changeNotification.userInfo[NSUpdatedObjectsKey]) objectsOfClass:ZMUser.class]];
- [self.updatedUsers unionSet:[((NSSet *) changeNotification.userInfo[NSRefreshedObjectsKey]) objectsOfClass:ZMUser.class]];
- 
- self.updatedMessages = [NSMutableSet setWithSet:[((NSSet *) changeNotification.userInfo[NSUpdatedObjectsKey]) objectsOfClass:ZMMessage.class]];
- [self.updatedMessages unionSet:[((NSSet *) changeNotification.userInfo[NSRefreshedObjectsKey]) objectsOfClass:ZMMessage.class]];
- 
- self.insertedMessages = [[((NSSet *) changeNotification.userInfo[NSInsertedObjectsKey]) objectsOfClass:ZMMessage.class] mutableCopy];
- 
- self.updatedCallParticipants = [NSMutableSet set];
- self.updatedCallParticipants = [NSMutableSet setWithSet:[((NSSet *) changeNotification.userInfo[NSUpdatedObjectsKey]) objectsOfClass:ZMCallParticipant.class]];
- [self.updatedCallParticipants unionSet:[((NSSet *) changeNotification.userInfo[NSRefreshedObjectsKey]) objectsOfClass:ZMCallParticipant.class]];
- 
- self.insertedCallParticipants = [[((NSSet *) changeNotification.userInfo[NSInsertedObjectsKey]) objectsOfClass:ZMCallParticipant.class] mutableCopy];
- self.insertedConversations = [((NSSet *) changeNotification.userInfo[NSInsertedObjectsKey]) objectsOfClass:ZMConversation.class];
- 
- self.updatedAndInsertedConnections = [NSMutableSet setWithSet:[((NSSet *) changeNotification.userInfo[NSUpdatedObjectsKey]) objectsOfClass:ZMConnection.class]];
- [self.updatedAndInsertedConnections unionSet:[((NSSet *) changeNotification.userInfo[NSRefreshedObjectsKey]) objectsOfClass:ZMConnection.class]];
- [self.updatedAndInsertedConnections unionSet:[((NSSet *) changeNotification.userInfo[NSInsertedObjectsKey]) objectsOfClass:ZMConnection.class]];
- 
- NSSet *insertedUsers =  [NSMutableSet setWithSet:[((NSSet *) changeNotification.userInfo[NSInsertedObjectsKey]) objectsOfClass:ZMUser.class]];
- NSSet *deletedUsers =  [NSMutableSet setWithSet:[((NSSet *) changeNotification.userInfo[NSDeletedObjectsKey]) objectsOfClass:ZMUser.class]];
- 
- if (insertedUsers.count != 0 || deletedUsers.count != 0 || self.updatedUsers.count != 0) {
- self.usersWithUpdatedDisplayNames = [self.moc updateDisplayNameGeneratorWithInsertedUsers:insertedUsers  updatedUsers:self.updatedUsers deletedUsers:deletedUsers];
- }
- }
- 
- - (void)fireAllNotifications;
- {
- if (0 < self.notificationsToFire.count) {
- static int count;
- ZMLogInfo(@"%@ firing notifications (%d)", self.class, count++);
- for (NSNotification *note in self.notificationsToFire) {
- ZMLogInfo(@"    posting %@ (obj = %p)", note.name, note.object);
- [[NSNotificationCenter defaultCenter] postNotification:note];
- }
- }
- self.notificationsToFire = nil;
- }
- 
- - (NSArray *)createConversationListChangeNotificationsWithConversationChangeNotification:(NSArray *)conversationNotifications
- connectionChangedNotifications:(NSArray *)connectionNotifications;
- {
- // These are "special" hooks for the ZMConversationList:
- 
- NSSet * const allUpdatedConversationKeys = [self allUpdatedConversationKeys];
- NSSet * const allUpdatedConnectionsKeys = [self allUpdatedConnectionKeys];
- BOOL const insertedOrRemovedConversations = [self conversationsWereInsertedOrRemoved];
- 
- ZMLogDebug(@"allUpdatedConversationKeys: %@", [allUpdatedConversationKeys.allObjects componentsJoinedByString:@", "]);
- ZMLogDebug(@"allUpdatedConnectionsKeys: %@", [allUpdatedConnectionsKeys.allObjects componentsJoinedByString:@", "]);
- 
- NSMutableArray *notifications = [NSMutableArray array];
- 
- for (ZMConversationList *list in self.moc.allConversationLists) {
- BOOL const refetch = (insertedOrRemovedConversations ||
- [list predicateIsAffectedByConversationKeys:allUpdatedConversationKeys connectionKeys:allUpdatedConnectionsKeys]);
- BOOL const resort = (refetch ||
- [list sortingIsAffectedByConversationKeys:allUpdatedConversationKeys]);
- ZMConversationListRefresh const refreshType = (refetch ?
- ZMConversationListRefreshByRefetching :
- (resort ?
- ZMConversationListRefreshByResorting :
- ZMConversationListRefreshItemsInPlace));
- 
- ZMLogDebug(@"ZMConversationListChangeNotification refresh type “%@” for %p", ZMConversationListRefreshName(refreshType), list);
- ZMConversationListChangeNotification *note = [ZMConversationListChangeNotification notificationForList:list
- conversationChangeNotifications:conversationNotifications
- connectionChangeNotifications:connectionNotifications
- refreshType:refreshType];
- if (note != nil) {
- [notifications addObject:note];
- }
- }
- return notifications;
- }
- 
- - (BOOL)conversationsWereInsertedOrRemoved;
- {
- return ((0 < self.self.insertedConversations.count) ||
- (0 < self.insertedConversationsOnOtherContext.count));
- }
- 
- /// Keys that have changed in any conversation:
- - (NSSet *)allUpdatedConversationKeys;
- {
- NSMutableSet *allKeys = [NSMutableSet set];
- for (ZMConversation *conversation in self.updatedConversations) {
- [allKeys unionSet:[conversation updatedKeysForChangeNotification]];
- }
- return allKeys;
- }
- 
- - (NSSet *)allUpdatedConnectionKeys;
- {
- NSMutableSet *allKeys = [NSMutableSet set];
- for (ZMConnection *connection in self.updatedConnections) {
- [allKeys unionSet:[connection updatedKeysForChangeNotification]];
- }
- return allKeys;
- }
- 
- - (void)addNotification:(NSNotification *)note;
- {
- if (note != nil) {
- [self.notificationsToFire addObject:note];
- }
- }
- 
- - (void)addNotificationWithTopPriority:(NSNotification *)note;
- {
- if (note != nil) {
- [self.notificationsToFire insertObject:note atIndex:0];
- }
- }
- 
- - (ZMNotification *)createActiveVoiceChannelNotification
- {
- NSSet * const allUpdatedConversationKeys = [self allUpdatedConversationKeys];
- NSSet * const keysOfInterest = [NSSet setWithObjects:ZMConversationCallDeviceIsActiveKey, ZMConversationFlowManagerCategoryKey, nil];
- 
- if ((self.updatedCallParticipants.count == 0) &&
- (self.insertedCallParticipants.count == 0) &&
- ! [allUpdatedConversationKeys intersectsSet:keysOfInterest])
- {
- return nil;
- }
- 
- // active channel
- ZMVoiceChannel *activeVoiceChannel = [ZMVoiceChannel activeVoiceChannelInManagedObjectContext:self.moc];
- ZMConversation *strongConversation = activeVoiceChannel.conversation;
- 
- if(strongConversation == self.previousActiveVoiceChannelConversation) {
- return nil;
- }
- 
- ZMVoiceChannelActiveChannelChangedNotification *activeChannelNotification = [ZMVoiceChannelActiveChannelChangedNotification notificationWithActiveVoiceChannel:activeVoiceChannel];
- activeChannelNotification.currentActiveVoiceChannel = activeVoiceChannel;
- activeChannelNotification.previousActiveVoiceChannel = self.previousActiveVoiceChannelConversation.voiceChannel;
- 
- self.previousActiveVoiceChannelConversation = strongConversation;
- 
- return activeChannelNotification;
- }
- 
- - (NSArray *)createNewUnreadMessagesNotification {
- 
- NSMutableArray *newUnreadMessages = [NSMutableArray array];
- NSMutableArray *newUnreadKnocks = [NSMutableArray array];
- 
- for(ZMMessage *msg in self.insertedMessages) {
- if(msg.conversation.lastReadEventID != nil && msg.eventID != nil && [msg.eventID compare:msg.conversation.lastReadEventID] == NSOrderedDescending) {
- if ([msg isKindOfClass:[ZMKnockMessage class]]) {
- [newUnreadKnocks addObject:msg];;
- }
- else {
- [newUnreadMessages addObject:msg];
- }
- }
- }
- 
- NSMutableArray *notifications = [NSMutableArray array];
- if (newUnreadMessages.count > 0) {
- ZMNewUnreadMessagesNotification *messageNote = [ZMNewUnreadMessagesNotification notificationWithMessages:newUnreadMessages];
- if (messageNote != nil) {
- [notifications addObject:messageNote];
- }
- }
- if (newUnreadKnocks.count > 0) {
- ZMNewUnreadKnocksNotification *knockNote = [ZMNewUnreadKnocksNotification notificationWithKnockMessages:newUnreadKnocks];
- if (knockNote != nil) {
- [notifications addObject:knockNote];
- }
- }
- 
- return notifications;
- }
- 
- - (NSArray *)createVoiceChannelChangeNotifications;
- {
- NSMutableSet *conversations = [self.updatedConversations mutableCopy];
- [conversations unionSet:self.conversationsWithChangesForCallParticipants];
- 
- NSMutableArray *notifications = [NSMutableArray array];
- for (ZMConversation *conversation in conversations) {
- ZMVoiceChannelStateChangedNotification *channelNotification = [ZMVoiceChannelStateChangedNotification notificationWithConversation:conversation insertedParticipants:self.insertedCallParticipants];
- if (channelNotification != nil) {
- [notifications addObject:channelNotification];
- }
- 
- for(ZMCallParticipant *participant in conversation.mutableCallParticipants) {
- 
- BOOL isInserted = [self.insertedCallParticipants containsObject:participant];
- ZMVoiceChannelParticipantStateChangedNotification *participantNotification =
- [ZMVoiceChannelParticipantStateChangedNotification notificationWithConversation:conversation callParticipant:participant isInserted:isInserted];
- if(participantNotification != nil) {
- [notifications addObject:participantNotification];
- }
- }
- }
- 
- ZMNotification *activeChannelNotification = [self createActiveVoiceChannelNotification];
- if(activeChannelNotification != nil) {
- [notifications addObject:activeChannelNotification];
- }
- 
- return notifications;
- }
- 
- - (NSSet *)conversationsWithChangesForCallParticipants;
- {
- NSMutableSet *conversations = [NSMutableSet set];
- 
- for (ZMCallParticipant *participant in self.updatedCallParticipants) {
- if ([participant.updatedKeysForChangeNotification containsObject:ZMCallParticipantIsJoinedKey]) {
- [conversations addObject:participant.conversation];
- }
- }
- 
- for (ZMCallParticipant *participant in self.insertedCallParticipants) {
- [conversations addObject:participant.conversation];
- }
- return conversations;
- }
- 
- - (NSArray *)createMessagesChangeNotificationWithUserChangeNotifications:(NSArray *)userChangeNotifications;
- {
- NSMutableArray *notifications = [NSMutableArray array];
- [self.updatedMessages unionSet:[self messagesWithChangedSendersForUserChangeNotifications:userChangeNotifications]];
- 
- for (ZMMessage *message in self.updatedMessages) {
- ZMMessageChangeNotification *notification = [ZMMessageChangeNotification notificationWithMessage:message userChangeNotifications:userChangeNotifications];
- 
- if (notification) {
- [notifications addObject:notification];
- }
- }
- return notifications;
- }
- 
- - (NSArray *)createNewUnreadKnocksNotificationsForUpdatedKnocks
- {
- NSMutableArray *updatedKnocks = [NSMutableArray array];
- 
- for (ZMMessage *message in self.updatedMessages) {
- if (![message isKindOfClass:[ZMKnockMessage class]]){
- continue;
- }
- if ((message.conversation.lastReadEventID != nil && message.eventID != nil) &&
- [message.eventID compare:message.conversation.lastReadEventID] == NSOrderedDescending){
- [updatedKnocks addObject:message];
- }
- }
- 
- ZMNewUnreadKnocksNotification *note;
- if (updatedKnocks.count != 0u) {
- note = [ZMNewUnreadKnocksNotification notificationWithKnockMessages:updatedKnocks];
- }
- if (note == nil) {
- return @[];
- }
- 
- return @[note];
- }
- 
- - (NSMutableSet *)messagesWithChangedSendersForUserChangeNotifications:(NSArray *)userChangeNotifications;
- {
- NSMutableSet *messages = [NSMutableSet set];
- for (ZMUserChangeNotification *note in userChangeNotifications) {
- // For performance, we'll have to put some logic here.
- 
- if (! (note.mediumProfileImageChanged || note.smallProfileImageChanged || note.nameChanged || note.accentChanged)) {
- continue;
- }
- for (ZMMessage *message in self.moc.registeredObjects) {
- if (! [message isKindOfClass:[ZMMessage class]]) {
- continue;
- }
- if (message.sender == note.user) {
- [messages addObject:message];
- }
- }
- }
- return messages;
- }
- 
- - (NSArray *)createConversationChangeNotificationsWithUserChangeNotifications:(NSArray *)userChangeNotifications
- messageChangeNotifications:(NSArray *)messageChangeNotifications;
- {
- NSMutableArray *notifications = [NSMutableArray array];
- 
- NSMutableSet *conversationsWithChangedMessages = [NSMutableSet set];
- for(ZMMessageChangeNotification *note in messageChangeNotifications) {
- if(note.message.conversation != nil) {
- [conversationsWithChangedMessages addObject:note.message.conversation];
- }
- }
- NSMutableSet *conversationsWithInsertedMessages = [NSMutableSet set];
- for (ZMMessage *insertedMessage in self.insertedMessages) {
- if (insertedMessage.conversation != nil) {
- [conversationsWithInsertedMessages addObject:insertedMessage.conversation];
- }
- }
- 
- [self.updatedConversations unionSet:[self conversationsWithChangedUsers:userChangeNotifications]];
- [self.updatedConversations unionSet:conversationsWithChangedMessages];
- 
- for (ZMConversation *conversation in self.updatedConversations) {
- BOOL const hasUpdatedMessages = [conversationsWithChangedMessages containsObject:conversation];
- BOOL const hasInsertedMessages = [conversationsWithInsertedMessages containsObject:conversation];
- ZMConversationChangeNotification *notification = [ZMConversationChangeNotification notificationWithConversation:conversation userChangeNotifications:userChangeNotifications hasUpdatedMessages:hasUpdatedMessages hasInsertedMessages:hasInsertedMessages];
- if (notification != nil) {
- [notifications addObject:notification];
- }
- }
- return notifications;
- }
- 
- - (NSMutableSet *)conversationsWithChangedUsers:(NSArray *)userChangeNotifications;
- {
- NSMutableSet *conversations = [NSMutableSet set];
- for (ZMUserChangeNotification *note in userChangeNotifications) {
- if(note.completeUser != nil) {
- [conversations unionSet:note.completeUser.activeConversations];
- ZMConversation *oneOnOneConversation = note.completeUser.connection.conversation;
- if (oneOnOneConversation != nil) {
- [conversations addObject:oneOnOneConversation];
- }
- }
- }
- return conversations;
- }
- 
- 
- - (NSArray *)createUserChangeNotification
- {
- NSMutableArray *notifications = [NSMutableArray array];
- 
- for (NSManagedObjectID *objectID in self.usersWithUpdatedDisplayNames){
- ZMUser *user = (ZMUser *)[self.moc objectWithID:objectID];
- if ([self.updatedUsers containsObject:user]) {
- [self.updatedUsers removeObject:user];
- }
- ZMUserChangeNotification *note = [ZMUserChangeNotification notificationWithUser:user displayNameChanged:YES];
- if (note) {
- [notifications addObject:note];
- }
- }
- 
- for (ZMUser *user in self.updatedUsers) {
- ZMUserChangeNotification *note = [ZMUserChangeNotification notificationWithUser:user displayNameChanged:NO];
- if (note) {
- [notifications addObject:note];
- }
- 
- }
- return notifications;
- }
- 
- - (NSArray *)createConnectionChangeNotification
- {
- NSMutableArray *notifications = [NSMutableArray array];
- 
- for (ZMConnection *connection in self.updatedAndInsertedConnections) {
- if (connection.updatedKeysForChangeNotification.count == 0) {
- // We shouldn't spam the UI if nothing appears to have changed.
- continue;
- }
- if (connection.to != nil) {
- NSNotification *userNote = [ZMUserChangeNotification notificationForChangedConnectionToUser:connection.to];
- if (userNote) {
- [notifications addObject:userNote];
- }
- 
- ZMConversationChangeNotification *connectionNote = [ZMConversationChangeNotification notificationForUpdatedConnectionInConversation:connection.conversation];
- if (connectionNote) {
- [notifications addObject:connectionNote];
- if (connectionNote.connectionStateChanged) {
- self.didChangeConnectionStatus = YES;
- }
- }
- }
- }
- return notifications;
- }
- 
- @end
- 
- 
- 
- @implementation ZMNotificationDispatcher (Private)
- 
- + (void)addConversationWindowChangeToken:(ZMMessageWindowChangeToken *)token
- {
- [WindowTokenList addObject:token];
- }
- 
- + (void)removeConversationWindowChangeToken:(ZMMessageWindowChangeToken *)token
- {
- [WindowTokenList removeObject:token];
- }
- 
- + (void)notifyConversationWindowChangeTokensWithUpdatedMessages:(NSSet *)updatedMessages;
- {
- for(ZMMessageWindowChangeToken *token in WindowTokenList) {
- [token conversationDidChange:updatedMessages.allObjects];
- }
- }
- 
- @end
-
- */
