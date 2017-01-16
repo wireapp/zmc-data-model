@@ -721,7 +721,7 @@ class ConversationObserverTests : NotificationDispatcherTests {
     
     func testPerformanceOfCalculatingChangeNotificationsWhenANewMessageArrives()
     {
-        // measured [Time, seconds] average: 0.059, relative standard deviation: 15.935%, values: [0.087379, 0.055991, 0.056080, 0.056267, 0.055915, 0.056536, 0.055823, 0.057504, 0.055142, 0.055009],
+        // measured [Time, seconds] average: 0.060, relative standard deviation: 13.560%, values: [0.084132, 0.056772, 0.056459, 0.060111, 0.058168, 0.056656, 0.055751, 0.058785, 0.056397, 0.056870],
         
         let count = 50
         

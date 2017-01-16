@@ -32,6 +32,11 @@ extension Notification.Name {
     static let UserChangeNotification = Notification.Name("ZMUserChangedNotification")
     static let ConnectionChangeNotification = Notification.Name("ZMConnectionChangeNotification")
     static let UserClientChangeNotification = Notification.Name("ZMUserClientChangeNotification")
+    static let NewUnreadMessageNotification = Notification.Name("ZMNewUnreadMessageNotification")
+    static let NewUnreadKnockNotification = Notification.Name("ZMNewUnreadKnockNotification")
+    static let NewUnreadUnsentMessageNotification = Notification.Name("ZMNewUnreadUnsentMessageNotification")
+    static let VoiceChannelStateChangeNotification = Notification.Name("ZMVoiceChannelStateChangeNotification")
+    static let VoiceChannelParticipantStateChangeNotification = Notification.Name("ZMVoiceChannelParticipantStateChangeNotification")
 
     static var ignoredObservableIdentifiers : [String] {
         return [Reaction.entityName(), ZMGenericMessageData.entityName()]
@@ -170,11 +175,12 @@ public class NotificationDispatcher : NSObject {
     private unowned var syncContext: NSManagedObjectContext
     
     private var tornDown = false
-    private let observables : [Observable]
     private let affectingKeysStore : DependencyKeyStore
+    private let voicechannelObserverCenter : VoicechannelObserverCenter
     private var allChanges : [String : [NSObject : Changes]] = [:]
     private var snapshots : [NSManagedObjectID : [String : NSObject?]] = [:]
     private var userChanges : [ZMManagedObject : Set<String>] = [:]
+    private var unreadMessages : [Notification.Name : Set<ZMMessage>] = [:]
     
     public init(managedObjectContext: NSManagedObjectContext, syncContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext
@@ -189,8 +195,8 @@ public class NotificationDispatcher : NSObject {
                                            Reaction.entityName(),
                                            ZMGenericMessageData.entityName()]
         let affectingKeysStore = DependencyKeyStore(classIdentifiers : classIdentifiers)
-        self.observables = classIdentifiers.map{Observable(classIdentifier: $0, affectingKeyStore: affectingKeysStore)}
         self.affectingKeysStore = affectingKeysStore
+        self.voicechannelObserverCenter = VoicechannelObserverCenter()
         super.init()
         NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcher.objectsDidChange(_:)), name:NSNotification.Name.NSManagedObjectContextObjectsDidChange, object: self.managedObjectContext)
         NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcher.contextDidSave(_:)), name:NSNotification.Name.NSManagedObjectContextDidSave, object: self.managedObjectContext)
@@ -230,6 +236,14 @@ public class NotificationDispatcher : NSObject {
         }
     }
     
+    public func notifyUpdatedCallState(_ conversations: Set<ZMConversation>, notifyDirectly: Bool) {
+        voicechannelObserverCenter.recalculateStateIfNeeded(updatedConversationsAndChangedKeys:
+            Dictionary.mappingKeysToValues(keys: Array(conversations)){
+                Set($0.changedValues().keys)
+            }
+        )
+    }
+    
     func process(note: Notification) {
         guard let userInfo = note.userInfo as? [String : Any] else { return }
 
@@ -248,10 +262,41 @@ public class NotificationDispatcher : NSObject {
                                                 updatedObjects: updatedAndRefreshedObjects,
                                                 deletedObjects: deletedObjects)
         
-        if updatedAndRefreshedObjects.count > 0 {
-            extractChanges(from: updatedAndRefreshedObjects)
-        }
+        // Sort the changes by class
+        let updatedObjectsByIdentifer = sortObjectsByEntityName(objects: updatedAndRefreshedObjects)
+        extractChanges(from: updatedObjectsByIdentifer)
+        
+        checkForUnreadMessages(insertedObjects: insertedObjects, updatedObjects:updatedObjects )
+        
         userChanges = [:]
+    }
+    
+    func checkForUnreadMessages(insertedObjects: Set<ZMManagedObject>, updatedObjects: Set<ZMManagedObject>){
+        let insertedMessages = insertedObjects.flatMap{$0 as? ZMMessage}
+
+        let unreadUnsent : [ZMMessage] = updatedObjects.flatMap{
+            guard let msg = $0 as? ZMMessage else { return nil}
+            return (msg.deliveryState == .failedToSend) ? msg : nil
+        }
+        let (newUnreadMessages, newUnreadKnocks) = insertedMessages.reduce(([ZMMessage](),[ZMMessage]())) {
+            guard $1.isUnreadMessage else { return $0 }
+            var (messages, knocks) = $0
+            if $1.knockMessageData == nil {
+                messages.append($1)
+            } else {
+                knocks.append($1)
+            }
+            return (messages, knocks)
+        }
+        
+        let existingUnreadUnsent = unreadMessages[.NewUnreadUnsentMessageNotification]
+        unreadMessages[.NewUnreadUnsentMessageNotification] = existingUnreadUnsent?.union(unreadUnsent) ?? Set(unreadUnsent)
+        
+        let existingMessages = unreadMessages[.NewUnreadMessageNotification]
+        unreadMessages[.NewUnreadMessageNotification] = existingMessages?.union(newUnreadMessages) ?? Set(newUnreadMessages)
+        
+        let existingKnocks = unreadMessages[.NewUnreadKnockNotification]
+        unreadMessages[.NewUnreadKnockNotification] = existingKnocks?.union(newUnreadKnocks) ?? Set(newUnreadKnocks)
     }
     
     /// Gets additional user changes from userImageCache
@@ -289,12 +334,10 @@ public class NotificationDispatcher : NSObject {
     }
     
     /// Extracts changes from the updated objects
-    func extractChanges(from changedObjects: Set<ZMManagedObject>) {
-        // Sort the changes by class
-        let updatedObjectsByIdentifer = sortObjectsByEntityName(objects: changedObjects)
+    func extractChanges(from changedObjects: [String : Set<ZMManagedObject>]) {
         
         // Check for changed keys and affected keys
-        updatedObjectsByIdentifer.forEach{ (classIdentifier, objects) in
+        changedObjects.forEach{ (classIdentifier, objects) in
             let observable = Observable(classIdentifier: classIdentifier, affectingKeyStore: affectingKeysStore)
             
             let changes : [NSObject: Changes] = Dictionary.mappingKeysToValues(keys: Array(objects)){ object in
@@ -382,6 +425,12 @@ public class NotificationDispatcher : NSObject {
             }
             notifications.forEach{NotificationCenter.default.post($0)}
         }
+        unreadMessages.forEach{ (notificationName, messages) in
+            guard messages.count > 0 else { return }
+            let notification = Notification(name: notificationName, object: Array(messages), userInfo: nil)
+            NotificationCenter.default.post(notification)
+        }
+        unreadMessages = [:]
         allChanges = [:]
     }
     

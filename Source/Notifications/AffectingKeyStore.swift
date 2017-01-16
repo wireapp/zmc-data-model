@@ -77,6 +77,8 @@ class DependencyKeyStore {
             return Set(keys)
         case Reaction.entityName(), ZMGenericMessageData.entityName():
             return Set()
+        case "SearchUser":
+            return Set(["imageMediumData", "imageSmallProfileData", "isConnected", "user", "isPendingApprovalByOtherUser"])
         default:
             zmLog.warn("There are no observable keys defined for \(classIdentifier)")
             return Set()

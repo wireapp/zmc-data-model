@@ -141,3 +141,76 @@ extension UserClientChangeInfo {
         NotificationCenter.default.removeObserver(observer, name: Notification.Name.UserClientChangeNotification, object: client)
     }
 }
+
+extension NewUnreadMessagesChangeInfo {
+    public static func add(observer: ZMNewUnreadMessagesObserver) -> NSObjectProtocol {
+        return NotificationCenter.default.addObserver(forName: NSNotification.Name.NewUnreadMessageNotification,
+                                                      object: nil,
+                                                      queue: nil)
+        { [weak observer] (note) in
+            guard let `observer` = observer else { return }
+            
+            let changeInfo = NewUnreadMessagesChangeInfo(messages: note.object as! [ZMConversationMessage])
+            observer.didReceiveNewUnreadMessages(changeInfo)
+        }
+    }
+    
+    public static func remove(observer: NSObjectProtocol) {
+        NotificationCenter.default.removeObserver(observer, name: Notification.Name.NewUnreadMessageNotification, object: nil)
+    }
+}
+
+extension NewUnreadKnockMessagesChangeInfo {
+    public static func add(observer: ZMNewUnreadKnocksObserver) -> NSObjectProtocol {
+        return NotificationCenter.default.addObserver(forName: NSNotification.Name.NewUnreadKnockNotification,
+                                                      object: nil,
+                                                      queue: nil)
+        { [weak observer] (note) in
+            guard let `observer` = observer else { return }
+            
+            let changeInfo = NewUnreadKnockMessagesChangeInfo(object: note.object as! NSObject)
+            observer.didReceiveNewUnreadKnockMessages(changeInfo)
+        }
+    }
+    
+    public static func remove(observer: NSObjectProtocol) {
+        NotificationCenter.default.removeObserver(observer, name: Notification.Name.NewUnreadKnockNotification, object: nil)
+    }
+}
+
+extension VoiceChannelStateChangeInfo {
+    public static func add(observer: ZMVoiceChannelStateObserver, for conversation: ZMConversation) -> NSObjectProtocol {
+        return NotificationCenter.default.addObserver(forName: NSNotification.Name.VoiceChannelStateChangeNotification,
+                                                      object: conversation,
+                                                      queue: nil)
+        { [weak observer] (note) in
+            guard let `observer` = observer,
+                let changeInfo = note.userInfo?["voiceChannelStateChangeInfo"] as? VoiceChannelStateChangeInfo
+            else { return }
+            
+            observer.voiceChannelStateDidChange(changeInfo)
+        }
+    }
+    
+    public static func remove(observer: NSObjectProtocol, for conversation: ZMConversation) {
+        NotificationCenter.default.removeObserver(observer, name: Notification.Name.VoiceChannelStateChangeNotification, object: conversation)
+    }
+}
+
+extension VoiceChannelParticipantsChangeInfo {
+    public static func add(observer: ZMVoiceChannelParticipantsObserver,for conversation: ZMConversation) -> NSObjectProtocol {
+        return NotificationCenter.default.addObserver(forName: NSNotification.Name.VoiceChannelParticipantStateChangeNotification,
+                                                      object: conversation,
+                                                      queue: nil)
+        { [weak observer] (note) in
+            guard let `observer` = observer,
+                  let changeInfo = note.userInfo?["voiceChannelParticipantsChangeInfo"] as? VoiceChannelParticipantsChangeInfo
+            else { return }
+            observer.voiceChannelParticipantsDidChange(changeInfo)
+        }
+    }
+    
+    public static func remove(observer: NSObjectProtocol, for conversation: ZMConversation) {
+        NotificationCenter.default.removeObserver(observer, name: Notification.Name.VoiceChannelParticipantStateChangeNotification, object: conversation)
+    }
+}

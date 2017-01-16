@@ -230,7 +230,14 @@ class GeneralConversationObserverToken<T: NSObject> : ObjectObserverTokenContain
     public var securityLevelChanged : Bool {
         return changedKeysAndOldValues.keys.contains("securityLevel")
     }
-
+    
+    var callParticipantsChanged : Bool {
+        return changedKeysAndOldValues.keys.contains{$0 == "activeFlowParticipants" || $0 == "callParticipants" || $0 == "otherActiveVideoCallParticipants"}
+    }
+    
+    var videoParticipantsChanged : Bool {
+        return changedKeysAndOldValues.keys.contains("otherActiveVideoCallParticipants")
+    }
     
     public var conversation : ZMConversation { return self.object as! ZMConversation }
     

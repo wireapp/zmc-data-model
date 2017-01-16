@@ -27,59 +27,58 @@ class NewUnreadMessageObserverTests : NotificationDispatcherTests {
         self.testObserver?.clearNotifications()
     }
     
-    var testObserver: UnreadMessageTestObserver?
-    var newMessageToken : ZMNewUnreadMessageObserverOpaqueToken?
-    var newKnocksToken :  ZMNewUnreadKnockMessageObserverOpaqueToken?
-    
-    
-    var syncTestObserver: UnreadMessageTestObserver!
-    var syncNewMessageToken : ZMNewUnreadMessageObserverOpaqueToken!
-    var syncNewKnocksToken :  ZMNewUnreadKnockMessageObserverOpaqueToken!
-    
+    var testObserver: UnreadMessageTestObserver!
+    var newMessageToken : NSObjectProtocol!
+    var newKnocksToken :  NSObjectProtocol!
+
     override func setUp() {
         super.setUp()
         
         self.testObserver = UnreadMessageTestObserver()
-        self.newMessageToken = ZMMessageNotification.addNewMessagesObserver(self.testObserver, managedObjectContext: self.uiMOC)
-        self.newKnocksToken = ZMMessageNotification.addNewKnocksObserver(self.testObserver, managedObjectContext: self.uiMOC)
+        self.newMessageToken = NewUnreadMessagesChangeInfo.add(observer: self.testObserver)
+        self.newKnocksToken = NewUnreadKnockMessagesChangeInfo.add(observer: self.testObserver)
+        
     }
     
     override func tearDown() {
-        ZMMessageNotification.removeNewKnocksObserver(for: self.newKnocksToken!, managedObjectContext: self.uiMOC)
-        ZMMessageNotification.removeNewMessagesObserver(for: self.newMessageToken!, managedObjectContext: self.uiMOC)
+        NewUnreadMessagesChangeInfo.remove(observer: self.newMessageToken)
+        NewUnreadKnockMessagesChangeInfo.remove(observer: self.newKnocksToken)
         self.newMessageToken = nil
         self.newKnocksToken = nil
         self.testObserver = nil
+    
         super.tearDown()
     }
     
     func testThatItNotifiesObserversWhenAMessageMoreRecentThanTheLastReadIsInserted() {
         
         // given
-        self.syncMOC.performGroupedBlockAndWait{
-            let conversation = ZMConversation.insertNewObject(in:self.syncMOC)
-            conversation.lastReadServerTimeStamp = Date()
-            self.processPendingChangesAndClearNotifications()
-            
-            // when
-            let msg1 = ZMClientMessage.insertNewObject(in: self.syncMOC)
-            msg1.serverTimestamp = Date()
+        let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
+        conversation.lastReadServerTimeStamp = Date()
+        self.uiMOC.saveOrRollback()
+        
+        // when
+        let msg1 = ZMClientMessage.insertNewObject(in: self.uiMOC)
+        msg1.serverTimestamp = Date()
+        performPretendingUiMocIsSyncMoc {
             conversation.resortMessages(withUpdatedMessage: msg1)
-            
-            let msg2 = ZMClientMessage.insertNewObject(in: self.syncMOC)
-            msg2.serverTimestamp = Date()
+        }
+        
+        let msg2 = ZMClientMessage.insertNewObject(in: self.uiMOC)
+        msg2.serverTimestamp = Date()
+        performPretendingUiMocIsSyncMoc {
             conversation.resortMessages(withUpdatedMessage: msg2)
-            
-            self.syncMOC.processPendingChanges()
-            
-            // then
-            XCTAssertEqual(self.syncTestObserver.unreadMessageNotes.count, 1)
-            XCTAssertEqual(self.syncTestObserver.unreadKnockNotes.count, 0)
-            
-            if let note = self.syncTestObserver.unreadMessageNotes.first {
-                let expected = NSSet(objects: msg1, msg2)
-                XCTAssertEqual(NSSet(array: note.messages), expected)
-            }
+        }
+        
+        self.uiMOC.saveOrRollback()
+        
+        // then
+        XCTAssertEqual(self.testObserver.unreadMessageNotes.count, 1)
+        XCTAssertEqual(self.testObserver.unreadKnockNotes.count, 0)
+        
+        if let note = self.testObserver.unreadMessageNotes.first {
+            let expected = NSSet(objects: msg1, msg2)
+            XCTAssertEqual(NSSet(array: note.messages), expected)
         }
     }
     
@@ -95,7 +94,7 @@ class NewUnreadMessageObserverTests : NotificationDispatcherTests {
         msg1.visibleInConversation = conversation
         msg1.serverTimestamp = Date()
         
-        self.uiMOC.processPendingChanges()
+        self.uiMOC.saveOrRollback()
         
         // then
         XCTAssertEqual(self.testObserver!.unreadMessageNotes.count, 0)
@@ -113,7 +112,7 @@ class NewUnreadMessageObserverTests : NotificationDispatcherTests {
         msg1.visibleInConversation = conversation
         msg1.serverTimestamp = Date()
         
-        self.uiMOC.processPendingChanges()
+        self.uiMOC.saveOrRollback()
         
         // then
         XCTAssertEqual(self.testObserver!.unreadMessageNotes.count, 0)
@@ -125,34 +124,10 @@ class NewUnreadMessageObserverTests : NotificationDispatcherTests {
         let msg1 = ZMClientMessage.insertNewObject(in: self.uiMOC)
         msg1.serverTimestamp = Date()
         
-        self.uiMOC.processPendingChanges()
+        self.uiMOC.saveOrRollback()
         
         // then
         XCTAssertEqual(self.testObserver!.unreadMessageNotes.count, 0)
-    }
-    
-    func testThatItNotifiesObserversWhenANewKnockMessageIsInserted() {
-        
-        // given
-        self.syncMOC.performGroupedBlockAndWait{
-            let conversation = ZMConversation.insertNewObject(in:self.syncMOC)
-            conversation.lastReadServerTimeStamp = Date()
-            self.processPendingChangesAndClearNotifications()
-            
-            // when
-            let msg1 = ZMKnockMessage.insertNewObject(in: self.syncMOC)
-            msg1.serverTimestamp = Date()
-            conversation.resortMessages(withUpdatedMessage: msg1)
-            
-            self.syncMOC.processPendingChanges()
-            
-            // then
-            XCTAssertEqual(self.syncTestObserver.unreadKnockNotes.count, 1)
-            if let note = self.syncTestObserver.unreadKnockNotes.first {
-                let expected = NSSet(object: msg1)
-                XCTAssertEqual(NSSet(array: note.messages), expected)
-            }
-        }
     }
     
     func testThatItNotifiesObserversWhenANewOTRKnockMessageIsInserted() {
@@ -168,7 +143,7 @@ class NewUnreadMessageObserverTests : NotificationDispatcherTests {
         msg1.serverTimestamp = Date()
         conversation.resortMessages(withUpdatedMessage: msg1)
         
-        self.uiMOC.processPendingChanges()
+        self.uiMOC.saveOrRollback()
         
         // then
         XCTAssertEqual(self.testObserver!.unreadKnockNotes.count, 1)
