@@ -309,8 +309,6 @@ class ConversationObserverTests : NotificationDispatcherTests {
         conversation.conversationType = ZMConversationType.group
         conversation.mutableOtherActiveParticipants.add(user1)
         
-        self.updateDisplayNameGenerator(withUsers: [user1, user2])
-        
         XCTAssertEqual(user1.displayName, "Foo")
         uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
@@ -319,7 +317,7 @@ class ConversationObserverTests : NotificationDispatcherTests {
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: { _ in
                                                         user2.name = "Foo B"
-                                                        self.updateDisplayNameGenerator(withUsers: [user2])
+                                                        uiMOC.saveOrRollback()
                                                         XCTAssertEqual(user1.displayName, "Foo A")
             },
                                                      expectedChangedField: "nameChanged",

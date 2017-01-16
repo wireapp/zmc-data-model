@@ -344,12 +344,12 @@ public final class ManagedObjectContextObserver: NSObject {
     }
     
     func changesFromDisplayNameGenerator(_ note: Notification) -> ManagedObjectChanges {
-        let updatedUsers = self.managedObjectContext!.updateDisplayNameGenerator(withChanges: note) ?? Set()
-        if updatedUsers.count > 0 {
-            globalUserObserver.displayNameMightChange(updatedUsers as Set<NSObject>)
-        }
-        let changes = ManagedObjectChanges(inserted: [], deleted: [], updated: Array(updatedUsers) as [NSObject])
-        return changes
+//        let updatedUsers = self.managedObjectContext!.updateDisplayNameGenerator(withChanges: note) ?? Set()
+//        if updatedUsers.count > 0 {
+//            globalUserObserver.displayNameMightChange(updatedUsers as Set<NSObject>)
+//        }
+//        let changes = ManagedObjectChanges(inserted: [], deleted: [], updated: Array(updatedUsers) as [NSObject])
+        return ManagedObjectChanges() //changes
     }
     
     func processChanges(_ changes: ManagedObjectChanges) {

@@ -21,7 +21,7 @@ import Foundation
 
 // MARK: Message observing 
 
-private enum MessageKey: String {
+enum MessageKey: String {
     case deliveryState = "deliveryState"
     case mediumData = "mediumData"
     case mediumRemoteIdentifier = "mediumRemoteIdentifier"
@@ -31,6 +31,7 @@ private enum MessageKey: String {
     case genericMessage = "genericMessage"
     case reactions = "reactions"
     case isObfuscated = "isObfuscated"
+    case linkPreview = "linkPreview"
 }
 
 extension ZMMessage : ObjectInSnapshot {
@@ -108,7 +109,7 @@ extension ZMMessage : ObjectInSnapshot {
     }
     
     public var linkPreviewChanged: Bool {
-        return changedKeysAndOldValues.keys.contains(MessageKey.linkPreviewState.rawValue) || linkPreviewDataChanged
+        return changedKeysAndOldValues.keys.contains{$0 == MessageKey.linkPreviewState.rawValue || $0 == MessageKey.linkPreview.rawValue} || linkPreviewDataChanged
     }
 
     public var senderChanged : Bool {

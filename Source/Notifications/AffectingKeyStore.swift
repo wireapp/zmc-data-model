@@ -10,18 +10,18 @@ import Foundation
 
 private var zmLog = ZMSLog(tag: "DependencyKeyStore")
 
-private enum MessageKey: String {
-    case deliveryState = "deliveryState"
-    case mediumData = "mediumData"
-    case mediumRemoteIdentifier = "mediumRemoteIdentifier"
-    case previewGenericMessage = "previewGenericMessage"
-    case mediumGenericMessage = "mediumGenericMessage"
-    case linkPreviewState = "linkPreviewState"
-    case linkPreview = "linkPreview"
-    case genericMessage = "genericMessage"
-    case reactions = "reactions"
-    case isObfuscated = "isObfuscated"
-}
+//private enum MessageKey: String {
+//    case deliveryState = "deliveryState"
+//    case mediumData = "mediumData"
+//    case mediumRemoteIdentifier = "mediumRemoteIdentifier"
+//    case previewGenericMessage = "previewGenericMessage"
+//    case mediumGenericMessage = "mediumGenericMessage"
+//    case linkPreviewState = "linkPreviewState"
+//    case linkPreview = "linkPreview"
+//    case genericMessage = "genericMessage"
+//    case reactions = "reactions"
+//    case isObfuscated = "isObfuscated"
+//}
 
 class DependencyKeyStore {
     

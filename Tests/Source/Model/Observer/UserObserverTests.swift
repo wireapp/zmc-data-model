@@ -77,6 +77,8 @@ extension UserObserverTests {
         
         // given
         self.uiMOC.saveOrRollback()
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        
         let token = UserChangeInfo.add(observer: userObserver, for: user)
         
         // when
@@ -128,8 +130,9 @@ extension UserObserverTests {
     {
         // given
         let user = ZMUser.insertNewObject(in:self.uiMOC)
-        let token = UserChangeInfo.add(observer: userObserver, for: user)
         self.uiMOC.saveOrRollback()
+
+        let token = UserChangeInfo.add(observer: userObserver, for: user)
         
         // when
         user.name = "Foo"
@@ -173,6 +176,8 @@ extension UserObserverTests {
         user.mediumRemoteIdentifier = UUID.create()
         user.imageMediumData = self.verySmallJPEGData()
         uiMOC.saveOrRollback()
+        updateDisplayNameGenerator(withUsers: [user])
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // when
         self.checkThatItNotifiesTheObserverOfAChange(user,
@@ -327,8 +332,6 @@ extension UserObserverTests {
         // when
         self.uiMOC.saveOrRollback()
         XCTAssert(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        print(user.objectID, otherUser.objectID)
-
         
         // then
         self.checkThatItNotifiesTheObserverOfAChange(otherUser,

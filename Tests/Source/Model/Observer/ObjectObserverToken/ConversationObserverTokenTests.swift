@@ -328,7 +328,7 @@ class ConversationObserverTokenTests : ZMBaseManagedObjectTest {
         conversation.conversationType = ZMConversationType.group
         conversation.mutableOtherActiveParticipants.add(user1)
         
-        self.updateDisplayNameGenerator(withUsers: [user1, user2])
+//        self.updateDisplayNameGenerator(withUsers: [user1, user2])
         
         XCTAssertEqual(user1.displayName, "Foo")
         
@@ -336,7 +336,8 @@ class ConversationObserverTokenTests : ZMBaseManagedObjectTest {
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
             modifier: { _ in
                 user2.name = "Foo B"
-                self.updateDisplayNameGenerator(withUsers: [user2])
+                uiMOC.saveOrRollback()
+//                self.updateDisplayNameGenerator(withUsers: [user2])
                 XCTAssertEqual(user1.displayName, "Foo A")
             },
             expectedChangedField: "nameChanged",

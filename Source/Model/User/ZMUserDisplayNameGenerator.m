@@ -162,6 +162,7 @@ static NSString * const DisplayNameGeneratorKey = @"ZMUserDisplayNameGenerator";
     }
     
     // loop through updated. If the user name changed then replace those users in the updatedSet
+    // TODO Sabine: This does not make sense, user is a reference and should change values as the MO changes
     NSMutableSet *updatedSet = [self.displayNameGenerator.allUsers mutableCopy];
     for (ZMUser *user in updatedSet) {
         ZMUser *oldUser = [updatedSet member:user];
@@ -174,7 +175,6 @@ static NSString * const DisplayNameGeneratorKey = @"ZMUserDisplayNameGenerator";
     [updatedSet minusSet:deletedUsers];
     [updatedSet unionSet:insertedUsers];
     
-    NSSet *updatedMOIDs = [NSSet set];
 
     //At this point inserted users should have temporary id's, but after the save they will have permament id's.
     //Display name generator maps names to user id's so it needs permament id's to be able to match them on subsecquent changes.
@@ -182,6 +182,7 @@ static NSString * const DisplayNameGeneratorKey = @"ZMUserDisplayNameGenerator";
     BOOL success = [self obtainPermanentIDsForObjects:updatedSet.allObjects error:&error];
     Require(success == YES && error == nil);
     
+    NSSet *updatedMOIDs = [NSSet set];
     ZMUserDisplayNameGenerator *newGenerator = [self.displayNameGenerator updatedWithUsers:updatedSet managedObjectIDsForChangedUsers:&updatedMOIDs];
     // If the old one wasn't 'nil' the new one can't be nil either:
     Require((self.displayNameGenerator.allUsers == nil) || (newGenerator.allUsers != nil));

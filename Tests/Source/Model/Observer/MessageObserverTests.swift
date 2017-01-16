@@ -77,7 +77,6 @@ class MessageObserverTests : NotificationDispatcherTests {
         
         if let changedField = expectedChangedField {
             if let changes = messageObserver.receivedChangeInfo.first {
-                print(changes.changedKeysAndOldValues)
                 for key in messageInfoKeys {
                     if let value = changes.value(forKey: key) as? NSNumber {
                         if key == changedField {
@@ -143,6 +142,8 @@ class MessageObserverTests : NotificationDispatcherTests {
         message.sender = sender
         
         self.uiMOC.saveOrRollback()
+        updateDisplayNameGenerator(withUsers: [sender])
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // when
         self.checkThatItNotifiesTheObserverOfAChange(message,
@@ -269,7 +270,6 @@ class MessageObserverTests : NotificationDispatcherTests {
             modifier: { ($0 as? ZMClientMessage)?.add(updateGenericMessage.data()) },
             expectedChangedField: "linkPreviewChanged"
         )
-        print(messageObserver.receivedChangeInfo.last?.changedKeysAndOldValues)
     }
     
     func testThatItDoesNotNotifiyObserversWhenTheSmallImageDataChanges() {
