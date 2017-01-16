@@ -57,7 +57,8 @@ public extension NSManagedObjectContext {
     @objc(notifyMessagesChangedInConversationWithRemoteIdentifiers:)
     public func notifyMessagesChanged(with identifiers: Set<UUID>) {
         guard !identifiers.isEmpty else { return zmLog.warn("Call made to notify without remote identifiers") }
-        let conversations = ZMConversation.fetchObjects(withRemoteIdentifiers: NSOrderedSet(set: identifiers), in: self)?.array as? [ZMConversation]
+
+        let conversations = executeFetchRequestOrAssert(ZMConversation.sortedFetchRequest()) as? [ZMConversation]
 
         conversations?.forEach { conversation in
             refresh(conversation, mergeChanges: true)
@@ -68,6 +69,7 @@ public extension NSManagedObjectContext {
                 // When notifying the last message changed, the message window will be
                 // recalculated and a notification about a potentially added message will be fired.
                 guard let message = $0.messages.lastObject as? ZMMessage else { return }
+                globalManagedObjectContextObserver.notifyNonCoreDataChangeInManagedObject($0)
                 globalManagedObjectContextObserver.notifyNonCoreDataChangeInManagedObject(message)
             }
         }
