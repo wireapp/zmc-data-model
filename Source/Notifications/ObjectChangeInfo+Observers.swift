@@ -117,3 +117,27 @@ extension MessageChangeInfo {
         NotificationCenter.default.removeObserver(observer, name: Notification.Name.MessageChangeNotification, object: message)
     }
 }
+
+
+
+extension UserClientChangeInfo {
+    
+    public static func add(observer: UserClientObserver, for client: UserClient) -> NSObjectProtocol {
+        return NotificationCenter.default.addObserver(forName: NSNotification.Name.UserClientChangeNotification,
+                                                      object: client,
+                                                      queue: nil)
+        { [weak observer] (note) in
+            guard let `observer` = observer,
+                let changedKeysAndValues = note.userInfo?[ChangedKeysAndNewValuesKey] as? [String : NSObject?]
+                else { return }
+            
+            let changeInfo = UserClientChangeInfo(object: client)
+            changeInfo.changedKeysAndOldValues = changedKeysAndValues
+            observer.userClientDidChange(changeInfo)
+        }
+    }
+    
+    public static func remove(observer: NSObjectProtocol, for client: UserClient?) {
+        NotificationCenter.default.removeObserver(observer, name: Notification.Name.UserClientChangeNotification, object: client)
+    }
+}

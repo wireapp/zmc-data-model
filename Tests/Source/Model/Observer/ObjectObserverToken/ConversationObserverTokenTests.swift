@@ -327,9 +327,6 @@ class ConversationObserverTokenTests : ZMBaseManagedObjectTest {
         let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
         conversation.conversationType = ZMConversationType.group
         conversation.mutableOtherActiveParticipants.add(user1)
-        
-//        self.updateDisplayNameGenerator(withUsers: [user1, user2])
-        
         XCTAssertEqual(user1.displayName, "Foo")
         
         // when
@@ -337,7 +334,6 @@ class ConversationObserverTokenTests : ZMBaseManagedObjectTest {
             modifier: { _ in
                 user2.name = "Foo B"
                 uiMOC.saveOrRollback()
-//                self.updateDisplayNameGenerator(withUsers: [user2])
                 XCTAssertEqual(user1.displayName, "Foo A")
             },
             expectedChangedField: "nameChanged",

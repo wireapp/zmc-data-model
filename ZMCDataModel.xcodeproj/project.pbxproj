@@ -310,6 +310,8 @@
 		F9B720041CB2C770001DB03F /* UserClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9B720021CB2C68B001DB03F /* UserClientTests.swift */; };
 		F9B720051CB2C795001DB03F /* ZMGenericMessage_ExternalTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F9B71FFF1CB2C4FC001DB03F /* ZMGenericMessage_ExternalTests.m */; };
 		F9C348811E2CBF0C0015D69D /* ObjectChangeInfo+Observers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C348801E2CBF0C0015D69D /* ObjectChangeInfo+Observers.swift */; };
+		F9C348841E2CC08E0015D69D /* UserClientObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C348821E2CC0730015D69D /* UserClientObserverTests.swift */; };
+		F9C348861E2CC27D0015D69D /* File.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C348851E2CC27D0015D69D /* File.swift */; };
 		F9C877091E000C9D00792613 /* AssetCollection.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C877081E000C9D00792613 /* AssetCollection.swift */; };
 		F9C8770B1E015AAF00792613 /* AssetColletionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C8770A1E015AAF00792613 /* AssetColletionTests.swift */; };
 		F9C9A5071CAD5DF10039E10C /* ZMCDataModel.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9C9A4FC1CAD5DF10039E10C /* ZMCDataModel.framework */; };
@@ -747,6 +749,8 @@
 		F9B71FFF1CB2C4FC001DB03F /* ZMGenericMessage_ExternalTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZMGenericMessage_ExternalTests.m; sourceTree = "<group>"; };
 		F9B720021CB2C68B001DB03F /* UserClientTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserClientTests.swift; sourceTree = "<group>"; };
 		F9C348801E2CBF0C0015D69D /* ObjectChangeInfo+Observers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ObjectChangeInfo+Observers.swift"; sourceTree = "<group>"; };
+		F9C348821E2CC0730015D69D /* UserClientObserverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserClientObserverTests.swift; sourceTree = "<group>"; };
+		F9C348851E2CC27D0015D69D /* File.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = File.swift; sourceTree = "<group>"; };
 		F9C8622A1D87DC18009AAC33 /* MessagingTest+UUID.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "MessagingTest+UUID.swift"; sourceTree = "<group>"; };
 		F9C877081E000C9D00792613 /* AssetCollection.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetCollection.swift; sourceTree = "<group>"; };
 		F9C8770A1E015AAF00792613 /* AssetColletionTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetColletionTests.swift; sourceTree = "<group>"; };
@@ -1401,6 +1405,8 @@
 				F9DBA5231E28EE0A00BE23C0 /* ConversationObserverTests.swift */,
 				F9DBA5261E28EEBD00BE23C0 /* UserObserverTests.swift */,
 				F9DBA5281E29162A00BE23C0 /* MessageObserverTests.swift */,
+				F9C348821E2CC0730015D69D /* UserClientObserverTests.swift */,
+				F9C348851E2CC27D0015D69D /* File.swift */,
 			);
 			path = Observer;
 			sourceTree = "<group>";
@@ -2048,6 +2054,7 @@
 				F9B71F951CB2BF08001DB03F /* ZMDisplayNameGeneratorTests.m in Sources */,
 				F9B71FEE1CB2C4C6001DB03F /* ManagedObjectChangesTests.swift in Sources */,
 				F9B720041CB2C770001DB03F /* UserClientTests.swift in Sources */,
+				F9C348841E2CC08E0015D69D /* UserClientObserverTests.swift in Sources */,
 				1651F9BE1D3554C800A9FAE8 /* ZMClientMessageTests+TextMessage.swift in Sources */,
 				F9A708521CAEEB7500C2F5FE /* ZMFetchRequestBatchTests.m in Sources */,
 				F964700A1D5B5E9D00A81A92 /* ZMClientMessageTests+Editing.m in Sources */,
@@ -2134,6 +2141,7 @@
 				CEB15E531D7EE5AB0048A011 /* ZMClientMessagesTests+Reaction.swift in Sources */,
 				F9B0FF321D79D1140098C17C /* ZMClientMessageTests+Unarchiving.swift in Sources */,
 				F9B71FF11CB2C4C6001DB03F /* ObjectDependencyTokenTests.swift in Sources */,
+				F9C348861E2CC27D0015D69D /* File.swift in Sources */,
 				F9331C6A1CB3D5B700139ECC /* ZMUpdateEventTests.m in Sources */,
 				F9A708601CAEEF4700C2F5FE /* MessagingTest+EventFactory.m in Sources */,
 				F9DBA5291E29162A00BE23C0 /* MessageObserverTests.swift in Sources */,
