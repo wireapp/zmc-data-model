@@ -667,6 +667,37 @@ class ConversationObserverTokenTests : ZMBaseManagedObjectTest {
         XCTAssertEqual(observer.receivedChangeInfo.count, 0)
     }
     
+    func testPerformanceOfCalculatingChangeNotificationsWhenUserChangesName()
+    {
+        // average: 0.057, relative standard deviation: 13.943%, values: [0.079933, 0.054011, 0.053161, 0.058086, 0.052317, 0.054542, 0.052928, 0.053991, 0.053392, 0.054210],
+        let count = 50
+        
+        self.measureMetrics([XCTPerformanceMetric_WallClockTime], automaticallyStartMeasuring: false) {
+            
+            let user = ZMUser.insertNewObject(in: self.uiMOC)
+            user.name = "foo"
+            let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
+            conversation.conversationType = .group
+            conversation.mutableOtherActiveParticipants.add(user)
+            self.uiMOC.saveOrRollback()
+            
+            let observer = TestConversationObserver()
+            let token = conversation.add(observer)
+            
+            var lastName = "bar"
+            self.startMeasuring()
+            for _ in 1...count {
+                let temp = lastName
+                lastName = user.name
+                user.name = temp
+                self.uiMOC.saveOrRollback()
+            }
+            XCTAssertEqual(observer.receivedChangeInfo.count, count)
+            self.stopMeasuring()
+            ZMConversation.removeObserver(for: token)
+        }
+    }
+    
     func testPerformanceOfCalculatingChangeNotificationsWhenANewMessageArrives()
     {
         // measured [Time, seconds] average: 0.058, relative standard deviation: 14.553%, values: [0.082845, 0.054582, 0.053719, 0.053366, 0.053231, 0.055812, 0.053711, 0.058502, 0.056946, 0.059161], 
@@ -688,6 +719,55 @@ class ConversationObserverTokenTests : ZMBaseManagedObjectTest {
             XCTAssertEqual(observer.receivedChangeInfo.count, count)
             self.stopMeasuring()
             ZMConversation.removeObserver(for: token)
+        }
+    }
+    
+    func testPerformanceOfCalculatingChangeNotificationsWhenANewMessageArrives_AppendingManyMessages()
+    {
+        // 50: average: 0.018, relative standard deviation: 34.321%, values: [0.035791, 0.017149, 0.015688, 0.016396, 0.015284, 0.015345, 0.015833, 0.015590, 0.015013, 0.014772]
+        // 500: average: 0.154, relative standard deviation: 6.143%, values: [0.180784, 0.153532, 0.159269, 0.150676, 0.152488, 0.147645, 0.147971, 0.150903, 0.149406, 0.148501], 
+        let count = 500
+        
+        self.measureMetrics([XCTPerformanceMetric_WallClockTime], automaticallyStartMeasuring: false) {
+            
+            let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
+            self.uiMOC.saveOrRollback()
+            
+            let observer = TestConversationObserver()
+            let token = conversation.add(observer)
+            
+            self.startMeasuring()
+            for _ in 1...count {
+                conversation.appendMessage(withText: "hello")
+            }
+            self.uiMOC.processPendingChanges()
+            XCTAssertEqual(observer.receivedChangeInfo.count, 1)
+            self.stopMeasuring()
+            ZMConversation.removeObserver(for: token)
+        }
+    }
+    
+    func testPerformanceOfCalculatingChangeNotificationsWhenANewMessageArrives_RegisteringAnObsever()
+    {
+        // 50: average: 0.154, relative standard deviation: 14.238%, values: [0.137086, 0.122121, 0.130414, 0.145946, 0.145511, 0.151725, 0.162711, 0.171082, 0.185402, 0.192517],
+        // 500: average: 6.785, relative standard deviation: 52.570%, values: [1.613123, 2.536764, 3.633100, 4.787423, 5.926587, 7.130392, 8.417895, 9.744791, 11.248857, 12.808965],  // growing each time! wow!
+
+        let count = 500
+        
+        self.measureMetrics([XCTPerformanceMetric_WallClockTime], automaticallyStartMeasuring: false) {
+            
+            let observer = TestConversationObserver()
+            
+            self.startMeasuring()
+            for _ in 1...count {
+                let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
+                self.uiMOC.saveOrRollback()
+                let token = conversation.add(observer)
+                conversation.appendMessage(withText: "hello")
+                self.uiMOC.processPendingChanges()
+                ZMConversation.removeObserver(for: token)
+            }
+            self.stopMeasuring()
         }
     }
 }

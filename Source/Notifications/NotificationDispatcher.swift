@@ -118,37 +118,29 @@ extension Dictionary where Value : Mergeable {
 
 struct Changes : Mergeable {
     private let changedKeys : Set<String>
-    let changedKeysAndNewValues : [String : NSObject?]
+    let originalChanges : [String : NSObject?]
+    
+    var changedKeysAndNewValues : [String : NSObject?] {
+        let changes = Dictionary(keys: Array(changedKeys), repeatedValue: .none as Optional<NSObject>)
+        return changes.updated(other: originalChanges)
+    }
     
     init(changedKeys: Set<String>) {
         self.changedKeys = changedKeys
-        self.changedKeysAndNewValues = changedKeys.reduce([:]){ (dict, value) in
-            var newDict = dict
-            if dict[value] == nil {
-                newDict[value] = .none as NSObject?
-            }
-            return newDict
-        }
+        self.originalChanges = [:]
     }
 
-    init(changedKeysAndNewValues : [String : NSObject?]){
-        self.init(changedKeys: Set(changedKeysAndNewValues.keys), changedKeysAndNewValues: changedKeysAndNewValues)
+    init(originalChanges : [String : NSObject?]){
+        self.init(changedKeys: Set(), originalChanges: originalChanges)
     }
     
-    init(changedKeys: Set<String>, changedKeysAndNewValues : [String : NSObject?]) {
+    init(changedKeys: Set<String>, originalChanges : [String : NSObject?]) {
         self.changedKeys = changedKeys
-        let mappedChangedKeys : [String : NSObject?] = changedKeys.reduce([:]){ (dict, value) in
-            var newDict = dict
-            if dict[value] == nil {
-                newDict[value] = .none as NSObject?
-            }
-            return newDict
-        }
-        self.changedKeysAndNewValues = mappedChangedKeys.updated(other: changedKeysAndNewValues)
+        self.originalChanges = originalChanges
     }
     
     func merged(with other: Changes) -> Changes {
-        return Changes(changedKeys: changedKeys.union(other.changedKeys), changedKeysAndNewValues: changedKeysAndNewValues.updated(other: other.changedKeysAndNewValues))
+        return Changes(changedKeys: changedKeys.union(other.changedKeys), originalChanges: originalChanges.updated(other: other.originalChanges))
     }
 }
 
@@ -345,20 +337,20 @@ public class NotificationDispatcher : NSObject {
     /// Extracts changes from the updated objects
     func extractChanges(from changedObjects: [String : Set<ZMManagedObject>]) {
         
-        func getChangedKeysSinceLastSave(object: ZMManagedObject) -> [String : NSObject?] {
-            var changedKeysAndNewValues = object.changedValues() as? [String : NSObject?] ?? [:]
-            if changedKeysAndNewValues.count == 0 && object.isFault {
+        func getChangedKeysSinceLastSave(object: ZMManagedObject) -> Set<String> {
+            var changedKeys = Set(object.changedValues().keys)
+            if changedKeys.count == 0 && object.isFault {
                 // If the object is a fault, calling changedValues() will return an empty set
                 // Luckily we created a snapshot of the object before the merge happend which we can use to compare the values
                 if let snapshot = snapshots[object.objectID] {
-                    changedKeysAndNewValues = extractChangedKeysFromSnapshot(snapshot: snapshot, for: object)
+                    changedKeys = extractChangedKeysFromSnapshot(snapshot: snapshot, for: object)
                     snapshots.removeValue(forKey: object.objectID)
                 }
             }
             if let knownKeys = userChanges[object] {
-                changedKeysAndNewValues = changedKeysAndNewValues.updated(other: Dictionary(keys: Array(knownKeys), repeatedValue: .none as Optional<NSObject>))
+                changedKeys = changedKeys.union(knownKeys)
             }
-            return changedKeysAndNewValues
+            return changedKeys
         }
         
         // Check for changed keys and affected keys
@@ -367,16 +359,16 @@ public class NotificationDispatcher : NSObject {
             
             let changes : [NSObject: Changes] = Dictionary.mappingKeysToValues(keys: Array(objects)){ object in
                 // (1) Get all the changed keys since last Save
-                let changedKeysAndNewValues = getChangedKeysSinceLastSave(object: object)
-                guard changedKeysAndNewValues.count > 0 else { return nil }
+                let changedKeys = getChangedKeysSinceLastSave(object: object)
+                guard changedKeys.count > 0 else { return nil }
 
                 // (2) Map the changed keys to affected keys, remove the ones that we are not reporting
-                let relevantKeysAndOldValues = changedKeysAndNewValues.removingKeysNotIn(set: observable.observableKeys)
-                let affectedKeys = changedKeysAndNewValues.keys.map{observable.keyPathsAffectedByValue(for: $0)}
+                let relevantKeysAndOldValues = changedKeys.intersection(observable.observableKeys)
+                let affectedKeys = changedKeys.map{observable.keyPathsAffectedByValue(for: $0)}
                     .reduce(Set()){$0.union($1)}
                     .intersection(observable.observableKeys)
                 guard relevantKeysAndOldValues.count > 0 || affectedKeys.count > 0 else { return nil }
-                return Changes(changedKeys: affectedKeys, changedKeysAndNewValues: relevantKeysAndOldValues)
+                return Changes(changedKeys: relevantKeysAndOldValues.union(affectedKeys))
             }
             
             // (3) Merge the changes with the other ones
@@ -413,15 +405,15 @@ public class NotificationDispatcher : NSObject {
     
     /// Before merging the sync into the ui context, we create a snapshot of all changed objects
     /// This function compares the snapshot values to the current ones and returns all keys and new values where the value changed due to the merge
-    func extractChangedKeysFromSnapshot(snapshot: [String : NSObject?], for object: NSObject) -> [String : NSObject?] {
-        var changedKeysAndNewValues = [String : NSObject?]()
+    func extractChangedKeysFromSnapshot(snapshot: [String : NSObject?], for object: NSObject) -> Set<String> {
+        var changedKeys = Set<String>()
         snapshot.forEach{ (key, oldValue) in
             let currentValue = object.value(forKey: key) as? NSObject
             if currentValue != oldValue {
-                changedKeysAndNewValues[key] = currentValue
+                changedKeys.insert(key)
             }
         }
-        return changedKeysAndNewValues
+        return changedKeys
     }
     
     func fireAllNotifications(){

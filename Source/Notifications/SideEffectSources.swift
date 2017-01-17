@@ -51,7 +51,7 @@ extension ZMManagedObject {
                 changedKeysAndNewValues = [originalChangeKey : [self : changes] as Optional<NSObject>]
             }
         }
-        return [classIdentifier : [object: Changes(changedKeys: keys, changedKeysAndNewValues: changedKeysAndNewValues)]]
+        return [classIdentifier : [object: Changes(changedKeys: keys, originalChanges: changedKeysAndNewValues)]]
     }
 }
 
@@ -89,7 +89,7 @@ extension ZMUser : SideEffectSource {
         let mappedKeys = otherPartKeys + selfUserKeys
         let keys = affectedKeys(for: mappedKeys, affectingObjectWith: classIdentifier, keyStore: keyStore)
         if keys.count > 0 {
-            affectedObjects[classIdentifier] = Dictionary(keys: conversations, repeatedValue: Changes(changedKeys: keys))
+            affectedObjects[classIdentifier] = Dictionary(keys: Array(conversations), repeatedValue: Changes(changedKeys: keys))
         }
         return affectedObjects
     }
@@ -114,7 +114,7 @@ extension ZMUser : SideEffectSource {
             affectedObjects[identifier]?[$0] = Changes(changedKeys: affectedKeys(for: mappedMessageKeys,
                                                                                  affectingObjectWith: identifier,
                                                                                  keyStore: keyStore),
-                                                       changedKeysAndNewValues: changedKeysAndNewValues)
+                                                       originalChanges: changedKeysAndNewValues)
             
         }
         return affectedObjects
