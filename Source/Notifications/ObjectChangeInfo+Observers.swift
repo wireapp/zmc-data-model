@@ -194,7 +194,7 @@ extension VoiceChannelStateChangeInfo {
                                                       queue: nil)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                let changeInfo = note.userInfo?["voiceChannelStateChangeInfo"] as? VoiceChannelStateChangeInfo
+                let changeInfo = note.userInfo?[VoiceChannelChangeInfoKeys.stateChangeInfo] as? VoiceChannelStateChangeInfo
             else { return }
             
             observer.voiceChannelStateDidChange(changeInfo)
@@ -213,7 +213,7 @@ extension VoiceChannelParticipantsChangeInfo {
                                                       queue: nil)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                  let changeInfo = note.userInfo?["voiceChannelParticipantsChangeInfo"] as? VoiceChannelParticipantsChangeInfo
+                  let changeInfo = note.userInfo?[VoiceChannelChangeInfoKeys.participantsChangeInfo] as? VoiceChannelParticipantsChangeInfo
             else { return }
             observer.voiceChannelParticipantsDidChange(changeInfo)
         }

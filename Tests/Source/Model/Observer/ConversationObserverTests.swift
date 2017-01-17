@@ -132,8 +132,7 @@ class ConversationObserverTests : NotificationDispatcherTests {
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: { _ in
                                                         conversation.callDeviceIsActive = true
-                                                        
-                                                        self.uiMOC.globalManagedObjectContextObserver.notifyUpdatedCallState(Set(arrayLiteral:conversation), notifyDirectly:true)
+                                                        self.dispatcher.notifyUpdatedCallState(Set(arrayLiteral:conversation), notifyDirectly:true)
             },
                                                      expectedChangedFields: KeySet(["voiceChannelStateChanged", "conversationListIndicatorChanged"]),
                                                      expectedChangedKeys: KeySet(["voiceChannelState", "conversationListIndicator"])

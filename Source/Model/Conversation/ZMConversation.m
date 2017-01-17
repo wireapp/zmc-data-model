@@ -796,7 +796,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 + (NSSet *)keyPathsForValuesAffectingConversationListIndicator
 {
-    return [ZMConversation keyPathsForValuesAffectingUnreadListIndicator];
+    return [[ZMConversation keyPathsForValuesAffectingUnreadListIndicator] union:[NSSet setWithObject: @"voiceChannelState"]];
 }
 
 

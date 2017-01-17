@@ -19,48 +19,67 @@
 
 import Foundation
 
+enum VoiceChannelChangeInfoKeys : String {
+    case participantsChangeInfo = "voiceChannelParticipantsChangeInfo"
+    case stateChangeInfo = "voiceChannelStateChangeInfo"
+    case voiceChannelState = "voiceChannelState"
+}
+
 class VoicechannelObserverCenter {
+    
     
     var snapshots = [ZMConversation : VoiceChannelStateSnapshot]()
     
-    func recalculateStateIfNeeded(updatedConversationsAndChangedKeys: [ZMConversation : Set<String>]) {
+    func conversationsWithVoicechannelStateChange(updatedConversationsAndChangedKeys: [ZMConversation : Set<String>]) -> [ZMConversation] {
+        var conversationWithChange = [ZMConversation]()
         updatedConversationsAndChangedKeys.forEach{ conv, changedKeys in
             if let snapshot = snapshots[conv] {
                 let (partChange, stateChange) = snapshot.conversationDidChange(changedKeys: changedKeys)
                 if snapshot.currentVoiceChannelState == .invalid || snapshot.currentVoiceChannelState == .noActiveUsers {
                     snapshots.removeValue(forKey: conv)
                 }
-                var notes : [Notification] = []
                 if let partChange = partChange {
-                    notes.append(Notification(name: .VoiceChannelParticipantStateChange,
-                                              object: conv,
-                                              userInfo: ["voiceChannelParticipantsChangeInfo":partChange]))
+                    postParticipantChangeNotification(conversation: conv, partChange: partChange)
                 }
                 if let stateChange = stateChange {
-                    notes.append(Notification(name: .VoiceChannelStateChange,
-                                              object: conv,
-                                              userInfo: ["voiceChannelStateChangeInfo": stateChange]))
+                    postStateChangeNotification(conversation: conv, stateChange: stateChange)
+                    conversationWithChange.append(conv)
                 }
-                notes.forEach{NotificationCenter.default.post($0)}
             }
-            else if let newSnapshot = VoiceChannelStateSnapshot(conversation: conv) {
-                snapshots[conv] = newSnapshot
-                let stateChange = VoiceChannelStateChangeInfo(object: conv)
-                stateChange.changedKeysAndOldValues["voiceChannelState"] = NSNumber(value: ZMVoiceChannelState.noActiveUsers.rawValue)
-                var notes = [Notification(name: .VoiceChannelStateChange,
-                                        object: conv,
-                                        userInfo: ["voiceChannelStateChangeInfo": stateChange])]
-                if let initialChangeInfo = newSnapshot.initialChangeInfo {
-                    notes.append(Notification(name: .VoiceChannelParticipantStateChange,
-                                              object: conv,
-                                              userInfo: ["voiceChannelParticipantsChangeInfo":initialChangeInfo]))
-
+            else {
+                let didInsertNewSnapshot = insertNewSnapshotIfNeeded(converation: conv)
+                if didInsertNewSnapshot {
+                    conversationWithChange.append(conv)
                 }
-                notes.forEach{NotificationCenter.default.post($0)}
             }
         }
+        return conversationWithChange
+    }
+    
+    func insertNewSnapshotIfNeeded(converation: ZMConversation) -> Bool {
+        guard let newSnapshot = VoiceChannelStateSnapshot(conversation: converation) else { return false }
+        
+        snapshots[converation] = newSnapshot
+        let stateChange = VoiceChannelStateChangeInfo(object: converation)
+        stateChange.changedKeysAndOldValues[VoiceChannelChangeInfoKeys.voiceChannelState.rawValue] = NSNumber(value: ZMVoiceChannelState.noActiveUsers.rawValue)
+        postStateChangeNotification(conversation: converation, stateChange: stateChange)
+        if let partChange = newSnapshot.initialChangeInfo {
+            postParticipantChangeNotification(conversation: converation, partChange: partChange)
+        }
+        return true
+    }
+    
+    func postParticipantChangeNotification(conversation: ZMConversation, partChange: VoiceChannelParticipantsChangeInfo) {
+        NotificationCenter.default.post(Notification(name: .VoiceChannelParticipantStateChange,
+                                                     object: conversation,
+                                                     userInfo: [VoiceChannelChangeInfoKeys.participantsChangeInfo: partChange]))
     }
 
+    func postStateChangeNotification(conversation: ZMConversation, stateChange: VoiceChannelStateChangeInfo) {
+        NotificationCenter.default.post(Notification(name: .VoiceChannelStateChange,
+                                                     object: conversation,
+                                                     userInfo: [VoiceChannelChangeInfoKeys.stateChangeInfo: stateChange]))
+    }
 }
 
 
@@ -122,7 +141,7 @@ class VoiceChannelStateSnapshot: NSObject  {
         }
         if newState != currentVoiceChannelState {
             let changeInfo = VoiceChannelStateChangeInfo(object: conversation)
-            changeInfo.changedKeysAndOldValues["voiceChannelState"] = NSNumber(value: currentVoiceChannelState.rawValue)
+            changeInfo.changedKeysAndOldValues[VoiceChannelChangeInfoKeys.voiceChannelState.rawValue] = NSNumber(value: currentVoiceChannelState.rawValue)
             return changeInfo
         } else {
             return nil

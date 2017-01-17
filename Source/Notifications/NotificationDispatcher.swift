@@ -240,9 +240,14 @@ public class NotificationDispatcher : NSObject {
     }
     
     public func notifyUpdatedCallState(_ conversations: Set<ZMConversation>, notifyDirectly: Bool) {
-        voicechannelObserverCenter.recalculateStateIfNeeded(updatedConversationsAndChangedKeys:
+        let updatedConversations = voicechannelObserverCenter.conversationsWithVoicechannelStateChange(updatedConversationsAndChangedKeys:
             conversations.mapToDictionary{Set($0.changedValues().keys)}
         )
+        guard updatedConversations.count > 0 else { return }
+        let classIdentifier = ZMConversation.entityName()
+        let affectedKeys = affectingKeysStore.keyPathsAffectedByValue(classIdentifier, key: "voiceChannelState")
+        let changes = Dictionary(keys: updatedConversations, repeatedValue: Changes(changedKeys: affectedKeys))
+        allChanges[classIdentifier] = allChanges[ZMConversation.entityName()]?.merged(with: changes) ?? changes
     }
     
     func process(note: Notification) {
