@@ -118,7 +118,21 @@ class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
         // THEN
         XCTAssertEqual(message.categorization, [MessageCategory.image, MessageCategory.excludedFromCollection])
     }
-    
+
+    func testThatItUpdatesCachedCategoryAfterSettingFullImageData() {
+        // GIVEN
+        let conversation = ZMConversation(remoteID: .create(), createIfNeeded: true, in: syncMOC)!
+        let data = self.data(forResource: "animated", extension: "gif")!
+        conversation.appendMessage(withImageData: data)
+
+        let message = conversation.messages.lastObject as! ZMAssetClientMessage
+        let testProperties = ZMIImageProperties(size: CGSize(width: 33, height: 55), length: UInt(10), mimeType: "image/gif")
+        message.imageAssetStorage!.setImageData(data, for: .medium, properties: testProperties)
+
+        // THEN
+        XCTAssertEqual(message.cachedCategory, [MessageCategory.image, MessageCategory.GIF])
+    }
+
     func testThatItCategorizesAGifImageMessage() {
         
         // GIVEN
