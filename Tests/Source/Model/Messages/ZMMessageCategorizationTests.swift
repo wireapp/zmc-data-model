@@ -21,6 +21,14 @@ import ZMUtilities
 import ZMCDataModel
 import ZMCLinkPreview
 
+extension ZMConversationMessage {
+    var categorization : MessageCategory {
+        guard let message = self as? ZMMessage else {
+            return .none
+        }
+        return message.category
+    }
+}
 
 class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
     
