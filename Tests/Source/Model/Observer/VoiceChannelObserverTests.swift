@@ -750,7 +750,6 @@ extension VoiceChannelObserverTests {
         XCTAssertEqual(conversation.otherActiveVideoCallParticipants.count, 0)
         
         // then
-        
         XCTAssertEqual(participantObserver.receivedChangeInfo.count, 1)
         if let note = participantObserver.receivedChangeInfo.first {
             XCTAssertTrue(note.otherActiveVideoCallParticipantsChanged)

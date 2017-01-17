@@ -22,14 +22,6 @@ protocol SideEffectSource {
 
 
 extension ZMManagedObject {
-
-    /// Returns all observable keys of objects with `classIdentifier` that are affected by `changedKeys`
-    func affectedKeys(for changedKeys: [String], affectingObjectWith classIdentifier: String, keyStore: DependencyKeyStore) ->  Set<String> {
-        let affectedKeys : [String] = keyStore.observableKeys[classIdentifier]?.flatMap {
-             keyStore.keyPathsForValuesAffectingValue(classIdentifier, key: $0).isDisjoint(with: changedKeys) ? nil : $0
-        } ?? []
-        return Set(affectedKeys)
-    }
     
     /// Returns a map of [classIdentifier : [affectedObject: changedKeys]]
     func byInsertOrDeletionAffectedKeys(for object: ZMManagedObject?, keyStore: DependencyKeyStore, affectedKey: String) -> [ClassIdentifier: ObjectAndChanges] {
@@ -50,7 +42,7 @@ extension ZMManagedObject {
         guard changes.count > 0  else { return [:] }
         
         let mappedKeys : [String] = Array(changes.keys).map(keyMapping)
-        let keys = affectedKeys(for: mappedKeys, affectingObjectWith: classIdentifier, keyStore: keyStore)
+        let keys = mappedKeys.map{keyStore.keyPathsAffectedByValue(classIdentifier, key: $0)}.reduce(Set()){$0.union($1)}
         guard keys.count > 0 || originalChangeKey != nil else { return [:] }
         
         var originalChanges = [String : NSObject?]()
@@ -96,7 +88,7 @@ extension ZMUser : SideEffectSource {
         let otherPartKeys = changedKeys.map{"otherActiveParticipants.\($0)"}
         let selfUserKeys = changedKeys.map{"connection.to.\($0)"}
         let mappedKeys = otherPartKeys + selfUserKeys
-        let keys = affectedKeys(for: mappedKeys, affectingObjectWith: classIdentifier, keyStore: keyStore)
+        let keys = mappedKeys.map{keyStore.keyPathsAffectedByValue(classIdentifier, key: $0)}.reduce(Set()){$0.union($1)}
         if keys.count > 0 {
             affectedObjects[classIdentifier] = Dictionary(keys: Array(conversations), repeatedValue: Changes(changedKeys: keys))
         }
@@ -115,14 +107,15 @@ extension ZMUser : SideEffectSource {
             originalChanges["userChanges"] = [self : changes] as Optional<NSObject>
         }
         
+        var mapping = [ClassIdentifier : Set<String>]()
         messages.forEach {
             let identifier = type(of: $0).entityName()
             if affectedObjects[identifier] == nil {
                 affectedObjects[identifier] = [:]
             }
-            affectedObjects[identifier]?[$0] = Changes(changedKeys: affectedKeys(for: mappedMessageKeys,
-                                                                                 affectingObjectWith: identifier,
-                                                                                 keyStore: keyStore),
+            mapping[identifier] = mapping[identifier] ?? mappedMessageKeys.map{keyStore.keyPathsAffectedByValue(identifier, key: $0)}
+                                                                          .reduce(Set()){$0.union($1)}
+            affectedObjects[identifier]?[$0] = Changes(changedKeys: mapping[identifier]!,
                                                        originalChanges: originalChanges)
             
         }

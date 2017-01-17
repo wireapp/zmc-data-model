@@ -762,7 +762,7 @@ extension ConversationObserverTests {
 
     func testPerformanceOfCalculatingChangeNotificationsWhenANewMessageArrives()
     {
-       // average: 0.059, relative standard deviation: 12.459%, values: [0.080559, 0.056606, 0.056042, 0.056317, 0.055988, 0.056869, 0.056097, 0.055891, 0.055671, 0.056545]
+       // average: 0.059, relative standard deviation: 13.343%, values: [0.082006, 0.056299, 0.056005, 0.056230, 0.059868, 0.055533, 0.055511, 0.055503, 0.055434, 0.055458]
         let count = 50
         
         self.measureMetrics([XCTPerformanceMetric_WallClockTime], automaticallyStartMeasuring: false) {
@@ -786,7 +786,7 @@ extension ConversationObserverTests {
     
     func testPerformanceOfCalculatingChangeNotificationsWhenANewMessageArrives_AppendingManyMessages()
     {
-        // 50: average: 0.022, relative standard deviation: 30.173%, values: [0.042196, 0.020411, 0.019772, 0.019573, 0.020613, 0.020409, 0.019875, 0.019702, 0.019598, 0.019495],
+        // 50: average: 0.026, relative standard deviation: 29.098%, values: [0.047283, 0.023655, 0.024622, 0.025462, 0.029163, 0.024709, 0.024966, 0.020773, 0.020413, 0.019464],
         // 500: average: 0.243, relative standard deviation: 4.039%, values: [0.264489, 0.235209, 0.245864, 0.244984, 0.231789, 0.244359, 0.251886, 0.229036, 0.247700, 0.239637],
         let count = 50
         
@@ -812,7 +812,7 @@ extension ConversationObserverTests {
     func testPerformanceOfCalculatingChangeNotificationsWhenANewMessageArrives_RegisteringNewObservers()
     {
        // 50: average: 0.093, relative standard deviation: 9.576%, values: [0.119425, 0.091509, 0.088228, 0.090549, 0.090424, 0.086471, 0.091216, 0.091060, 0.094097, 0.089602],
-        // 500: average: 0.917, relative standard deviation: 1.375%, values: [0.940845, 0.908672, 0.905260, 0.931678, 0.930426, 0.916988, 0.913709, 0.902080, 0.904517, 0.911674],
+        // 500: average: 0.886, relative standard deviation: 1.875%, values: [0.922453, 0.878736, 0.880529, 0.899234, 0.875889, 0.904563, 0.890234, 0.872045, 0.868912, 0.871016]
         let count = 50
         
         self.measureMetrics([XCTPerformanceMetric_WallClockTime], automaticallyStartMeasuring: false) {

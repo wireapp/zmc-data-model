@@ -528,6 +528,5 @@ extension UserObserverTests {
         
         UserChangeInfo.remove(observer: token, for: observedUser)
     }
-    
 }
 
