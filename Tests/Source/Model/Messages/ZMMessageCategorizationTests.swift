@@ -22,7 +22,7 @@ import ZMCDataModel
 import ZMCLinkPreview
 
 extension ZMConversationMessage {
-    var categorization : MessageCategory {
+    fileprivate var categorization : MessageCategory {
         guard let message = self as? ZMMessage else {
             return .none
         }
