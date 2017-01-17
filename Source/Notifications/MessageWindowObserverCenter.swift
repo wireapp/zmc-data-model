@@ -58,6 +58,7 @@ final class MessageWindowObserverCenter : NSObject {
         }
     }
     
+    // TODO Sabine: this is pretty hacky
     @objc public func windowWasCreated(_ note: Notification) {
         guard let notifyingWindow = note.object as? ZMConversationMessageWindow else { return }
         if let snapshot = windowSnapshot, snapshot.conversation == notifyingWindow.conversation {
@@ -76,6 +77,7 @@ final class MessageWindowObserverCenter : NSObject {
 class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserver {
 
     fileprivate var state : SetSnapshot
+    // TODO Sabine : we could probably speed things up by forwarding the changeInfos directly
     fileprivate var conversationToken : NSObjectProtocol!
     
     public let conversationWindow : ZMConversationMessageWindow
@@ -86,6 +88,8 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
     fileprivate var shouldRecalculate : Bool = false
     fileprivate var updatedMessages : [ZMMessage] = []
     fileprivate var messageChangeInfos : [MessageChangeInfo] = []
+    
+    // TODO Sabine : we could probably speed things up by forwarding the changeInfos directly
     fileprivate var messageTokens: [ZMMessage : NSObjectProtocol] = [:]
     
     public var isTornDown : Bool = false

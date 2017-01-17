@@ -184,13 +184,10 @@ public class NotificationDispatcher : NSObject {
     private let affectingKeysStore : DependencyKeyStore
     private let voicechannelObserverCenter : VoicechannelObserverCenter
     private let messageWindowObserverCenter : MessageWindowObserverCenter
+    private let conversationListObserverCenter : ConversationListObserverCenter
     private let snapshotCenter: SnapshotCenter
     
-    private var allChanges : [ClassIdentifier : [NSObject : Changes]] = [:] {
-        didSet {
-//            print(allChanges)
-        }
-    }
+    private var allChanges : [ClassIdentifier : [NSObject : Changes]] = [:] 
     private var userChanges : [ZMManagedObject : Set<String>] = [:]
     private var unreadMessages : [Notification.Name : Set<ZMMessage>] = [:]
     
@@ -211,7 +208,7 @@ public class NotificationDispatcher : NSObject {
         self.voicechannelObserverCenter = VoicechannelObserverCenter()
         self.messageWindowObserverCenter = MessageWindowObserverCenter()
         self.snapshotCenter = SnapshotCenter(managedObjectContext: managedObjectContext)
-        
+        self.conversationListObserverCenter = ConversationListObserverCenter(managedObjectContext: managedObjectContext)
         super.init()
         NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcher.objectsDidChange(_:)), name:NSNotification.Name.NSManagedObjectContextObjectsDidChange, object: self.managedObjectContext)
         NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcher.contextDidSave(_:)), name:NSNotification.Name.NSManagedObjectContextDidSave, object: self.managedObjectContext)
@@ -220,6 +217,7 @@ public class NotificationDispatcher : NSObject {
     public func tearDown() {
         NotificationCenter.default.removeObserver(self)
         messageWindowObserverCenter.tearDown()
+        conversationListObserverCenter.tearDown()
         tornDown = true
     }
     
@@ -233,6 +231,14 @@ public class NotificationDispatcher : NSObject {
     
     @objc func contextDidSave(_ note: Notification){
         fireAllNotifications()
+        
+        guard let userInfo = note.userInfo as? [String: Any] else { return }
+        let insertedObjects = (userInfo[NSInsertedObjectsKey] as? Set<NSManagedObject>)?.flatMap{$0 as? ZMConversation} ?? []
+        let deletedObjects = (userInfo[NSDeletedObjectsKey] as? Set<NSManagedObject>)?.flatMap{$0 as? ZMConversation} ?? []
+        conversationListObserverCenter.conversationsChanges(inserted: insertedObjects,
+                                                            deleted: deletedObjects,
+                                                            accumulated: false)
+
     }
     
     public func willMergeChanges(changes: [NSManagedObjectID]){
@@ -257,7 +263,7 @@ public class NotificationDispatcher : NSObject {
         let refreshedObjects = userInfo[NSRefreshedObjectsKey] as? Set<ZMManagedObject> ?? Set()
         let insertedObjects = userInfo[NSInsertedObjectsKey] as? Set<ZMManagedObject> ?? Set()
         let deletedObjects = userInfo[NSDeletedObjectsKey] as? Set<ZMManagedObject> ?? Set()
-        
+
         let usersWithNewImage = checkForChangedImages()
         let usersWithNewName = checkForDisplayNameUpdates(with: note)
 

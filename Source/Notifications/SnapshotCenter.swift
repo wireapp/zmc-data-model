@@ -27,14 +27,15 @@ struct Snapshot {
 class SnapshotCenter {
     
     private unowned var managedObjectContext: NSManagedObjectContext
-    private var snapshots : [NSManagedObjectID : Snapshot] = [:]
+    
     // TODO Sabine: When do we get rid of those?
-    /// This function needs to be called when the sync context saved and we receive the NSManagedObjectContextDidSave notification and before the changes are merged into the UI context
+    private var snapshots : [NSManagedObjectID : Snapshot] = [:]
     
     init(managedObjectContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext
     }
     
+    /// This function needs to be called when the sync context saved and we receive the NSManagedObjectContextDidSave notification and before the changes are merged into the UI context
     func willMergeChanges(changes: [NSManagedObjectID]){
         // TODO Sabine do I need to wrap this in a block?
         managedObjectContext.performGroupedBlock { [weak self] in

@@ -356,6 +356,8 @@
 		F9DBA5271E28EEBD00BE23C0 /* UserObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9DBA5261E28EEBD00BE23C0 /* UserObserverTests.swift */; };
 		F9DBA5291E29162A00BE23C0 /* MessageObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9DBA5281E29162A00BE23C0 /* MessageObserverTests.swift */; };
 		F9EC8DE11DA69982003C0022 /* ZMGenericMessage+Obfuscation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9EC8DE01DA69982003C0022 /* ZMGenericMessage+Obfuscation.swift */; };
+		F9FD75731E2E6A2100B4558B /* ConversationListObserverCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FD75721E2E6A2100B4558B /* ConversationListObserverCenter.swift */; };
+		F9FD75761E2E79BF00B4558B /* ConversationListObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FD75741E2E79B200B4558B /* ConversationListObserverTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -827,6 +829,8 @@
 		F9DBA5261E28EEBD00BE23C0 /* UserObserverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserObserverTests.swift; sourceTree = "<group>"; };
 		F9DBA5281E29162A00BE23C0 /* MessageObserverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageObserverTests.swift; sourceTree = "<group>"; };
 		F9EC8DE01DA69982003C0022 /* ZMGenericMessage+Obfuscation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZMGenericMessage+Obfuscation.swift"; sourceTree = "<group>"; };
+		F9FD75721E2E6A2100B4558B /* ConversationListObserverCenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConversationListObserverCenter.swift; sourceTree = "<group>"; };
+		F9FD75741E2E79B200B4558B /* ConversationListObserverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConversationListObserverTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1099,6 +1103,7 @@
 				F9A706401CAEE01D00C2F5FE /* ZMVoiceChannelNotifications+Internal.h */,
 				F9A706411CAEE01D00C2F5FE /* ZMVoiceChannelNotifications.m */,
 				F93C4C7C1E24E1B1007E9CEE /* NotificationDispatcher.swift */,
+				F9FD75721E2E6A2100B4558B /* ConversationListObserverCenter.swift */,
 				F9C348911E2E3FF60015D69D /* SnapshotCenter.swift */,
 				F9C348871E2CD8FC0015D69D /* VoicechannelObserverCenter.swift */,
 				F9C3488C1E2E219C0015D69D /* MessageWindowObserverCenter.swift */,
@@ -1422,6 +1427,7 @@
 				F9C348851E2CC27D0015D69D /* NewUnreadMessageObserverTests.swift */,
 				F9C3488E1E2E2DEC0015D69D /* MessageWindowObserverTests.swift */,
 				F9C348891E2CEC150015D69D /* VoiceChannelObserverTests.swift */,
+				F9FD75741E2E79B200B4558B /* ConversationListObserverTests.swift */,
 			);
 			path = Observer;
 			sourceTree = "<group>";
@@ -2012,6 +2018,7 @@
 				541E4F951CBD182100D82D69 /* FileAssetCache.swift in Sources */,
 				F9A706AB1CAEE01D00C2F5FE /* ObjectObserverTokenRegistry.swift in Sources */,
 				F9A706731CAEE01D00C2F5FE /* AssetEncryption.swift in Sources */,
+				F9FD75731E2E6A2100B4558B /* ConversationListObserverCenter.swift in Sources */,
 				F92C992A1DAFBC910034AFDD /* ZMConversation+Ephemeral.swift in Sources */,
 				F93C4C7D1E24E1B1007E9CEE /* NotificationDispatcher.swift in Sources */,
 				F9A706951CAEE01D00C2F5FE /* UserClient.swift in Sources */,
@@ -2083,6 +2090,7 @@
 				F9B71F941CB2BF08001DB03F /* UserImageLocalCacheTests.swift in Sources */,
 				F9A708441CAEEB7500C2F5FE /* ZMConnectionTests.m in Sources */,
 				F9331C621CB3C7D500139ECC /* DatabaseMovingTests.m in Sources */,
+				F9FD75761E2E79BF00B4558B /* ConversationListObserverTests.swift in Sources */,
 				F9A7085C1CAEED1B00C2F5FE /* ZMBaseManagedObjectTest.m in Sources */,
 				F9A708351CAEEB7500C2F5FE /* ManagedObjectContextTests.m in Sources */,
 				54DE05DD1CF8711F00C35253 /* ProtobufUtilitiesTests.swift in Sources */,

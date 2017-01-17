@@ -272,7 +272,9 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
 
 @implementation  ZMBaseManagedObjectTest (SwiftBridgeConversation)
 
-- (void)simulateUnreadCount:(NSUInteger)unreadCount forConversation:(ZMConversation *)conversation;
+- (void)performChangesSyncConversation:(ZMConversation *)conversation
+                            mergeBlock:(void(^)(void))mergeBlock
+                           changeBlock:(void(^)(ZMConversation*))changeBlock
 {
     BOOL isSyncContext = conversation.managedObjectContext.zm_isSyncContext;
     [self.syncMOC performGroupedBlockAndWait:^{
@@ -281,47 +283,50 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
             NSManagedObjectID *objectID = conversation.objectID;
             syncConv = (id)[self.syncMOC objectWithID:objectID];
         }
-        syncConv.internalEstimatedUnreadCount = [@(unreadCount) intValue];
+        changeBlock(syncConv);
         [self.syncMOC saveOrRollback];
     }];
     if (!isSyncContext) {
-        [self.uiMOC refreshObject:conversation mergeChanges:YES];
+        if (mergeBlock) {
+            mergeBlock();
+        } else {
+            [self.uiMOC refreshObject:conversation mergeChanges:YES];
+        }
     }
+}
+- (void)simulateUnreadCount:(NSUInteger)unreadCount forConversation:(nonnull ZMConversation *)conversation mergeBlock:(void(^_Nullable)(void))mergeBlock;
+{
+    [self performChangesSyncConversation:conversation mergeBlock:mergeBlock changeBlock:^(ZMConversation * syncConv) {
+        syncConv.internalEstimatedUnreadCount = [@(unreadCount) intValue];
+    }];
+}
+- (void)simulateUnreadMissedCallInConversation:(nonnull ZMConversation *)conversation mergeBlock:(void(^_Nullable)(void))mergeBlock;
+{
+    [self performChangesSyncConversation:conversation mergeBlock:mergeBlock changeBlock:^(ZMConversation * syncConv) {
+        syncConv.lastUnreadMissedCallDate = [NSDate date];
+    }];
+}
+
+- (void)simulateUnreadMissedKnockInConversation:(nonnull ZMConversation *)conversation mergeBlock:(void(^_Nullable)(void))mergeBlock;
+{
+    [self performChangesSyncConversation:conversation mergeBlock:mergeBlock changeBlock:^(ZMConversation * syncConv) {
+        syncConv.lastUnreadKnockDate = [NSDate date];
+    }];
+}
+
+- (void)simulateUnreadCount:(NSUInteger)unreadCount forConversation:(ZMConversation *)conversation;
+{
+    [self simulateUnreadCount:unreadCount forConversation:conversation mergeBlock:nil];
 }
 
 - (void)simulateUnreadMissedCallInConversation:(ZMConversation *)conversation;
 {
-    BOOL isSyncContext = conversation.managedObjectContext.zm_isSyncContext;
-    [self.syncMOC performGroupedBlockAndWait:^{
-        ZMConversation *syncConv = conversation;
-        if (!isSyncContext) {
-            NSManagedObjectID *objectID = conversation.objectID;
-            syncConv = (id)[self.syncMOC objectWithID:objectID];
-        }
-        syncConv.lastUnreadMissedCallDate = [NSDate date];
-        [self.syncMOC saveOrRollback];
-    }];
-    if (!isSyncContext) {
-        [self.uiMOC refreshObject:conversation mergeChanges:YES];
-    }
+    [self simulateUnreadMissedKnockInConversation:conversation mergeBlock:nil];
 }
-
 
 - (void)simulateUnreadMissedKnockInConversation:(ZMConversation *)conversation;
 {
-    BOOL isSyncContext = conversation.managedObjectContext.zm_isSyncContext;
-    [self.syncMOC performGroupedBlockAndWait:^{
-        ZMConversation *syncConv = conversation;
-        if (!isSyncContext) {
-            NSManagedObjectID *objectID = conversation.objectID;
-            syncConv = (id)[self.syncMOC objectWithID:objectID];
-        }
-        syncConv.lastUnreadKnockDate = [NSDate date];
-        [self.syncMOC saveOrRollback];
-    }];
-    if (!isSyncContext) {
-        [self.uiMOC refreshObject:conversation mergeChanges:YES];
-    }
+    [self simulateUnreadMissedKnockInConversation:conversation mergeBlock:nil];
 }
 
 @end

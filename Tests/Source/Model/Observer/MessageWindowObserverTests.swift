@@ -53,7 +53,6 @@ class MessageWindowObserverTests : NotificationDispatcherTests {
     }
     
     override func tearDown() {
-        MessageWindowChangeInfo.remove(observer: windowObserver, for: nil)
         windowObserver = nil
         super.tearDown()
     }
