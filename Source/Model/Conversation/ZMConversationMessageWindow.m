@@ -26,6 +26,7 @@
 #import "ZMOTRMessage.h"
 
 NSString * const ZMConversationMessageWindowScrolledNotificationName = @"ZMConversationMessageWindowScrolledNotification";
+NSString * const ZMConversationMessageWindowCreatedNotificationName = @"ZMConversationMessageWindowCreatedNotification";
 
 typedef NS_ENUM(int, ZMMessageWindowEvent) {
     ZMMessageWindowEventAddObserver = 1,
@@ -54,6 +55,8 @@ typedef NS_ENUM(int, ZMMessageWindowEvent) {
 
 @implementation ZMConversationMessageWindow
 
+
+
 - (instancetype)initWithConversation:(ZMConversation *)conversation size:(NSUInteger)size;
 {
     self = [super init];
@@ -71,6 +74,7 @@ typedef NS_ENUM(int, ZMMessageWindowEvent) {
         }
             
         [self recalculateMessages];
+        [[NSNotificationCenter defaultCenter] postNotificationName:ZMConversationMessageWindowCreatedNotificationName object:self];
     }
     return self;
 }

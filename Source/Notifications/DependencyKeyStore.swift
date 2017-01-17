@@ -10,20 +10,67 @@ import Foundation
 
 private var zmLog = ZMSLog(tag: "DependencyKeyStore")
 
+struct Observable {
+    
+    private let affectingKeyStore: DependencyKeyStore
+    let classIdentifier : String
+    private let affectingKeys : [String : Set<String>]
+    private let affectedKeys : [String : Set<String>]
+    
+    /// Keys that we want to report changes for
+    var observableKeys : Set<String> {
+        return affectingKeyStore.observableKeys[classIdentifier] ?? Set()
+    }
+    
+    /// Union of observable keys and their affecting keys
+    var allKeys : Set<String> {
+        return affectingKeyStore.allKeys[classIdentifier] ?? Set()
+    }
+    
+    init(classIdentifier: String, affectingKeyStore: DependencyKeyStore) {
+        self.classIdentifier = classIdentifier
+        self.affectingKeyStore = affectingKeyStore
+        self.affectingKeys = affectingKeyStore.affectingKeys[classIdentifier] ?? [:]
+        self.affectedKeys = affectingKeyStore.effectedKeys[classIdentifier] ?? [:]
+    }
+    
+    func keyPathsForValuesAffectingValue(for key: String) -> Set<String>{
+        return affectingKeys[key] ?? Set()
+    }
+    
+    func keyPathsAffectedByValue(for key: String) -> Set<String>{
+        var keys = affectedKeys[key] ?? Set()
+        if observableKeys.contains(key) {
+            keys.insert(key)
+        }
+        return keys
+    }
+}
+
+
+/// Maps the observable keys to affectedKeys and vice versa
+/// You should create this only once
 class DependencyKeyStore {
     
+    /// Keys that are needed to create a changeInfo
     let observableKeys : [String: Set<String>]
+    
+    /// All keys that will create a userChangeInfo
     let allKeys : [String : Set<String>]
+    
+    /// Maps observable keys to keys whose values affect them
     let affectingKeys : [String : [String : Set<String>]]
+    
+    /// Maps keys that affect the observables to their respective observables
     let effectedKeys : [String : [String : Set<String>]]
     
+    /// Returns a store mapping observable keys and their affecting keys
+    /// @param classIdentifier: Identifiers for each class, e.g. entityName
     init(classIdentifiers: [String]) {
-        let observable = Dictionary.mappingKeysToValues(keys:classIdentifiers){DependencyKeyStore.setupObservableKeys(classIdentifier: $0)}
-        let affecting = Dictionary.mappingKeysToValues(keys:classIdentifiers){DependencyKeyStore.setupAffectedKeys(classIdentifier: $0,
-                                                                                                                   observableKeys: observable[$0]!)}
-        let all = Dictionary.mappingKeysToValues(keys:classIdentifiers){DependencyKeyStore.setupAllKeys(observableKeys: observable[$0]!,
-                                                                                                        affectingKeys: affecting[$0]!)}
-        let affectingInverse = Dictionary.mappingKeysToValues(keys:classIdentifiers){DependencyKeyStore.setupEffectedKeys(affectingKeys: affecting[$0]!)}
+        let observable = classIdentifiers.mapToDictionary{DependencyKeyStore.setupObservableKeys(classIdentifier: $0)}
+        let affecting = classIdentifiers.mapToDictionary{DependencyKeyStore.setupAffectedKeys(classIdentifier: $0, observableKeys: observable[$0]!)}
+        let all = classIdentifiers.mapToDictionary{DependencyKeyStore.setupAllKeys(observableKeys: observable[$0]!, affectingKeys: affecting[$0]!)}
+        let affectingInverse = classIdentifiers.mapToDictionary{DependencyKeyStore.setupEffectedKeys(affectingKeys: affecting[$0]!)}
         
         self.observableKeys = observable
         self.affectingKeys = affecting
@@ -77,23 +124,23 @@ class DependencyKeyStore {
     private static func setupAffectedKeys(classIdentifier: String, observableKeys: Set<String>) -> [String : Set<String>] {
         switch classIdentifier {
         case ZMConversation.entityName():
-            return Dictionary.mappingKeysToValues(keys: Array(observableKeys)){ZMConversation.keyPathsForValuesAffectingValue(forKey: $0)}
+            return observableKeys.mapToDictionary{ZMConversation.keyPathsForValuesAffectingValue(forKey: $0)}
         case ZMUser.entityName():
-            return Dictionary.mappingKeysToValues(keys: Array(observableKeys)){ZMUser.keyPathsForValuesAffectingValue(forKey: $0)}
+            return observableKeys.mapToDictionary{ZMUser.keyPathsForValuesAffectingValue(forKey: $0)}
         case ZMConnection.entityName():
             return [:]
         case UserClient.entityName():
-            return Dictionary.mappingKeysToValues(keys: Array(observableKeys)){UserClient.keyPathsForValuesAffectingValue(forKey: $0)}
+            return observableKeys.mapToDictionary{UserClient.keyPathsForValuesAffectingValue(forKey: $0)}
         case ZMMessage.entityName():
-            return Dictionary.mappingKeysToValues(keys: Array(observableKeys)){ZMMessage.keyPathsForValuesAffectingValue(forKey: $0)}
+            return observableKeys.mapToDictionary{ZMMessage.keyPathsForValuesAffectingValue(forKey: $0)}
         case ZMAssetClientMessage.entityName():
-            return Dictionary.mappingKeysToValues(keys: Array(observableKeys)){ZMAssetClientMessage.keyPathsForValuesAffectingValue(forKey: $0)}
+            return observableKeys.mapToDictionary{ZMAssetClientMessage.keyPathsForValuesAffectingValue(forKey: $0)}
         case ZMClientMessage.entityName():
-            return Dictionary.mappingKeysToValues(keys: Array(observableKeys)){ZMClientMessage.keyPathsForValuesAffectingValue(forKey: $0)}
+            return observableKeys.mapToDictionary{ZMClientMessage.keyPathsForValuesAffectingValue(forKey: $0)}
         case Reaction.entityName():
-            return Dictionary.mappingKeysToValues(keys: Array(observableKeys)){Reaction.keyPathsForValuesAffectingValue(forKey: $0)}
+            return observableKeys.mapToDictionary{Reaction.keyPathsForValuesAffectingValue(forKey: $0)}
         case ZMGenericMessageData.entityName():
-            return Dictionary.mappingKeysToValues(keys: Array(observableKeys)){ZMGenericMessageData.keyPathsForValuesAffectingValue(forKey: $0)}
+            return observableKeys.mapToDictionary{ZMGenericMessageData.keyPathsForValuesAffectingValue(forKey: $0)}
         default:
             zmLog.warn("There is no path to affecting keys defined for \(classIdentifier)")
             return [:]
@@ -132,6 +179,7 @@ class DependencyKeyStore {
         return keys
     }
     
+    /// Returns a set of keys that need to be present in the changesValues of the object so that the object changes will be included in the changeInfo of the specified classIdentifier
     func requiredKeysForIncludingRawChanges(classIdentifier: String, for object: ZMManagedObject) -> Set<String> {
         switch (classIdentifier, object) {
         case (ZMUser.entityName(), is UserClient):

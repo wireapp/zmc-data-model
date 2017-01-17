@@ -78,6 +78,9 @@ class ConversationObserverTests : NotificationDispatcherTests {
     func checkChangeInfoContainsExpectedKeys(changes: ConversationChangeInfo, expectedChangedFields : KeySet, expectedChangedKeys: KeySet){
         for key in conversationInfoKeys {
             if expectedChangedFields.contains(key) {
+                if let value = changes.value(forKey: key) as? NSNumber {
+                    XCTAssertTrue(value.boolValue, "\(key) was supposed to be true")
+                }
                 continue
             }
             if let value = changes.value(forKey: key) as? NSNumber {
@@ -510,7 +513,8 @@ class ConversationObserverTests : NotificationDispatcherTests {
         }
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         mergeLastChanges()
-        
+        self.dispatcher.fireAllNotifications()
+
         
         let observer = ConversationObserver()
         let token = ConversationChangeInfo.add(observer: observer, for: uiConversation)
@@ -637,6 +641,7 @@ class ConversationObserverTests : NotificationDispatcherTests {
     {
         // given
         let uiConversation : ZMConversation = ZMConversation.insertNewObject(in:self.uiMOC)
+        uiConversation.userDefinedName = "foo"
         uiMOC.saveOrRollback()
         
         var conversation : ZMConversation!
@@ -644,7 +649,7 @@ class ConversationObserverTests : NotificationDispatcherTests {
             conversation = self.syncMOC.object(with: uiConversation.objectID) as! ZMConversation
             self.syncMOC.saveOrRollback()
         }
-        
+
         let observer = ConversationObserver()
         let token = ConversationChangeInfo.add(observer: observer, for: uiConversation)
         
@@ -784,7 +789,7 @@ extension ConversationObserverTests {
     {
         // 50: average: 0.022, relative standard deviation: 30.173%, values: [0.042196, 0.020411, 0.019772, 0.019573, 0.020613, 0.020409, 0.019875, 0.019702, 0.019598, 0.019495],
         // 500: average: 0.243, relative standard deviation: 4.039%, values: [0.264489, 0.235209, 0.245864, 0.244984, 0.231789, 0.244359, 0.251886, 0.229036, 0.247700, 0.239637],
-        let count = 500
+        let count = 50
         
         self.measureMetrics([XCTPerformanceMetric_WallClockTime], automaticallyStartMeasuring: false) {
             
@@ -809,7 +814,7 @@ extension ConversationObserverTests {
     {
        // 50: average: 0.093, relative standard deviation: 9.576%, values: [0.119425, 0.091509, 0.088228, 0.090549, 0.090424, 0.086471, 0.091216, 0.091060, 0.094097, 0.089602],
         // 500: average: 0.917, relative standard deviation: 1.375%, values: [0.940845, 0.908672, 0.905260, 0.931678, 0.930426, 0.916988, 0.913709, 0.902080, 0.904517, 0.911674],
-        let count = 500
+        let count = 50
         
         self.measureMetrics([XCTPerformanceMetric_WallClockTime], automaticallyStartMeasuring: false) {
             

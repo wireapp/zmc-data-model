@@ -22,7 +22,7 @@ import Foundation
 extension ConversationChangeInfo {
     
     public static func add(observer: ZMConversationObserver, for conversation: ZMConversation) -> NSObjectProtocol {
-        return NotificationCenter.default.addObserver(forName: NSNotification.Name.ConversationChangeNotification,
+        return NotificationCenter.default.addObserver(forName: .ConversationChange,
                                                       object: conversation,
                                                       queue: nil)
         { [weak observer] (note) in
@@ -38,14 +38,14 @@ extension ConversationChangeInfo {
     }
     
     public static func remove(observer: NSObjectProtocol, for conversation: ZMConversation?) {
-        NotificationCenter.default.removeObserver(observer, name: Notification.Name.ConversationChangeNotification, object: conversation)
+        NotificationCenter.default.removeObserver(observer, name: .ConversationChange, object: conversation)
     }
 }
 
 extension UserChangeInfo {
     
     public static func add(observer: ZMUserObserver, for user: ZMUser) -> NSObjectProtocol {
-        return NotificationCenter.default.addObserver(forName: NSNotification.Name.UserChangeNotification,
+        return NotificationCenter.default.addObserver(forName: .UserChange,
                                                       object: user,
                                                       queue: nil)
         { [weak observer] (note) in
@@ -74,14 +74,14 @@ extension UserChangeInfo {
     }
     
     public static func remove(observer: NSObjectProtocol, for user: ZMUser?) {
-        NotificationCenter.default.removeObserver(observer, name: Notification.Name.UserChangeNotification, object: user)
+        NotificationCenter.default.removeObserver(observer, name: .UserChange, object: user)
     }
 }
 
 extension MessageChangeInfo {
     
     public static func add(observer: ZMMessageObserver, for message: ZMMessage) -> NSObjectProtocol {
-        return NotificationCenter.default.addObserver(forName: NSNotification.Name.MessageChangeNotification,
+        return NotificationCenter.default.addObserver(forName: .MessageChange,
                                                       object: message,
                                                       queue: nil)
         { [weak observer] (note) in
@@ -118,7 +118,7 @@ extension MessageChangeInfo {
     }
     
     public static func remove(observer: NSObjectProtocol, for message: ZMMessage?) {
-        NotificationCenter.default.removeObserver(observer, name: Notification.Name.MessageChangeNotification, object: message)
+        NotificationCenter.default.removeObserver(observer, name: .MessageChange, object: message)
     }
 }
 
@@ -127,7 +127,7 @@ extension MessageChangeInfo {
 extension UserClientChangeInfo {
     
     public static func add(observer: UserClientObserver, for client: UserClient) -> NSObjectProtocol {
-        return NotificationCenter.default.addObserver(forName: NSNotification.Name.UserClientChangeNotification,
+        return NotificationCenter.default.addObserver(forName: .UserClientChange,
                                                       object: client,
                                                       queue: nil)
         { [weak observer] (note) in
@@ -143,13 +143,13 @@ extension UserClientChangeInfo {
     }
     
     public static func remove(observer: NSObjectProtocol, for client: UserClient?) {
-        NotificationCenter.default.removeObserver(observer, name: Notification.Name.UserClientChangeNotification, object: client)
+        NotificationCenter.default.removeObserver(observer, name: .UserClientChange, object: client)
     }
 }
 
 extension NewUnreadMessagesChangeInfo {
     public static func add(observer: ZMNewUnreadMessagesObserver) -> NSObjectProtocol {
-        return NotificationCenter.default.addObserver(forName: NSNotification.Name.NewUnreadMessageNotification,
+        return NotificationCenter.default.addObserver(forName: .NewUnreadMessage,
                                                       object: nil,
                                                       queue: nil)
         { [weak observer] (note) in
@@ -163,13 +163,13 @@ extension NewUnreadMessagesChangeInfo {
     }
     
     public static func remove(observer: NSObjectProtocol) {
-        NotificationCenter.default.removeObserver(observer, name: Notification.Name.NewUnreadMessageNotification, object: nil)
+        NotificationCenter.default.removeObserver(observer, name: .NewUnreadMessage, object: nil)
     }
 }
 
 extension NewUnreadKnockMessagesChangeInfo {
     public static func add(observer: ZMNewUnreadKnocksObserver) -> NSObjectProtocol {
-        return NotificationCenter.default.addObserver(forName: NSNotification.Name.NewUnreadKnockNotification,
+        return NotificationCenter.default.addObserver(forName: .NewUnreadKnock,
                                                       object: nil,
                                                       queue: nil)
         { [weak observer] (note) in
@@ -183,13 +183,13 @@ extension NewUnreadKnockMessagesChangeInfo {
     }
     
     public static func remove(observer: NSObjectProtocol) {
-        NotificationCenter.default.removeObserver(observer, name: Notification.Name.NewUnreadKnockNotification, object: nil)
+        NotificationCenter.default.removeObserver(observer, name: .NewUnreadKnock, object: nil)
     }
 }
 
 extension VoiceChannelStateChangeInfo {
     public static func add(observer: ZMVoiceChannelStateObserver, for conversation: ZMConversation) -> NSObjectProtocol {
-        return NotificationCenter.default.addObserver(forName: NSNotification.Name.VoiceChannelStateChangeNotification,
+        return NotificationCenter.default.addObserver(forName: .VoiceChannelStateChange,
                                                       object: conversation,
                                                       queue: nil)
         { [weak observer] (note) in
@@ -201,14 +201,14 @@ extension VoiceChannelStateChangeInfo {
         }
     }
     
-    public static func remove(observer: NSObjectProtocol, for conversation: ZMConversation) {
-        NotificationCenter.default.removeObserver(observer, name: Notification.Name.VoiceChannelStateChangeNotification, object: conversation)
+    public static func remove(observer: NSObjectProtocol, for conversation: ZMConversation?) {
+        NotificationCenter.default.removeObserver(observer, name: .VoiceChannelStateChange, object: conversation)
     }
 }
 
 extension VoiceChannelParticipantsChangeInfo {
     public static func add(observer: ZMVoiceChannelParticipantsObserver,for conversation: ZMConversation) -> NSObjectProtocol {
-        return NotificationCenter.default.addObserver(forName: NSNotification.Name.VoiceChannelParticipantStateChangeNotification,
+        return NotificationCenter.default.addObserver(forName: .VoiceChannelParticipantStateChange,
                                                       object: conversation,
                                                       queue: nil)
         { [weak observer] (note) in
@@ -219,7 +219,30 @@ extension VoiceChannelParticipantsChangeInfo {
         }
     }
     
-    public static func remove(observer: NSObjectProtocol, for conversation: ZMConversation) {
-        NotificationCenter.default.removeObserver(observer, name: Notification.Name.VoiceChannelParticipantStateChangeNotification, object: conversation)
+    public static func remove(observer: NSObjectProtocol, for conversation: ZMConversation?) {
+        NotificationCenter.default.removeObserver(observer, name: .VoiceChannelParticipantStateChange, object: conversation)
+    }
+}
+
+
+extension MessageWindowChangeInfo {
+    public static func add(observer: ZMConversationMessageWindowObserver,for window: ZMConversationMessageWindow) -> NSObjectProtocol {
+        return NotificationCenter.default.addObserver(forName: .MessageWindowDidChange,
+                                                      object: window,
+                                                      queue: nil)
+        { [weak observer] (note) in
+            guard let `observer` = observer
+            else { return }
+            if let changeInfo = note.userInfo?["messageWindowChangeInfo"] as? MessageWindowChangeInfo{
+                observer.conversationWindowDidChange(changeInfo)
+            }
+            if let messageChangeInfos = note.userInfo?["messageChangeInfos"] as? [MessageChangeInfo] {
+                observer.messages?(insideWindowDidChange: messageChangeInfos)
+            }
+        }
+    }
+    
+    public static func remove(observer: NSObjectProtocol, for window: ZMConversationMessageWindow?) {
+        NotificationCenter.default.removeObserver(observer, name: .MessageWindowDidChange, object: window)
     }
 }

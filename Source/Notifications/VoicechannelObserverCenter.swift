@@ -32,12 +32,12 @@ class VoicechannelObserverCenter {
                 }
                 var notes : [Notification] = []
                 if let partChange = partChange {
-                    notes.append(Notification(name: Notification.Name.VoiceChannelParticipantStateChangeNotification,
+                    notes.append(Notification(name: .VoiceChannelParticipantStateChange,
                                               object: conv,
                                               userInfo: ["voiceChannelParticipantsChangeInfo":partChange]))
                 }
                 if let stateChange = stateChange {
-                    notes.append(Notification(name: Notification.Name.VoiceChannelStateChangeNotification,
+                    notes.append(Notification(name: .VoiceChannelStateChange,
                                               object: conv,
                                               userInfo: ["voiceChannelStateChangeInfo": stateChange]))
                 }
@@ -47,11 +47,11 @@ class VoicechannelObserverCenter {
                 snapshots[conv] = newSnapshot
                 let stateChange = VoiceChannelStateChangeInfo(object: conv)
                 stateChange.changedKeysAndOldValues["voiceChannelState"] = NSNumber(value: ZMVoiceChannelState.noActiveUsers.rawValue)
-                var notes = [Notification(name: Notification.Name.VoiceChannelStateChangeNotification,
+                var notes = [Notification(name: .VoiceChannelStateChange,
                                         object: conv,
                                         userInfo: ["voiceChannelStateChangeInfo": stateChange])]
                 if let initialChangeInfo = newSnapshot.initialChangeInfo {
-                    notes.append(Notification(name: Notification.Name.VoiceChannelParticipantStateChangeNotification,
+                    notes.append(Notification(name: .VoiceChannelParticipantStateChange,
                                               object: conv,
                                               userInfo: ["voiceChannelParticipantsChangeInfo":initialChangeInfo]))
 

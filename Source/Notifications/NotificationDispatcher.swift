@@ -27,16 +27,16 @@ let ChangedKeysAndNewValuesKey = "ZMChangedKeysAndNewValues"
 
 extension Notification.Name {
     
-    static let ConversationChangeNotification = Notification.Name("ZMConversationChangedNotification")
-    static let MessageChangeNotification = Notification.Name("ZMMessageChangedNotification")
-    static let UserChangeNotification = Notification.Name("ZMUserChangedNotification")
-    static let ConnectionChangeNotification = Notification.Name("ZMConnectionChangeNotification")
-    static let UserClientChangeNotification = Notification.Name("ZMUserClientChangeNotification")
-    static let NewUnreadMessageNotification = Notification.Name("ZMNewUnreadMessageNotification")
-    static let NewUnreadKnockNotification = Notification.Name("ZMNewUnreadKnockNotification")
-    static let NewUnreadUnsentMessageNotification = Notification.Name("ZMNewUnreadUnsentMessageNotification")
-    static let VoiceChannelStateChangeNotification = Notification.Name("ZMVoiceChannelStateChangeNotification")
-    static let VoiceChannelParticipantStateChangeNotification = Notification.Name("ZMVoiceChannelParticipantStateChangeNotification")
+    static let ConversationChange = Notification.Name("ZMConversationChangedNotification")
+    static let MessageChange = Notification.Name("ZMMessageChangedNotification")
+    static let UserChange = Notification.Name("ZMUserChangedNotification")
+    static let ConnectionChange = Notification.Name("ZMConnectionChangeNotification")
+    static let UserClientChange = Notification.Name("ZMUserClientChangeNotification")
+    static let NewUnreadMessage = Notification.Name("ZMNewUnreadMessageNotification")
+    static let NewUnreadKnock = Notification.Name("ZMNewUnreadKnockNotification")
+    static let NewUnreadUnsentMessage = Notification.Name("ZMNewUnreadUnsentMessageNotification")
+    static let VoiceChannelStateChange = Notification.Name("ZMVoiceChannelStateChangeNotification")
+    static let VoiceChannelParticipantStateChange = Notification.Name("ZMVoiceChannelParticipantStateChangeNotification")
 
     static var ignoredObservableIdentifiers : [String] {
         return [Reaction.entityName(), ZMGenericMessageData.entityName()]
@@ -45,15 +45,15 @@ extension Notification.Name {
     static func nameForObservable(with classIdentifier : String) -> Notification.Name? {
         switch classIdentifier {
         case ZMConversation.entityName():
-            return .ConversationChangeNotification
+            return .ConversationChange
         case ZMUser.entityName():
-            return .UserChangeNotification
+            return .UserChange
         case ZMConnection.entityName():
-            return .ConnectionChangeNotification
+            return .ConnectionChange
         case UserClient.entityName():
-            return .UserClientChangeNotification
+            return .UserClientChange
         case ZMMessage.entityName(), ZMClientMessage.entityName(), ZMAssetClientMessage.entityName():
-            return .MessageChangeNotification
+            return .MessageChange
         default:
             if !ignoredObservableIdentifiers.contains(classIdentifier) {
                 zmLog.warn("There is no NotificationName defined for \(classIdentifier)")
@@ -72,11 +72,11 @@ extension Dictionary {
         }
     }
     
-    static func mappingKeysToValues(keys: [Key], valueMapping: ((Key) -> Value?)) -> Dictionary {
-        var dict = Dictionary()
-        keys.forEach {
-            if let value = valueMapping($0) {
-                dict.updateValue(value, forKey: $0)
+    func mapping<NewKey, NewValue>(keysMapping: ((Key) -> NewKey), valueMapping: ((Key, Value) -> NewValue?)) -> Dictionary<NewKey, NewValue> {
+        var dict = Dictionary<NewKey, NewValue>()
+        for (key, value) in self {
+            if let newValue = valueMapping(key, value) {
+                dict.updateValue(newValue, forKey: keysMapping(key))
             }
         }
         return dict
@@ -89,15 +89,39 @@ extension Dictionary {
         }
         return newDict
     }
+}
 
-    func removingKeysNotIn(set: Set<Key>) -> Dictionary {
-        var newDict = self
-        keys.forEach{
-            if !set.contains($0) {
-                newDict.removeValue(forKey: $0)
+
+extension Array where Element : Hashable {
+    
+    func mapToDictionary<Value>(with block: (Element) -> Value?) -> Dictionary<Element, Value> {
+        var dict = Dictionary<Element, Value>()
+        forEach {
+            if let value = block($0) {
+                dict.updateValue(value, forKey: $0)
             }
         }
-        return newDict
+        return dict
+    }
+    func mapToDictionaryWithOptionalValue<Value>(with block: (Element) -> Value?) -> Dictionary<Element, Value?> {
+        var dict = Dictionary<Element, Value?>()
+        forEach {
+            dict.updateValue(block($0), forKey: $0)
+        }
+        return dict
+    }
+}
+
+extension Set {
+    
+    func mapToDictionary<Value>(with block: (Element) -> Value?) -> Dictionary<Element, Value> {
+        var dict = Dictionary<Element, Value>()
+        forEach {
+            if let value = block($0) {
+                dict.updateValue(value, forKey: $0)
+            }
+        }
+        return dict
     }
 }
 
@@ -129,10 +153,6 @@ struct Changes : Mergeable {
         self.changedKeys = changedKeys
         self.originalChanges = [:]
     }
-
-    init(originalChanges : [String : NSObject?]){
-        self.init(changedKeys: Set(), originalChanges: originalChanges)
-    }
     
     init(changedKeys: Set<String>, originalChanges : [String : NSObject?]) {
         self.changedKeys = changedKeys
@@ -145,44 +165,15 @@ struct Changes : Mergeable {
 }
 
 
-
-struct Observable {
-    
-    private let affectingKeyStore: DependencyKeyStore
-    let classIdentifier : String
-    private let affectingKeys : [String : Set<String>]
-    private let affectedKeys : [String : Set<String>]
-
-    /// Keys that we want to report changes for
-    var observableKeys : Set<String> {
-        return affectingKeyStore.observableKeys[classIdentifier] ?? Set()
-    }
-    
-    /// Union of observable keys and their affecting keys
-    var allKeys : Set<String> {
-        return affectingKeyStore.allKeys[classIdentifier] ?? Set()
-    }
-    
-    init(classIdentifier: String, affectingKeyStore: DependencyKeyStore) {
-        self.classIdentifier = classIdentifier
-        self.affectingKeyStore = affectingKeyStore
-        self.affectingKeys = affectingKeyStore.affectingKeys[classIdentifier] ?? [:]
-        self.affectedKeys = affectingKeyStore.effectedKeys[classIdentifier] ?? [:]
-    }
-    
-    func keyPathsForValuesAffectingValue(for key: String) -> Set<String>{
-        return affectingKeys[key] ?? Set()
-    }
-    
-    func keyPathsAffectedByValue(for key: String) -> Set<String>{
-        var keys = affectedKeys[key] ?? Set()
-        if observableKeys.contains(key) {
-            keys.insert(key)
-        }
-        return keys
-    }
+protocol Countable {
+    var count : Int { get }
 }
 
+extension NSOrderedSet : Countable {}
+extension NSSet : Countable {}
+
+typealias ClassIdentifier = String
+typealias ObjectAndChanges = [NSObject : Changes]
 
 public class NotificationDispatcher : NSObject {
 
@@ -192,9 +183,14 @@ public class NotificationDispatcher : NSObject {
     private var tornDown = false
     private let affectingKeysStore : DependencyKeyStore
     private let voicechannelObserverCenter : VoicechannelObserverCenter
+    private let messageWindowObserverCenter : MessageWindowObserverCenter
+    private let snapshotCenter: SnapshotCenter
     
-    private var allChanges : [String : [NSObject : Changes]] = [:]
-    private var snapshots : [NSManagedObjectID : [String : NSObject?]] = [:]
+    private var allChanges : [ClassIdentifier : [NSObject : Changes]] = [:] {
+        didSet {
+//            print(allChanges)
+        }
+    }
     private var userChanges : [ZMManagedObject : Set<String>] = [:]
     private var unreadMessages : [Notification.Name : Set<ZMMessage>] = [:]
     
@@ -213,6 +209,9 @@ public class NotificationDispatcher : NSObject {
         let affectingKeysStore = DependencyKeyStore(classIdentifiers : classIdentifiers)
         self.affectingKeysStore = affectingKeysStore
         self.voicechannelObserverCenter = VoicechannelObserverCenter()
+        self.messageWindowObserverCenter = MessageWindowObserverCenter()
+        self.snapshotCenter = SnapshotCenter(managedObjectContext: managedObjectContext)
+        
         super.init()
         NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcher.objectsDidChange(_:)), name:NSNotification.Name.NSManagedObjectContextObjectsDidChange, object: self.managedObjectContext)
         NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcher.contextDidSave(_:)), name:NSNotification.Name.NSManagedObjectContextDidSave, object: self.managedObjectContext)
@@ -220,6 +219,7 @@ public class NotificationDispatcher : NSObject {
     
     public func tearDown() {
         NotificationCenter.default.removeObserver(self)
+        messageWindowObserverCenter.tearDown()
         tornDown = true
     }
     
@@ -235,27 +235,13 @@ public class NotificationDispatcher : NSObject {
         fireAllNotifications()
     }
     
-    // TODO Sabine: When do we get rid of those?
-    /// This function needs to be called when the sync context saved and we receive the NSManagedObjectContextDidSave notification and before the changes are merged into the UI context
     public func willMergeChanges(changes: [NSManagedObjectID]){
-        // TODO Sabine do I need to wrap this in a block?
-        managedObjectContext.performGroupedBlock { [weak self] in
-            guard let `self` = self else { return }
-            self.snapshots = Dictionary.mappingKeysToValues(keys: changes){ objectID in
-                guard let obj = (try? self.managedObjectContext.existingObject(with: objectID)) else { return [:] }
-                let attributes = obj.entity.attributesByName.keys
-                return Dictionary.mappingKeysToValues(keys: Array(attributes)){
-                    obj.primitiveValue(forKey: $0) as? NSObject
-                }
-            }
-        }
+        snapshotCenter.willMergeChanges(changes: changes)
     }
     
     public func notifyUpdatedCallState(_ conversations: Set<ZMConversation>, notifyDirectly: Bool) {
         voicechannelObserverCenter.recalculateStateIfNeeded(updatedConversationsAndChangedKeys:
-            Dictionary.mappingKeysToValues(keys: Array(conversations)){
-                Set($0.changedValues().keys)
-            }
+            conversations.mapToDictionary{Set($0.changedValues().keys)}
         )
     }
     
@@ -300,9 +286,9 @@ public class NotificationDispatcher : NSObject {
             return (messages, knocks)
         }
         
-        updateExisting(name: .NewUnreadUnsentMessageNotification, newSet: unreadUnsent)
-        updateExisting(name: .NewUnreadMessageNotification, newSet: newUnreadMessages)
-        updateExisting(name: .NewUnreadKnockNotification, newSet: newUnreadKnocks)
+        updateExisting(name: .NewUnreadUnsentMessage, newSet: unreadUnsent)
+        updateExisting(name: .NewUnreadMessage, newSet: newUnreadMessages)
+        updateExisting(name: .NewUnreadKnock, newSet: newUnreadKnocks)
     }
     
     func updateExisting(name: Notification.Name, newSet: [ZMMessage]) {
@@ -339,13 +325,10 @@ public class NotificationDispatcher : NSObject {
         
         func getChangedKeysSinceLastSave(object: ZMManagedObject) -> Set<String> {
             var changedKeys = Set(object.changedValues().keys)
-            if changedKeys.count == 0 && object.isFault {
+            if changedKeys.count == 0 || object.isFault {
                 // If the object is a fault, calling changedValues() will return an empty set
                 // Luckily we created a snapshot of the object before the merge happend which we can use to compare the values
-                if let snapshot = snapshots[object.objectID] {
-                    changedKeys = extractChangedKeysFromSnapshot(snapshot: snapshot, for: object)
-                    snapshots.removeValue(forKey: object.objectID)
-                }
+                changedKeys = snapshotCenter.extractChangedKeysFromSnapshot(for: object)
             }
             if let knownKeys = userChanges[object] {
                 changedKeys = changedKeys.union(knownKeys)
@@ -357,7 +340,7 @@ public class NotificationDispatcher : NSObject {
         changedObjects.forEach{ (classIdentifier, objects) in
             let observable = Observable(classIdentifier: classIdentifier, affectingKeyStore: affectingKeysStore)
             
-            let changes : [NSObject: Changes] = Dictionary.mappingKeysToValues(keys: Array(objects)){ object in
+            let changes : [NSObject: Changes] = objects.mapToDictionary{ object in
                 // (1) Get all the changed keys since last Save
                 let changedKeys = getChangedKeysSinceLastSave(object: object)
                 guard changedKeys.count > 0 else { return nil }
@@ -382,38 +365,34 @@ public class NotificationDispatcher : NSObject {
                                                  updatedObjects:  Set<ZMManagedObject>,
                                                  deletedObjects:  Set<ZMManagedObject>)
     {
-            // (1) All Updates in other objects resulting in changes on others
-            // e.g. changing a users name affects the conversation displayName
-            updatedObjects.forEach{ (obj) in
-                guard let object = obj as? SideEffectSource else { return }
-                let knownKeys = obj is ZMUser ? (userChanges[obj] ?? Set()) : Set()
-                let changedObjectsAndKeys = object.affectedObjectsAndKeys(keyStore: affectingKeysStore, knownKeys: knownKeys)
-                changedObjectsAndKeys.forEach{ classIdentifier, changedObjects in
-                    allChanges[classIdentifier] = allChanges[classIdentifier]?.merged(with: changedObjects) ?? changedObjects
-                }
-            }
-            // (2) All inserts of other objects resulting in changes in others
-            // e.g. inserting a user affects the conversation displayName
-            insertedObjects.forEach{ (obj) in
-                guard let object = obj as? SideEffectSource else { return }
-                let changedObjectsAndKeys = object.affectedObjectsAndKeysForInsertion(keyStore: affectingKeysStore)
-                changedObjectsAndKeys.forEach{ classIdentifier, changedObjects in
-                    allChanges[classIdentifier] = allChanges[classIdentifier]?.merged(with: changedObjects) ?? changedObjects
-                }
-            }
-    }
-    
-    /// Before merging the sync into the ui context, we create a snapshot of all changed objects
-    /// This function compares the snapshot values to the current ones and returns all keys and new values where the value changed due to the merge
-    func extractChangedKeysFromSnapshot(snapshot: [String : NSObject?], for object: NSObject) -> Set<String> {
-        var changedKeys = Set<String>()
-        snapshot.forEach{ (key, oldValue) in
-            let currentValue = object.value(forKey: key) as? NSObject
-            if currentValue != oldValue {
-                changedKeys.insert(key)
+        // (1) All Updates in other objects resulting in changes on others
+        // e.g. changing a users name affects the conversation displayName
+        updatedObjects.forEach{ (obj) in
+            guard let object = obj as? SideEffectSource else { return }
+            let knownKeys = obj is ZMUser ? (userChanges[obj] ?? Set()) : Set()
+            let changedObjectsAndKeys = object.affectedObjectsAndKeys(keyStore: affectingKeysStore, knownKeys: knownKeys)
+            changedObjectsAndKeys.forEach{ classIdentifier, changedObjects in
+                allChanges[classIdentifier] = allChanges[classIdentifier]?.merged(with: changedObjects) ?? changedObjects
             }
         }
-        return changedKeys
+        // (2) All inserts of other objects resulting in changes in others
+        // e.g. inserting a user affects the conversation displayName
+        insertedObjects.forEach{ (obj) in
+            guard let object = obj as? SideEffectSource else { return }
+            let changedObjectsAndKeys = object.affectedObjectsForInsertionOrDeletion(keyStore: affectingKeysStore)
+            changedObjectsAndKeys.forEach{ classIdentifier, changedObjects in
+                allChanges[classIdentifier] = allChanges[classIdentifier]?.merged(with: changedObjects) ?? changedObjects
+            }
+        }
+        // (3) All deletes of other objects resulting in changes in others
+        // e.g. inserting a user affects the conversation displayName
+        deletedObjects.forEach{ (obj) in
+            guard let object = obj as? SideEffectSource else { return }
+            let changedObjectsAndKeys = object.affectedObjectsForInsertionOrDeletion(keyStore: affectingKeysStore)
+            changedObjectsAndKeys.forEach{ classIdentifier, changedObjects in
+                allChanges[classIdentifier] = allChanges[classIdentifier]?.merged(with: changedObjects) ?? changedObjects
+            }
+        }
     }
     
     func fireAllNotifications(){
@@ -430,9 +409,10 @@ public class NotificationDispatcher : NSObject {
             let notification = Notification(name: notificationName, object: Array(messages), userInfo: nil)
             NotificationCenter.default.post(notification)
         }
+        messageWindowObserverCenter.fireNotifications()
         unreadMessages = [:]
         allChanges = [:]
-        snapshots = [:]
+        snapshotCenter.clearSnapshots()
     }
     
     /// Sorts all objects by entityName, e.g. ["ZMConversation" : Set(conversation1, conversation2), "ZMUser" : Set(user1, user2)]
