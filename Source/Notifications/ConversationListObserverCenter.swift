@@ -19,11 +19,7 @@ final class ConversationListObserverCenter : NSObject, ZMConversationObserver {
     
     fileprivate var internalConversationListObserverTokens : [String : ConversationListSnapshot] = [:]
     
-    // TODO Sabine: we could avoid adding observers by forwarding ConversationChangeInfos / changes
-    fileprivate var conversationTokens : [NSManagedObjectID : NSObjectProtocol] = [:]
-    
     fileprivate weak var managedObjectContext : NSManagedObjectContext?
-    
     fileprivate var conversationLists : [UnownedObject<ZMConversationList>] = Array()
     
     var isTornDown : Bool = false
@@ -35,12 +31,6 @@ final class ConversationListObserverCenter : NSObject, ZMConversationObserver {
     }
     
     func prepareObservers() {
-        
-        let fetchRequest = NSFetchRequest<ZMConversation>(entityName:ZMConversation.entityName())
-        fetchRequest.includesPendingChanges = false;
-        if let context = managedObjectContext , let allConversations = (try? context.fetch(fetchRequest)) {
-            registerTokensForConversations(allConversations)
-        }
         
         let lists = conversationLists.flatMap{$0.unbox}
         registerTokensForConversationList(lists)
@@ -71,27 +61,6 @@ final class ConversationListObserverCenter : NSObject, ZMConversationObserver {
         }
     }
     
-    // adding tokens for conversations
-    fileprivate func registerTokensForConversations(_ conversations: [ZMConversation]) {
-        
-        for conv in conversations {
-            if conv.objectID.isTemporaryID {
-                _ = try? conv.managedObjectContext?.obtainPermanentIDs(for: [conv])
-            }
-            if self.conversationTokens[conv.objectID] == nil {
-                self.conversationTokens[conv.objectID] = ConversationChangeInfo.add(observer: self, for: conv)
-            }
-        }
-    }
-    
-    fileprivate func removeTokensForConversations(_ conversations: [ZMConversation]) {
-        for conv in conversations {
-            if let token = self.conversationTokens.removeValue(forKey: conv.objectID) {
-                ConversationChangeInfo.remove(observer: token, for: conv)
-            }
-        }
-    }
-    
     // handling object changes
     func conversationsChanges(inserted: [ZMConversation], deleted: [ZMConversation], accumulated : Bool) {
         if deleted.count == 0 && inserted.count == 0 { return }
@@ -105,8 +74,6 @@ final class ConversationListObserverCenter : NSObject, ZMConversationObserver {
                 }
             }
         }
-        self.registerTokensForConversations(inserted)
-        self.removeTokensForConversations(deleted)
     }
     
     fileprivate func updateListAndNotifyObservers(_ list: ZMConversationList, inserted: [ZMConversation], deleted: [ZMConversation]){
@@ -179,9 +146,6 @@ final class ConversationListObserverCenter : NSObject, ZMConversationObserver {
     func tearDown() {
         if isTornDown { return }
         isTornDown = true
-        
-        conversationTokens.values.forEach{ConversationChangeInfo.remove(observer: $0, for: nil)}
-        conversationTokens = [:]
         
         internalConversationListObserverTokens.values.forEach{$0.tearDown()}
         internalConversationListObserverTokens = [:]

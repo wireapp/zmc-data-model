@@ -39,7 +39,7 @@ extension Notification.Name {
     static let VoiceChannelParticipantStateChange = Notification.Name("ZMVoiceChannelParticipantStateChangeNotification")
 
     static var ignoredObservableIdentifiers : [String] {
-        return [Reaction.entityName(), ZMGenericMessageData.entityName()]
+        return [Reaction.entityName(), ZMGenericMessageData.entityName(), ZMConnection.entityName()]
     }
     
     static func nameForObservable(with classIdentifier : String) -> Notification.Name? {
@@ -48,8 +48,6 @@ extension Notification.Name {
             return .ConversationChange
         case ZMUser.entityName():
             return .UserChange
-        case ZMConnection.entityName():
-            return .ConnectionChange
         case UserClient.entityName():
             return .UserClientChange
         case ZMMessage.entityName(), ZMClientMessage.entityName(), ZMAssetClientMessage.entityName():
@@ -164,6 +162,16 @@ struct Changes : Mergeable {
     }
 }
 
+// TODO Sabine: Does it make sense to replace ZMManagedObject with this?
+//protocol IdentifiableClass {
+//    static var classIdentifier : String { get }
+//}
+//
+//extension ZMManagedObject : IdentifiableClass {
+//    static var classIdentifier : String {
+//        return entityName()
+//    }
+//}
 
 protocol Countable {
     var count : Int { get }
@@ -238,7 +246,6 @@ public class NotificationDispatcher : NSObject {
         conversationListObserverCenter.conversationsChanges(inserted: insertedObjects,
                                                             deleted: deletedObjects,
                                                             accumulated: false)
-
     }
     
     public func willMergeChanges(changes: [NSManagedObjectID]){
@@ -259,10 +266,10 @@ public class NotificationDispatcher : NSObject {
     func process(note: Notification) {
         guard let userInfo = note.userInfo as? [String : Any] else { return }
 
-        let updatedObjects = userInfo[NSUpdatedObjectsKey] as? Set<ZMManagedObject> ?? Set()
-        let refreshedObjects = userInfo[NSRefreshedObjectsKey] as? Set<ZMManagedObject> ?? Set()
-        let insertedObjects = userInfo[NSInsertedObjectsKey] as? Set<ZMManagedObject> ?? Set()
-        let deletedObjects = userInfo[NSDeletedObjectsKey] as? Set<ZMManagedObject> ?? Set()
+        let updatedObjects = extractObjects(for: NSUpdatedObjectsKey, from: userInfo)
+        let refreshedObjects = extractObjects(for: NSRefreshedObjectsKey, from: userInfo)
+        let insertedObjects = extractObjects(for: NSInsertedObjectsKey, from: userInfo)
+        let deletedObjects = extractObjects(for: NSDeletedObjectsKey, from: userInfo)
 
         let usersWithNewImage = checkForChangedImages()
         let usersWithNewName = checkForDisplayNameUpdates(with: note)
@@ -279,6 +286,15 @@ public class NotificationDispatcher : NSObject {
         checkForUnreadMessages(insertedObjects: insertedObjects, updatedObjects:updatedObjects )
         
         userChanges = [:]
+    }
+    
+    func extractObjects(for key: String, from userInfo: [String : Any]) -> Set<ZMManagedObject> {
+        guard let objects = userInfo[key] else { return Set() }
+        guard let expectedObjects = objects as? Set<ZMManagedObject> else {
+            zmLog.warn("Unable to cast userInfo content to Set of ZMManagedObject. Is there a new entity that does not inherit form it?")
+            return Set()
+        }
+        return expectedObjects
     }
     
     func checkForUnreadMessages(insertedObjects: Set<ZMManagedObject>, updatedObjects: Set<ZMManagedObject>){
@@ -409,9 +425,14 @@ public class NotificationDispatcher : NSObject {
     func fireAllNotifications(){
         allChanges.forEach{ (classIdentifier, changes) in
             guard let notificationName = Notification.Name.nameForObservable(with: classIdentifier) else { return }
-            let notifications : [Notification] = changes.flatMap{Notification(name: notificationName,
-                                                                              object: $0,
-                                                                              userInfo: [ChangedKeysAndNewValuesKey : $1.changedKeysAndNewValues])
+            let notifications : [Notification] = changes.flatMap{
+                guard let obj = $0 as? ZMManagedObject,
+                      let changeInfo = NotificationDispatcher.changeInfo(for: obj, changes: $1.changedKeysAndNewValues)
+                else { return nil }
+                if let changeInfo = changeInfo as? ConversationChangeInfo {
+                    conversationListObserverCenter.conversationDidChange(changeInfo)
+                }
+                return Notification(name: notificationName, object: $0, userInfo: ["changeInfo" : changeInfo])
             }
             notifications.forEach{NotificationCenter.default.post($0)}
         }
@@ -438,5 +459,16 @@ public class NotificationDispatcher : NSObject {
             return newDict
         }
         return objectsSortedByClass
+    }
+    
+    static func changeInfo(for object: ZMManagedObject, changes: [String: NSObject?]) -> ObjectChangeInfo? {
+        switch object {
+        case let object as ZMConversation:  return ConversationChangeInfo.changeInfo(for: object, changedKeys: changes)
+        case let object as ZMUser:          return UserChangeInfo.changeInfo(for: object, changedKeys: changes)
+        case let object as ZMMessage:       return MessageChangeInfo.changeInfo(for: object, changedKeys: changes)
+        case let object as UserClient:      return UserClientChangeInfo.changeInfo(for: object, changedKeys: changes)
+        default:
+            return nil
+        }
     }
 }

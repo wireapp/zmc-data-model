@@ -20,8 +20,6 @@
 import Foundation
 
 enum VoiceChannelChangeInfoKeys : String {
-    case participantsChangeInfo = "voiceChannelParticipantsChangeInfo"
-    case stateChangeInfo = "voiceChannelStateChangeInfo"
     case voiceChannelState = "voiceChannelState"
 }
 
@@ -72,13 +70,13 @@ class VoicechannelObserverCenter {
     func postParticipantChangeNotification(conversation: ZMConversation, partChange: VoiceChannelParticipantsChangeInfo) {
         NotificationCenter.default.post(Notification(name: .VoiceChannelParticipantStateChange,
                                                      object: conversation,
-                                                     userInfo: [VoiceChannelChangeInfoKeys.participantsChangeInfo: partChange]))
+                                                     userInfo: ["changeInfo": partChange]))
     }
 
     func postStateChangeNotification(conversation: ZMConversation, stateChange: VoiceChannelStateChangeInfo) {
         NotificationCenter.default.post(Notification(name: .VoiceChannelStateChange,
                                                      object: conversation,
-                                                     userInfo: [VoiceChannelChangeInfoKeys.stateChangeInfo: stateChange]))
+                                                     userInfo: ["changeInfo": stateChange]))
     }
 }
 

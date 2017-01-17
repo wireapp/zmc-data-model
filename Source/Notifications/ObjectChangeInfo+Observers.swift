@@ -21,18 +21,22 @@ import Foundation
 
 extension ConversationChangeInfo {
     
+    static func changeInfo(for conversation: ZMConversation, changedKeys: [String : NSObject?]) -> ConversationChangeInfo? {
+        guard changedKeys.count > 0 else { return nil }
+        let changeInfo = ConversationChangeInfo(object: conversation)
+        changeInfo.changedKeysAndOldValues = changedKeys
+        return changeInfo
+    }
+    
     public static func add(observer: ZMConversationObserver, for conversation: ZMConversation) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .ConversationChange,
                                                       object: conversation,
                                                       queue: nil)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                let object = note.object as? ZMConversation,
-                let changedKeysAndValues = note.userInfo?[ChangedKeysAndNewValuesKey] as? [String : NSObject?]
-                else { return }
+                let changeInfo = note.userInfo?["changeInfo"] as? ConversationChangeInfo
+            else { return }
             
-            let changeInfo = ConversationChangeInfo(object: object)
-            changeInfo.changedKeysAndOldValues = changedKeysAndValues
             observer.conversationDidChange(changeInfo)
         }
     }
@@ -44,31 +48,34 @@ extension ConversationChangeInfo {
 
 extension UserChangeInfo {
     
+    static func changeInfo(for user: ZMUser, changedKeys: [String : NSObject?]) -> UserChangeInfo? {
+        var changedKeysAndValues = changedKeys
+        let clientChanges = changedKeysAndValues.removeValue(forKey: "clientChanges") as? [NSObject : [String : Any]]
+        
+        var userClientChangeInfo : UserClientChangeInfo?
+        if let clientChanges = clientChanges {
+            clientChanges.forEach {
+                userClientChangeInfo = UserClientChangeInfo(object: $0)
+                userClientChangeInfo?.changedKeysAndOldValues = $1 as! [String : NSObject?]
+            }
+        }
+        guard userClientChangeInfo != nil || changedKeysAndValues.count > 0 else { return nil }
+        
+        let changeInfo = UserChangeInfo(object: user)
+        changeInfo.changedKeysAndOldValues = changedKeysAndValues
+        changeInfo.userClientChangeInfo = userClientChangeInfo
+        return changeInfo
+    }
+    
     public static func add(observer: ZMUserObserver, for user: ZMUser) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .UserChange,
                                                       object: user,
                                                       queue: nil)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                let object = note.object as? ZMUser,
-                let changes = note.userInfo?[ChangedKeysAndNewValuesKey] as? [String : NSObject?]
-                else { return }
+                let changeInfo = note.userInfo?["changeInfo"] as? UserChangeInfo
+            else { return }
             
-            var changedKeysAndValues = changes
-            let clientChanges = changedKeysAndValues.removeValue(forKey: "clientChanges") as? [NSObject : [String : Any]]
-            
-            var userClientChangeInfo : UserClientChangeInfo?
-            if let clientChanges = clientChanges {
-                clientChanges.forEach {
-                    userClientChangeInfo = UserClientChangeInfo(object: $0)
-                    userClientChangeInfo?.changedKeysAndOldValues = $1 as! [String : NSObject?]
-                }
-            }
-            guard userClientChangeInfo != nil || changedKeysAndValues.count > 0 else { return }
-            
-            let changeInfo = UserChangeInfo(object: object)
-            changeInfo.changedKeysAndOldValues = changedKeysAndValues
-            changeInfo.userClientChangeInfo = userClientChangeInfo
             observer.userDidChange(changeInfo)
         }
     }
@@ -80,39 +87,43 @@ extension UserChangeInfo {
 
 extension MessageChangeInfo {
     
+    static func changeInfo(for message: ZMMessage, changedKeys: [String : NSObject?]) -> MessageChangeInfo? {
+        var changedKeysAndValues = changedKeys
+        let userChanges = changedKeysAndValues.removeValue(forKey: "userChanges") as? [NSObject : [String : Any]]
+        let clientChanges = changedKeysAndValues.removeValue(forKey: "reactionChanges") as? [NSObject : [String : Any]]
+        
+        var reactionChangeInfo : ReactionChangeInfo?
+        if let clientChanges = clientChanges {
+            clientChanges.forEach {
+                reactionChangeInfo = ReactionChangeInfo(object: $0)
+                reactionChangeInfo?.changedKeysAndOldValues = $1 as! [String : NSObject?]
+            }
+        }
+        var userChangeInfo : UserChangeInfo?
+        if let userChanges = userChanges {
+            userChanges.forEach {
+                userChangeInfo = UserChangeInfo(object: $0)
+                userChangeInfo?.changedKeysAndOldValues = $1 as! [String : NSObject?]
+            }
+        }
+        guard reactionChangeInfo != nil || userChangeInfo != nil || changedKeysAndValues.count > 0 else { return nil }
+        
+        let changeInfo = MessageChangeInfo(object: message)
+        changeInfo.reactionChangeInfo = reactionChangeInfo
+        changeInfo.userChangeInfo = userChangeInfo
+        changeInfo.changedKeysAndOldValues = changedKeysAndValues
+        return changeInfo
+    }
+    
     public static func add(observer: ZMMessageObserver, for message: ZMMessage) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .MessageChange,
                                                       object: message,
                                                       queue: nil)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                let object = note.object as? ZMMessage,
-                let changes = note.userInfo?[ChangedKeysAndNewValuesKey] as? [String : NSObject?]
-                else { return }
-            var changedKeysAndValues = changes
-            let userChanges = changedKeysAndValues.removeValue(forKey: "userChanges") as? [NSObject : [String : Any]]
-            let clientChanges = changedKeysAndValues.removeValue(forKey: "reactionChanges") as? [NSObject : [String : Any]]
+                let changeInfo = note.userInfo?["changeInfo"] as? MessageChangeInfo
+            else { return }
             
-            var reactionChangeInfo : ReactionChangeInfo?
-            if let clientChanges = clientChanges {
-                clientChanges.forEach {
-                    reactionChangeInfo = ReactionChangeInfo(object: $0)
-                    reactionChangeInfo?.changedKeysAndOldValues = $1 as! [String : NSObject?]
-                }
-            }
-            var userChangeInfo : UserChangeInfo?
-            if let userChanges = userChanges {
-                userChanges.forEach {
-                    userChangeInfo = UserChangeInfo(object: $0)
-                    userChangeInfo?.changedKeysAndOldValues = $1 as! [String : NSObject?]
-                }
-            }
-            guard reactionChangeInfo != nil || userChangeInfo != nil || changedKeysAndValues.count > 0 else { return }
-            
-            let changeInfo = MessageChangeInfo(object: object)
-            changeInfo.reactionChangeInfo = reactionChangeInfo
-            changeInfo.userChangeInfo = userChangeInfo
-            changeInfo.changedKeysAndOldValues = changedKeysAndValues
             observer.messageDidChange(changeInfo)
         }
     }
@@ -122,9 +133,18 @@ extension MessageChangeInfo {
     }
 }
 
-
+extension ObjectChangeInfo {
+    
+}
 
 extension UserClientChangeInfo {
+    
+    static func changeInfo(for client: UserClient, changedKeys: [String : NSObject?]) -> UserClientChangeInfo? {
+        guard changedKeys.count > 0 else { return nil }
+        let changeInfo = UserClientChangeInfo(object: client)
+        changeInfo.changedKeysAndOldValues = changedKeys
+        return changeInfo
+    }
     
     public static func add(observer: UserClientObserver, for client: UserClient) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .UserClientChange,
@@ -132,12 +152,9 @@ extension UserClientChangeInfo {
                                                       queue: nil)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                let object = note.object as? UserClient,
-                let changedKeysAndValues = note.userInfo?[ChangedKeysAndNewValuesKey] as? [String : NSObject?]
-                else { return }
+                let changeInfo = note.userInfo?["changeInfo"] as? UserClientChangeInfo
+            else { return }
             
-            let changeInfo = UserClientChangeInfo(object: object)
-            changeInfo.changedKeysAndOldValues = changedKeysAndValues
             observer.userClientDidChange(changeInfo)
         }
     }
@@ -194,7 +211,7 @@ extension VoiceChannelStateChangeInfo {
                                                       queue: nil)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                let changeInfo = note.userInfo?[VoiceChannelChangeInfoKeys.stateChangeInfo] as? VoiceChannelStateChangeInfo
+                let changeInfo = note.userInfo?["changeInfo"] as? VoiceChannelStateChangeInfo
             else { return }
             
             observer.voiceChannelStateDidChange(changeInfo)
@@ -213,7 +230,7 @@ extension VoiceChannelParticipantsChangeInfo {
                                                       queue: nil)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                  let changeInfo = note.userInfo?[VoiceChannelChangeInfoKeys.participantsChangeInfo] as? VoiceChannelParticipantsChangeInfo
+                  let changeInfo = note.userInfo?["changeInfo"] as? VoiceChannelParticipantsChangeInfo
             else { return }
             observer.voiceChannelParticipantsDidChange(changeInfo)
         }

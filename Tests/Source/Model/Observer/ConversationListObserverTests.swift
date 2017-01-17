@@ -400,7 +400,7 @@ class ConversationListObserverTests : NotificationDispatcherTests {
         
         XCTAssertEqual(pendingObserver.changes.count, 1)
         XCTAssertEqual(normalObserver.changes.count, 1)
-        if let pendingNote = pendingObserver.changes.first {
+        if let pendingNote = pendingObserver.changes.last {
             XCTAssertEqual(pendingNote.insertedIndexes, IndexSet())
             XCTAssertEqual(pendingNote.deletedIndexes, IndexSet(integer: 0))
             XCTAssertEqual(pendingNote.updatedIndexes, IndexSet())

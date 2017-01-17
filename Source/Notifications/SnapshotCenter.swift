@@ -27,8 +27,6 @@ struct Snapshot {
 class SnapshotCenter {
     
     private unowned var managedObjectContext: NSManagedObjectContext
-    
-    // TODO Sabine: When do we get rid of those?
     private var snapshots : [NSManagedObjectID : Snapshot] = [:]
     
     init(managedObjectContext: NSManagedObjectContext) {
@@ -76,6 +74,7 @@ class SnapshotCenter {
         return changedKeys
     }
     
+    // TODO Sabine: When is the best time to get rid of those?
     func clearSnapshots(){
         snapshots = [:]
     }
