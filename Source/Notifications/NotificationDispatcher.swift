@@ -436,15 +436,24 @@ public class NotificationDispatcher : NSObject {
             }
             notifications.forEach{NotificationCenter.default.post($0)}
         }
-        unreadMessages.forEach{ (notificationName, messages) in
-            guard messages.count > 0 else { return }
-            let notification = Notification(name: notificationName, object: Array(messages), userInfo: nil)
-            NotificationCenter.default.post(notification)
-        }
+        fireNewUnreadMessagesNotifications()
         messageWindowObserverCenter.fireNotifications()
         unreadMessages = [:]
         allChanges = [:]
         snapshotCenter.clearSnapshots()
+    }
+    
+    /// Fire all new unread notifications
+    func fireNewUnreadMessagesNotifications(){
+        unreadMessages.forEach{ (notificationName, messages) in
+            guard messages.count > 0 else { return }
+            guard let changeInfo = NotificationDispatcher.changeInfoforNewMessageNotification(with: notificationName, changedMessages: messages) else {
+                zmLog.warn("Did you forget to add the mapping for that?")
+                return
+            }
+            let notification = Notification(name: notificationName, object: ["changeInfo" : changeInfo], userInfo: nil)
+            NotificationCenter.default.post(notification)
+        }
     }
     
     /// Sorts all objects by entityName, e.g. ["ZMConversation" : Set(conversation1, conversation2), "ZMUser" : Set(user1, user2)]
@@ -467,6 +476,19 @@ public class NotificationDispatcher : NSObject {
         case let object as ZMUser:          return UserChangeInfo.changeInfo(for: object, changedKeys: changes)
         case let object as ZMMessage:       return MessageChangeInfo.changeInfo(for: object, changedKeys: changes)
         case let object as UserClient:      return UserClientChangeInfo.changeInfo(for: object, changedKeys: changes)
+        default:
+            return nil
+        }
+    }
+    
+    static func changeInfoforNewMessageNotification(with name: Notification.Name, changedMessages messages: Set<ZMMessage>) -> ObjectChangeInfo? {
+        switch name {
+        case Notification.Name.NewUnreadUnsentMessage:
+            return NewUnreadUnsentMessageChangeInfo(messages: Array(messages) as [ZMConversationMessage])
+        case Notification.Name.NewUnreadMessage:
+            return NewUnreadMessagesChangeInfo(messages: Array(messages) as [ZMConversationMessage])
+        case Notification.Name.NewUnreadKnock:
+            return NewUnreadKnockMessagesChangeInfo(messages: Array(messages) as [ZMConversationMessage])
         default:
             return nil
         }

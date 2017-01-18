@@ -75,13 +75,12 @@ final class ConversationListObserverCenter : NSObject, ZMConversationObserver {
     func conversationsChanges(inserted: [ZMConversation], deleted: [ZMConversation], accumulated : Bool) {
         if deleted.count == 0 && inserted.count == 0 { return }
         
-        for listWrapper in self.conversationLists {
-            if let list = listWrapper.unbox {
-                if accumulated {
-                    self.recomputeListAndNotifyObserver(list)
-                } else {
-                    self.updateListAndNotifyObservers(list, inserted: inserted, deleted: deleted)
-                }
+        self.conversationLists.forEach {
+            guard let list = $0.unbox else { return }
+            if accumulated {
+                self.recomputeListAndNotifyObserver(list)
+            } else {
+                self.updateListAndNotifyObservers(list, inserted: inserted, deleted: deleted)
             }
         }
     }
@@ -107,34 +106,36 @@ final class ConversationListObserverCenter : NSObject, ZMConversationObserver {
         processConversationChanges(changeInfo)
     }
     
-    func processConversationChanges(_ changes: ConversationChangeInfo) {
-        guard   changes.nameChanged              || changes.connectionStateChanged  || changes.isArchivedChanged
-             || changes.isSilencedChanged        || changes.lastModifiedDateChanged || changes.conversationListIndicatorChanged
-             || changes.voiceChannelStateChanged || changes.clearedChanged          || changes.securityLevelChanged
-        else { return }
-        for conversationListWrapper in self.conversationLists
-        {
-            if let list = conversationListWrapper.unbox {
-                let conversation = changes.conversation
-                
-                if list.contains(conversation)
-                {
-                    var didRemoveConversation = false
-                    if !list.predicateMatchesConversation(conversation) {
-                        list.removeConversations(Set(arrayLiteral: conversation))
-                        didRemoveConversation = true
-                    }
-                    let a = changes.changedKeysAndOldValues.keys
-                    if !didRemoveConversation && list.sortingIsAffected(byConversationKeys: Set(a)) {
-                        list.resortConversation(conversation)
-                    }
-                    self.notifyTokensForConversationList(list, conversation:conversation, conversationChanges: didRemoveConversation ? nil : changes)
+    fileprivate func conversationChangeRequiresRecalculation(changes: ConversationChangeInfo) -> Bool {
+        return    changes.nameChanged              || changes.connectionStateChanged  || changes.isArchivedChanged
+               || changes.isSilencedChanged        || changes.lastModifiedDateChanged || changes.conversationListIndicatorChanged
+               || changes.voiceChannelStateChanged || changes.clearedChanged          || changes.securityLevelChanged
+    }
+    
+    fileprivate func processConversationChanges(_ changes: ConversationChangeInfo) {
+        guard conversationChangeRequiresRecalculation(changes: changes) else { return }
+        
+        self.conversationLists.forEach{
+            guard let list = $0.unbox else { return }
+            
+            let conversation = changes.conversation
+            if list.contains(conversation)
+            {
+                var didRemoveConversation = false
+                if !list.predicateMatchesConversation(conversation) {
+                    list.removeConversations(Set(arrayLiteral: conversation))
+                    didRemoveConversation = true
                 }
-                else if list.predicateMatchesConversation(conversation) // list did not contain conversation and now it should
-                {
-                    list.insertConversations(Set(arrayLiteral: conversation))
-                    self.notifyTokensForConversationList(list, conversation:nil, conversationChanges:nil)
+                let a = changes.changedKeysAndOldValues.keys
+                if !didRemoveConversation && list.sortingIsAffected(byConversationKeys: Set(a)) {
+                    list.resortConversation(conversation)
                 }
+                self.notifyTokensForConversationList(list, conversation:conversation, conversationChanges: didRemoveConversation ? nil : changes)
+            }
+            else if list.predicateMatchesConversation(conversation) // list did not contain conversation and now it should
+            {
+                list.insertConversations(Set(arrayLiteral: conversation))
+                self.notifyTokensForConversationList(list, conversation:nil, conversationChanges:nil)
             }
         }
     }

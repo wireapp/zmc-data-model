@@ -30,13 +30,15 @@ public protocol MessageToken : ObjectsDidChangeDelegate {
 }
 
 
-public final class NewUnreadMessagesChangeInfo : NSObject  {
+public final class NewUnreadMessagesChangeInfo : ObjectChangeInfo  {
     
-    public required init(messages: [ZMConversationMessage]) {
-        self.messages = messages
+    public convenience init(messages: [ZMConversationMessage]) {
+        self.init(object: messages as NSObject)
     }
     
-    public let messages : [ZMConversationMessage]
+    public var messages : [ZMConversationMessage] {
+        return object as? [ZMConversationMessage] ?? []
+    }
 }
 
 
@@ -74,16 +76,13 @@ public final class NewUnreadMessagesChangeInfo : NSObject  {
 
 @objc public final class NewUnreadKnockMessagesChangeInfo : ObjectChangeInfo {
     
-    public required init(messages: [ZMConversationMessage]) {
-        self.messages = messages
-        super.init(object: messages as NSObject)
+    public convenience init(messages: [ZMConversationMessage]) {
+        self.init(object: messages as NSObject)
     }
     
-    public required init(object: NSObject) {
-        fatalError("init(object:) has not been implemented")
+    public var messages : [ZMConversationMessage] {
+        return object as? [ZMConversationMessage] ?? []
     }
-    
-    public let messages : [ZMConversationMessage]
 }
 
 
@@ -111,7 +110,7 @@ public final class NewUnreadMessagesChangeInfo : NSObject  {
         let insertedKnockMessages = filterUnreadKnocks(changes.inserted as! [ZMMessage]) + filterUnreadKnocks(changes.updated as! [ZMMessage])
         
         if !insertedKnockMessages.isEmpty {
-            let changeInfo = NewUnreadKnockMessagesChangeInfo(object: insertedKnockMessages as NSObject)
+            let changeInfo = NewUnreadKnockMessagesChangeInfo(messages: insertedKnockMessages)
             self.observer?.didReceiveNewUnreadKnockMessages(changeInfo)
         }
     }
@@ -132,12 +131,13 @@ public final class NewUnreadMessagesChangeInfo : NSObject  {
 
 @objc public final class NewUnreadUnsentMessageChangeInfo : ObjectChangeInfo {
     
-    public required init(object: NSObject) {
-        self.messages = object as! [ZMMessage]
-        super.init(object: object)
+    public required convenience init(messages: [ZMConversationMessage]) {
+        self.init(object: messages as NSObject)
     }
     
-    public let messages : [ZMMessage]
+    public var messages : [ZMConversationMessage] {
+        return  object as? [ZMConversationMessage] ?? []
+    }
 }
 
 
