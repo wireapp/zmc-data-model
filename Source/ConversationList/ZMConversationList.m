@@ -77,7 +77,8 @@
         self.sortDescriptors = [ZMConversation defaultSortDescriptors];
         [self calculateKeysAffectingPredicateAndSort];
         [self createBackingList:conversations];
-        [moc.globalManagedObjectContextObserver addConversationListForAutoupdating:self];
+        // TODO Sabine: add this for the dispatcher
+//        [moc.globalManagedObjectContextObserver addConversationListForAutoupdating:self];
     }
     return self;
 }
@@ -108,7 +109,8 @@
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [self.managedObjectContext.globalManagedObjectContextObserver removeConversationListForAutoupdating:self];
+    // TODO Sabine: Do this for the dispatcher
+//    [self.managedObjectContext.globalManagedObjectContextObserver removeConversationListForAutoupdating:self];
 }
 
 - (void)sortInsertConversation:(ZMConversation *)conversation

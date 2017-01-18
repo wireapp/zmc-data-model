@@ -32,7 +32,7 @@ class ConversationObserver: NSObject, ZMConversationObserver {
     }
 }
 
-class NotificationDispatcherTests : ZMBaseManagedObjectTest {
+@objc public class NotificationDispatcherTests : ZMBaseManagedObjectTest {
 
     var dispatcher : NotificationDispatcher! {
         return sut
@@ -41,7 +41,7 @@ class NotificationDispatcherTests : ZMBaseManagedObjectTest {
     var conversationObserver : ConversationObserver!
     var mergeNotifications = [Notification]()
     
-    override func setUp() {
+    override public func setUp() {
         super.setUp()
         conversationObserver = ConversationObserver()
         sut = NotificationDispatcher(managedObjectContext: uiMOC, syncContext: syncMOC)
@@ -49,7 +49,7 @@ class NotificationDispatcherTests : ZMBaseManagedObjectTest {
         mergeNotifications = []
     }
     
-    override func tearDown() {
+    override public func tearDown() {
         NotificationCenter.default.removeObserver(self)
         sut.tearDown()
         sut = nil
@@ -61,7 +61,7 @@ class NotificationDispatcherTests : ZMBaseManagedObjectTest {
         mergeNotifications.append(note)
     }
     
-    func mergeLastChanges() {
+    @objc public func mergeLastChanges() {
         guard let change = mergeNotifications.last else { return }
         let changedObjects = (change.userInfo?[NSUpdatedObjectsKey] as? Set<ZMManagedObject>)?.map{$0.objectID} ?? []
         self.dispatcher.willMergeChanges(changes: changedObjects)

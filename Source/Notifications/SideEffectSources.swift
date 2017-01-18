@@ -80,7 +80,8 @@ extension ZMUser : SideEffectSource {
     func affectedObjectsAndKeys(keyStore: DependencyKeyStore, knownKeys: Set<String>? = nil) -> [ClassIdentifier: ObjectAndChanges] {
         var changes = changedValues()
         if let knownKeys = knownKeys {
-            changes = changes.updated(other: Dictionary(keys: Array(knownKeys), repeatedValue: .none as Optional<NSObject>))
+            // TODO Sabine: we should be able to initialize the objectChangeInfo without mapping the keys to dictionaries
+            changes = changes.updated(other: Dictionary(keys: Array(knownKeys), repeatedValue: "foo"))
         }
         guard changes.count > 0 else { return [:] }
         

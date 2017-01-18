@@ -1,4 +1,4 @@
-// 
+//
 // Wire
 // Copyright (C) 2016 Wire Swiss GmbH
 // 
@@ -20,15 +20,27 @@
 import Foundation
 
 
-extension ZMSearchUser : ObjectInSnapshot {
+/// MARK: Base class for observer / change info
+public protocol ObjectChangeInfoProtocol : NSObjectProtocol {
     
-    public var observableKeys: [String] {
-        return ["imageMediumData", "imageSmallProfileData", "isConnected", "user", "isPendingApprovalByOtherUser"]
-    }
-    
-    public func keyPathsForValuesAffectingValue(forKey key: String) -> Set<String> {
-        return ZMSearchUser.keyPathsForValuesAffectingValue(forKey: key) 
-    }
+    init(object: NSObject)
+    func setValue(_ value: Any?, forKey key: String)
+    func value(forKey key: String) -> Any?
+    var changedKeysAndOldValues : [String : NSObject?] {get set}
+
 }
 
+open class ObjectChangeInfo : NSObject, ObjectChangeInfoProtocol {
+    
+    let object : NSObject
+    
+    public required init(object: NSObject) {
+        self.object = object
+    }
+    open var changedKeysAndOldValues : [String : NSObject?] = [:]
+    
+    open func previousValueForKey(_ key: String) -> NSObject? {
+        return changedKeysAndOldValues[key] ?? nil
+    }
+}
 

@@ -69,7 +69,7 @@ class ConversationListObserverTests : NotificationDispatcherTests {
         if let first = testObserver.changes.first {
             XCTAssertEqual(first.insertedIndexes, IndexSet(integer: 0))
             XCTAssertEqual(first.deletedIndexes, IndexSet())
-            XCTAssertEqual(first.updatedIndexes, IndexSet(integer: 0))
+            XCTAssertEqual(first.updatedIndexes, IndexSet())
             XCTAssertEqual(movedIndexes(first), [])
         }
         ConversationListChangeInfo.remove(observer: token, for:conversationList)

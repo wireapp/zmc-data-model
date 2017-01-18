@@ -146,7 +146,13 @@ final class ConversationListObserverCenter : NSObject, ZMConversationObserver {
         let listChanges = internalConversationListObserverTokens[list.identifier]?.recalculateList(conversation, changes: conversationChanges)
         guard listChanges != nil || conversationChanges != nil else { return }
         
-        let userInfo : [String : Any] = ["conversationChangeInfo": conversationChanges, "conversationListChangeInfo" : listChanges]
+        var userInfo = [String : Any]()
+        if let changes = conversationChanges {
+            userInfo["conversationChangeInfo"] = changes
+        }
+        if let changes = listChanges {
+            userInfo["conversationListChangeInfo"] = changes
+        }
         NotificationCenter.default.post(name: .ZMConversationListDidChange, object: list, userInfo: userInfo)
     }
     

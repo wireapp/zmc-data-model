@@ -22,15 +22,17 @@ class ZMMessageTests_Confirmation: BaseZMClientMessageTests {
 
     override func setUp() {
         super.setUp()
-        XCTAssertNotNil(self.uiMOC.globalManagedObjectContextObserver)
-        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "ZMApplicationDidEnterEventProcessingStateNotification"), object: nil)
-        NotificationCenter.default.post(name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        
+        // TODO Sabine: what's that for?
+//        XCTAssertNotNil(self.uiMOC.globalManagedObjectContextObserver)
+//        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "ZMApplicationDidEnterEventProcessingStateNotification"), object: nil)
+//        NotificationCenter.default.post(name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
+//        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
     }
     
     override func tearDown() {
-        self.uiMOC.globalManagedObjectContextObserver.tearDown()
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+//        self.uiMOC.globalManagedObjectContextObserver.tearDown()
+//        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         super.tearDown()
     }
 }
@@ -248,6 +250,8 @@ extension ZMMessageTests_Confirmation {
     
     func testThatItSendsOutNotificationsForTheDeliveryStatusChange(){
         // given
+        let dispatcher = NotificationDispatcher(managedObjectContext: uiMOC, syncContext: syncMOC)
+        
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
         conversation.remoteIdentifier = .create()
         let lastModified = Date(timeIntervalSince1970: 1234567890)
@@ -281,6 +285,7 @@ extension ZMMessageTests_Confirmation {
             return XCTFail()
         }
         XCTAssertTrue(messageChangeInfo.deliveryStateChanged)
+        dispatcher.tearDown()
     }
     
     func testThatAMessageConfirmationDoesNotExpire() {

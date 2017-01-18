@@ -27,7 +27,7 @@ import ZMUtilities
 // set flags on the ObjectChangeInfo
 public protocol ObjectInSnapshot : NSObjectProtocol {
     
-    var observableKeys : [String] { get }
+    static var observableKeys : [String] { get }
 
     // Needed because NSObjectProtocol != NSObject
     func value(forKey key: String) -> Any?

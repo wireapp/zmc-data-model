@@ -80,7 +80,7 @@
     self = [super init];
     if(self) {
         self.conversation = conversation;
-        self.token = [conversation addConversationObserver:self];
+        self.token = [ConversationChangeInfo addWithObserver:self for:conversation];
     }
     return self;
 }
@@ -95,7 +95,7 @@
 
 - (void)tearDown
 {
-    [ZMConversation removeConversationObserverForToken:self.token];
+    [ConversationChangeInfo removeWithObserver:self.token for:self.conversation];
     self.token = nil;
     self.tornDown = YES;
 }
@@ -118,7 +118,7 @@ ZM_EMPTY_ASSERTING_INIT()
     self = [super init];
     if(self) {
         self.conversationList = conversationList;
-        self.token = [conversationList addConversationListObserver:self];
+        self.token = [ConversationListChangeInfo addWithObserver:self for:conversationList];
     }
     return self;
 }
@@ -126,7 +126,7 @@ ZM_EMPTY_ASSERTING_INIT()
 
 - (void)tearDown
 {
-    [self.conversationList removeConversationListObserverForToken:self.token];
+    [ConversationListChangeInfo removeWithObserver:self.token for:self.conversationList];
     self.token = nil;
     self.tornDown = YES;
 }
@@ -161,7 +161,7 @@ ZM_EMPTY_ASSERTING_INIT()
     self = [super init];
     if(self) {
         self.user = user;
-        self.token = [ZMUser addUserObserver:self forUsers:@[user] managedObjectContext:user.managedObjectContext];
+        self.token = [UserChangeInfo addWithObserver:self for:user];
     }
     return self;
 }
@@ -185,7 +185,7 @@ ZM_EMPTY_ASSERTING_INIT()
 
 -(void)tearDown
 {
-    [ZMUser removeUserObserverForToken:self.token];
+    [UserChangeInfo removeWithObserver:self.token for:self.user];
     self.token = nil;
     self.tornDown = YES;
 }
@@ -211,7 +211,7 @@ ZM_EMPTY_ASSERTING_INIT()
     self = [super init];
     if(self) {
         self.message = message;
-        self.token = [ZMMessageNotification addMessageObserver:self forMessage:message];
+        self.token = [MessageChangeInfo addWithObserver:self for:message];
     }
     return self;
 }
@@ -219,7 +219,7 @@ ZM_EMPTY_ASSERTING_INIT()
 
 - (void)tearDown
 {
-    [ZMMessageNotification removeMessageObserverForToken:self.token];
+    [MessageChangeInfo removeWithObserver:self.token for:self.message];
     self.token = nil;
     self.tornDown = YES;
 }
@@ -247,14 +247,14 @@ ZM_EMPTY_ASSERTING_INIT()
     self = [super init];
     if(self) {
         self.window = window;
-        self.token = [window addConversationWindowObserver:self];
+        self.token = [MessageWindowChangeInfo addWithObserver:self for:window];
     }
     return self;
 }
 
 - (void)tearDown
 {
-    [self.window removeConversationWindowObserverToken:self.token];
+    [MessageWindowChangeInfo removeWithObserver:self.token for:self.window];
     self.token = nil;
     self.tornDown = YES;
 }

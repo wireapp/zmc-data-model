@@ -180,7 +180,8 @@ static BOOL storeIsReady = NO;
     [SharedUserInterfaceContext initialiseSessionAndSelfUser];
     
     SharedUserInterfaceContext.mergePolicy = [[ZMSyncMergePolicy alloc] initWithMergeType:NSRollbackMergePolicyType];
-    (void)SharedUserInterfaceContext.globalManagedObjectContextObserver;
+// TODO Sabine: it would probably be better to initialize this in the userSession instead?
+    //    (void)SharedUserInterfaceContext.globalManagedObjectContextObserver;
     
     return SharedUserInterfaceContext;
 }

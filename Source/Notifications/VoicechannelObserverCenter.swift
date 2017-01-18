@@ -81,6 +81,22 @@ class VoicechannelObserverCenter {
 }
 
 
+
+public extension NSOrderedSet {
+    
+    public func subtracting(orderedSet: NSOrderedSet) -> NSOrderedSet {
+        let mutableSelf = mutableCopy() as! NSMutableOrderedSet
+        mutableSelf.minus(orderedSet)
+        return NSOrderedSet(orderedSet: mutableSelf)
+    }
+    
+    public func adding(orderedSet: NSOrderedSet) -> NSOrderedSet {
+        let mutableSelf = mutableCopy() as! NSMutableOrderedSet
+        mutableSelf.union(orderedSet)
+        return NSOrderedSet(orderedSet: mutableSelf)
+    }
+}
+
 class VoiceChannelStateSnapshot: NSObject  {
     
     fileprivate var state : SetSnapshot

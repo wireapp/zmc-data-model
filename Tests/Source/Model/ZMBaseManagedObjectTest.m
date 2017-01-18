@@ -321,7 +321,7 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
 
 - (void)simulateUnreadMissedCallInConversation:(ZMConversation *)conversation;
 {
-    [self simulateUnreadMissedKnockInConversation:conversation mergeBlock:nil];
+    [self simulateUnreadMissedCallInConversation:conversation mergeBlock:nil];
 }
 
 - (void)simulateUnreadMissedKnockInConversation:(ZMConversation *)conversation;

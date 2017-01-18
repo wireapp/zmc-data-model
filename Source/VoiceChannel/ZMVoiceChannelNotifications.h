@@ -29,28 +29,28 @@
 @protocol ZMVoiceChannelVoiceGainObserver;
 @protocol ZMVoiceChannelParticipantsObserver;
 
-@protocol ZMVoiceChannelStateObserverOpaqueToken
-@end
+//@protocol ZMVoiceChannelStateObserverOpaqueToken
+//@end
+//
+//@protocol ZMVoiceChannelParticipantsObserverOpaqueToken
+//@end
 
-@protocol ZMVoiceChannelParticipantsObserverOpaqueToken
-@end
-
-@interface ZMVoiceChannel (ChangeNotification)
-
-- (nullable id<ZMVoiceChannelStateObserverOpaqueToken>)addVoiceChannelStateObserver:(nonnull id<ZMVoiceChannelStateObserver>)observer;
-- (void)removeVoiceChannelStateObserverForToken:(nonnull id<ZMVoiceChannelStateObserverOpaqueToken>)token;
-
-+ (nullable id<ZMVoiceChannelStateObserverOpaqueToken>)addGlobalVoiceChannelStateObserver:(nonnull id<ZMVoiceChannelStateObserver>)observer managedObjectContext:(nonnull NSManagedObjectContext *)managedObjectContext;
-+ (void)removeGlobalVoiceChannelStateObserverForToken:(nonnull id<ZMVoiceChannelStateObserverOpaqueToken>)token managedObjectContext:(nonnull NSManagedObjectContext *)managedObjectContext;
-
-+ (nonnull id<ZMVoiceChannelStateObserverOpaqueToken>)addGlobalVoiceChannelStateObserver:(nonnull id<ZMVoiceChannelStateObserver>)observer inUserSession:(nonnull id<ZMManagedObjectContextProvider>)userSession;
-+ (void)removeGlobalVoiceChannelStateObserverForToken:(nonnull id<ZMVoiceChannelStateObserverOpaqueToken>)token inUserSession:(nonnull id<ZMManagedObjectContextProvider>)userSession;
-
-- (nonnull id<ZMVoiceChannelParticipantsObserverOpaqueToken>)addCallParticipantsObserver:(nullable id<ZMVoiceChannelParticipantsObserver>)callParticipantsObserver;
-- (void)removeCallParticipantsObserverForToken:(nonnull  id<ZMVoiceChannelParticipantsObserverOpaqueToken>)token;
-
-@end
-
+//@interface ZMVoiceChannel (ChangeNotification)
+//
+//- (nullable id<ZMVoiceChannelStateObserverOpaqueToken>)addVoiceChannelStateObserver:(nonnull id<ZMVoiceChannelStateObserver>)observer;
+//- (void)removeVoiceChannelStateObserverForToken:(nonnull id<ZMVoiceChannelStateObserverOpaqueToken>)token;
+//
+//+ (nullable id<ZMVoiceChannelStateObserverOpaqueToken>)addGlobalVoiceChannelStateObserver:(nonnull id<ZMVoiceChannelStateObserver>)observer managedObjectContext:(nonnull NSManagedObjectContext *)managedObjectContext;
+//+ (void)removeGlobalVoiceChannelStateObserverForToken:(nonnull id<ZMVoiceChannelStateObserverOpaqueToken>)token managedObjectContext:(nonnull NSManagedObjectContext *)managedObjectContext;
+//
+//+ (nonnull id<ZMVoiceChannelStateObserverOpaqueToken>)addGlobalVoiceChannelStateObserver:(nonnull id<ZMVoiceChannelStateObserver>)observer inUserSession:(nonnull id<ZMManagedObjectContextProvider>)userSession;
+//+ (void)removeGlobalVoiceChannelStateObserverForToken:(nonnull id<ZMVoiceChannelStateObserverOpaqueToken>)token inUserSession:(nonnull id<ZMManagedObjectContextProvider>)userSession;
+//
+//- (nonnull id<ZMVoiceChannelParticipantsObserverOpaqueToken>)addCallParticipantsObserver:(nullable id<ZMVoiceChannelParticipantsObserver>)callParticipantsObserver;
+//- (void)removeCallParticipantsObserverForToken:(nonnull  id<ZMVoiceChannelParticipantsObserverOpaqueToken>)token;
+//
+//@end
+//
 
 
 

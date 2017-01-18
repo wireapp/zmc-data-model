@@ -151,7 +151,8 @@
         _conversation = conversation;
         NSManagedObjectContext *context = self.conversation.managedObjectContext;
         if (context.zm_isUserInterfaceContext) {
-            self.callCenter = context.globalManagedObjectContextObserver.callCenter;
+            // TODO Sabine: replicate with dispatcher?
+//            self.callCenter = context.globalManagedObjectContextObserver.callCenter;
         }
     }
     return self;

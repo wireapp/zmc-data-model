@@ -19,6 +19,28 @@
 
 import Foundation
 
+@objc class UnreadMessageTestObserver: NSObject, ZMNewUnreadMessagesObserver, ZMNewUnreadKnocksObserver {
+    
+    var unreadMessageNotes : [NewUnreadMessagesChangeInfo] = []
+    var unreadKnockNotes : [NewUnreadKnockMessagesChangeInfo] = []
+    
+    override init() {
+        super.init()
+    }
+    
+    @objc func didReceiveNewUnreadKnockMessages(_ note: NewUnreadKnockMessagesChangeInfo){
+        self.unreadKnockNotes.append(note)
+    }
+    
+    @objc func didReceiveNewUnreadMessages(_ note: NewUnreadMessagesChangeInfo) {
+        self.unreadMessageNotes.append(note)
+    }
+    
+    func clearNotifications() {
+        self.unreadKnockNotes = []
+        self.unreadMessageNotes = []
+    }
+}
 
 class NewUnreadMessageObserverTests : NotificationDispatcherTests {
     
@@ -69,7 +91,6 @@ class NewUnreadMessageObserverTests : NotificationDispatcherTests {
         performPretendingUiMocIsSyncMoc {
             conversation.resortMessages(withUpdatedMessage: msg2)
         }
-        
         self.uiMOC.saveOrRollback()
         
         // then
