@@ -497,6 +497,12 @@ NSString *const ZMSearchUserTotalMutualFriendsKey = @"total_mutual_friends";
     [mocObserver notifyUpdatedSearchUser:self];
 }
 
+- (void)notifyNewSmallImageData:(NSData *)data searchUserObserverCenter:(SearchUserObserverCenter *)searchUserObserverCenter;
+{
+    _imageSmallProfileData = data;
+    [searchUserObserverCenter notifyUpdatedSearchUser:self];
+}
+
 - (void)setAndNotifyNewMediumImageData:(NSData *)data managedObjectContextObserver:(ManagedObjectContextObserver *)mocObserver;
 {
     if (_imageMediumData == nil || ![_imageMediumData isEqualToData:data]) {

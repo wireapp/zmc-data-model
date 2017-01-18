@@ -358,6 +358,8 @@
 		F9EC8DE11DA69982003C0022 /* ZMGenericMessage+Obfuscation.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9EC8DE01DA69982003C0022 /* ZMGenericMessage+Obfuscation.swift */; };
 		F9FD75731E2E6A2100B4558B /* ConversationListObserverCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FD75721E2E6A2100B4558B /* ConversationListObserverCenter.swift */; };
 		F9FD75761E2E79BF00B4558B /* ConversationListObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FD75741E2E79B200B4558B /* ConversationListObserverTests.swift */; };
+		F9FD75781E2F9A0600B4558B /* SearchUserObserverCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FD75771E2F9A0600B4558B /* SearchUserObserverCenter.swift */; };
+		F9FD757B1E2FB60E00B4558B /* SearchUserObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9FD75791E2FB60000B4558B /* SearchUserObserverTests.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -831,6 +833,8 @@
 		F9EC8DE01DA69982003C0022 /* ZMGenericMessage+Obfuscation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZMGenericMessage+Obfuscation.swift"; sourceTree = "<group>"; };
 		F9FD75721E2E6A2100B4558B /* ConversationListObserverCenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConversationListObserverCenter.swift; sourceTree = "<group>"; };
 		F9FD75741E2E79B200B4558B /* ConversationListObserverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ConversationListObserverTests.swift; sourceTree = "<group>"; };
+		F9FD75771E2F9A0600B4558B /* SearchUserObserverCenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchUserObserverCenter.swift; sourceTree = "<group>"; };
+		F9FD75791E2FB60000B4558B /* SearchUserObserverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchUserObserverTests.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -1103,6 +1107,7 @@
 				F9A706401CAEE01D00C2F5FE /* ZMVoiceChannelNotifications+Internal.h */,
 				F9A706411CAEE01D00C2F5FE /* ZMVoiceChannelNotifications.m */,
 				F93C4C7C1E24E1B1007E9CEE /* NotificationDispatcher.swift */,
+				F9FD75771E2F9A0600B4558B /* SearchUserObserverCenter.swift */,
 				F9FD75721E2E6A2100B4558B /* ConversationListObserverCenter.swift */,
 				F9C348911E2E3FF60015D69D /* SnapshotCenter.swift */,
 				F9C348871E2CD8FC0015D69D /* VoicechannelObserverCenter.swift */,
@@ -1428,6 +1433,7 @@
 				F9C3488E1E2E2DEC0015D69D /* MessageWindowObserverTests.swift */,
 				F9C348891E2CEC150015D69D /* VoiceChannelObserverTests.swift */,
 				F9FD75741E2E79B200B4558B /* ConversationListObserverTests.swift */,
+				F9FD75791E2FB60000B4558B /* SearchUserObserverTests.swift */,
 			);
 			path = Observer;
 			sourceTree = "<group>";
@@ -2041,6 +2047,7 @@
 				F9A706A31CAEE01D00C2F5FE /* ConversationListObserverToken.swift in Sources */,
 				F9A706AD1CAEE01D00C2F5FE /* ObserverTokenDirectory.swift in Sources */,
 				F963E9711D9ADD5A00098AD3 /* ZMGenericMessage+Utils.m in Sources */,
+				F9FD75781E2F9A0600B4558B /* SearchUserObserverCenter.swift in Sources */,
 				54F6CEAB1CE2972200A1276D /* ZMAssetClientMessage+Download.swift in Sources */,
 				F9B71F221CB264EF001DB03F /* ZMConversation.m in Sources */,
 				F9A706A61CAEE01D00C2F5FE /* GlobalUserObserver.swift in Sources */,
@@ -2152,6 +2159,7 @@
 				F963E9741D9BF9ED00098AD3 /* ProtosTests.swift in Sources */,
 				F9B71F9B1CB2BF18001DB03F /* CallingInitalisationNotificationTests.swift in Sources */,
 				16746B081D2EAF8E00831771 /* ZMClientMessageTests+ZMImageOwner.swift in Sources */,
+				F9FD757B1E2FB60E00B4558B /* SearchUserObserverTests.swift in Sources */,
 				F9B71F9A1CB2BF0E001DB03F /* ZMUserTests.m in Sources */,
 				F9331C581CB3BE5300139ECC /* ZMConversationTests+OTR.m in Sources */,
 				F94BD2671DB4EFF200DA0A0E /* ZMAssetClientMessageTest+Encryption.swift in Sources */,

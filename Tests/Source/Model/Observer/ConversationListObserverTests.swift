@@ -69,7 +69,7 @@ class ConversationListObserverTests : NotificationDispatcherTests {
         if let first = testObserver.changes.first {
             XCTAssertEqual(first.insertedIndexes, IndexSet(integer: 0))
             XCTAssertEqual(first.deletedIndexes, IndexSet())
-            XCTAssertEqual(first.updatedIndexes, IndexSet())
+            XCTAssertEqual(first.updatedIndexes, IndexSet(integer: 0))
             XCTAssertEqual(movedIndexes(first), [])
         }
         ConversationListChangeInfo.remove(observer: token, for:conversationList)
@@ -398,7 +398,7 @@ class ConversationListObserverTests : NotificationDispatcherTests {
         XCTAssertEqual(pendingList.count, 0)
         XCTAssertEqual(normalList.count, 1)
         
-        XCTAssertEqual(pendingObserver.changes.count, 1)
+        XCTAssertEqual(pendingObserver.changes.count, 2)
         XCTAssertEqual(normalObserver.changes.count, 1)
         if let pendingNote = pendingObserver.changes.last {
             XCTAssertEqual(pendingNote.insertedIndexes, IndexSet())

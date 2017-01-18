@@ -355,22 +355,22 @@ public final class ManagedObjectContextObserver: NSObject {
     func processChanges(_ changes: ManagedObjectChanges) {
         guard startObservingIfNeeded() else { return }
 
-        if propagateChanges {
-            propagateChangesToObservers(changes, accumulated: false)
-        } else {
-            accumulatedChanges = accumulatedChanges + changes
-        }
+//        if propagateChanges {
+//            propagateChangesToObservers(changes, accumulated: false)
+//        } else {
+//            accumulatedChanges = accumulatedChanges + changes
+//        }
     }
     
     func managedObjectsDidChange(_ note: Notification) {
         guard startObservingIfNeeded() else { return }
-
-        let changes = ManagedObjectChanges(note: note)
-            + changesFromDisplayNameGenerator(note)
-            + changedCallStateConversations
-        
-        changedCallStateConversations = ManagedObjectChanges()
-        processChanges(changes)
+//
+//        let changes = ManagedObjectChanges(note: note)
+//            + changesFromDisplayNameGenerator(note)
+//            + changedCallStateConversations
+//        
+//        changedCallStateConversations = ManagedObjectChanges()
+//        processChanges(changes)
     }
     
     fileprivate func propagateAccumulatedChanges() {

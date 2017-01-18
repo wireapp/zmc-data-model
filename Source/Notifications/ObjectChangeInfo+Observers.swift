@@ -83,6 +83,31 @@ extension UserChangeInfo {
     public static func remove(observer: NSObjectProtocol, for user: ZMUser?) {
         NotificationCenter.default.removeObserver(observer, name: .UserChange, object: user)
     }
+    
+    public static func add(searchUserObserver observer: ZMUserObserver,
+                           for user: ZMSearchUser,
+                           inManagedObjectContext context: NSManagedObjectContext) -> NSObjectProtocol
+    {
+        context.searchUserObserverCenter.addSearchUser(user)
+        return NotificationCenter.default.addObserver(forName: .SearchUserChange,
+                                                      object: user,
+                                                      queue: nil)
+        { [weak observer] (note) in
+            guard let `observer` = observer,
+                let changeInfo = note.userInfo?["changeInfo"] as? UserChangeInfo
+                else { return }
+            
+            observer.userDidChange(changeInfo)
+        }
+    }
+    
+    public static func remove(searchUserObserver observer: NSObjectProtocol,
+                              for user: ZMSearchUser)
+    {
+        // TODO Sabine: how do we remove searchUser observers?
+        NotificationCenter.default.removeObserver(observer, name: .SearchUserChange, object: user)
+    }
+    
 }
 
 extension MessageChangeInfo {

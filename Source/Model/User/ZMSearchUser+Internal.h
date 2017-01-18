@@ -24,6 +24,7 @@
 @class ZMUser;
 @class ZMAddressBookContact;
 @class ManagedObjectContextObserver;
+@class SearchUserObserverCenter;
 
 FOUNDATION_EXPORT NSString *const ZMSearchUserTotalMutualFriendsKey;
 
@@ -67,5 +68,7 @@ FOUNDATION_EXPORT NSString *const ZMSearchUserTotalMutualFriendsKey;
 
 - (void)notifyNewSmallImageData:(NSData *)data managedObjectContextObserver:(ManagedObjectContextObserver *)mocObserver;
 - (void)setAndNotifyNewMediumImageData:(NSData *)data managedObjectContextObserver:(ManagedObjectContextObserver *)mocObserver;
+
+- (void)notifyNewSmallImageData:(NSData *)data searchUserObserverCenter:(SearchUserObserverCenter *)searchUserObserverCenter;
 
 @end

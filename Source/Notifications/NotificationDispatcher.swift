@@ -30,6 +30,7 @@ extension Notification.Name {
     static let ConversationChange = Notification.Name("ZMConversationChangedNotification")
     static let MessageChange = Notification.Name("ZMMessageChangedNotification")
     static let UserChange = Notification.Name("ZMUserChangedNotification")
+    static let SearchUserChange = Notification.Name("ZMSearchUserChangedNotification")
     static let ConnectionChange = Notification.Name("ZMConnectionChangeNotification")
     static let UserClientChange = Notification.Name("ZMUserClientChangeNotification")
     static let NewUnreadMessage = Notification.Name("ZMNewUnreadMessageNotification")
@@ -193,6 +194,9 @@ public class NotificationDispatcher : NSObject {
     private let voicechannelObserverCenter : VoicechannelObserverCenter
     private let messageWindowObserverCenter : MessageWindowObserverCenter
     private let conversationListObserverCenter : ConversationListObserverCenter
+    private var searchUserObserverCenter: SearchUserObserverCenter {
+        return managedObjectContext.searchUserObserverCenter
+    }
     private let snapshotCenter: SnapshotCenter
     
     private var allChanges : [ClassIdentifier : [NSObject : Changes]] = [:] 
@@ -217,6 +221,7 @@ public class NotificationDispatcher : NSObject {
         self.messageWindowObserverCenter = MessageWindowObserverCenter()
         self.snapshotCenter = SnapshotCenter(managedObjectContext: managedObjectContext)
         self.conversationListObserverCenter = ConversationListObserverCenter(managedObjectContext: managedObjectContext)
+        
         super.init()
         NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcher.objectsDidChange(_:)), name:NSNotification.Name.NSManagedObjectContextObjectsDidChange, object: self.managedObjectContext)
         NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcher.contextDidSave(_:)), name:NSNotification.Name.NSManagedObjectContextDidSave, object: self.managedObjectContext)
@@ -325,14 +330,21 @@ public class NotificationDispatcher : NSObject {
     
     /// Gets additional user changes from userImageCache
     func checkForChangedImages() -> Set<ZMManagedObject> {
-        let changedUsers = managedObjectContext.zm_userImageCache.changedUsersSinceLastSave
-        changedUsers.forEach { user in
+        let largeImageChanges = managedObjectContext.zm_userImageCache.usersWithChangedLargeImage
+        largeImageChanges.forEach { user in
             var newValue = userChanges[user] ?? Set()
             newValue.insert("imageMediumData")
             userChanges[user] = newValue
         }
-        managedObjectContext.zm_userImageCache.changedUsersSinceLastSave = []
-        return Set(changedUsers)
+        let smallImageChanges = managedObjectContext.zm_userImageCache.usersWithChangedSmallImage
+        smallImageChanges.forEach { user in
+            var newValue = userChanges[user] ?? Set()
+            newValue.insert("imageSmallProfileData")
+            userChanges[user] = newValue
+        }
+        managedObjectContext.zm_userImageCache.usersWithChangedLargeImage = []
+        managedObjectContext.zm_userImageCache.usersWithChangedSmallImage = []
+        return Set(largeImageChanges + smallImageChanges)
     }
     
     
@@ -431,6 +443,9 @@ public class NotificationDispatcher : NSObject {
                 else { return nil }
                 if let changeInfo = changeInfo as? ConversationChangeInfo {
                     conversationListObserverCenter.conversationDidChange(changeInfo)
+                }
+                if let changeInfo = changeInfo as? UserChangeInfo {
+                    searchUserObserverCenter.usersDidChange(changeInfos: [changeInfo])
                 }
                 return Notification(name: notificationName, object: $0, userInfo: ["changeInfo" : changeInfo])
             }
