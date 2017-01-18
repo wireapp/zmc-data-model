@@ -645,7 +645,7 @@ class ConversationObserverTokenTests : ZMBaseManagedObjectTest {
                 conversation.securityLevel = .secure
             },
             expectedChangedField: "securityLevelChanged" ,
-            expectedChangedKeys: KeySet(key: "securityLevel"))
+            expectedChangedKeys: KeySet(key: SecurityLevelKey))
     }
     
     func testThatItStopsNotifyingAfterUnregisteringTheToken() {

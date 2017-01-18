@@ -67,7 +67,6 @@ extern NSString * _Null_unspecified const ZMConversationIsVerifiedNotificationNa
 @interface ZMConversation : ZMManagedObject
 
 @property (nonatomic, copy, nullable) NSString *userDefinedName;
-@property (nonatomic, readonly, nonnull) NSString *displayName;
 
 @property (readonly, nonatomic) ZMConversationType conversationType;
 @property (readonly, nonatomic, nonnull) NSDate *lastModifiedDate;
@@ -123,6 +122,8 @@ extern NSString * _Null_unspecified const ZMConversationIsVerifiedNotificationNa
 
 /// It's safe to pass @c nil. Returns @c nil if no message was inserted.
 - (nullable id <ZMConversationMessage>)appendMessageWithText:(nullable NSString *)text;
+/// It's safe to pass @c nil. Returns @c nil if no message was inserted. Specify if a linkPreview should be fetched when available.
+- (nullable id <ZMConversationMessage>)appendMessageWithText:(nullable NSString *)text fetchLinkPreview:(BOOL)fetchPreview;
 
 /// The given URL must be a file URL. It's safe to pass @c nil. Returns @c nil if no message was inserted.
 - (nullable id<ZMConversationMessage>)appendMessageWithImageAtURL:(nonnull NSURL *)fileURL;

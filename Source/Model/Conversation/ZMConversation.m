@@ -85,6 +85,7 @@ NSString *const ZMConversationClearTypingNotificationName = @"ZMConversationClea
 NSString *const ZMConversationIsVerifiedNotificationName = @"ZMConversationIsVerifiedNotificationName";
 NSString *const ZMConversationFailedToDecryptMessageNotificationName = @"ZMConversationFailedToDecryptMessageNotificationName";
 NSString *const ZMConversationLastReadDidChangeNotificationName = @"ZMConversationLastReadDidChangeNotification";
+NSString *const SecurityLevelKey = @"securityLevel";
 
 static NSString *const CallStateNeedsToBeUpdatedFromBackendKey = @"callStateNeedsToBeUpdatedFromBackend";
 static NSString *const ConnectedUserKey = @"connectedUser";
@@ -102,7 +103,6 @@ static NSString *const VoiceChannelStateKey = @"voiceChannelState";
 static NSString *const CallDeviceIsActiveKey = @"callDeviceIsActive";
 static NSString *const IsFlowActiveKey = @"isFlowActive";
 
-static NSString *const SecurityLevelKey = @"securityLevel";
 static NSString *const MessageDestructionTimeoutKey = @"messageDestructionTimeout";
 
 
@@ -405,62 +405,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return [NSSet setWithObjects:ConversationTypeKey, ZMConversationIsSelfAnActiveMemberKey, nil];
 }
 
-+ (NSSet *)keyPathsForValuesAffectingAttributedDisplayName;
-{
-    return [ZMConversation keyPathsForValuesAffectingDisplayName];
-}
-
-- (NSString *)displayName
-{
-    switch (self.conversationType) {
-        case ZMConversationTypeConnection:
-        {
-            NSString *name = self.connectedUser.name;
-            if (name.length == 0) {
-                name = self.userDefinedName;
-            }
-            return name ?: @"…";
-        }
-        case ZMConversationTypeGroup:
-            if (0 < self.userDefinedName.length) {
-                return self.userDefinedName;
-            }
-            else {
-                ZMUser *selfUser = [ZMUser selfUserInContext:self.managedObjectContext];
-                NSArray *activeNames = [self.otherActiveParticipants.array mapWithBlock:^NSString*(ZMUser *user) {
-                    if(user == selfUser || user.name.length < 1) {
-                        return nil;
-                    }
-                    return user.displayName;
-                }];
-                
-                
-                NSString *joiner = @", ";
-                NSString *activeNamesString = [activeNames componentsJoinedByString:joiner];
-                return activeNamesString;
-            }
-            
-        case ZMConversationTypeOneOnOne:
-        {
-            ZMUser *other = self.otherActiveParticipants.firstObject ?: self.connectedUser;
-            NSString *name = other.name;
-            if (0 < name.length) {
-                return name;
-            }
-            else {
-                // The user is most probably deleted
-                return @"…";
-            }
-        }
-            
-        case ZMConversationTypeSelf:
-            return [ZMUser selfUserInContext:self.managedObjectContext].displayName ?: @"";
-            
-        case ZMConversationTypeInvalid:
-            return @"";
-    }
-}
-
 + (NSSet *)keyPathsForValuesAffectingDisplayName;
 {
     return [NSSet setWithObjects:ConversationTypeKey, @"otherActiveParticipants", @"otherActiveParticipants.name", @"connection.to.name", @"otherActiveParticipants.displayName", @"connection.to.displayName", ZMConversationUserDefinedNameKey, nil];
@@ -701,12 +645,17 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (id <ZMConversationMessage>)appendMessageWithText:(NSString *)text;
 {
+    return [self appendMessageWithText:text fetchLinkPreview:YES];
+}
+
+- (nullable id <ZMConversationMessage>)appendMessageWithText:(nullable NSString *)text fetchLinkPreview:(BOOL)fetchPreview;
+{
     VerifyReturnNil(![text zmHasOnlyWhitespaceCharacters]);
     VerifyReturnNil(text != nil);
 
     NSUUID *nonce = NSUUID.UUID;
-    id <ZMConversationMessage> message = [self appendOTRMessageWithText:text nonce:nonce];
-    
+    id <ZMConversationMessage> message = [self appendOTRMessageWithText:text nonce:nonce fetchLinkPreview:fetchPreview];
+
     [[NSNotificationCenter defaultCenter] postNotificationName:ZMConversationClearTypingNotificationName object:self];
     return message;
 }
@@ -1367,13 +1316,18 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return message;
 }
 
-- (ZMClientMessage *)appendOTRMessageWithText:(NSString *)text nonce:(NSUUID *)nonce
+- (ZMClientMessage *)appendOTRMessageWithText:(NSString *)text nonce:(NSUUID *)nonce fetchLinkPreview:(BOOL)fetchPreview
 {
     ZMGenericMessage *genericMessage = [ZMGenericMessage messageWithText:text nonce:nonce.transportString expiresAfter:@(self.messageDestructionTimeout)];
     ZMClientMessage *message = [self appendClientMessageWithData:genericMessage.data];
-    message.linkPreviewState = ZMLinkPreviewStateWaitingToBeProcessed;
+    message.linkPreviewState = fetchPreview ? ZMLinkPreviewStateWaitingToBeProcessed : ZMLinkPreviewStateDone;
     message.isEncrypted = YES;
     return message;
+}
+
+- (ZMClientMessage *)appendOTRMessageWithText:(NSString *)text nonce:(NSUUID *)nonce
+{
+    return [self appendOTRMessageWithText:text nonce:nonce fetchLinkPreview:YES];
 }
 
 - (ZMAssetClientMessage *)appendOTRMessageWithImageData:(NSData *)imageData nonce:(NSUUID *)nonce
