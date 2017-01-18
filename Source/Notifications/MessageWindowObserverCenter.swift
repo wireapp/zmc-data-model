@@ -27,45 +27,40 @@ extension Notification.Name {
 
 }
 
+let MessageWindowObserverCenterKey = "MessageWindowObserverCenterKey"
 
-final class MessageWindowObserverCenter : NSObject {
+extension NSManagedObjectContext {
+    
+    public var messageWindowObserverCenter : MessageWindowObserverCenter {
+        if let observer = self.userInfo[MessageWindowObserverCenterKey] as? MessageWindowObserverCenter {
+            return observer
+        }
+        
+        let newObserver = MessageWindowObserverCenter()
+        self.userInfo[MessageWindowObserverCenterKey] = newObserver
+        return newObserver
+    }
+}
+
+@objc final public class MessageWindowObserverCenter : NSObject {
     
     var windowSnapshot : MessageWindowSnapshot?
-    var tornDown = false
 
-    override init() {
-        super.init()
-        NotificationCenter.default.addObserver(self, selector: #selector(MessageWindowObserverCenter.windowDidScroll(_:)), name:  .ZMConversationMessageWindowScrolled, object:nil)
-        NotificationCenter.default.addObserver(self, selector: #selector(MessageWindowObserverCenter.windowWasCreated(_:)), name:  .ZMConversationMessageWindowCreated, object:nil)
-    }
-    
-    func tearDown() {
-        NotificationCenter.default.removeObserver(self)
-        tornDown = true
-    }
-    
-    deinit {
-        assert(tornDown, "Did not tear down MessageWindowObserver")
-    }
-    
-    @objc public func windowDidScroll(_ note: Notification) {
-        guard let notifyingWindow = note.object as? ZMConversationMessageWindow else { return }
-        if let snapshot = windowSnapshot, snapshot.conversation == notifyingWindow.conversation {
+    @objc public func windowDidScroll(_ window: ZMConversationMessageWindow) {
+        if let snapshot = windowSnapshot, snapshot.conversation == window.conversation {
             snapshot.windowDidScroll()
         } else {
             windowSnapshot?.tearDown()
-            windowSnapshot = MessageWindowSnapshot(window: notifyingWindow)
+            windowSnapshot = MessageWindowSnapshot(window: window)
         }
     }
     
-    // TODO Sabine: this is pretty hacky
-    @objc public func windowWasCreated(_ note: Notification) {
-        guard let notifyingWindow = note.object as? ZMConversationMessageWindow else { return }
-        if let snapshot = windowSnapshot, snapshot.conversation == notifyingWindow.conversation {
+    @objc public func windowWasCreated(_ window: ZMConversationMessageWindow) {
+        if let snapshot = windowSnapshot, snapshot.conversation == window.conversation {
             return
         }
         windowSnapshot?.tearDown()
-        windowSnapshot = MessageWindowSnapshot(window: notifyingWindow)
+        windowSnapshot = MessageWindowSnapshot(window: window)
     }
     
     func fireNotifications() {
@@ -108,7 +103,9 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
     }
     
     public func tearDown() {
-        ConversationChangeInfo.remove(observer: conversationToken, for: conversation)
+        if isTornDown { return }
+        
+        ConversationChangeInfo.remove(observer: conversationToken, for: nil)
         conversationToken = nil
         messageTokens.forEach {
             MessageChangeInfo.remove(observer: $1, for: $0)

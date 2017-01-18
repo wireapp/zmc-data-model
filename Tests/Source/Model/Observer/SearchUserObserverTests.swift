@@ -119,5 +119,88 @@ class SearchUserObserverTests : NotificationDispatcherTests {
         XCTAssertEqual(testObserver.receivedChangeInfo.count, 0)
     }
     
+    func testThatItNotifiesObserversWhenConnectingToASearchUserThatHasNoLocalUser(){
     
+        // given
+        let remoteID = UUID.create()
+        let searchUser = ZMSearchUser(name: "Hans",
+                                      handle: "hans",
+                                      accentColor: .brightOrange,
+                                      remoteID: remoteID,
+                                      user: nil,
+                                      syncManagedObjectContext: self.syncMOC,
+                                      uiManagedObjectContext:self.uiMOC)!
+        
+        XCTAssertFalse(searchUser.isPendingApprovalByOtherUser)
+        let token = UserChangeInfo.add(searchUserObserver: testObserver, for: searchUser, inManagedObjectContext:uiMOC)
+
+        // expect
+        let callbackCalled = expectation(description: "Connection callback was called")
+        
+        // when
+        searchUser.connect(withMessageText: "Hey") { 
+            callbackCalled.fulfill()
+        }
+        XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
+        
+        // then
+        XCTAssertEqual(testObserver.receivedChangeInfo.count, 1)
+        guard let note = testObserver.receivedChangeInfo.first else { return XCTFail()}
+        XCTAssertEqual(note.user as? ZMSearchUser, searchUser)
+        XCTAssertTrue(note.connectionStateChanged)
+        
+        UserChangeInfo.remove(searchUserObserver: token, for: searchUser)
+    }
+ 
+    func testThatItNotifiesObserverWhenConnectingToALocalUser() {
+    
+        // given
+        let user = ZMUser.insertNewObject(in: uiMOC)
+        user.remoteIdentifier = UUID()
+        XCTAssert(uiMOC.saveOrRollback())
+
+        let searchUser = ZMSearchUser(name: "Hans",
+                                      handle: "hans",
+                                      accentColor: .brightOrange,
+                                      remoteID: nil,
+                                      user: user,
+                                      syncManagedObjectContext: self.syncMOC,
+                                      uiManagedObjectContext:self.uiMOC)!
+        
+        let testObserver2 = TestSearchUserObserver()
+        let token1 = UserChangeInfo.add(observer: testObserver, for: user)
+        let token2 = UserChangeInfo.add(searchUserObserver: testObserver2, for: searchUser, inManagedObjectContext:uiMOC)
+        
+        // expect
+        let callbackCalled = expectation(description: "Connection callback was called")
+        
+        // when
+        searchUser.connect(withMessageText: "Hey") {
+            callbackCalled.fulfill()
+        }
+        XCTAssert(uiMOC.saveOrRollback())
+        XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
+        
+        // when
+        XCTAssertTrue(searchUser.user.isPendingApprovalByOtherUser)
+        XCTAssertEqual(testObserver.receivedChangeInfo.count, 1)
+        XCTAssertEqual(testObserver2.receivedChangeInfo.count, 1)
+        
+        if let note1 = testObserver.receivedChangeInfo.first {
+            XCTAssertEqual(note1.user as? ZMUser, user)
+            XCTAssertTrue(note1.connectionStateChanged)
+        } else {
+            XCTFail("Did not receive UserChangeInfo for ZMUser")
+        }
+
+        if let note2 = testObserver2.receivedChangeInfo.first {
+            XCTAssertEqual(note2.user as? ZMSearchUser, searchUser)
+            XCTAssertTrue(note2.connectionStateChanged)
+        } else {
+            XCTFail("Did not receive UserChangeInfo for ZMSearchUser")
+        }
+        
+        UserChangeInfo.remove(observer: token1, for: user)
+        UserChangeInfo.remove(searchUserObserver: token2, for: searchUser)
+    }
 }

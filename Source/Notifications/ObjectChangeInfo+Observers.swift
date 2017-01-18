@@ -304,8 +304,8 @@ extension MessageWindowChangeInfo {
 }
 
 extension ConversationListChangeInfo {
+    
     public static func add(observer: ZMConversationListObserver,for list: ZMConversationList) -> NSObjectProtocol {
-        NotificationCenter.default.post(name: .StartObservingList, object: list) // TODO sabine : this is a bit hacky
         return NotificationCenter.default.addObserver(forName: .ZMConversationListDidChange,
                                                       object: list,
                                                       queue: nil)

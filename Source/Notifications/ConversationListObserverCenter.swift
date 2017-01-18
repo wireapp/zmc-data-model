@@ -24,32 +24,36 @@ extension Notification.Name {
     static let ZMConversationListDidChange = Notification.Name("ZMConversationListDidChangeNotification")
 }
 
+let ConversationListObserverCenterKey = "ConversationListObserverCenterKey"
 
-final class ConversationListObserverCenter : NSObject, ZMConversationObserver {
+extension NSManagedObjectContext {
+    
+    public var conversationListObserverCenter : ConversationListObserverCenter {
+        if let observer = self.userInfo[ConversationListObserverCenterKey] as? ConversationListObserverCenter {
+            return observer
+        }
+        
+        let newObserver = ConversationListObserverCenter()
+        self.userInfo[ConversationListObserverCenterKey] = newObserver
+        return newObserver
+    }
+}
+
+public class ConversationListObserverCenter : NSObject, ZMConversationObserver {
     
     fileprivate var internalConversationListObserverTokens : [String : ConversationListSnapshot] = [:]
-    
-    fileprivate weak var managedObjectContext : NSManagedObjectContext?
     fileprivate var conversationLists : [UnownedObject<ZMConversationList>] = Array()
     
     var isTornDown : Bool = false
     
-    init(managedObjectContext: NSManagedObjectContext) {
-        self.managedObjectContext = managedObjectContext
-        super.init()
-        NotificationCenter.default.addObserver(self, selector: #selector(startObservingList(_:)), name: .StartObservingList, object: nil)
-    }
-    
     func prepareObservers() {
-        
         let lists = conversationLists.flatMap{$0.unbox}
         registerTokensForConversationList(lists)
     }
     
-    @objc func startObservingList(_ note: Notification) {
-        guard let list = note.object as? ZMConversationList else { return }
-        addConversationList(list)
-        registerTokensForConversationList([list])
+    @objc public func startObservingList(_ conversationList: ZMConversationList) {
+        addConversationList(conversationList)
+        registerTokensForConversationList([conversationList])
     }
     
     // adding and removing lists
@@ -102,7 +106,7 @@ final class ConversationListObserverCenter : NSObject, ZMConversationObserver {
         self.notifyTokensForConversationList(list, conversation: nil, conversationChanges: nil)
     }
     
-    func conversationDidChange(_ changeInfo: ConversationChangeInfo) {
+    public func conversationDidChange(_ changeInfo: ConversationChangeInfo) {
         processConversationChanges(changeInfo)
     }
     

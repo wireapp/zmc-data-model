@@ -19,22 +19,6 @@
 import ZMTesting
 
 class ZMMessageTests_Confirmation: BaseZMClientMessageTests {
-
-    override func setUp() {
-        super.setUp()
-        
-        // TODO Sabine: what's that for?
-//        XCTAssertNotNil(self.uiMOC.globalManagedObjectContextObserver)
-//        NotificationCenter.default.post(name: NSNotification.Name(rawValue: "ZMApplicationDidEnterEventProcessingStateNotification"), object: nil)
-//        NotificationCenter.default.post(name: NSNotification.Name.UIApplicationDidBecomeActive, object: nil)
-//        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-    }
-    
-    override func tearDown() {
-//        self.uiMOC.globalManagedObjectContextObserver.tearDown()
-//        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        super.tearDown()
-    }
 }
 
 // MARK: - Adding confirmation locally

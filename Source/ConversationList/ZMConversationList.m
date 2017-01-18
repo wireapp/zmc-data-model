@@ -77,8 +77,7 @@
         self.sortDescriptors = [ZMConversation defaultSortDescriptors];
         [self calculateKeysAffectingPredicateAndSort];
         [self createBackingList:conversations];
-        // TODO Sabine: add this for the dispatcher
-//        [moc.globalManagedObjectContextObserver addConversationListForAutoupdating:self];
+        [moc.conversationListObserverCenter startObservingList:self];
     }
     return self;
 }

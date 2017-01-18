@@ -825,7 +825,7 @@ extension ConversationObserverTests {
         // 500: average: 0.886, relative standard deviation: 1.875%, values: [0.922453, 0.878736, 0.880529, 0.899234, 0.875889, 0.904563, 0.890234, 0.872045, 0.868912, 0.871016]
         // 500: after adding convList observer average: 1.167, relative standard deviation: 9.521%, values: [1.041614, 1.020351, 1.055602, 1.098007, 1.129816, 1.166439, 1.221696, 1.293128, 1.314360, 1.331703], --> growing due to additional conversation observers
         // 500: after forwarding conversation changes: average: 0.941, relative standard deviation: 2.144%, values: [0.991118, 0.956727, 0.947056, 0.928683, 0.937171, 0.947680, 0.928902, 0.925021, 0.923206, 0.922440] --> constant! yay!
-        let count = 500
+        let count = 50
         
         self.measureMetrics([XCTPerformanceMetric_WallClockTime], automaticallyStartMeasuring: false) {
             

@@ -68,13 +68,13 @@ class MessageWindowObserverTests : NotificationDispatcherTests {
         return messages
     }
     
-    func createConversationWindowWithMessages(_ messages: [ZMMessage], uiMoc : NSManagedObjectContext) -> ZMConversationMessageWindow {
+    func createConversationWindowWithMessages(_ messages: [ZMMessage], uiMoc : NSManagedObjectContext, windowSize: UInt = 10) -> ZMConversationMessageWindow {
         
         let conversation = ZMConversation.insertNewObject(in:uiMoc)
         for message in messages {
             message.visibleInConversation = conversation
         }
-        return conversation.conversationWindow(withSize: 10)
+        return conversation.conversationWindow(withSize: windowSize)
     }
     
     func createConversationWithMessages(_ messages: [ZMMessage], uiMOC : NSManagedObjectContext) -> ZMConversation {
@@ -313,5 +313,33 @@ class MessageWindowObserverTests : NotificationDispatcherTests {
         
         // then
         XCTAssertEqual(windowObserver.notifications.count, 0)
+    }
+    
+    func testPerformanceOfCalculatingChangeNotificationsWhenANewMessageArrives_RegisteringNewObservers()
+    {
+        // windowSize 10: average: 0.528, relative standard deviation: 0.515%, values: [0.528867, 0.528230, 0.525480, 0.525551, 0.530068, 0.532909, 0.527777, 0.524606, 0.527038, 0.532571]
+        // windowSize 100: average: 0.651, relative standard deviation: 4.225%, values: [0.641393, 0.645058, 0.621273, 0.617338, 0.653535, 0.641560, 0.679653, 0.709796, 0.673929, 0.628096]
+        // windowSize 1000: average: 1.134, relative standard deviation: 10.849%, values: [1.091754, 1.171760, 0.887102, 1.099604, 1.091845, 1.186577, 1.399376, 1.129551, 1.068521, 1.216519]
+        
+
+        let count = 500
+        self.measureMetrics([XCTPerformanceMetric_WallClockTime], automaticallyStartMeasuring: false) {
+            let message1 = ZMClientMessage.insertNewObject(in: self.uiMOC)
+            let message2 = ZMClientMessage.insertNewObject(in: self.uiMOC)
+            let window = self.createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC, windowSize: 100)
+            self.uiMOC.saveOrRollback()
+
+            let token = MessageWindowChangeInfo.add(observer: self.windowObserver, for: window)
+            
+            self.startMeasuring()
+            for _ in 1...count {
+                let message = ZMClientMessage.insertNewObject(in: self.uiMOC)
+                message.visibleInConversation = window.conversation
+                self.uiMOC.saveOrRollback()
+            }
+            self.stopMeasuring()
+//            XCTAssertEqual(self.windowObserver.notifications.count, count)
+            MessageWindowChangeInfo.remove(observer: token, for: window)
+        }
     }
 }

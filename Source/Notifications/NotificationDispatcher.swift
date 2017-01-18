@@ -192,8 +192,12 @@ public class NotificationDispatcher : NSObject {
     private var tornDown = false
     private let affectingKeysStore : DependencyKeyStore
     private let voicechannelObserverCenter : VoicechannelObserverCenter
-    private let messageWindowObserverCenter : MessageWindowObserverCenter
-    private let conversationListObserverCenter : ConversationListObserverCenter
+    private var messageWindowObserverCenter : MessageWindowObserverCenter {
+        return managedObjectContext.messageWindowObserverCenter
+    }
+    private var conversationListObserverCenter : ConversationListObserverCenter {
+        return managedObjectContext.conversationListObserverCenter
+    }
     private var searchUserObserverCenter: SearchUserObserverCenter {
         return managedObjectContext.searchUserObserverCenter
     }
@@ -218,9 +222,7 @@ public class NotificationDispatcher : NSObject {
         let affectingKeysStore = DependencyKeyStore(classIdentifiers : classIdentifiers)
         self.affectingKeysStore = affectingKeysStore
         self.voicechannelObserverCenter = VoicechannelObserverCenter()
-        self.messageWindowObserverCenter = MessageWindowObserverCenter()
         self.snapshotCenter = SnapshotCenter(managedObjectContext: managedObjectContext)
-        self.conversationListObserverCenter = ConversationListObserverCenter(managedObjectContext: managedObjectContext)
         
         super.init()
         NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcher.objectsDidChange(_:)), name:NSNotification.Name.NSManagedObjectContextObjectsDidChange, object: self.managedObjectContext)
@@ -229,7 +231,6 @@ public class NotificationDispatcher : NSObject {
     
     public func tearDown() {
         NotificationCenter.default.removeObserver(self)
-        messageWindowObserverCenter.tearDown()
         conversationListObserverCenter.tearDown()
         tornDown = true
     }
