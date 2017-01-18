@@ -27,7 +27,7 @@ public protocol ZMGeneralConversationObserver {
 extension ZMConversation : ObjectInSnapshot {
     
     public var observableKeys : [String] {
-        var keys = ["messages", "lastModifiedDate", "isArchived", "conversationListIndicator", "isSilenced", "securityLevel", "displayName", "estimatedUnreadCount", "clearedTimeStamp"]
+        var keys = ["messages", "lastModifiedDate", "isArchived", "conversationListIndicator", "isSilenced", SecurityLevelKey, "displayName", "estimatedUnreadCount", "clearedTimeStamp"]
         if self.conversationType == .group {
             keys.append("otherActiveParticipants")
             keys.append("isSelfAnActiveMember")
@@ -52,7 +52,7 @@ open class GeneralConversationChangeInfo : ObjectChangeInfo {
     internal var internalConversationChangeInfo : ConversationChangeInfo?
     
     fileprivate var keysForConversationChangeInfo : Set<String> {
-        return Set(arrayLiteral: "messages", "lastModifiedDate", "isArchived", "conversationListIndicator", "isSilenced", "otherActiveParticipants", "isSelfAnActiveMember", "displayName", "relatedConnectionState", "estimatedUnreadCount", "clearedTimeStamp", "securityLevel")
+        return Set(arrayLiteral: "messages", "lastModifiedDate", "isArchived", "conversationListIndicator", "isSilenced", "otherActiveParticipants", "isSelfAnActiveMember", "displayName", "relatedConnectionState", "estimatedUnreadCount", "clearedTimeStamp", SecurityLevelKey)
     }
     
     func setAllKeys() {
@@ -204,7 +204,7 @@ class GeneralConversationObserverToken<T: NSObject> : ObjectObserverTokenContain
     }
 
     public var securityLevelChanged : Bool {
-        return changedKeysAndOldValues.keys.contains("securityLevel")
+        return changedKeysAndOldValues.keys.contains(SecurityLevelKey)
     }
 
     
@@ -240,7 +240,8 @@ extension ConversationChangeInfo {
     /// might have added a participant or renamed the conversation (causing a
     /// system message to be inserted)
     fileprivate var recentNewClientsSystemMessageWithExpiredMessages : ZMSystemMessage? {
-        if(!self.securityLevelChanged || self.conversation.securityLevel != .secureWithIgnored) {
+        let previousSecurityLevel = (self.previousValueForKey(SecurityLevelKey) as? NSNumber).flatMap { ZMConversationSecurityLevel(rawValue: $0.int16Value) }
+        if(!self.securityLevelChanged || self.conversation.securityLevel != .secureWithIgnored || previousSecurityLevel == nil) {
             return .none;
         }
         var foundSystemMessage : ZMSystemMessage? = .none
