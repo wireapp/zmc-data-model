@@ -466,7 +466,7 @@ public class NotificationDispatcher : NSObject {
                 zmLog.warn("Did you forget to add the mapping for that?")
                 return
             }
-            let notification = Notification(name: notificationName, object: ["changeInfo" : changeInfo], userInfo: nil)
+            let notification = Notification(name: notificationName, object:nil, userInfo: ["changeInfo" : changeInfo])
             NotificationCenter.default.post(notification)
         }
     }
@@ -498,12 +498,9 @@ public class NotificationDispatcher : NSObject {
     
     static func changeInfoforNewMessageNotification(with name: Notification.Name, changedMessages messages: Set<ZMMessage>) -> ObjectChangeInfo? {
         switch name {
-        case Notification.Name.NewUnreadUnsentMessage:
-            return NewUnreadUnsentMessageChangeInfo(messages: Array(messages) as [ZMConversationMessage])
-        case Notification.Name.NewUnreadMessage:
-            return NewUnreadMessagesChangeInfo(messages: Array(messages) as [ZMConversationMessage])
-        case Notification.Name.NewUnreadKnock:
-            return NewUnreadKnockMessagesChangeInfo(messages: Array(messages) as [ZMConversationMessage])
+        case Notification.Name.NewUnreadUnsentMessage: return NewUnreadUnsentMessageChangeInfo(messages: Array(messages) as [ZMConversationMessage])
+        case Notification.Name.NewUnreadMessage:       return NewUnreadMessagesChangeInfo(messages:      Array(messages) as [ZMConversationMessage])
+        case Notification.Name.NewUnreadKnock:         return NewUnreadKnockMessagesChangeInfo(messages: Array(messages) as [ZMConversationMessage])
         default:
             return nil
         }

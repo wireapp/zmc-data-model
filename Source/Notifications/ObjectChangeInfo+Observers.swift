@@ -196,10 +196,8 @@ extension NewUnreadMessagesChangeInfo {
                                                       queue: nil)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                  let object = note.object as? [ZMConversationMessage]
+                  let changeInfo = note.userInfo?["changeInfo"] as? NewUnreadMessagesChangeInfo
             else { return }
-            
-            let changeInfo = NewUnreadMessagesChangeInfo(messages: object)
             observer.didReceiveNewUnreadMessages(changeInfo)
         }
     }
@@ -216,11 +214,27 @@ extension NewUnreadKnockMessagesChangeInfo {
                                                       queue: nil)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                  let object = note.object as? [ZMConversationMessage]
+                  let changeInfo = note.userInfo?["changeInfo"] as? NewUnreadKnockMessagesChangeInfo
             else { return }
-            
-            let changeInfo = NewUnreadKnockMessagesChangeInfo(messages: object)
             observer.didReceiveNewUnreadKnockMessages(changeInfo)
+        }
+    }
+    
+    public static func remove(observer: NSObjectProtocol) {
+        NotificationCenter.default.removeObserver(observer, name: .NewUnreadKnock, object: nil)
+    }
+}
+
+extension NewUnreadUnsentMessageChangeInfo {
+    public static func add(observer: ZMNewUnreadUnsentMessageObserver) -> NSObjectProtocol {
+        return NotificationCenter.default.addObserver(forName: .NewUnreadUnsentMessage,
+                                                      object: nil,
+                                                      queue: nil)
+        { [weak observer] (note) in
+            guard let `observer` = observer,
+                let changeInfo = note.userInfo?["changeInfo"] as? NewUnreadUnsentMessageChangeInfo
+            else { return }
+            observer.didReceiveNewUnreadUnsentMessages(changeInfo)
         }
     }
     
