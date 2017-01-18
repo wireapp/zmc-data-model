@@ -317,16 +317,21 @@ class MessageWindowObserverTests : NotificationDispatcherTests {
     
     func testPerformanceOfCalculatingChangeNotificationsWhenANewMessageArrives_RegisteringNewObservers()
     {
+        // before:
         // windowSize 10: average: 0.528, relative standard deviation: 0.515%, values: [0.528867, 0.528230, 0.525480, 0.525551, 0.530068, 0.532909, 0.527777, 0.524606, 0.527038, 0.532571]
         // windowSize 100: average: 0.651, relative standard deviation: 4.225%, values: [0.641393, 0.645058, 0.621273, 0.617338, 0.653535, 0.641560, 0.679653, 0.709796, 0.673929, 0.628096]
         // windowSize 1000: average: 1.134, relative standard deviation: 10.849%, values: [1.091754, 1.171760, 0.887102, 1.099604, 1.091845, 1.186577, 1.399376, 1.129551, 1.068521, 1.216519]
         
+        // after:
+        // windowSize 10: average: 0.496, relative standard deviation: 0.660%, values: [0.496551, 0.492295, 0.492022, 0.493457, 0.495677, 0.499688, 0.495764, 0.492826, 0.494440, 0.502799],
+        // windowSize 100: average: 0.590, relative standard deviation: 0.625%, values: [0.593669, 0.583634, 0.595112, 0.586753, 0.592627, 0.593324, 0.586851, 0.586290, 0.587724, 0.589547],
+        // windowSize 1000: average: 0.753, relative standard deviation: 0.928%, values: [0.749879, 0.744184, 0.753860, 0.759445, 0.767395, 0.757016, 0.746533, 0.743892, 0.755466, 0.750862],
 
         let count = 500
         self.measureMetrics([XCTPerformanceMetric_WallClockTime], automaticallyStartMeasuring: false) {
             let message1 = ZMClientMessage.insertNewObject(in: self.uiMOC)
             let message2 = ZMClientMessage.insertNewObject(in: self.uiMOC)
-            let window = self.createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC, windowSize: 100)
+            let window = self.createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC, windowSize: 10)
             self.uiMOC.saveOrRollback()
 
             let token = MessageWindowChangeInfo.add(observer: self.windowObserver, for: window)

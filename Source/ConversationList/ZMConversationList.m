@@ -108,8 +108,7 @@
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    // TODO Sabine: Do this for the dispatcher
-//    [self.managedObjectContext.globalManagedObjectContextObserver removeConversationListForAutoupdating:self];
+    [self.managedObjectContext.conversationListObserverCenter removeConversationList:self];
 }
 
 - (void)sortInsertConversation:(ZMConversation *)conversation

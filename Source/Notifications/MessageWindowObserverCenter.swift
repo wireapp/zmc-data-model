@@ -63,6 +63,22 @@ extension NSManagedObjectContext {
         windowSnapshot = MessageWindowSnapshot(window: window)
     }
     
+    @objc public func removeMessageWindow(_ window: ZMConversationMessageWindow) {
+        if let snapshot = windowSnapshot, snapshot.conversation != window.conversation {
+            return
+        }
+        windowSnapshot?.tearDown()
+        windowSnapshot = nil
+    }
+    
+    func conversationDidChange(_ changeInfo: ConversationChangeInfo) {
+        windowSnapshot?.conversationDidChange(changeInfo)
+    }
+    
+    func messageDidChange(changeInfo: MessageChangeInfo) {
+        windowSnapshot?.messageDidChange(changeInfo)
+    }
+    
     func fireNotifications() {
         windowSnapshot?.fireNotifications()
     }
@@ -72,8 +88,6 @@ extension NSManagedObjectContext {
 class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserver {
 
     fileprivate var state : SetSnapshot
-    // TODO Sabine : we could probably speed things up by forwarding the changeInfos directly
-    fileprivate var conversationToken : NSObjectProtocol!
     
     public let conversationWindow : ZMConversationMessageWindow
     fileprivate var conversation : ZMConversation {
@@ -84,33 +98,18 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
     fileprivate var updatedMessages : [ZMMessage] = []
     fileprivate var messageChangeInfos : [MessageChangeInfo] = []
     
-    // TODO Sabine : we could probably speed things up by forwarding the changeInfos directly
-    fileprivate var messageTokens: [ZMMessage : NSObjectProtocol] = [:]
-    
     public var isTornDown : Bool = false
     
     fileprivate var currentlyFetchingMessages = false
     
     public init(window: ZMConversationMessageWindow) {
-        
         self.conversationWindow = window
         self.state = SetSnapshot(set: conversationWindow.messages, moveType: .uiCollectionView)
-        
         super.init()
-        
-        self.conversationToken = ConversationChangeInfo.add(observer: self, for: conversation)
-        self.registerObserversForMessages(window.messages)
     }
     
     public func tearDown() {
         if isTornDown { return }
-        
-        ConversationChangeInfo.remove(observer: conversationToken, for: nil)
-        conversationToken = nil
-        messageTokens.forEach {
-            MessageChangeInfo.remove(observer: $1, for: $0)
-        }
-        self.messageTokens = [:]
         self.updatedMessages = []
         isTornDown = true
     }
@@ -130,10 +129,19 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
     }
     
     public func conversationDidChange(_ changeInfo: ConversationChangeInfo) {
+        guard changeInfo.conversation == conversationWindow.conversation else { return }
         if(changeInfo.messagesChanged || changeInfo.clearedChanged) {
             self.shouldRecalculate = true
         }
     }
+    
+    public func messageDidChange(_ change: MessageChangeInfo) {
+        guard conversationWindow.messages.contains(change.message) else { return }
+        
+        self.updatedMessages.append(change.message)
+        self.messageChangeInfos.append(change)
+    }
+
     
     public func computeChanges() {
         let currentlyUpdatedMessages = self.updatedMessages
@@ -150,11 +158,6 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
         if let newStateUpdate = self.state.updatedState(updatedSet, observedObject: self.conversationWindow, newSet: self.conversationWindow.messages) {
             self.state = newStateUpdate.newSnapshot
             changeInfo = MessageWindowChangeInfo(setChangeInfo: newStateUpdate.changeInfo)
-            
-            let a = newStateUpdate.insertedObjects
-            self.registerObserversForMessages(a)
-            let b = newStateUpdate.removedObjects
-            self.removeObserverForMessages(b)
         }
         
         var userInfo = [String : Any]()
@@ -169,25 +172,7 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
         self.messageChangeInfos = []
     }
     
-    fileprivate func registerObserversForMessages(_ messages: NSOrderedSet) {
-        messages.forEach{
-            guard let message = $0 as? ZMMessage, message.managedObjectContext != nil else {return }
-            self.messageTokens[message] = MessageChangeInfo.add(observer:self, for: message)
-        }
-    }
     
-    fileprivate func removeObserverForMessages(_ messages: NSOrderedSet) {
-        messages.forEach{
-            guard let message = $0 as? ZMMessage else {return }
-            if let token = self.messageTokens.removeValue(forKey: message) {
-                MessageChangeInfo.remove(observer: token, for: message)
-            }
-        }
-    }
-    
-    public func messageDidChange(_ change: MessageChangeInfo) {
-        self.updatedMessages.append(change.message)
-        self.messageChangeInfos.append(change)
-    }
+
 }
 

@@ -57,7 +57,6 @@ typedef NS_ENUM(int, ZMMessageWindowEvent) {
 @implementation ZMConversationMessageWindow
 
 
-
 - (instancetype)initWithConversation:(ZMConversation *)conversation size:(NSUInteger)size;
 {
     self = [super init];
@@ -80,6 +79,10 @@ typedef NS_ENUM(int, ZMMessageWindowEvent) {
     return self;
 }
 
+- (void)dealloc
+{
+    [self.conversation.managedObjectContext.messageWindowObserverCenter removeMessageWindow: self];
+}
 
 
 - (NSUInteger)activeSize;

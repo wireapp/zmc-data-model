@@ -444,9 +444,13 @@ public class NotificationDispatcher : NSObject {
                 else { return nil }
                 if let changeInfo = changeInfo as? ConversationChangeInfo {
                     conversationListObserverCenter.conversationDidChange(changeInfo)
+                    messageWindowObserverCenter.conversationDidChange(changeInfo)
                 }
                 if let changeInfo = changeInfo as? UserChangeInfo {
                     searchUserObserverCenter.usersDidChange(changeInfos: [changeInfo])
+                }
+                if let changeInfo = changeInfo as? MessageChangeInfo {
+                    messageWindowObserverCenter.messageDidChange(changeInfo: changeInfo)
                 }
                 return Notification(name: notificationName, object: $0, userInfo: ["changeInfo" : changeInfo])
             }
