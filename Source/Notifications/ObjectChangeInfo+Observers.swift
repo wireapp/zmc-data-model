@@ -48,25 +48,6 @@ extension ConversationChangeInfo {
 
 extension UserChangeInfo {
     
-    static func changeInfo(for user: ZMUser, changedKeys: [String : NSObject?]) -> UserChangeInfo? {
-        var changedKeysAndValues = changedKeys
-        let clientChanges = changedKeysAndValues.removeValue(forKey: "clientChanges") as? [NSObject : [String : Any]]
-        
-        var userClientChangeInfo : UserClientChangeInfo?
-        if let clientChanges = clientChanges {
-            clientChanges.forEach {
-                userClientChangeInfo = UserClientChangeInfo(object: $0)
-                userClientChangeInfo?.changedKeysAndOldValues = $1 as! [String : NSObject?]
-            }
-        }
-        guard userClientChangeInfo != nil || changedKeysAndValues.count > 0 else { return nil }
-        
-        let changeInfo = UserChangeInfo(object: user)
-        changeInfo.changedKeysAndOldValues = changedKeysAndValues
-        changeInfo.userClientChangeInfo = userClientChangeInfo
-        return changeInfo
-    }
-    
     public static func add(observer: ZMUserObserver, for user: ZMUser) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .UserChange,
                                                       object: user,
@@ -111,34 +92,6 @@ extension UserChangeInfo {
 }
 
 extension MessageChangeInfo {
-    
-    static func changeInfo(for message: ZMMessage, changedKeys: [String : NSObject?]) -> MessageChangeInfo? {
-        var changedKeysAndValues = changedKeys
-        let userChanges = changedKeysAndValues.removeValue(forKey: "userChanges") as? [NSObject : [String : Any]]
-        let clientChanges = changedKeysAndValues.removeValue(forKey: "reactionChanges") as? [NSObject : [String : Any]]
-        
-        var reactionChangeInfo : ReactionChangeInfo?
-        if let clientChanges = clientChanges {
-            clientChanges.forEach {
-                reactionChangeInfo = ReactionChangeInfo(object: $0)
-                reactionChangeInfo?.changedKeysAndOldValues = $1 as! [String : NSObject?]
-            }
-        }
-        var userChangeInfo : UserChangeInfo?
-        if let userChanges = userChanges {
-            userChanges.forEach {
-                userChangeInfo = UserChangeInfo(object: $0)
-                userChangeInfo?.changedKeysAndOldValues = $1 as! [String : NSObject?]
-            }
-        }
-        guard reactionChangeInfo != nil || userChangeInfo != nil || changedKeysAndValues.count > 0 else { return nil }
-        
-        let changeInfo = MessageChangeInfo(object: message)
-        changeInfo.reactionChangeInfo = reactionChangeInfo
-        changeInfo.userChangeInfo = userChangeInfo
-        changeInfo.changedKeysAndOldValues = changedKeysAndValues
-        return changeInfo
-    }
     
     public static func add(observer: ZMMessageObserver, for message: ZMMessage) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .MessageChange,

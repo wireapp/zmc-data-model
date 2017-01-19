@@ -31,6 +31,28 @@ extension ZMUser : ObjectInSnapshot {
 
 @objc open class UserChangeInfo : ObjectChangeInfo {
 
+    static let UserClientChangeInfoKey = "clientChanges"
+    
+    static func changeInfo(for user: ZMUser, changedKeys: [String : NSObject?]) -> UserChangeInfo? {
+        var changedKeysAndValues = changedKeys
+        let clientChanges = changedKeysAndValues.removeValue(forKey: UserClientChangeInfoKey) as? [NSObject : [String : Any]]
+        
+        if let clientChanges = clientChanges {
+            var userClientChangeInfos = [UserClientChangeInfo]()
+            clientChanges.forEach {
+                let changeInfo = UserClientChangeInfo(object: $0)
+                changeInfo.changedKeysAndOldValues = $1 as! [String : NSObject?]
+                userClientChangeInfos.append(changeInfo)
+            }
+            changedKeysAndValues[UserClientChangeInfoKey] = userClientChangeInfos as NSObject?
+        }
+        guard changedKeysAndValues.count > 0 else { return nil }
+        
+        let changeInfo = UserChangeInfo(object: user)
+        changeInfo.changedKeysAndOldValues = changedKeysAndValues
+        return changeInfo
+    }
+    
     public required init(object: NSObject) {
         self.user = object as! ZMBareUser
         super.init(object: object)
@@ -61,7 +83,7 @@ extension ZMUser : ObjectInSnapshot {
     }
 
     open var trustLevelChanged : Bool {
-        return userClientChangeInfo != nil
+        return userClientChangeInfos.count != 0
     }
 
     open var clientsChanged : Bool {
@@ -74,7 +96,9 @@ extension ZMUser : ObjectInSnapshot {
 
 
     open let user: ZMBareUser
-    open var userClientChangeInfo : UserClientChangeInfo?
+    open var userClientChangeInfos : [UserClientChangeInfo] {
+        return changedKeysAndOldValues[UserChangeInfo.UserClientChangeInfoKey] as? [UserClientChangeInfo] ?? []
+    }
 
 }
 

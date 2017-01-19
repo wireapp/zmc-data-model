@@ -82,6 +82,37 @@ extension ZMClientMessage  {
 
 @objc final public class MessageChangeInfo : ObjectChangeInfo {
     
+    static let UserChangeInfoKey = "userChanges"
+    static let ReactionChangeInfoKey = "reactionChanges"
+
+    static func changeInfo(for message: ZMMessage, changedKeys: [String : NSObject?]) -> MessageChangeInfo? {
+        var changedKeysAndValues = changedKeys
+        let userChanges = changedKeysAndValues.removeValue(forKey: UserChangeInfoKey) as? [NSObject : [String : Any]]
+        let clientChanges = changedKeysAndValues.removeValue(forKey: ReactionChangeInfoKey) as? [NSObject : [String : Any]]
+        
+        if let clientChanges = clientChanges {
+            var reactionChangeInfos = [ReactionChangeInfo]()
+            clientChanges.forEach {
+                let changeInfo = ReactionChangeInfo(object: $0)
+                changeInfo.changedKeysAndOldValues = $1 as! [String : NSObject?]
+                reactionChangeInfos.append(changeInfo)
+            }
+            changedKeysAndValues[ReactionChangeInfoKey] = reactionChangeInfos as NSObject?
+        }
+        if let userChanges = userChanges, let (object, changes) = userChanges.first {
+            let userChangeInfo = UserChangeInfo(object: object)
+            userChangeInfo.changedKeysAndOldValues = changes as! [String : NSObject?]
+            changedKeysAndValues[UserChangeInfoKey] = userChangeInfo
+        }
+        
+        guard changedKeysAndValues.count > 0 else { return nil }
+        
+        let changeInfo = MessageChangeInfo(object: message)
+        changeInfo.changedKeysAndOldValues = changedKeysAndValues
+        return changeInfo
+    }
+    
+    
     public required init(object: NSObject) {
         self.message = object as! ZMMessage
         super.init(object: object)
@@ -91,7 +122,7 @@ extension ZMClientMessage  {
     }
     
     public var reactionsChanged : Bool {
-        return changedKeysAndOldValues.keys.contains(MessageKey.reactions.rawValue) || reactionChangeInfo != nil
+        return changedKeysAndOldValues.keys.contains(MessageKey.reactions.rawValue) || reactionChangeInfos.count != 0
     }
 
     /// Whether the image data on disk changed
@@ -137,8 +168,13 @@ extension ZMClientMessage  {
         return changedKeysAndOldValues.keys.contains(MessageKey.isObfuscated.rawValue)
     }
     
-    public var userChangeInfo : UserChangeInfo?
-    var reactionChangeInfo : ReactionChangeInfo?
+    public var userChangeInfo : UserChangeInfo? {
+        return changedKeysAndOldValues[MessageChangeInfo.UserChangeInfoKey] as? UserChangeInfo
+    }
+    
+    var reactionChangeInfos : [ReactionChangeInfo] {
+        return changedKeysAndOldValues[MessageChangeInfo.ReactionChangeInfoKey] as? [ReactionChangeInfo] ?? []
+    }
     
     public let message : ZMMessage
 }
