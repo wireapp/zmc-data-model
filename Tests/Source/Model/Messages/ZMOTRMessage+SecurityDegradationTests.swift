@@ -31,10 +31,12 @@ class ZMOTRMessage_SecurityDegradationTests : ZMBaseManagedObjectTest {
         
         // WHEN
         let message = convo.appendMessage(withText: "Foo")!
+        self.uiMOC.saveOrRollback()
         
         // THEN
         XCTAssertFalse(message.causedSecurityLevelDegradation)
         XCTAssertFalse(convo.didDegradeSecurityLevel)
+        XCTAssertFalse(self.uiMOC.zm_hasChanges)
     }
     
     func testThatAtCreationAMessageIsNotCausingDegradation_SyncMoc() {
@@ -49,7 +51,6 @@ class ZMOTRMessage_SecurityDegradationTests : ZMBaseManagedObjectTest {
             // THEN
             XCTAssertFalse(message.causedSecurityLevelDegradation)
             XCTAssertFalse(convo.didDegradeSecurityLevel)
-
         }
     }
     
@@ -62,10 +63,12 @@ class ZMOTRMessage_SecurityDegradationTests : ZMBaseManagedObjectTest {
             
             // WHEN
             message.causedSecurityLevelDegradation = true
+            self.syncMOC.saveOrRollback()
             
             // THEN
             XCTAssertTrue(message.causedSecurityLevelDegradation)
             XCTAssertTrue(convo.didDegradeSecurityLevel)
+            XCTAssertTrue(self.syncMOC.zm_hasChanges)
 
         }
     }
@@ -80,10 +83,13 @@ class ZMOTRMessage_SecurityDegradationTests : ZMBaseManagedObjectTest {
             
             // WHEN
             message.causedSecurityLevelDegradation = false
+            self.syncMOC.saveOrRollback()
+
             
             // THEN
             XCTAssertFalse(message.causedSecurityLevelDegradation)
             XCTAssertFalse(convo.didDegradeSecurityLevel)
+            XCTAssertTrue(self.syncMOC.zm_hasChanges)
 
         }
     }
@@ -108,10 +114,12 @@ class ZMOTRMessage_SecurityDegradationTests : ZMBaseManagedObjectTest {
             
             // and WHEN
             message2.causedSecurityLevelDegradation = false
+            self.syncMOC.saveOrRollback()
             
             // THEN
             XCTAssertFalse(message2.causedSecurityLevelDegradation)
             XCTAssertFalse(convo.didDegradeSecurityLevel)
+            XCTAssertTrue(self.syncMOC.zm_hasChanges)
             
         }
     }
