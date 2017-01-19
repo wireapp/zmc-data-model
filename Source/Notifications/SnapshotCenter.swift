@@ -44,6 +44,7 @@ class SnapshotCenter {
                     return Snapshot(attributes : [:], toManyRelationships : [:], wasFaulted: true)
                 }
                 let attributes = Array(obj.entity.attributesByName.keys)
+                // TODO Sabine: also snapshot non NSObject values
                 let attributesDict = attributes.mapToDictionaryWithOptionalValue{obj.primitiveValue(forKey: $0) as? NSObject}
                 let relationShips = obj.entity.relationshipsByName
                 let relationshipsDict : [String : Int] = relationShips.mapping(keysMapping: {$0}, valueMapping: { (key, relationShipDescription) in
