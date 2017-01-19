@@ -51,7 +51,7 @@ extension ZMConversation {
         guard self.decreaseSecurityLevelIfNeeded() else { return }
         self.appendNewAddedClientSystemMessage(added: clients, before: message)
         if let message = message {
-            self.expireAllPendingMessages(staringFrom: message)
+            self.expireAllPendingMessagesBecauseOfSecurityLevelDegradation(staringFrom: message)
         }
     }
 
@@ -120,20 +120,6 @@ extension ZMConversation {
                                      timestamp: serverTimestamp)
     }
     
-    /// Expire all pending message after the given message, including the given message
-    private func expireAllPendingMessages(staringFrom startingMessage: ZMMessage) {
-        self.messages.enumerateObjects(options: .reverse) { (msg, idx, stop) in
-            guard let message = msg as? ZMOTRMessage else { return }
-            if message.deliveryState != .delivered && message.deliveryState != .sent {
-                message.expire()
-                message.causedSecurityLevelDegradation = true
-            }
-            if startingMessage == message {
-                stop.initialize(to: true)
-            }
-        }
-    }
-    
     /// Decrease the security level if some clients are now not trusted
     /// - returns: true if the security level was decreased
     private func decreaseSecurityLevelIfNeeded() -> Bool {
@@ -148,6 +134,55 @@ extension ZMConversation {
         guard self.allUsersTrusted && self.allParticipantsHaveClients else { return false }
         self.securityLevel = .secure
         return true
+    }
+}
+
+// MARK: - Messages resend/expiration
+extension ZMConversation {
+    
+    /// Resend last non sent messages
+    public func resendMessagesThatCausedConversationSecurityDegradation() {
+        self.messages.enumerateObjects(options: .reverse) { (msg, idx, stop) in
+            // resend the ones that caused degradation, until I find the system message that told me about degradation
+            guard let message = msg as? ZMMessage else { return }
+            
+            if let otrMessage = message as? ZMOTRMessage, message.causedSecurityLevelDegradation {
+                otrMessage.resend()
+                otrMessage.causedSecurityLevelDegradation = false
+            }
+            
+            if message.isConversationNotVerifiedSystemMessage {
+                stop.initialize(to: true)
+            }
+        }
+    }
+    
+    /// Reset those that caused degradation
+    public func doNotResendMessagesThatCausedDegradation() {
+        self.messages.enumerateObjects(options: .reverse) { (msg, idx, stop) in
+            // resend the ones that caused degradation, until I find the system message that told me about degradation
+            guard let message = msg as? ZMMessage else { return }
+            if let otrMessage = message as? ZMOTRMessage, message.causedSecurityLevelDegradation {
+                otrMessage.causedSecurityLevelDegradation = false
+            }
+            if message.isConversationNotVerifiedSystemMessage {
+                stop.initialize(to: true)
+            }
+        }
+    }
+    
+    /// Expire all pending message after the given message, including the given message
+    fileprivate func expireAllPendingMessagesBecauseOfSecurityLevelDegradation(staringFrom startingMessage: ZMMessage) {
+        self.messages.enumerateObjects(options: .reverse) { (msg, idx, stop) in
+            guard let message = msg as? ZMOTRMessage else { return }
+            if message.deliveryState != .delivered && message.deliveryState != .sent {
+                message.expire()
+                message.causedSecurityLevelDegradation = true
+            }
+            if startingMessage == message {
+                stop.initialize(to: true)
+            }
+        }
     }
 }
 
@@ -293,6 +328,7 @@ extension ZMConversation {
     }
 }
 
+// MARK: - System messages
 extension ZMSystemMessage {
 
     /// Fetch the first system message in the conversation about "started to use this device"
@@ -308,3 +344,12 @@ extension ZMSystemMessage {
     }
 }
 
+extension ZMMessage {
+    
+    /// True if the message is a "conversation degraded because of new client"
+    /// system message
+    fileprivate var isConversationNotVerifiedSystemMessage : Bool {
+        guard let system = self as? ZMSystemMessage else { return false }
+        return system.systemMessageType == .ignoredClient
+    }
+}

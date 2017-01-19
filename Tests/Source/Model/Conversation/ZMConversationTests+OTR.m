@@ -457,6 +457,10 @@
     XCTAssertFalse(conversation.allUsersTrusted);
     
 }
+@end
+
+#pragma mark - Resending / cancelling messages in degraded conversation
+@implementation ZMConversationTests (ResendingMessages)
 
 - (void)testItExpiresAllMessagesAfterTheCurrentOneWhenAMessageCausesDegradation
 {
@@ -469,8 +473,6 @@
         ZMUser *user = [self insertUserInConversation:conversation userIsTrusted:YES managedObjectContext:self.syncMOC];
         conversation.securityLevel = ZMConversationSecurityLevelSecure;
 
-        ZMOTRMessage *message1 = (ZMOTRMessage *)[conversation appendMessageWithImageData:[self verySmallJPEGData]];
-        [NSThread sleepForTimeInterval:0.05]; // cause system time to advance
         ZMOTRMessage *message2 = (ZMOTRMessage *)[conversation appendMessageWithText:@"foo 2" fetchLinkPreview:NO];
         [NSThread sleepForTimeInterval:0.05]; // cause system time to advance
         ZMOTRMessage *message3 = (ZMOTRMessage *)[conversation appendMessageWithText:@"foo 3" fetchLinkPreview:NO];
@@ -488,8 +490,6 @@
         [conversation decreaseSecurityLevelIfNeededAfterDiscoveringClients:[NSSet setWithObject:client] causedByMessage:message3];
         
         // THEN
-        XCTAssertFalse(message1.isExpired);
-        XCTAssertFalse(message1.causedSecurityLevelDegradation);
         XCTAssertFalse(message2.isExpired);
         XCTAssertFalse(message2.causedSecurityLevelDegradation);
         XCTAssertTrue(message3.isExpired);
@@ -503,9 +503,99 @@
     }];
 }
 
+- (void)testItResendsAllMessagesThatCausedDegradation
+{
+    [self.syncMOC performGroupedBlockAndWait:^{
+        
+        // GIVEN
+        [self createSelfClient];
+        ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
+        conversation.conversationType = ZMConversationTypeGroup;
+        ZMUser *user = [self insertUserInConversation:conversation userIsTrusted:YES managedObjectContext:self.syncMOC];
+        conversation.securityLevel = ZMConversationSecurityLevelSecure;
+        
+        ZMOTRMessage *message2 = (ZMOTRMessage *)[conversation appendMessageWithText:@"foo 2" fetchLinkPreview:NO];
+        [NSThread sleepForTimeInterval:0.05]; // cause system time to advance
+        ZMOTRMessage *message3 = (ZMOTRMessage *)[conversation appendMessageWithText:@"foo 3" fetchLinkPreview:NO];
+        [NSThread sleepForTimeInterval:0.05]; // cause system time to advance
+        ZMOTRMessage *message4 = (ZMOTRMessage *)[conversation appendMessageWithText:@"foo 4" fetchLinkPreview:NO];
+        [NSThread sleepForTimeInterval:0.05]; // cause system time to advance
+        ZMOTRMessage *message5 = (ZMOTRMessage *)[conversation appendMessageWithImageData:[self verySmallJPEGData]];
+        
+        
+        UserClient *client = [UserClient insertNewObjectInManagedObjectContext:self.syncMOC];
+        client.remoteIdentifier = @"aabbccdd";
+        client.user = user;
+        [conversation decreaseSecurityLevelIfNeededAfterDiscoveringClients:[NSSet setWithObject:client] causedByMessage:message3];
+        
+        // WHEN
+        [conversation resendMessagesThatCausedConversationSecurityDegradation];
+        
+        // THEN
+        XCTAssertFalse(message2.isExpired);
+        XCTAssertFalse(message2.causedSecurityLevelDegradation);
+        XCTAssertFalse(message3.isExpired);
+        XCTAssertFalse(message3.causedSecurityLevelDegradation);
+        XCTAssertEqual(message3.deliveryState, ZMDeliveryStatePending);
+        XCTAssertFalse(message4.isExpired);
+        XCTAssertFalse(message4.causedSecurityLevelDegradation);
+        XCTAssertEqual(message4.deliveryState, ZMDeliveryStatePending);
+        XCTAssertFalse(message5.isExpired);
+        XCTAssertFalse(message5.causedSecurityLevelDegradation);
+        XCTAssertEqual(message5.deliveryState, ZMDeliveryStatePending);
+        XCTAssertFalse(conversation.allUsersTrusted);
+        XCTAssertEqual(conversation.securityLevel, ZMConversationSecurityLevelSecureWithIgnored);
+    }];
+}
+
+- (void)testItCancelsAllMessagesThatCausedDegradation
+{
+    [self.syncMOC performGroupedBlockAndWait:^{
+        
+        // GIVEN
+        [self createSelfClient];
+        ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
+        conversation.conversationType = ZMConversationTypeGroup;
+        ZMUser *user = [self insertUserInConversation:conversation userIsTrusted:YES managedObjectContext:self.syncMOC];
+        conversation.securityLevel = ZMConversationSecurityLevelSecure;
+        
+        ZMOTRMessage *message2 = (ZMOTRMessage *)[conversation appendMessageWithText:@"foo 2" fetchLinkPreview:NO];
+        [NSThread sleepForTimeInterval:0.05]; // cause system time to advance
+        ZMOTRMessage *message3 = (ZMOTRMessage *)[conversation appendMessageWithText:@"foo 3" fetchLinkPreview:NO];
+        [NSThread sleepForTimeInterval:0.05]; // cause system time to advance
+        ZMOTRMessage *message4 = (ZMOTRMessage *)[conversation appendMessageWithText:@"foo 4" fetchLinkPreview:NO];
+        [NSThread sleepForTimeInterval:0.05]; // cause system time to advance
+        ZMOTRMessage *message5 = (ZMOTRMessage *)[conversation appendMessageWithImageData:[self verySmallJPEGData]];
+        
+        
+        UserClient *client = [UserClient insertNewObjectInManagedObjectContext:self.syncMOC];
+        client.remoteIdentifier = @"aabbccdd";
+        client.user = user;
+        [conversation decreaseSecurityLevelIfNeededAfterDiscoveringClients:[NSSet setWithObject:client] causedByMessage:message3];
+        
+        // WHEN
+        [conversation doNotResendMessagesThatCausedDegradation];
+        
+        // THEN
+        XCTAssertFalse(message2.isExpired);
+        XCTAssertFalse(message2.causedSecurityLevelDegradation);
+        XCTAssertTrue(message3.isExpired);
+        XCTAssertFalse(message3.causedSecurityLevelDegradation);
+        XCTAssertEqual(message3.deliveryState, ZMDeliveryStateFailedToSend);
+        XCTAssertTrue(message4.isExpired);
+        XCTAssertFalse(message4.causedSecurityLevelDegradation);
+        XCTAssertEqual(message4.deliveryState, ZMDeliveryStateFailedToSend);
+        XCTAssertTrue(message5.isExpired);
+        XCTAssertFalse(message5.causedSecurityLevelDegradation);
+        XCTAssertEqual(message5.deliveryState, ZMDeliveryStateFailedToSend);
+        XCTAssertFalse(conversation.allUsersTrusted);
+        XCTAssertEqual(conversation.securityLevel, ZMConversationSecurityLevelSecureWithIgnored);
+    }];
+}
+
 @end
 
-
+#pragma mark - Hotfix
 @implementation ZMConversationTests (HotFix)
 
 - (void)testThatItUpdatesFirstNewClientSystemMessage
