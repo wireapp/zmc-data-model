@@ -442,16 +442,7 @@ public class NotificationDispatcher : NSObject {
                 guard let obj = $0 as? ZMManagedObject,
                       let changeInfo = NotificationDispatcher.changeInfo(for: obj, changes: $1.changedKeysAndNewValues)
                 else { return nil }
-                if let changeInfo = changeInfo as? ConversationChangeInfo {
-                    conversationListObserverCenter.conversationDidChange(changeInfo)
-                    messageWindowObserverCenter.conversationDidChange(changeInfo)
-                }
-                if let changeInfo = changeInfo as? UserChangeInfo {
-                    searchUserObserverCenter.usersDidChange(changeInfos: [changeInfo])
-                }
-                if let changeInfo = changeInfo as? MessageChangeInfo {
-                    messageWindowObserverCenter.messageDidChange(changeInfo: changeInfo)
-                }
+                forwardNotificationToObserverCenters(changeInfo: changeInfo)
                 return Notification(name: notificationName, object: $0, userInfo: ["changeInfo" : changeInfo])
             }
             notifications.forEach{NotificationCenter.default.post($0)}
@@ -488,6 +479,19 @@ public class NotificationDispatcher : NSObject {
             return newDict
         }
         return objectsSortedByClass
+    }
+    
+    func forwardNotificationToObserverCenters(changeInfo: ObjectChangeInfo){
+        if let changeInfo = changeInfo as? ConversationChangeInfo {
+            conversationListObserverCenter.conversationDidChange(changeInfo)
+            messageWindowObserverCenter.conversationDidChange(changeInfo)
+        }
+        if let changeInfo = changeInfo as? UserChangeInfo {
+            searchUserObserverCenter.usersDidChange(changeInfos: [changeInfo])
+        }
+        if let changeInfo = changeInfo as? MessageChangeInfo {
+            messageWindowObserverCenter.messageDidChange(changeInfo: changeInfo)
+        }
     }
     
     static func changeInfo(for object: ZMManagedObject, changes: [String: NSObject?]) -> ObjectChangeInfo? {

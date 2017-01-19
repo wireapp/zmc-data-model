@@ -18,6 +18,7 @@
 
 import Foundation
 
+// TODO Sabine: Pass in snapshots to get previous values
 
 protocol SideEffectSource {
     
@@ -78,22 +79,22 @@ extension ZMUser : SideEffectSource {
     }
     
     func affectedObjectsAndKeys(keyStore: DependencyKeyStore, knownKeys: Set<String>? = nil) -> [ClassIdentifier: ObjectAndChanges] {
-        var changes = changedValues()
-        if let knownKeys = knownKeys {
-            // TODO Sabine: we should be able to initialize the objectChangeInfo without mapping the keys to dictionaries
-            changes = changes.updated(other: Dictionary(keys: Array(knownKeys), repeatedValue: "foo"))
-        }
-        guard changes.count > 0 else { return [:] }
+        let changes = changedValues()
+        guard changes.count > 0 || knownKeys?.count > 0 else { return [:] }
         
+        var allKeys = Set(changes.keys)
+        if let knownKeys = knownKeys {
+            allKeys.formUnion(knownKeys)
+        }
         let conversations = allConversations
         guard conversations.count > 0 else { return  [:] }
         
-        let affectedObjects = conversationChanges(changedKeys: Array(changes.keys), conversations:conversations, keyStore:keyStore)
-        let affectedMessages = messageChanges(changes: changes, conversations: conversations, keyStore: keyStore)
+        let affectedObjects = conversationChanges(changedKeys: allKeys, conversations:conversations, keyStore:keyStore)
+        let affectedMessages = messageChanges(changes: changes, allChangedKeys: allKeys, conversations: conversations, keyStore: keyStore)
         return affectedObjects.updated(other: affectedMessages)
     }
     
-    func conversationChanges(changedKeys: [String], conversations: [ZMConversation], keyStore: DependencyKeyStore) -> [ClassIdentifier: ObjectAndChanges] {
+    func conversationChanges(changedKeys: Set<String>, conversations: [ZMConversation], keyStore: DependencyKeyStore) -> [ClassIdentifier: ObjectAndChanges] {
         var affectedObjects = [String: [NSObject : Changes]]()
         let classIdentifier = ZMConversation.entityName()
         let otherPartKeys = changedKeys.map{"otherActiveParticipants.\($0)"}
@@ -106,15 +107,15 @@ extension ZMUser : SideEffectSource {
         return affectedObjects
     }
     
-    func messageChanges(changes: [String : Any], conversations: [ZMConversation], keyStore: DependencyKeyStore) -> [ClassIdentifier: ObjectAndChanges] {
+    func messageChanges(changes: [String : Any], allChangedKeys: Set<String>, conversations: [ZMConversation], keyStore: DependencyKeyStore) -> [ClassIdentifier: ObjectAndChanges] {
         // TODO Sabine: This is super expensive, maybe we should not do that at all
         var affectedObjects = [String: [NSObject : Changes]]()
         let messages : [ZMMessage] = conversations.reduce([]){$0 + ($1.messages.array as? [ZMMessage] ?? [])}
             .filter{$0.sender == self}
-        let mappedMessageKeys = changes.map{"sender.\($0)"}
+        let mappedMessageKeys = allChangedKeys.map{"sender.\($0)"}
         var originalChanges = [String : NSObject?]()
         let requiredKeys = keyStore.requiredKeysForIncludingRawChanges(classIdentifier: ZMMessage.entityName(), for: self)
-        if requiredKeys.count == 0 || !requiredKeys.isDisjoint(with: changes.keys) {
+        if requiredKeys.count == 0 || !requiredKeys.isDisjoint(with: allChangedKeys) {
             originalChanges["userChanges"] = [self : changes] as Optional<NSObject>
         }
         

@@ -104,7 +104,7 @@ extension UserChangeInfo {
     public static func remove(searchUserObserver observer: NSObjectProtocol,
                               for user: ZMSearchUser)
     {
-        // TODO Sabine: how do we remove searchUser observers?
+        // TODO Sabine: how do we remove searchUser that are no longer observed? on searchDirectory teardown?
         NotificationCenter.default.removeObserver(observer, name: .SearchUserChange, object: user)
     }
     

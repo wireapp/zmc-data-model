@@ -180,7 +180,7 @@ static BOOL storeIsReady = NO;
     [SharedUserInterfaceContext initialiseSessionAndSelfUser];
     
     SharedUserInterfaceContext.mergePolicy = [[ZMSyncMergePolicy alloc] initWithMergeType:NSRollbackMergePolicyType];
-// TODO Sabine: it would probably be better to initialize this in the userSession instead?
+// TODO Sabine: it would probably be better to initialize the dispatcher in the syncstrategy instead?
     //    (void)SharedUserInterfaceContext.globalManagedObjectContextObserver;
     
     return SharedUserInterfaceContext;
