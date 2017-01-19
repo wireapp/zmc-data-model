@@ -447,7 +447,7 @@
 
 }
 
-- (void)testThatAConversationIsNotTrustedIfItHasNoParticipants
+- (void)testThatAConversationIsNotTrustedIfItHasNoOtherParticipants
 {
     // GIVEN
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
@@ -455,8 +455,27 @@
     
     // THEN
     XCTAssertFalse(conversation.allUsersTrusted);
-    
 }
+
+- (void)testThatAConversationIsNotTrustedIfNotAMemberAnymore
+{
+    // GIVEN
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    conversation.conversationType = ZMConversationTypeGroup;
+    ZMUser *otherUser = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
+    [conversation addParticipant:otherUser];
+    UserClient *client = [UserClient insertNewObjectInManagedObjectContext:self.uiMOC];
+    client.user = otherUser;
+    ZMUser *selfUser = [ZMUser selfUserInContext:self.uiMOC];
+    [[selfUser selfClient] trustClient:client];
+    
+    // WHEN
+    [conversation removeParticipant:selfUser];
+    
+    // THEN
+    XCTAssertFalse(conversation.allUsersTrusted);
+}
+
 @end
 
 #pragma mark - Resending / cancelling messages in degraded conversation
