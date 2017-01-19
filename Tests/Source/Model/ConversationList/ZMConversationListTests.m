@@ -41,7 +41,7 @@
 
 - (void)setUp {
     [super setUp];
-    self.dispatcher = [[NotificationDispatcher alloc] initWithManagedObjectContext:self.uiMOC syncContext:self.syncMOC];
+    self.dispatcher = [[NotificationDispatcher alloc] initWithManagedObjectContext:self.uiMOC];
 }
 
 - (void)tearDown {

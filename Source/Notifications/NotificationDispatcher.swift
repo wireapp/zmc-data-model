@@ -187,7 +187,6 @@ typealias ObjectAndChanges = [NSObject : Changes]
 public class NotificationDispatcher : NSObject {
 
     private unowned var managedObjectContext: NSManagedObjectContext
-    private unowned var syncContext: NSManagedObjectContext
     
     private var tornDown = false
     private let affectingKeysStore : DependencyKeyStore
@@ -207,9 +206,8 @@ public class NotificationDispatcher : NSObject {
     private var userChanges : [ZMManagedObject : Set<String>] = [:]
     private var unreadMessages : [Notification.Name : Set<ZMMessage>] = [:]
     
-    public init(managedObjectContext: NSManagedObjectContext, syncContext: NSManagedObjectContext) {
+    public init(managedObjectContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext
-        self.syncContext = syncContext
         let classIdentifiers : [String] = [ZMConversation.entityName(),
                                            ZMUser.entityName(),
                                            ZMConnection.entityName(),
@@ -239,10 +237,13 @@ public class NotificationDispatcher : NSObject {
         assert(tornDown)
     }
     
+    /// This is called when objects in the uiMOC change
+    /// Might be called several times in between saves
     @objc func objectsDidChange(_ note: Notification){
         process(note: note)
     }
     
+    /// This is called when the uiMOC saved
     @objc func contextDidSave(_ note: Notification){
         fireAllNotifications()
         
@@ -254,10 +255,19 @@ public class NotificationDispatcher : NSObject {
                                                             accumulated: false)
     }
     
+    /// Call this from syncStrategy BEFORE merging the changes from syncMOC into uiMOC
+    /// Get updated objects from notifications userInfo and map them to objectIDs
+    /// After merging call `didMergeChanges()`
     public func willMergeChanges(changes: [NSManagedObjectID]){
         snapshotCenter.willMergeChanges(changes: changes)
     }
     
+    /// Call this from syncStrategy AFTER merging the changes from syncMOC into uiMOC
+    public func didMergeChanges() {
+        fireAllNotifications()
+    }
+    
+    /// Call this from syncStrategy BEFORE merging the changes from syncMOC into uiMOC
     public func notifyUpdatedCallState(_ conversations: Set<ZMConversation>, notifyDirectly: Bool) {
         let updatedConversations = voicechannelObserverCenter.conversationsWithVoicechannelStateChange(updatedConversationsAndChangedKeys:
             conversations.mapToDictionary{Set($0.changedValues().keys)}
@@ -303,6 +313,7 @@ public class NotificationDispatcher : NSObject {
         return expectedObjects
     }
     
+    /// Checks if any messages that were inserted or updated are unread and fired notifications for those
     func checkForUnreadMessages(insertedObjects: Set<ZMManagedObject>, updatedObjects: Set<ZMManagedObject>){
         let unreadUnsent : [ZMMessage] = updatedObjects.flatMap{
             guard let msg = $0 as? ZMMessage else { return nil}

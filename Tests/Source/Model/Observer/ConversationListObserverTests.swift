@@ -517,7 +517,6 @@ class ConversationListObserverTests : NotificationDispatcherTests {
         
         // when
         self.simulateUnreadMissedKnock(in: conversation, merge: mergeLastChanges)
-        self.dispatcher.fireAllNotifications()
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
@@ -552,7 +551,6 @@ class ConversationListObserverTests : NotificationDispatcherTests {
         
         // when
         self.simulateUnreadCount(1, for: conversation, merge: mergeLastChanges)
-        self.dispatcher.fireAllNotifications()
         
         // then
         XCTAssertEqual(conversation.estimatedUnreadCount, 1)
@@ -666,7 +664,6 @@ class ConversationListObserverTests : NotificationDispatcherTests {
         
         // when
         self.simulateUnreadMissedCall(in: conversation, merge: mergeLastChanges)
-        self.dispatcher.fireAllNotifications()
         
         // then
         XCTAssertEqual(testObserver.changes.count, 1)

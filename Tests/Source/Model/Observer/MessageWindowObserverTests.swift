@@ -112,9 +112,6 @@ class MessageWindowObserverTests : NotificationDispatcherTests {
         }
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         mergeLastChanges()
-
-        dispatcher.fireAllNotifications()
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
         XCTAssertEqual(windowObserver.notifications.count, 1)

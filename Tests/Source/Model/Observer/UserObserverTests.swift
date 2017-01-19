@@ -446,8 +446,6 @@ extension UserObserverTests {
         }
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         mergeLastChanges()
-        dispatcher.fireAllNotifications()
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then we should receive a changeInfo with clientsChanged on the uiMOC
         let changeInfo = userObserver.notifications.first

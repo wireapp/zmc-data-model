@@ -522,8 +522,6 @@ class ConversationObserverTests : NotificationDispatcherTests {
         }
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         mergeLastChanges()
-        self.dispatcher.fireAllNotifications()
-
         
         let observer = ConversationObserver()
         let token = ConversationChangeInfo.add(observer: observer, for: uiConversation)
@@ -537,9 +535,6 @@ class ConversationObserverTests : NotificationDispatcherTests {
         }
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         mergeLastChanges()
-        
-        self.dispatcher.fireAllNotifications()
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
         let changeCount = observer.changes.count
@@ -669,9 +664,7 @@ class ConversationObserverTests : NotificationDispatcherTests {
         }
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         mergeLastChanges()
-        
-        self.dispatcher.fireAllNotifications() // the context does not save here
-        
+                
         // then
         let changeCount = observer.changes.count
         XCTAssertEqual(changeCount, 1, "Observer expected 1 notification, but received \(changeCount).")

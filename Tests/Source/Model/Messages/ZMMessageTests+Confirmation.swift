@@ -234,7 +234,7 @@ extension ZMMessageTests_Confirmation {
     
     func testThatItSendsOutNotificationsForTheDeliveryStatusChange(){
         // given
-        let dispatcher = NotificationDispatcher(managedObjectContext: uiMOC, syncContext: syncMOC)
+        let dispatcher = NotificationDispatcher(managedObjectContext: uiMOC)
         
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
         conversation.remoteIdentifier = .create()

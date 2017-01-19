@@ -44,7 +44,7 @@ class ConversationObserver: NSObject, ZMConversationObserver {
     override public func setUp() {
         super.setUp()
         conversationObserver = ConversationObserver()
-        sut = NotificationDispatcher(managedObjectContext: uiMOC, syncContext: syncMOC)
+        sut = NotificationDispatcher(managedObjectContext: uiMOC)
         NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcherTests.contextDidMerge(_:)), name: Notification.Name.NSManagedObjectContextDidSave, object: syncMOC)
         mergeNotifications = []
     }
@@ -68,9 +68,11 @@ class ConversationObserver: NSObject, ZMConversationObserver {
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         self.uiMOC.mergeChanges(fromContextDidSave: change)
-        
-        mergeNotifications = []
+
+        self.dispatcher.didMergeChanges()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+
+        mergeNotifications = []
     }
 }
 
