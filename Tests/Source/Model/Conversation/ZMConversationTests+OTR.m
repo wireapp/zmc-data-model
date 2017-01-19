@@ -20,11 +20,11 @@
 #import "ZMConversationTests.h"
 #import "ZMConversation+Transport.h"
 
-@interface ZMConversationTests (OTR)
+@interface ZMConversationSecurityTests : ZMConversationTestsBase
 
 @end
 
-@implementation ZMConversationTests (OTR)
+@implementation ZMConversationSecurityTests
 
 - (NSArray<ZMUser *> *)createUsersWithClientsOnSyncMOC
 {
@@ -460,7 +460,7 @@
 @end
 
 #pragma mark - Resending / cancelling messages in degraded conversation
-@implementation ZMConversationTests (ResendingMessages)
+@implementation ZMConversationSecurityTests (ResendingMessages)
 
 - (void)testItExpiresAllMessagesAfterTheCurrentOneWhenAMessageCausesDegradation
 {
@@ -596,7 +596,7 @@
 @end
 
 #pragma mark - Hotfix
-@implementation ZMConversationTests (HotFix)
+@implementation ZMConversationSecurityTests (HotFix)
 
 - (void)testThatItUpdatesFirstNewClientSystemMessage
 {

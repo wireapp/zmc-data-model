@@ -23,7 +23,7 @@
 #import "ZMMessage+Internal.h"
 #import "ZMConnection+Internal.h"
 
-@interface ZMConversationTests : ModelObjectsTests
+@interface ZMConversationTestsBase : ModelObjectsTests
 
 @property(nonatomic) NSNotification *lastReceivedNotification;
 
