@@ -29,7 +29,6 @@
 #import "ZMConversation+Internal.h"
 #import "ZMConversation+Timestamps.h"
 #import "ZMConversation+UnreadCount.h"
-#import "ZMConversation+OTR.h"
 #import "ZMVoiceChannel.h"
 
 #import "ZMUser+Internal.h"
@@ -166,8 +165,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @dynamic lastServerTimeStamp;
 @dynamic isSilenced;
 @dynamic isMuted;
-@dynamic isTrusted;
-@dynamic hasUntrustedClients;
 @dynamic internalIsArchived;
 @dynamic archivedChangedTimestamp;
 @dynamic silencedChangedTimestamp;
@@ -870,17 +867,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return [self mutableOrderedSetValueForKey:LastServerSyncedActiveParticipantsKey];
 }
 
-
-- (void)resendLastUnsentMessages
-{
-    [self.messages enumerateObjectsWithOptions:NSEnumerationReverse usingBlock:^(ZMMessage *message, __unused NSUInteger idx, BOOL *stop) {
-        if (message.isExpired) {
-            [message resend];
-            *stop = YES;
-        }
-    }];
-}
-
 @end
 
 
@@ -1185,7 +1171,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
     
     // We need to check if we should add a 'secure' system message in case all participants are trusted
-    [conversation increaseSecurityLevelIfNeededAfterUserClientsWereTrusted:allClients];
+    [conversation increaseSecurityLevelIfNeededAfterTrustingClients:allClients];
     [conversation appendNewConversationSystemMessageIfNeeded];
     return conversation;
 }
@@ -1538,7 +1524,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         if(isAuthoritative) {
             [self.mutableLastServerSyncedActiveParticipants addObject:participant];
         }
-        [self decreaseSecurityLevelIfNeededAfterUserClientsWereIgnored:participant.clients];
+        [self decreaseSecurityLevelIfNeededAfterIgnoringClients:participant.clients];
     }
 }
 
