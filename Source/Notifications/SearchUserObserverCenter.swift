@@ -101,7 +101,6 @@ class SearchUserSnapshot  {
             return 
         }
         snapshots[remoteID] = snapshots[remoteID] ?? SearchUserSnapshot(searchUser: searchUser)
-        print(snapshots)
     }
     
     /// Removes all snapshots for searchUsers that are not contained in this set
