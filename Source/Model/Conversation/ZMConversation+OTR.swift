@@ -51,9 +51,7 @@ extension ZMConversation {
         guard self.decreaseSecurityLevelIfNeeded() else { return }
         self.appendNewAddedClientSystemMessage(added: clients, before: message)
         if let message = message {
-            if message.deliveryState != .sent && message.deliveryState != .delivered {
-                self.expireAllPendingMessages(staringFrom: message)
-            }
+            self.expireAllPendingMessages(staringFrom: message)
         }
     }
 
@@ -121,22 +119,14 @@ extension ZMConversation {
                                      clients: clients,
                                      timestamp: serverTimestamp)
     }
-
-    public func appendDeletedForEveryoneSystemMessage(at date: Date, sender: ZMUser) {
-        _ = self.appendSystemMessage(type: .messageDeletedForEveryone,
-                                     sender: sender,
-                                     users: nil,
-                                     clients: nil,
-                                     timestamp: date)
-
-    }
     
     /// Expire all pending message after the given message, including the given message
     private func expireAllPendingMessages(staringFrom startingMessage: ZMMessage) {
         self.messages.enumerateObjects(options: .reverse) { (msg, idx, stop) in
-            guard let message = msg as? ZMMessage else { return }
+            guard let message = msg as? ZMOTRMessage else { return }
             if message.deliveryState != .delivered && message.deliveryState != .sent {
                 message.expire()
+                message.causedSecurityLevelDegradation = true
             }
             if startingMessage == message {
                 stop.initialize(to: true)
@@ -147,7 +137,7 @@ extension ZMConversation {
     /// Decrease the security level if some clients are now not trusted
     /// - returns: true if the security level was decreased
     private func decreaseSecurityLevelIfNeeded() -> Bool {
-        guard !self.trusted && self.securityLevel == .secure else { return false }
+        guard !self.allUsersTrusted && self.securityLevel == .secure else { return false }
         self.securityLevel = .secureWithIgnored
         return true
     }
@@ -155,7 +145,7 @@ extension ZMConversation {
     /// Increase the security level if all clients are now trusted
     /// - returns: true if the security level was increased
     private func increaseSecurityLevelIfNeeded() -> Bool {
-        guard self.trusted && self.allParticipantsHaveClients else { return false }
+        guard self.allUsersTrusted && self.allParticipantsHaveClients else { return false }
         self.securityLevel = .secure
         return true
     }
@@ -165,7 +155,7 @@ extension ZMConversation {
 extension ZMConversation {
 
     /// Replaces the first NewClient systemMessage for the selfClient with a UsingNewDevice system message
-    func replaceNewClientMessageIfNeededWithNewDeviceMesssage() {
+    public func replaceNewClientMessageIfNeededWithNewDeviceMesssage() {
 
         let selfUser = ZMUser.selfUser(in: self.managedObjectContext!)
         guard let selfClient = selfUser.selfClient() else { return }
@@ -237,7 +227,7 @@ extension ZMConversation {
                                      timestamp: self.timestamp(after: self.messages.lastObject as? ZMMessage))
     }
     
-    fileprivate func appendSystemMessage(type: ZMSystemMessageType,
+    func appendSystemMessage(type: ZMSystemMessageType,
                                          sender: ZMUser,
                                          users: Set<ZMUser>?,
                                          clients: Set<UserClient>?,
@@ -277,14 +267,14 @@ extension ZMConversation {
         // then in this case one of them will be out of order
         return timestamp.addingTimeInterval(0.001)
     }
-
 }
 
 // MARK: - Conversation participants status
 extension ZMConversation {
     
     /// Returns true if all participants are connected to the self user and all participants are trusted
-    public var trusted : Bool {
+    public var allUsersTrusted : Bool {
+        guard self.activeParticipants.count > 0 else { return false }
         let hasOnlyTrustedUsers = (self.activeParticipants.array as! [ZMUser]).first { !$0.trusted() } == nil
         return hasOnlyTrustedUsers && !self.containsUnconnectedParticipant
     }
@@ -300,16 +290,6 @@ extension ZMConversation {
     /// If true the conversation might still be trusted / ignored
     public var hasUntrustedClients : Bool {
         return (self.activeParticipants.array as! [ZMUser]).first { $0.untrusted() } != nil
-    }
-}
-
-// MARK: - Notifications
-extension ZMConversation {
-    
-    func notifyOnUI(notification: String) {
-        self.managedObjectContext?.zm_userInterface .performGroupedBlock {
-            NotificationCenter.default.post(name: NSNotification.Name(rawValue: notification), object: self)
-        }
     }
 }
 
