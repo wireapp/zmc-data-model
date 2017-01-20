@@ -31,9 +31,12 @@ class ZMOTRMessage_SecurityDegradationTests : ZMBaseManagedObjectTest {
         
         // WHEN
         let message = convo.appendMessage(withText: "Foo")!
+        self.uiMOC.saveOrRollback()
         
         // THEN
         XCTAssertFalse(message.causedSecurityLevelDegradation)
+        XCTAssertFalse(convo.didDegradeSecurityLevel)
+        XCTAssertFalse(self.uiMOC.zm_hasChanges)
     }
     
     func testThatAtCreationAMessageIsNotCausingDegradation_SyncMoc() {
@@ -47,37 +50,77 @@ class ZMOTRMessage_SecurityDegradationTests : ZMBaseManagedObjectTest {
             
             // THEN
             XCTAssertFalse(message.causedSecurityLevelDegradation)
+            XCTAssertFalse(convo.didDegradeSecurityLevel)
         }
     }
     
-    func testThatItSetsMessageAsCausingDegradation_SyncMoc() {
+    func testThatItSetsMessageAsCausingDegradation() {
         
         self.syncMOC.performGroupedBlockAndWait {
             // GIVEN
             let convo = self.createConversation(moc: self.syncMOC)
             let message = convo.appendMessage(withText: "Foo")! as! ZMOTRMessage
-            
+            self.syncMOC.saveOrRollback()
+
             // WHEN
             message.causedSecurityLevelDegradation = true
             
             // THEN
             XCTAssertTrue(message.causedSecurityLevelDegradation)
+            XCTAssertTrue(convo.didDegradeSecurityLevel)
+            XCTAssertTrue(self.syncMOC.zm_hasChanges)
+
         }
     }
     
-    func testThatItResetsMessageAsCausingDegradation_SyncMoc() {
+    func testThatItResetsMessageAsCausingDegradation() {
         
         self.syncMOC.performGroupedBlockAndWait {
             // GIVEN
             let convo = self.createConversation(moc: self.syncMOC)
             let message = convo.appendMessage(withText: "Foo")! as! ZMOTRMessage
             message.causedSecurityLevelDegradation = true
+            self.syncMOC.saveOrRollback()
             
             // WHEN
             message.causedSecurityLevelDegradation = false
+
             
             // THEN
             XCTAssertFalse(message.causedSecurityLevelDegradation)
+            XCTAssertFalse(convo.didDegradeSecurityLevel)
+            XCTAssertTrue(self.syncMOC.zm_hasChanges)
+
+        }
+    }
+    
+    func testThatItResetsDegradedConversationWhenRemovingAllMessages() {
+        
+        self.syncMOC.performGroupedBlockAndWait {
+            
+            // GIVEN
+            let convo = self.createConversation(moc: self.syncMOC)
+            let message1 = convo.appendMessage(withText: "Foo")! as! ZMOTRMessage
+            message1.causedSecurityLevelDegradation = true
+            let message2 = convo.appendMessage(withText: "Foo")! as! ZMOTRMessage
+            message2.causedSecurityLevelDegradation = true
+            
+            // WHEN
+            message1.causedSecurityLevelDegradation = false
+            
+            // THEN
+            XCTAssertFalse(message1.causedSecurityLevelDegradation)
+            XCTAssertTrue(convo.didDegradeSecurityLevel)
+            
+            // and WHEN
+            self.syncMOC.saveOrRollback()
+            message2.causedSecurityLevelDegradation = false
+            
+            // THEN
+            XCTAssertFalse(message2.causedSecurityLevelDegradation)
+            XCTAssertFalse(convo.didDegradeSecurityLevel)
+            XCTAssertTrue(self.syncMOC.zm_hasChanges)
+            
         }
     }
 }
