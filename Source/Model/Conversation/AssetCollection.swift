@@ -137,6 +137,7 @@ public class AssetCollection : NSObject, ZMCollection {
         }
     }
 
+    // NB: Method is expected to be run only on sync queue.
     private func fetchNextIfNotTornDown(limit: Int, type: MessagesToFetch, syncConversation: ZMConversation){
         guard !fetchingDone, !tornDown else { return }
         guard !syncConversation.isZombieObject else {
