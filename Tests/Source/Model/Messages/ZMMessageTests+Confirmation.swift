@@ -247,10 +247,15 @@ extension ZMMessageTests_Confirmation {
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
         let convObserver = ConversationChangeObserver(conversation: conversation)
-        let messageObserver = MessageChangeObserver(message: sut)
+        var messageObserver : MessageChangeObserver!
+        self.performIgnoringZMLogError{
+            messageObserver = MessageChangeObserver(message: sut)
+        }
         defer {
-            convObserver.tearDown()
-            messageObserver.tearDown()
+            self.performIgnoringZMLogError{
+                convObserver.tearDown()
+                messageObserver.tearDown()
+            }
         }
         
         // when

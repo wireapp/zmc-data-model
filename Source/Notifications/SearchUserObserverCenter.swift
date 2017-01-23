@@ -144,6 +144,13 @@ class SearchUserSnapshot  {
                 return
             }
             
+            guard searchUser.user != nil else {
+                // When inserting a connection with a remote user, the user is first inserted into the sync context, then merged into the UI context
+                // Only then the relationship is set between searchUser and user. Therefore we might receive the userChange notification about the updated connectionState BEFORE the relationship is set.
+                // We will wait until we get notified via `notifyUpdatedSearchUser:`
+                return
+            }
+            
             guard let (newSnapshot, changes) = snapshot.updated() else {
                 return
             }
@@ -169,7 +176,7 @@ class SearchUserSnapshot  {
     /// Post a UserChangeInfo for the specified SearchUser
     func postNotification(searchUser: ZMSearchUser, changes: [String]) {
         let userChange = UserChangeInfo(object: searchUser)
-        userChange.changedKeysAndOldValues = Dictionary(keys: changes, repeatedValue: .none as Optional<NSObject>)
+        userChange.changedKeys = Set(changes)
         NotificationCenter.default.post(name: .SearchUserChange, object: searchUser, userInfo: ["changeInfo" : userChange])
     }
     

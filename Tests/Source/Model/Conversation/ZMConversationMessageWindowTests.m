@@ -390,22 +390,25 @@
 
 @implementation ZMConversationMessageWindowTests (ScrollingNotification)
 
-// TODO Sabine: Mock center instead
-//- (void)testThatScrollingTheWindowUpCausesAScrollingNotification
-//{
-//    // given
-//    ZMConversation *conversation = [self createConversationWithMessages:20];
-//    ZMConversationMessageWindow *window = [conversation conversationWindowWithSize:10];
-//    
-//    // expect
-//    [self expectationForNotification:ZMConversationMessageWindowScrolledNotificationName object:window handler:nil];
-//    
-//    // when
-//    [window moveUpByMessages:10];
-//    
-//    // then
-//    XCTAssertTrue([self waitForCustomExpectationsWithTimeout:0.2]);
-//}
+- (void)testThatScrollingTheWindowUpCausesAScrollingNotification
+{
+    // given
+    id mockObserverCenter = [OCMockObject niceMockForClass:[MessageWindowObserverCenter class]];
+    id partialMockForContext = [OCMockObject partialMockForObject:self.uiMOC];
+    [[[partialMockForContext stub] andReturn: mockObserverCenter] messageWindowObserverCenter];
+    
+    ZMConversation *conversation = [self createConversationWithMessages:20];
+    ZMConversationMessageWindow *window = [conversation conversationWindowWithSize:10];
+    
+    // expect
+    [[mockObserverCenter expect] windowDidScroll:window];
+    
+    // when
+    [window moveUpByMessages:10];
+    
+    // then
+    [mockObserverCenter verify];
+}
 
 - (void)testThatScrollingTheWindowUpDoesNotCauseAScrollingNotificationIfTheWindowDidNotChange
 {

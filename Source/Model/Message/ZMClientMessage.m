@@ -140,8 +140,6 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
             if (nil == uiMOCMessage) {
                 return;
             }
-            // TODO Sabine: do we need to replicate this in the dispatcher? should observing the dataSet not solve the problem?
-//            [uiMOC.globalManagedObjectContextObserver notifyNonCoreDataChangeInManagedObject:uiMOCMessage];
         }];
         
         return existingMessageData;

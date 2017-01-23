@@ -64,7 +64,7 @@ class ConversationObserver: NSObject, ZMConversationObserver {
     @objc public func mergeLastChanges() {
         guard let change = mergeNotifications.last else { return }
         let changedObjects = (change.userInfo?[NSUpdatedObjectsKey] as? Set<ZMManagedObject>)?.map{$0.objectID} ?? []
-        self.dispatcher.willMergeChanges(changes: changedObjects)
+        self.dispatcher.willMergeChanges(Set(changedObjects))
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         self.uiMOC.mergeChanges(fromContextDidSave: change)

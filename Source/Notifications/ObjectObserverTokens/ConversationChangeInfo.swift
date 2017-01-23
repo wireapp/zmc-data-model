@@ -39,59 +39,59 @@ extension ZMConversation : ObjectInSnapshot {
 @objc public final class ConversationChangeInfo : ObjectChangeInfo {
     
     public var messagesChanged : Bool {
-        return changedKeysAndOldValues.keys.contains("messages")
+        return changedKeysContain(keys: "messages")
     }
 
     public var participantsChanged : Bool {
-        return !Set(arrayLiteral: "otherActiveParticipants", "isSelfAnActiveMember").isDisjoint(with: changedKeysAndOldValues.keys)
+        return changedKeysContain(keys: "otherActiveParticipants", "isSelfAnActiveMember")
     }
 
     public var nameChanged : Bool {
-        return changedKeysAndOldValues.keys.contains{$0 == "displayName" || $0 == "userDefinedName"}
+        return changedKeysContain(keys: "displayName", "userDefinedName")
     }
 
     public var lastModifiedDateChanged : Bool {
-        return changedKeysAndOldValues.keys.contains("lastModifiedDate")
+        return changedKeysContain(keys: "lastModifiedDate")
     }
 
     public var unreadCountChanged : Bool {
-        return changedKeysAndOldValues.keys.contains("estimatedUnreadCount")
+        return changedKeysContain(keys: "estimatedUnreadCount")
     }
 
     public var connectionStateChanged : Bool {
-        return changedKeysAndOldValues.keys.contains("relatedConnectionState")
+        return changedKeysContain(keys: "relatedConnectionState")
     }
 
     public var isArchivedChanged : Bool {
-        return changedKeysAndOldValues.keys.contains("isArchived")
+        return changedKeysContain(keys: "isArchived")
     }
 
     public var isSilencedChanged : Bool {
-        return changedKeysAndOldValues.keys.contains("isSilenced")
+        return changedKeysContain(keys: "isSilenced")
     }
 
     public var conversationListIndicatorChanged : Bool {
-        return changedKeysAndOldValues.keys.contains("conversationListIndicator")
+        return changedKeysContain(keys: "conversationListIndicator")
     }
 
     public var voiceChannelStateChanged : Bool {
-        return changedKeysAndOldValues.keys.contains("voiceChannelState")
+        return changedKeysContain(keys: "voiceChannelState")
     }
 
     public var clearedChanged : Bool {
-        return changedKeysAndOldValues.keys.contains("clearedTimeStamp")
+        return changedKeysContain(keys: "clearedTimeStamp")
     }
 
     public var securityLevelChanged : Bool {
-        return changedKeysAndOldValues.keys.contains(SecurityLevelKey)
+        return changedKeysContain(keys: SecurityLevelKey)
     }
     
     var callParticipantsChanged : Bool {
-        return changedKeysAndOldValues.keys.contains{$0 == "activeFlowParticipants" || $0 == "callParticipants" || $0 == "otherActiveVideoCallParticipants"}
+        return changedKeysContain(keys:  "activeFlowParticipants", "callParticipants", "otherActiveVideoCallParticipants")
     }
     
     var videoParticipantsChanged : Bool {
-        return changedKeysAndOldValues.keys.contains("otherActiveVideoCallParticipants")
+        return changedKeysContain(keys: "otherActiveVideoCallParticipants")
     }
     
     public var conversation : ZMConversation { return self.object as! ZMConversation }
@@ -114,6 +114,34 @@ extension ZMConversation : ObjectInSnapshot {
     
     public required init(object: NSObject) {
         super.init(object: object)
+    }
+    
+    static func changeInfo(for conversation: ZMConversation, changes: Changes) -> ConversationChangeInfo? {
+        guard changes.changedKeys.count > 0 || changes.originalChanges.count > 0 else { return nil }
+        let changeInfo = ConversationChangeInfo(object: conversation)
+        changeInfo.changedKeysAndOldValues = changes.originalChanges
+        changeInfo.changedKeys = changes.changedKeys
+        return changeInfo
+    }
+    
+    
+    @objc(addObserver:forConversation:)
+    public static func add(observer: ZMConversationObserver, for conversation: ZMConversation) -> NSObjectProtocol {
+        return NotificationCenter.default.addObserver(forName: .ConversationChange,
+                                                      object: conversation,
+                                                      queue: nil)
+        { [weak observer] (note) in
+            guard let `observer` = observer,
+                let changeInfo = note.userInfo?["changeInfo"] as? ConversationChangeInfo
+                else { return }
+            
+            observer.conversationDidChange(changeInfo)
+        }
+    }
+    
+    @objc(removeObserver:forConversation:)
+    public static func remove(observer: NSObjectProtocol, for conversation: ZMConversation?) {
+        NotificationCenter.default.removeObserver(observer, name: .ConversationChange, object: conversation)
     }
 }
 

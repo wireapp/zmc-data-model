@@ -19,6 +19,8 @@
 
 import Foundation
 
+private var zmLog = ZMSLog(tag: "MessageChangeInfo")
+
 // MARK: Message observing 
 
 enum MessageKey: String {
@@ -85,10 +87,9 @@ extension ZMClientMessage  {
     static let UserChangeInfoKey = "userChanges"
     static let ReactionChangeInfoKey = "reactionChanges"
 
-    static func changeInfo(for message: ZMMessage, changedKeys: [String : NSObject?]) -> MessageChangeInfo? {
-        var changedKeysAndValues = changedKeys
-        let userChanges = changedKeysAndValues.removeValue(forKey: UserChangeInfoKey) as? [NSObject : [String : Any]]
-        let clientChanges = changedKeysAndValues.removeValue(forKey: ReactionChangeInfoKey) as? [NSObject : [String : Any]]
+    static func changeInfo(for message: ZMMessage, changes: Changes) -> MessageChangeInfo? {
+        var originalChanges = changes.originalChanges
+        let clientChanges = originalChanges.removeValue(forKey: ReactionChangeInfoKey) as? [NSObject : [String : Any]]
         
         if let clientChanges = clientChanges {
             var reactionChangeInfos = [ReactionChangeInfo]()
@@ -97,18 +98,14 @@ extension ZMClientMessage  {
                 changeInfo.changedKeysAndOldValues = $1 as! [String : NSObject?]
                 reactionChangeInfos.append(changeInfo)
             }
-            changedKeysAndValues[ReactionChangeInfoKey] = reactionChangeInfos as NSObject?
-        }
-        if let userChanges = userChanges, let (object, changes) = userChanges.first {
-            let userChangeInfo = UserChangeInfo(object: object)
-            userChangeInfo.changedKeysAndOldValues = changes as! [String : NSObject?]
-            changedKeysAndValues[UserChangeInfoKey] = userChangeInfo
+            originalChanges[ReactionChangeInfoKey] = reactionChangeInfos as NSObject?
         }
         
-        guard changedKeysAndValues.count > 0 else { return nil }
+        guard originalChanges.count > 0 || changes.changedKeys.count > 0 else { return nil }
         
         let changeInfo = MessageChangeInfo(object: message)
-        changeInfo.changedKeysAndOldValues = changedKeysAndValues
+        changeInfo.changedKeysAndOldValues = originalChanges
+        changeInfo.changedKeys = changes.changedKeys
         return changeInfo
     }
     
@@ -118,26 +115,25 @@ extension ZMClientMessage  {
         super.init(object: object)
     }
     public var deliveryStateChanged : Bool {
-        return changedKeysAndOldValues.keys.contains(MessageKey.deliveryState.rawValue)
+        return changedKeysContain(keys: MessageKey.deliveryState.rawValue)
     }
     
     public var reactionsChanged : Bool {
-        return changedKeysAndOldValues.keys.contains(MessageKey.reactions.rawValue) || reactionChangeInfos.count != 0
+        return changedKeysContain(keys: MessageKey.reactions.rawValue) || reactionChangeInfos.count != 0
     }
 
     /// Whether the image data on disk changed
     public var imageChanged : Bool {
-        return !Set(arrayLiteral: MessageKey.mediumData.rawValue,
+        return changedKeysContain(keys: MessageKey.mediumData.rawValue,
             MessageKey.mediumRemoteIdentifier.rawValue,
             MessageKey.previewGenericMessage.rawValue,
             MessageKey.mediumGenericMessage.rawValue,
-            ZMAssetClientMessageDownloadedImageKey
-        ).isDisjoint(with: Set(changedKeysAndOldValues.keys))
+            ZMAssetClientMessageDownloadedImageKey)
     }
     
     /// Whether the file on disk changed
     public var fileAvailabilityChanged: Bool {
-        return changedKeysAndOldValues.keys.contains(ZMAssetClientMessageDownloadedFileKey)
+        return changedKeysContain(keys: ZMAssetClientMessageDownloadedFileKey)
     }
 
     public var usersChanged : Bool {
@@ -145,6 +141,7 @@ extension ZMClientMessage  {
     }
     
     fileprivate var linkPreviewDataChanged: Bool {
+        // TODO Sabine: this is something we can't check currently
         guard let genericMessage = (message as? ZMClientMessage)?.genericMessage else { return false }
         guard let oldGenericMessage = changedKeysAndOldValues[MessageKey.genericMessage.rawValue] as? ZMGenericMessage else { return false }
         let oldLinks = oldGenericMessage.linkPreviews
@@ -154,7 +151,7 @@ extension ZMClientMessage  {
     }
     
     public var linkPreviewChanged: Bool {
-        return changedKeysAndOldValues.keys.contains{$0 == MessageKey.linkPreviewState.rawValue || $0 == MessageKey.linkPreview.rawValue} || linkPreviewDataChanged
+        return changedKeysContain(keys: MessageKey.linkPreviewState.rawValue, MessageKey.linkPreview.rawValue) || linkPreviewDataChanged
     }
 
     public var senderChanged : Bool {
@@ -165,7 +162,7 @@ extension ZMClientMessage  {
     }
     
     public var isObfuscatedChanged : Bool {
-        return changedKeysAndOldValues.keys.contains(MessageKey.isObfuscated.rawValue)
+        return changedKeysContain(keys: MessageKey.isObfuscated.rawValue)
     }
     
     public var userChangeInfo : UserChangeInfo? {
@@ -177,6 +174,31 @@ extension ZMClientMessage  {
     }
     
     public let message : ZMMessage
+    
+    /// This functions is only used for testing and should not be used by the UI
+    /// The UI should instead observe the message window and implement `messageInsideWindowDidChange`
+    @objc(addObserver:forMessage:)
+    public static func add(observer: ZMMessageObserver, for message: ZMMessage) -> NSObjectProtocol {
+        zmLog.warn("This should only be used for testing. The UI should instead observe the message window and implement `messageInsideWindowDidChange`")
+        return NotificationCenter.default.addObserver(forName: .MessageChange,
+                                                      object: message,
+                                                      queue: nil)
+        { [weak observer] (note) in
+            guard let `observer` = observer,
+                let changeInfo = note.userInfo?["changeInfo"] as? MessageChangeInfo
+                else { return }
+            
+            observer.messageDidChange(changeInfo)
+        }
+    }
+    
+    /// This functions is only used for testing and should not be used by the UI
+    /// The UI should instead observe the message window and implement `messageInsideWindowDidChange`
+    @objc(removeObserver:forMessage:)
+    public static func remove(observer: NSObjectProtocol, for message: ZMMessage?) {
+        zmLog.warn("This should only be used for testing. The UI should instead observe the message window and implement `messageInsideWindowDidChange`")
+        NotificationCenter.default.removeObserver(observer, name: .MessageChange, object: message)
+    }
 }
 
 
@@ -187,7 +209,7 @@ private let ReactionUsersKey = "users"
 public final class ReactionChangeInfo : ObjectChangeInfo {
     
     var usersChanged : Bool {
-        return changedKeysAndOldValues.keys.contains(ReactionUsersKey)
+        return changedKeysContain(keys: ReactionUsersKey)
     }
 }
 

@@ -119,7 +119,9 @@ class DependencyKeyStore {
             keys.insert(MessageKey.reactions.rawValue)
             keys.insert(MessageKey.linkPreview.rawValue)
             return Set(keys)
-        case Reaction.entityName(), ZMGenericMessageData.entityName():
+        case Reaction.entityName():
+            return Set(["user"])
+        case ZMGenericMessageData.entityName():
             return Set()
         case "SearchUser":
             return Set(["imageMediumData", "imageSmallProfileData", "isConnected", "user", "isPendingApprovalByOtherUser"])

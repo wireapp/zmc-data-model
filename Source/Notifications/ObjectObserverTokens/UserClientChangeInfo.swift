@@ -22,7 +22,7 @@ import Foundation
 @objc public protocol UserClientObserverOpaqueToken: NSObjectProtocol {
 }
 
-public protocol UserClientObserver: NSObjectProtocol {
+@objc public protocol UserClientObserver: NSObjectProtocol {
     func userClientDidChange(_ changeInfo: UserClientChangeInfo)
 }
 
@@ -73,20 +73,48 @@ public enum UserClientChangeInfoKey: String {
     }
 
     open var trustedByClientsChanged : Bool {
-        return changedKeysAndOldValues.keys.contains(ZMUserClientTrusted_ByKey)
+        return changedKeysContain(keys: ZMUserClientTrusted_ByKey)
     }
     open var ignoredByClientsChanged : Bool {
-        return changedKeysAndOldValues.keys.contains(ZMUserClientIgnored_ByKey)
+        return changedKeysContain(keys: ZMUserClientIgnored_ByKey)
     }
 
     open var fingerprintChanged : Bool {
-        return changedKeysAndOldValues.keys.contains(ZMUserClientNeedsToNotifyUserKey)
+        return changedKeysContain(keys: ZMUserClientNeedsToNotifyUserKey)
     }
 
     open var needsToNotifyUserChanged : Bool {
-        return changedKeysAndOldValues.keys.contains(ZMUserClientFingerprintKey)
+        return changedKeysContain(keys: ZMUserClientFingerprintKey)
     }
 
     open let userClient: UserClient
+    
+    
+    static func changeInfo(for client: UserClient, changes: Changes) -> UserClientChangeInfo? {
+        guard changes.changedKeys.count > 0 || changes.originalChanges.count > 0 else { return nil }
+        let changeInfo = UserClientChangeInfo(object: client)
+        changeInfo.changedKeysAndOldValues = changes.originalChanges
+        changeInfo.changedKeys = changes.changedKeys
+        return changeInfo
+    }
+    
+    @objc(addObserver:forClient:)
+    public static func add(observer: UserClientObserver, for client: UserClient) -> NSObjectProtocol {
+        return NotificationCenter.default.addObserver(forName: .UserClientChange,
+                                                      object: client,
+                                                      queue: nil)
+        { [weak observer] (note) in
+            guard let `observer` = observer,
+                let changeInfo = note.userInfo?["changeInfo"] as? UserClientChangeInfo
+                else { return }
+            
+            observer.userClientDidChange(changeInfo)
+        }
+    }
+    
+    @objc(removeObserver:forClient:)
+    public static func remove(observer: NSObjectProtocol, for client: UserClient?) {
+        NotificationCenter.default.removeObserver(observer, name: .UserClientChange, object: client)
+    }
 }
 

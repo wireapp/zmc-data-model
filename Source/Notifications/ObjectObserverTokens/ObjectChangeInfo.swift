@@ -37,10 +37,17 @@ open class ObjectChangeInfo : NSObject, ObjectChangeInfoProtocol {
     public required init(object: NSObject) {
         self.object = object
     }
+    open var changedKeys : Set<String> = Set()
+    open var changeInfos : [String : String] = [:]
+    
     open var changedKeysAndOldValues : [String : NSObject?] = [:]
     
     open func previousValueForKey(_ key: String) -> NSObject? {
         return changedKeysAndOldValues[key] ?? nil
+    }
+    
+    func changedKeysContain(keys: String...) -> Bool {
+        return !(Set(changedKeys).union(changedKeysAndOldValues.keys)).isDisjoint(with: keys)
     }
 }
 

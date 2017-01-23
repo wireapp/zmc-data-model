@@ -100,7 +100,7 @@ class ConversationObserverTests : NotificationDispatcherTests {
                 XCTFail("Can't find key or key is not boolean for '\(key)'")
             }
         }
-        XCTAssertEqual(KeySet(Array(changes.changedKeysAndOldValues.keys)), expectedChangedKeys)
+        XCTAssertEqual(KeySet(Array(changes.changedKeys)), expectedChangedKeys)
     }
     
     
@@ -705,6 +705,24 @@ class ConversationObserverTests : NotificationDispatcherTests {
             },
                                                      expectedChangedField: "securityLevelChanged" ,
                                                      expectedChangedKeys: KeySet(key: "securityLevel"))
+    }
+    
+    func testThatItNotifiesAboutSecurityLevelChange_AddingParticipant(){
+        // given
+        let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
+        conversation.conversationType = .group
+        conversation.securityLevel = .secure
+        self.uiMOC.saveOrRollback()
+        
+        // when
+        self.checkThatItNotifiesTheObserverOfAChange(conversation,
+                                                     modifier: { conversation, _ in
+                                                        let user = ZMUser.insertNewObject(in: self.uiMOC)
+                                                        conversation.addParticipant(user)
+        },
+                                                     expectedChangedFields: KeySet(["securityLevelChanged" , "nameChanged", "participantsChanged"]),
+                                                     expectedChangedKeys: KeySet(["displayName", "otherActiveParticipants", "securityLevel"]))
+    
     }
     
     func testThatItStopsNotifyingAfterUnregisteringTheToken() {

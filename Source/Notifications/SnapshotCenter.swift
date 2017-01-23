@@ -21,7 +21,6 @@ import Foundation
 struct Snapshot {
     let attributes : [String : NSObject?]
     let toManyRelationships : [String : Int]
-    let wasFaulted : Bool
 }
 
 class SnapshotCenter {
@@ -33,27 +32,43 @@ class SnapshotCenter {
         self.managedObjectContext = managedObjectContext
     }
     
-    /// This function needs to be called when the sync context saved and we receive the NSManagedObjectContextDidSave notification and before the changes are merged into the UI context
-    func willMergeChanges(changes: [NSManagedObjectID]){
-        // TODO Sabine do I need to wrap this in a block?
-        managedObjectContext.performGroupedBlock { [weak self] in
-            guard let `self` = self else { return }
-            self.snapshots = changes.mapToDictionary{ objectID in
-                guard let obj = (try? self.managedObjectContext.existingObject(with: objectID)) else { return nil }
-                if obj.isFault {
-                    return Snapshot(attributes : [:], toManyRelationships : [:], wasFaulted: true)
-                }
-                let attributes = Array(obj.entity.attributesByName.keys)
-                // TODO Sabine: also snapshot non NSObject values
-                let attributesDict = attributes.mapToDictionaryWithOptionalValue{obj.primitiveValue(forKey: $0) as? NSObject}
-                let relationShips = obj.entity.relationshipsByName
-                let relationshipsDict : [String : Int] = relationShips.mapping(keysMapping: {$0}, valueMapping: { (key, relationShipDescription) in
-                    guard relationShipDescription.isToMany else { return nil}
-                    return (obj.primitiveValue(forKey: key) as? Countable)?.count
-                })
-                return Snapshot(attributes : attributesDict, toManyRelationships : relationshipsDict, wasFaulted: false)
+    func snapshotInsertedObjects(insertedObjects : Set<NSManagedObject>){
+        insertedObjects.forEach{
+            if snapshots[$0.objectID] == nil {
+                snapshots[$0.objectID] = snapshot(for: $0)
             }
         }
+    }
+    
+    /// This function needs to be called when the sync context saved and we receive the NSManagedObjectContextDidSave notification and before the changes are merged into the UI context
+    func willMergeChanges(changes: Set<NSManagedObjectID>){
+        let newSnapshots : [NSManagedObjectID : Snapshot] = changes.mapToDictionary{ objectID in
+            guard let obj = (try? managedObjectContext.existingObject(with: objectID)) else { return nil }
+            return snapshot(for: obj)
+        }
+        newSnapshots.forEach{ (key, value) in
+            if snapshots[key] == nil {
+                snapshots[key] = value
+            }
+        }
+    }
+    
+    func removeSnapshot(for object: NSManagedObject) {
+        snapshots.removeValue(forKey: object.objectID)
+    }
+    
+    func snapshot(for object: NSManagedObject) -> Snapshot {
+        let attributes = Array(object.entity.attributesByName.keys)
+        let relationShips = object.entity.relationshipsByName
+        
+        // TODO Sabine: also snapshot non NSObject values
+        let attributesDict = attributes.mapToDictionaryWithOptionalValue{object.primitiveValue(forKey: $0) as? NSObject}
+        let relationshipsDict : [String : Int] = relationShips.mapping(keysMapping: {$0}, valueMapping: { (key, relationShipDescription) in
+            guard relationShipDescription.isToMany else { return nil}
+            // TODO Sabine: valueForKey: ?
+            return (object.primitiveValue(forKey: key) as? Countable)?.count
+        })
+        return Snapshot(attributes : attributesDict, toManyRelationships : relationshipsDict)
     }
     
     /// Before merging the sync into the ui context, we create a snapshot of all changed objects
@@ -75,8 +90,4 @@ class SnapshotCenter {
         return changedKeys
     }
     
-    // TODO Sabine: When is the best time to get rid of those?
-    func clearSnapshots(){
-        snapshots = [:]
-    }
 }

@@ -35,4 +35,27 @@ extension ZMConversationList {
     init(setChangeInfo: SetChangeInfo) {
         super.init(observedObject: setChangeInfo.observedObject, changeSet: setChangeInfo.changeSet)
     }
+    
+    @objc(addObserver:forList:)
+    public static func add(observer: ZMConversationListObserver,for list: ZMConversationList) -> NSObjectProtocol {
+        return NotificationCenter.default.addObserver(forName: .ZMConversationListDidChange,
+                                                      object: list,
+                                                      queue: nil)
+        { [weak observer] (note) in
+            guard let `observer` = observer, let list = note.object as? ZMConversationList
+                else { return }
+            
+            if let changeInfo = note.userInfo?["conversationListChangeInfo"] as? ConversationListChangeInfo{
+                observer.conversationListDidChange(changeInfo)
+            }
+            if let changeInfo = note.userInfo?["conversationChangeInfo"] as? ConversationChangeInfo {
+                observer.conversation?(inside: list, didChange: changeInfo)
+            }
+        }
+    }
+    
+    @objc(removeObserver:forList:)
+    public static func remove(observer: NSObjectProtocol, for list: ZMConversationList?) {
+        NotificationCenter.default.removeObserver(observer, name: .ZMConversationListDidChange, object: list)
+    }
 }

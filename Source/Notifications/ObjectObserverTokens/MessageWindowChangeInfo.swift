@@ -34,4 +34,26 @@ import Foundation
         self.isFetchingMessagesChanged = true
         
     }
+    
+    @objc(addObserver:forWindow:)
+    public static func add(observer: ZMConversationMessageWindowObserver,for window: ZMConversationMessageWindow) -> NSObjectProtocol {
+        return NotificationCenter.default.addObserver(forName: .MessageWindowDidChange,
+                                                      object: window,
+                                                      queue: nil)
+        { [weak observer] (note) in
+            guard let `observer` = observer
+                else { return }
+            if let changeInfo = note.userInfo?["messageWindowChangeInfo"] as? MessageWindowChangeInfo{
+                observer.conversationWindowDidChange(changeInfo)
+            }
+            if let messageChangeInfos = note.userInfo?["messageChangeInfos"] as? [MessageChangeInfo] {
+                observer.messages?(insideWindowDidChange: messageChangeInfos)
+            }
+        }
+    }
+    
+    @objc(removeObserver:forWindow:)
+    public static func remove(observer: NSObjectProtocol, for window: ZMConversationMessageWindow?) {
+        NotificationCenter.default.removeObserver(observer, name: .MessageWindowDidChange, object: window)
+    }
 }

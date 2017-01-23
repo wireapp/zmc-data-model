@@ -383,7 +383,7 @@ extension UserObserverTests {
         // then
         guard let changeInfo = userObserver.notifications.first else { return XCTFail("Should receive a changeInfo for the added client") }
         XCTAssertTrue(changeInfo.clientsChanged)
-        XCTAssertTrue(changeInfo.changedKeysAndOldValues.keys.contains(UserClientsKey))
+        XCTAssertTrue(changeInfo.changedKeys.contains(UserClientsKey))
         
         // after
         UserChangeInfo.remove(observer: token, for: selfUser)
@@ -411,7 +411,7 @@ extension UserObserverTests {
         // then
         guard let changeInfo = userObserver.notifications.first else { return XCTFail("Should receive a changeInfo for the added client") }
         XCTAssertTrue(changeInfo.clientsChanged)
-        XCTAssertTrue(changeInfo.changedKeysAndOldValues.keys.contains(UserClientsKey))
+        XCTAssertTrue(changeInfo.changedKeys.contains(UserClientsKey))
         XCTAssertEqual(selfUser.clients, Set(arrayLiteral: selfClient))
         XCTAssertEqual(selfUser.clients.count, 1)
         

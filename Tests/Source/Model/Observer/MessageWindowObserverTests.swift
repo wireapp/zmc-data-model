@@ -23,6 +23,7 @@ import XCTest
 
 @objc class TestWindowObserver : NSObject, ZMConversationMessageWindowObserver
 {
+    var messageChangeInfos = [MessageChangeInfo]()
     var notifications : [MessageWindowChangeInfo] = []
     var notificationBlock : ((MessageWindowChangeInfo) -> Void)?
     
@@ -39,6 +40,10 @@ import XCTest
     {
         notifications.append(note)
         if let block = notificationBlock { block(note) }
+    }
+    
+    func messages(insideWindowDidChange messageChangeInfos: [MessageChangeInfo]) {
+        self.messageChangeInfos = self.messageChangeInfos + messageChangeInfos
     }
 }
 
@@ -142,6 +147,66 @@ class MessageWindowObserverTests : NotificationDispatcherTests {
         XCTAssertEqual(windowObserver.notifications.count, 1)
         if let note = windowObserver.notifications.first {
             XCTAssertEqual(note.updatedIndexes, IndexSet(integer: 0))
+        }
+        
+        MessageWindowChangeInfo.remove(observer: token, for: window)
+    }
+    
+    func testThatItNotifiesForASenderUpdate()
+    {
+        // given
+        let user = ZMUser.insertNewObject(in: uiMOC)
+        user.name = "Foo"
+        
+        let message1 = ZMClientMessage.insertNewObject(in: self.uiMOC)
+        message1.sender = user
+        let message2 = ZMAssetClientMessage.insertNewObject(in: self.uiMOC)
+        let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
+        self.uiMOC.saveOrRollback()
+        
+        self.uiMOC.saveOrRollback()
+        
+        let token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        
+        // when
+        user.name = "Bar"
+        self.uiMOC.saveOrRollback()
+        
+        // then
+        XCTAssertEqual(windowObserver.messageChangeInfos.count, 1)
+        if let note = windowObserver.messageChangeInfos.first {
+            XCTAssertEqual(note.message, message1)
+            XCTAssertTrue(note.usersChanged)
+        }
+        
+        MessageWindowChangeInfo.remove(observer: token, for: window)
+    }
+    
+    func testThatItNotifiesForASystemMessageUserUpdate()
+    {
+        // given
+        let user = ZMUser.insertNewObject(in: uiMOC)
+        user.name = "Foo"
+        
+        let message1 = ZMSystemMessage.insertNewObject(in: self.uiMOC)
+        message1.users = Set([user])
+        let message2 = ZMAssetClientMessage.insertNewObject(in: self.uiMOC)
+        let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
+        self.uiMOC.saveOrRollback()
+        
+        self.uiMOC.saveOrRollback()
+        
+        let token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        
+        // when
+        user.name = "Bar"
+        self.uiMOC.saveOrRollback()
+        
+        // then
+        XCTAssertEqual(windowObserver.messageChangeInfos.count, 1)
+        if let note = windowObserver.messageChangeInfos.first {
+            XCTAssertEqual(note.message, message1)
+            XCTAssertTrue(note.usersChanged)
         }
         
         MessageWindowChangeInfo.remove(observer: token, for: window)
@@ -344,4 +409,135 @@ class MessageWindowObserverTests : NotificationDispatcherTests {
             MessageWindowChangeInfo.remove(observer: token, for: window)
         }
     }
+    
+    
+    func checkThatItNotifiesAboutUserChange(in window: ZMConversationMessageWindow, modifier: ((Void) -> Void), callBack: ((UserChangeInfo) -> Void)){
+        let token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        
+        // when
+        modifier()
+        uiMOC.saveOrRollback()
+        
+        // then
+        if let note = windowObserver.messageChangeInfos.first {
+            XCTAssertTrue(note.usersChanged)
+            XCTAssertTrue(note.senderChanged)
+            if let userChange = note.userChangeInfo {
+                callBack(userChange)
+            }
+            else {
+                XCTFail("There is no UserChangeInfo")
+            }
+        }
+        else {
+            XCTFail("There is no MessageChangeInfo")
+        }
+        MessageWindowChangeInfo.remove(observer: token, for: window)
+    }
+    
+    func testThatItNotifiesObserverWhenTheSenderNameChanges() {
+        // given
+        let sender = ZMUser.insertNewObject(in:self.uiMOC)
+        sender.name = "Hans"
+        
+        let message = ZMClientMessage.insertNewObject(in: self.uiMOC)
+        message.sender = sender
+
+        let window = createConversationWindowWithMessages([message], uiMoc: self.uiMOC)
+        uiMOC.saveOrRollback()
+        
+        checkThatItNotifiesAboutUserChange(in: window,
+                                           modifier: { message.sender?.name = "Horst"},
+                                           callBack: {
+                                            XCTAssertTrue($0.nameChanged)
+        })
+    }
+    
+    func testThatItNotifiesObserverWhenTheSenderNameChangesBecauseOfAnotherUserWithTheSameName() {
+        // given
+        let sender = ZMUser.insertNewObject(in:self.uiMOC)
+        sender.name = "Hans A"
+        
+        let message = ZMClientMessage.insertNewObject(in: self.uiMOC)
+        message.sender = sender
+        
+        let window = createConversationWindowWithMessages([message], uiMoc: self.uiMOC)
+        uiMOC.saveOrRollback()
+
+        updateDisplayNameGenerator(withUsers: [sender])
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        
+        // when
+        checkThatItNotifiesAboutUserChange(in: window,
+                                           modifier: {
+                                            let newUser = ZMUser.insertNewObject(in:self.uiMOC)
+                                            newUser.name = "Hans K"},
+                                           callBack: {
+                                            XCTAssertTrue($0.nameChanged)
+        })
+    }
+
+    func testThatItNotifiesObserverWhenTheSenderAccentColorChanges() {
+        // given
+        let sender = ZMUser.insertNewObject(in:self.uiMOC)
+        sender.name = "Hans A"
+        
+        let message = ZMClientMessage.insertNewObject(in: self.uiMOC)
+        message.sender = sender
+        
+        let window = createConversationWindowWithMessages([message], uiMoc: self.uiMOC)
+        uiMOC.saveOrRollback()
+
+        // when
+        checkThatItNotifiesAboutUserChange(in: window,
+                                           modifier: { message.sender!.accentColorValue = ZMAccentColor.softPink },
+                                           callBack: {
+                                            XCTAssertTrue($0.accentColorValueChanged)
+        })
+
+    }
+
+    func testThatItNotifiesObserverWhenTheSenderSmallProfileImageChanges() {
+        // given
+        let sender = ZMUser.insertNewObject(in:self.uiMOC)
+        sender.remoteIdentifier = UUID.create()
+        sender.mediumRemoteIdentifier = UUID.create()
+        
+        let message = ZMClientMessage.insertNewObject(in: self.uiMOC)
+        message.sender = sender
+        
+        let window = createConversationWindowWithMessages([message], uiMoc: self.uiMOC)
+        uiMOC.saveOrRollback()
+        
+        // when
+        checkThatItNotifiesAboutUserChange(in: window,
+                                           modifier: { message.sender!.imageMediumData = self.verySmallJPEGData()},
+                                           callBack: {
+                                            print($0.changedKeys)
+                                            XCTAssertTrue($0.imageMediumDataChanged)
+        })
+
+    }
+
+    func testThatItNotifiesObserverWhenTheSenderMediumProfileImageChanges() {
+        // given
+        let sender = ZMUser.insertNewObject(in:self.uiMOC)
+        sender.remoteIdentifier = UUID.create()
+        sender.smallProfileRemoteIdentifier = UUID.create()
+        
+        let message = ZMClientMessage.insertNewObject(in: self.uiMOC)
+        message.sender = sender
+        
+        let window = createConversationWindowWithMessages([message], uiMoc: self.uiMOC)
+        uiMOC.saveOrRollback()
+        
+        // when
+        checkThatItNotifiesAboutUserChange(in: window,
+                                           modifier: { message.sender!.imageSmallProfileData = self.verySmallJPEGData()},
+                                           callBack: {
+                                            XCTAssertTrue($0.imageSmallProfileDataChanged)
+        })
+
+    }
+
 }

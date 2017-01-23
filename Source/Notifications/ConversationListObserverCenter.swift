@@ -130,8 +130,8 @@ public class ConversationListObserverCenter : NSObject, ZMConversationObserver {
                     list.removeConversations(Set(arrayLiteral: conversation))
                     didRemoveConversation = true
                 }
-                let a = changes.changedKeysAndOldValues.keys
-                if !didRemoveConversation && list.sortingIsAffected(byConversationKeys: Set(a)) {
+                let a = changes.changedKeys
+                if !didRemoveConversation && list.sortingIsAffected(byConversationKeys: a) {
                     list.resortConversation(conversation)
                 }
                 self.notifyTokensForConversationList(list, conversation:conversation, conversationChanges: didRemoveConversation ? nil : changes)

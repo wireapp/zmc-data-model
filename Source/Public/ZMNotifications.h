@@ -75,7 +75,7 @@ extern NSString * const ZMDatabaseCorruptionNotificationName;
 - (void)conversationWindowDidChange:(MessageWindowChangeInfo *)note;
 
 @optional
-- (void)messagesInsideWindowDidChange:(NSArray *)messageChangeInfos;
+- (void)messagesInsideWindowDidChange:(NSArray <MessageChangeInfo *> *)messageChangeInfos;
 
 @end
 

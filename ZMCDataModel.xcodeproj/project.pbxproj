@@ -299,7 +299,6 @@
 		F9B71FFE1CB2C4C6001DB03F /* ZMChangedIndexesTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F9B71FEB1CB2C4C6001DB03F /* ZMChangedIndexesTests.m */; };
 		F9B720041CB2C770001DB03F /* UserClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9B720021CB2C68B001DB03F /* UserClientTests.swift */; };
 		F9B720051CB2C795001DB03F /* ZMGenericMessage_ExternalTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F9B71FFF1CB2C4FC001DB03F /* ZMGenericMessage_ExternalTests.m */; };
-		F9C348811E2CBF0C0015D69D /* ObjectChangeInfo+Observers.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C348801E2CBF0C0015D69D /* ObjectChangeInfo+Observers.swift */; };
 		F9C348841E2CC08E0015D69D /* UserClientObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C348821E2CC0730015D69D /* UserClientObserverTests.swift */; };
 		F9C348861E2CC27D0015D69D /* NewUnreadMessageObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C348851E2CC27D0015D69D /* NewUnreadMessageObserverTests.swift */; };
 		F9C348881E2CD8FD0015D69D /* VoicechannelObserverCenter.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9C348871E2CD8FC0015D69D /* VoicechannelObserverCenter.swift */; };
@@ -737,7 +736,6 @@
 		F9B71FEB1CB2C4C6001DB03F /* ZMChangedIndexesTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZMChangedIndexesTests.m; sourceTree = "<group>"; };
 		F9B71FFF1CB2C4FC001DB03F /* ZMGenericMessage_ExternalTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZMGenericMessage_ExternalTests.m; sourceTree = "<group>"; };
 		F9B720021CB2C68B001DB03F /* UserClientTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserClientTests.swift; sourceTree = "<group>"; };
-		F9C348801E2CBF0C0015D69D /* ObjectChangeInfo+Observers.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ObjectChangeInfo+Observers.swift"; sourceTree = "<group>"; };
 		F9C348821E2CC0730015D69D /* UserClientObserverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserClientObserverTests.swift; sourceTree = "<group>"; };
 		F9C348851E2CC27D0015D69D /* NewUnreadMessageObserverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NewUnreadMessageObserverTests.swift; sourceTree = "<group>"; };
 		F9C348871E2CD8FC0015D69D /* VoicechannelObserverCenter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = VoicechannelObserverCenter.swift; sourceTree = "<group>"; };
@@ -1097,7 +1095,6 @@
 				F9C348911E2E3FF60015D69D /* SnapshotCenter.swift */,
 				F9C348871E2CD8FC0015D69D /* VoicechannelObserverCenter.swift */,
 				F9C3488C1E2E219C0015D69D /* MessageWindowObserverCenter.swift */,
-				F9C348801E2CBF0C0015D69D /* ObjectChangeInfo+Observers.swift */,
 				F9DBA5211E28EB4000BE23C0 /* SideEffectSources.swift */,
 				F9DBA51F1E28EA8B00BE23C0 /* DependencyKeyStore.swift */,
 			);
@@ -1989,7 +1986,6 @@
 				F9A706A91CAEE01D00C2F5FE /* KeyPath.swift in Sources */,
 				16D68E971CEF2EC4003AB9E0 /* ZMFileMetadata.swift in Sources */,
 				F9A706591CAEE01D00C2F5FE /* ZMSyncMergePolicy.m in Sources */,
-				F9C348811E2CBF0C0015D69D /* ObjectChangeInfo+Observers.swift in Sources */,
 				F9A706811CAEE01D00C2F5FE /* ZMMessage.m in Sources */,
 				F9B71F2B1CB264EF001DB03F /* ZMConversation+Transport.m in Sources */,
 				F93666FD1D78274D00E15420 /* MessageUpdateResult.swift in Sources */,

@@ -52,6 +52,25 @@ import Foundation
         return "Call state changed from \(previousState) to \(currentState)"
     }
     
+    @objc(addObserver:forConversation:)
+    public static func add(observer: ZMVoiceChannelStateObserver, for conversation: ZMConversation) -> NSObjectProtocol {
+        return NotificationCenter.default.addObserver(forName: .VoiceChannelStateChange,
+                                                      object: conversation,
+                                                      queue: nil)
+        { [weak observer] (note) in
+            guard let `observer` = observer,
+                let changeInfo = note.userInfo?["changeInfo"] as? VoiceChannelStateChangeInfo
+                else { return }
+            
+            observer.voiceChannelStateDidChange(changeInfo)
+        }
+    }
+    
+    @objc(removeObserver:forConversation:)
+    public static func remove(observer: NSObjectProtocol, for conversation: ZMConversation?) {
+        NotificationCenter.default.removeObserver(observer, name: .VoiceChannelStateChange, object: conversation)
+    }
+    
 }
 
 extension ZMVoiceChannelState: CustomStringConvertible {
@@ -89,5 +108,23 @@ extension ZMVoiceChannelState: CustomStringConvertible {
     let conversation : ZMConversation
     public var voiceChannel : ZMVoiceChannel { return conversation.voiceChannel }
     public var otherActiveVideoCallParticipantsChanged : Bool = false
+    
+    @objc(addObserver:forConversation:)
+    public static func add(observer: ZMVoiceChannelParticipantsObserver,for conversation: ZMConversation) -> NSObjectProtocol {
+        return NotificationCenter.default.addObserver(forName: .VoiceChannelParticipantStateChange,
+                                                      object: conversation,
+                                                      queue: nil)
+        { [weak observer] (note) in
+            guard let `observer` = observer,
+                let changeInfo = note.userInfo?["changeInfo"] as? VoiceChannelParticipantsChangeInfo
+                else { return }
+            observer.voiceChannelParticipantsDidChange(changeInfo)
+        }
+    }
+    
+    @objc(removeObserver:forConversation:)
+    public static func remove(observer: NSObjectProtocol, for conversation: ZMConversation?) {
+        NotificationCenter.default.removeObserver(observer, name: .VoiceChannelParticipantStateChange, object: conversation)
+    }
 }
 

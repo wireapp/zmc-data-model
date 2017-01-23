@@ -36,6 +36,24 @@ public final class NewUnreadMessagesChangeInfo : ObjectChangeInfo  {
     public var messages : [ZMConversationMessage] {
         return object as? [ZMConversationMessage] ?? []
     }
+    
+    @objc(addNewMessageObserver:)
+    public static func add(observer: ZMNewUnreadMessagesObserver) -> NSObjectProtocol {
+        return NotificationCenter.default.addObserver(forName: .NewUnreadMessage,
+                                                      object: nil,
+                                                      queue: nil)
+        { [weak observer] (note) in
+            guard let `observer` = observer,
+                let changeInfo = note.userInfo?["changeInfo"] as? NewUnreadMessagesChangeInfo
+                else { return }
+            observer.didReceiveNewUnreadMessages(changeInfo)
+        }
+    }
+    
+    @objc(removeNewMessageObserver:)
+    public static func remove(observer: NSObjectProtocol) {
+        NotificationCenter.default.removeObserver(observer, name: .NewUnreadMessage, object: nil)
+    }
 }
 
 
@@ -56,6 +74,24 @@ public final class NewUnreadMessagesChangeInfo : ObjectChangeInfo  {
     public var messages : [ZMConversationMessage] {
         return object as? [ZMConversationMessage] ?? []
     }
+    
+    @objc(addNewKnockObserver:)
+    public static func add(observer: ZMNewUnreadKnocksObserver) -> NSObjectProtocol {
+        return NotificationCenter.default.addObserver(forName: .NewUnreadKnock,
+                                                      object: nil,
+                                                      queue: nil)
+        { [weak observer] (note) in
+            guard let `observer` = observer,
+                let changeInfo = note.userInfo?["changeInfo"] as? NewUnreadKnockMessagesChangeInfo
+                else { return }
+            observer.didReceiveNewUnreadKnockMessages(changeInfo)
+        }
+    }
+    
+    @objc(removeNewKnockObserver:)
+    public static func remove(observer: NSObjectProtocol) {
+        NotificationCenter.default.removeObserver(observer, name: .NewUnreadKnock, object: nil)
+    }
 }
 
 
@@ -75,6 +111,24 @@ public final class NewUnreadMessagesChangeInfo : ObjectChangeInfo  {
     
     public var messages : [ZMConversationMessage] {
         return  object as? [ZMConversationMessage] ?? []
+    }
+    
+    @objc(addNewUnreadUnsentMessageObserver:)
+    public static func add(observer: ZMNewUnreadUnsentMessageObserver) -> NSObjectProtocol {
+        return NotificationCenter.default.addObserver(forName: .NewUnreadUnsentMessage,
+                                                      object: nil,
+                                                      queue: nil)
+        { [weak observer] (note) in
+            guard let `observer` = observer,
+                let changeInfo = note.userInfo?["changeInfo"] as? NewUnreadUnsentMessageChangeInfo
+                else { return }
+            observer.didReceiveNewUnreadUnsentMessages(changeInfo)
+        }
+    }
+    
+    @objc(removeNewUnreadUnsentMessageObserver:)
+    public static func remove(observer: NSObjectProtocol) {
+        NotificationCenter.default.removeObserver(observer, name: .NewUnreadKnock, object: nil)
     }
 }
 
