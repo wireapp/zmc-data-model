@@ -1,6 +1,6 @@
 //
 // Wire
-// Copyright (C) 2017 Wire Swiss GmbH
+// Copyright (C) 2016 Wire Swiss GmbH
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,18 +16,12 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-
 import Foundation
 
-extension ZMConversation {
-
-    /// Appends a "message was delete" system message
-    public func appendDeletedForEveryoneSystemMessage(at date: Date, sender: ZMUser) {
-        self.appendSystemMessage(type: .messageDeletedForEveryone,
-                                 sender: sender,
-                                 users: nil,
-                                 clients: nil,
-                                 timestamp: date)
-        
+public extension ZMConversation {
+    
+    public func appendMissedCallMessage(fromUser user: ZMUser, at timestamp: Date) {
+        appendSystemMessage(type: .missedCall, sender: user, users: Set<ZMUser>([user]), clients: nil, timestamp: timestamp)
     }
+    
 }
