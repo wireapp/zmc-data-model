@@ -21,7 +21,7 @@ import Foundation
 public extension ZMConversation {
     
     public func appendMissedCallMessage(fromUser user: ZMUser, at timestamp: Date) {
-        _ = appendSystemMessage(type: .missedCall, sender: user, users: Set<ZMUser>([user]), clients: nil, timestamp: timestamp)
+        appendSystemMessage(type: .missedCall, sender: user, users: Set<ZMUser>([user]), clients: nil, timestamp: timestamp)
     }
     
 }
