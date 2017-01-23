@@ -211,7 +211,7 @@ extension ZMGenericMessage {
         let userEntries = recipients.flatMap { user -> ZMUserEntry? in
                 let clientsEntries = user.clients.flatMap { client -> ZMClientEntry? in
                 if client != selfClient {
-                    guard let clientRemoteIdentifier = client.remoteIdentifier else { return nil }
+                    guard let clientRemoteIdentifier = client.sessionIdentifier else { return nil }
                     
                     let corruptedClient = client.failedToEstablishSession
                     client.failedToEstablishSession = false
@@ -229,7 +229,7 @@ extension ZMGenericMessage {
                         }
                     }
                     
-                    guard let encryptedData = try? sessionDirectory.encrypt(self.data(), recipientClientId: clientRemoteIdentifier) else {
+                    guard let encryptedData = try? sessionDirectory.encrypt(self.data(), recipientIdentifier: clientRemoteIdentifier) else {
                         return nil
                     }
                     return ZMClientEntry.entry(withClient: client, data: encryptedData)
@@ -259,5 +259,28 @@ extension ZMGenericMessage {
         
         let externalGenericMessage = ZMGenericMessage.genericMessage(withKeyWithChecksum: encryptedDataWithKeys.keys, messageID: NSUUID().transportString())
         return externalGenericMessage.encryptedMessagePayloadData(conversation, externalData: encryptedDataWithKeys.data)
+    }
+}
+
+// MARK: - Session identifier {
+extension UserClient {
+    
+    /// Session identifier of the local cryptobox session with this client
+    var sessionIdentifier : String? {
+        guard let userIdentifier = self.user?.remoteIdentifier,
+            let clientIdentifier = self.remoteIdentifier
+        else { return nil }
+        return "\(userIdentifier)_\(clientIdentifier)"
+    }
+    
+    /// Previous (V1) session identifier
+    fileprivate var sessionIdentifier_V1 : String? {
+        return self.remoteIdentifier
+    }
+    
+    /// Migrates from old session identifier to new session identifier if needed
+    public func migrateSessionIdentifierFromV1IfNeeded(sessionDirectory: EncryptionSessionsDirectory) {
+        guard let sessionIdentifier_V1 = self.sessionIdentifier_V1, let sessionIdentifier = self.sessionIdentifier else { return }
+        sessionDirectory.migrateSession(fromIdentifier: sessionIdentifier_V1, toIdentifier: sessionIdentifier)
     }
 }
