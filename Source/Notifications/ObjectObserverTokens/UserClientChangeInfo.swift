@@ -47,7 +47,7 @@ import Foundation
 // MARK: - Observing
 extension UserClient {
     public override var description: String {
-        return "Client: \(sessionIdentifier), user name: \(user?.name) email: \(user?.emailAddress) platform: \(deviceClass), label: \(label), model: \(model)"
+        return "Client: \(sessionIdentifier?.rawValue), user name: \(user?.name) email: \(user?.emailAddress) platform: \(deviceClass), label: \(label), model: \(model)"
     }
     
 }
