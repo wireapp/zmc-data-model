@@ -39,7 +39,8 @@ class ContextDidSaveNotificationPersistenceTests: BaseZMMessageTests {
 
     override func setUp() {
         super.setUp()
-        sut = ContextDidSaveNotificationPersistence()
+        let url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        sut = ContextDidSaveNotificationPersistence(sharedContainerURL: url)
     }
 
     override func tearDown() {
@@ -54,11 +55,11 @@ class ContextDidSaveNotificationPersistenceTests: BaseZMMessageTests {
         XCTAssertNotNil(uri)
 
         // When
-        sut.add(.init(inserted: [conversation]))
+        XCTAssertTrue(sut.add(.init(inserted: [conversation])))
 
         // Then
         let expected = [NSInsertedObjectsKey: [uri] as AnyObject] as [AnyHashable: AnyObject]
-        XCTAssertEqual(sut.storedNotifications.count, 1)
+        guard sut.storedNotifications.count == 1 else { return XCTFail("Wrong amount of notifications") }
 
         for (key, value) in sut.storedNotifications.first! {
             XCTAssertEqual(value as? Set<NSManagedObject>, expected[key] as? Set<NSManagedObject>)
@@ -69,7 +70,7 @@ class ContextDidSaveNotificationPersistenceTests: BaseZMMessageTests {
         // Given
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         XCTAssertNotNil(conversation.objectID.uriRepresentation())
-        sut.add(.init(inserted: [conversation]))
+        XCTAssertTrue(sut.add(.init(inserted: [conversation])))
         XCTAssertEqual(sut.storedNotifications.count, 1)
 
         // When
@@ -89,13 +90,13 @@ class ContextDidSaveNotificationPersistenceTests: BaseZMMessageTests {
         let secondURI = secondConversation.objectID.uriRepresentation()
 
         // When
-        sut.add(.init(inserted: [firstConversation], deleted: [firstConversation]))
+        XCTAssertTrue(sut.add(.init(inserted: [firstConversation], deleted: [firstConversation])))
 
         // Then
         XCTAssertEqual(sut.storedNotifications.count, 1)
 
         // When
-        sut.add(.init(updated: [secondConversation]))
+        XCTAssertTrue(sut.add(.init(updated: [secondConversation])))
 
         // Then
         XCTAssertEqual(sut.storedNotifications.count, 2)
@@ -109,6 +110,8 @@ class ContextDidSaveNotificationPersistenceTests: BaseZMMessageTests {
         let secondExpected = [
             NSUpdatedObjectsKey: [secondURI] as AnyObject
             ] as [AnyHashable: AnyObject]
+
+        guard sut.storedNotifications.count == 2 else { return XCTFail("Wrong amount of notifications") }
 
         for (key, value) in sut.storedNotifications.first! {
             XCTAssertEqual(value as? Set<NSManagedObject>, firstExpected[key] as? Set<NSManagedObject>)
