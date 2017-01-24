@@ -195,16 +195,19 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 
 - (void)expire {
     [super expire];
-    if (self.delivered) {
+
+    if (self.delivered || self.transferState != ZMFileTransferStateUploading) {
         return;
     }
 
     // When we expire an asset message because the conversation degraded we do not want to send
     // a `NOT UPLOADED` message. In all other cases we do want to sent a `NOT UPLOADED` message to let the
     // reveicers know we stopped uploading.
-    if (self.uploadState == ZMAssetUploadStateUploadingPlaceholder && self.transferState == ZMFileTransferStateUploading) {
+    if (self.uploadState == ZMAssetUploadStateUploadingPlaceholder) {
         self.uploadState = ZMAssetUploadStateDone;
         self.transferState = ZMFileTransferStateFailedUpload;
+    } else {
+        [self didFailToUploadFileData];
     }
 }
 
