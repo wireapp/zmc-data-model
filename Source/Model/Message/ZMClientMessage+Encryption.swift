@@ -234,7 +234,6 @@ extension ZMGenericMessage {
                     guard let encryptedData = try? sessionDirectory.encrypt(self.data(), for: clientRemoteIdentifier) else {
                         return nil
                     }
-                    print(clientRemoteIdentifier)
                     return ZMClientEntry.entry(withClient: client, data: encryptedData)
                 } else {
                     return nil
