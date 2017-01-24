@@ -211,12 +211,14 @@ extension ZMGenericMessage {
         let userEntries = recipients.flatMap { user -> ZMUserEntry? in
                 let clientsEntries = user.clients.flatMap { client -> ZMClientEntry? in
                 if client != selfClient {
-                    guard let clientRemoteIdentifier = client.sessionIdentifier else { return nil }
+                    guard let clientRemoteIdentifier = client.sessionIdentifier else {
+                        return nil
+                    }
                     
                     let corruptedClient = client.failedToEstablishSession
                     client.failedToEstablishSession = false
                     
-                    let hasSessionWithClient = sessionDirectory.hasSessionForID(clientRemoteIdentifier)
+                    let hasSessionWithClient = sessionDirectory.hasSession(for: clientRemoteIdentifier)
                     if !hasSessionWithClient {
                         // if the session is corrupted, will send a special payload
                         if corruptedClient {
@@ -229,9 +231,10 @@ extension ZMGenericMessage {
                         }
                     }
                     
-                    guard let encryptedData = try? sessionDirectory.encrypt(self.data(), recipientIdentifier: clientRemoteIdentifier) else {
+                    guard let encryptedData = try? sessionDirectory.encrypt(self.data(), for: clientRemoteIdentifier) else {
                         return nil
                     }
+                    print(clientRemoteIdentifier)
                     return ZMClientEntry.entry(withClient: client, data: encryptedData)
                 } else {
                     return nil
@@ -266,11 +269,11 @@ extension ZMGenericMessage {
 extension UserClient {
     
     /// Session identifier of the local cryptobox session with this client
-    var sessionIdentifier : String? {
+    var sessionIdentifier : EncryptionSessionIdentifier? {
         guard let userIdentifier = self.user?.remoteIdentifier,
             let clientIdentifier = self.remoteIdentifier
         else { return nil }
-        return "\(userIdentifier)_\(clientIdentifier)"
+        return EncryptionSessionIdentifier(rawValue: "\(userIdentifier)_\(clientIdentifier)")
     }
     
     /// Previous (V1) session identifier
@@ -281,6 +284,6 @@ extension UserClient {
     /// Migrates from old session identifier to new session identifier if needed
     public func migrateSessionIdentifierFromV1IfNeeded(sessionDirectory: EncryptionSessionsDirectory) {
         guard let sessionIdentifier_V1 = self.sessionIdentifier_V1, let sessionIdentifier = self.sessionIdentifier else { return }
-        sessionDirectory.migrateSession(fromIdentifier: sessionIdentifier_V1, toIdentifier: sessionIdentifier)
+        sessionDirectory.migrateSession(from: sessionIdentifier_V1, to: sessionIdentifier)
     }
 }
