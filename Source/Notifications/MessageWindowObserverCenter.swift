@@ -102,7 +102,14 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
     fileprivate var updatedMessages : [ZMMessage] = []
     fileprivate var messageChangeInfos : [MessageChangeInfo] = []
     fileprivate var userChanges: [NSManagedObjectID : UserChangeInfo] = [:]
-    fileprivate var userIDsInWindow : Set<NSManagedObjectID> = Set()
+    fileprivate var userIDsInWindow : Set<NSManagedObjectID> {
+        if tempUserIDsInWindow == nil {
+            tempUserIDsInWindow = (state.set.array as? [ZMMessage] ?? []).reduce(Set()){$0.union($1.allUserIDs)}
+        }
+        return tempUserIDsInWindow!
+    }
+    fileprivate var tempUserIDsInWindow : Set<NSManagedObjectID>? = nil
+    
     
     var isTornDown : Bool = false
     
@@ -162,51 +169,68 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
     
     func computeChanges() {
         guard let window = conversationWindow else { return }
-
-        let currentlyUpdatedMessages = updatedMessages
+        defer {
+            updatedMessages = []
+            shouldRecalculate = false
+        }
         
-        updatedMessages = []
-        shouldRecalculate = false
-        
-        let updatedSet = NSOrderedSet(array: currentlyUpdatedMessages.filter({$0.conversation === window.conversation}))
+        // Recalculate message window
         window.recalculateMessages()
         
-        userIDsInWindow = (window.messages.array as? [ZMMessage] ?? []).reduce(Set()){$0.union($1.allUserIDs)}
+        // Calculate window changes
+        let currentlyUpdatedMessages = updatedMessages
+        let updatedSet = NSOrderedSet(array: currentlyUpdatedMessages.filter({$0.conversation === window.conversation}))
         
         var changeInfo : MessageWindowChangeInfo?
         if let newStateUpdate = state.updatedState(updatedSet, observedObject: window, newSet: window.messages) {
             state = newStateUpdate.newSnapshot
             changeInfo = MessageWindowChangeInfo(setChangeInfo: newStateUpdate.changeInfo)
+            tempUserIDsInWindow = nil
         }
         
+        // Notify observers
+        postNotification(windowChangeInfo: changeInfo, for: window)
+    }
+    
+    /// We receive UserChangeInfos separately and need to merge them with the messageChangeInfo in order to include userChanges
+    /// This is necessary because there is no coreData relationship set between user -> messages (only the reverse) and it would be very expensive to notify for changes of messages due to a user change otherwise
+    func updateMessageChangeInfos(window: ZMConversationMessageWindow) {
         messageChangeInfos.forEach{
-            if let user = $0.message.sender, let userChange = userChanges.removeValue(forKey:user.objectID) {
-                $0.changedKeysAndOldValues["userChanges"] = userChange
+            guard let user = $0.message.sender, let userChange = userChanges.removeValue(forKey:user.objectID) else { return }
+            $0.changedKeysAndOldValues["userChanges"] = userChange
+        }
+        
+        guard userChanges.count > 0, let messages = window.messages.array as? [ZMMessage] else { return }
+        
+        let messagesToUserIDs = messages.mapToDictionary{$0.allUserIDs}
+        userChanges.forEach{ (objectID, change) in
+            messagesToUserIDs.forEach{ (message, userIDs) in
+                guard userIDs.contains(objectID) else { return }
+                
+                let changeInfo = MessageChangeInfo(object: message)
+                changeInfo.changedKeysAndOldValues["userChanges"] = change
+                messageChangeInfos.append(changeInfo)
             }
         }
-        if userChanges.count > 0, let messages = window.messages.array as? [ZMMessage] {
-            let messagesToUserIDs = messages.mapToDictionary{$0.allUserIDs}
-
-            userChanges.forEach{ (objectID, change) in
-                let messages : [ZMMessage] = messagesToUserIDs.reduce([]){$1.value.contains(objectID) ? ($0 + [$1.key]) : $0}
-                messages.forEach{
-                    let changeInfo = MessageChangeInfo(object: $0)
-                    changeInfo.changedKeysAndOldValues["userChanges"] = change
-                    messageChangeInfos.append(changeInfo)
-                }
-            }
+    }
+    
+    /// Updates the messageChangeInfos and posts both the passed in WindowChangeInfo as well as the messageChangeInfos
+    func postNotification(windowChangeInfo: MessageWindowChangeInfo?, for window: ZMConversationMessageWindow){
+        defer {
+            userChanges = [:]
+            messageChangeInfos = []
         }
+        
+        updateMessageChangeInfos(window: window)
         
         var userInfo = [String : Any]()
         if messageChangeInfos.count > 0 {
             userInfo["messageChangeInfos"] = messageChangeInfos
         }
-        if let changeInfo = changeInfo {
+        if let changeInfo = windowChangeInfo {
             userInfo["messageWindowChangeInfo"] = changeInfo
         }
         NotificationCenter.default.post(name: .MessageWindowDidChange, object: window, userInfo: userInfo)
-        
-        messageChangeInfos = []
     }
 }
 

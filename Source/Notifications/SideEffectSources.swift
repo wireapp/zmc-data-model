@@ -18,7 +18,6 @@
 
 import Foundation
 
-// TODO Sabine: Pass in snapshots to get previous values
 
 protocol SideEffectSource {
     

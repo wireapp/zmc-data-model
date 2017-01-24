@@ -513,7 +513,6 @@ class MessageWindowObserverTests : NotificationDispatcherTests {
         checkThatItNotifiesAboutUserChange(in: window,
                                            modifier: { message.sender!.imageMediumData = self.verySmallJPEGData()},
                                            callBack: {
-                                            print($0.changedKeys)
                                             XCTAssertTrue($0.imageMediumDataChanged)
         })
 

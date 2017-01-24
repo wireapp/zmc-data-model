@@ -239,7 +239,6 @@ public class NotificationDispatcher : NSObject {
     /// Might be called several times in between saves
     @objc func objectsDidChange(_ note: Notification){
         process(note: note)
-        // TODO Sabine: when should those be forwarded?
         forwardChangesToConversationListObserver(note: note)
     }
     
@@ -247,7 +246,6 @@ public class NotificationDispatcher : NSObject {
     @objc func contextDidSave(_ note: Notification){
         fireAllNotifications()
         forwardChangesToConversationListObserver(note: note)
-//        forwardChangesToConversationListObserver(note: note)
     }
     
     /// This will be called if a change to an object does not cause a change in Core Data, e.g. downloading the asset and adding it to the cache
@@ -263,8 +261,12 @@ public class NotificationDispatcher : NSObject {
         let objectAndChangedKeys = [object: change]
         allChanges[classIdentifier] = allChanges[classIdentifier]?.merged(with: objectAndChangedKeys) ?? objectAndChangedKeys
         // TODO Sabine: make sure that save is always called
+        // e.g. there could be a timer that starts after every save / merge and is cancelled on every objectDidChange
+        // Alternatively pass bool along (enforceSave) or just post notification immediately
+        managedObjectContext.forceSaveOrRollback()
     }
     
+    /// Forwards inserted and deleted conversations to the conversationList observer to update lists accordingly
     internal func forwardChangesToConversationListObserver(note: Notification) {
         guard let userInfo = note.userInfo as? [String: Any] else { return }
         
@@ -289,7 +291,6 @@ public class NotificationDispatcher : NSObject {
     /// Call this from syncStrategy AFTER merging the changes from syncMOC into uiMOC
     public func didMergeChanges() {
         fireAllNotifications()
-//        forwardChangesToConversationListObserver(note: note)
     }
     
     /// Call this from syncStrategy BEFORE merging the changes from syncMOC into uiMOC

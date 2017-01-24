@@ -196,7 +196,6 @@ extension ZMClientMessage  {
     /// The UI should instead observe the message window and implement `messageInsideWindowDidChange`
     @objc(removeObserver:forMessage:)
     public static func remove(observer: NSObjectProtocol, for message: ZMMessage?) {
-        zmLog.warn("This should only be used for testing. The UI should instead observe the message window and implement `messageInsideWindowDidChange`")
         NotificationCenter.default.removeObserver(observer, name: .MessageChange, object: message)
     }
 }
