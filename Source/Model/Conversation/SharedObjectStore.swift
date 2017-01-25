@@ -79,7 +79,7 @@ public class SharedObjectStore<T>: NSObject {
 
     private func createDirectoryIfNeeded() {
         do {
-            guard fileManager.fileExists(atPath: directory.path) else { return }
+            guard !fileManager.fileExists(atPath: directory.path) else { return }
             try fileManager.createDirectory(at: directory, withIntermediateDirectories: true, attributes: nil)
             try (directory as NSURL).setResourceValue(true, forKey: .isExcludedFromBackupKey)
             let attributes = [FileAttributeKey.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication]
