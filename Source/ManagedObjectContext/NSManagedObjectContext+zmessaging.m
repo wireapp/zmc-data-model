@@ -528,6 +528,27 @@ static dispatch_once_t clearStoreOnceToken;
     return shouldMigrate && !isSameAsCurrent;
 }
 
+/// Fetch metadata for key from in-memory non-persisted metadata
+/// or from persistent store metadata, in that order
+- (id)persistentStoreMetadataForKey:(NSString *)key {
+    id inMemoryValue = [self.nonCommittedMetadata objectForKey:key];
+    if (nil != inMemoryValue) {
+        return inMemoryValue;
+    }
+    
+    if ([self.nonCommittedDeletedMetadataKeys containsObject:key]) {
+        return nil;
+    }
+    
+    NSPersistentStore *store = self.persistentStoreCoordinator.persistentStores.firstObject;
+    id storedValue = [[self.persistentStoreCoordinator metadataForPersistentStore:store] objectForKey:key];
+    if ([storedValue isKindOfClass:[NSNull class]]) {
+        return nil;
+    }
+    
+    return storedValue;
+}
+
 + (NSDictionary *)metadataForStoreAtURL:(NSURL *)storeURL
 {
     NSError *metadataError = nil;
