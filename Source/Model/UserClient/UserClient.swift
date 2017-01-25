@@ -194,12 +194,12 @@ public class UserClient: ZMManagedObject, UserClientType {
     /// Resets the session between the client and the selfClient
     /// Can be called several times without issues
     public func resetSession() {
-        guard let remoteIdentifier = self.remoteIdentifier else { return }
+        guard let sessionIdentifier = self.sessionIdentifier else { return }
 
         // Delete should happen on sync context since the cryptobox could be accessed only from there
         let syncMOC = managedObjectContext!.zm_sync!
         syncMOC.performGroupedBlock {
-            UserClient.deleteSession(forClientWithRemoteIdentifier: remoteIdentifier, managedObjectContext: syncMOC)
+            UserClient.deleteSession(for: sessionIdentifier, managedObjectContext: syncMOC)
 
             self.fingerprint = .none
             let selfUser = ZMUser.selfUser(in: self.managedObjectContext!)
