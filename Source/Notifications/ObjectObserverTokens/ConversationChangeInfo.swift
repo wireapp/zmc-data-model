@@ -19,11 +19,10 @@
 
 import Foundation
 
-
 extension ZMConversation : ObjectInSnapshot {
     
-    public static var observableKeys : [String] {
-        return ["messages", "lastModifiedDate", "isArchived", "conversationListIndicator", "voiceChannelState", "activeFlowParticipants", "callParticipants", "isSilenced", SecurityLevelKey, "otherActiveVideoCallParticipants", "displayName", "estimatedUnreadCount", "clearedTimeStamp", "otherActiveParticipants", "isSelfAnActiveMember", "relatedConnectionState"]
+    public static var observableKeys : Set<String> {
+        return Set(["messages", "lastModifiedDate", "isArchived", "conversationListIndicator", "voiceChannelState", "activeFlowParticipants", "callParticipants", "isSilenced", SecurityLevelKey, "otherActiveVideoCallParticipants", "displayName", "estimatedUnreadCount", "clearedTimeStamp", "otherActiveParticipants", "isSelfAnActiveMember", "relatedConnectionState"])
     }
 
 }
@@ -35,6 +34,11 @@ extension ZMConversation : ObjectInSnapshot {
 //// This can be used for observing only conversation properties
 ////
 ////////////////////
+
+@objc public protocol ZMConversationObserver : NSObjectProtocol {
+    func conversationDidChange(_ changeInfo: ConversationChangeInfo)
+}
+
 
 @objc public final class ConversationChangeInfo : ObjectChangeInfo {
     
@@ -123,8 +127,13 @@ extension ZMConversation : ObjectInSnapshot {
         changeInfo.changedKeys = changes.changedKeys
         return changeInfo
     }
-    
-    
+}
+
+
+
+//@objc public protocol ZMConversationObserverOpaqueToken :NSObjectProtocol {}
+extension ConversationChangeInfo {
+
     @objc(addObserver:forConversation:)
     public static func add(observer: ZMConversationObserver, for conversation: ZMConversation) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .ConversationChange,
@@ -136,7 +145,7 @@ extension ZMConversation : ObjectInSnapshot {
                 else { return }
             
             observer.conversationDidChange(changeInfo)
-        }
+        } 
     }
     
     @objc(removeObserver:forConversation:)

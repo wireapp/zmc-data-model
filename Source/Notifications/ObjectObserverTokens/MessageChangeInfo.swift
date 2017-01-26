@@ -38,46 +38,48 @@ enum MessageKey: String {
 
 extension ZMMessage : ObjectInSnapshot {
     
-    public class var observableKeys : [String] {
+    public class var observableKeys : Set<String> {
         return [MessageKey.deliveryState.rawValue, MessageKey.isObfuscated.rawValue]
+    }
+}
+
+extension ZMAssetClientMessage {
+
+    public class override var observableKeys : Set<String> {
+        let keys = super.observableKeys
+        let additionalKeys = [ZMAssetClientMessageTransferStateKey,
+                              MessageKey.previewGenericMessage.rawValue,
+                              MessageKey.mediumGenericMessage.rawValue,
+                              ZMAssetClientMessageDownloadedImageKey,
+                              ZMAssetClientMessageDownloadedFileKey,
+                              ZMAssetClientMessageProgressKey,
+                              ZMAssetClientMessageTransferStateKey,
+                              MessageKey.reactions.rawValue]
+        return keys.union(additionalKeys)
+    }
+}
+
+extension ZMClientMessage {
+    
+    public class override var observableKeys : Set<String> {
+        let keys = super.observableKeys
+        let additionalKeys = [ZMAssetClientMessageDownloadedImageKey,
+                              MessageKey.linkPreviewState.rawValue,
+                              MessageKey.genericMessage.rawValue,
+                              MessageKey.reactions.rawValue,
+                              MessageKey.linkPreview.rawValue]
+        return keys.union(additionalKeys)
     }
 }
 
 extension ZMImageMessage {
     
-    public override class var observableKeys : [String] {
-        var keys = ZMMessage.observableKeys
-        keys.append(MessageKey.mediumData.rawValue)
-        keys.append(MessageKey.mediumRemoteIdentifier.rawValue)
-        keys.append(MessageKey.reactions.rawValue)
-        return keys
-    }
-}
-
-extension ZMAssetClientMessage {
-    
-    public override class var observableKeys : [String] {
-        var keys = ZMMessage.observableKeys
-        keys.append(ZMAssetClientMessageTransferStateKey)
-        keys.append(MessageKey.previewGenericMessage.rawValue)
-        keys.append(MessageKey.mediumGenericMessage.rawValue)
-        keys.append(ZMAssetClientMessageDownloadedImageKey)
-        keys.append(ZMAssetClientMessageDownloadedFileKey)
-        keys.append(ZMAssetClientMessageProgressKey)
-        keys.append(MessageKey.reactions.rawValue)
-        return keys
-    }
-}
-
-extension ZMClientMessage  {
-    
-    public override class var observableKeys : [String] {
-        var keys = ZMMessage.observableKeys
-        keys.append(ZMAssetClientMessageDownloadedImageKey)
-        keys.append(MessageKey.linkPreviewState.rawValue)
-        keys.append(MessageKey.genericMessage.rawValue)
-        keys.append(MessageKey.reactions.rawValue)
-        return keys
+    public class override var observableKeys : Set<String> {
+        let keys = super.observableKeys
+        let additionalKeys = [MessageKey.mediumData.rawValue,
+                              MessageKey.mediumRemoteIdentifier.rawValue,
+                              MessageKey.reactions.rawValue]
+        return keys.union(additionalKeys)
     }
 }
 
@@ -140,18 +142,8 @@ extension ZMClientMessage  {
         return userChangeInfo != nil
     }
     
-    fileprivate var linkPreviewDataChanged: Bool {
-        // TODO Sabine: this is something we can't check currently
-        guard let genericMessage = (message as? ZMClientMessage)?.genericMessage else { return false }
-        guard let oldGenericMessage = changedKeysAndOldValues[MessageKey.genericMessage.rawValue] as? ZMGenericMessage else { return false }
-        let oldLinks = oldGenericMessage.linkPreviews
-        let newLinks = genericMessage.linkPreviews
-        
-        return oldLinks != newLinks
-    }
-    
     public var linkPreviewChanged: Bool {
-        return changedKeysContain(keys: MessageKey.linkPreviewState.rawValue, MessageKey.linkPreview.rawValue) || linkPreviewDataChanged
+        return changedKeysContain(keys: MessageKey.linkPreviewState.rawValue, MessageKey.linkPreview.rawValue)
     }
 
     public var senderChanged : Bool {
@@ -175,11 +167,20 @@ extension ZMClientMessage  {
     
     public let message : ZMMessage
     
-    /// This functions is only used for testing and should not be used by the UI
-    /// The UI should instead observe the message window and implement `messageInsideWindowDidChange`
+}
+
+
+
+//@objc public protocol ZMMessageObserverOpaqueToken : NSObjectProtocol {}
+
+@objc public protocol ZMMessageObserver : NSObjectProtocol {
+    func messageDidChange(_ changeInfo: MessageChangeInfo)
+}
+
+extension MessageChangeInfo {
+    
     @objc(addObserver:forMessage:)
-    public static func add(observer: ZMMessageObserver, for message: ZMMessage) -> NSObjectProtocol {
-        zmLog.warn("This should only be used for testing. The UI should instead observe the message window and implement `messageInsideWindowDidChange`")
+    public static func add(observer: ZMMessageObserver, for message: ZMConversationMessage) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .MessageChange,
                                                       object: message,
                                                       queue: nil)
@@ -189,13 +190,11 @@ extension ZMClientMessage  {
                 else { return }
             
             observer.messageDidChange(changeInfo)
-        }
+        } 
     }
     
-    /// This functions is only used for testing and should not be used by the UI
-    /// The UI should instead observe the message window and implement `messageInsideWindowDidChange`
     @objc(removeObserver:forMessage:)
-    public static func remove(observer: NSObjectProtocol, for message: ZMMessage?) {
+    public static func remove(observer: NSObjectProtocol, for message: ZMConversationMessage?) {
         NotificationCenter.default.removeObserver(observer, name: .MessageChange, object: message)
     }
 }

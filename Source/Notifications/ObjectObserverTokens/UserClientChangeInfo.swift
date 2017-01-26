@@ -19,32 +19,7 @@
 
 import Foundation
 
-@objc public protocol UserClientObserverOpaqueToken: NSObjectProtocol {
-}
 
-@objc public protocol UserClientObserver: NSObjectProtocol {
-    func userClientDidChange(_ changeInfo: UserClientChangeInfo)
-}
-
-// MARK: - Observing
-// TODO Sabine: should we reuse the old ones?
-//extension UserClient {
-//    
-//    public func addObserver(_ observer: UserClientObserver) -> UserClientObserverOpaqueToken? {
-//        guard let managedObjectContext = self.managedObjectContext
-//            else { return .none }
-//        
-//        return UserClientObserverToken(observer: observer, managedObjectContext: managedObjectContext, userClient: self)
-//    }
-//    
-//    public static func removeObserverForUserClientToken(_ token: UserClientObserverOpaqueToken) {
-//        if let token = token as? UserClientObserverToken {
-//            token.tearDown()
-//        }
-//    }
-//}
-
-// MARK: - Observing
 extension UserClient {
     public override var description: String {
         return "Client: \(sessionIdentifier?.rawValue), user name: \(user?.name) email: \(user?.emailAddress) platform: \(deviceClass), label: \(label), model: \(model)"
@@ -54,8 +29,8 @@ extension UserClient {
 
 extension UserClient: ObjectInSnapshot {
 
-    static public var observableKeys : [String] {
-        return [ZMUserClientTrusted_ByKey, ZMUserClientIgnored_ByKey, ZMUserClientNeedsToNotifyUserKey, ZMUserClientFingerprintKey]
+    static public var observableKeys : Set<String> {
+        return Set([ZMUserClientTrusted_ByKey, ZMUserClientIgnored_ByKey, ZMUserClientNeedsToNotifyUserKey, ZMUserClientFingerprintKey])
     }
 }
 
@@ -98,6 +73,16 @@ public enum UserClientChangeInfoKey: String {
         return changeInfo
     }
     
+}
+
+
+//@objc public protocol UserClientObserverOpaqueToken : NSObjectProtocol {}
+
+@objc public protocol UserClientObserver: NSObjectProtocol {
+    func userClientDidChange(_ changeInfo: UserClientChangeInfo)
+}
+
+extension UserClientChangeInfo {
     @objc(addObserver:forClient:)
     public static func add(observer: UserClientObserver, for client: UserClient) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .UserClientChange,
@@ -109,7 +94,7 @@ public enum UserClientChangeInfoKey: String {
                 else { return }
             
             observer.userClientDidChange(changeInfo)
-        }
+        } 
     }
     
     @objc(removeObserver:forClient:)

@@ -16,6 +16,7 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 // 
 
+@import ZMCDataModel;
 
 #import "ZMBaseManagedObjectTest.h"
 #import "ZMConversationList+Internal.h"
@@ -27,8 +28,65 @@
 #import "ZMNotifications+Internal.h"
 #import "ZMVoiceChannel+Testing.h"
 #import "ZMMessage+Internal.h"
-#import "NotificationObservers.h"
 #import "ZMCDataModelTests-Swift.h"
+
+
+typedef void(^ObserverCallback)( NSObject * _Nonnull  note);
+
+
+@interface ConversationListChangeObserver : NSObject <ZMConversationListObserver>
+
+@property (nonatomic, readonly, nonnull) NSMutableArray *notifications;
+@property (nonatomic, copy, nullable) ObserverCallback notificationCallback;
+@property (nonatomic) BOOL tornDown;
+@property (nonatomic, weak) ZMConversationList *conversationList;
+@property (nonatomic) id token;
+
+- (void)tearDown;
+
+- (nonnull instancetype)initWithConversationList:(nonnull ZMConversationList *)conversationList;
+
+@end
+
+
+@implementation ConversationListChangeObserver
+
+ZM_EMPTY_ASSERTING_INIT()
+
+- (instancetype)initWithConversationList:(ZMConversationList *)conversationList;
+{
+    self = [super init];
+    if(self) {
+        self.conversationList = conversationList;
+        self.token = [ConversationListChangeInfo addObserver:self forList:conversationList];
+    }
+    return self;
+}
+
+
+- (void)tearDown
+{
+    [ConversationListChangeInfo removeObserver:self.token forList:self.conversationList];
+    self.token = nil;
+    self.tornDown = YES;
+}
+
+- (void)dealloc
+{
+    NSAssert(self.tornDown, @"needs to teardown conversationList token");
+}
+
+- (void)conversationListDidChange:(ConversationListChangeInfo *)note;
+{
+    [self.notifications addObject:note];
+    if (self.notificationCallback) {
+        self.notificationCallback(note);
+    }
+
+}
+
+
+@end
 
 
 @interface ZMConversationListTests : ZMBaseManagedObjectTest

@@ -61,7 +61,7 @@ class ConversationObserverTests : NotificationDispatcherTests {
         conversation.managedObjectContext!.saveOrRollback()
         
         // then
-        let changeCount = observer.changes.count
+        let changeCount = observer.notifications.count
         if !expectedChangedFields.isEmpty {
             XCTAssertEqual(changeCount, 1, "Observer expected 1 notification, but received \(changeCount).")
         } else {
@@ -72,13 +72,13 @@ class ConversationObserverTests : NotificationDispatcherTests {
         self.uiMOC.saveOrRollback()
         
         // then
-        XCTAssertEqual(observer.changes.count, changeCount, "Should have changed only once")
+        XCTAssertEqual(observer.notifications.count, changeCount, "Should have changed only once")
         
         if expectedChangedFields.isEmpty {
             return
         }
         
-        if let changes = observer.changes.first {
+        if let changes = observer.notifications.first {
             checkChangeInfoContainsExpectedKeys(changes: changes, expectedChangedFields: expectedChangedFields, expectedChangedKeys: expectedChangedKeys)
         }
         
@@ -215,7 +215,7 @@ class ConversationObserverTests : NotificationDispatcherTests {
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
-        XCTAssertEqual(observer.changes.count, 1)
+        XCTAssertEqual(observer.notifications.count, 1)
         
         // and when
         user.name = "Bar"
@@ -223,7 +223,7 @@ class ConversationObserverTests : NotificationDispatcherTests {
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
-        XCTAssertEqual(observer.changes.count, 2)
+        XCTAssertEqual(observer.notifications.count, 2)
         
         // and when
         self.uiMOC.saveOrRollback()
@@ -537,10 +537,10 @@ class ConversationObserverTests : NotificationDispatcherTests {
         mergeLastChanges()
         
         // then
-        let changeCount = observer.changes.count
+        let changeCount = observer.notifications.count
         XCTAssertEqual(changeCount, 1, "Observer expected 1 notification, but received \(changeCount).")
         
-        guard let changes = observer.changes.first else { return XCTFail() }
+        guard let changes = observer.notifications.first else { return XCTFail() }
         checkChangeInfoContainsExpectedKeys(changes: changes,
                                             expectedChangedFields: KeySet(["unreadCountChanged", "conversationListIndicatorChanged"]),
                                             expectedChangedKeys: KeySet(["estimatedUnreadCount", "conversationListIndicator"]))
@@ -666,10 +666,10 @@ class ConversationObserverTests : NotificationDispatcherTests {
         mergeLastChanges()
                 
         // then
-        let changeCount = observer.changes.count
+        let changeCount = observer.notifications.count
         XCTAssertEqual(changeCount, 1, "Observer expected 1 notification, but received \(changeCount).")
         
-        guard let changes = observer.changes.first else { return XCTFail() }
+        guard let changes = observer.notifications.first else { return XCTFail() }
         checkChangeInfoContainsExpectedKeys(changes: changes,
                                             expectedChangedFields: KeySet(["conversationListIndicatorChanged", "messagesChanged"]),
                                             expectedChangedKeys: KeySet(["messages", "conversationListIndicator"]))
@@ -741,7 +741,7 @@ class ConversationObserverTests : NotificationDispatcherTests {
         self.uiMOC.saveOrRollback()
         
         // then
-        XCTAssertEqual(observer.changes.count, 0)
+        XCTAssertEqual(observer.notifications.count, 0)
     }
 }
 
@@ -774,7 +774,7 @@ extension ConversationObserverTests {
                 user.name = temp
                 self.uiMOC.saveOrRollback()
             }
-            XCTAssertEqual(observer.changes.count, count)
+            XCTAssertEqual(observer.notifications.count, count)
             self.stopMeasuring()
             ConversationChangeInfo.remove(observer:token, for: conversation)
         }
@@ -799,7 +799,7 @@ extension ConversationObserverTests {
                 conversation.appendMessage(withText: "hello")
                 self.uiMOC.saveOrRollback()
             }
-            XCTAssertEqual(observer.changes.count, count)
+            XCTAssertEqual(observer.notifications.count, count)
             self.stopMeasuring()
             ConversationChangeInfo.remove(observer:token, for: conversation)
         }
@@ -824,7 +824,7 @@ extension ConversationObserverTests {
                 conversation.appendMessage(withText: "hello")
             }
             self.uiMOC.saveOrRollback()
-            XCTAssertEqual(observer.changes.count, 1)
+            XCTAssertEqual(observer.notifications.count, 1)
             self.stopMeasuring()
             ConversationChangeInfo.remove(observer:token, for: conversation)
         }

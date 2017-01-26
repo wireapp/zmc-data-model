@@ -90,4 +90,8 @@ class SnapshotCenter {
         return changedKeys
     }
     
+    func clearAllSnapshots(){
+        snapshots = [:]
+    }
+    
 }

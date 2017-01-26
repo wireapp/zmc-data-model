@@ -25,8 +25,6 @@ import Foundation
 ///
 //////////////////////////
 
-
-
 public final class NewUnreadMessagesChangeInfo : ObjectChangeInfo  {
     
     public convenience init(messages: [ZMConversationMessage]) {
@@ -36,6 +34,17 @@ public final class NewUnreadMessagesChangeInfo : ObjectChangeInfo  {
     public var messages : [ZMConversationMessage] {
         return object as? [ZMConversationMessage] ?? []
     }
+    
+}
+
+
+//@objc public protocol ZMNewUnreadMessageObserverOpaqueToken : NSObjectProtocol {}
+
+@objc public protocol ZMNewUnreadMessagesObserver : NSObjectProtocol {
+    func didReceiveNewUnreadMessages(_ changeInfo: NewUnreadMessagesChangeInfo)
+}
+
+extension NewUnreadMessagesChangeInfo {
     
     @objc(addNewMessageObserver:)
     public static func add(observer: ZMNewUnreadMessagesObserver) -> NSObjectProtocol {
@@ -74,7 +83,18 @@ public final class NewUnreadMessagesChangeInfo : ObjectChangeInfo  {
     public var messages : [ZMConversationMessage] {
         return object as? [ZMConversationMessage] ?? []
     }
-    
+}
+
+
+//@objc public protocol ZMNewUnreadKnockMessageObserverOpaqueToken : NSObjectProtocol {}
+
+
+@objc public protocol ZMNewUnreadKnocksObserver : NSObjectProtocol {
+    func didReceiveNewUnreadKnockMessages(_ changeInfo: NewUnreadKnockMessagesChangeInfo)
+}
+
+extension NewUnreadKnockMessagesChangeInfo {
+
     @objc(addNewKnockObserver:)
     public static func add(observer: ZMNewUnreadKnocksObserver) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .NewUnreadKnock,
@@ -85,7 +105,7 @@ public final class NewUnreadMessagesChangeInfo : ObjectChangeInfo  {
                 let changeInfo = note.userInfo?["changeInfo"] as? NewUnreadKnockMessagesChangeInfo
                 else { return }
             observer.didReceiveNewUnreadKnockMessages(changeInfo)
-        }
+        } 
     }
     
     @objc(removeNewKnockObserver:)
@@ -112,7 +132,15 @@ public final class NewUnreadMessagesChangeInfo : ObjectChangeInfo  {
     public var messages : [ZMConversationMessage] {
         return  object as? [ZMConversationMessage] ?? []
     }
-    
+}
+
+
+
+@objc public protocol ZMNewUnreadUnsentMessageObserver : NSObjectProtocol {
+    func didReceiveNewUnreadUnsentMessages(_ changeInfo: NewUnreadUnsentMessageChangeInfo)
+}
+
+extension NewUnreadUnsentMessageChangeInfo {
     @objc(addNewUnreadUnsentMessageObserver:)
     public static func add(observer: ZMNewUnreadUnsentMessageObserver) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .NewUnreadUnsentMessage,

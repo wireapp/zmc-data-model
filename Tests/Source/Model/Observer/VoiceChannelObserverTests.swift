@@ -28,34 +28,6 @@ private extension ZMConversation {
 
 class VoiceChannelObserverTests : NotificationDispatcherTests {
     
-    class TestVoiceChannelObserver : NSObject, ZMVoiceChannelStateObserver {
-        
-        var receivedChangeInfo : [VoiceChannelStateChangeInfo] = []
-        
-        func voiceChannelStateDidChange(_ changes: VoiceChannelStateChangeInfo) {
-            receivedChangeInfo.append(changes)
-            if(OperationQueue.current != OperationQueue.main) {
-                XCTFail("Wrong thread")
-            }
-        }
-        func clearNotifications() {
-            receivedChangeInfo = []
-        }
-    }
-    
-    class TestVoiceChannelParticipantStateObserver : NSObject, ZMVoiceChannelParticipantsObserver {
-        
-        var receivedChangeInfo : [VoiceChannelParticipantsChangeInfo] = []
-        
-        func voiceChannelParticipantsDidChange(_ changes: VoiceChannelParticipantsChangeInfo) {
-            receivedChangeInfo.append(changes)
-        }
-        func clearNotifications() {
-            receivedChangeInfo = []
-        }
-        
-    }
-    
     var stateObserver : TestVoiceChannelObserver!
     var participantObserver : TestVoiceChannelParticipantStateObserver!
     

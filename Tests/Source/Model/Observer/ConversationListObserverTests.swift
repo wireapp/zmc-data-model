@@ -25,7 +25,7 @@ class ConversationListObserverTests : NotificationDispatcherTests {
         
         var changes : [ConversationListChangeInfo] = []
         
-        @objc func conversationListDidChange(_ changeInfo: ConversationListChangeInfo!) {
+        @objc func conversationListDidChange(_ changeInfo: ConversationListChangeInfo) {
             changes.append(changeInfo)
         }
     }

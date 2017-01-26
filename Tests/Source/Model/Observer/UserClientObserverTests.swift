@@ -22,15 +22,6 @@ import XCTest
 
 class UserClientObserverTests: NotificationDispatcherTests {
     
-    class TestUserClientObserver : NSObject, UserClientObserver {
-        
-        var receivedChangeInfo : [UserClientChangeInfo] = []
-        
-        func userClientDidChange(_ changes: UserClientChangeInfo) {
-            receivedChangeInfo.append(changes)
-        }
-    }
-    
     var clientObserver : TestUserClientObserver!
     
     override func setUp() {

@@ -25,8 +25,8 @@ class SearchUserObserverTests : NotificationDispatcherTests {
         
         var receivedChangeInfo : [UserChangeInfo] = []
         
-        func userDidChange(_ changes: UserChangeInfo) {
-            receivedChangeInfo.append(changes)
+        func userDidChange(_ changeInfo: UserChangeInfo) {
+            receivedChangeInfo.append(changeInfo)
         }
     }
     
@@ -39,7 +39,7 @@ class SearchUserObserverTests : NotificationDispatcherTests {
     
     override func tearDown() {
         testObserver = nil
-        uiMOC.searchUserObserverCenter.reset()
+        uiMOC.searchUserObserverCenter?.reset()
         super.tearDown()
     }
     

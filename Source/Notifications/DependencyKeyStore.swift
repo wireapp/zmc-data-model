@@ -92,39 +92,25 @@ class DependencyKeyStore {
     private static func setupObservableKeys(classIdentifier: String) -> Set<String> {
         switch classIdentifier {
         case ZMConversation.entityName():
-            return Set(arrayLiteral: "messages", "lastModifiedDate", "isArchived", "conversationListIndicator", "voiceChannelState", "activeFlowParticipants", "callParticipants", "isSilenced", "securityLevel", "otherActiveVideoCallParticipants", "displayName", "estimatedUnreadCount", "clearedTimeStamp", "otherActiveParticipants", "isSelfAnActiveMember", "relatedConnectionState")
+            return ZMConversation.observableKeys
         case ZMUser.entityName():
-            return Set(arrayLiteral: "name", "displayName", "accentColorValue", "imageMediumData", "imageSmallProfileData","emailAddress", "phoneNumber", "canBeConnected", "isConnected", "isPendingApprovalByOtherUser", "isPendingApprovalBySelfUser", "clients", "handle")
+            return ZMUser.observableKeys
         case ZMConnection.entityName():
             return Set(arrayLiteral: "status")
         case UserClient.entityName():
-            return Set([ZMUserClientTrusted_ByKey, ZMUserClientIgnored_ByKey, ZMUserClientNeedsToNotifyUserKey, ZMUserClientFingerprintKey])
+            return UserClient.observableKeys
         case ZMMessage.entityName(), ZMSystemMessage.entityName():
             return Set([MessageKey.deliveryState.rawValue, MessageKey.isObfuscated.rawValue])
         case ZMAssetClientMessage.entityName():
-            var keys = setupObservableKeys(classIdentifier: ZMMessage.entityName())
-            keys.insert(ZMAssetClientMessageTransferStateKey)
-            keys.insert(MessageKey.previewGenericMessage.rawValue)
-            keys.insert(MessageKey.mediumGenericMessage.rawValue)
-            keys.insert(ZMAssetClientMessageDownloadedImageKey)
-            keys.insert(ZMAssetClientMessageDownloadedFileKey)
-            keys.insert(ZMAssetClientMessageProgressKey)
-            keys.insert(MessageKey.reactions.rawValue)
-            return Set(keys)
+            return ZMAssetClientMessage.observableKeys
         case ZMClientMessage.entityName():
-            var keys = setupObservableKeys(classIdentifier: ZMMessage.entityName())
-            keys.insert(ZMAssetClientMessageDownloadedImageKey)
-            keys.insert(MessageKey.linkPreviewState.rawValue)
-            keys.insert(MessageKey.genericMessage.rawValue)
-            keys.insert(MessageKey.reactions.rawValue)
-            keys.insert(MessageKey.linkPreview.rawValue)
-            return Set(keys)
+            return ZMClientMessage.observableKeys
+        case ZMTextMessage.entityName(), ZMImageMessage.entityName():
+            return Set()
         case Reaction.entityName():
             return Set(["user"])
         case ZMGenericMessageData.entityName():
             return Set()
-        case "SearchUser":
-            return Set(["imageMediumData", "imageSmallProfileData", "isConnected", "user", "isPendingApprovalByOtherUser"])
         default:
             zmLog.warn("There are no observable keys defined for \(classIdentifier)")
             return Set()
@@ -196,8 +182,6 @@ class DependencyKeyStore {
         switch (classIdentifier, object) {
         case (ZMUser.entityName(), is UserClient):
             return Set([ZMUserClientTrustedKey, ZMUserClientTrusted_ByKey])
-        case (ZMClientMessage.entityName(), is ZMUser), (ZMAssetClientMessage.entityName(), is ZMUser), (ZMMessage.entityName(), is ZMUser):
-            return Set(["name", "displayName", "imageMediumData", "imageSmallProfileData", "accentColorValue"])
         default:
             return Set()
         }

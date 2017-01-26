@@ -246,10 +246,10 @@ extension ZMMessageTests_Confirmation {
         XCTAssertTrue(self.uiMOC.saveOrRollback())
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
-        let convObserver = ConversationChangeObserver(conversation: conversation)
-        var messageObserver : MessageChangeObserver!
+        let convObserver = ConversationObserver(conversation: conversation)
+        var messageObserver : MessageObserver!
         self.performIgnoringZMLogError{
-            messageObserver = MessageChangeObserver(message: sut)
+            messageObserver = MessageObserver(message: sut)
         }
         defer {
             self.performIgnoringZMLogError{
@@ -270,7 +270,7 @@ extension ZMMessageTests_Confirmation {
         if convObserver.notifications.count > 0 {
             return XCTFail()
         }
-        guard let messageChangeInfo = messageObserver.notifications.firstObject  as? MessageChangeInfo else {
+        guard let messageChangeInfo = messageObserver.notifications.first else {
             return XCTFail()
         }
         XCTAssertTrue(messageChangeInfo.deliveryStateChanged)

@@ -189,21 +189,23 @@ public class NotificationDispatcher : NSObject {
     private let affectingKeysStore : DependencyKeyStore
     private let voicechannelObserverCenter : VoicechannelObserverCenter
     private var messageWindowObserverCenter : MessageWindowObserverCenter {
-        return managedObjectContext.messageWindowObserverCenter
+        return managedObjectContext.messageWindowObserverCenter!
     }
     private var conversationListObserverCenter : ConversationListObserverCenter {
-        return managedObjectContext.conversationListObserverCenter
+        return managedObjectContext.conversationListObserverCenter!
     }
     private var searchUserObserverCenter: SearchUserObserverCenter {
-        return managedObjectContext.searchUserObserverCenter
+        return managedObjectContext.searchUserObserverCenter!
     }
     private let snapshotCenter: SnapshotCenter
     
     private var allChanges : [ClassIdentifier : [NSObject : Changes]] = [:] 
     private var userChanges : [ZMManagedObject : Set<String>] = [:]
     private var unreadMessages : [Notification.Name : Set<ZMMessage>] = [:]
+    private var forwardChanges : Bool = true
     
     public init(managedObjectContext: NSManagedObjectContext) {
+        assert(managedObjectContext.zm_isUserInterfaceContext, "NotificationDispatcher needs to be initialized with uiMOC")
         self.managedObjectContext = managedObjectContext
         let classIdentifiers : [String] = [ZMConversation.entityName(),
                                            ZMUser.entityName(),
@@ -214,8 +216,7 @@ public class NotificationDispatcher : NSObject {
                                            ZMAssetClientMessage.entityName(),
                                            Reaction.entityName(),
                                            ZMGenericMessageData.entityName()]
-        let affectingKeysStore = DependencyKeyStore(classIdentifiers : classIdentifiers)
-        self.affectingKeysStore = affectingKeysStore
+        self.affectingKeysStore = DependencyKeyStore(classIdentifiers : classIdentifiers)
         self.voicechannelObserverCenter = VoicechannelObserverCenter()
         self.snapshotCenter = SnapshotCenter(managedObjectContext: managedObjectContext)
         

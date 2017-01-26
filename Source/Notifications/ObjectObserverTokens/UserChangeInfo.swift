@@ -22,8 +22,8 @@ import ZMCSystem
 
 extension ZMUser : ObjectInSnapshot {
     
-    static public var observableKeys : [String] {
-        return ["name", "displayName", "accentColorValue", "imageMediumData", "imageSmallProfileData","emailAddress", "phoneNumber", "canBeConnected", "isConnected", "isPendingApprovalByOtherUser", "isPendingApprovalBySelfUser", "clients", "handle"]
+    static public var observableKeys : Set<String> {
+        return Set(arrayLiteral: "name", "displayName", "accentColorValue", "imageMediumData", "imageSmallProfileData","emailAddress", "phoneNumber", "canBeConnected", "isConnected", "isPendingApprovalByOtherUser", "isPendingApprovalBySelfUser", "clients", "handle")
     }
 
 }
@@ -102,8 +102,19 @@ extension ZMUser : ObjectInSnapshot {
     open var userClientChangeInfos : [UserClientChangeInfo] {
         return changedKeysAndOldValues[UserChangeInfo.UserClientChangeInfoKey] as? [UserClientChangeInfo] ?? []
     }
+}
 
-    
+
+
+//@objc public protocol ZMUserObserverOpaqueToken : NSObjectProtocol {}
+
+@objc public protocol ZMUserObserver : NSObjectProtocol {
+    func userDidChange(_ changeInfo: UserChangeInfo)
+}
+
+
+extension UserChangeInfo {
+
     // MARK Registering UserObservers
     @objc(addUserObserver:forUser:)
     public static func add(observer: ZMUserObserver, for user: ZMUser) -> NSObjectProtocol {
@@ -131,7 +142,7 @@ extension ZMUser : ObjectInSnapshot {
                            for user: ZMSearchUser,
                            inManagedObjectContext context: NSManagedObjectContext) -> NSObjectProtocol
     {
-        context.searchUserObserverCenter.addSearchUser(user)
+        context.searchUserObserverCenter?.addSearchUser(user)
         return NotificationCenter.default.addObserver(forName: .SearchUserChange,
                                                       object: user,
                                                       queue: nil)
@@ -157,6 +168,37 @@ extension ZMUser : ObjectInSnapshot {
                            inUserSession userSession: ZMManagedObjectContextProvider) -> NSObjectProtocol
     {
         return add(searchUserObserver: observer, for: user, inManagedObjectContext: userSession.managedObjectContext)
+    }
+    
+    
+    @objc(removeObserver:forBareUser:)
+    public static func remove(observer: NSObjectProtocol,
+                              forBareUser user: ZMBareUser?)
+    {
+        if let user = user as? ZMSearchUser {
+            NotificationCenter.default.removeObserver(observer, name: .SearchUserChange, object: user)
+        }
+        else if let user = user as? ZMUser {
+            NotificationCenter.default.removeObserver(observer, name: .UserChange, object: user)
+        }
+        else if user == nil {
+            NotificationCenter.default.removeObserver(observer, name: .SearchUserChange, object: nil)
+            NotificationCenter.default.removeObserver(observer, name: .UserChange, object: nil)
+        }
+    }
+    
+    @objc(addObserver:forBareUser:inUserSession:)
+    public static func add(observer: ZMUserObserver,
+                           forBareUser user: ZMBareUser,
+                           inUserSession userSession: ZMManagedObjectContextProvider) -> NSObjectProtocol?
+    {
+        if let user = user as? ZMSearchUser {
+            return add(searchUserObserver: observer, for: user, inManagedObjectContext: userSession.managedObjectContext)
+        }
+        else if let user = user as? ZMUser {
+            return add(observer: observer, for:user)
+        }
+        return nil
     }
 
 }

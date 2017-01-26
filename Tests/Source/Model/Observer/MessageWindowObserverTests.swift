@@ -36,13 +36,13 @@ import XCTest
         self.init(block: nil)
     }
     
-    @objc func conversationWindowDidChange(_ note: MessageWindowChangeInfo)
+    @objc func conversationWindowDidChange(_ changeInfo: MessageWindowChangeInfo)
     {
-        notifications.append(note)
-        if let block = notificationBlock { block(note) }
+        notifications.append(changeInfo)
+        if let block = notificationBlock { block(changeInfo) }
     }
     
-    func messages(insideWindowDidChange messageChangeInfos: [MessageChangeInfo]) {
+    func messagesInsideWindow(_ window: ZMConversationMessageWindow, didChange messageChangeInfos: [MessageChangeInfo]) {
         self.messageChangeInfos = self.messageChangeInfos + messageChangeInfos
     }
 }

@@ -19,6 +19,8 @@
 
 import Foundation
 
+private var zmLog = ZMSLog(tag: "MessageWindowObserverCenter")
+
 extension Notification.Name {
     
     static let ZMConversationMessageWindowScrolled = Notification.Name("ZMConversationMessageWindowScrolledNotification")
@@ -31,7 +33,12 @@ let MessageWindowObserverCenterKey = "MessageWindowObserverCenterKey"
 
 extension NSManagedObjectContext {
     
-    public var messageWindowObserverCenter : MessageWindowObserverCenter {
+    public var messageWindowObserverCenter : MessageWindowObserverCenter? {
+        guard zm_isUserInterfaceContext else {
+            zmLog.warn("MessageWindowObserverCenter does not exist in syncMOC")
+            return nil
+        }
+        
         if let observer = userInfo[MessageWindowObserverCenterKey] as? MessageWindowObserverCenter {
             return observer
         }
@@ -45,7 +52,7 @@ extension NSManagedObjectContext {
 @objc final public class MessageWindowObserverCenter : NSObject {
     
     var windowSnapshot : MessageWindowSnapshot?
-
+    
     @objc public func windowDidScroll(_ window: ZMConversationMessageWindow) {
         if let snapshot = windowSnapshot, snapshot.conversation == window.conversation {
             snapshot.windowDidScroll()
@@ -55,6 +62,9 @@ extension NSManagedObjectContext {
         }
     }
     
+    /// Creates a snapshot of the window and updates the window when changes occur
+    /// It automatically tears down the old window snapshot, since there should only be one window open at any time
+    /// Call this when initializing a new message window
     @objc public func windowWasCreated(_ window: ZMConversationMessageWindow) {
         if let snapshot = windowSnapshot, snapshot.conversation == window.conversation {
             return
@@ -62,7 +72,17 @@ extension NSManagedObjectContext {
         windowSnapshot?.tearDown()
         windowSnapshot = MessageWindowSnapshot(window: window)
     }
+
+    /// Recreates the snapshot
+    @objc public func windowWasUpdated(_ window: ZMConversationMessageWindow) {
+        if let snapshot = windowSnapshot, snapshot.conversation != window.conversation {
+            windowSnapshot?.tearDown()
+        }
+        windowSnapshot = MessageWindowSnapshot(window: window)
+    }
     
+    /// Removes the windowSnapshot if there is one
+    /// Call this when tearing down or deallocating the messageWindow
     @objc public func removeMessageWindow(_ window: ZMConversationMessageWindow) {
         if let snapshot = windowSnapshot, snapshot.conversation != window.conversation {
             return
@@ -142,6 +162,8 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
         userChanges = [:]
     }
     
+    // MARK: Forwarding Changes
+    /// Processes conversationChangeInfo for conversations in window when messages changed
     func conversationDidChange(_ changeInfo: ConversationChangeInfo) {
         guard let conversation = conversation, changeInfo.conversation == conversation else { return }
         if(changeInfo.messagesChanged || changeInfo.clearedChanged) {
@@ -149,6 +171,7 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
         }
     }
     
+    /// Processes messageChangeInfos for messages in window when messages changed
     func messageDidChange(_ change: MessageChangeInfo) {
         guard let window = conversationWindow, window.messages.contains(change.message) else { return }
         
@@ -156,6 +179,7 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
         messageChangeInfos.append(change)
     }
 
+    /// Processes messageChangeInfos for users who's messages are currently in the window
     func userDidChange(changeInfo: UserChangeInfo) {
         guard let user = changeInfo.user as? ZMUser,
              (changeInfo.nameChanged || changeInfo.accentColorValueChanged || changeInfo.imageMediumDataChanged || changeInfo.imageSmallProfileDataChanged)
@@ -167,7 +191,10 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
         shouldRecalculate = true
     }
     
-    func computeChanges() {
+    
+    // MARK: Change computing
+    /// Compute the changes, update window and notify observers
+    private func computeChanges() {
         guard let window = conversationWindow else { return }
         defer {
             updatedMessages = []
@@ -220,7 +247,7 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
             userChanges = [:]
             messageChangeInfos = []
         }
-        
+
         updateMessageChangeInfos(window: window)
         
         var userInfo = [String : Any]()

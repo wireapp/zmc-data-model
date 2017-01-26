@@ -19,18 +19,7 @@
 import Foundation
 @testable import ZMCDataModel
 
-class ConversationObserver: NSObject, ZMConversationObserver {
-    
-    func clearNotifications(){
-        changes = []
-    }
-    
-    var changes = [ConversationChangeInfo]()
-    
-    func conversationDidChange(_ note: ConversationChangeInfo!) {
-        changes.append(note)
-    }
-}
+
 
 @objc public class NotificationDispatcherTests : ZMBaseManagedObjectTest {
 
@@ -93,8 +82,8 @@ extension NotificationDispatcherTests {
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
-        XCTAssertEqual(conversationObserver.changes.count, 1)
-        guard let changeInfo = conversationObserver.changes.first else {
+        XCTAssertEqual(conversationObserver.notifications.count, 1)
+        guard let changeInfo = conversationObserver.notifications.first else {
             return XCTFail()
         }
         XCTAssertTrue(changeInfo.nameChanged)
@@ -120,8 +109,8 @@ extension NotificationDispatcherTests {
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
-        XCTAssertEqual(conversationObserver.changes.count, 1)
-        guard let changeInfo = conversationObserver.changes.first else {
+        XCTAssertEqual(conversationObserver.notifications.count, 1)
+        guard let changeInfo = conversationObserver.notifications.first else {
             return XCTFail()
         }
         XCTAssertTrue(changeInfo.nameChanged)

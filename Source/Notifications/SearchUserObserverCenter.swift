@@ -25,7 +25,12 @@ let SearchUserObserverCenterKey = "SearchUserObserverCenterKey"
 
 extension NSManagedObjectContext {
     
-    public var searchUserObserverCenter : SearchUserObserverCenter {
+    public var searchUserObserverCenter : SearchUserObserverCenter? {
+        guard zm_isUserInterfaceContext else {
+            zmLog.warn("SearchUserObserverCenter does not exist in syncMOC")
+            return nil
+        }
+        
         if let observer = self.userInfo[SearchUserObserverCenterKey] as? SearchUserObserverCenter {
             return observer
         }
@@ -42,7 +47,7 @@ class SearchUserSnapshot  {
     static let observableKeys = ["imageMediumData", "imageSmallProfileData", "isConnected", "user", "isPendingApprovalByOtherUser"]
     
     weak var searchUser : ZMSearchUser?
-    let snapshotValues : [String : NSObject?]
+    var snapshotValues : [String : NSObject?]
     
     init(searchUser: ZMSearchUser, snapshotValues : [String : NSObject?]? = nil) {
         self.searchUser = searchUser
@@ -63,11 +68,10 @@ class SearchUserSnapshot  {
         }
     }
 
-    /// Creates new snapshot values for the observableKeys keys, compares them to the existing one 
-    /// returns a new snapshot and the changes keys if keys changed
-    /// or nil when nothing changed
-    func updated() -> (snapshot: SearchUserSnapshot, changedKeys: [String])? {
-        guard let searchUser = searchUser else { return nil }
+    /// Updates the snapshot values for the observableKeys keys,
+    /// returns the changes keys if keys changed or nil when nothing changed
+    func updateAndNotify() {
+        guard let searchUser = searchUser else { return }
         let newSnapshotValues = SearchUserSnapshot.createSnapshots(searchUser: searchUser)
         
         var changedKeys = [String]()
@@ -80,12 +84,17 @@ class SearchUserSnapshot  {
                 changedKeys.append($0.key)
             }
         }
-
-        if changedKeys.count > 0 {
-            return (snapshot: SearchUserSnapshot(searchUser: searchUser, snapshotValues: newSnapshotValues),
-                    changedKeys: changedKeys)
-        }
-        return nil
+        snapshotValues = newSnapshotValues
+        postNotification(changedKeys: changedKeys)
+    }
+    
+    /// Post a UserChangeInfo for the specified SearchUser
+    func postNotification(changedKeys: [String]) {
+        guard changedKeys.count > 0, let searchUser = searchUser else { return }
+        
+        let userChange = UserChangeInfo(object: searchUser)
+        userChange.changedKeys = Set(changedKeys)
+        NotificationCenter.default.post(name: .SearchUserChange, object: searchUser, userInfo: ["changeInfo" : userChange])
     }
 }
 
@@ -129,6 +138,8 @@ class SearchUserSnapshot  {
     
     /// Matches the userChangeInfo with the searchUser snapshots and updates those if needed
     func usersDidChange(changeInfos: [UserChangeInfo]){
+        guard snapshots.count > 0 else { return }
+        
         changeInfos.forEach{ info in
             guard info.nameChanged || info.imageMediumDataChanged || info.imageSmallProfileDataChanged || info.connectionStateChanged,
                   let user = info.user as? ZMUser,
@@ -139,7 +150,7 @@ class SearchUserSnapshot  {
             }
             
             guard let searchUser = snapshot.searchUser else {
-                zmLog.warn("SearchUserObserverCenter: SearchUser was deallocated, but snapshot not removed. Did you forget to unregister as an observer?")
+                zmLog.warn("SearchUserObserverCenter: SearchUser was deallocated, but snapshot not removed. Did you forget to tearDown the search directory?")
                 snapshots.removeValue(forKey: remoteID)
                 return
             }
@@ -150,34 +161,17 @@ class SearchUserSnapshot  {
                 // We will wait until we get notified via `notifyUpdatedSearchUser:`
                 return
             }
-            
-            guard let (newSnapshot, changes) = snapshot.updated() else {
-                return
-            }
-            
-            snapshots[remoteID] = newSnapshot
-            postNotification(searchUser: searchUser, changes: changes)
+            snapshot.updateAndNotify()
         }
-        
     }
     
     /// Updates the snapshot of the given searchUser
     @objc public func notifyUpdatedSearchUser(_ searchUser : ZMSearchUser){
         guard let remoteID = searchUser.remoteIdentifier,
-            let snapshot = snapshots[remoteID],
-            let (newSnapshot, changes) = snapshot.updated()
+              let snapshot = snapshots[remoteID]
         else { return }
         
-        snapshots[remoteID] = newSnapshot
-        postNotification(searchUser: searchUser, changes: changes)
-        
-    }
-    
-    /// Post a UserChangeInfo for the specified SearchUser
-    func postNotification(searchUser: ZMSearchUser, changes: [String]) {
-        let userChange = UserChangeInfo(object: searchUser)
-        userChange.changedKeys = Set(changes)
-        NotificationCenter.default.post(name: .SearchUserChange, object: searchUser, userInfo: ["changeInfo" : userChange])
+        snapshot.updateAndNotify()
     }
     
 }

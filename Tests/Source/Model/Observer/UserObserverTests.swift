@@ -20,18 +20,7 @@
 import Foundation
 @testable import ZMCDataModel
 
-class UserObserver : NSObject, ZMUserObserver {
 
-    var notifications = [UserChangeInfo]()
-
-    func clearNotifications(){
-        notifications = []
-    }
-    
-    func userDidChange(_ note: UserChangeInfo!) {
-        notifications.append(note)
-    }
-}
 
 class UserObserverTests : NotificationDispatcherTests {
     

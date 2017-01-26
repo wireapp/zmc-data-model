@@ -35,7 +35,19 @@ extension ZMConversationList {
     init(setChangeInfo: SetChangeInfo) {
         super.init(observedObject: setChangeInfo.observedObject, changeSet: setChangeInfo.changeSet)
     }
-    
+}
+
+
+
+//@objc public protocol ZMConversationListObserverOpaqueToken : NSObjectProtocol {}
+
+@objc public protocol ZMConversationListObserver : NSObjectProtocol {
+    func conversationListDidChange(_ changeInfo: ConversationListChangeInfo)
+    @objc optional func conversationInsideList(_ list: ZMConversationList, didChange changeInfo: ConversationChangeInfo)
+}
+
+extension ConversationListChangeInfo {
+
     @objc(addObserver:forList:)
     public static func add(observer: ZMConversationListObserver,for list: ZMConversationList) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .ZMConversationListDidChange,
@@ -49,7 +61,7 @@ extension ZMConversationList {
                 observer.conversationListDidChange(changeInfo)
             }
             if let changeInfo = note.userInfo?["conversationChangeInfo"] as? ConversationChangeInfo {
-                observer.conversation?(inside: list, didChange: changeInfo)
+                observer.conversationInsideList?(list, didChange: changeInfo)
             }
         }
     }

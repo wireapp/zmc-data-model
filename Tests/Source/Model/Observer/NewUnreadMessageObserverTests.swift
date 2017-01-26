@@ -28,12 +28,12 @@ import Foundation
         super.init()
     }
     
-    @objc func didReceiveNewUnreadKnockMessages(_ note: NewUnreadKnockMessagesChangeInfo){
-        self.unreadKnockNotes.append(note)
+    @objc func didReceiveNewUnreadKnockMessages(_ changeInfo: NewUnreadKnockMessagesChangeInfo){
+        self.unreadKnockNotes.append(changeInfo)
     }
     
-    @objc func didReceiveNewUnreadMessages(_ note: NewUnreadMessagesChangeInfo) {
-        self.unreadMessageNotes.append(note)
+    @objc func didReceiveNewUnreadMessages(_ changeInfo: NewUnreadMessagesChangeInfo) {
+        self.unreadMessageNotes.append(changeInfo)
     }
     
     func clearNotifications() {

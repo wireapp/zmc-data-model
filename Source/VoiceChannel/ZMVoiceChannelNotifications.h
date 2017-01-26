@@ -23,34 +23,7 @@
 
 
 @class ZMUser;
-@class VoiceChannelStateChangeInfo;
-@class VoiceChannelParticipantsChangeInfo;
-@protocol ZMVoiceChannelStateObserver;
 @protocol ZMVoiceChannelVoiceGainObserver;
-@protocol ZMVoiceChannelParticipantsObserver;
-
-//@protocol ZMVoiceChannelStateObserverOpaqueToken
-//@end
-//
-//@protocol ZMVoiceChannelParticipantsObserverOpaqueToken
-//@end
-
-//@interface ZMVoiceChannel (ChangeNotification)
-//
-//- (nullable id<ZMVoiceChannelStateObserverOpaqueToken>)addVoiceChannelStateObserver:(nonnull id<ZMVoiceChannelStateObserver>)observer;
-//- (void)removeVoiceChannelStateObserverForToken:(nonnull id<ZMVoiceChannelStateObserverOpaqueToken>)token;
-//
-//+ (nullable id<ZMVoiceChannelStateObserverOpaqueToken>)addGlobalVoiceChannelStateObserver:(nonnull id<ZMVoiceChannelStateObserver>)observer managedObjectContext:(nonnull NSManagedObjectContext *)managedObjectContext;
-//+ (void)removeGlobalVoiceChannelStateObserverForToken:(nonnull id<ZMVoiceChannelStateObserverOpaqueToken>)token managedObjectContext:(nonnull NSManagedObjectContext *)managedObjectContext;
-//
-//+ (nonnull id<ZMVoiceChannelStateObserverOpaqueToken>)addGlobalVoiceChannelStateObserver:(nonnull id<ZMVoiceChannelStateObserver>)observer inUserSession:(nonnull id<ZMManagedObjectContextProvider>)userSession;
-//+ (void)removeGlobalVoiceChannelStateObserverForToken:(nonnull id<ZMVoiceChannelStateObserverOpaqueToken>)token inUserSession:(nonnull id<ZMManagedObjectContextProvider>)userSession;
-//
-//- (nonnull id<ZMVoiceChannelParticipantsObserverOpaqueToken>)addCallParticipantsObserver:(nullable id<ZMVoiceChannelParticipantsObserver>)callParticipantsObserver;
-//- (void)removeCallParticipantsObserverForToken:(nonnull  id<ZMVoiceChannelParticipantsObserverOpaqueToken>)token;
-//
-//@end
-//
 
 
 
@@ -64,24 +37,6 @@
 /// Passing @c nil for @a voiceChannel is a no-op, i.e. does not add the observer.
 + (void)addObserver:(nonnull  id<ZMVoiceChannelVoiceGainObserver>)observer forVoiceChannel:(nonnull ZMVoiceChannel *)voiceChannel;
 + (void)removeObserver:(nonnull id<ZMVoiceChannelVoiceGainObserver>)observer;
-
-@end
-
-
-
-@protocol ZMVoiceChannelStateObserver <NSObject>
-
-- (void)voiceChannelStateDidChange:(nonnull VoiceChannelStateChangeInfo *)info;
-
-@optional
-- (void)voiceChannelJoinFailedWithError:(nonnull NSError *)error;
-@end
-
-
-
-@protocol ZMVoiceChannelParticipantsObserver
-
-- (void)voiceChannelParticipantsDidChange:(nonnull VoiceChannelParticipantsChangeInfo *)info;
 
 @end
 

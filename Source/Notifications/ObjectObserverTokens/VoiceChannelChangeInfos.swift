@@ -51,9 +51,20 @@ import Foundation
     public override var description: String {
         return "Call state changed from \(previousState) to \(currentState)"
     }
+}
+
+
+//@objc public protocol ZMVoiceChannelStateObserverOpaqueToken : NSObjectProtocol {}
+@objc public protocol ZMVoiceChannelStateObserver :NSObjectProtocol {
     
+    func voiceChannelStateDidChange(_ changeInfo: VoiceChannelStateChangeInfo)
+    @objc optional func voiceChannelJoinFailed(error: NSError)
+}
+
+extension VoiceChannelStateChangeInfo {
+
     @objc(addObserver:forConversation:)
-    public static func add(observer: ZMVoiceChannelStateObserver, for conversation: ZMConversation) -> NSObjectProtocol {
+    public static func add(observer: ZMVoiceChannelStateObserver, for conversation: ZMConversation?) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .VoiceChannelStateChange,
                                                       object: conversation,
                                                       queue: nil)
@@ -96,6 +107,9 @@ extension ZMVoiceChannelState: CustomStringConvertible {
 ///
 /////////////////////
 
+@objc public protocol ZMVoiceChannelParticipantsObserver : NSObjectProtocol {
+    func voiceChannelParticipantsDidChange(_ changeInfo: VoiceChannelParticipantsChangeInfo)
+}
 
 
 @objc public final class VoiceChannelParticipantsChangeInfo: SetChangeInfo {
@@ -109,6 +123,13 @@ extension ZMVoiceChannelState: CustomStringConvertible {
     public var voiceChannel : ZMVoiceChannel { return conversation.voiceChannel }
     public var otherActiveVideoCallParticipantsChanged : Bool = false
     
+}
+
+
+//@objc public protocol ZMVoiceChannelParticipantsObserverOpaqueToken : NSObjectProtocol {}
+
+extension VoiceChannelParticipantsChangeInfo {
+    
     @objc(addObserver:forConversation:)
     public static func add(observer: ZMVoiceChannelParticipantsObserver,for conversation: ZMConversation) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .VoiceChannelParticipantStateChange,
@@ -119,7 +140,7 @@ extension ZMVoiceChannelState: CustomStringConvertible {
                 let changeInfo = note.userInfo?["changeInfo"] as? VoiceChannelParticipantsChangeInfo
                 else { return }
             observer.voiceChannelParticipantsDidChange(changeInfo)
-        }
+        } 
     }
     
     @objc(removeObserver:forConversation:)

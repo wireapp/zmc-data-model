@@ -20,21 +20,16 @@
 import Foundation
 @testable import ZMCDataModel
 
+
 class MessageObserverTests : NotificationDispatcherTests {
     
-    class TestMessageObserver : NSObject, ZMMessageObserver {
-        var receivedChangeInfo : [MessageChangeInfo] = []
-        
-        func messageDidChange(_ changes: MessageChangeInfo) {
-            receivedChangeInfo.append(changes)
-        }
-    }
     
-    var messageObserver : TestMessageObserver!
+    
+    var messageObserver : MessageObserver!
     
     override func setUp() {
         super.setUp()
-        messageObserver = TestMessageObserver()
+        messageObserver = MessageObserver()
     }
 
     override func tearDown() {
@@ -59,16 +54,16 @@ class MessageObserverTests : NotificationDispatcherTests {
         
         // then
         if expectedChangedField != nil {
-            XCTAssertEqual(messageObserver.receivedChangeInfo.count, 1)
+            XCTAssertEqual(messageObserver.notifications.count, 1)
         } else {
-            XCTAssertEqual(messageObserver.receivedChangeInfo.count, 0)
+            XCTAssertEqual(messageObserver.notifications.count, 0)
         }
         
         // and when
         self.uiMOC.saveOrRollback()
         
         // then
-        XCTAssertTrue(messageObserver.receivedChangeInfo.count <= 1, "Should have changed only once")
+        XCTAssertTrue(messageObserver.notifications.count <= 1, "Should have changed only once")
         
         let messageInfoKeys = [
             "imageChanged",
@@ -79,7 +74,7 @@ class MessageObserverTests : NotificationDispatcherTests {
         ]
         
         if let changedField = expectedChangedField {
-            if let changes = messageObserver.receivedChangeInfo.first {
+            if let changes = messageObserver.notifications.first {
                 for key in messageInfoKeys {
                     if let value = changes.value(forKey: key) as? NSNumber {
                         if key == changedField {
@@ -274,6 +269,6 @@ class MessageObserverTests : NotificationDispatcherTests {
         self.uiMOC.saveOrRollback()
         
         // then
-        XCTAssertEqual(messageObserver.receivedChangeInfo.count, 0)
+        XCTAssertEqual(messageObserver.notifications.count, 0)
     }
 }
