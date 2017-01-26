@@ -366,23 +366,30 @@ public class NotificationDispatcher : NSObject {
     
     /// Gets additional user changes from userImageCache
     func checkForChangedImages() -> Set<ZMManagedObject> {
-        let largeImageChanges = managedObjectContext.zm_userImageCache?.usersWithChangedLargeImage ?? []
-        largeImageChanges.forEach { user in
-            var newValue = userChanges[user] ?? Set()
-            newValue.insert("imageMediumData")
-            userChanges[user] = newValue
-        }
-        let smallImageChanges = managedObjectContext.zm_userImageCache?.usersWithChangedSmallImage ?? []
-        smallImageChanges.forEach { user in
-            var newValue = userChanges[user] ?? Set()
-            newValue.insert("imageSmallProfileData")
-            userChanges[user] = newValue
-        }
+        let largeImageChanges = managedObjectContext.zm_userImageCache?.usersWithChangedLargeImage
+        let largeImageUsers = extractUsersWithImageChange(objectIDs: largeImageChanges,
+                                                          changedKey: "imageMediumData")
+        let smallImageChanges = managedObjectContext.zm_userImageCache?.usersWithChangedSmallImage
+        let smallImageUsers = extractUsersWithImageChange(objectIDs: smallImageChanges,
+                                                          changedKey: "imageSmallProfileData")
         managedObjectContext.zm_userImageCache?.usersWithChangedLargeImage = []
         managedObjectContext.zm_userImageCache?.usersWithChangedSmallImage = []
-        return Set(largeImageChanges + smallImageChanges)
+        return smallImageUsers.union(largeImageUsers)
     }
     
+    
+    func extractUsersWithImageChange(objectIDs: [NSManagedObjectID]?, changedKey: String) -> Set<ZMUser> {
+        guard let objectIDs = objectIDs else { return Set() }
+        var users = Set<ZMUser>()
+        objectIDs.forEach { objectID in
+            guard let user = (try? managedObjectContext.existingObject(with: objectID)) as? ZMUser else { return }
+            var newValue = userChanges[user] ?? Set()
+            newValue.insert(changedKey)
+            userChanges[user] = newValue
+            users.insert(user)
+        }
+        return users
+    }
     
     /// Gets additional changes from UserDisplayNameGenerator
     func checkForDisplayNameUpdates(with note: Notification) -> Set<ZMManagedObject> {
