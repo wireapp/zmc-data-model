@@ -49,7 +49,7 @@ extension NSManagedObjectContext {
     }
 }
 
-@objc final public class MessageWindowObserverCenter : NSObject {
+@objc final public class MessageWindowObserverCenter : NSObject, ChangeInfoConsumer {
     
     var windowSnapshot : MessageWindowSnapshot?
     
@@ -91,20 +91,29 @@ extension NSManagedObjectContext {
         windowSnapshot = nil
     }
     
-    func conversationDidChange(_ changeInfo: ConversationChangeInfo) {
-        windowSnapshot?.conversationDidChange(changeInfo)
+    public func objectsDidChange(changes: [ClassIdentifier : [ObjectChangeInfo]]) {
+        guard let snapshot = windowSnapshot else { return }
+        changes.values.forEach{
+            if let convChanges = $0 as? [ConversationChangeInfo] {
+                convChanges.forEach{snapshot.conversationDidChange($0)}
+            }
+            if let userChanges = $0 as? [UserChangeInfo] {
+                userChanges.forEach{snapshot.userDidChange(changeInfo: $0)}
+            }
+            if let messageChanges = $0 as? [MessageChangeInfo] {
+                messageChanges.forEach{snapshot.messageDidChange($0)}
+            }
+        }
+        
+        snapshot.fireNotifications()
     }
     
-    func messageDidChange(changeInfo: MessageChangeInfo) {
-        windowSnapshot?.messageDidChange(changeInfo)
+    public func applicationDidEnterBackground() {
+        // clear snapshot?
     }
     
-    func userDidChange(changeInfo: UserChangeInfo) {
-        windowSnapshot?.userDidChange(changeInfo: changeInfo)
-    }
-    
-    func fireNotifications() {
-        windowSnapshot?.fireNotifications()
+    public func applicationWillEnterForeground() {
+        // do nothing?
     }
 }
 

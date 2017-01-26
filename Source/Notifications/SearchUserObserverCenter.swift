@@ -98,7 +98,7 @@ class SearchUserSnapshot  {
     }
 }
 
-@objc public class SearchUserObserverCenter : NSObject {
+@objc public class SearchUserObserverCenter : NSObject, ChangeInfoConsumer {
     
     /// Map of searchUser remoteID to snapshot
     var snapshots : [UUID : SearchUserSnapshot] = [:]
@@ -136,33 +136,37 @@ class SearchUserSnapshot  {
         snapshots = [:]
     }
     
+    public func objectsDidChange(changes: [ClassIdentifier : [ObjectChangeInfo]]) {
+        guard let userChanges = changes[ZMUser.entityName()] as? [UserChangeInfo] else { return }
+        userChanges.forEach{usersDidChange(info: $0)}
+    }
+    
+    
     /// Matches the userChangeInfo with the searchUser snapshots and updates those if needed
-    func usersDidChange(changeInfos: [UserChangeInfo]){
+    func usersDidChange(info: UserChangeInfo){
         guard snapshots.count > 0 else { return }
         
-        changeInfos.forEach{ info in
-            guard info.nameChanged || info.imageMediumDataChanged || info.imageSmallProfileDataChanged || info.connectionStateChanged,
-                  let user = info.user as? ZMUser,
-                  let remoteID = user.remoteIdentifier,
-                  let snapshot = snapshots[remoteID]
-            else {
+        guard info.nameChanged || info.imageMediumDataChanged || info.imageSmallProfileDataChanged || info.connectionStateChanged,
+            let user = info.user as? ZMUser,
+            let remoteID = user.remoteIdentifier,
+            let snapshot = snapshots[remoteID]
+        else {
                 return
-            }
-            
-            guard let searchUser = snapshot.searchUser else {
-                zmLog.warn("SearchUserObserverCenter: SearchUser was deallocated, but snapshot not removed. Did you forget to tearDown the search directory?")
-                snapshots.removeValue(forKey: remoteID)
-                return
-            }
-            
-            guard searchUser.user != nil else {
-                // When inserting a connection with a remote user, the user is first inserted into the sync context, then merged into the UI context
-                // Only then the relationship is set between searchUser and user. Therefore we might receive the userChange notification about the updated connectionState BEFORE the relationship is set.
-                // We will wait until we get notified via `notifyUpdatedSearchUser:`
-                return
-            }
-            snapshot.updateAndNotify()
         }
+        
+        guard let searchUser = snapshot.searchUser else {
+            zmLog.warn("SearchUserObserverCenter: SearchUser was deallocated, but snapshot not removed. Did you forget to tearDown the search directory?")
+            snapshots.removeValue(forKey: remoteID)
+            return
+        }
+        
+        guard searchUser.user != nil else {
+            // When inserting a connection with a remote user, the user is first inserted into the sync context, then merged into the UI context
+            // Only then the relationship is set between searchUser and user. Therefore we might receive the userChange notification about the updated connectionState BEFORE the relationship is set.
+            // We will wait until we get notified via `notifyUpdatedSearchUser:`
+            return
+        }
+        snapshot.updateAndNotify()
     }
     
     /// Updates the snapshot of the given searchUser
@@ -172,6 +176,14 @@ class SearchUserSnapshot  {
         else { return }
         
         snapshot.updateAndNotify()
+    }
+    
+    public func applicationDidEnterBackground() {
+        // clear snapshot?
+    }
+    
+    public func applicationWillEnterForeground() {
+        // do nothing
     }
     
 }

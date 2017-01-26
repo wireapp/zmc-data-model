@@ -45,7 +45,7 @@ extension NSManagedObjectContext {
     }
 }
 
-public class ConversationListObserverCenter : NSObject, ZMConversationObserver {
+public class ConversationListObserverCenter : NSObject, ZMConversationObserver, ChangeInfoConsumer {
     
     fileprivate var listSnapshots : [String : ConversationListSnapshot] = [:]
     
@@ -65,6 +65,11 @@ public class ConversationListObserverCenter : NSObject, ZMConversationObserver {
     /// Removes the conversationList from the objects to observe
     @objc public func removeConversationList(_ conversationList: ZMConversationList){
         listSnapshots.removeValue(forKey: conversationList.identifier)
+    }
+    
+    public func objectsDidChange(changes: [ClassIdentifier : [ObjectChangeInfo]]) {
+        guard let convChanges = changes[ZMConversation.entityName()] as? [ConversationChangeInfo] else { return }
+        convChanges.forEach{conversationDidChange($0)}
     }
     
     // MARK: Forwarding updates
@@ -106,6 +111,15 @@ public class ConversationListObserverCenter : NSObject, ZMConversationObserver {
         
         listSnapshots.values.forEach{$0.tearDown()}
         listSnapshots = [:]
+    }
+    
+    public func applicationDidEnterBackground() {
+        // TODO Sabine: clear snapshots?
+        listSnapshots = [:]
+    }
+    
+    public func applicationWillEnterForeground() {
+        // do nothing?
     }
 }
 

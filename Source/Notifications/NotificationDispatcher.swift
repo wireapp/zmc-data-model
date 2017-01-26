@@ -178,8 +178,14 @@ protocol Countable {
 extension NSOrderedSet : Countable {}
 extension NSSet : Countable {}
 
-typealias ClassIdentifier = String
+public typealias ClassIdentifier = String
 typealias ObjectAndChanges = [NSObject : Changes]
+
+@objc public protocol ChangeInfoConsumer : NSObjectProtocol {
+    func objectsDidChange(changes: [ClassIdentifier: [ObjectChangeInfo]])
+    func applicationDidEnterBackground()
+    func applicationWillEnterForeground()
+}
 
 public class NotificationDispatcher : NSObject {
 
@@ -198,6 +204,14 @@ public class NotificationDispatcher : NSObject {
         return managedObjectContext.searchUserObserverCenter!
     }
     private let snapshotCenter: SnapshotCenter
+    private var changeInfoConsumers = [UnownedNSObject]()
+    private var allChangeInfoConsumers : [ChangeInfoConsumer] {
+        var consumers = changeInfoConsumers.flatMap{$0.unbox as? ChangeInfoConsumer}
+        consumers.append(messageWindowObserverCenter)
+        consumers.append(searchUserObserverCenter)
+        consumers.append(conversationListObserverCenter)
+        return consumers
+    }
     
     private var allChanges : [ClassIdentifier : [NSObject : Changes]] = [:] 
     private var userChanges : [ZMManagedObject : Set<String>] = [:]
@@ -219,8 +233,8 @@ public class NotificationDispatcher : NSObject {
         self.affectingKeysStore = DependencyKeyStore(classIdentifiers : classIdentifiers)
         self.voicechannelObserverCenter = VoicechannelObserverCenter()
         self.snapshotCenter = SnapshotCenter(managedObjectContext: managedObjectContext)
-        
         super.init()
+
         NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcher.objectsDidChange(_:)), name:.NSManagedObjectContextObjectsDidChange, object: self.managedObjectContext)
         NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcher.contextDidSave(_:)), name:.NSManagedObjectContextDidSave, object: self.managedObjectContext)
         NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcher.nonCoreDataChange(_:)), name:.NonCoreDataChangeInManagedObject, object: nil)
@@ -236,6 +250,13 @@ public class NotificationDispatcher : NSObject {
         assert(tornDown)
     }
     
+    /// To receive and process changeInfos, call this method to add yourself as an consumer
+    @objc func addChangeInfoConsumer(_ consumer: ChangeInfoConsumer) {
+        let boxed = UnownedNSObject(consumer as! NSObject)
+        changeInfoConsumers.append(boxed)
+    }
+    
+    /// Call this when the application enters the background to stop sending notifications and clear current changes
     @objc func applicationDidEnterBackground() {
         forwardChanges = false
         unreadMessages = [:]
@@ -244,6 +265,7 @@ public class NotificationDispatcher : NSObject {
         snapshotCenter.clearAllSnapshots()
     }
     
+    /// Call this when the application will enter the foreground to start sending notifications again
     @objc func applicationWillEnterForeground() {
         forwardChanges = true
     }
@@ -494,19 +516,22 @@ public class NotificationDispatcher : NSObject {
     }
     
     func fireAllNotifications(){
+        var allChangeInfos : [ClassIdentifier: [ObjectChangeInfo]] = [:]
         allChanges.forEach{ (classIdentifier, changes) in
+            var changeInfos = [ObjectChangeInfo]()
             guard let notificationName = Notification.Name.nameForObservable(with: classIdentifier) else { return }
             let notifications : [Notification] = changes.flatMap{
                 guard let obj = $0 as? ZMManagedObject,
                       let changeInfo = NotificationDispatcher.changeInfo(for: obj, changes: $1)
                 else { return nil }
-                forwardNotificationToObserverCenters(changeInfo: changeInfo)
+                changeInfos.append(changeInfo)
                 return Notification(name: notificationName, object: $0, userInfo: ["changeInfo" : changeInfo])
             }
             notifications.forEach{NotificationCenter.default.post($0)}
+            allChangeInfos[classIdentifier] = changeInfos
         }
+        forwardNotificationToObserverCenters(changeInfos: allChangeInfos)
         fireNewUnreadMessagesNotifications()
-        messageWindowObserverCenter.fireNotifications()
         unreadMessages = [:]
         allChanges = [:]
     }
@@ -538,17 +563,9 @@ public class NotificationDispatcher : NSObject {
         return objectsSortedByClass
     }
     
-    func forwardNotificationToObserverCenters(changeInfo: ObjectChangeInfo){
-        if let changeInfo = changeInfo as? ConversationChangeInfo {
-            conversationListObserverCenter.conversationDidChange(changeInfo)
-            messageWindowObserverCenter.conversationDidChange(changeInfo)
-        }
-        if let changeInfo = changeInfo as? UserChangeInfo {
-            searchUserObserverCenter.usersDidChange(changeInfos: [changeInfo])
-            messageWindowObserverCenter.userDidChange(changeInfo: changeInfo)
-        }
-        if let changeInfo = changeInfo as? MessageChangeInfo {
-            messageWindowObserverCenter.messageDidChange(changeInfo: changeInfo)
+    func forwardNotificationToObserverCenters(changeInfos: [ClassIdentifier: [ObjectChangeInfo]]){
+        allChangeInfoConsumers.forEach{
+            $0.objectsDidChange(changes: changeInfos)
         }
     }
     
