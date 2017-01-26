@@ -78,6 +78,14 @@ static NSString * const PendingKey = @"Pending";
     NSAssert(error != nil, @"Failed to fetch");
 }
 
+- (void)refetchAllListsInManagedObjectContext:(NSManagedObjectContext *)moc
+{
+    NSArray *allConversations = [self fetchAllConversations:moc];
+    for (ZMConversationList* list in self.allConversationLists){
+        [list recreateWithAllConversation:allConversations];
+    }
+}
+
 - (NSArray *)allConversationLists;
 {
     return @[

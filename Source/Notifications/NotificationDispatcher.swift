@@ -236,21 +236,36 @@ public class NotificationDispatcher : NSObject {
         assert(tornDown)
     }
     
+    @objc func applicationDidEnterBackground() {
+        forwardChanges = false
+        unreadMessages = [:]
+        allChanges = [:]
+        userChanges = [:]
+        snapshotCenter.clearAllSnapshots()
+    }
+    
+    @objc func applicationWillEnterForeground() {
+        forwardChanges = true
+    }
+    
     /// This is called when objects in the uiMOC change
     /// Might be called several times in between saves
     @objc func objectsDidChange(_ note: Notification){
+        guard forwardChanges else { return }
         process(note: note)
         forwardChangesToConversationListObserver(note: note)
     }
     
     /// This is called when the uiMOC saved
     @objc func contextDidSave(_ note: Notification){
+        guard forwardChanges else { return }
         fireAllNotifications()
         forwardChangesToConversationListObserver(note: note)
     }
     
     /// This will be called if a change to an object does not cause a change in Core Data, e.g. downloading the asset and adding it to the cache
     @objc func nonCoreDataChange(_ note: Notification){
+        guard forwardChanges else { return }
         // TODO Sabine: add tests for this!
         guard let object = note.object as? ZMManagedObject,
               let changedKeys = (note.userInfo as? [String : [String]])?["changedKeys"]
@@ -286,16 +301,20 @@ public class NotificationDispatcher : NSObject {
     /// Get updated objects from notifications userInfo and map them to objectIDs
     /// After merging call `didMergeChanges()`
     public func willMergeChanges(_ changes: Set<NSManagedObjectID>){
+        guard forwardChanges else { return }
         snapshotCenter.willMergeChanges(changes: changes)
     }
     
     /// Call this from syncStrategy AFTER merging the changes from syncMOC into uiMOC
     public func didMergeChanges() {
+        guard forwardChanges else { return }
         fireAllNotifications()
     }
     
     /// Call this from syncStrategy BEFORE merging the changes from syncMOC into uiMOC
     public func notifyUpdatedCallState(_ conversations: Set<ZMConversation>, notifyDirectly: Bool) {
+        guard forwardChanges else { return }
+        
         let updatedConversations = voicechannelObserverCenter.conversationsWithVoicechannelStateChange(updatedConversationsAndChangedKeys:
             conversations.mapToDictionary{Set($0.changedValues().keys)}
         )

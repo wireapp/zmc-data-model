@@ -111,6 +111,12 @@ typedef NS_ENUM(int, ZMMessageWindowEvent) {
 }
 
 
+- (void)recreateMessageWindowAfterBackground
+{
+    [self recalculateMessages];
+    [self.conversation.managedObjectContext.messageWindowObserverCenter windowWasUpdated: self];
+}
+
 - (NSOrderedSet *)messages
 {
     return self.mutableMessages.reversedOrderedSet;

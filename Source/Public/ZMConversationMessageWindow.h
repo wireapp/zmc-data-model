@@ -31,6 +31,9 @@
 - (void)moveDownByMessages:(NSUInteger)amountOfMessages;
 - (void)moveUpByMessages:(NSUInteger)amountOfMessages;
 
+/// Use this to refetch the message window and refresh the snapshots when re-entering the foreground
+- (void)recreateMessageWindowAfterBackground;
+
 @end
 
 
