@@ -530,6 +530,11 @@ static dispatch_once_t clearStoreOnceToken;
 
 /// Fetch metadata for key from in-memory non-persisted metadata
 /// or from persistent store metadata, in that order
+
+/// !!! It is important to have this method in Objective-C, since the method
+/// `-[NSPersistentStoreCoordinator metadataForPersistentStore:]` is returning an Objective-C `NSDictionary`, when
+/// used from the Swift environment the return is unconditionally and recursively converted to Swift dictionary, making
+/// a performance hit on the application.
 - (id)persistentStoreMetadataForKey:(NSString *)key {
     id inMemoryValue = [self.nonCommittedMetadata objectForKey:key];
     if (nil != inMemoryValue) {
