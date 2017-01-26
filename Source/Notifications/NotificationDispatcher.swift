@@ -281,8 +281,8 @@ public class NotificationDispatcher : NSObject {
     /// This is called when the uiMOC saved
     @objc func contextDidSave(_ note: Notification){
         guard forwardChanges else { return }
-        fireAllNotifications()
         forwardChangesToConversationListObserver(note: note)
+        fireAllNotifications()
     }
     
     /// This will be called if a change to an object does not cause a change in Core Data, e.g. downloading the asset and adding it to the cache

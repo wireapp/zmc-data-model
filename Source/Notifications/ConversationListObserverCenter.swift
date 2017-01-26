@@ -58,6 +58,7 @@ public class ConversationListObserverCenter : NSObject, ZMConversationObserver, 
         }
     }
     
+    /// Overwrites the current snapshot of the specified conversationList
     @objc public func recreateSnapshot(for conversationList: ZMConversationList) {
         listSnapshots[conversationList.identifier] = ConversationListSnapshot(conversationList: conversationList)
     }
@@ -67,12 +68,13 @@ public class ConversationListObserverCenter : NSObject, ZMConversationObserver, 
         listSnapshots.removeValue(forKey: conversationList.identifier)
     }
     
+    // MARK: Forwarding updates
     public func objectsDidChange(changes: [ClassIdentifier : [ObjectChangeInfo]]) {
         guard let convChanges = changes[ZMConversation.entityName()] as? [ConversationChangeInfo] else { return }
         convChanges.forEach{conversationDidChange($0)}
+        forwardToSnapshots{$0.recalculateListAndNotify()}
     }
     
-    // MARK: Forwarding updates
     /// Handles updated conversations, updates lists and notifies observers
     public func conversationDidChange(_ changes: ConversationChangeInfo) {
         guard    changes.nameChanged              || changes.connectionStateChanged  || changes.isArchivedChanged
@@ -129,6 +131,8 @@ class ConversationListSnapshot: NSObject {
     fileprivate var state : SetSnapshot
     weak var conversationList : ZMConversationList?
     fileprivate var tornDown = false
+    var conversationChanges = [ConversationChangeInfo]()
+    var needsToRecalculate = false
     
     init(conversationList: ZMConversationList) {
         self.conversationList = conversationList
@@ -139,30 +143,31 @@ class ConversationListSnapshot: NSObject {
     /// Processes conversationChanges and removes or insert conversations and notifies observers
     fileprivate func processConversationChanges(_ changes: ConversationChangeInfo) {
         guard let list = conversationList else { return }
+        
         let conversation = changes.conversation
         if list.contains(conversation) {
             // list contains conversation and needs to be updated
-            let didRemoveConversation = updateDidRemoveConversation(list: list, changes: changes)
-            recalculateList(changedConversation: conversation, changes: didRemoveConversation ? nil : changes)
+            if !updateDidRemoveConversation(list: list, changes: changes) {
+                conversationChanges.append(changes)
+            }
+            needsToRecalculate = true
         }
         else if list.predicateMatchesConversation(conversation) {
             // list did not contain conversation and now it should
             list.insertConversations(Set(arrayLiteral: conversation))
-            recalculateList()
+            needsToRecalculate = true
         }
     }
     
     private func updateDidRemoveConversation(list: ZMConversationList, changes: ConversationChangeInfo) -> Bool {
-        var didRemoveConversation = false
         if !list.predicateMatchesConversation(changes.conversation) {
             list.removeConversations(Set(arrayLiteral: changes.conversation))
-            didRemoveConversation = true
+            return true
         }
-        let a = changes.changedKeys
-        if !didRemoveConversation && list.sortingIsAffected(byConversationKeys: a) {
+        if list.sortingIsAffected(byConversationKeys: changes.changedKeys) {
             list.resortConversation(changes.conversation)
         }
-        return didRemoveConversation
+        return false
     }
     
     /// Handles inserted and removed conversations, updates lists and notifies observers
@@ -171,7 +176,7 @@ class ConversationListSnapshot: NSObject {
         
         if accumulated {
             list.resort()
-            recalculateList()
+            needsToRecalculate = true
         } else {
             let conversationsToInsert = Set(inserted.filter { list.predicateMatchesConversation($0)})
             let conversationsToRemove = Set(deleted.filter { list.contains($0)})
@@ -180,35 +185,37 @@ class ConversationListSnapshot: NSObject {
             list.removeConversations(conversationsToRemove)
             
             if (!conversationsToInsert.isEmpty || !conversationsToRemove.isEmpty) {
-                recalculateList()
+                needsToRecalculate = true
             }
         }
     }
     
-    func recalculateList(changedConversation: ZMConversation? = nil, changes: ConversationChangeInfo? = nil) {
-        guard let conversationList = self.conversationList
-        else { tearDown(); return }
+    func recalculateListAndNotify() {
+        guard let list = self.conversationList, needsToRecalculate || conversationChanges.count > 0 else {
+            return
+        }
         
         var listChange : ConversationListChangeInfo? = nil
         defer {
-            notifyObservers(conversationChanges: changes, listChanges: listChange)
+            notifyObservers(conversationChanges: conversationChanges, listChanges: listChange)
+            conversationChanges = []
+            needsToRecalculate = false
         }
         
-        let changedSet = (changedConversation == nil) ? NSOrderedSet() : NSOrderedSet(object: changedConversation!)
-        guard let newStateUpdate = self.state.updatedState(changedSet, observedObject: conversationList, newSet: conversationList.toOrderedSet())
+        let changedSet = NSOrderedSet(array: conversationChanges.flatMap{$0.conversation})
+        guard let newStateUpdate = self.state.updatedState(changedSet, observedObject: list, newSet: list.toOrderedSet())
         else { return }
         
         self.state = newStateUpdate.newSnapshot
         listChange = ConversationListChangeInfo(setChangeInfo: newStateUpdate.changeInfo)
     }
     
-    private func notifyObservers(conversationChanges: ConversationChangeInfo?, listChanges: ConversationListChangeInfo?)
-    {
-        guard listChanges != nil || conversationChanges != nil else { return }
+    private func notifyObservers(conversationChanges: [ConversationChangeInfo], listChanges: ConversationListChangeInfo?) {
+        guard listChanges != nil || conversationChanges.count != 0 else { return }
         
         var userInfo = [String : Any]()
-        if let changes = conversationChanges {
-            userInfo["conversationChangeInfo"] = changes
+        if conversationChanges.count > 0 {
+            userInfo["conversationChangeInfo"] = conversationChanges
         }
         if let changes = listChanges {
             userInfo["conversationListChangeInfo"] = changes
