@@ -28,6 +28,8 @@ import ZMUtilities
 public protocol ObjectInSnapshot : NSObjectProtocol {
     
     static var observableKeys : Set<String> { get }
+    var notificationName : Notification.Name { get }
+
 }
 
 protocol ValueToCopy : NSCopying {}

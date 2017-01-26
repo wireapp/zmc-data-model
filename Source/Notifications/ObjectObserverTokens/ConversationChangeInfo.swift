@@ -25,6 +25,10 @@ extension ZMConversation : ObjectInSnapshot {
         return Set(["messages", "lastModifiedDate", "isArchived", "conversationListIndicator", "voiceChannelState", "activeFlowParticipants", "callParticipants", "isSilenced", SecurityLevelKey, "otherActiveVideoCallParticipants", "displayName", "estimatedUnreadCount", "clearedTimeStamp", "otherActiveParticipants", "isSelfAnActiveMember", "relatedConnectionState"])
     }
 
+    public var notificationName: Notification.Name {
+        return .ConversationChange
+    }
+
 }
 
 

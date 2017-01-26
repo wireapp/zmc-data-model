@@ -41,6 +41,10 @@ extension ZMMessage : ObjectInSnapshot {
     public class var observableKeys : Set<String> {
         return [MessageKey.deliveryState.rawValue, MessageKey.isObfuscated.rawValue]
     }
+    
+    public var notificationName : Notification.Name {
+        return .MessageChange
+    }
 }
 
 extension ZMAssetClientMessage {

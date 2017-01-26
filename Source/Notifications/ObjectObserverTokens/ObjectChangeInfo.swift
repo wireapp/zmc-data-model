@@ -51,3 +51,29 @@ open class ObjectChangeInfo : NSObject, ObjectChangeInfoProtocol {
     }
 }
 
+
+
+extension ObjectChangeInfo {
+    
+    static func changeInfo(for object: NSObject, changes: Changes) -> ObjectChangeInfo? {
+        switch object {
+        case let object as ZMConversation:  return ConversationChangeInfo.changeInfo(for: object, changes: changes)
+        case let object as ZMUser:          return UserChangeInfo.changeInfo(for: object, changes: changes)
+        case let object as ZMMessage:       return MessageChangeInfo.changeInfo(for: object, changes: changes)
+        case let object as UserClient:      return UserClientChangeInfo.changeInfo(for: object, changes: changes)
+        default:
+            return nil
+        }
+    }
+    
+    static func changeInfoforNewMessageNotification(with name: Notification.Name, changedMessages messages: Set<ZMMessage>) -> ObjectChangeInfo? {
+        switch name {
+        case Notification.Name.NewUnreadUnsentMessage: return NewUnreadUnsentMessageChangeInfo(messages: Array(messages) as [ZMConversationMessage])
+        case Notification.Name.NewUnreadMessage:       return NewUnreadMessagesChangeInfo(messages:      Array(messages) as [ZMConversationMessage])
+        case Notification.Name.NewUnreadKnock:         return NewUnreadKnockMessagesChangeInfo(messages: Array(messages) as [ZMConversationMessage])
+        default:
+            return nil
+        }
+    }
+}
+

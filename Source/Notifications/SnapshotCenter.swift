@@ -23,6 +23,13 @@ struct Snapshot {
     let toManyRelationships : [String : Int]
 }
 
+protocol Countable {
+    var count : Int { get }
+}
+
+extension NSOrderedSet : Countable {}
+extension NSSet : Countable {}
+
 class SnapshotCenter {
     
     private unowned var managedObjectContext: NSManagedObjectContext

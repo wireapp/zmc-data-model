@@ -41,27 +41,6 @@ extension Notification.Name {
 
     public static let NonCoreDataChangeInManagedObject = Notification.Name("NonCoreDataChangeInManagedObject")
     
-    static var ignoredObservableIdentifiers : [String] {
-        return [Reaction.entityName(), ZMGenericMessageData.entityName(), ZMConnection.entityName(), ZMSystemMessage.entityName()]
-    }
-    
-    static func nameForObservable(with classIdentifier : String) -> Notification.Name? {
-        switch classIdentifier {
-        case ZMConversation.entityName():
-            return .ConversationChange
-        case ZMUser.entityName():
-            return .UserChange
-        case UserClient.entityName():
-            return .UserClientChange
-        case ZMMessage.entityName(), ZMClientMessage.entityName(), ZMAssetClientMessage.entityName():
-            return .MessageChange
-        default:
-            if !ignoredObservableIdentifiers.contains(classIdentifier) {
-                zmLog.warn("There is no NotificationName defined for \(classIdentifier)")
-            }
-            return nil
-        }
-    }
 }
 
 extension Dictionary {
@@ -160,23 +139,8 @@ struct Changes : Mergeable {
     }
 }
 
-// TODO Sabine: Does it make sense to replace ZMManagedObject with this?
-//protocol IdentifiableClass {
-//    static var classIdentifier : String { get }
-//}
-//
-//extension ZMManagedObject : IdentifiableClass {
-//    static var classIdentifier : String {
-//        return entityName()
-//    }
-//}
 
-protocol Countable {
-    var count : Int { get }
-}
 
-extension NSOrderedSet : Countable {}
-extension NSSet : Countable {}
 
 public typealias ClassIdentifier = String
 typealias ObjectAndChanges = [NSObject : Changes]
@@ -185,6 +149,17 @@ typealias ObjectAndChanges = [NSObject : Changes]
     func objectsDidChange(changes: [ClassIdentifier: [ObjectChangeInfo]])
     func applicationDidEnterBackground()
     func applicationWillEnterForeground()
+}
+
+extension ZMManagedObject {
+    
+    static var classIdentifier : String {
+        return entityName()
+    }
+    
+    var classIdentifier: String {
+        return type(of: self).entityName()
+    }
 }
 
 public class NotificationDispatcher : NSObject {
@@ -221,15 +196,15 @@ public class NotificationDispatcher : NSObject {
     public init(managedObjectContext: NSManagedObjectContext) {
         assert(managedObjectContext.zm_isUserInterfaceContext, "NotificationDispatcher needs to be initialized with uiMOC")
         self.managedObjectContext = managedObjectContext
-        let classIdentifiers : [String] = [ZMConversation.entityName(),
-                                           ZMUser.entityName(),
-                                           ZMConnection.entityName(),
-                                           UserClient.entityName(),
-                                           ZMMessage.entityName(),
-                                           ZMClientMessage.entityName(),
-                                           ZMAssetClientMessage.entityName(),
-                                           Reaction.entityName(),
-                                           ZMGenericMessageData.entityName()]
+        let classIdentifiers : [String] = [ZMConversation.classIdentifier,
+                                           ZMUser.classIdentifier,
+                                           ZMConnection.classIdentifier,
+                                           UserClient.classIdentifier,
+                                           ZMMessage.classIdentifier,
+                                           ZMClientMessage.classIdentifier,
+                                           ZMAssetClientMessage.classIdentifier,
+                                           Reaction.classIdentifier,
+                                           ZMGenericMessageData.classIdentifier]
         self.affectingKeysStore = DependencyKeyStore(classIdentifiers : classIdentifiers)
         self.voicechannelObserverCenter = VoicechannelObserverCenter()
         self.snapshotCenter = SnapshotCenter(managedObjectContext: managedObjectContext)
@@ -293,7 +268,7 @@ public class NotificationDispatcher : NSObject {
               let changedKeys = (note.userInfo as? [String : [String]])?["changedKeys"]
         else { return }
         
-        let classIdentifier = type(of: object).entityName()
+        let classIdentifier = type(of: object).classIdentifier
         let change = Changes(changedKeys: Set(changedKeys))
 
         let objectAndChangedKeys = [object: change]
@@ -341,10 +316,10 @@ public class NotificationDispatcher : NSObject {
             conversations.mapToDictionary{Set($0.changedValues().keys)}
         )
         guard updatedConversations.count > 0 else { return }
-        let classIdentifier = ZMConversation.entityName()
+        let classIdentifier = ZMConversation.classIdentifier
         let affectedKeys = affectingKeysStore.keyPathsAffectedByValue(classIdentifier, key: "voiceChannelState")
         let changes = Dictionary(keys: updatedConversations, repeatedValue: Changes(changedKeys: affectedKeys))
-        allChanges[classIdentifier] = allChanges[ZMConversation.entityName()]?.merged(with: changes) ?? changes
+        allChanges[classIdentifier] = allChanges[ZMConversation.classIdentifier]?.merged(with: changes) ?? changes
     }
     
     func process(note: Notification) {
@@ -518,16 +493,15 @@ public class NotificationDispatcher : NSObject {
     func fireAllNotifications(){
         var allChangeInfos : [ClassIdentifier: [ObjectChangeInfo]] = [:]
         allChanges.forEach{ (classIdentifier, changes) in
-            var changeInfos = [ObjectChangeInfo]()
-            guard let notificationName = Notification.Name.nameForObservable(with: classIdentifier) else { return }
-            let notifications : [Notification] = changes.flatMap{
-                guard let obj = $0 as? ZMManagedObject,
-                      let changeInfo = NotificationDispatcher.changeInfo(for: obj, changes: $1)
+            let changeInfos : [ObjectChangeInfo] = changes.flatMap{
+                guard let notificationName = ($0 as? ObjectInSnapshot)?.notificationName,
+                      let changeInfo = ObjectChangeInfo.changeInfo(for: $0, changes: $1)
                 else { return nil }
-                changeInfos.append(changeInfo)
-                return Notification(name: notificationName, object: $0, userInfo: ["changeInfo" : changeInfo])
+
+                let notification = Notification(name: notificationName, object: $0, userInfo: ["changeInfo" : changeInfo])
+                NotificationCenter.default.post(notification)
+                return changeInfo
             }
-            notifications.forEach{NotificationCenter.default.post($0)}
             allChangeInfos[classIdentifier] = changeInfos
         }
         forwardNotificationToObserverCenters(changeInfos: allChangeInfos)
@@ -536,11 +510,12 @@ public class NotificationDispatcher : NSObject {
         allChanges = [:]
     }
     
+    
     /// Fire all new unread notifications
     func fireNewUnreadMessagesNotifications(){
         unreadMessages.forEach{ (notificationName, messages) in
             guard messages.count > 0 else { return }
-            guard let changeInfo = NotificationDispatcher.changeInfoforNewMessageNotification(with: notificationName, changedMessages: messages) else {
+            guard let changeInfo = ObjectChangeInfo.changeInfoforNewMessageNotification(with: notificationName, changedMessages: messages) else {
                 zmLog.warn("Did you forget to add the mapping for that?")
                 return
             }
@@ -552,7 +527,7 @@ public class NotificationDispatcher : NSObject {
     /// Sorts all objects by entityName, e.g. ["ZMConversation" : Set(conversation1, conversation2), "ZMUser" : Set(user1, user2)]
     private func sortObjectsByEntityName(objects: Set<ZMManagedObject>) ->  [String : Set<ZMManagedObject>]{
         let objectsSortedByClass = objects.reduce([String : Set<ZMManagedObject>]()){ (dict, object) in
-            let name = type(of: object).entityName()
+            let name = object.classIdentifier
             var values = dict[name] ?? Set<ZMManagedObject>()
             values.insert(object)
             
@@ -569,26 +544,7 @@ public class NotificationDispatcher : NSObject {
         }
     }
     
-    static func changeInfo(for object: ZMManagedObject, changes: Changes) -> ObjectChangeInfo? {
-        switch object {
-        case let object as ZMConversation:  return ConversationChangeInfo.changeInfo(for: object, changes: changes)
-        case let object as ZMUser:          return UserChangeInfo.changeInfo(for: object, changes: changes)
-        case let object as ZMMessage:       return MessageChangeInfo.changeInfo(for: object, changes: changes)
-        case let object as UserClient:      return UserClientChangeInfo.changeInfo(for: object, changes: changes)
-        default:
-            return nil
-        }
-    }
-    
-    static func changeInfoforNewMessageNotification(with name: Notification.Name, changedMessages messages: Set<ZMMessage>) -> ObjectChangeInfo? {
-        switch name {
-        case Notification.Name.NewUnreadUnsentMessage: return NewUnreadUnsentMessageChangeInfo(messages: Array(messages) as [ZMConversationMessage])
-        case Notification.Name.NewUnreadMessage:       return NewUnreadMessagesChangeInfo(messages:      Array(messages) as [ZMConversationMessage])
-        case Notification.Name.NewUnreadKnock:         return NewUnreadKnockMessagesChangeInfo(messages: Array(messages) as [ZMConversationMessage])
-        default:
-            return nil
-        }
-    }
+
 }
 
 extension NotificationDispatcher {

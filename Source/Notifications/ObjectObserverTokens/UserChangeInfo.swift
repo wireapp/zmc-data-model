@@ -25,7 +25,10 @@ extension ZMUser : ObjectInSnapshot {
     static public var observableKeys : Set<String> {
         return Set(arrayLiteral: "name", "displayName", "accentColorValue", "imageMediumData", "imageSmallProfileData","emailAddress", "phoneNumber", "canBeConnected", "isConnected", "isPendingApprovalByOtherUser", "isPendingApprovalBySelfUser", "clients", "handle")
     }
-
+    
+    public var notificationName : Notification.Name {
+        return .UserChange
+    }
 }
 
 

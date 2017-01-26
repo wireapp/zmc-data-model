@@ -24,6 +24,7 @@ extension UserClient {
     public override var description: String {
         return "Client: \(sessionIdentifier?.rawValue), user name: \(user?.name) email: \(user?.emailAddress) platform: \(deviceClass), label: \(label), model: \(model)"
     }
+
     
 }
 
@@ -31,6 +32,10 @@ extension UserClient: ObjectInSnapshot {
 
     static public var observableKeys : Set<String> {
         return Set([ZMUserClientTrusted_ByKey, ZMUserClientIgnored_ByKey, ZMUserClientNeedsToNotifyUserKey, ZMUserClientFingerprintKey])
+    }
+    
+    public var notificationName : Notification.Name {
+        return .UserClientChange
     }
 }
 
