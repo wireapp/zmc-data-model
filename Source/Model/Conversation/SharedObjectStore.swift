@@ -17,7 +17,6 @@
 //
 
 
-
 fileprivate extension Notification {
 
     var contextDidSaveData: [AnyHashable : AnyObject] {
@@ -27,7 +26,7 @@ fileprivate extension Notification {
             guard let set = value as? NSSet else { continue }
             changes[key] = set.flatMap {
                 return ($0 as? NSManagedObject)?.objectID.uriRepresentation()
-                } as AnyObject
+            } as AnyObject
         }
 
         return changes
@@ -53,58 +52,10 @@ fileprivate extension Notification {
         objectStore.clear()
     }
 
-    public var storedNotifications: [[AnyHashable: AnyObject]] {
+    public var storedNotifications: [[AnyHashable : AnyObject]] {
         return objectStore.load()
     }
 
-}
-
-public class StorableTrackingEvent {
-
-    private static let eventNameKey = "eventName"
-    private static let eventAttributesKey = "eventAttributes"
-
-    let name: String
-    let attributes: [String: Any]
-
-    public init(name: String, attributes: [String: Any]) {
-        self.name = name
-        self.attributes = attributes
-    }
-
-    public convenience init?(dictionary dict: [String: Any]) {
-        guard let name = dict[StorableTrackingEvent.eventNameKey] as? String,
-            let attributes = dict[StorableTrackingEvent.eventAttributesKey] as? [String: Any] else { return nil }
-        self.init(name: name, attributes: attributes)
-    }
-
-    public func dictionaryRepresentation() -> [String: Any] {
-        return [
-            StorableTrackingEvent.eventNameKey: name,
-            StorableTrackingEvent.eventAttributesKey: attributes
-        ]
-    }
-
-}
-
-@objc public class ShareExtensionAnalyticsPersistence: NSObject {
-    private let objectStore: SharedObjectStore<[String: Any]>
-
-    public required init(sharedContainerURL url: URL) {
-        objectStore = SharedObjectStore(sharedContainerURL: url, fileName: "ShareExtensionAnalytics")
-    }
-
-    @discardableResult public func add(_ storableEvent: StorableTrackingEvent) -> Bool {
-        return objectStore.store(storableEvent.dictionaryRepresentation())
-    }
-
-    public func clear() {
-        objectStore.clear()
-    }
-
-    public var storedNotifications: [[String: Any]] {
-        return objectStore.load()
-    }
 }
 
 
@@ -178,5 +129,5 @@ public class SharedObjectStore<T>: NSObject {
             zmLog.error("Failed to remove item at url: \(url), error: \(error)")
         }
     }
-    
+
 }
