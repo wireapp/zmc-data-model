@@ -155,7 +155,6 @@ class SearchUserSnapshot  {
         }
         
         guard let searchUser = snapshot.searchUser else {
-            zmLog.warn("SearchUserObserverCenter: SearchUser was deallocated, but snapshot not removed. Did you forget to tearDown the search directory?")
             snapshots.removeValue(forKey: remoteID)
             return
         }

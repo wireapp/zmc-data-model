@@ -137,7 +137,7 @@ class VoiceChannelStateSnapshot: NSObject  {
     
     func conversationDidChange(changedKeys: Set<String>) -> (VoiceChannelParticipantsChangeInfo?, VoiceChannelStateChangeInfo?) {
         var partStateChangeInfo : VoiceChannelParticipantsChangeInfo?
-        let hasChangedKeys = changedKeys.contains{$0 == "activeFlowParticipants" || $0 == "callParticipants" || $0 == "otherActiveVideoCallParticipants"}
+        let hasChangedKeys = changedKeys.isDisjoint(with: ["activeFlowParticipants", "callParticipants","otherActiveVideoCallParticipants"])
         let hasNewFlowParticipants = conversation.activeFlowParticipants.array as! [ZMUser] != activeFlowParticipantsState.array as! [ZMUser]
         let hasNewVideoParticipants = conversation.otherActiveVideoCallParticipants != otherActiveVideoParticipantsState
         if  hasChangedKeys || hasNewFlowParticipants || hasNewVideoParticipants {

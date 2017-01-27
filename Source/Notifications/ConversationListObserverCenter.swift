@@ -70,7 +70,7 @@ public class ConversationListObserverCenter : NSObject, ZMConversationObserver, 
     
     // MARK: Forwarding updates
     public func objectsDidChange(changes: [ClassIdentifier : [ObjectChangeInfo]]) {
-        guard let convChanges = changes[ZMConversation.entityName()] as? [ConversationChangeInfo] else { return }
+        guard let convChanges = changes[ZMConversation.classIdentifier] as? [ConversationChangeInfo] else { return }
         convChanges.forEach{conversationDidChange($0)}
         forwardToSnapshots{$0.recalculateListAndNotify()}
     }
@@ -116,7 +116,8 @@ public class ConversationListObserverCenter : NSObject, ZMConversationObserver, 
     }
     
     public func applicationDidEnterBackground() {
-        // TODO Sabine: clear snapshots?
+        // We should always recreate the snapshots when reenerting the foreground
+        // Therefore it would be safe to clear the snapshots here
         listSnapshots = [:]
     }
     
@@ -215,7 +216,7 @@ class ConversationListSnapshot: NSObject {
         
         var userInfo = [String : Any]()
         if conversationChanges.count > 0 {
-            userInfo["conversationChangeInfo"] = conversationChanges
+            userInfo["conversationChangeInfos"] = conversationChanges
         }
         if let changes = listChanges {
             userInfo["conversationListChangeInfo"] = changes

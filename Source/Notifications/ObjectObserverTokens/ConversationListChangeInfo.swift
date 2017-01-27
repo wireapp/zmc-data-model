@@ -60,8 +60,10 @@ extension ConversationListChangeInfo {
             if let changeInfo = note.userInfo?["conversationListChangeInfo"] as? ConversationListChangeInfo{
                 observer.conversationListDidChange(changeInfo)
             }
-            if let changeInfo = note.userInfo?["conversationChangeInfo"] as? ConversationChangeInfo {
-                observer.conversationInsideList?(list, didChange: changeInfo)
+            if let changeInfos = note.userInfo?["conversationChangeInfos"] as? [ConversationChangeInfo] {
+                changeInfos.forEach{
+                    observer.conversationInsideList?(list, didChange: $0)
+                }
             }
         }
     }

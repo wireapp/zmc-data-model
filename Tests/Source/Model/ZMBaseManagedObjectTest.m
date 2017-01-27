@@ -128,12 +128,7 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
 - (void)updateDisplayNameGeneratorWithUsers:(NSArray *)users;
 {
     [self.uiMOC saveOrRollback];
-    NSNotification *note = [NSNotification notificationWithName:@"TestNotification" object:nil userInfo:@{
-                                                                                                          NSInsertedObjectsKey : [NSSet setWithArray:users],
-                                                                                                          NSUpdatedObjectsKey :[NSSet set],
-                                                                                                          NSDeletedObjectsKey : [NSSet set]
-                                                                                                          }];
-    [self.uiMOC updateDisplayNameGeneratorWithChanges:note];
+    [self.uiMOC updateDisplayNameGeneratorWithUpdatedUsers:[NSSet set] insertedUsers:[NSSet setWithArray:users] deletedUsers:[NSSet set]];
 }
 
 @end

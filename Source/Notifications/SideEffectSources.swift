@@ -37,7 +37,7 @@ extension ZMManagedObject {
     func byInsertOrDeletionAffectedKeys(for object: ZMManagedObject?, keyStore: DependencyKeyStore, affectedKey: String) -> [ClassIdentifier: ObjectAndChanges] {
         guard let object = object else { return [:] }
         let classIdentifier = type(of:object).entityName()
-        return [classIdentifier : [object : Changes(changedKeys: keyStore.keyPathsAffectedByValue(classIdentifier, key: affectedKey))]]
+        return [classIdentifier : [object : Changes(changedKeys: keyStore.observableKeysAffectedByValue(classIdentifier, key: affectedKey))]]
     }
     
     /// Returns a map of [classIdentifier : [affectedObject: changedKeys]]
@@ -55,7 +55,7 @@ extension ZMManagedObject {
         let allKeys = knownKeys.union(changes.keys)
         
         let mappedKeys : [String] = Array(allKeys).map(keyMapping)
-        let keys = mappedKeys.map{keyStore.keyPathsAffectedByValue(classIdentifier, key: $0)}.reduce(Set()){$0.union($1)}
+        let keys = mappedKeys.map{keyStore.observableKeysAffectedByValue(classIdentifier, key: $0)}.reduce(Set()){$0.union($1)}
         guard keys.count > 0 || originalChangeKey != nil else { return [:] }
         
         var originalChanges = [String : NSObject?]()
@@ -104,7 +104,7 @@ extension ZMUser : SideEffectSource {
         let otherPartKeys = changedKeys.map{"otherActiveParticipants.\($0)"}
         let selfUserKeys = changedKeys.map{"connection.to.\($0)"}
         let mappedKeys = otherPartKeys + selfUserKeys
-        var keys = mappedKeys.map{keyStore.keyPathsAffectedByValue(classIdentifier, key: $0)}.reduce(Set()){$0.union($1)}
+        var keys = mappedKeys.map{keyStore.observableKeysAffectedByValue(classIdentifier, key: $0)}.reduce(Set()){$0.union($1)}
         
         affectedObjects[classIdentifier] = [:]
         conversations.forEach {
@@ -124,7 +124,7 @@ extension ZMUser : SideEffectSource {
         
         let classIdentifier = ZMConversation.entityName()
         return [classIdentifier: Dictionary(keys: conversations,
-                                            repeatedValue: Changes(changedKeys: keyStore.keyPathsAffectedByValue(classIdentifier, key: "otherActiveParticipants")))]
+                                            repeatedValue: Changes(changedKeys: keyStore.observableKeysAffectedByValue(classIdentifier, key: "otherActiveParticipants")))]
     }
 }
 

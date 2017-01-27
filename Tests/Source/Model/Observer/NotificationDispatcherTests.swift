@@ -21,7 +21,7 @@ import Foundation
 
 
 
-@objc public class NotificationDispatcherTests : ZMBaseManagedObjectTest {
+@objc public class NotificationDispatcherTestBase : ZMBaseManagedObjectTest {
 
     var dispatcher : NotificationDispatcher! {
         return sut
@@ -34,7 +34,7 @@ import Foundation
         super.setUp()
         conversationObserver = ConversationObserver()
         sut = NotificationDispatcher(managedObjectContext: uiMOC)
-        NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcherTests.contextDidMerge(_:)), name: Notification.Name.NSManagedObjectContextDidSave, object: syncMOC)
+        NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcherTestBase.contextDidMerge(_:)), name: Notification.Name.NSManagedObjectContextDidSave, object: syncMOC)
         mergeNotifications = []
     }
     
@@ -65,7 +65,7 @@ import Foundation
     }
 }
 
-extension NotificationDispatcherTests {
+class NotificationDispatcherTests : NotificationDispatcherTestBase {
 
     func testThatItNotifiesAboutChanges(){
         

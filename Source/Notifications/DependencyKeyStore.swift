@@ -48,7 +48,7 @@ struct Observable {
         return affectingKeys[key] ?? Set()
     }
     
-    func keyPathsAffectedByValue(for key: String) -> Set<String>{
+    func observableKeysAffectedByValue(for key: String) -> Set<String>{
         var keys = affectedKeys[key] ?? Set()
         if observableKeys.contains(key) {
             keys.insert(key)
@@ -168,8 +168,8 @@ class DependencyKeyStore {
         return affectingKeys[classIdentifier]?[key] ?? Set()
     }
     
-    /// Returns the inverse of keyPathsForValuesAffectingValueForKey, all keys that are affected by `key`
-    func keyPathsAffectedByValue(_ classIdentifier: String, key: String) -> Set<String>{
+    /// Returns the inverse of keyPathsForValuesAffectingValueForKey, all observable keys that are affected by `key`
+    func observableKeysAffectedByValue(_ classIdentifier: String, key: String) -> Set<String>{
         var keys = effectedKeys[classIdentifier]?[key] ?? Set()
         if let otherKeys = observableKeys[classIdentifier], otherKeys.contains(key) {
             keys.insert(key)

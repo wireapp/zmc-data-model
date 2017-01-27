@@ -141,25 +141,15 @@ static NSString * const DisplayNameGeneratorKey = @"ZMUserDisplayNameGenerator";
     }
 }
 
-- (NSSet *)updateDisplayNameGeneratorWithChanges:(NSNotification *)note;
+- (NSSet *)updateDisplayNameGeneratorWithUpdatedUsers:(NSSet<ZMUser *>*)updatedUsers
+                                        insertedUsers:(NSSet<ZMUser *>*)insertedUsers
+                                        deletedUsers:(NSSet<ZMUser *>*)deletedUsers;
 {
-    if (self.displayNameGenerator == nil) return [NSSet set];
- 
-    [self.displayNameGenerator fetchAllUsers];
-    
-    NSManagedObject* (^filteringBlock)(NSManagedObject *obj) = ^NSManagedObject*(NSManagedObject *evaluatedObject) {
-        return [evaluatedObject isKindOfClass:ZMUser.class] ? evaluatedObject : nil;
-    };
-    NSSet *insertedUsers = [(NSSet *)note.userInfo[NSInsertedObjectsKey] mapWithBlock:filteringBlock] ?: [NSSet set];
-    NSSet *deletedUsers =  [(NSSet *)note.userInfo[NSDeletedObjectsKey] mapWithBlock:filteringBlock] ?: [NSSet set];
-    NSSet *updatedUsers =  [(NSSet *)note.userInfo[NSUpdatedObjectsKey] mapWithBlock:filteringBlock] ?: [NSSet set];
-    NSSet *refreshedUsers =  [(NSSet *)note.userInfo[NSRefreshedObjectsKey] mapWithBlock:filteringBlock] ?: [NSSet set];
-    
-    updatedUsers = [updatedUsers setByAddingObjectsFromSet:refreshedUsers];
-    
     if (insertedUsers.count == 0 && deletedUsers.count == 0 && updatedUsers.count == 0) {
         return [NSSet set];
     }
+    if (self.displayNameGenerator == nil) return [NSSet set];
+    [self.displayNameGenerator fetchAllUsers];
     
     // loop through updated. If the user name changed then replace those users in the updatedSet
     // TODO Sabine: This does not make sense, user is a reference and should change values as the MO changes

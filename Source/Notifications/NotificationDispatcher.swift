@@ -43,82 +43,7 @@ extension Notification.Name {
     
 }
 
-extension Dictionary {
 
-    init(keys: [Key], repeatedValue: Value) {
-        self.init()
-        for key in keys {
-            updateValue(repeatedValue, forKey: key)
-        }
-    }
-    
-    func mapping<NewKey, NewValue>(keysMapping: ((Key) -> NewKey), valueMapping: ((Key, Value) -> NewValue?)) -> Dictionary<NewKey, NewValue> {
-        var dict = Dictionary<NewKey, NewValue>()
-        for (key, value) in self {
-            if let newValue = valueMapping(key, value) {
-                dict.updateValue(newValue, forKey: keysMapping(key))
-            }
-        }
-        return dict
-    }
-    
-    func updated(other:Dictionary) -> Dictionary {
-        var newDict = self
-        for (key,value) in other {
-            newDict.updateValue(value, forKey:key)
-        }
-        return newDict
-    }
-}
-
-
-extension Array where Element : Hashable {
-    
-    func mapToDictionary<Value>(with block: (Element) -> Value?) -> Dictionary<Element, Value> {
-        var dict = Dictionary<Element, Value>()
-        forEach {
-            if let value = block($0) {
-                dict.updateValue(value, forKey: $0)
-            }
-        }
-        return dict
-    }
-    func mapToDictionaryWithOptionalValue<Value>(with block: (Element) -> Value?) -> Dictionary<Element, Value?> {
-        var dict = Dictionary<Element, Value?>()
-        forEach {
-            dict.updateValue(block($0), forKey: $0)
-        }
-        return dict
-    }
-}
-
-extension Set {
-    
-    func mapToDictionary<Value>(with block: (Element) -> Value?) -> Dictionary<Element, Value> {
-        var dict = Dictionary<Element, Value>()
-        forEach {
-            if let value = block($0) {
-                dict.updateValue(value, forKey: $0)
-            }
-        }
-        return dict
-    }
-}
-
-protocol Mergeable {
-    func merged(with other: Self) -> Self
-}
-
-extension Dictionary where Value : Mergeable {
-    
-    func merged(with other: Dictionary) -> Dictionary {
-        var newDict = self
-        other.forEach{ (key, value) in
-            newDict[key] = newDict[key]?.merged(with: value) ?? value
-        }
-        return newDict
-    }
-}
 
 struct Changes : Mergeable {
     let changedKeys : Set<String>
@@ -134,7 +59,7 @@ struct Changes : Mergeable {
         self.originalChanges = originalChanges
     }
     
-    func merged(with other: Changes) -> Changes {
+    func merged(with other: Changes) -> Changes { // TODO Sabine: Merge the original changes if needed
         return Changes(changedKeys: changedKeys.union(other.changedKeys), originalChanges: originalChanges.updated(other: other.originalChanges))
     }
 }
@@ -317,9 +242,9 @@ public class NotificationDispatcher : NSObject {
         )
         guard updatedConversations.count > 0 else { return }
         let classIdentifier = ZMConversation.classIdentifier
-        let affectedKeys = affectingKeysStore.keyPathsAffectedByValue(classIdentifier, key: "voiceChannelState")
+        let affectedKeys = affectingKeysStore.observableKeysAffectedByValue(classIdentifier, key: "voiceChannelState")
         let changes = Dictionary(keys: updatedConversations, repeatedValue: Changes(changedKeys: affectedKeys))
-        allChanges[classIdentifier] = allChanges[ZMConversation.classIdentifier]?.merged(with: changes) ?? changes
+        allChanges[classIdentifier] = allChanges[classIdentifier]?.merged(with: changes) ?? changes
     }
     
     func process(note: Notification) {
@@ -330,16 +255,19 @@ public class NotificationDispatcher : NSObject {
         let insertedObjects = extractObjects(for: NSInsertedObjectsKey, from: userInfo)
         let deletedObjects = extractObjects(for: NSDeletedObjectsKey, from: userInfo)
         
-        let usersWithNewImage = checkForChangedImages()
-        let usersWithNewName = checkForDisplayNameUpdates(with: note)
+        var updatedObjectsByIdentifer = sortObjectsByEntityName(objects: updatedObjects.union(refreshedObjects))
 
-        let updatedAndRefreshedObjects = updatedObjects.union(refreshedObjects).union(usersWithNewImage).union(usersWithNewName)
+        let existingUsers = (updatedObjectsByIdentifer[ZMUser.classIdentifier] as? Set<ZMUser>) ?? Set()
+        let usersWithNewName = checkForDisplayNameUpdates(updatedUsers:  existingUsers,
+                                                          insertedUsers: Set(insertedObjects.flatMap{$0 as? ZMUser}),
+                                                          deletedUsers: Set(deletedObjects.flatMap{$0 as? ZMUser}))
+        let usersWithNewImage = checkForChangedImages()
+        updatedObjectsByIdentifer[ZMUser.classIdentifier] = existingUsers.union(usersWithNewName).union(usersWithNewImage)
         
-        
-        let updatedObjectsByIdentifer = sortObjectsByEntityName(objects: updatedAndRefreshedObjects)
         extractChanges(from: updatedObjectsByIdentifer)
-        extractChangesAffectedByInsertionOrDeletion(of: insertedObjects.union(deletedObjects))
-        
+        extractChangesCausedByInsertionOrDeletion(of: insertedObjects)
+        extractChangesCausedByInsertionOrDeletion(of: deletedObjects)
+
         checkForUnreadMessages(insertedObjects: insertedObjects, updatedObjects:updatedObjects )
         
         userChanges = [:]
@@ -382,7 +310,7 @@ public class NotificationDispatcher : NSObject {
     }
     
     /// Gets additional user changes from userImageCache
-    func checkForChangedImages() -> Set<ZMManagedObject> {
+    func checkForChangedImages() -> Set<ZMUser> {
         let largeImageChanges = managedObjectContext.zm_userImageCache?.usersWithChangedLargeImage
         let largeImageUsers = extractUsersWithImageChange(objectIDs: largeImageChanges,
                                                           changedKey: "imageMediumData")
@@ -409,14 +337,16 @@ public class NotificationDispatcher : NSObject {
     }
     
     /// Gets additional changes from UserDisplayNameGenerator
-    func checkForDisplayNameUpdates(with note: Notification) -> Set<ZMManagedObject> {
-        let updatedUsers = managedObjectContext.updateDisplayNameGenerator(withChanges: note) as! Set<ZMUser>
-        updatedUsers.forEach{ user in
+    func checkForDisplayNameUpdates(updatedUsers: Set<ZMUser>, insertedUsers: Set<ZMUser>, deletedUsers: Set<ZMUser>) -> Set<ZMUser> {
+        let changedUsers = managedObjectContext.updateDisplayNameGenerator(withUpdatedUsers: updatedUsers,
+                                                                           insertedUsers: insertedUsers,
+                                                                           deletedUsers: deletedUsers)
+        changedUsers?.forEach{ user in
             var newValue = userChanges[user] ?? Set()
             newValue.insert("displayName")
             userChanges[user] = newValue
         }
-        return updatedUsers
+        return changedUsers ?? Set()
     }
     
     /// Extracts changes from the updated objects
@@ -446,30 +376,27 @@ public class NotificationDispatcher : NSObject {
                 let changedKeys = getChangedKeysSinceLastSave(object: object)
                 guard changedKeys.count > 0 else { return nil }
 
-                // (2) Map the changed keys to affected keys, remove the ones that we are not reporting
-                let relevantKeysAndOldValues = changedKeys.intersection(observable.observableKeys)
-                let affectedKeys = changedKeys.map{observable.keyPathsAffectedByValue(for: $0)}
-                    .reduce(Set()){$0.union($1)}
-                    .intersection(observable.observableKeys)
-                
-                extractChangesAffectedByChangeInObjects(updatedObject: object, knownKeys: changedKeys)
-                guard relevantKeysAndOldValues.count > 0 || affectedKeys.count > 0 else { return nil }
-                return Changes(changedKeys: relevantKeysAndOldValues.union(affectedKeys))
+                // (2) Get affected changes
+                extractChangesCausedByChangeInObjects(updatedObject: object, knownKeys: changedKeys)
+
+                // (3) Map the changed keys to affected keys, remove the ones that we are not reporting
+                let affectedKeys = changedKeys.map{observable.observableKeysAffectedByValue(for: $0)}.reduce(Set()){$0.union($1)}
+                guard affectedKeys.count > 0 else { return nil }
+                return Changes(changedKeys: affectedKeys)
             }
             
-            // (3) Merge the changes with the other ones
+            // (4) Merge the changes with the other ones
             let value = allChanges[observable.classIdentifier]
             allChanges[observable.classIdentifier] = value?.merged(with: changes) ?? changes
         }
     }
     
     /// Get all changes that resulted from other objects through dependencies (e.g. user.name -> conversation.displayName)
-    func extractChangesAffectedByChangeInObjects(updatedObject:  ZMManagedObject, knownKeys : Set<String>)
+    func extractChangesCausedByChangeInObjects(updatedObject:  ZMManagedObject, knownKeys : Set<String>)
     {
         // (1) All Updates in other objects resulting in changes on others
         // e.g. changing a users name affects the conversation displayName
         guard let object = updatedObject as? SideEffectSource else { return }
-        let knownKeys = knownKeys.union(userChanges[updatedObject] ?? Set())
         let changedObjectsAndKeys = object.affectedObjectsAndKeys(keyStore: affectingKeysStore, knownKeys: knownKeys)
         changedObjectsAndKeys.forEach{ classIdentifier, changedObjects in
             allChanges[classIdentifier] = allChanges[classIdentifier]?.merged(with: changedObjects) ?? changedObjects
@@ -477,7 +404,7 @@ public class NotificationDispatcher : NSObject {
     }
     
     /// Get all changes that resulted from other objects through dependencies (e.g. user.name -> conversation.displayName)
-    func extractChangesAffectedByInsertionOrDeletion(of objects: Set<ZMManagedObject>)
+    func extractChangesCausedByInsertionOrDeletion(of objects: Set<ZMManagedObject>)
     {
         // All inserts or deletes of other objects resulting in changes in others
         // e.g. inserting a user affects the conversation displayName
