@@ -20,6 +20,7 @@
 #import "ZMConversationListDirectory.h"
 #import "ZMConversation+Internal.h"
 #import "ZMConversationList+Internal.h"
+#import <ZMCDataModel/ZMCDataModel-Swift.h>
 
 static NSString * const ConversationListDirectoryKey = @"ZMConversationListDirectory";
 
@@ -76,6 +77,15 @@ static NSString * const PendingKey = @"Pending";
     NSError *error;
     return [context executeFetchRequest:allConversationsRequest error:&error];
     NSAssert(error != nil, @"Failed to fetch");
+}
+
+- (void)refetchAllListsInManagedObjectContext:(NSManagedObjectContext *)moc
+{
+    NSArray *allConversations = [self fetchAllConversations:moc];
+    for (ZMConversationList* list in self.allConversationLists){
+        [list recreateWithAllConversations:allConversations];
+    }
+    [moc.globalManagedObjectContextObserver refreshConversationListObserverWithAllConversations:allConversations];
 }
 
 - (NSArray *)allConversationLists;

@@ -467,6 +467,10 @@ extension ManagedObjectContextObserver {
         self.globalConversationObserver.removeConversationList(conversationList)
     }
     
+    public func refreshConversationListObserver(allConversations: [ZMConversation]){
+        self.globalConversationObserver.refresh(allConversations: allConversations)
+    }
+    
 }
 
 
