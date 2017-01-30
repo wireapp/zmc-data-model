@@ -2737,7 +2737,6 @@
 - (void)setConversationAsHavingIgnoredCall:(ZMConversation *)conversation
 {
     conversation.isIgnoringCall = YES;
-//    conversation.callDeviceIsActive = YES;
     
     ZMUser *participant = [self createUserOnMoc:self.syncMOC];
     NSMutableOrderedSet *participants = [conversation mutableOrderedSetValueForKey:ZMConversationCallParticipantsKey];
