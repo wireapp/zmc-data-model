@@ -34,7 +34,6 @@ typedef NS_ENUM(NSUInteger, ZMPersonNameOrder) {
 
 @property (nonatomic, copy) NSString *fullName;
 @property (nonatomic, copy) NSString *givenName;
-@property (nonatomic, copy) NSString *abbreviatedName;
 @property (nonatomic, copy) NSString *initials;
 
 @property (nonatomic) ZMPersonNameOrder nameOrder;
@@ -233,21 +232,6 @@ typedef NS_ENUM(NSUInteger, ZMPersonNameOrder) {
     }
 
     return [self.components subarrayWithRange:NSMakeRange(startIndex, length)];
-}
-
-
-- (NSString *)abbreviatedName
-{
-    if (_abbreviatedName == nil) {
-        if (!self.secondNameComponents) {
-            _abbreviatedName = self.givenName;
-        }
-        else {
-            NSString *abbreviatedSecondName = [self.components.lastObject zmLeadingNumberOrFirstComposedCharacter];
-            _abbreviatedName = [NSString stringWithFormat:@"%@ %@", self.givenName, abbreviatedSecondName];
-        }
-    }
-    return _abbreviatedName;
 }
 
 - (NSString *)initials

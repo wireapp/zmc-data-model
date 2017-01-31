@@ -63,7 +63,7 @@
     XCTAssertEqualObjects(displayNameForKey4, @"Kevin");
 }
 
-- (void)testThatItReturnsAbbreviatedNameForUserWithSameFirstnamesDifferentLastnameFirstLetter;
+- (void)testThatItReturnsTheFullNameForUserWithSameFirstnamesDifferentLastnameFirstLetter;
 {
     // given
     
@@ -86,10 +86,10 @@
 
     // then
 
-    XCTAssertEqualObjects([nameGenerator displayNameForKey:@"A"], @"Rob A");
+    XCTAssertEqualObjects([nameGenerator displayNameForKey:@"A"], fullName1);
     XCTAssertEqualObjects([nameGenerator displayNameForKey:@"B"], fullName2);
-    XCTAssertEqualObjects([nameGenerator displayNameForKey:@"C"], @"Rob C");
-    XCTAssertEqualObjects([nameGenerator displayNameForKey:@"D"], @"Rob H");
+    XCTAssertEqualObjects([nameGenerator displayNameForKey:@"C"], fullName3);
+    XCTAssertEqualObjects([nameGenerator displayNameForKey:@"D"], fullName4);
     XCTAssertEqualObjects([nameGenerator displayNameForKey:@"E"], fullName5);
     
 }
@@ -116,9 +116,9 @@
     
     // then
 
-    XCTAssertEqualObjects(displayNameForKey1, @"Rob Arthur");
-    XCTAssertEqualObjects(displayNameForKey2, @"Rob Anthony");
-    XCTAssertEqualObjects(displayNameForKey3, @"Rob B");
+    XCTAssertEqualObjects(displayNameForKey1, fullName1);
+    XCTAssertEqualObjects(displayNameForKey2, fullName2);
+    XCTAssertEqualObjects(displayNameForKey3, fullName3);
 }
 
 - (void)testThatItReturnsFullNameForUsersWithDifferentlyComposedSpecialCharacters
@@ -162,8 +162,8 @@
     NSString *displayNameForKey2 = [nameGenerator displayNameForKey:@"B"];
     
     // then
-    XCTAssertEqualObjects(displayNameForKey1, @"\u00C5ron M");
-    XCTAssertEqualObjects(displayNameForKey2, @"\u00C5ron H");
+    XCTAssertEqualObjects(displayNameForKey1, name1);
+    XCTAssertEqualObjects(displayNameForKey2, [name2 precomposedStringWithCanonicalMapping]);
 }
 
 
@@ -185,8 +185,8 @@
     NSString *displayNameForKey2 = [nameGenerator displayNameForKey:@"B"];
     
     // then
-    XCTAssertEqualObjects(displayNameForKey1, @"\u00C5ron M");
-    XCTAssertEqualObjects(displayNameForKey2, @"\u00C5ron H");
+    XCTAssertEqualObjects(displayNameForKey1, name1);
+    XCTAssertEqualObjects(displayNameForKey2, [name2a precomposedStringWithCanonicalMapping]);
     
     // when
     NSDictionary *map2 = @{@"A": name1,
@@ -205,10 +205,10 @@
     
     // then
     XCTAssertEqualObjects(displayNameForKey3, @"\u00C5ron");
-    XCTAssertEqualObjects(displayNameForKey4, @"\u00C5rif");
+    XCTAssertEqualObjects(displayNameForKey4, [@"A\u030Arif" precomposedStringWithCanonicalMapping]);
     
-    XCTAssertEqualObjects(displayNameForKey5, @"\u00C5ron M");
-    XCTAssertEqualObjects(displayNameForKey6, @"\u00C5ron H");
+    XCTAssertEqualObjects(displayNameForKey5, name1);
+    XCTAssertEqualObjects(displayNameForKey6, [name2a precomposedStringWithCanonicalMapping]);
     
     XCTAssertEqualObjects(updated, updatedSet);
 }
@@ -231,8 +231,8 @@
     NSString *displayNameForKey2 = [nameGenerator displayNameForKey:@"B"];
     
     // then
-    XCTAssertEqualObjects(displayNameForKey1, @"\u00C5ron M");
-    XCTAssertEqualObjects(displayNameForKey2, @"\u00C5ron H");
+    XCTAssertEqualObjects(displayNameForKey1, name1);
+    XCTAssertEqualObjects(displayNameForKey2, [name2 precomposedStringWithCanonicalMapping]);
     
     // when
     
@@ -250,16 +250,16 @@
 
     NSString *displayNameForKey6 = [nameGenerator displayNameForKey:@"A"];
     NSString *displayNameForKey7 = [nameGenerator displayNameForKey:@"B"];
-    NSSet *updatedSet = [NSSet setWithArray:@[@"B", @"C"]];
+    NSSet *updatedSet = [NSSet setWithArray:@[@"C"]];
     
     
     // then
-    XCTAssertEqualObjects(displayNameForKey3, @"\u00C5ron M");
+    XCTAssertEqualObjects(displayNameForKey3, name1);
     XCTAssertEqualObjects(displayNameForKey4, [name2 precomposedStringWithCanonicalMapping]);
     XCTAssertEqualObjects(displayNameForKey5, [name3 precomposedStringWithCanonicalMapping]);
     
-    XCTAssertEqualObjects(displayNameForKey6, @"\u00C5ron M");
-    XCTAssertEqualObjects(displayNameForKey7, @"\u00C5ron H");
+    XCTAssertEqualObjects(displayNameForKey6, name1);
+    XCTAssertEqualObjects(displayNameForKey7, [name3 precomposedStringWithCanonicalMapping]);
     
     XCTAssertEqualObjects(updated, updatedSet);
     
@@ -295,9 +295,9 @@
     NSSet *expectedUpdated = [NSSet setWithArray:@[@"A", @"B", @"C"]];
     
     // then
-    XCTAssertEqualObjects(displayNameForKey1, @"\u00C5ron M");
-    XCTAssertEqualObjects(displayNameForKey2, @"\u00C5ron H");
-    XCTAssertEqualObjects(displayNameForKey3, @"\u00C5ron W");
+    XCTAssertEqualObjects(displayNameForKey1, [name1 precomposedStringWithCanonicalMapping]);
+    XCTAssertEqualObjects(displayNameForKey2, [name2 precomposedStringWithCanonicalMapping]);
+    XCTAssertEqualObjects(displayNameForKey3, [name3 precomposedStringWithCanonicalMapping]);
 
     NSString *emptyString = @"";
     XCTAssertEqualObjects(displayNameForKey4, emptyString);

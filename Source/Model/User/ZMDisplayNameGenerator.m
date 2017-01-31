@@ -176,28 +176,19 @@
 {
     // count the givenNames and abbreviatedNames in idToPersonNameMap
     NSCountedSet *givenNameCounts = [[NSCountedSet alloc] init];
-    NSCountedSet *abbreviatedNameCounts = [[NSCountedSet alloc] init];
     
     for (ZMPersonName *name in idToPersonNameMap.allValues) {
         [givenNameCounts addObject:name.givenName];
-        [abbreviatedNameCounts addObject:name.abbreviatedName];
     }
     
     NSMutableDictionary *namesDict = [NSMutableDictionary dictionary];
-    
     [idToPersonNameMap enumerateKeysAndObjectsUsingBlock:^(id key, ZMPersonName *personName, BOOL *__unused stop) {
         NSString *givenName = personName.givenName;
-        NSString *abbreviatedName = personName.abbreviatedName;
-        if ([givenName isEqualToString:abbreviatedName]) {
+        if ([givenNameCounts countForObject:givenName] < 2) {
             namesDict[key] = givenName;
-        } else {
-            if ([givenNameCounts countForObject:givenName] < 2) {
-                namesDict[key] = givenName;
-            } else if ([abbreviatedNameCounts countForObject:abbreviatedName] < 2) {
-                namesDict[key] = abbreviatedName;
-            } else {
-                namesDict[key] = personName.fullName;
-            }
+        }
+        else {
+            namesDict[key] = personName.fullName;
         }
     }];
     return namesDict;

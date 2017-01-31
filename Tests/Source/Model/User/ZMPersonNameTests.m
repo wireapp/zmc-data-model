@@ -124,41 +124,6 @@
     XCTAssertEqualObjects(nameComp2.fullName, name2);
 }
 
-- (void)testThatItReturnsLastNameInitialForAbbreviatedName
-{
-    // given
-    NSString *name1 = @"Henry The Great Emporer";
-    NSString *name2 = @"Walther von der vogelweide";
-    
-    // when
-    ZMPersonName *nameComp1 = [ZMPersonName personWithName:name1];
-    ZMPersonName *nameComp2 = [ZMPersonName personWithName:name2];
-
-    // then
-    XCTAssertEqualObjects(nameComp1.abbreviatedName, @"Henry E");
-    XCTAssertEqualObjects(nameComp2.abbreviatedName, @"Walther v");
-}
-
-- (void)testThatItReturnsTheEntireNumberForAbbreviatedName
-{
-    // given
-    NSString *name1 = @"Henry 42Something";
-    NSString *name2 = @"Walther 007";
-    NSString *name3 = @"Simon A7";
-    NSString *name4 = @"ཀ ༥༦གྷ";
-    
-    // when
-    ZMPersonName *nameComp1 = [ZMPersonName personWithName:name1];
-    ZMPersonName *nameComp2 = [ZMPersonName personWithName:name2];
-    ZMPersonName *nameComp3 = [ZMPersonName personWithName:name3];
-    ZMPersonName *nameComp4 = [ZMPersonName personWithName:name4];
-    
-    // then
-    XCTAssertEqualObjects(nameComp1.abbreviatedName, @"Henry 42");
-    XCTAssertEqualObjects(nameComp2.abbreviatedName, @"Walther 007");
-    XCTAssertEqualObjects(nameComp3.abbreviatedName, @"Simon A");
-    XCTAssertEqualObjects(nameComp4.abbreviatedName, @"ཀ ༥༦");
-}
 
 - (void)testThatItReturnsFullNameWhenStringIsEmptyAfterTrimming
 {
@@ -177,26 +142,6 @@
 }
 
 # pragma mark - Composed Character Related Tests
-
-- (void)testThatItReturnsFullComposedCharacterForSecondNamesStartingWithComposedCharacters
-{
-    // given
-    NSString *name1 = @"Henry \u00cbmil"; // LATIN CAPITAL LETTER E WITH DIAERESIS
-    NSString *name2 = @"Henry E\u0308mil"; // LATIN CAPITAL LETTER E + COMBINING DIAERESIS
-    NSString *name3 = @"Henry Emil";
-    
-    // when
-    ZMPersonName *nameComp1 = [ZMPersonName personWithName:name1];
-    ZMPersonName *nameComp2 = [ZMPersonName personWithName:name2];
-    ZMPersonName *nameComp3 = [ZMPersonName personWithName:name3];
-
-    
-    // then
-    XCTAssertEqualObjects(nameComp1.abbreviatedName, @"Henry \u00cb");
-    XCTAssertEqualObjects(nameComp2.abbreviatedName, @"Henry \u00cb");
-    XCTAssertEqualObjects(nameComp3.abbreviatedName, @"Henry E");
-
-}
 
 - (void)testThatItReturnsFirstCharacterOfFirstAndLastNameAsInitials
 {
@@ -494,18 +439,6 @@
     
     XCTAssertEqualObjects(nameComp3.givenName, @"امه العليم");
     XCTAssertEqualObjects(nameComp3.fullName, name3);
-}
-
-- (void)testThatArabicGodNameWithThreeComponentsAreAbbreviatedCorrectly
-{
-    // given
-    NSString *name1 = @"عبد العزيز عبد الله";
-    
-    // when
-    ZMPersonName *nameComp1 = [ZMPersonName personWithName:name1];
-    
-    // then
-    XCTAssertEqualObjects(nameComp1.abbreviatedName, @"عبد العزيز ا");
 }
 
 - (void)testThatItReturnsFirstLettersOFFirstAndLastComponentForArabicInitials

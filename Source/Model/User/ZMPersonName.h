@@ -27,8 +27,7 @@
 
 @property (nonatomic, readonly, copy) NSString *givenName;
 @property (nonatomic, readonly, copy) NSString *fullName;
-@property (nonatomic, readonly, copy) NSString *abbreviatedName;
-@property (nonatomic, readonly, copy) NSString *initials;	
+@property (nonatomic, readonly, copy) NSString *initials;
 
 + (instancetype)personWithName:(NSString *)name;
 
