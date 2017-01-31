@@ -19,7 +19,7 @@
 
 #import "NSString+ZMPersonName.h"
 #import "ZMPersonName.h"
-
+#import "ZMUser.h"
 
 
 typedef NS_ENUM(NSUInteger, ZMPersonNameOrder) {
@@ -37,9 +37,11 @@ typedef NS_ENUM(NSUInteger, ZMPersonNameOrder) {
 @property (nonatomic, copy) NSString *initials;
 
 @property (nonatomic) ZMPersonNameOrder nameOrder;
+
 @end
 
 @implementation ZMPersonName
+
 
 + (instancetype)personWithName:(NSString *)name
 {
@@ -50,14 +52,15 @@ typedef NS_ENUM(NSUInteger, ZMPersonNameOrder) {
         stringsToPersonNames = [NSCache new];
     });
     
-    ZMPersonName *cachedPersonName = [stringsToPersonNames objectForKey:name];
+    NSString *existingName = name ?: @"";
+    ZMPersonName *cachedPersonName = [stringsToPersonNames objectForKey:existingName];
     
     if (cachedPersonName != nil) {
         return cachedPersonName;
     }
     else {
-        cachedPersonName = [[ZMPersonName alloc] initWithName:name];
-        [stringsToPersonNames setObject:cachedPersonName forKey:name];
+        cachedPersonName = [[ZMPersonName alloc] initWithName:existingName];
+        [stringsToPersonNames setObject:cachedPersonName forKey:existingName];
         return cachedPersonName;
     }
 }
@@ -69,7 +72,7 @@ typedef NS_ENUM(NSUInteger, ZMPersonNameOrder) {
     if (self) {
         // We're using -precomposedStringWithCanonicalMapping (Unicode Normalization Form C)
         // since this allows us to use faster string comparison later.
-        self.fullName = [name precomposedStringWithCanonicalMapping];
+        self.fullName = [name precomposedStringWithCanonicalMapping] ?: @"";
         self.nameOrder = [self scriptOfString:name];
         self.components = [self splitNameComponents];
     }

@@ -229,16 +229,17 @@ static NSString *const AnnaBotHandle = @"annathebot";
 
 - (NSString *)displayName;
 {
-    NSString *displayName = [self.managedObjectContext.displayNameGenerator displayNameForUser:self];
+    ZMPersonName *personName = [self.managedObjectContext.nameGenerator personNameFor:self];
 //    VerifyReturnValue(displayName != nil, @"");
-    return displayName;
+    return personName.displayName ?: @"";
 }
 
 - (NSString *)initials
 {
-    NSString *initials = [self.managedObjectContext.displayNameGenerator initialsForUser:self];
-    VerifyReturnValue(initials != nil, @"");    
-    return initials;
+    ZMPersonName *personName = [self.managedObjectContext.nameGenerator personNameFor:self];
+    // NSString *initials = [self.managedObjectContext.nameGenerator initialsFor:self];
+    // VerifyReturnValue(initials != nil, @"");
+    return personName.initials ?: @"";
 }
 
 

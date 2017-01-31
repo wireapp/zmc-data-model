@@ -20,15 +20,18 @@
 #import <Foundation/Foundation.h>
 
 
+@class ZMUser;
 
 @interface ZMPersonName : NSObject
 
-@property (nonatomic, readonly, copy) NSArray *components;
+@property (nonatomic, readonly, copy, nonnull) NSArray *components;
 
-@property (nonatomic, readonly, copy) NSString *givenName;
-@property (nonatomic, readonly, copy) NSString *fullName;
-@property (nonatomic, readonly, copy) NSString *initials;
+@property (nonatomic, readonly, copy, nonnull) NSString *givenName;
+@property (nonatomic, readonly, copy, nonnull) NSString *fullName;
+@property (nonatomic, readonly, copy, nonnull) NSString *initials;
+@property (nonatomic, copy, nullable) NSString *displayName;
 
-+ (instancetype)personWithName:(NSString *)name;
++ (_Nonnull instancetype)personWithName:(NSString * _Nullable)name;
+
 
 @end

@@ -133,7 +133,7 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
                                                                                                           NSUpdatedObjectsKey :[NSSet set],
                                                                                                           NSDeletedObjectsKey : [NSSet set]
                                                                                                           }];
-    [self.uiMOC updateDisplayNameGeneratorWithChanges:note];
+    [self.uiMOC updateNameGeneratorWithChangesWithNote:note];
 }
 
 @end
