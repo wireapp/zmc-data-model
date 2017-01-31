@@ -286,6 +286,7 @@ extension ZMConversation {
         
         let index = self.sortedAppendMessage(systemMessage)
         systemMessage.visibleInConversation = self
+        updateLastServerTimeStampIfNeeded(systemMessage.serverTimestamp)
         return (message: systemMessage, insertionIndex: index)
     }
     

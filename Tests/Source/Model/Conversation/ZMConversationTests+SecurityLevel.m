@@ -392,6 +392,21 @@
     XCTAssertNotNil(message.serverTimestamp);
 }
 
+- (void)testThatItUpdateLastServerTimestampWhenAppendingSystemMessage
+{
+    // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    conversation.conversationType = ZMConversationTypeGroup;
+    conversation.lastModifiedDate = [NSDate new];
+    conversation.lastServerTimeStamp = [NSDate dateWithTimeIntervalSinceNow:-100];
+    NSDate *systemMessageTimestamp = [NSDate date];
+    
+    // when
+    [conversation appendNewPotentialGapSystemMessageWithUsers:nil timestamp:systemMessageTimestamp];
+    
+    // then
+    XCTAssertEqualObjects(conversation.lastServerTimeStamp, systemMessageTimestamp);
+}
 
 - (void)testThatItAppendsASystemMessageOfTypeRemoteIDChangedForCBErrorCodeRemoteIdentityChanged
 {
