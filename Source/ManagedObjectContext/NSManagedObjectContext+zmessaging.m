@@ -205,6 +205,7 @@ static BOOL storeIsReady = NO;
         moc.undoManager = nil;
         moc.mergePolicy = [[ZMSyncMergePolicy alloc] initWithMergeType:NSMergeByPropertyObjectTrumpMergePolicyType];
     }];
+    [moc applyPersistedDataPatchesForCurrentVersion];
     return moc;
 }
 
