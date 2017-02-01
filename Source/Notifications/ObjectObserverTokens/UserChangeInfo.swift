@@ -20,6 +20,11 @@
 import Foundation
 import ZMCSystem
 
+protocol ObjectInSnapshot {
+    static var observableKeys : Set<String> { get }
+    var notificationName : Notification.Name { get }
+}
+
 extension ZMUser : ObjectInSnapshot {
     
     static public var observableKeys : Set<String> {

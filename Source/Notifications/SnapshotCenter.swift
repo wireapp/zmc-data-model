@@ -30,12 +30,12 @@ protocol Countable {
 extension NSOrderedSet : Countable {}
 extension NSSet : Countable {}
 
-class SnapshotCenter {
+public class SnapshotCenter {
     
     private unowned var managedObjectContext: NSManagedObjectContext
-    private var snapshots : [NSManagedObjectID : Snapshot] = [:]
+    internal var snapshots : [NSManagedObjectID : Snapshot] = [:]
     
-    init(managedObjectContext: NSManagedObjectContext) {
+    public init(managedObjectContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext
     }
     
@@ -64,8 +64,7 @@ class SnapshotCenter {
         let attributesDict = attributes.mapToDictionaryWithOptionalValue{object.primitiveValue(forKey: $0) as? NSObject}
         let relationshipsDict : [String : Int] = relationShips.mapping(keysMapping: {$0}, valueMapping: { (key, relationShipDescription) in
             guard relationShipDescription.isToMany else { return nil}
-            // TODO Sabine: valueForKey: ?
-            return (object.primitiveValue(forKey: key) as? Countable)?.count
+            return (object.value(forKey: key) as? Countable)?.count
         })
         return Snapshot(attributes : attributesDict, toManyRelationships : relationshipsDict)
     }

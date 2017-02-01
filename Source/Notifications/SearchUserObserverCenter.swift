@@ -62,16 +62,7 @@ public class SearchUserSnapshot  {
     
     /// Creates a snapshot values for the observableKeys keys and stores them
     static func createSnapshots(searchUser: ZMSearchUser) -> [String : NSObject?] {
-        return observableKeys.mapToDictionaryWithOptionalValue{
-            let value = searchUser.value(forKey: $0)
-            if let value = value as? NSObject {
-                return value
-            }
-            if let value = value as? Bool {
-                return NSNumber(value: value) as NSObject
-            }
-            return nil
-        }
+        return observableKeys.mapToDictionaryWithOptionalValue{ searchUser.value(forKey: $0) as? NSObject }
     }
 
     /// Updates the snapshot values for the observableKeys keys,
