@@ -18,65 +18,51 @@
 
 
 public class DisplayNameGenerator : NSObject {
-    public var idToPersonNameMap : [NSManagedObjectID: ZMPersonName] = [:]
-//    public var idToDisplayNameMap : [NSManagedObjectID : String] = [:]
+    public var idToPersonNameMap : [NSManagedObjectID: PersonName] = [:]
+
     var allUsers : Set<ZMUser>?
     unowned var managedObjectContext: NSManagedObjectContext
     
-    public func personName(for user: ZMUser) -> ZMPersonName? {
+    public func personName(for user: ZMUser) -> PersonName? {
         return idToPersonNameMap[user.objectID]
     }
     
-    public func displayName(for user: ZMUser) -> String {
+    public func displayName(for user: ZMUser) -> String? {
         fetchAllUsersIfNeeded()
-        return idToPersonNameMap[user.objectID]?.displayName ?? ""
+        return idToPersonNameMap[user.objectID]?.displayName
     }
     
-    public func initials(for user: ZMUser) -> String {
+    public func initials(for user: ZMUser) -> String? {
         fetchAllUsersIfNeeded()
-        return idToPersonNameMap[user.objectID]?.initials ?? ""
+        return idToPersonNameMap[user.objectID]?.initials
     }
     
     init(managedObjectContext: NSManagedObjectContext, allUsers: Set<ZMUser>?) {
         self.managedObjectContext = managedObjectContext
         super.init()
-        if let allUsers = allUsers {
-            let (idToPersonNameMap, _) = type(of:self).mapIDsToPersonName(oldMap: [:], users: allUsers)
-            self.idToPersonNameMap = idToPersonNameMap
-            self.allUsers = allUsers
-            self.updateDisplayNames()
-//            self.idToPersonNameMap.forEach{ (key, name) in
-//                self.idToDisplayNameMap[key] = name.displayName
-//            }
-        }
+        self.allUsers = allUsers
+        mapUsersToNames(returnChanges: false)
     }
     
     /// Creates a copy the existing generator and returns the objectIDs of users whose displayName or fullName changed
-    public func createCopy(with allUsers: Set<ZMUser>) -> (newGenerator: DisplayNameGenerator, updatedUserIDs: Set<NSManagedObjectID>)
-    {
-        let (newMap, updated) = type(of:self).mapIDsToPersonName(oldMap: idToPersonNameMap, users: allUsers)
-        
+    public func createCopy(with allUsers: Set<ZMUser>) -> (newGenerator: DisplayNameGenerator, updatedUserIDs: Set<NSManagedObjectID>) {
         let generator = DisplayNameGenerator(managedObjectContext: managedObjectContext, allUsers: Set())
-        generator.idToPersonNameMap = newMap
         generator.allUsers = allUsers
-        let updatedUserIDs = updated.union(generator.updateDisplayNames())
-//        self.idToPersonNameMap.forEach{ (key, name) in
-//            self.idToDisplayNameMap[key] = name.displayName
-//        }
-        return (generator, updatedUserIDs)
+        let updatedUsers = generator.mapUsersToNames(oldIDToPersonNameMap: idToPersonNameMap, returnChanges: true)
+        return (generator, updatedUsers)
     }
     
     // Use the old map to avoid the expensive calculation of personNames
     // Return users that have a new fullName or were inserted
-    static func mapIDsToPersonName(oldMap: [NSManagedObjectID : ZMPersonName], users: Set<ZMUser>) -> (newMap: [NSManagedObjectID : ZMPersonName], updatedUsers: Set<NSManagedObjectID>){
-        var newIdToPersonNameMap : [NSManagedObjectID : ZMPersonName] = [:]
+    static func mapIDsToPersonName(oldMap: [NSManagedObjectID : PersonName], users: Set<ZMUser>) -> (newMap: [NSManagedObjectID : PersonName], updatedUsers: Set<NSManagedObjectID>){
+        var newIdToPersonNameMap : [NSManagedObjectID : PersonName] = [:]
         var updatedUsers = Set<NSManagedObjectID>()
         users.forEach{
             let fullName = $0.name ?? ""
             if let oldPersonName = oldMap[$0.objectID], oldPersonName.fullName == fullName  {
                 newIdToPersonNameMap[$0.objectID] = oldPersonName
             } else {
-                newIdToPersonNameMap[$0.objectID] = ZMPersonName.person(withName: fullName)
+                newIdToPersonNameMap[$0.objectID] = PersonName.person(withName: fullName)
                 updatedUsers.insert($0.objectID)
             }
         }
@@ -85,7 +71,7 @@ public class DisplayNameGenerator : NSObject {
     
     /// Update the displayNames
     /// Return users that have a new displayName
-    @discardableResult func updateDisplayNames() -> Set<NSManagedObjectID> {
+    func updateDisplayNames() -> Set<NSManagedObjectID> {
         let givenNameCounts = NSCountedSet(array: idToPersonNameMap.values.flatMap{$0.givenName})
         var updatedUsers = Set<NSManagedObjectID>()
         idToPersonNameMap.forEach{ (key, personName) in
@@ -110,15 +96,19 @@ public class DisplayNameGenerator : NSObject {
         return Set(allUsers)
     }
     
-    func fetchAllUsersIfNeeded() {
-        guard self.allUsers == nil else { return }
-        self.allUsers = fetchAllUsers(in:managedObjectContext)
-        let (idToPersonNameMap, _) = type(of:self).mapIDsToPersonName(oldMap: [:], users: self.allUsers!)
+    @discardableResult func mapUsersToNames(oldIDToPersonNameMap: [NSManagedObjectID : PersonName] = [:], returnChanges: Bool) -> Set<NSManagedObjectID> {
+        guard let users = allUsers else { return Set()}
+        
+        let (idToPersonNameMap, updated1) = type(of:self).mapIDsToPersonName(oldMap: oldIDToPersonNameMap, users: users)
         self.idToPersonNameMap = idToPersonNameMap
-        self.updateDisplayNames()
-//        self.idToPersonNameMap.forEach{ (key, name) in
-//            self.idToDisplayNameMap[key] = name.displayName
-//        }
+        let updated2 = self.updateDisplayNames()
+        return returnChanges ? updated1.union(updated2) : Set()
+    }
+    
+    func fetchAllUsersIfNeeded() {
+        guard allUsers == nil else { return }
+        allUsers = fetchAllUsers(in:managedObjectContext)
+        mapUsersToNames(returnChanges: false)
     }
     
 }
@@ -140,7 +130,7 @@ extension NSManagedObjectContext {
         }
     }
     
-    func updateNameGeneratorWithChanges(note: Notification) -> Set<ZMUser> {
+    func updateNameGenerator(withChanges note: Notification) -> Set<ZMUser> {
         guard let generator = nameGenerator else { return Set()}
         let (newGenerator, updatedUsers) = generator.updateWithChanges(note: note)
         self.nameGenerator = newGenerator
@@ -158,6 +148,7 @@ extension DisplayNameGenerator {
         let deletedUsers = Set((note.userInfo?[NSDeletedObjectsKey] as? Set<NSManagedObject> ?? []).flatMap{$0 as? ZMUser})
         var updatedUsers = Set((note.userInfo?[NSUpdatedObjectsKey] as? Set<NSManagedObject> ?? []).flatMap{$0 as? ZMUser})
         let refreshedUsers = Set((note.userInfo?[NSRefreshedObjectsKey] as? Set<NSManagedObject> ?? []).flatMap{$0 as? ZMUser})
+
         updatedUsers.formUnion(refreshedUsers)
         
         if (insertedUsers.count == 0 && deletedUsers.count == 0 && updatedUsers.count == 0) {

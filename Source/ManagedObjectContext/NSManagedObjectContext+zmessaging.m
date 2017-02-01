@@ -26,7 +26,6 @@
 #import "ZMUser+Internal.h"
 #import "ZMSyncMergePolicy.h"
 #import "ZMConversation+Internal.h"
-#import "ZMUserDisplayNameGenerator.h"
 #import "ZMNotifications.h"
 
 #import "ZMConversation+Internal.h"
@@ -969,7 +968,9 @@ static dispatch_queue_t UIContextCreationQueue(void)
 {
     [self performBlockAndWait:^{
         self.userInfo[IsUserInterfaceContextKey] = @YES;
-        self.nameGenerator = [[DisplayNameGenerator alloc] initWithManagedObjectContext:self allUsers:nil]; // [[ZMUserDisplayNameGenerator alloc] initWithManagedObjectContext:self];
+//        self.displayNameGenerator = [[ZMUserDisplayNameGenerator alloc] initWithManagedObjectContext:self];
+        self.nameGenerator = [[DisplayNameGenerator alloc] initWithManagedObjectContext:self allUsers:nil];
+
     }];
 }
 

@@ -94,7 +94,8 @@ class MessageObserverTokenTests : ZMBaseManagedObjectTest {
         
         let message = ZMMessage.insertNewObject(in: self.uiMOC)
         message.sender = sender
-
+        uiMOC.saveOrRollback()
+        
         // when
         self.checkThatItNotifiesTheObserverOfAChange(message,
             modifier: { $0.sender!.name = "Horst"},

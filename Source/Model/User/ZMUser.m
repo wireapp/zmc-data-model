@@ -29,7 +29,6 @@
 #import "ZMUser+Internal.h"
 #import "ZMConnection+Internal.h"
 #import "ZMConversation+Internal.h"
-#import "ZMUserDisplayNameGenerator+Internal.h"
 #import "NSString+ZMPersonName.h"
 #import <CommonCrypto/CommonKeyDerivation.h>
 #import <CommonCrypto/CommonCryptoError.h>
@@ -229,17 +228,19 @@ static NSString *const AnnaBotHandle = @"annathebot";
 
 - (NSString *)displayName;
 {
-    ZMPersonName *personName = [self.managedObjectContext.nameGenerator personNameFor:self];
-//    VerifyReturnValue(displayName != nil, @"");
+    PersonName *personName = [self.managedObjectContext.nameGenerator personNameFor:self];
     return personName.displayName ?: @"";
+//    NSString *displayName = [self.managedObjectContext.displayNameGenerator displayNameForUser:self];
+//    return displayName ?: @"";
 }
 
 - (NSString *)initials
 {
-    ZMPersonName *personName = [self.managedObjectContext.nameGenerator personNameFor:self];
-    // NSString *initials = [self.managedObjectContext.nameGenerator initialsFor:self];
-    // VerifyReturnValue(initials != nil, @"");
+    PersonName *personName = [self.managedObjectContext.nameGenerator personNameFor:self];
     return personName.initials ?: @"";
+//    NSString *initials = [self.managedObjectContext.displayNameGenerator initialsForUser:self];
+//    return initials ?: @"";
+
 }
 
 

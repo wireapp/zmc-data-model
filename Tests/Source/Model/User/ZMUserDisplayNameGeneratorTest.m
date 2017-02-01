@@ -19,7 +19,6 @@
 
 #import "ModelObjectsTests.h"
 #import "ZMUser+Internal.h"
-#import "ZMUserDisplayNameGenerator+Internal.h"
 
 
 static NSString * const UserNames[] = {
@@ -327,7 +326,7 @@ static NSString * const UserNames[] = {
     
     // when
     self.uiMOC.nameGenerator = nil;
-    NSSet *updatedSet = [self.uiMOC updateNameGeneratorWithChangesWithNote:[self notificationForInsertedObject:nil updatedObjects:nil deletedObjects:[NSSet setWithObject:user2]]];
+    NSSet *updatedSet = [self.uiMOC updateNameGeneratorWithChanges:[self notificationForInsertedObject:nil updatedObjects:nil deletedObjects:[NSSet setWithObject:user2]]];
     
     // then
     XCTAssertEqual(updatedSet.count, 0u);
@@ -351,7 +350,7 @@ static NSString * const UserNames[] = {
     XCTAssertEqualObjects(user3.displayName, @"Anna");
 
     // when
-    NSSet *updatedSet = [self.uiMOC updateNameGeneratorWithChangesWithNote:[self notificationForInsertedObject:nil updatedObjects:nil deletedObjects:[NSSet setWithObject:user3]]];
+    NSSet *updatedSet = [self.uiMOC updateNameGeneratorWithChanges:[self notificationForInsertedObject:nil updatedObjects:nil deletedObjects:[NSSet setWithObject:user3]]];
     
     // then
     NSSet *expectedSet = [NSSet setWithObject:user1];
@@ -377,7 +376,7 @@ static NSString * const UserNames[] = {
     
     // when
     user2.name = @"Anna";
-    NSSet *updatedSet = [self.uiMOC updateNameGeneratorWithChangesWithNote:[self notificationForInsertedObject:nil updatedObjects:[NSSet setWithObject:user2] deletedObjects:nil]];
+    NSSet *updatedSet = [self.uiMOC updateNameGeneratorWithChanges:[self notificationForInsertedObject:nil updatedObjects:[NSSet setWithObject:user2] deletedObjects:nil]];
     
     // then
     NSSet *expectedSet = [NSSet setWithObjects:user2, user1, nil];
@@ -457,7 +456,7 @@ static NSString * const UserNames[] = {
         [self.uiMOC refreshObject:mo mergeChanges:NO];
     }
     [self.uiMOC processPendingChanges];
-    [self.uiMOC updateNameGeneratorWithChangesWithNote:[self notificationForInsertedObject:nil updatedObjects:[NSSet setWithObject:user1] deletedObjects:nil]];
+    [self.uiMOC updateNameGeneratorWithChanges:[self notificationForInsertedObject:nil updatedObjects:[NSSet setWithObject:user1] deletedObjects:nil]];
     
     // then
     XCTAssertFalse(user1.isFault);
@@ -500,9 +499,9 @@ static NSString * const UserNames[] = {
 - (void)testPerformanceForInitials
 {
     // average: 0.000, relative standard deviation: 106.904%, values: [0.000149, 0.000104, 0.000096, 0.000757, 0.000117, 0.000097, 0.000154, 0.000098, 0.000111, 0.000123],
-    // average: 0.000, relative standard deviation: 24.868%, values: [0.000719, 0.000349, 0.000406, 0.000379, 0.000438, 0.000368, 0.000381, 0.000376, 0.000358, 0.000392],
+    // average: 0.000, relative standard deviation: 24.868%, values: [0.000795, 0.000297, 0.000362, 0.000302, 0.000334, 0.000328, 0.000361, 0.000309, 0.000306, 0.000392],
     [self measureMetrics:@[XCTPerformanceMetric_WallClockTime] automaticallyStartMeasuring:NO forBlock:^{
-        [self resetUIandSyncContextsAndResetPersistentStore:NO];
+        [self resetUIandSyncContextsAndResetPersistentStore:YES];
 
         NSMutableArray *users = [NSMutableArray array];
         for (size_t i = 0; i < (sizeof(UserNames)/sizeof(*UserNames)); ++i) {
@@ -526,8 +525,8 @@ static NSString * const UserNames[] = {
 
 - (void)testDisplayNamePerformanceWhenChangingAUserName
 {
-    // average: 0.000, relative standard deviation: 20.300%, values: [0.000229, 0.000130, 0.000133, 0.000138, 0.000147, 0.000131, 0.000131, 0.000130, 0.000132, 0.000130],
-    // average: average: 0.000, relative standard deviation: 40.772%, values: [0.000718, 0.000275, 0.000283, 0.000260, 0.000259, 0.000293, 0.000285, 0.000287, 0.000312, 0.000269]
+    // old system: average: 0.001, relative standard deviation: 10.917%, values: [0.001375, 0.001146, 0.001141, 0.001142, 0.001551, 0.001360, 0.001423, 0.001230, 0.001197, 0.001144]
+    // average: 0.006, relative standard deviation: 109.292%, values: [0.024821, 0.003850, 0.003629, 0.003675, 0.003652, 0.003567, 0.003655, 0.004051, 0.003516, 0.003606
     [self measureMetrics:@[XCTPerformanceMetric_WallClockTime] automaticallyStartMeasuring:NO forBlock:^{
         [self resetUIandSyncContextsAndResetPersistentStore:YES];
         
@@ -548,10 +547,11 @@ static NSString * const UserNames[] = {
         
         existingUser.name = newName;
         [self.uiMOC saveOrRollback];
+        
+        NSNotification *note = [self notificationForInsertedObject:nil updatedObjects:[NSSet setWithObject:existingUser] deletedObjects:nil];
         [self startMeasuring];
         {
-            
-            [self.uiMOC updateNameGeneratorWithChangesWithNote:[self notificationForInsertedObject:nil updatedObjects:[NSSet setWithObject:existingUser] deletedObjects:nil]];
+            [self.uiMOC updateNameGeneratorWithChanges:note];
             for (ZMUser *user in users) {
                 XCTAssertNotNil(user.displayName);
             }
@@ -566,7 +566,7 @@ static NSString * const UserNames[] = {
 - (void)testPerformanceWhenInsertingAUserWithAnExistingUserName
 {
     // average: 0.001, relative standard deviation: 12.563%, values: [0.001146, 0.001109, 0.001155, 0.001154, 0.001117, 0.001075, 0.001109, 0.001086, 0.001596, 0.001095]
-    // average: 0.002, relative standard deviation: 2.721%, values: [0.001752, 0.001794, 0.001840, 0.001827, 0.001705, 0.001696, 0.001801, 0.001746, 0.001792, 0.001720]
+    // average: 0.002, relative standard deviation: 2.371%, values: [0.001641, 0.001630, 0.001646, 0.001566, 0.001544, 0.001579, 0.001647, 0.001559, 0.001580, 0.001572]
     
     [self measureMetrics:@[XCTPerformanceMetric_WallClockTime] automaticallyStartMeasuring:NO forBlock:^{
         [self resetUIandSyncContextsAndResetPersistentStore:YES];
@@ -594,10 +594,10 @@ static NSString * const UserNames[] = {
         [users addObject:newUser];
         
         XCTAssert([self.uiMOC saveOrRollback]);
-        
+        NSNotification *note = [self notificationForInsertedObject:[NSSet setWithObject:newUser] updatedObjects:nil deletedObjects:nil];
         [self startMeasuring];
         {
-            [self.uiMOC updateNameGeneratorWithChangesWithNote:[self notificationForInsertedObject:[NSSet setWithObject:newUser] updatedObjects:nil deletedObjects:nil]];
+            [self.uiMOC updateNameGeneratorWithChanges:note];
             for (ZMUser *user in users) {
                 XCTAssertNotNil(user.displayName);
             }
@@ -611,7 +611,7 @@ static NSString * const UserNames[] = {
 - (void)testDisplayNamePerformanceWhenRemovingAUserWithAnExistingUserName
 {
     // average: 0.001, relative standard deviation: 2.793%, values: [0.001145, 0.001081, 0.001156, 0.001155, 0.001091, 0.001085, 0.001130, 0.001088, 0.001088, 0.001078],
-    // average: 0.002, relative standard deviation: 3.832%, values: [0.001826, 0.001714, 0.001727, 0.001752, 0.001792, 0.001734, 0.001868, 0.001830, 0.001880, 0.001662]
+    // average: 0.002, relative standard deviation: 4.928%, values: [0.001804, 0.001729, 0.001585, 0.001650, 0.001536, 0.001557, 0.001637, 0.001586, 0.001680, 0.001722]
     
     [self measureMetrics:@[XCTPerformanceMetric_WallClockTime] automaticallyStartMeasuring:NO forBlock:^{
         [self resetUIandSyncContextsAndResetPersistentStore:YES];
@@ -638,7 +638,7 @@ static NSString * const UserNames[] = {
         
         [self startMeasuring];
         {
-            [self.uiMOC updateNameGeneratorWithChangesWithNote:[self notificationForInsertedObject:nil updatedObjects:nil deletedObjects:[NSSet setWithObject:existingUser1]]];
+            [self.uiMOC updateNameGeneratorWithChanges:[self notificationForInsertedObject:nil updatedObjects:nil deletedObjects:[NSSet setWithObject:existingUser1]]];
             for (ZMUser *user in users) {
                 XCTAssertNotNil(user.displayName);
             }

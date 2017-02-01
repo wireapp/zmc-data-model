@@ -18,15 +18,15 @@
 
 
 #import "ZMBaseManagedObjectTest.h"
-#import "ZMPersonName.h"
-#import "NSString+ZMPersonName.h"
+//#import "PersonName.h"
+//#import "NSString+PersonName.h"
 
 
-@interface ZMPersonNameTests : ZMBaseManagedObjectTest
+@interface PersonNameTests : ZMBaseManagedObjectTest
 @property (nonatomic) NSLinguisticTagger *tagger;
 @end
 
-@implementation ZMPersonNameTests
+@implementation PersonNameTests
 
 - (void)setUp
 {
@@ -50,8 +50,8 @@
     NSString *nameWithLineBreak = @"The Name \n Break Name";
     
     // when
-    ZMPersonName *nameWithSpaceComp = [ZMPersonName personWithName:nameWithSpace];
-    ZMPersonName *nameWithLineBreakComp = [ZMPersonName personWithName:nameWithLineBreak];
+    PersonName *nameWithSpaceComp = [PersonName personWithName:nameWithSpace];
+    PersonName *nameWithLineBreakComp = [PersonName personWithName:nameWithLineBreak];
     
     //then
     NSArray *nameWithSpaceArray = @[@"Henry", @"The", @"Great", @"Emporer"];
@@ -69,8 +69,8 @@
     NSString *name2 = @"The *Starred* Name";
     
     // when
-    ZMPersonName *nameComp1 = [ZMPersonName personWithName:name1];
-    ZMPersonName *nameComp2 = [ZMPersonName personWithName:name2];
+    PersonName *nameComp1 = [PersonName personWithName:name1];
+    PersonName *nameComp2 = [PersonName personWithName:name2];
     
     // then
     NSArray *nameArray1 = @[@"Henry", @"The", @"Great", @"Emporer"];
@@ -87,8 +87,8 @@
     NSString *name2 = @"The (   ) Empty Name";
     
     // when
-    ZMPersonName *nameComp1 = [ZMPersonName personWithName:name1];
-    ZMPersonName *nameComp2 = [ZMPersonName personWithName:name2];
+    PersonName *nameComp1 = [PersonName personWithName:name1];
+    PersonName *nameComp2 = [PersonName personWithName:name2];
     
     // then
     NSArray *nameArray1 = @[@"Henry", @"Great", @"Emporer"];
@@ -102,7 +102,7 @@
 {
     NSString *name1 = @"Henry The Great Emporer";
     
-    ZMPersonName *nameComp1 = [ZMPersonName personWithName:name1];
+    PersonName *nameComp1 = [PersonName personWithName:name1];
     
     XCTAssertEqualObjects(nameComp1.givenName, @"Henry");
 
@@ -115,8 +115,8 @@
     NSString *name2 = @"Henry ()";
     
     // when
-    ZMPersonName *nameComp1 = [ZMPersonName personWithName:name1];
-    ZMPersonName *nameComp2 = [ZMPersonName personWithName:name2];
+    PersonName *nameComp1 = [PersonName personWithName:name1];
+    PersonName *nameComp2 = [PersonName personWithName:name2];
 
 
     // then
@@ -132,8 +132,8 @@
     NSString *name2 = @"**********";
     
     // when
-    ZMPersonName *nameComp1 = [ZMPersonName personWithName:name1];
-    ZMPersonName *nameComp2 = [ZMPersonName personWithName:name2];
+    PersonName *nameComp1 = [PersonName personWithName:name1];
+    PersonName *nameComp2 = [PersonName personWithName:name2];
     
     
     // then
@@ -149,7 +149,7 @@
     NSString *name1 = @"\u00cbmil Super Man";
     
     // when
-    ZMPersonName *personName1 = [ZMPersonName personWithName:name1];
+    PersonName *personName1 = [PersonName personWithName:name1];
 
     // then
     XCTAssertEqualObjects(personName1.initials, @"\u00cbM");
@@ -161,7 +161,7 @@
     NSString *name2 = @"E\u0308mil";
     
     // when
-    ZMPersonName *personName2 = [ZMPersonName personWithName:name2];
+    PersonName *personName2 = [PersonName personWithName:name2];
     
     // then
     XCTAssertEqualObjects(personName2.initials, @"\u00cb");
@@ -218,7 +218,7 @@
     NSString *name1 = @"李淑蒙";              // Lǐ Shūméng - Lǐ (李) is the secondName, Shūméng (淑蒙) the firstName
 
     // when
-    ZMPersonName *nameComp1 = [ZMPersonName personWithName:name1];
+    PersonName *nameComp1 = [PersonName personWithName:name1];
 
     // then
     XCTAssertEqualObjects(nameComp1.givenName, @"李淑蒙");
@@ -230,7 +230,7 @@
     NSString *name1 = @"李淑蒙";
     
     // when
-    ZMPersonName *nameComp1 = [ZMPersonName personWithName:name1];
+    PersonName *nameComp1 = [PersonName personWithName:name1];
     
     // then
     XCTAssertEqualObjects(nameComp1.initials, @"李淑");
@@ -242,7 +242,7 @@
     NSString *name3 = @"李";
     
     // when
-    ZMPersonName *nameComp3 = [ZMPersonName personWithName:name3];
+    PersonName *nameComp3 = [PersonName personWithName:name3];
     
     // then
     XCTAssertEqualObjects(nameComp3.initials, @"李");
@@ -302,9 +302,9 @@
     NSString *name3 = @"ひら がな";                // hiragana
     
     // when
-    ZMPersonName *nameComp1 = [ZMPersonName personWithName:name1];
-    ZMPersonName *nameComp2 = [ZMPersonName personWithName:name2];
-    ZMPersonName *nameComp3 = [ZMPersonName personWithName:name3];
+    PersonName *nameComp1 = [PersonName personWithName:name1];
+    PersonName *nameComp2 = [PersonName personWithName:name2];
+    PersonName *nameComp3 = [PersonName personWithName:name3];
     
     // then
     XCTAssertEqualObjects(nameComp1.givenName, @"マルテイ");
@@ -320,9 +320,9 @@
     NSString *name3 = @"ひ";                // hiragana
     
     // when
-    ZMPersonName *nameComp1 = [ZMPersonName personWithName:name1];
-    ZMPersonName *nameComp2 = [ZMPersonName personWithName:name2];
-    ZMPersonName *nameComp3 = [ZMPersonName personWithName:name3];
+    PersonName *nameComp1 = [PersonName personWithName:name1];
+    PersonName *nameComp2 = [PersonName personWithName:name2];
+    PersonName *nameComp3 = [PersonName personWithName:name3];
     
     // then
     XCTAssertEqualObjects(nameComp1.initials, @"ツル");
@@ -356,7 +356,7 @@
     NSString *name1 = @"मोहनदास करमचंद गांधी"; // Mohandas Karamchand Gandhi - Mohandas Karamchand is the secondName, Gandhi the firstName
     
     // when
-    ZMPersonName *nameComp1 = [ZMPersonName personWithName:name1];
+    PersonName *nameComp1 = [PersonName personWithName:name1];
     
     // then
     XCTAssertEqualObjects(nameComp1.givenName, @"गांधी");
@@ -426,9 +426,9 @@
     NSString *name3 = @"امه العليم السوسوه‎";               // Amat Al'Alim Alsoswa, where "امه العليم" (Amat al Alim = Slave of the all knowing) is the firstName
     
     // when
-    ZMPersonName *nameComp1 = [ZMPersonName personWithName:name1];
-    ZMPersonName *nameComp2 = [ZMPersonName personWithName:name2];
-    ZMPersonName *nameComp3 = [ZMPersonName personWithName:name3];
+    PersonName *nameComp1 = [PersonName personWithName:name1];
+    PersonName *nameComp2 = [PersonName personWithName:name2];
+    PersonName *nameComp3 = [PersonName personWithName:name3];
 
     // then
     XCTAssertEqualObjects(nameComp1.givenName, @"محمد");
@@ -450,9 +450,9 @@
     NSString *name3 = @"امه العليم السوسوه‎";               // Amat Al'Alim Alsoswa, where "امه العليم" (Amat al Alim = Slave of the all knowing) is the firstName
     
     // when
-    ZMPersonName *nameComp1 = [ZMPersonName personWithName:name1];
-    ZMPersonName *nameComp2 = [ZMPersonName personWithName:name2];
-    ZMPersonName *nameComp3 = [ZMPersonName personWithName:name3];
+    PersonName *nameComp1 = [PersonName personWithName:name1];
+    PersonName *nameComp2 = [PersonName personWithName:name2];
+    PersonName *nameComp3 = [PersonName personWithName:name3];
     
     // then
     XCTAssertEqualObjects(nameComp1.initials, @"ما");
@@ -470,8 +470,8 @@
     NSString *name3 = @"shumeng (李淑蒙)";    // should use the chinese name as "firstName"
     
     // when
-    ZMPersonName *nameComp2 = [ZMPersonName personWithName:name2];
-    ZMPersonName *nameComp3 = [ZMPersonName personWithName:name3];
+    PersonName *nameComp2 = [PersonName personWithName:name2];
+    PersonName *nameComp3 = [PersonName personWithName:name3];
     
     // then
     XCTAssertEqualObjects(nameComp2.givenName, @"李淑蒙");
@@ -486,8 +486,8 @@
     NSString *name2 = @"shumeng (李淑蒙)";
     
     // when
-    ZMPersonName *nameComp1 = [ZMPersonName personWithName:name1];
-    ZMPersonName *nameComp2 = [ZMPersonName personWithName:name2];
+    PersonName *nameComp1 = [PersonName personWithName:name1];
+    PersonName *nameComp2 = [PersonName personWithName:name2];
     
     // then
     XCTAssertEqualObjects(nameComp1.initials, @"李s");
@@ -500,8 +500,8 @@
     NSString *name1 = @"𠀲𫝶𫝷𫝚𫞉𫟘善屠屮 𠂎";
     NSString *name2 = @"( 𝓐𝓑 𝓑";
 
-    ZMPersonName *nameComp1 = [ZMPersonName personWithName:name1];
-    ZMPersonName *nameComp2 = [ZMPersonName personWithName:name2];
+    PersonName *nameComp1 = [PersonName personWithName:name1];
+    PersonName *nameComp2 = [PersonName personWithName:name2];
 
     XCTAssertNotEqual(nameComp1.components.count, 0u);
     XCTAssertNotEqual(nameComp2.components.count, 0u);
@@ -539,9 +539,9 @@
 {
     // C.f. https://wearezeta.atlassian.net/browse/MEC-656
     
-    XCTAssertEqualObjects([ZMPersonName personWithName:@""].initials, @"");
-    XCTAssertEqualObjects([ZMPersonName personWithName:@"A"].initials, @"A");
-    XCTAssertEqualObjects([ZMPersonName personWithName:@"𝓐"].initials, @"𝓐");
+    XCTAssertEqualObjects([PersonName personWithName:@""].initials, @"");
+    XCTAssertEqualObjects([PersonName personWithName:@"A"].initials, @"A");
+    XCTAssertEqualObjects([PersonName personWithName:@"𝓐"].initials, @"𝓐");
 }
 
 @end
