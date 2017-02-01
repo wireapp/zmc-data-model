@@ -271,9 +271,6 @@ public final class ManagedObjectContextObserver: NSObject {
     fileprivate var accumulatedChanges = ManagedObjectChanges()
     fileprivate var isSyncDone = false
     
-    public let callCenter = CTCallCenter()
-    
-    
     public var propagateChanges = false {
         didSet {
             if propagateChanges {
