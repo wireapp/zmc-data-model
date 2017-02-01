@@ -59,12 +59,10 @@ struct Changes : Mergeable {
         self.originalChanges = originalChanges
     }
     
-    func merged(with other: Changes) -> Changes { // TODO Sabine: Merge the original changes if needed
+    func merged(with other: Changes) -> Changes {
         return Changes(changedKeys: changedKeys.union(other.changedKeys), originalChanges: originalChanges.updated(other: other.originalChanges))
     }
 }
-
-
 
 
 public typealias ClassIdentifier = String
@@ -226,21 +224,6 @@ public class NotificationDispatcher : NSObject {
         fireAllNotifications()
         snapshotCenter.clearAllSnapshots()
     }
-    
-    /// Call this from syncStrategy BEFORE merging the changes from syncMOC into uiMOC
-    // TODO Sabine: do we still need any of this?
-//    public func notifyUpdatedCallState(_ conversations: Set<ZMConversation>, notifyDirectly: Bool) {
-//        guard forwardChanges else { return }
-//        
-//        let updatedConversations = voicechannelObserverCenter.conversationsWithVoicechannelStateChange(updatedConversationsAndChangedKeys:
-//            conversations.mapToDictionary{Set($0.changedValues().keys)}
-//        )
-//        guard updatedConversations.count > 0 else { return }
-//        let classIdentifier = ZMConversation.classIdentifier
-//        let affectedKeys = affectingKeysStore.observableKeysAffectedByValue(classIdentifier, key: "voiceChannelState")
-//        let changes = Dictionary(keys: updatedConversations, repeatedValue: Changes(changedKeys: affectedKeys))
-//        allChanges[classIdentifier] = allChanges[classIdentifier]?.merged(with: changes) ?? changes
-//    }
     
     func process(note: Notification) {
         guard let userInfo = note.userInfo as? [String : Any] else { return }

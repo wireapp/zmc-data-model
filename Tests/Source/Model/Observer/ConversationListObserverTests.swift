@@ -158,53 +158,6 @@ class ConversationListObserverTests : NotificationDispatcherTestBase {
         
     }
     
-//    // TODO Sabine: remove this?
-//    func testThatItNotifiesObserversWhenAConversationChangesToNotMatchThePredicateAndThenToMatchThePredicateAgain_Calling()
-//    {
-//        // given
-//        let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
-//        let user = ZMUser.insertNewObject(in:self.uiMOC)
-//        let selfUser = ZMUser.selfUser(in: self.uiMOC)
-//        
-//        conversation.conversationType = .oneOnOne
-//        conversation.mutableOtherActiveParticipants.add(user)
-//        let conversationList = ZMConversation.conversationsExcludingArchived(in: self.uiMOC)
-//        let mutableCallParticipants = conversation.mutableOrderedSetValue(forKey: ZMConversationCallParticipantsKey)
-//        mutableCallParticipants.add(user)
-//        self.uiMOC.saveOrRollback()
-//        
-//        let token = ConversationListChangeInfo.add(observer: testObserver, for: conversationList)
-//        
-//        // when
-//        conversation.callDeviceIsActive = true
-//        conversation.isFlowActive = true
-//        conversation.activeFlowParticipants = NSOrderedSet(array: [user, selfUser])
-//        self.dispatcher.notifyUpdatedCallState(Set(arrayLiteral: conversation), notifyDirectly: true)
-//        self.uiMOC.saveOrRollback()
-//
-//        conversation.callDeviceIsActive = false
-//        conversation.isFlowActive = false
-//        self.dispatcher.notifyUpdatedCallState(Set(arrayLiteral: conversation), notifyDirectly: true)
-//        self.uiMOC.saveOrRollback()
-//
-//        // then
-//        XCTAssertEqual(testObserver.changes.count, 2)
-//        if let first = testObserver.changes.first {
-//            XCTAssertEqual(first.insertedIndexes, IndexSet())
-//            XCTAssertEqual(first.deletedIndexes, IndexSet(integer: 0))
-//            XCTAssertEqual(first.updatedIndexes, IndexSet())
-//            XCTAssertEqual(self.movedIndexes(first), [])
-//        }
-//        if let first = testObserver.changes.last {
-//            XCTAssertEqual(first.insertedIndexes, IndexSet(integer: 0))
-//            XCTAssertEqual(first.deletedIndexes, IndexSet())
-//            XCTAssertEqual(first.updatedIndexes, IndexSet())
-//            XCTAssertEqual(self.movedIndexes(first), [])
-//        }
-//        XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-//        ConversationListChangeInfo.remove(observer: token, for:conversationList)
-//        
-//    }
     
     func testThatItNotifiesObserversWhenAConversationChangesSoItNowDoesMatchThePredicate()
     {

@@ -492,57 +492,6 @@ ZM_EMPTY_ASSERTING_INIT()
     [archivedObserver tearDown];
 }
 
-
-// TODO Sabine: remove this?
-//
-//- (void)testThatAConversationWithActiveVoicecallisAlwaysOnTop
-//{
-//    // given
-//    ZMConversation *c1 = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-//    c1.conversationType = ZMConversationTypeOneOnOne;
-//    c1.lastModifiedDate = [NSDate date];
-//    XCTAssertFalse(c1.callDeviceIsActive);
-//    
-//    ZMConversation *c2 = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-//    c2.conversationType = ZMConversationTypeOneOnOne;
-//    c2.lastModifiedDate = [NSDate date];
-//    
-//    ZMConversation *c3 = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-//    c3.conversationType = ZMConversationTypeOneOnOne;
-//    c3.lastModifiedDate = [NSDate date];
-//    
-//    XCTAssert([self.uiMOC saveOrRollback]);
-//
-//    
-//    NSArray *expectedList1 = @[c3, c2, c1];
-//    ZMConversationList *list = [ZMConversation conversationsIncludingArchivedInContext:self.uiMOC];
-//    XCTAssertEqualObjects(list, expectedList1);
-//    
-//    ConversationListChangeObserver *observer = [[ConversationListChangeObserver alloc] initWithConversationList:list];
-//
-//    // when
-//    c1.callDeviceIsActive = YES;
-//    
-//    // then the active call moves to top
-//    XCTAssertTrue(c1.callDeviceIsActive);
-//    [self.dispatcher notifyUpdatedCallState:[NSSet setWithObject:c1] notifyDirectly:YES];
-//    XCTAssert([self.uiMOC saveOrRollback]);
-//    
-//    NSArray *expectedList2 = @[c1, c3, c2];
-//    XCTAssertEqualObjects(list, expectedList2);
-//    
-//    // when we insert a message into one of the other conversations
-//    [c2 appendMessageWithText:@"hello"];
-//    XCTAssert([self.uiMOC saveOrRollback]);
-//    
-//    // then the active call stays on top
-//    NSArray *expectedList3 = @[c1, c2, c3];
-//    XCTAssertEqualObjects(list, expectedList3);
-//    
-//    WaitForAllGroupsToBeEmpty(0.5);
-//    [observer tearDown];
-//}
-
 - (void)testThatClearingConversationMovesItToClearedList
 {
     // given

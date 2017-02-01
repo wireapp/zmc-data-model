@@ -126,31 +126,6 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         user.name = name
         self.uiMOC.saveOrRollback()
     }
-
-    // TODO Sabine: remove this?
-//    func testThatItNotifiesTheObserverIfTheVoiceChannelStateChanges()
-//    {
-//        // given
-//        let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
-//        conversation.conversationType = ZMConversationType.group
-//        let otherUser = ZMUser.insertNewObject(in:self.uiMOC)
-//        otherUser.name = "Foo"
-//        conversation.mutableOtherActiveParticipants.add(otherUser)
-//        self.uiMOC.saveOrRollback()
-//        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-//        
-//        // when
-//        self.checkThatItNotifiesTheObserverOfAChange(conversation,
-//                                                     modifier: { _ in
-//                                                        conversation.callDeviceIsActive = true
-//                                                        self.dispatcher.notifyUpdatedCallState(Set(arrayLiteral:conversation), notifyDirectly:true)
-//            },
-//                                                     expectedChangedFields: KeySet(["voiceChannelStateChanged", "conversationListIndicatorChanged"]),
-//                                                     expectedChangedKeys: KeySet(["voiceChannelState", "conversationListIndicator"])
-//        )
-//        
-//        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-//    }
     
     func testThatItNotifiesTheObserverOfANameChangeBecauseOfActiveParticipants()
     {

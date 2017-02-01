@@ -152,7 +152,6 @@ static NSString * const DisplayNameGeneratorKey = @"ZMUserDisplayNameGenerator";
     [self.displayNameGenerator fetchAllUsers];
     
     // loop through updated. If the user name changed then replace those users in the updatedSet
-    // TODO Sabine: This does not make sense, user is a reference and should change values as the MO changes
     NSMutableSet *updatedSet = [self.displayNameGenerator.allUsers mutableCopy];
     for (ZMUser *user in updatedSet) {
         ZMUser *oldUser = [updatedSet member:user];
