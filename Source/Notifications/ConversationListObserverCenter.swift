@@ -79,7 +79,7 @@ public class ConversationListObserverCenter : NSObject, ZMConversationObserver, 
     public func conversationDidChange(_ changes: ConversationChangeInfo) {
         guard    changes.nameChanged              || changes.connectionStateChanged  || changes.isArchivedChanged
               || changes.isSilencedChanged        || changes.lastModifiedDateChanged || changes.conversationListIndicatorChanged
-              || changes.voiceChannelStateChanged || changes.clearedChanged          || changes.securityLevelChanged
+              || changes.clearedChanged           || changes.securityLevelChanged
         else { return }
         
         forwardToSnapshots{$0.processConversationChanges(changes)}

@@ -204,8 +204,8 @@ static BOOL storeIsReady = NO;
         [moc setupUserKeyStoreForDirectory:keyStoreURL];
         moc.undoManager = nil;
         moc.mergePolicy = [[ZMSyncMergePolicy alloc] initWithMergeType:NSMergeByPropertyObjectTrumpMergePolicyType];
+        [moc applyPersistedDataPatchesForCurrentVersion];
     }];
-    [moc applyPersistedDataPatchesForCurrentVersion];
     return moc;
 }
 

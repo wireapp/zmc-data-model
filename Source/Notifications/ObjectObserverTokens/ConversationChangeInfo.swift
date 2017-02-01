@@ -26,7 +26,6 @@ extension ZMConversation : ObjectInSnapshot {
                     #keyPath(ZMConversation.lastModifiedDate),
                     #keyPath(ZMConversation.isArchived),
                     #keyPath(ZMConversation.conversationListIndicator),
-                    #keyPath(ZMConversation.voiceChannelState),
                     #keyPath(ZMConversation.activeFlowParticipants),
                     #keyPath(ZMConversation.callParticipants),
                     #keyPath(ZMConversation.isSilenced),
@@ -93,10 +92,6 @@ extension ZMConversation : ObjectInSnapshot {
         return changedKeysContain(keys: #keyPath(ZMConversation.conversationListIndicator))
     }
 
-    public var voiceChannelStateChanged : Bool {
-        return changedKeysContain(keys: #keyPath(ZMConversation.voiceChannelState))
-    }
-
     public var clearedChanged : Bool {
         return changedKeysContain(keys: #keyPath(ZMConversation.clearedTimeStamp))
     }
@@ -128,7 +123,6 @@ extension ZMConversation : ObjectInSnapshot {
         "isArchivedChanged: \(isArchivedChanged)," +
         "isSilencedChanged: \(isSilencedChanged)," +
         "conversationListIndicatorChanged \(conversationListIndicatorChanged)," +
-        "voiceChannelStateChanged \(voiceChannelStateChanged)," +
         "clearedChanged \(clearedChanged)," +
         "securityLevelChanged \(securityLevelChanged),"
     }

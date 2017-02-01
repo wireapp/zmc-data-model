@@ -26,7 +26,6 @@
 #import "ZMConnection+Internal.h"
 #import "ZMUser+Internal.h"
 #import "ZMNotifications+Internal.h"
-#import "ZMVoiceChannel+Testing.h"
 #import "ZMMessage+Internal.h"
 #import "ZMCDataModelTests-Swift.h"
 
@@ -189,7 +188,7 @@ ZM_EMPTY_ASSERTING_INIT()
     c4.connection.status = ZMConnectionStatusBlocked;
     
     // then
-    NSArray *list = [ZMConversation conversationsExcludingArchivedAndCallingInContext:self.uiMOC];
+    NSArray *list = [ZMConversation conversationsExcludingArchivedInContext:self.uiMOC];
     XCTAssertEqual(list.count, 2u);
     NSArray *expected = @[c1, c2];
     AssertArraysContainsSameObjects(list, expected);
@@ -355,7 +354,7 @@ ZM_EMPTY_ASSERTING_INIT()
     conversation.connection.to = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     
     // then
-    ZMConversationList *normalList = [ZMConversation conversationsExcludingArchivedAndCallingInContext:self.uiMOC];
+    ZMConversationList *normalList = [ZMConversation conversationsExcludingArchivedInContext:self.uiMOC];
     ZMConversationList *pendingList = [ZMConversation pendingConversationsInContext:self.uiMOC];
     XCTAssertEqual(normalList.count, 0u);
     XCTAssertEqualObjects(normalList, @[]);
@@ -393,7 +392,7 @@ ZM_EMPTY_ASSERTING_INIT()
     XCTAssert([self.uiMOC saveOrRollback]);
 
     // then
-    ZMConversationList *normalList = [ZMConversation conversationsExcludingArchivedAndCallingInContext:self.uiMOC];
+    ZMConversationList *normalList = [ZMConversation conversationsExcludingArchivedInContext:self.uiMOC];
     XCTAssertEqual(normalList.count, 0u);
     XCTAssertEqualObjects(normalList, @[]);
 
@@ -427,7 +426,7 @@ ZM_EMPTY_ASSERTING_INIT()
     conversation2.connection.to = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     
     // then
-    ZMConversationList *normalList = [ZMConversation conversationsExcludingArchivedAndCallingInContext:self.uiMOC];
+    ZMConversationList *normalList = [ZMConversation conversationsExcludingArchivedInContext:self.uiMOC];
     ZMConversationList *pendingList = [ZMConversation pendingConversationsInContext:self.uiMOC];
     NSArray *conversations = @[conversation2, conversation1];
     XCTAssertEqual(normalList.count, 0u);
@@ -468,7 +467,7 @@ ZM_EMPTY_ASSERTING_INIT()
     conversation.connection.to = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     
     // then
-    ZMConversationList *normalList = [ZMConversation conversationsExcludingArchivedAndCallingInContext:self.uiMOC];
+    ZMConversationList *normalList = [ZMConversation conversationsExcludingArchivedInContext:self.uiMOC];
     ZMConversationList *archivedList = [ZMConversation archivedConversationsInContext:self.uiMOC];
     XCTAssertEqual(normalList.count, 1u);
     XCTAssertEqualObjects(normalList, @[conversation]);
@@ -555,7 +554,7 @@ ZM_EMPTY_ASSERTING_INIT()
     
     c1.lastServerTimeStamp = message.serverTimestamp;
     
-    ZMConversationList *activeList = [ZMConversation conversationsExcludingArchivedAndCallingInContext:self.uiMOC];
+    ZMConversationList *activeList = [ZMConversation conversationsExcludingArchivedInContext:self.uiMOC];
     ZMConversationList *archivedList = [ZMConversation archivedConversationsInContext:self.uiMOC];
     ZMConversationList *clearedList = [ZMConversation clearedConversationsInContext:self.uiMOC];
     
@@ -591,7 +590,7 @@ ZM_EMPTY_ASSERTING_INIT()
     
     [c1 clearMessageHistory];
 
-    ZMConversationList *activeList = [ZMConversation conversationsExcludingArchivedAndCallingInContext:self.uiMOC];
+    ZMConversationList *activeList = [ZMConversation conversationsExcludingArchivedInContext:self.uiMOC];
     ZMConversationList *archivedList = [ZMConversation archivedConversationsInContext:self.uiMOC];
     ZMConversationList *clearedList = [ZMConversation clearedConversationsInContext:self.uiMOC];
     

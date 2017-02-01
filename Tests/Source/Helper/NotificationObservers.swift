@@ -51,34 +51,6 @@ class UserObserver : NSObject, ZMUserObserver {
     }
 }
 
-class TestVoiceChannelObserver : NSObject, ZMVoiceChannelStateObserver {
-    
-    var receivedChangeInfo : [VoiceChannelStateChangeInfo] = []
-    
-    func voiceChannelStateDidChange(_ changeInfo: VoiceChannelStateChangeInfo) {
-        receivedChangeInfo.append(changeInfo)
-        if(OperationQueue.current != OperationQueue.main) {
-            XCTFail("Wrong thread")
-        }
-    }
-    func clearNotifications() {
-        receivedChangeInfo = []
-    }
-}
-
-class TestVoiceChannelParticipantStateObserver : NSObject, ZMVoiceChannelParticipantsObserver {
-    
-    var receivedChangeInfo : [VoiceChannelParticipantsChangeInfo] = []
-    
-    func voiceChannelParticipantsDidChange(_ changeInfo: VoiceChannelParticipantsChangeInfo) {
-        receivedChangeInfo.append(changeInfo)
-    }
-    func clearNotifications() {
-        receivedChangeInfo = []
-    }
-}
-
-
 class MessageObserver : NSObject, ZMMessageObserver {
     
     var token : NSObjectProtocol?
