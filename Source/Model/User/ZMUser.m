@@ -230,17 +230,12 @@ static NSString *const AnnaBotHandle = @"annathebot";
 {
     PersonName *personName = [self.managedObjectContext.nameGenerator personNameFor:self];
     return personName.displayName ?: @"";
-//    NSString *displayName = [self.managedObjectContext.displayNameGenerator displayNameForUser:self];
-//    return displayName ?: @"";
 }
 
 - (NSString *)initials
 {
     PersonName *personName = [self.managedObjectContext.nameGenerator personNameFor:self];
     return personName.initials ?: @"";
-//    NSString *initials = [self.managedObjectContext.displayNameGenerator initialsForUser:self];
-//    return initials ?: @"";
-
 }
 
 
