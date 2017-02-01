@@ -30,14 +30,15 @@ import Foundation
     public required init(object: NSObject) {
         super.init(object: object)
     }
-    
-    public var previousState : ZMVoiceChannelState {
-        guard let rawValue = (changedKeysAndOldValues["voiceChannelState"] as? NSInteger),
-              let previousState = ZMVoiceChannelState(rawValue: UInt8(rawValue))
-        else { return .invalid }
-        
-        return previousState
-    }
+
+    // TODO Sabine: Remove this entirely?
+//    public var previousState : ZMVoiceChannelState {
+//        guard let rawValue = (changeInfos["voiceChannelState"] as? NSInteger),
+//              let previousState = ZMVoiceChannelState(rawValue: UInt8(rawValue))
+//        else { return .invalid }
+//        
+//        return previousState
+//    }
     
     public var currentState : ZMVoiceChannelState {
         if let conversation = object as? ZMConversation,
@@ -49,7 +50,7 @@ import Foundation
     public var voiceChannel : ZMVoiceChannel? { return (object as? ZMConversation)?.voiceChannel }
     
     public override var description: String {
-        return "Call state changed from \(previousState) to \(currentState)"
+        return "" // TODO Sabine: "Call state changed from \(previousState) to \(currentState)"
     }
 }
 
@@ -63,6 +64,8 @@ import Foundation
 
 extension VoiceChannelStateChangeInfo {
 
+    /// Adds a ZMVoiceChannelStateObserver for the specified conversation or to all conversations if none is specified
+    /// You must hold on to the token and use it to unregister
     @objc(addObserver:forConversation:)
     public static func add(observer: ZMVoiceChannelStateObserver, for conversation: ZMConversation?) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .VoiceChannelStateChange,
@@ -130,6 +133,8 @@ extension ZMVoiceChannelState: CustomStringConvertible {
 
 extension VoiceChannelParticipantsChangeInfo {
     
+    /// Adds an observer for the specified conversation
+    /// You must hold on to the token and use it to unregister
     @objc(addObserver:forConversation:)
     public static func add(observer: ZMVoiceChannelParticipantsObserver,for conversation: ZMConversation) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .VoiceChannelParticipantStateChange,

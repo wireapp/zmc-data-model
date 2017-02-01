@@ -19,7 +19,7 @@
 
 import Foundation
 
-class SearchUserObserverTests : NotificationDispatcherTests {
+class SearchUserObserverTests : NotificationDispatcherTestBase {
     
     class TestSearchUserObserver : NSObject, ZMUserObserver {
         
@@ -55,7 +55,8 @@ class SearchUserObserverTests : NotificationDispatcherTests {
                                       syncManagedObjectContext: self.syncMOC,
                                       uiManagedObjectContext:self.uiMOC)!
         
-        let token = UserChangeInfo.add(searchUserObserver: testObserver, for: searchUser, inManagedObjectContext:uiMOC)
+        uiMOC.searchUserObserverCenter?.addSearchUser(searchUser)
+        let token = UserChangeInfo.add(observer: testObserver, forBareUser: searchUser)
         
         // when
         searchUser.notifyNewSmallImageData(self.verySmallJPEGData(), searchUserObserverCenter: uiMOC.searchUserObserverCenter)
@@ -65,7 +66,7 @@ class SearchUserObserverTests : NotificationDispatcherTests {
         if let note = testObserver.receivedChangeInfo.first {
             XCTAssertTrue(note.imageSmallProfileDataChanged)
         }
-        UserChangeInfo.remove(searchUserObserver: token, for: searchUser)
+        UserChangeInfo.remove(observer: token!, forBareUser: searchUser)
     }
     
     func testThatItNotifiesTheObserverOfASmallProfilePictureChangeIfTheInternalUserUpdates() {
@@ -82,7 +83,8 @@ class SearchUserObserverTests : NotificationDispatcherTests {
                                       syncManagedObjectContext: self.syncMOC,
                                       uiManagedObjectContext:self.uiMOC)!
         
-        let token = UserChangeInfo.add(searchUserObserver: testObserver, for: searchUser, inManagedObjectContext:uiMOC)
+        uiMOC.searchUserObserverCenter?.addSearchUser(searchUser)
+        let token = UserChangeInfo.add(observer: testObserver, forBareUser:searchUser)
         
         // when
         user.smallProfileRemoteIdentifier = UUID.create()
@@ -94,7 +96,7 @@ class SearchUserObserverTests : NotificationDispatcherTests {
         if let note = testObserver.receivedChangeInfo.first {
             XCTAssertTrue(note.imageSmallProfileDataChanged)
         }
-        UserChangeInfo.remove(searchUserObserver: token, for: searchUser)
+        UserChangeInfo.remove(observer: token!, forBareUser: searchUser)
     }
     
     func testThatItStopsNotifyingAfterUnregisteringTheToken() {
@@ -109,8 +111,9 @@ class SearchUserObserverTests : NotificationDispatcherTests {
                                       syncManagedObjectContext: self.syncMOC,
                                       uiManagedObjectContext:self.uiMOC)!
         
-        let token = UserChangeInfo.add(searchUserObserver: testObserver, for: searchUser, inManagedObjectContext:uiMOC)
-        UserChangeInfo.remove(searchUserObserver: token, for: searchUser)
+        uiMOC.searchUserObserverCenter?.addSearchUser(searchUser)
+        let token = UserChangeInfo.add(observer: testObserver, forBareUser: searchUser)
+        UserChangeInfo.remove(observer: token!, forBareUser: searchUser)
         
         // when
         searchUser.notifyNewSmallImageData(self.verySmallJPEGData(), searchUserObserverCenter: uiMOC.searchUserObserverCenter)
@@ -132,7 +135,8 @@ class SearchUserObserverTests : NotificationDispatcherTests {
                                       uiManagedObjectContext:self.uiMOC)!
         
         XCTAssertFalse(searchUser.isPendingApprovalByOtherUser)
-        let token = UserChangeInfo.add(searchUserObserver: testObserver, for: searchUser, inManagedObjectContext:uiMOC)
+        uiMOC.searchUserObserverCenter?.addSearchUser(searchUser)
+        let token = UserChangeInfo.add(observer: testObserver, forBareUser: searchUser)
 
         // expect
         let callbackCalled = expectation(description: "Connection callback was called")
@@ -149,7 +153,7 @@ class SearchUserObserverTests : NotificationDispatcherTests {
         XCTAssertEqual(note.user as? ZMSearchUser, searchUser)
         XCTAssertTrue(note.connectionStateChanged)
         
-        UserChangeInfo.remove(searchUserObserver: token, for: searchUser)
+        UserChangeInfo.remove(observer: token!, forBareUser: searchUser)
     }
  
     func testThatItNotifiesObserverWhenConnectingToALocalUser() {
@@ -168,8 +172,10 @@ class SearchUserObserverTests : NotificationDispatcherTests {
                                       uiManagedObjectContext:self.uiMOC)!
         
         let testObserver2 = TestSearchUserObserver()
-        let token1 = UserChangeInfo.add(observer: testObserver, for: user)
-        let token2 = UserChangeInfo.add(searchUserObserver: testObserver2, for: searchUser, inManagedObjectContext:uiMOC)
+        let token1 = UserChangeInfo.add(observer: testObserver, forBareUser: user)
+        
+        uiMOC.searchUserObserverCenter?.addSearchUser(searchUser)
+        let token2 = UserChangeInfo.add(observer: testObserver2, forBareUser: searchUser)
         
         // expect
         let callbackCalled = expectation(description: "Connection callback was called")
@@ -200,7 +206,7 @@ class SearchUserObserverTests : NotificationDispatcherTests {
             XCTFail("Did not receive UserChangeInfo for ZMSearchUser")
         }
         
-        UserChangeInfo.remove(observer: token1, for: user)
-        UserChangeInfo.remove(searchUserObserver: token2, for: searchUser)
+        UserChangeInfo.remove(observer: token1!, forBareUser: user)
+        UserChangeInfo.remove(observer: token2!, forBareUser: searchUser)
     }
 }

@@ -96,11 +96,11 @@ class DependencyKeyStore {
         case ZMUser.entityName():
             return ZMUser.observableKeys
         case ZMConnection.entityName():
-            return Set(arrayLiteral: "status")
+            return Set([#keyPath(ZMConnection.status)])
         case UserClient.entityName():
             return UserClient.observableKeys
         case ZMMessage.entityName(), ZMSystemMessage.entityName():
-            return Set([MessageKey.deliveryState.rawValue, MessageKey.isObfuscated.rawValue])
+            return ZMMessage.observableKeys
         case ZMAssetClientMessage.entityName():
             return ZMAssetClientMessage.observableKeys
         case ZMClientMessage.entityName():
@@ -108,7 +108,7 @@ class DependencyKeyStore {
         case ZMTextMessage.entityName(), ZMImageMessage.entityName():
             return Set()
         case Reaction.entityName():
-            return Set(["user"])
+            return Set([#keyPath(Reaction.users)])
         case ZMGenericMessageData.entityName():
             return Set()
         default:

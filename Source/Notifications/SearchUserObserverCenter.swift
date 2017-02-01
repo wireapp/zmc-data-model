@@ -41,17 +41,23 @@ extension NSManagedObjectContext {
     }
 }
 
-class SearchUserSnapshot  {
+
+public class SearchUserSnapshot  {
     
     /// Keys that we want to be notified for
-    static let observableKeys = ["imageMediumData", "imageSmallProfileData", "isConnected", "user", "isPendingApprovalByOtherUser"]
+    static let observableKeys : [String] = [#keyPath(ZMSearchUser.name),
+                                            #keyPath(ZMSearchUser.imageMediumData),
+                                            #keyPath(ZMSearchUser.imageSmallProfileData),
+                                            #keyPath(ZMSearchUser.isConnected),
+                                            #keyPath(ZMSearchUser.user),
+                                            #keyPath(ZMSearchUser.isPendingApprovalByOtherUser)]
     
     weak var searchUser : ZMSearchUser?
-    var snapshotValues : [String : NSObject?]
+    public private (set) var snapshotValues : [String : NSObject?]
     
-    init(searchUser: ZMSearchUser, snapshotValues : [String : NSObject?]? = nil) {
+    public init(searchUser: ZMSearchUser) {
         self.searchUser = searchUser
-        self.snapshotValues = snapshotValues ?? SearchUserSnapshot.createSnapshots(searchUser: searchUser)
+        self.snapshotValues = SearchUserSnapshot.createSnapshots(searchUser: searchUser)
     }
     
     /// Creates a snapshot values for the observableKeys keys and stores them
@@ -73,7 +79,7 @@ class SearchUserSnapshot  {
     func updateAndNotify() {
         guard let searchUser = searchUser else { return }
         let newSnapshotValues = SearchUserSnapshot.createSnapshots(searchUser: searchUser)
-        
+
         var changedKeys = [String]()
         newSnapshotValues.forEach{
             guard let oldValue = snapshotValues[$0.key] else {
@@ -101,7 +107,7 @@ class SearchUserSnapshot  {
 @objc public class SearchUserObserverCenter : NSObject, ChangeInfoConsumer {
     
     /// Map of searchUser remoteID to snapshot
-    var snapshots : [UUID : SearchUserSnapshot] = [:]
+    internal var snapshots : [UUID : SearchUserSnapshot] = [:]
     
     /// Adds a snapshots for the specified searchUser if not already present
     public func addSearchUser(_ searchUser: ZMSearchUser) {

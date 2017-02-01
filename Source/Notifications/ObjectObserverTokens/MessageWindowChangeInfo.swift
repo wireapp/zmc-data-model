@@ -47,6 +47,8 @@ import Foundation
 
 extension MessageWindowChangeInfo {
 
+    /// Adds a ZMConversationMessageWindowObserver to the specified window
+    /// You must hold on to the token and use it to unregister
     @objc(addObserver:forWindow:)
     public static func add(observer: ZMConversationMessageWindowObserver,for window: ZMConversationMessageWindow) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .MessageWindowDidChange,

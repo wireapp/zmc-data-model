@@ -42,7 +42,7 @@ import Foundation
     }
 }
 
-class NewUnreadMessageObserverTests : NotificationDispatcherTests {
+class NewUnreadMessageObserverTests : NotificationDispatcherTestBase {
     
     func processPendingChangesAndClearNotifications() {
         self.uiMOC.saveOrRollback()

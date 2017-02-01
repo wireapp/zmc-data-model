@@ -26,7 +26,7 @@ public protocol ObjectChangeInfoProtocol : NSObjectProtocol {
     init(object: NSObject)
     func setValue(_ value: Any?, forKey key: String)
     func value(forKey key: String) -> Any?
-    var changedKeysAndOldValues : [String : NSObject?] {get set}
+    var changeInfos : [String : NSObject?] {get set}
 
 }
 
@@ -38,11 +38,11 @@ open class ObjectChangeInfo : NSObject, ObjectChangeInfoProtocol {
         self.object = object
     }
     open var changedKeys : Set<String> = Set()
-    open var changedKeysAndOldValues : [String : NSObject?] = [:]
+    open var changeInfos : [String : NSObject?] = [:]
     
     
     func changedKeysContain(keys: String...) -> Bool {
-        return !(Set(changedKeys).union(changedKeysAndOldValues.keys)).isDisjoint(with: keys)
+        return !changedKeys.isDisjoint(with: keys)
     }
 }
 

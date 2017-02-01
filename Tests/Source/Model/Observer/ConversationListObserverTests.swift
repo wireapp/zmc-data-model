@@ -19,7 +19,7 @@
 
 @testable import ZMCDataModel
 
-class ConversationListObserverTests : NotificationDispatcherTests {
+class ConversationListObserverTests : NotificationDispatcherTestBase {
     
     class TestObserver : NSObject, ZMConversationListObserver {
         
@@ -158,52 +158,53 @@ class ConversationListObserverTests : NotificationDispatcherTests {
         
     }
     
-    func testThatItNotifiesObserversWhenAConversationChangesToNotMatchThePredicateAndThenToMatchThePredicateAgain_Calling()
-    {
-        // given
-        let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
-        let user = ZMUser.insertNewObject(in:self.uiMOC)
-        let selfUser = ZMUser.selfUser(in: self.uiMOC)
-        
-        conversation.conversationType = .oneOnOne
-        conversation.mutableOtherActiveParticipants.add(user)
-        let conversationList = ZMConversation.conversationsExcludingArchivedAndCalling(in: self.uiMOC)
-        let mutableCallParticipants = conversation.mutableOrderedSetValue(forKey: ZMConversationCallParticipantsKey)
-        mutableCallParticipants.add(user)
-        self.uiMOC.saveOrRollback()
-        
-        let token = ConversationListChangeInfo.add(observer: testObserver, for: conversationList)
-        
-        // when
-        conversation.callDeviceIsActive = true
-        conversation.isFlowActive = true
-        conversation.activeFlowParticipants = NSOrderedSet(array: [user, selfUser])
-        self.dispatcher.notifyUpdatedCallState(Set(arrayLiteral: conversation), notifyDirectly: true)
-        self.uiMOC.saveOrRollback()
-
-        conversation.callDeviceIsActive = false
-        conversation.isFlowActive = false
-        self.dispatcher.notifyUpdatedCallState(Set(arrayLiteral: conversation), notifyDirectly: true)
-        self.uiMOC.saveOrRollback()
-
-        // then
-        XCTAssertEqual(testObserver.changes.count, 2)
-        if let first = testObserver.changes.first {
-            XCTAssertEqual(first.insertedIndexes, IndexSet())
-            XCTAssertEqual(first.deletedIndexes, IndexSet(integer: 0))
-            XCTAssertEqual(first.updatedIndexes, IndexSet())
-            XCTAssertEqual(self.movedIndexes(first), [])
-        }
-        if let first = testObserver.changes.last {
-            XCTAssertEqual(first.insertedIndexes, IndexSet(integer: 0))
-            XCTAssertEqual(first.deletedIndexes, IndexSet())
-            XCTAssertEqual(first.updatedIndexes, IndexSet())
-            XCTAssertEqual(self.movedIndexes(first), [])
-        }
-        XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        ConversationListChangeInfo.remove(observer: token, for:conversationList)
-        
-    }
+//    // TODO Sabine: remove this?
+//    func testThatItNotifiesObserversWhenAConversationChangesToNotMatchThePredicateAndThenToMatchThePredicateAgain_Calling()
+//    {
+//        // given
+//        let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
+//        let user = ZMUser.insertNewObject(in:self.uiMOC)
+//        let selfUser = ZMUser.selfUser(in: self.uiMOC)
+//        
+//        conversation.conversationType = .oneOnOne
+//        conversation.mutableOtherActiveParticipants.add(user)
+//        let conversationList = ZMConversation.conversationsExcludingArchivedAndCalling(in: self.uiMOC)
+//        let mutableCallParticipants = conversation.mutableOrderedSetValue(forKey: ZMConversationCallParticipantsKey)
+//        mutableCallParticipants.add(user)
+//        self.uiMOC.saveOrRollback()
+//        
+//        let token = ConversationListChangeInfo.add(observer: testObserver, for: conversationList)
+//        
+//        // when
+//        conversation.callDeviceIsActive = true
+//        conversation.isFlowActive = true
+//        conversation.activeFlowParticipants = NSOrderedSet(array: [user, selfUser])
+//        self.dispatcher.notifyUpdatedCallState(Set(arrayLiteral: conversation), notifyDirectly: true)
+//        self.uiMOC.saveOrRollback()
+//
+//        conversation.callDeviceIsActive = false
+//        conversation.isFlowActive = false
+//        self.dispatcher.notifyUpdatedCallState(Set(arrayLiteral: conversation), notifyDirectly: true)
+//        self.uiMOC.saveOrRollback()
+//
+//        // then
+//        XCTAssertEqual(testObserver.changes.count, 2)
+//        if let first = testObserver.changes.first {
+//            XCTAssertEqual(first.insertedIndexes, IndexSet())
+//            XCTAssertEqual(first.deletedIndexes, IndexSet(integer: 0))
+//            XCTAssertEqual(first.updatedIndexes, IndexSet())
+//            XCTAssertEqual(self.movedIndexes(first), [])
+//        }
+//        if let first = testObserver.changes.last {
+//            XCTAssertEqual(first.insertedIndexes, IndexSet(integer: 0))
+//            XCTAssertEqual(first.deletedIndexes, IndexSet())
+//            XCTAssertEqual(first.updatedIndexes, IndexSet())
+//            XCTAssertEqual(self.movedIndexes(first), [])
+//        }
+//        XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+//        ConversationListChangeInfo.remove(observer: token, for:conversationList)
+//        
+//    }
     
     func testThatItNotifiesObserversWhenAConversationChangesSoItNowDoesMatchThePredicate()
     {
@@ -705,28 +706,4 @@ class ConversationListObserverTests : NotificationDispatcherTests {
         // then
         XCTAssertEqual(testObserver.changes.count, 0)
     }
-    
-//    func testThatItNotifiesGlobalVoiceChannelObserversWhenAVoiceChannelStateChanges()
-//    {
-//        // given
-//        let conversation1 = ZMConversation.insertNewObject(in:self.uiMOC)
-//        conversation1.conversationType = .oneOnOne
-//        let conversation2 = ZMConversation.insertNewObject(in:self.uiMOC)
-//        conversation2.conversationType = .oneOnOne
-//        let conversation3 = ZMConversation.insertNewObject(in:self.uiMOC)
-//        conversation3.conversationType = .oneOnOne
-//        self.uiMOC.saveOrRollback()
-//        
-//        let testObserver = GlobalVoiceChannelTestObserver()
-//        let token: AnyObject = self.uiMOC.globalManagedObjectContextObserver.addGlobalVoiceChannelObserver(testObserver)
-//        
-//        // when
-//        conversation1.callDeviceIsActive = true
-//        self.uiMOC.globalManagedObjectContextObserver.notifyUpdatedCallState(Set(arrayLiteral: conversation1, conversation2, conversation3), notifyDirectly: true)
-//        
-//        // then
-//        XCTAssertEqual(testObserver.changes.count, 1);
-//        
-//        self.uiMOC.globalManagedObjectContextObserver.removeGlobalVoiceChannelStateObserverForToken(token)
-//    }
 }

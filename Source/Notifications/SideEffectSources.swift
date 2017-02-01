@@ -101,8 +101,8 @@ extension ZMUser : SideEffectSource {
     func conversationChanges(changedKeys: Set<String>, conversations: [ZMConversation], keyStore: DependencyKeyStore) -> [ClassIdentifier: ObjectAndChanges] {
         var affectedObjects = [String: [NSObject : Changes]]()
         let classIdentifier = ZMConversation.entityName()
-        let otherPartKeys = changedKeys.map{"otherActiveParticipants.\($0)"}
-        let selfUserKeys = changedKeys.map{"connection.to.\($0)"}
+        let otherPartKeys = changedKeys.map{"\(#keyPath(ZMConversation.otherActiveParticipants)).\($0)"}
+        let selfUserKeys = changedKeys.map{"\(#keyPath(ZMConversation.otherActiveParticipants)).\(#keyPath(ZMConnection.to)).\($0)"}
         let mappedKeys = otherPartKeys + selfUserKeys
         var keys = mappedKeys.map{keyStore.observableKeysAffectedByValue(classIdentifier, key: $0)}.reduce(Set()){$0.union($1)}
         
@@ -123,8 +123,9 @@ extension ZMUser : SideEffectSource {
         guard conversations.count > 0 else { return  [:] }
         
         let classIdentifier = ZMConversation.entityName()
+        let affectedKeys = keyStore.observableKeysAffectedByValue(classIdentifier, key: #keyPath(ZMConversation.otherActiveParticipants))
         return [classIdentifier: Dictionary(keys: conversations,
-                                            repeatedValue: Changes(changedKeys: keyStore.observableKeysAffectedByValue(classIdentifier, key: "otherActiveParticipants")))]
+                                            repeatedValue: Changes(changedKeys: affectedKeys))]
     }
 }
 
@@ -135,15 +136,15 @@ extension ZMMessage : SideEffectSource {
     }
     
     func affectedObjectsForInsertionOrDeletion(keyStore: DependencyKeyStore) -> [ClassIdentifier: ObjectAndChanges] {
-        return byInsertOrDeletionAffectedKeys(for: conversation, keyStore: keyStore, affectedKey: "messages")
+        return byInsertOrDeletionAffectedKeys(for: conversation, keyStore: keyStore, affectedKey: #keyPath(ZMConversation.messages))
     }
 }
 
 extension ZMConnection : SideEffectSource {
     
     func affectedObjectsAndKeys(keyStore: DependencyKeyStore, knownKeys: Set<String>) -> [ClassIdentifier: ObjectAndChanges] {
-        let conversationChanges = byUpdateAffectedKeys(for: conversation, knownKeys:knownKeys, keyStore: keyStore, keyMapping: {"connection.\($0)"})
-        let userChanges = byUpdateAffectedKeys(for: to, knownKeys:knownKeys, keyStore: keyStore, keyMapping: {"connection.\($0)"})
+        let conversationChanges = byUpdateAffectedKeys(for: conversation, knownKeys:knownKeys, keyStore: keyStore, keyMapping: {"\(#keyPath(ZMConversation.connection)).\($0)"})
+        let userChanges = byUpdateAffectedKeys(for: to, knownKeys:knownKeys, keyStore: keyStore, keyMapping: {"\(#keyPath(ZMConversation.connection)).\($0)"})
         return conversationChanges.updated(other: userChanges)
     }
     
@@ -156,32 +157,32 @@ extension ZMConnection : SideEffectSource {
 extension UserClient : SideEffectSource {
     
     func affectedObjectsAndKeys(keyStore: DependencyKeyStore, knownKeys: Set<String>) -> [ClassIdentifier: ObjectAndChanges] {
-        return byUpdateAffectedKeys(for: user, knownKeys:knownKeys, keyStore: keyStore, originalChangeKey: "clientChanges", keyMapping: {"clients.\($0)"})
+        return byUpdateAffectedKeys(for: user, knownKeys:knownKeys, keyStore: keyStore, originalChangeKey: "clientChanges", keyMapping: {"\(#keyPath(ZMUser.clients)).\($0)"})
     }
     
     func affectedObjectsForInsertionOrDeletion(keyStore: DependencyKeyStore) -> [ClassIdentifier: ObjectAndChanges] {
-        return byInsertOrDeletionAffectedKeys(for: user, keyStore: keyStore, affectedKey: "clients")
+        return byInsertOrDeletionAffectedKeys(for: user, keyStore: keyStore, affectedKey: #keyPath(ZMUser.clients))
     }
 }
 
 extension Reaction : SideEffectSource {
 
     func affectedObjectsAndKeys(keyStore: DependencyKeyStore, knownKeys: Set<String>) -> [ClassIdentifier: ObjectAndChanges] {
-        return byUpdateAffectedKeys(for: message, knownKeys:knownKeys, keyStore: keyStore, originalChangeKey: "reactionChanges", keyMapping: {"reactions.\($0)"})
+        return byUpdateAffectedKeys(for: message, knownKeys:knownKeys, keyStore: keyStore, originalChangeKey: "reactionChanges", keyMapping: {"\(#keyPath(ZMMessage.reactions)).\($0)"})
     }
     
     func affectedObjectsForInsertionOrDeletion(keyStore: DependencyKeyStore) -> [ClassIdentifier: ObjectAndChanges] {
-        return byInsertOrDeletionAffectedKeys(for: message, keyStore: keyStore, affectedKey: "reactions")
+        return byInsertOrDeletionAffectedKeys(for: message, keyStore: keyStore, affectedKey: #keyPath(ZMMessage.reactions))
     }
 }
 
 extension ZMGenericMessageData : SideEffectSource {
     
     func affectedObjectsAndKeys(keyStore: DependencyKeyStore, knownKeys: Set<String>) -> [ClassIdentifier: ObjectAndChanges] {
-        return byUpdateAffectedKeys(for: message ?? asset, knownKeys:knownKeys, keyStore: keyStore, keyMapping: {"dataSet.\($0)"})
+        return byUpdateAffectedKeys(for: message ?? asset, knownKeys:knownKeys, keyStore: keyStore, keyMapping: {"\(#keyPath(ZMClientMessage.dataSet)).\($0)"})
     }
     
     func affectedObjectsForInsertionOrDeletion(keyStore: DependencyKeyStore) -> [ClassIdentifier: ObjectAndChanges] {
-        return byInsertOrDeletionAffectedKeys(for: message ?? asset, keyStore: keyStore, affectedKey: "dataSet")
+        return byInsertOrDeletionAffectedKeys(for: message ?? asset, keyStore: keyStore, affectedKey: #keyPath(ZMClientMessage.dataSet))
     }
 }

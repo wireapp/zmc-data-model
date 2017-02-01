@@ -39,14 +39,6 @@ class SnapshotCenter {
         self.managedObjectContext = managedObjectContext
     }
     
-    func snapshotInsertedObjects(insertedObjects : Set<NSManagedObject>){
-        insertedObjects.forEach{
-            if snapshots[$0.objectID] == nil {
-                snapshots[$0.objectID] = snapshot(for: $0)
-            }
-        }
-    }
-    
     /// This function needs to be called when the sync context saved and we receive the NSManagedObjectContextDidSave notification and before the changes are merged into the UI context
     func willMergeChanges(changes: Set<NSManagedObjectID>){
         let newSnapshots : [NSManagedObjectID : Snapshot] = changes.mapToDictionary{ objectID in

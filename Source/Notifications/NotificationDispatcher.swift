@@ -93,7 +93,6 @@ public class NotificationDispatcher : NSObject {
     
     private var tornDown = false
     private let affectingKeysStore : DependencyKeyStore
-    private let voicechannelObserverCenter : VoicechannelObserverCenter
     private var messageWindowObserverCenter : MessageWindowObserverCenter {
         return managedObjectContext.messageWindowObserverCenter!
     }
@@ -131,7 +130,6 @@ public class NotificationDispatcher : NSObject {
                                            Reaction.classIdentifier,
                                            ZMGenericMessageData.classIdentifier]
         self.affectingKeysStore = DependencyKeyStore(classIdentifiers : classIdentifiers)
-        self.voicechannelObserverCenter = VoicechannelObserverCenter()
         self.snapshotCenter = SnapshotCenter(managedObjectContext: managedObjectContext)
         super.init()
 
@@ -174,14 +172,13 @@ public class NotificationDispatcher : NSObject {
     /// Might be called several times in between saves
     @objc func objectsDidChange(_ note: Notification){
         guard forwardChanges else { return }
-        process(note: note)
         forwardChangesToConversationListObserver(note: note)
+        process(note: note)
     }
     
     /// This is called when the uiMOC saved
     @objc func contextDidSave(_ note: Notification){
         guard forwardChanges else { return }
-        forwardChangesToConversationListObserver(note: note)
         fireAllNotifications()
     }
     
@@ -208,11 +205,7 @@ public class NotificationDispatcher : NSObject {
     internal func forwardChangesToConversationListObserver(note: Notification) {
         guard let userInfo = note.userInfo as? [String: Any] else { return }
         
-        let insertedObjects : [ZMConversation] = (userInfo[NSInsertedObjectsKey] as? Set<NSManagedObject>)?.flatMap{$0 as? ZMConversation} ?? []
-        let objectsWithTempIDs = insertedObjects.filter{$0.objectID.isTemporaryID}
-        try? self.managedObjectContext.obtainPermanentIDs(for:objectsWithTempIDs)
-        snapshotCenter.snapshotInsertedObjects(insertedObjects: Set(insertedObjects))
-
+        let insertedObjects = (userInfo[NSInsertedObjectsKey] as? Set<NSManagedObject>)?.flatMap{$0 as? ZMConversation} ?? []
         let deletedObjects = (userInfo[NSDeletedObjectsKey] as? Set<NSManagedObject>)?.flatMap{$0 as? ZMConversation} ?? []
         conversationListObserverCenter.conversationsChanges(inserted: insertedObjects,
                                                             deleted: deletedObjects,
@@ -231,21 +224,23 @@ public class NotificationDispatcher : NSObject {
     public func didMergeChanges() {
         guard forwardChanges else { return }
         fireAllNotifications()
+        snapshotCenter.clearAllSnapshots()
     }
     
     /// Call this from syncStrategy BEFORE merging the changes from syncMOC into uiMOC
-    public func notifyUpdatedCallState(_ conversations: Set<ZMConversation>, notifyDirectly: Bool) {
-        guard forwardChanges else { return }
-        
-        let updatedConversations = voicechannelObserverCenter.conversationsWithVoicechannelStateChange(updatedConversationsAndChangedKeys:
-            conversations.mapToDictionary{Set($0.changedValues().keys)}
-        )
-        guard updatedConversations.count > 0 else { return }
-        let classIdentifier = ZMConversation.classIdentifier
-        let affectedKeys = affectingKeysStore.observableKeysAffectedByValue(classIdentifier, key: "voiceChannelState")
-        let changes = Dictionary(keys: updatedConversations, repeatedValue: Changes(changedKeys: affectedKeys))
-        allChanges[classIdentifier] = allChanges[classIdentifier]?.merged(with: changes) ?? changes
-    }
+    // TODO Sabine: do we still need any of this?
+//    public func notifyUpdatedCallState(_ conversations: Set<ZMConversation>, notifyDirectly: Bool) {
+//        guard forwardChanges else { return }
+//        
+//        let updatedConversations = voicechannelObserverCenter.conversationsWithVoicechannelStateChange(updatedConversationsAndChangedKeys:
+//            conversations.mapToDictionary{Set($0.changedValues().keys)}
+//        )
+//        guard updatedConversations.count > 0 else { return }
+//        let classIdentifier = ZMConversation.classIdentifier
+//        let affectedKeys = affectingKeysStore.observableKeysAffectedByValue(classIdentifier, key: "voiceChannelState")
+//        let changes = Dictionary(keys: updatedConversations, repeatedValue: Changes(changedKeys: affectedKeys))
+//        allChanges[classIdentifier] = allChanges[classIdentifier]?.merged(with: changes) ?? changes
+//    }
     
     func process(note: Notification) {
         guard let userInfo = note.userInfo as? [String : Any] else { return }

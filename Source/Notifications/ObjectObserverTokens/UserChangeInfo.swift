@@ -23,7 +23,19 @@ import ZMCSystem
 extension ZMUser : ObjectInSnapshot {
     
     static public var observableKeys : Set<String> {
-        return Set(arrayLiteral: "name", "displayName", "accentColorValue", "imageMediumData", "imageSmallProfileData","emailAddress", "phoneNumber", "canBeConnected", "isConnected", "isPendingApprovalByOtherUser", "isPendingApprovalBySelfUser", "clients", "handle")
+        return Set([#keyPath(ZMUser.name),
+                    #keyPath(ZMUser.displayName),
+                    #keyPath(ZMUser.accentColorValue),
+                    #keyPath(ZMUser.imageMediumData),
+                    #keyPath(ZMUser.imageSmallProfileData),
+                    #keyPath(ZMUser.emailAddress),
+                    #keyPath(ZMUser.phoneNumber),
+                    #keyPath(ZMUser.canBeConnected),
+                    #keyPath(ZMUser.isConnected),
+                    #keyPath(ZMUser.isPendingApprovalByOtherUser),
+                    #keyPath(ZMUser.isPendingApprovalBySelfUser),
+                    #keyPath(ZMUser.clients),
+                    #keyPath(ZMUser.handle)])
     }
     
     public var notificationName : Notification.Name {
@@ -46,7 +58,7 @@ extension ZMUser : ObjectInSnapshot {
             var userClientChangeInfos = [UserClientChangeInfo]()
             clientChanges.forEach {
                 let changeInfo = UserClientChangeInfo(object: $0)
-                changeInfo.changedKeysAndOldValues = $1 as! [String : NSObject?]
+                changeInfo.changedKeys = Set($1.keys)
                 userClientChangeInfos.append(changeInfo)
             }
             originalChanges[UserClientChangeInfoKey] = userClientChangeInfos as NSObject?
@@ -54,7 +66,7 @@ extension ZMUser : ObjectInSnapshot {
         guard originalChanges.count > 0 || changes.changedKeys.count > 0 else { return nil }
         
         let changeInfo = UserChangeInfo(object: user)
-        changeInfo.changedKeysAndOldValues = originalChanges
+        changeInfo.changeInfos = originalChanges
         changeInfo.changedKeys = changes.changedKeys
         return changeInfo
     }
@@ -65,27 +77,30 @@ extension ZMUser : ObjectInSnapshot {
     }
 
     open var nameChanged : Bool {
-        return changedKeysContain(keys: "name", "displayName")
+        return changedKeysContain(keys: #keyPath(ZMUser.name), #keyPath(ZMUser.displayName))
     }
     
     open var accentColorValueChanged : Bool {
-        return changedKeysContain(keys: "accentColorValue")
+        return changedKeysContain(keys: #keyPath(ZMUser.accentColorValue))
     }
 
     open var imageMediumDataChanged : Bool {
-        return changedKeysContain(keys: "imageMediumData")
+        return changedKeysContain(keys: #keyPath(ZMUser.imageMediumData))
     }
 
     open var imageSmallProfileDataChanged : Bool {
-        return changedKeysContain(keys: "imageSmallProfileData")
+        return changedKeysContain(keys: #keyPath(ZMUser.imageSmallProfileData))
     }
 
     open var profileInformationChanged : Bool {
-        return changedKeysContain(keys: "emailAddress", "phoneNumber")
+        return changedKeysContain(keys: #keyPath(ZMUser.emailAddress), #keyPath(ZMUser.phoneNumber))
     }
 
     open var connectionStateChanged : Bool {
-        return changedKeysContain(keys: "isConnected", "canBeConnected", "isPendingApprovalByOtherUser", "isPendingApprovalBySelfUser")
+        return changedKeysContain(keys: #keyPath(ZMUser.isConnected),
+                                  #keyPath(ZMUser.canBeConnected),
+                                  #keyPath(ZMUser.isPendingApprovalByOtherUser),
+                                  #keyPath(ZMUser.isPendingApprovalBySelfUser))
     }
 
     open var trustLevelChanged : Bool {
@@ -93,17 +108,17 @@ extension ZMUser : ObjectInSnapshot {
     }
 
     open var clientsChanged : Bool {
-        return changedKeysContain(keys: "clients")
+        return changedKeysContain(keys: #keyPath(ZMUser.clients))
     }
 
     public var handleChanged : Bool {
-        return changedKeysContain(keys: "handle")
+        return changedKeysContain(keys: #keyPath(ZMUser.handle))
     }
 
 
     open let user: ZMBareUser
     open var userClientChangeInfos : [UserClientChangeInfo] {
-        return changedKeysAndOldValues[UserChangeInfo.UserClientChangeInfoKey] as? [UserClientChangeInfo] ?? []
+        return changeInfos[UserChangeInfo.UserClientChangeInfoKey] as? [UserClientChangeInfo] ?? []
     }
 }
 
@@ -118,9 +133,11 @@ extension ZMUser : ObjectInSnapshot {
 
 extension UserChangeInfo {
 
-    // MARK Registering UserObservers
+    // MARK: Registering UserObservers
+    /// Adds an observer for the user if one specified or to all ZMUsers is none is specified
+    /// You must hold on to the token and use it to unregister
     @objc(addUserObserver:forUser:)
-    public static func add(observer: ZMUserObserver, for user: ZMUser) -> NSObjectProtocol {
+    static func add(observer: ZMUserObserver, for user: ZMUser?) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .UserChange,
                                                       object: user,
                                                       queue: nil)
@@ -134,18 +151,18 @@ extension UserChangeInfo {
     }
     
     @objc(removeUserObserver:forUser:)
-    public static func remove(observer: NSObjectProtocol, for user: ZMUser?) {
+    static func remove(observer: NSObjectProtocol, for user: ZMUser?) {
         NotificationCenter.default.removeObserver(observer, name: .UserChange, object: user)
     }
     
     
-    // MARK Registering SearchUserObservers
-    @objc(addSearchUserObserver:forSearchUser:inManagedObjectContext:)
+    // MARK: Registering SearchUserObservers
+    /// Adds an observer for the searchUser if one specified or to all ZMSearchUser is none is specified
+    /// You must hold on to the token and use it to unregister
+    @objc(addSearchUserObserver:forSearchUser:)
     public static func add(searchUserObserver observer: ZMUserObserver,
-                           for user: ZMSearchUser,
-                           inManagedObjectContext context: NSManagedObjectContext) -> NSObjectProtocol
+                           for user: ZMSearchUser?) -> NSObjectProtocol
     {
-        context.searchUserObserverCenter?.addSearchUser(user)
         return NotificationCenter.default.addObserver(forName: .SearchUserChange,
                                                       object: user,
                                                       queue: nil)
@@ -159,20 +176,27 @@ extension UserChangeInfo {
     }
     
     @objc(removeSearchUserObserver:forSearchUser:)
-    public static func remove(searchUserObserver observer: NSObjectProtocol,
+    static func remove(searchUserObserver observer: NSObjectProtocol,
                               for user: ZMSearchUser?)
     {
         NotificationCenter.default.removeObserver(observer, name: .SearchUserChange, object: user)
     }
     
-    @objc(addSearchUserObserver:forSearchUser:inUserSession:)
-    public static func add(searchUserObserver observer: ZMUserObserver,
-                           for user: ZMSearchUser,
-                           inUserSession userSession: ZMManagedObjectContextProvider) -> NSObjectProtocol
+    // MARK: Registering ZMBareUser
+    /// Adds an observer for the ZMUser or ZMSearchUser
+    /// You must hold on to the token and use it to unregister
+    @objc(addObserver:forBareUser:)
+    public static func add(observer: ZMUserObserver,
+                           forBareUser user: ZMBareUser) -> NSObjectProtocol?
     {
-        return add(searchUserObserver: observer, for: user, inManagedObjectContext: userSession.managedObjectContext)
+        if let user = user as? ZMSearchUser {
+            return add(searchUserObserver: observer, for: user)
+        }
+        else if let user = user as? ZMUser {
+            return add(observer: observer, for:user)
+        }
+        return nil
     }
-    
     
     @objc(removeObserver:forBareUser:)
     public static func remove(observer: NSObjectProtocol,
@@ -188,20 +212,6 @@ extension UserChangeInfo {
             NotificationCenter.default.removeObserver(observer, name: .SearchUserChange, object: nil)
             NotificationCenter.default.removeObserver(observer, name: .UserChange, object: nil)
         }
-    }
-    
-    @objc(addObserver:forBareUser:inUserSession:)
-    public static func add(observer: ZMUserObserver,
-                           forBareUser user: ZMBareUser,
-                           inUserSession userSession: ZMManagedObjectContextProvider) -> NSObjectProtocol?
-    {
-        if let user = user as? ZMSearchUser {
-            return add(searchUserObserver: observer, for: user, inManagedObjectContext: userSession.managedObjectContext)
-        }
-        else if let user = user as? ZMUser {
-            return add(observer: observer, for:user)
-        }
-        return nil
     }
 
 }

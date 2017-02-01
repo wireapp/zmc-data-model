@@ -20,7 +20,7 @@
 import XCTest
 @testable import ZMCDataModel
 
-class UserClientObserverTests: NotificationDispatcherTests {
+class UserClientObserverTests: NotificationDispatcherTestBase {
     
     var clientObserver : TestUserClientObserver!
     

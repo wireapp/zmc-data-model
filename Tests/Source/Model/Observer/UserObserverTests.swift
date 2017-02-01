@@ -22,7 +22,7 @@ import Foundation
 
 
 
-class UserObserverTests : NotificationDispatcherTests {
+class UserObserverTests : NotificationDispatcherTestBase {
     
     let UserClientsKey = "clients"
     

@@ -31,7 +31,10 @@ extension UserClient {
 extension UserClient: ObjectInSnapshot {
 
     static public var observableKeys : Set<String> {
-        return Set([ZMUserClientTrusted_ByKey, ZMUserClientIgnored_ByKey, ZMUserClientNeedsToNotifyUserKey, ZMUserClientFingerprintKey])
+        return Set([#keyPath(UserClient.trustedByClients),
+                    #keyPath(UserClient.ignoredByClients),
+                    #keyPath(UserClient.needsToNotifyUser),
+                    #keyPath(UserClient.fingerprint)])
     }
     
     public var notificationName : Notification.Name {
@@ -53,18 +56,18 @@ public enum UserClientChangeInfoKey: String {
     }
 
     open var trustedByClientsChanged : Bool {
-        return changedKeysContain(keys: ZMUserClientTrusted_ByKey)
+        return changedKeysContain(keys: #keyPath(UserClient.trustedByClients))
     }
     open var ignoredByClientsChanged : Bool {
-        return changedKeysContain(keys: ZMUserClientIgnored_ByKey)
+        return changedKeysContain(keys: #keyPath(UserClient.ignoredByClients))
     }
 
     open var fingerprintChanged : Bool {
-        return changedKeysContain(keys: ZMUserClientNeedsToNotifyUserKey)
+        return changedKeysContain(keys: #keyPath(UserClient.needsToNotifyUser))
     }
 
     open var needsToNotifyUserChanged : Bool {
-        return changedKeysContain(keys: ZMUserClientFingerprintKey)
+        return changedKeysContain(keys: #keyPath(UserClient.fingerprint))
     }
 
     open let userClient: UserClient
@@ -73,7 +76,7 @@ public enum UserClientChangeInfoKey: String {
     static func changeInfo(for client: UserClient, changes: Changes) -> UserClientChangeInfo? {
         guard changes.changedKeys.count > 0 || changes.originalChanges.count > 0 else { return nil }
         let changeInfo = UserClientChangeInfo(object: client)
-        changeInfo.changedKeysAndOldValues = changes.originalChanges
+        changeInfo.changeInfos = changes.originalChanges
         changeInfo.changedKeys = changes.changedKeys
         return changeInfo
     }
@@ -88,6 +91,9 @@ public enum UserClientChangeInfoKey: String {
 }
 
 extension UserClientChangeInfo {
+    
+    /// Adds an observer for the specified userclient
+    /// You must hold on to the token and use it to unregister
     @objc(addObserver:forClient:)
     public static func add(observer: UserClientObserver, for client: UserClient) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .UserClientChange,

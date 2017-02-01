@@ -233,7 +233,7 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
     func updateMessageChangeInfos(window: ZMConversationMessageWindow) {
         messageChangeInfos.forEach{
             guard let user = $0.message.sender, let userChange = userChanges.removeValue(forKey:user.objectID) else { return }
-            $0.changedKeysAndOldValues["userChanges"] = userChange
+            $0.changeInfos["userChanges"] = userChange
         }
         
         guard userChanges.count > 0, let messages = window.messages.array as? [ZMMessage] else { return }
@@ -244,7 +244,7 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
                 guard userIDs.contains(objectID) else { return }
                 
                 let changeInfo = MessageChangeInfo(object: message)
-                changeInfo.changedKeysAndOldValues["userChanges"] = change
+                changeInfo.changeInfos["userChanges"] = change
                 messageChangeInfos.append(changeInfo)
             }
         }

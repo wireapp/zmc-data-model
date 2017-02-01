@@ -48,7 +48,7 @@ import XCTest
 }
 
 
-class MessageWindowObserverTests : NotificationDispatcherTests {
+class MessageWindowObserverTests : NotificationDispatcherTestBase {
     
     var windowObserver : TestWindowObserver!
     

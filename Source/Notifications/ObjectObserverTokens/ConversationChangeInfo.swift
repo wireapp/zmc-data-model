@@ -22,7 +22,22 @@ import Foundation
 extension ZMConversation : ObjectInSnapshot {
     
     public static var observableKeys : Set<String> {
-        return Set(["messages", "lastModifiedDate", "isArchived", "conversationListIndicator", "voiceChannelState", "activeFlowParticipants", "callParticipants", "isSilenced", SecurityLevelKey, "otherActiveVideoCallParticipants", "displayName", "estimatedUnreadCount", "clearedTimeStamp", "otherActiveParticipants", "isSelfAnActiveMember", "relatedConnectionState"])
+        return Set([#keyPath(ZMConversation.messages),
+                    #keyPath(ZMConversation.lastModifiedDate),
+                    #keyPath(ZMConversation.isArchived),
+                    #keyPath(ZMConversation.conversationListIndicator),
+                    #keyPath(ZMConversation.voiceChannelState),
+                    #keyPath(ZMConversation.activeFlowParticipants),
+                    #keyPath(ZMConversation.callParticipants),
+                    #keyPath(ZMConversation.isSilenced),
+                    #keyPath(ZMConversation.securityLevel),
+                    #keyPath(ZMConversation.otherActiveVideoCallParticipants),
+                    #keyPath(ZMConversation.displayName),
+                    #keyPath(ZMConversation.estimatedUnreadCount),
+                    #keyPath(ZMConversation.clearedTimeStamp),
+                    #keyPath(ZMConversation.otherActiveParticipants),
+                    #keyPath(ZMConversation.isSelfAnActiveMember),
+                    #keyPath(ZMConversation.relatedConnectionState)])
     }
 
     public var notificationName: Notification.Name {
@@ -39,55 +54,51 @@ extension ZMConversation : ObjectInSnapshot {
 ////
 ////////////////////
 
-@objc public protocol ZMConversationObserver : NSObjectProtocol {
-    func conversationDidChange(_ changeInfo: ConversationChangeInfo)
-}
-
 
 @objc public final class ConversationChangeInfo : ObjectChangeInfo {
     
     public var messagesChanged : Bool {
-        return changedKeysContain(keys: "messages")
+        return changedKeysContain(keys: #keyPath(ZMConversation.messages))
     }
 
     public var participantsChanged : Bool {
-        return changedKeysContain(keys: "otherActiveParticipants", "isSelfAnActiveMember")
+        return changedKeysContain(keys: #keyPath(ZMConversation.otherActiveParticipants), #keyPath(ZMConversation.isSelfAnActiveMember))
     }
 
     public var nameChanged : Bool {
-        return changedKeysContain(keys: "displayName", "userDefinedName")
+        return changedKeysContain(keys: #keyPath(ZMConversation.displayName), #keyPath(ZMConversation.userDefinedName))
     }
 
     public var lastModifiedDateChanged : Bool {
-        return changedKeysContain(keys: "lastModifiedDate")
+        return changedKeysContain(keys: #keyPath(ZMConversation.lastModifiedDate))
     }
 
     public var unreadCountChanged : Bool {
-        return changedKeysContain(keys: "estimatedUnreadCount")
+        return changedKeysContain(keys: #keyPath(ZMConversation.estimatedUnreadCount))
     }
 
     public var connectionStateChanged : Bool {
-        return changedKeysContain(keys: "relatedConnectionState")
+        return changedKeysContain(keys: #keyPath(ZMConversation.relatedConnectionState))
     }
 
     public var isArchivedChanged : Bool {
-        return changedKeysContain(keys: "isArchived")
+        return changedKeysContain(keys: #keyPath(ZMConversation.isArchived))
     }
 
     public var isSilencedChanged : Bool {
-        return changedKeysContain(keys: "isSilenced")
+        return changedKeysContain(keys: #keyPath(ZMConversation.isSilenced))
     }
 
     public var conversationListIndicatorChanged : Bool {
-        return changedKeysContain(keys: "conversationListIndicator")
+        return changedKeysContain(keys: #keyPath(ZMConversation.conversationListIndicator))
     }
 
     public var voiceChannelStateChanged : Bool {
-        return changedKeysContain(keys: "voiceChannelState")
+        return changedKeysContain(keys: #keyPath(ZMConversation.voiceChannelState))
     }
 
     public var clearedChanged : Bool {
-        return changedKeysContain(keys: "clearedTimeStamp")
+        return changedKeysContain(keys: #keyPath(ZMConversation.clearedTimeStamp))
     }
 
     public var securityLevelChanged : Bool {
@@ -95,11 +106,13 @@ extension ZMConversation : ObjectInSnapshot {
     }
     
     var callParticipantsChanged : Bool {
-        return changedKeysContain(keys:  "activeFlowParticipants", "callParticipants", "otherActiveVideoCallParticipants")
+        return changedKeysContain(keys:  #keyPath(ZMConversation.activeFlowParticipants),
+                                  #keyPath(ZMConversation.callParticipants),
+                                  #keyPath(ZMConversation.otherActiveVideoCallParticipants))
     }
     
     var videoParticipantsChanged : Bool {
-        return changedKeysContain(keys: "otherActiveVideoCallParticipants")
+        return changedKeysContain(keys: #keyPath(ZMConversation.otherActiveVideoCallParticipants))
     }
     
     public var conversation : ZMConversation { return self.object as! ZMConversation }
@@ -127,17 +140,22 @@ extension ZMConversation : ObjectInSnapshot {
     static func changeInfo(for conversation: ZMConversation, changes: Changes) -> ConversationChangeInfo? {
         guard changes.changedKeys.count > 0 || changes.originalChanges.count > 0 else { return nil }
         let changeInfo = ConversationChangeInfo(object: conversation)
-        changeInfo.changedKeysAndOldValues = changes.originalChanges
+        changeInfo.changeInfos = changes.originalChanges
         changeInfo.changedKeys = changes.changedKeys
         return changeInfo
     }
 }
 
+@objc public protocol ZMConversationObserver : NSObjectProtocol {
+    func conversationDidChange(_ changeInfo: ConversationChangeInfo)
+}
 
 
 //@objc public protocol ZMConversationObserverOpaqueToken :NSObjectProtocol {}
 extension ConversationChangeInfo {
 
+    /// Adds a ZMConversationObserver to the specified conversation
+    /// You must hold on to the token and use it to unregister
     @objc(addObserver:forConversation:)
     public static func add(observer: ZMConversationObserver, for conversation: ZMConversation) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .ConversationChange,

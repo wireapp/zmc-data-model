@@ -48,6 +48,8 @@ extension ZMConversationList {
 
 extension ConversationListChangeInfo {
 
+    /// Adds a ZMConversationListObserver to the specified list
+    /// You must hold on to the token and use it to unregister
     @objc(addObserver:forList:)
     public static func add(observer: ZMConversationListObserver,for list: ZMConversationList) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .ZMConversationListDidChange,

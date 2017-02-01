@@ -46,6 +46,8 @@ public final class NewUnreadMessagesChangeInfo : ObjectChangeInfo  {
 
 extension NewUnreadMessagesChangeInfo {
     
+    /// Adds a ZMNewUnreadMessagesObserver
+    /// You must hold on to the token and use it to unregister
     @objc(addNewMessageObserver:)
     public static func add(observer: ZMNewUnreadMessagesObserver) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .NewUnreadMessage,
@@ -95,6 +97,8 @@ extension NewUnreadMessagesChangeInfo {
 
 extension NewUnreadKnockMessagesChangeInfo {
 
+    /// Adds a ZMNewUnreadKnocksObserver
+    /// You must hold on to the token and use it to unregister
     @objc(addNewKnockObserver:)
     public static func add(observer: ZMNewUnreadKnocksObserver) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .NewUnreadKnock,
@@ -141,6 +145,9 @@ extension NewUnreadKnockMessagesChangeInfo {
 }
 
 extension NewUnreadUnsentMessageChangeInfo {
+    
+    /// Adds a ZMNewUnreadUnsentMessageObserver
+    /// You must hold on to the token and use it to unregister
     @objc(addNewUnreadUnsentMessageObserver:)
     public static func add(observer: ZMNewUnreadUnsentMessageObserver) -> NSObjectProtocol {
         return NotificationCenter.default.addObserver(forName: .NewUnreadUnsentMessage,

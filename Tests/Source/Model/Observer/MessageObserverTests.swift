@@ -21,7 +21,7 @@ import Foundation
 @testable import ZMCDataModel
 
 
-class MessageObserverTests : NotificationDispatcherTests {
+class MessageObserverTests : NotificationDispatcherTestBase {
     
     
     
