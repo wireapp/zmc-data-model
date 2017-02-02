@@ -87,6 +87,11 @@
     return self.moc;
 }
 
+- (void)recreateWithAllConversations:(NSArray *)conversations
+{
+    [self createBackingList:conversations];
+}
+
 - (void)calculateKeysAffectingPredicateAndSort;
 {
     NSMutableSet *keysAffectingSorting = [NSMutableSet set];
@@ -210,6 +215,11 @@
 
 @implementation ZMConversationList (UserSession)
 
++ (void)refetchAllListsInUserSession:(id<ZMManagedObjectContextProvider>)session;
+{
+    [session.managedObjectContext.conversationListDirectory refetchAllListsInManagedObjectContext:session.managedObjectContext];
+}
+
 + (ZMConversationList *)conversationsIncludingArchivedInUserSession:(id<ZMManagedObjectContextProvider>)session;
 {
     VerifyReturnNil(session != nil);
@@ -219,25 +229,13 @@
 + (ZMConversationList *)conversationsInUserSession:(id<ZMManagedObjectContextProvider>)session
 {
     VerifyReturnNil(session != nil);
-    return [session.managedObjectContext.conversationListDirectory unarchivedAndNotCallingConversations];
+    return [session.managedObjectContext.conversationListDirectory unarchivedConversations];
 }
 
 + (ZMConversationList *)archivedConversationsInUserSession:(id<ZMManagedObjectContextProvider>)session;
 {
     VerifyReturnNil(session != nil);
     return [session.managedObjectContext.conversationListDirectory archivedConversations];
-}
-
-+ (ZMConversationList *)nonIdleVoiceChannelConversationsInUserSession:(id<ZMManagedObjectContextProvider>)session;
-{
-    VerifyReturnNil(session != nil);
-    return [session.managedObjectContext.conversationListDirectory nonIdleVoiceChannelConversations];
-}
-
-+ (ZMConversationList *)activeCallConversationsInUserSession:(id<ZMManagedObjectContextProvider>)session;
-{
-    VerifyReturnNil(session != nil);
-    return [session.managedObjectContext.conversationListDirectory activeCallConversations];
 }
 
 + (ZMConversationList *)pendingConnectionConversationsInUserSession:(id<ZMManagedObjectContextProvider>)session;

@@ -25,9 +25,9 @@
 #import "ZMConnection+Internal.h"
 #import "ZMUser+Internal.h"
 #import "ZMNotifications+Internal.h"
-#import "ZMVoiceChannel+Testing.h"
 #import "ZMMessage+Internal.h"
 #import "NotificationObservers.h"
+#import "ZMConversationList.h"
 
 @interface ZMConversationListTests : ZMBaseManagedObjectTest
 @end
@@ -130,7 +130,7 @@
     c4.connection.status = ZMConnectionStatusBlocked;
     
     // then
-    NSArray *list = [ZMConversation conversationsExcludingArchivedAndCallingInContext:self.uiMOC];
+    NSArray *list = [ZMConversation conversationsExcludingArchivedInContext:self.uiMOC];
     XCTAssertEqual(list.count, 2u);
     NSArray *expected = @[c1, c2];
     AssertArraysContainsSameObjects(list, expected);
@@ -154,6 +154,57 @@
     XCTAssertEqual(list.count, 3u);
     NSArray *expected = @[c2, c1, c3];
     XCTAssertEqualObjects(list, expected);
+}
+
+- (void)testThatItRecreatesListsAndTokens
+{
+    // given
+    ZMConversation *c1 = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    c1.conversationType = ZMConversationTypeGroup;
+    c1.lastModifiedDate = [c1.lastModifiedDate dateByAddingTimeInterval:10];
+    
+    NSArray *list = [ZMConversation conversationsIncludingArchivedInContext:self.uiMOC];
+    ConversationListChangeObserver *obs = [[ConversationListChangeObserver alloc] initWithConversationList:(ZMConversationList *)list];
+    ZMConversation *c2;
+    
+    // when
+    // conversation is inserted while the app is in the background
+    {
+        self.uiMOC.globalManagedObjectContextObserver.propagateChanges = NO;
+        c2 = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+        c2.conversationType = ZMConversationTypeGroup;
+        c2.lastModifiedDate = [c1.lastModifiedDate dateByAddingTimeInterval:-20];
+        WaitForAllGroupsToBeEmpty(0.5);
+        
+        // then changes are not forwarded
+        NSArray *expected = @[c1];
+        XCTAssertEqualObjects(list, expected);
+        XCTAssertEqual(obs.notifications.count, 0u);
+    }
+    // and when
+    // refresh list and observer token
+    {
+        NSArray *allConversations = @[c1,c2];
+        [(ZMConversationList*)list recreateWithAllConversations:allConversations];
+        [self.uiMOC.globalManagedObjectContextObserver refreshConversationListObserverWithAllConversations:allConversations];
+        
+        // then list is updated
+        NSArray *expected = @[c1, c2];
+        XCTAssertEqualObjects(list, expected);
+    }
+    // and when
+    // forward accumulated changes
+    {
+        self.uiMOC.globalManagedObjectContextObserver.propagateChanges = YES;
+        WaitForAllGroupsToBeEmpty(0.5);
+
+        // then the updated snapshot prevents outdated list change notifications
+        XCTAssertEqual(obs.notifications.count, 0u);
+        NSArray *expected = @[c1, c2];
+        XCTAssertEqualObjects(list, expected);
+    }
+    [obs tearDown];
+
 }
 
 - (void)testThatItUpdatesWhenNewConversationsAreInserted
@@ -296,7 +347,7 @@
     conversation.connection.to = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     
     // then
-    ZMConversationList *normalList = [ZMConversation conversationsExcludingArchivedAndCallingInContext:self.uiMOC];
+    ZMConversationList *normalList = [ZMConversation conversationsExcludingArchivedInContext:self.uiMOC];
     ZMConversationList *pendingList = [ZMConversation pendingConversationsInContext:self.uiMOC];
     XCTAssertEqual(normalList.count, 0u);
     XCTAssertEqualObjects(normalList, @[]);
@@ -334,7 +385,7 @@
     XCTAssert([self.uiMOC saveOrRollback]);
 
     // then
-    ZMConversationList *normalList = [ZMConversation conversationsExcludingArchivedAndCallingInContext:self.uiMOC];
+    ZMConversationList *normalList = [ZMConversation conversationsExcludingArchivedInContext:self.uiMOC];
     XCTAssertEqual(normalList.count, 0u);
     XCTAssertEqualObjects(normalList, @[]);
 
@@ -368,7 +419,7 @@
     conversation2.connection.to = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     
     // then
-    ZMConversationList *normalList = [ZMConversation conversationsExcludingArchivedAndCallingInContext:self.uiMOC];
+    ZMConversationList *normalList = [ZMConversation conversationsExcludingArchivedInContext:self.uiMOC];
     ZMConversationList *pendingList = [ZMConversation pendingConversationsInContext:self.uiMOC];
     NSArray *conversations = @[conversation2, conversation1];
     XCTAssertEqual(normalList.count, 0u);
@@ -409,7 +460,7 @@
     conversation.connection.to = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     
     // then
-    ZMConversationList *normalList = [ZMConversation conversationsExcludingArchivedAndCallingInContext:self.uiMOC];
+    ZMConversationList *normalList = [ZMConversation conversationsExcludingArchivedInContext:self.uiMOC];
     ZMConversationList *archivedList = [ZMConversation archivedConversationsInContext:self.uiMOC];
     XCTAssertEqual(normalList.count, 1u);
     XCTAssertEqualObjects(normalList, @[conversation]);
@@ -434,55 +485,6 @@
     [archivedObserver tearDown];
 }
 
-
-- (void)testThatAConversationWithActiveVoicecallisAlwaysOnTop
-{
-    // given
-    ZMConversation *c1 = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    c1.conversationType = ZMConversationTypeOneOnOne;
-    c1.lastModifiedDate = [NSDate date];
-    XCTAssertFalse(c1.callDeviceIsActive);
-    
-    ZMConversation *c2 = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    c2.conversationType = ZMConversationTypeOneOnOne;
-    c2.lastModifiedDate = [NSDate date];
-    
-    ZMConversation *c3 = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    c3.conversationType = ZMConversationTypeOneOnOne;
-    c3.lastModifiedDate = [NSDate date];
-    
-    XCTAssert([self.uiMOC saveOrRollback]);
-
-    
-    NSArray *expectedList1 = @[c3, c2, c1];
-    ZMConversationList *list = [ZMConversation conversationsIncludingArchivedInContext:self.uiMOC];
-    XCTAssertEqualObjects(list, expectedList1);
-    
-    ConversationListChangeObserver *observer = [[ConversationListChangeObserver alloc] initWithConversationList:list];
-
-    // when
-    c1.callDeviceIsActive = YES;
-    
-    // then the active call moves to top
-    XCTAssertTrue(c1.callDeviceIsActive);
-    XCTAssert([self.uiMOC saveOrRollback]);
-    [self.uiMOC.globalManagedObjectContextObserver notifyUpdatedCallState:[NSSet setWithObject:c1] notifyDirectly:YES];
-    
-    NSArray *expectedList2 = @[c1, c3, c2];
-    XCTAssertEqualObjects(list, expectedList2);
-    
-    // when we insert a message into one of the other conversations
-    [c2 appendMessageWithText:@"hello"];
-    XCTAssert([self.uiMOC saveOrRollback]);
-    
-    // then the active call stays on top
-    NSArray *expectedList3 = @[c1, c2, c3];
-    XCTAssertEqualObjects(list, expectedList3);
-    
-    WaitForAllGroupsToBeEmpty(0.5);
-    [observer tearDown];
-}
-
 - (void)testThatClearingConversationMovesItToClearedList
 {
     // given
@@ -494,7 +496,7 @@
     
     c1.lastServerTimeStamp = message.serverTimestamp;
     
-    ZMConversationList *activeList = [ZMConversation conversationsExcludingArchivedAndCallingInContext:self.uiMOC];
+    ZMConversationList *activeList = [ZMConversation conversationsExcludingArchivedInContext:self.uiMOC];
     ZMConversationList *archivedList = [ZMConversation archivedConversationsInContext:self.uiMOC];
     ZMConversationList *clearedList = [ZMConversation clearedConversationsInContext:self.uiMOC];
     
@@ -531,7 +533,7 @@
     
     [c1 clearMessageHistory];
 
-    ZMConversationList *activeList = [ZMConversation conversationsExcludingArchivedAndCallingInContext:self.uiMOC];
+    ZMConversationList *activeList = [ZMConversation conversationsExcludingArchivedInContext:self.uiMOC];
     ZMConversationList *archivedList = [ZMConversation archivedConversationsInContext:self.uiMOC];
     ZMConversationList *clearedList = [ZMConversation clearedConversationsInContext:self.uiMOC];
     
