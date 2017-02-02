@@ -102,10 +102,10 @@ extension ZMUser : SideEffectSource {
         var affectedObjects = [String: [NSObject : Changes]]()
         let classIdentifier = ZMConversation.entityName()
         let otherPartKeys = changedKeys.map{"\(#keyPath(ZMConversation.otherActiveParticipants)).\($0)"}
-        let selfUserKeys = changedKeys.map{"\(#keyPath(ZMConversation.otherActiveParticipants)).\(#keyPath(ZMConnection.to)).\($0)"}
+        let selfUserKeys = changedKeys.map{"\(#keyPath(ZMConversation.connection)).\(#keyPath(ZMConnection.to)).\($0)"}
         let mappedKeys = otherPartKeys + selfUserKeys
         var keys = mappedKeys.map{keyStore.observableKeysAffectedByValue(classIdentifier, key: $0)}.reduce(Set()){$0.union($1)}
-        
+
         affectedObjects[classIdentifier] = [:]
         conversations.forEach {
             if $0.allUsersTrusted {

@@ -100,13 +100,13 @@ extension ZMConversation : ObjectInSnapshot {
         return changedKeysContain(keys: SecurityLevelKey)
     }
     
-    var callParticipantsChanged : Bool {
+    public var callParticipantsChanged : Bool {
         return changedKeysContain(keys:  #keyPath(ZMConversation.activeFlowParticipants),
                                   #keyPath(ZMConversation.callParticipants),
                                   #keyPath(ZMConversation.otherActiveVideoCallParticipants))
     }
     
-    var videoParticipantsChanged : Bool {
+    public var videoParticipantsChanged : Bool {
         return changedKeysContain(keys: #keyPath(ZMConversation.otherActiveVideoCallParticipants))
     }
     

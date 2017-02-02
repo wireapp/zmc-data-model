@@ -63,7 +63,7 @@ public class SnapshotCenter {
         let attributesDict = attributes.mapToDictionaryWithOptionalValue{object.primitiveValue(forKey: $0) as? NSObject}
         let relationshipsDict : [String : Int] = relationShips.mapping(keysMapping: {$0}, valueMapping: { (key, relationShipDescription) in
             guard relationShipDescription.isToMany else { return nil}
-            return (object.value(forKey: key) as? Countable)?.count
+            return (object.primitiveValue(forKey: key) as? Countable)?.count
         })
         return Snapshot(attributes : attributesDict, toManyRelationships : relationshipsDict)
     }
