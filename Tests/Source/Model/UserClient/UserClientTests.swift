@@ -20,6 +20,7 @@
 import XCTest
 import ZMUtilities
 import Cryptobox
+@testable import ZMCDataModel
 
 class UserClientTests: ZMBaseManagedObjectTest {
         
@@ -137,6 +138,8 @@ class UserClientTests: ZMBaseManagedObjectTest {
             
             let otherClient = UserClient.insertNewObject(in: self.syncMOC)
             otherClient.remoteIdentifier = UUID.create().transportString()
+            otherClient.user = ZMUser.insertNewObject(in: self.syncMOC)
+            otherClient.user?.remoteIdentifier = UUID.create()
             
             guard let preKey = preKeys.first
                 else {
@@ -148,7 +151,7 @@ class UserClientTests: ZMBaseManagedObjectTest {
             XCTAssertTrue(otherClient.hasSessionWithSelfClient)
             
             // when
-            UserClient.deleteSession(forClientWithRemoteIdentifier:otherClient.remoteIdentifier!, managedObjectContext:self.syncMOC)
+            UserClient.deleteSession(for:otherClient.sessionIdentifier!, managedObjectContext:self.syncMOC)
             
             // then
             XCTAssertFalse(otherClient.hasSessionWithSelfClient)
@@ -167,6 +170,9 @@ class UserClientTests: ZMBaseManagedObjectTest {
             
             let otherClient = UserClient.insertNewObject(in: self.syncMOC)
             otherClient.remoteIdentifier = UUID.create().transportString()
+            let otherUser = ZMUser.insertNewObject(in:self.syncMOC)
+            otherUser.remoteIdentifier = UUID.create()
+            otherClient.user = otherUser
             
             guard let preKey = preKeys.first
                 else {
@@ -197,6 +203,7 @@ class UserClientTests: ZMBaseManagedObjectTest {
             otherClient1.remoteIdentifier = UUID.create().transportString()
             
             let otherUser = ZMUser.insertNewObject(in:self.syncMOC)
+            otherUser.remoteIdentifier = UUID.create()
             otherClient1.user = otherUser
             let connection = ZMConnection.insertNewSentConnection(to: otherUser)!
             connection.status = .accepted
@@ -247,6 +254,9 @@ class UserClientTests: ZMBaseManagedObjectTest {
             
             let otherClient = UserClient.insertNewObject(in: self.syncMOC)
             otherClient.remoteIdentifier = otherClientId
+            let otherUser = ZMUser.insertNewObject(in:self.syncMOC)
+            otherUser.remoteIdentifier = UUID.create()
+            otherClient.user = otherUser
             
             guard let preKey = preKeys.first
                 else {
@@ -254,7 +264,7 @@ class UserClientTests: ZMBaseManagedObjectTest {
                     return }
             
             selfClient.keysStore.encryptionContext.perform({ (sessionsDirectory) in
-                try! sessionsDirectory.createClientSession(otherClient.remoteIdentifier!, base64PreKeyString: preKey.prekey)
+                try! sessionsDirectory.createClientSession(otherClient.sessionIdentifier!, base64PreKeyString: preKey.prekey)
             })
             
             XCTAssertNil(otherClient.fingerprint)
@@ -278,7 +288,9 @@ class UserClientTests: ZMBaseManagedObjectTest {
     }
     
     func testThatItSendsMessageWhenResettingSession() {
-        self.syncMOC.performGroupedBlockAndWait{
+        var connection: ZMConnection?
+
+        self.syncMOC.performGroupedBlockAndWait {
             // given
             let selfClient = self.createSelfClient(onMOC: self.syncMOC)
             
@@ -286,20 +298,25 @@ class UserClientTests: ZMBaseManagedObjectTest {
             otherClient.remoteIdentifier = UUID.create().transportString()
             
             let otherUser = ZMUser.insertNewObject(in:self.syncMOC)
+            otherUser.remoteIdentifier = UUID.create()
             otherClient.user = otherUser
             
-            let connection = ZMConnection.insertNewSentConnection(to: otherUser)!
-            connection.status = .accepted
+            connection = ZMConnection.insertNewSentConnection(to: otherUser)!
+            connection?.status = .accepted
             
             selfClient.trustClient(otherClient)
             
             // when
             otherClient.resetSession()
-            
+        }
+
+        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+
+        self.syncMOC.performGroupedBlockAndWait {
             // then
-            XCTAssertEqual(connection.conversation.messages.count, 1)
+            XCTAssertEqual(connection?.conversation.messages.count, 1)
             
-            if let message = connection.conversation.messages.lastObject as? ZMClientMessage {
+            if let message = connection?.conversation.messages.lastObject as? ZMClientMessage {
                 XCTAssertTrue(message.genericMessage!.hasClientAction())
                 XCTAssertEqual(message.genericMessage!.clientAction, ZMClientAction.RESETSESSION)
             } else {

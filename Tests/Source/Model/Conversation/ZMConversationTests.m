@@ -24,8 +24,6 @@
 #import "ZMConversation+Internal.h"
 #import "ZMMessage+Internal.h"
 #import "ZMConversationList+Internal.h"
-#import "ZMVoiceChannel+Internal.h"
-#import "ZMVoiceChannel+Testing.h"
 #import "ZMConversationMessageWindow.h"
 #import "ZMConnection+Internal.h"
 #import "ZMConversation+Internal.h"
@@ -162,6 +160,17 @@
     return message;
 }
 
+- (ZMSystemMessage *)insertNonUnreadDotGeneratingMessageIntoConversation:(ZMConversation *)conversation
+{
+    NSDate *newTime = conversation.lastServerTimeStamp ? [conversation.lastServerTimeStamp dateByAddingTimeInterval:5] : [NSDate date];
+    
+    ZMSystemMessage *systemMessage = [ZMSystemMessage insertNewObjectInManagedObjectContext:conversation.managedObjectContext];
+    systemMessage.serverTimestamp = newTime;
+    systemMessage.systemMessageType = ZMSystemMessageTypeNewClient;
+    [conversation.mutableMessages addObject:systemMessage];
+    
+    return systemMessage;
+}
 
 @end
 
@@ -1584,6 +1593,33 @@
     }];
 }
 
+- (void)testThatItSkipsMessagesWhichDoesntGenerateUnreadDotsDirectlyAfterTheLastReadMessage
+{
+    // timestamp
+    //   					last read timestamp is 1.0
+    //  -------------------
+    //   1.0     message A
+    //   2.0     message B *doesn't generate unread dot*
+    //   3.0     message C *doesn't generate unread dot* <- expected last read message
+    //   4.0     message D
+    
+    
+    [self.syncMOC performGroupedBlockAndWait:^{
+        // given
+        ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
+        conversation.lastServerTimeStamp = [self timeStampForSortAppendMessageToConversation:conversation];
+        [self insertNonUnreadDotGeneratingMessageIntoConversation:conversation];
+        ZMSystemMessage *lastSystemMessage = [self insertNonUnreadDotGeneratingMessageIntoConversation:conversation];
+        [self timeStampForSortAppendMessageToConversation:conversation];
+        
+        // when
+        conversation.lastReadServerTimeStamp = conversation.lastServerTimeStamp;
+        
+        // then
+        XCTAssertEqualObjects(conversation.lastReadMessage, lastSystemMessage);
+    }];
+}
+
 - (ZMMessage *)insertMessageIntoConversation:(ZMConversation *)conversation
 {
     ZMTextMessage *message = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
@@ -2731,10 +2767,18 @@
     [self simulateUnreadMissedCallInConversation:conversation];
 }
 
-
 - (void)setConversationAsHavingActiveCall:(ZMConversation *)conversation
 {
     conversation.callDeviceIsActive = YES;
+}
+
+- (void)setConversationAsHavingIgnoredCall:(ZMConversation *)conversation
+{
+    conversation.isIgnoringCall = YES;
+    
+    ZMUser *participant = [self createUserOnMoc:self.syncMOC];
+    NSMutableOrderedSet *participants = [conversation mutableOrderedSetValueForKey:ZMConversationCallParticipantsKey];
+    [participants addObject:participant];
 }
 
 - (void)setConversationAsBeingPending:(ZMConversation *)conversation inContext:(NSManagedObjectContext *)context
@@ -2818,7 +2862,7 @@
 }
 
 
-- (void)testThatConversationListIndicatorIsVoiceActiveWhenItHasActiveVoiceChannelAndLowerPriorityEvents
+- (void)testThatConversationListIndicatorIsVoiceInactiveWhenItHasIgnoredActiveVoiceChannelAndLowerPriorityEvents
 {
     // given
     [self.syncMOC performGroupedBlockAndWait:^{
@@ -2827,11 +2871,10 @@
         [self simulateUnreadMissedKnockInConversation:conversation];
         [self simulateUnreadMissedCallInConversation:conversation];
         [conversation setHasUnreadUnsentMessage:YES];
-        [self setConversationAsHavingActiveCall:conversation];
+        [self setConversationAsHavingIgnoredCall:conversation];
         
         // then
-        XCTAssertEqual(conversation.conversationListIndicator, ZMConversationListIndicatorActiveCall);
-        [conversation.voiceChannel tearDown];
+        XCTAssertEqual(conversation.conversationListIndicator, ZMConversationListIndicatorInactiveCall);
     }];
     WaitForAllGroupsToBeEmpty(0.5);
 }
@@ -2846,12 +2889,10 @@
         [self simulateUnreadMissedKnockInConversation:conversation];
         [self simulateUnreadMissedCallInConversation:conversation];
         [conversation setHasUnreadUnsentMessage:YES];
-        [self setConversationAsHavingActiveCall:conversation];
         [self setConversationAsBeingPending:conversation inContext:self.syncMOC];
         
         // then
         XCTAssertEqual(conversation.conversationListIndicator, ZMConversationListIndicatorPending);
-        [conversation.voiceChannel tearDown];
 
     }];
     WaitForAllGroupsToBeEmpty(0.5);

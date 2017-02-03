@@ -205,6 +205,7 @@ static BOOL storeIsReady = NO;
         [moc setupUserKeyStoreForDirectory:keyStoreURL];
         moc.undoManager = nil;
         moc.mergePolicy = [[ZMSyncMergePolicy alloc] initWithMergeType:NSMergeByPropertyObjectTrumpMergePolicyType];
+        [moc applyPersistedDataPatchesForCurrentVersion];
     }];
     return moc;
 }
@@ -526,6 +527,32 @@ static dispatch_once_t clearStoreOnceToken;
     BOOL isSameAsCurrent = [currentModelIdentifier isEqualToString:oldModelVersion];
     
     return shouldMigrate && !isSameAsCurrent;
+}
+
+/// Fetch metadata for key from in-memory non-persisted metadata
+/// or from persistent store metadata, in that order
+
+/// !!! It is important to have this method in Objective-C, since the method
+/// `-[NSPersistentStoreCoordinator metadataForPersistentStore:]` is returning an Objective-C `NSDictionary`, when
+/// used from the Swift environment the return is unconditionally and recursively converted to Swift dictionary, making
+/// a performance hit on the application.
+- (id)persistentStoreMetadataForKey:(NSString *)key {
+    id inMemoryValue = [self.nonCommittedMetadata objectForKey:key];
+    if (nil != inMemoryValue) {
+        return inMemoryValue;
+    }
+    
+    if ([self.nonCommittedDeletedMetadataKeys containsObject:key]) {
+        return nil;
+    }
+    
+    NSPersistentStore *store = self.persistentStoreCoordinator.persistentStores.firstObject;
+    id storedValue = [[self.persistentStoreCoordinator metadataForPersistentStore:store] objectForKey:key];
+    if ([storedValue isKindOfClass:[NSNull class]]) {
+        return nil;
+    }
+    
+    return storedValue;
 }
 
 + (NSDictionary *)metadataForStoreAtURL:(NSURL *)storeURL
