@@ -59,13 +59,13 @@ fileprivate extension Notification {
 
 }
 
-public class StorableTrackingEvent {
+@objc public class StorableTrackingEvent: NSObject {
 
     private static let eventNameKey = "eventName"
     private static let eventAttributesKey = "eventAttributes"
 
-    let name: String
-    let attributes: [String: Any]
+    public let name: String
+    public let attributes: [String: Any]
 
     public init(name: String, attributes: [String: Any]) {
         self.name = name
@@ -102,8 +102,8 @@ public class StorableTrackingEvent {
         objectStore.clear()
     }
 
-    public var storedNotifications: [[String: Any]] {
-        return objectStore.load()
+    public var storedTrackingEvents: [StorableTrackingEvent] {
+        return objectStore.load().flatMap(StorableTrackingEvent.init)
     }
 }
 
