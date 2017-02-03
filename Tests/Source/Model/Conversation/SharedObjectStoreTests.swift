@@ -151,7 +151,8 @@ class ShareExtensionAnalyticsPersistenceTests: BaseZMMessageTests {
         XCTAssertEqual(sut.storedTrackingEvents.count, 1)
         let actualEvent = sut.storedTrackingEvents.first
         XCTAssertEqual(event.name, actualEvent?.name)
-        XCTAssertEqual(actualEvent?.attributes.keys.count, 1)
+        XCTAssertEqual(actualEvent?.attributes.keys.count, 2)
+        XCTAssertNotNil(actualEvent?.attributes["timestamp"])
         XCTAssertEqual(actualEvent?.attributes["first"] as? Bool, true)
     }
 

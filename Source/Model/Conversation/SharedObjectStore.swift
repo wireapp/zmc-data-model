@@ -74,7 +74,8 @@ fileprivate extension Notification {
 
     public convenience init?(dictionary dict: [String: Any]) {
         guard let name = dict[StorableTrackingEvent.eventNameKey] as? String,
-            let attributes = dict[StorableTrackingEvent.eventAttributesKey] as? [String: Any] else { return nil }
+            var attributes = dict[StorableTrackingEvent.eventAttributesKey] as? [String: Any] else { return nil }
+        attributes["timestamp"] = Date().transportString()
         self.init(name: name, attributes: attributes)
     }
 
