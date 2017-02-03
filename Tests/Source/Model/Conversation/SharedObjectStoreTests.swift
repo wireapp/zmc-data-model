@@ -122,7 +122,51 @@ class ContextDidSaveNotificationPersistenceTests: BaseZMMessageTests {
         }
     }
 
-
 }
 
 
+class ShareExtensionAnalyticsPersistenceTests: BaseZMMessageTests {
+
+    var sut: ShareExtensionAnalyticsPersistence!
+
+    override func setUp() {
+        super.setUp()
+        let url = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
+        sut = ShareExtensionAnalyticsPersistence(sharedContainerURL: url)
+    }
+
+    override func tearDown() {
+        sut.clear()
+        super.tearDown()
+    }
+
+    func testThatItCanStoreAndReadAStorableTrackingEvent() {
+        // Given
+        let event = StorableTrackingEvent(name: "eventName", attributes: ["first": true])
+
+        // When
+        XCTAssertTrue(sut.add(event))
+
+        // Then
+        XCTAssertEqual(sut.storedTrackingEvents.count, 1)
+        let actualEvent = sut.storedTrackingEvents.first
+        XCTAssertEqual(event.name, actualEvent?.name)
+        XCTAssertEqual(actualEvent?.attributes.keys.count, 1)
+        XCTAssertEqual(actualEvent?.attributes["first"] as? Bool, true)
+    }
+
+    func testThatItCanClearTheStoredNotifications() {
+        // Given
+        let event = StorableTrackingEvent(name: "eventName", attributes: ["first": true])
+        XCTAssertTrue(sut.add(event))
+        XCTAssertEqual(sut.storedTrackingEvents.count, 1)
+
+        // When
+        sut.clear()
+
+        // Then
+        XCTAssertEqual(sut.storedTrackingEvents.count, 0)
+
+    }
+
+}
