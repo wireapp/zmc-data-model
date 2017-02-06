@@ -72,14 +72,6 @@ extension NSManagedObjectContext {
         windowSnapshot?.tearDown()
         windowSnapshot = MessageWindowSnapshot(window: window)
     }
-
-    /// Recreates the snapshot
-    @objc public func windowWasUpdated(_ window: ZMConversationMessageWindow) {
-        if let snapshot = windowSnapshot, snapshot.conversation != window.conversation {
-            windowSnapshot?.tearDown()
-        }
-        windowSnapshot = MessageWindowSnapshot(window: window)
-    }
     
     /// Removes the windowSnapshot if there is one
     /// Call this when tearing down or deallocating the messageWindow
@@ -109,11 +101,11 @@ extension NSManagedObjectContext {
     }
     
     public func applicationDidEnterBackground() {
-        // clear snapshot?
+        // do nothing
     }
     
     public func applicationWillEnterForeground() {
-        // do nothing?
+        windowSnapshot?.applicationWillEnterForeground()
     }
 }
 
@@ -203,7 +195,7 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
     
     // MARK: Change computing
     /// Compute the changes, update window and notify observers
-    private func computeChanges() {
+    fileprivate func computeChanges() {
         guard let window = conversationWindow else { return }
         defer {
             updatedMessages = []
@@ -267,6 +259,12 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
             userInfo["messageWindowChangeInfo"] = changeInfo
         }
         NotificationCenter.default.post(name: .MessageWindowDidChange, object: window, userInfo: userInfo)
+    }
+    
+    
+    public func applicationWillEnterForeground() {
+        shouldRecalculate = true
+        computeChanges()
     }
 }
 

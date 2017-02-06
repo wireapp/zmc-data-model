@@ -122,7 +122,7 @@ public class ConversationListObserverCenter : NSObject, ZMConversationObserver, 
     }
     
     public func applicationWillEnterForeground() {
-        // do nothing?
+        // list snapshots are automaically recreated when the lists are recreated and `recreateSnapshot(for conversation:)` is called
     }
 }
 

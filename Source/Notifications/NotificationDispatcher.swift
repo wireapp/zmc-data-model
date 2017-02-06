@@ -147,7 +147,7 @@ public class NotificationDispatcher : NSObject {
     }
     
     /// To receive and process changeInfos, call this method to add yourself as an consumer
-    @objc func addChangeInfoConsumer(_ consumer: ChangeInfoConsumer) {
+    @objc public func addChangeInfoConsumer(_ consumer: ChangeInfoConsumer) {
         let boxed = UnownedNSObject(consumer as! NSObject)
         changeInfoConsumers.append(boxed)
     }
@@ -159,11 +159,13 @@ public class NotificationDispatcher : NSObject {
         allChanges = [:]
         userChanges = [:]
         snapshotCenter.clearAllSnapshots()
+        allChangeInfoConsumers.forEach{$0.applicationDidEnterBackground()}
     }
     
     /// Call this when the application will enter the foreground to start sending notifications again
     @objc func applicationWillEnterForeground() {
         forwardChanges = true
+        allChangeInfoConsumers.forEach{$0.applicationWillEnterForeground()}
     }
     
     /// This is called when objects in the uiMOC change
@@ -183,7 +185,6 @@ public class NotificationDispatcher : NSObject {
     /// This will be called if a change to an object does not cause a change in Core Data, e.g. downloading the asset and adding it to the cache
     @objc func nonCoreDataChange(_ note: Notification){
         guard forwardChanges else { return }
-        // TODO Sabine: add tests for this!
         guard let object = note.object as? ZMManagedObject,
               let changedKeys = (note.userInfo as? [String : [String]])?["changedKeys"]
         else { return }
@@ -193,9 +194,6 @@ public class NotificationDispatcher : NSObject {
 
         let objectAndChangedKeys = [object: change]
         allChanges[classIdentifier] = allChanges[classIdentifier]?.merged(with: objectAndChangedKeys) ?? objectAndChangedKeys
-        // TODO Sabine: make sure that save is always called
-        // e.g. there could be a timer that starts after every save / merge and is cancelled on every objectDidChange
-        // Alternatively pass bool along (enforceSave) or just post notification immediately
         managedObjectContext.forceSaveOrRollback()
     }
     
@@ -448,8 +446,6 @@ public class NotificationDispatcher : NSObject {
             $0.objectsDidChange(changes: changeInfos)
         }
     }
-    
-
 }
 
 extension NotificationDispatcher {
