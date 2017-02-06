@@ -87,7 +87,7 @@
     return self.moc;
 }
 
-- (void)recreateWithAllConversation:(NSArray *)conversations
+- (void)recreateWithAllConversations:(NSArray *)conversations
 {
     [self createBackingList:conversations];
     [self.moc.conversationListObserverCenter recreateSnapshotFor:self];

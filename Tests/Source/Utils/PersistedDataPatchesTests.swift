@@ -110,6 +110,8 @@ class FrameworkVersionTests: XCTestCase  {
         XCTAssertLessThan(FrameworkVersion("3.2.15")!, FrameworkVersion("3.3.1")!)
         XCTAssertGreaterThan(FrameworkVersion("4.0.0")!, FrameworkVersion("3.2.1")!)
         XCTAssertLessThan(FrameworkVersion("3.2.1")!, FrameworkVersion("4.0.0")!)
+        XCTAssertGreaterThan(FrameworkVersion("41.0.0")!, FrameworkVersion("0.0.1")!)
+        XCTAssertLessThan(FrameworkVersion("0.0.1")!, FrameworkVersion("41.0.0")!)
     }
 }
 
@@ -165,7 +167,7 @@ class PersistedDataPatchesTests: ZMBaseManagedObjectTest {
         PersistedDataPatch.applyAll(in: self.syncMOC, patches: [patch])
         
         // THEN
-        XCTAssertFalse(patchApplied)
+        XCTAssertFalse(patchApplied, "Version: \(Bundle(for: ZMUser.self).infoDictionary!["CFBundleShortVersionString"] as! String)")
     }
     
     func testThatItMigratesClientsSessionIdentifiers() {

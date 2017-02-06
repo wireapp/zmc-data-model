@@ -79,7 +79,7 @@ static NSString * const PendingKey = @"Pending";
 {
     NSArray *allConversations = [self fetchAllConversations:moc];
     for (ZMConversationList* list in self.allConversationLists){
-        [list recreateWithAllConversation:allConversations];
+        [list recreateWithAllConversations:allConversations];
     }
 }
 
