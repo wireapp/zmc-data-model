@@ -175,7 +175,7 @@ public class SearchUserSnapshot  {
     }
     
     public func applicationDidEnterBackground() {
-        // clear snapshot?
+        // do nothing?
     }
     
     public func applicationWillEnterForeground() {

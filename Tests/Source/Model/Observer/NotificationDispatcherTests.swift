@@ -116,4 +116,223 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         XCTAssertTrue(changeInfo.nameChanged)
         ConversationChangeInfo.remove(observer: token, for: conversation)
     }
+    
+    func testThatItCanCalculateChangesWhenObjectIsFaulted(){
+        // given
+        let user = ZMUser.insertNewObject(in: uiMOC)
+        user.name = "foo"
+        uiMOC.saveOrRollback()
+        uiMOC.refresh(user, mergeChanges: true)
+        XCTAssertTrue(user.isFault)
+        
+        let observer = UserObserver()
+        let token = UserChangeInfo.add(observer: observer, for: user)
+        
+        // when
+        syncMOC.performGroupedBlockAndWait {
+            let syncUser = self.syncMOC.object(with: user.objectID) as! ZMUser
+            syncUser.name = "bar"
+            self.syncMOC.saveOrRollback()
+        }
+        mergeLastChanges()
+        
+        // then
+        XCTAssertEqual(observer.notifications.count, 1)
+        if let note = observer.notifications.first {
+            XCTAssertTrue(note.nameChanged)
+        }
+        UserChangeInfo.remove(observer: token, forBareUser: user)
+    }
+    
+    func testThatItProcessesNonCoreDataChangeNotifications(){
+        // given
+        let user = ZMUser.insertNewObject(in: uiMOC)
+        user.name = "foo"
+        uiMOC.saveOrRollback()
+        
+        let observer = UserObserver()
+        let token = UserChangeInfo.add(observer: observer, for: user)
+        
+        // when
+        NotificationDispatcher.notifyNonCoreDataChanges(objectID: user.objectID, changedKeys: ["name"], uiContext: uiMOC)
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        
+        // then
+        XCTAssertEqual(observer.notifications.count, 1)
+        if let note = observer.notifications.first {
+            XCTAssertTrue(note.nameChanged)
+        }
+        UserChangeInfo.remove(observer: token, forBareUser: user)
+    }
+    
+    func testThatItOnlySendsNotificationsWhenDidMergeIsCalled(){
+        // given
+        let user = ZMUser.insertNewObject(in: uiMOC)
+        user.name = "foo"
+        uiMOC.saveOrRollback()
+        
+        let observer = UserObserver()
+        let token = UserChangeInfo.add(observer: observer, for: user)
+        
+        // when
+        user.name = "bar"
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        // then
+        XCTAssertEqual(observer.notifications.count, 0)
+        
+        // and when
+        sut.didMergeChanges()
+        // then
+        XCTAssertEqual(observer.notifications.count, 1)
+        if let note = observer.notifications.first {
+            XCTAssertTrue(note.nameChanged)
+        }
+        UserChangeInfo.remove(observer: token, forBareUser: user)
+    }
+    
+    func testThatItOnlySendsNotificationsWhenDidSaveIsCalled(){
+        // given
+        let user = ZMUser.insertNewObject(in: uiMOC)
+        user.name = "foo"
+        uiMOC.saveOrRollback()
+        
+        let observer = UserObserver()
+        let token = UserChangeInfo.add(observer: observer, for: user)
+        
+        // when
+        user.name = "bar"
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        // then
+        XCTAssertEqual(observer.notifications.count, 0)
+        
+        // and when
+        uiMOC.saveOrRollback()
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+
+        // then
+        XCTAssertEqual(observer.notifications.count, 1)
+        if let note = observer.notifications.first {
+            XCTAssertTrue(note.nameChanged)
+        }
+        UserChangeInfo.remove(observer: token, forBareUser: user)
+    }
+    
+    // MARK: Background behaviour
+    func testThatItDoesNotProcessChangesWhenAppEntersBackground(){
+        // given
+        let user = ZMUser.insertNewObject(in: uiMOC)
+        user.name = "foo"
+        uiMOC.saveOrRollback()
+        
+        let observer = UserObserver()
+        let token = UserChangeInfo.add(observer: observer, for: user)
+        
+        // when
+        sut.applicationDidEnterBackground()
+        user.name = "bar"
+        uiMOC.saveOrRollback()
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        
+        // then
+        XCTAssertEqual(observer.notifications.count, 0)
+        UserChangeInfo.remove(observer: token, forBareUser: user)
+    }
+    
+    func testThatItProcessesChangesAfterAppEnteredBackgroundAndNowEntersForegroundAgain(){
+        // given
+        let user = ZMUser.insertNewObject(in: uiMOC)
+        user.name = "foo"
+        uiMOC.saveOrRollback()
+        
+        let observer = UserObserver()
+        let token = UserChangeInfo.add(observer: observer, for: user)
+
+        // when
+        sut.applicationDidEnterBackground()
+        sut.applicationWillEnterForeground()
+        user.name = "bar"
+        uiMOC.saveOrRollback()
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        
+        // then
+        XCTAssertEqual(observer.notifications.count, 1)
+        if let note = observer.notifications.first {
+            XCTAssertTrue(note.nameChanged)
+        }
+        UserChangeInfo.remove(observer: token, forBareUser: user)
+    }
+    
+    
+    // MARK: ChangeInfoConsumer
+    class ChangeConsumer : NSObject, ChangeInfoConsumer {
+        var changes : [ClassIdentifier : [ObjectChangeInfo]]?
+        var didCallEnterBackground = false
+        var didCallEnterForeground = false
+        
+        func objectsDidChange(changes: [ClassIdentifier : [ObjectChangeInfo]]) {
+            self.changes = changes
+        }
+        
+        func applicationDidEnterBackground() {
+            didCallEnterBackground = true
+        }
+        
+        func applicationWillEnterForeground() {
+            didCallEnterForeground = true
+        }
+    }
+    
+    func testThatItNotifiesChangeInfoConsumersWhenAppEntersBackground(){
+        // given
+        let consumer = ChangeConsumer()
+        sut.addChangeInfoConsumer(consumer)
+        XCTAssertFalse(consumer.didCallEnterBackground)
+
+        // when
+        sut.applicationDidEnterBackground()
+        
+        // then
+        XCTAssertTrue(consumer.didCallEnterBackground)
+    }
+    
+    func testThatItNotifiesChangeInfoConsumersWhenAppEntersForeground(){
+        // given
+        let consumer = ChangeConsumer()
+        sut.addChangeInfoConsumer(consumer)
+        XCTAssertFalse(consumer.didCallEnterForeground)
+        
+        // when
+        sut.applicationWillEnterForeground()
+        
+        // then
+        XCTAssertTrue(consumer.didCallEnterForeground)
+    }
+    
+    func testThatItNotifiesChangeInfoConsumersWhenObjectChanged(){
+        // given
+        let user = ZMUser.insertNewObject(in: uiMOC)
+        user.name = "foo"
+        uiMOC.saveOrRollback()
+        
+        let consumer = ChangeConsumer()
+        sut.addChangeInfoConsumer(consumer)
+        XCTAssertNil(consumer.changes)
+        
+        // when
+        user.name = "bar"
+        uiMOC.saveOrRollback()
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        
+        // then
+        XCTAssertNotNil(consumer.changes)
+        if let changes = consumer.changes {
+            XCTAssertEqual(changes.count, 1)
+            guard let userChanges = changes[ZMUser.entityName()] as? [UserChangeInfo],
+                  let change = userChanges.first
+            else { return XCTFail()}
+            XCTAssertTrue(change.nameChanged)
+        }
+    }
+    
+    
 }
