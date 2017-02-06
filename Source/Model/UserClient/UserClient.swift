@@ -201,17 +201,21 @@ public class UserClient: ZMManagedObject, UserClientType {
         syncMOC.performGroupedBlock {
             UserClient.deleteSession(for: sessionIdentifier, managedObjectContext: syncMOC)
 
-            self.fingerprint = .none
-            let selfUser = ZMUser.selfUser(in: self.managedObjectContext!)
-            guard let selfClient = selfUser.selfClient() else { return }
-
-            selfClient.missesClient(self)
-            selfClient.setLocallyModifiedKeys(Set(arrayLiteral: ZMUserClientMissingKey))
-
-            // Send session reset message so other user can send us messages immediately
-            if let user = self.user {
-                let conversation = user.isSelfUser ? ZMConversation.selfConversation(in: syncMOC) : self.user?.oneToOneConversation
-                _ = conversation?.appendOTRSessionResetMessage()
+            self.managedObjectContext?.performGroupedBlock {
+                self.fingerprint = .none
+                let selfUser = ZMUser.selfUser(in: self.managedObjectContext!)
+                guard let selfClient = selfUser.selfClient() else { return }
+                
+                selfClient.missesClient(self)
+                selfClient.setLocallyModifiedKeys(Set(arrayLiteral: ZMUserClientMissingKey))
+                
+                // Send session reset message so other user can send us messages immediately
+                if let user = self.user {
+                    let conversation = user.isSelfUser ? ZMConversation.selfConversation(in: syncMOC) : self.user?.oneToOneConversation
+                    _ = conversation?.appendOTRSessionResetMessage()
+                }
+                
+                self.managedObjectContext?.saveOrRollback()
             }
 
             syncMOC.saveOrRollback()
