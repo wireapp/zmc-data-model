@@ -77,7 +77,7 @@
         self.sortDescriptors = [ZMConversation defaultSortDescriptors];
         [self calculateKeysAffectingPredicateAndSort];
         [self createBackingList:conversations];
-        [moc.globalManagedObjectContextObserver addConversationListForAutoupdating:self];
+        [moc.conversationListObserverCenter startObservingList:self];
     }
     return self;
 }
@@ -85,6 +85,12 @@
 - (NSManagedObjectContext *)managedObjectContext
 {
     return self.moc;
+}
+
+- (void)recreateWithAllConversations:(NSArray *)conversations
+{
+    [self createBackingList:conversations];
+    [self.moc.conversationListObserverCenter recreateSnapshotFor:self];
 }
 
 - (void)calculateKeysAffectingPredicateAndSort;
@@ -108,7 +114,7 @@
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter] removeObserver:self];
-    [self.managedObjectContext.globalManagedObjectContextObserver removeConversationListForAutoupdating:self];
+    [self.managedObjectContext.conversationListObserverCenter removeConversationList:self];
 }
 
 - (void)sortInsertConversation:(ZMConversation *)conversation
@@ -210,6 +216,11 @@
 
 @implementation ZMConversationList (UserSession)
 
++ (void)refetchAllListsInUserSession:(id<ZMManagedObjectContextProvider>)session;
+{
+    [session.managedObjectContext.conversationListDirectory refetchAllListsInManagedObjectContext:session.managedObjectContext];
+}
+
 + (ZMConversationList *)conversationsIncludingArchivedInUserSession:(id<ZMManagedObjectContextProvider>)session;
 {
     VerifyReturnNil(session != nil);
@@ -219,25 +230,13 @@
 + (ZMConversationList *)conversationsInUserSession:(id<ZMManagedObjectContextProvider>)session
 {
     VerifyReturnNil(session != nil);
-    return [session.managedObjectContext.conversationListDirectory unarchivedAndNotCallingConversations];
+    return [session.managedObjectContext.conversationListDirectory unarchivedConversations];
 }
 
 + (ZMConversationList *)archivedConversationsInUserSession:(id<ZMManagedObjectContextProvider>)session;
 {
     VerifyReturnNil(session != nil);
     return [session.managedObjectContext.conversationListDirectory archivedConversations];
-}
-
-+ (ZMConversationList *)nonIdleVoiceChannelConversationsInUserSession:(id<ZMManagedObjectContextProvider>)session;
-{
-    VerifyReturnNil(session != nil);
-    return [session.managedObjectContext.conversationListDirectory nonIdleVoiceChannelConversations];
-}
-
-+ (ZMConversationList *)activeCallConversationsInUserSession:(id<ZMManagedObjectContextProvider>)session;
-{
-    VerifyReturnNil(session != nil);
-    return [session.managedObjectContext.conversationListDirectory activeCallConversations];
 }
 
 + (ZMConversationList *)pendingConnectionConversationsInUserSession:(id<ZMManagedObjectContextProvider>)session;

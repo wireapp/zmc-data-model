@@ -130,9 +130,9 @@ extension NSManagedObjectContext {
         }
     }
     
-    func updateNameGenerator(withChanges note: Notification) -> Set<ZMUser> {
+    func updateNameGenerator(updatedUsers: Set<ZMUser>, insertedUsers: Set<ZMUser>, deletedUsers: Set<ZMUser>) -> Set<ZMUser> {
         guard let generator = nameGenerator else { return Set()}
-        let (newGenerator, updatedUsers) = generator.updateWithChanges(note: note)
+        let (newGenerator, updatedUsers) = generator.updateWithChanges(updatedUsers: updatedUsers, insertedUsers: insertedUsers, deletedUsers: deletedUsers)
         self.nameGenerator = newGenerator
         return updatedUsers
     }
@@ -142,14 +142,10 @@ extension NSManagedObjectContext {
 
 extension DisplayNameGenerator {
 
-    func updateWithChanges(note: Notification) -> (newGenerator:  DisplayNameGenerator, updatedUsers: Set<ZMUser>) {
+    func updateWithChanges(updatedUsers: Set<ZMUser>, insertedUsers: Set<ZMUser>, deletedUsers: Set<ZMUser>)
+        -> (newGenerator:  DisplayNameGenerator, updatedUsers: Set<ZMUser>)
+    {
         fetchAllUsersIfNeeded()
-        let insertedUsers = Set((note.userInfo?[NSInsertedObjectsKey] as? Set<NSManagedObject> ?? []).flatMap{$0 as? ZMUser})
-        let deletedUsers = Set((note.userInfo?[NSDeletedObjectsKey] as? Set<NSManagedObject> ?? []).flatMap{$0 as? ZMUser})
-        var updatedUsers = Set((note.userInfo?[NSUpdatedObjectsKey] as? Set<NSManagedObject> ?? []).flatMap{$0 as? ZMUser})
-        let refreshedUsers = Set((note.userInfo?[NSRefreshedObjectsKey] as? Set<NSManagedObject> ?? []).flatMap{$0 as? ZMUser})
-
-        updatedUsers.formUnion(refreshedUsers)
         
         if (insertedUsers.count == 0 && deletedUsers.count == 0 && updatedUsers.count == 0) {
             return (self, Set())

@@ -61,6 +61,7 @@
 #import <ZMCDataModel/ZMAssetClientMessage+Testing.h>
 #import <ZMCDataModel/ZMGenericMessage+External.h>
 #import <ZMCDataModel/ZMGenericMessage+UpdateEvent.h>
+#import <ZMCDataModel/ZMGenericMessageData.h>
 
 #import <ZMCDataModel/UserClientTypes.h>
 
@@ -69,11 +70,6 @@
 
 #import <ZMCDataModel/ZMNotifications.h>
 #import <ZMCDataModel/ZMNotifications+Internal.h>
-
-#import <ZMCDataModel/ZMVoiceChannel.h>
-#import <ZMCDataModel/ZMVoiceChannel+Internal.h>
-#import <ZMCDataModel/ZMVoiceChannelNotifications.h>
-#import <ZMCDataModel/ZMVoiceChannelNotifications+Internal.h>
 
 #import <ZMCDataModel/ZMUpdateEvent+ZMCDataModel.h>
 #import <ZMCDataModel/NSFetchRequest+ZMRelationshipKeyPaths.h>

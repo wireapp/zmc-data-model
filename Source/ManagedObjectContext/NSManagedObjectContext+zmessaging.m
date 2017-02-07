@@ -179,7 +179,6 @@ static BOOL storeIsReady = NO;
     [SharedUserInterfaceContext initialiseSessionAndSelfUser];
     
     SharedUserInterfaceContext.mergePolicy = [[ZMSyncMergePolicy alloc] initWithMergeType:NSRollbackMergePolicyType];
-    (void)SharedUserInterfaceContext.globalManagedObjectContextObserver;
     
     return SharedUserInterfaceContext;
 }
@@ -205,7 +204,12 @@ static BOOL storeIsReady = NO;
         moc.undoManager = nil;
         moc.mergePolicy = [[ZMSyncMergePolicy alloc] initWithMergeType:NSMergeByPropertyObjectTrumpMergePolicyType];
     }];
-    [moc applyPersistedDataPatchesForCurrentVersion];
+    [moc performGroupedBlock:^{
+        // this will be done async, not to block the UI thread, but
+        // enqueued on the syncMOC anyway, so it will execute before
+        // any other block of code has a chance to use it
+        [moc applyPersistedDataPatchesForCurrentVersion];
+    }];
     return moc;
 }
 

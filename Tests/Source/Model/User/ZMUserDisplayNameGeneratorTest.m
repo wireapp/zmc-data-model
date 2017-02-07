@@ -326,7 +326,7 @@ static NSString * const UserNames[] = {
     
     // when
     self.uiMOC.nameGenerator = nil;
-    NSSet *updatedSet = [self.uiMOC updateNameGeneratorWithChanges:[self notificationForInsertedObject:nil updatedObjects:nil deletedObjects:[NSSet setWithObject:user2]]];
+    NSSet *updatedSet = [self.uiMOC updateNameGeneratorWithUpdatedUsers:[NSSet set] insertedUsers:[NSSet set] deletedUsers:[NSSet setWithObject:user2]];
     
     // then
     XCTAssertEqual(updatedSet.count, 0u);
@@ -350,7 +350,7 @@ static NSString * const UserNames[] = {
     XCTAssertEqualObjects(user3.displayName, @"Anna");
 
     // when
-    NSSet *updatedSet = [self.uiMOC updateNameGeneratorWithChanges:[self notificationForInsertedObject:nil updatedObjects:nil deletedObjects:[NSSet setWithObject:user3]]];
+    NSSet *updatedSet = [self.uiMOC updateNameGeneratorWithUpdatedUsers:[NSSet set] insertedUsers:[NSSet set] deletedUsers:[NSSet setWithObject:user3]];
     
     // then
     NSSet *expectedSet = [NSSet setWithObject:user1];
@@ -376,7 +376,7 @@ static NSString * const UserNames[] = {
     
     // when
     user2.name = @"Anna";
-    NSSet *updatedSet = [self.uiMOC updateNameGeneratorWithChanges:[self notificationForInsertedObject:nil updatedObjects:[NSSet setWithObject:user2] deletedObjects:nil]];
+    NSSet *updatedSet =  [self.uiMOC updateNameGeneratorWithUpdatedUsers:[NSSet setWithObject:user2] insertedUsers:[NSSet set] deletedUsers:[NSSet set]];
     
     // then
     NSSet *expectedSet = [NSSet setWithObjects:user2, user1, nil];
@@ -456,7 +456,7 @@ static NSString * const UserNames[] = {
         [self.uiMOC refreshObject:mo mergeChanges:NO];
     }
     [self.uiMOC processPendingChanges];
-    [self.uiMOC updateNameGeneratorWithChanges:[self notificationForInsertedObject:nil updatedObjects:[NSSet setWithObject:user1] deletedObjects:nil]];
+    [self.uiMOC updateNameGeneratorWithUpdatedUsers:[NSSet setWithObject:user1] insertedUsers:[NSSet set] deletedUsers:[NSSet set]];
     
     // then
     XCTAssertFalse(user1.isFault);
@@ -548,10 +548,9 @@ static NSString * const UserNames[] = {
         existingUser.name = newName;
         [self.uiMOC saveOrRollback];
         
-        NSNotification *note = [self notificationForInsertedObject:nil updatedObjects:[NSSet setWithObject:existingUser] deletedObjects:nil];
         [self startMeasuring];
         {
-            [self.uiMOC updateNameGeneratorWithChanges:note];
+            [self.uiMOC updateNameGeneratorWithUpdatedUsers:[NSSet setWithObject:existingUser] insertedUsers:[NSSet set] deletedUsers:[NSSet set]];
             for (ZMUser *user in users) {
                 XCTAssertNotNil(user.displayName);
             }
@@ -594,10 +593,9 @@ static NSString * const UserNames[] = {
         [users addObject:newUser];
         
         XCTAssert([self.uiMOC saveOrRollback]);
-        NSNotification *note = [self notificationForInsertedObject:[NSSet setWithObject:newUser] updatedObjects:nil deletedObjects:nil];
         [self startMeasuring];
         {
-            [self.uiMOC updateNameGeneratorWithChanges:note];
+            [self.uiMOC updateNameGeneratorWithUpdatedUsers:[NSSet set] insertedUsers:[NSSet setWithObject:newUser] deletedUsers:[NSSet set]];
             for (ZMUser *user in users) {
                 XCTAssertNotNil(user.displayName);
             }
@@ -638,7 +636,7 @@ static NSString * const UserNames[] = {
         
         [self startMeasuring];
         {
-            [self.uiMOC updateNameGeneratorWithChanges:[self notificationForInsertedObject:nil updatedObjects:nil deletedObjects:[NSSet setWithObject:existingUser1]]];
+            [self.uiMOC updateNameGeneratorWithUpdatedUsers:[NSSet set] insertedUsers:[NSSet set] deletedUsers:[NSSet setWithObject:existingUser1]];
             for (ZMUser *user in users) {
                 XCTAssertNotNil(user.displayName);
             }
