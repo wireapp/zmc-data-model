@@ -18,8 +18,6 @@
 
 
 #import "ZMBaseManagedObjectTest.h"
-//#import "PersonName.h"
-//#import "NSString+PersonName.h"
 
 
 @interface PersonNameTests : ZMBaseManagedObjectTest
