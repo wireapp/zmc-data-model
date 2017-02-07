@@ -47,7 +47,19 @@ class ConversationListObserverTests : NotificationDispatcherTestBase {
         return array
     }
     
-
+    func testThatItDeallocates(){
+        // given
+        let conversationList = ZMConversation.conversationsIncludingArchived(in: self.uiMOC)
+        self.uiMOC.saveOrRollback()
+        
+        // when
+        weak var observerCenter = uiMOC.conversationListObserverCenter
+        uiMOC.userInfo.removeObject(forKey: NSManagedObjectContext.ConversationListObserverCenterKey)
+        
+        // then
+        XCTAssertNil(observerCenter)
+        XCTAssertNotNil(conversationList)
+    }
     
     func testThatItNotifiesObserversWhenANewConversationIsInsertedThatMatchesListPredicate()
     {

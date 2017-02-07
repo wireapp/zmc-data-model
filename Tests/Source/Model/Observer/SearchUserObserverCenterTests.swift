@@ -163,6 +163,23 @@ class SearchUserObserverCenterTests : ModelObjectsTests {
         super.tearDown()
     }
 
+    func testThatItDeallocates(){
+        // given
+        let user = ZMUser.insertNewObject(in: uiMOC)
+        user.name = "Bernd"
+        user.remoteIdentifier = UUID()
+        
+        let searchUser = ZMSearchUser(name: nil, handle: nil, accentColor: .undefined, remoteID: nil, user: user, syncManagedObjectContext: syncMOC, uiManagedObjectContext: uiMOC)!
+        uiMOC.searchUserObserverCenter.addSearchUser(searchUser)
+        
+        // when
+        weak var observerCenter = uiMOC.searchUserObserverCenter
+        uiMOC.userInfo.removeObject(forKey: NSManagedObjectContext.SearchUserObserverCenterKey)
+        
+        // then
+        XCTAssertNil(observerCenter)
+    }
+    
     func testThatItAddsASnapshot(){
         // given
         let searchUser = ZMSearchUser(name: "Bernd", handle: "dasBrot", accentColor: .brightOrange, remoteID: UUID(), user: nil, syncManagedObjectContext: syncMOC, uiManagedObjectContext: uiMOC)!

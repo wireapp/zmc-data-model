@@ -67,6 +67,30 @@ import Foundation
 
 class NotificationDispatcherTests : NotificationDispatcherTestBase {
 
+    class Wrapper {
+        let dispatcher : NotificationDispatcher
+        
+        init(managedObjectContext: NSManagedObjectContext) {
+            self.dispatcher = NotificationDispatcher(managedObjectContext: managedObjectContext)
+        }
+        deinit{
+            dispatcher.tearDown()
+        }
+    }
+    
+    func testThatDeallocates(){
+        // when
+        var wrapper : Wrapper? = Wrapper(managedObjectContext: uiMOC)
+        weak var center = wrapper!.dispatcher
+        XCTAssertNotNil(center)
+        
+        // when
+        wrapper = nil
+        
+        // then
+        XCTAssertNil(center)
+    }
+    
     func testThatItNotifiesAboutChanges(){
         
         // given

@@ -65,7 +65,7 @@ class DependencyKeyStore {
     /// Keys that are needed to create a changeInfo
     let observableKeys : [String: Set<String>]
     
-    /// All keys that will create a userChangeInfo
+    /// All keys that will create a changeInfo
     let allKeys : [String : Set<String>]
     
     /// Maps observable keys to keys whose values affect them

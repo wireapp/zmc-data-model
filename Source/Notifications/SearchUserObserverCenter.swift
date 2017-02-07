@@ -20,23 +20,21 @@ import Foundation
 
 private var zmLog = ZMSLog(tag: "SearchUserObserverCenter")
 
-let SearchUserObserverCenterKey = "SearchUserObserverCenterKey"
 
 
 extension NSManagedObjectContext {
     
-    public var searchUserObserverCenter : SearchUserObserverCenter? {
-        guard zm_isUserInterfaceContext else {
-            zmLog.warn("SearchUserObserverCenter does not exist in syncMOC")
-            return nil
-        }
+    static let SearchUserObserverCenterKey = "SearchUserObserverCenterKey"
+
+    public var searchUserObserverCenter : SearchUserObserverCenter {
+        assert(zm_isUserInterfaceContext, "SearchUserObserverCenter does not exist in syncMOC")
         
-        if let observer = self.userInfo[SearchUserObserverCenterKey] as? SearchUserObserverCenter {
+        if let observer = self.userInfo[NSManagedObjectContext.SearchUserObserverCenterKey] as? SearchUserObserverCenter {
             return observer
         }
         
         let newObserver = SearchUserObserverCenter()
-        self.userInfo[SearchUserObserverCenterKey] = newObserver
+        self.userInfo[NSManagedObjectContext.SearchUserObserverCenterKey] = newObserver
         return newObserver
     }
 }

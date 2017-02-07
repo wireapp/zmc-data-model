@@ -91,8 +91,25 @@ class MessageWindowObserverTests : NotificationDispatcherTestBase {
         return conversation
     }
     
+}
 
+extension MessageWindowObserverTests {
     
+    func testThatItDeallocates(){
+        // given
+        let message1 = ZMClientMessage.insertNewObject(in: self.uiMOC)
+        let message2 = ZMClientMessage.insertNewObject(in: self.uiMOC)
+        let window = self.createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
+        
+        // when
+        weak var observerCenter = uiMOC.messageWindowObserverCenter
+        uiMOC.userInfo.removeObject(forKey: NSManagedObjectContext.MessageWindowObserverCenterKey)
+        
+        // then
+        XCTAssertNil(observerCenter)
+        XCTAssertNotNil(window)
+    }
+
     func testThatItNotifiesForClearingMessageHistory()
     {
         // given

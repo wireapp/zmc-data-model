@@ -29,22 +29,21 @@ extension Notification.Name {
 
 }
 
-let MessageWindowObserverCenterKey = "MessageWindowObserverCenterKey"
+
 
 extension NSManagedObjectContext {
+
+    static let MessageWindowObserverCenterKey = "MessageWindowObserverCenterKey"
     
-    public var messageWindowObserverCenter : MessageWindowObserverCenter? {
-        guard zm_isUserInterfaceContext else {
-            zmLog.warn("MessageWindowObserverCenter does not exist in syncMOC")
-            return nil
-        }
+    public var messageWindowObserverCenter : MessageWindowObserverCenter {
+        assert(zm_isUserInterfaceContext, "MessageWindowObserverCenter does not exist in syncMOC")
         
-        if let observer = userInfo[MessageWindowObserverCenterKey] as? MessageWindowObserverCenter {
+        if let observer = userInfo[NSManagedObjectContext.MessageWindowObserverCenterKey] as? MessageWindowObserverCenter {
             return observer
         }
         
         let newObserver = MessageWindowObserverCenter()
-        userInfo[MessageWindowObserverCenterKey] = newObserver
+        userInfo[NSManagedObjectContext.MessageWindowObserverCenterKey] = newObserver
         return newObserver
     }
 }

@@ -111,13 +111,13 @@ public class NotificationDispatcher : NSObject {
     private var tornDown = false
     private let affectingKeysStore : DependencyKeyStore
     private var messageWindowObserverCenter : MessageWindowObserverCenter {
-        return managedObjectContext.messageWindowObserverCenter!
+        return managedObjectContext.messageWindowObserverCenter
     }
     private var conversationListObserverCenter : ConversationListObserverCenter {
-        return managedObjectContext.conversationListObserverCenter!
+        return managedObjectContext.conversationListObserverCenter
     }
     private var searchUserObserverCenter: SearchUserObserverCenter {
-        return managedObjectContext.searchUserObserverCenter!
+        return managedObjectContext.searchUserObserverCenter
     }
     private let snapshotCenter: SnapshotCenter
     private var changeInfoConsumers = [UnownedNSObject]()

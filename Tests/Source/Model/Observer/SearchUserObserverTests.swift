@@ -39,7 +39,7 @@ class SearchUserObserverTests : NotificationDispatcherTestBase {
     
     override func tearDown() {
         testObserver = nil
-        uiMOC.searchUserObserverCenter?.reset()
+        uiMOC.searchUserObserverCenter.reset()
         super.tearDown()
     }
     
@@ -55,7 +55,7 @@ class SearchUserObserverTests : NotificationDispatcherTestBase {
                                       syncManagedObjectContext: self.syncMOC,
                                       uiManagedObjectContext:self.uiMOC)!
         
-        uiMOC.searchUserObserverCenter?.addSearchUser(searchUser)
+        uiMOC.searchUserObserverCenter.addSearchUser(searchUser)
         let token = UserChangeInfo.add(observer: testObserver, forBareUser: searchUser)
         
         // when
@@ -83,7 +83,7 @@ class SearchUserObserverTests : NotificationDispatcherTestBase {
                                       syncManagedObjectContext: self.syncMOC,
                                       uiManagedObjectContext:self.uiMOC)!
         
-        uiMOC.searchUserObserverCenter?.addSearchUser(searchUser)
+        uiMOC.searchUserObserverCenter.addSearchUser(searchUser)
         let token = UserChangeInfo.add(observer: testObserver, forBareUser:searchUser)
         
         // when
@@ -111,7 +111,7 @@ class SearchUserObserverTests : NotificationDispatcherTestBase {
                                       syncManagedObjectContext: self.syncMOC,
                                       uiManagedObjectContext:self.uiMOC)!
         
-        uiMOC.searchUserObserverCenter?.addSearchUser(searchUser)
+        uiMOC.searchUserObserverCenter.addSearchUser(searchUser)
         let token = UserChangeInfo.add(observer: testObserver, forBareUser: searchUser)
         UserChangeInfo.remove(observer: token!, forBareUser: searchUser)
         
@@ -135,7 +135,7 @@ class SearchUserObserverTests : NotificationDispatcherTestBase {
                                       uiManagedObjectContext:self.uiMOC)!
         
         XCTAssertFalse(searchUser.isPendingApprovalByOtherUser)
-        uiMOC.searchUserObserverCenter?.addSearchUser(searchUser)
+        uiMOC.searchUserObserverCenter.addSearchUser(searchUser)
         let token = UserChangeInfo.add(observer: testObserver, forBareUser: searchUser)
 
         // expect
@@ -174,7 +174,7 @@ class SearchUserObserverTests : NotificationDispatcherTestBase {
         let testObserver2 = TestSearchUserObserver()
         let token1 = UserChangeInfo.add(observer: testObserver, forBareUser: user)
         
-        uiMOC.searchUserObserverCenter?.addSearchUser(searchUser)
+        uiMOC.searchUserObserverCenter.addSearchUser(searchUser)
         let token2 = UserChangeInfo.add(observer: testObserver2, forBareUser: searchUser)
         
         // expect

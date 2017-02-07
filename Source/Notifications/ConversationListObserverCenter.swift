@@ -25,22 +25,21 @@ extension Notification.Name {
     static let ZMConversationListDidChange = Notification.Name("ZMConversationListDidChangeNotification")
 }
 
-let ConversationListObserverCenterKey = "ConversationListObserverCenterKey"
+
 
 extension NSManagedObjectContext {
     
-    public var conversationListObserverCenter : ConversationListObserverCenter? {
-        guard zm_isUserInterfaceContext else {
-            zmLog.warn("ConversationListObserver does not exist in syncMOC")
-            return nil
-        }
+    static let ConversationListObserverCenterKey = "ConversationListObserverCenterKey"
+    
+    public var conversationListObserverCenter : ConversationListObserverCenter {
+        assert(zm_isUserInterfaceContext, "ConversationListObserver does not exist in syncMOC")
         
-        if let observer = self.userInfo[ConversationListObserverCenterKey] as? ConversationListObserverCenter {
+        if let observer = self.userInfo[NSManagedObjectContext.ConversationListObserverCenterKey] as? ConversationListObserverCenter {
             return observer
         }
         
         let newObserver = ConversationListObserverCenter()
-        self.userInfo[ConversationListObserverCenterKey] = newObserver
+        self.userInfo[NSManagedObjectContext.ConversationListObserverCenterKey] = newObserver
         return newObserver
     }
 }
