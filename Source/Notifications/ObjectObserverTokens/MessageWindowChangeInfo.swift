@@ -37,9 +37,6 @@ import Foundation
 }
 
 
-//@objc public protocol ZMConversationMessageWindowObserverOpaqueToken : NSObjectProtocol {}
-
-
 @objc public protocol ZMConversationMessageWindowObserver : NSObjectProtocol {
     func conversationWindowDidChange(_ changeInfo: MessageWindowChangeInfo)
     @objc optional func messagesInsideWindow(_ window: ZMConversationMessageWindow, didChange messageChangeInfos: [MessageChangeInfo])

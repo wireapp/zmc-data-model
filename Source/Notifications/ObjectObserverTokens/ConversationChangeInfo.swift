@@ -145,7 +145,6 @@ extension ZMConversation : ObjectInSnapshot {
 }
 
 
-//@objc public protocol ZMConversationObserverOpaqueToken :NSObjectProtocol {}
 extension ConversationChangeInfo {
 
     /// Adds a ZMConversationObserver to the specified conversation

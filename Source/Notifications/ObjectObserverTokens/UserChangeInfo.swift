@@ -129,8 +129,6 @@ extension ZMUser : ObjectInSnapshot {
 
 
 
-//@objc public protocol ZMUserObserverOpaqueToken : NSObjectProtocol {}
-
 @objc public protocol ZMUserObserver : NSObjectProtocol {
     func userDidChange(_ changeInfo: UserChangeInfo)
 }

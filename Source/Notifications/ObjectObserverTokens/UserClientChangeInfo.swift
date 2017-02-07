@@ -84,7 +84,6 @@ public enum UserClientChangeInfoKey: String {
 }
 
 
-//@objc public protocol UserClientObserverOpaqueToken : NSObjectProtocol {}
 
 @objc public protocol UserClientObserver: NSObjectProtocol {
     func userClientDidChange(_ changeInfo: UserClientChangeInfo)

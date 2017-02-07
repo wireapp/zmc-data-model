@@ -168,8 +168,6 @@ extension ZMImageMessage {
 
 
 
-//@objc public protocol ZMMessageObserverOpaqueToken : NSObjectProtocol {}
-
 @objc public protocol ZMMessageObserver : NSObjectProtocol {
     func messageDidChange(_ changeInfo: MessageChangeInfo)
 }

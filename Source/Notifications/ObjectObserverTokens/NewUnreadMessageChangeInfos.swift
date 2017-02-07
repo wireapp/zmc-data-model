@@ -38,8 +38,6 @@ public final class NewUnreadMessagesChangeInfo : ObjectChangeInfo  {
 }
 
 
-//@objc public protocol ZMNewUnreadMessageObserverOpaqueToken : NSObjectProtocol {}
-
 @objc public protocol ZMNewUnreadMessagesObserver : NSObjectProtocol {
     func didReceiveNewUnreadMessages(_ changeInfo: NewUnreadMessagesChangeInfo)
 }
@@ -88,9 +86,6 @@ extension NewUnreadMessagesChangeInfo {
         return object as? [ZMConversationMessage] ?? []
     }
 }
-
-
-//@objc public protocol ZMNewUnreadKnockMessageObserverOpaqueToken : NSObjectProtocol {}
 
 
 @objc public protocol ZMNewUnreadKnocksObserver : NSObjectProtocol {

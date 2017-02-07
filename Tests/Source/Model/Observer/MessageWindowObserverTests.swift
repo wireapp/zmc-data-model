@@ -422,7 +422,6 @@ extension MessageWindowObserverTests {
                 self.uiMOC.saveOrRollback()
             }
             self.stopMeasuring()
-//            XCTAssertEqual(self.windowObserver.notifications.count, count)
             MessageWindowChangeInfo.remove(observer: token, for: window)
         }
     }

@@ -39,8 +39,6 @@ extension ZMConversationList {
 
 
 
-//@objc public protocol ZMConversationListObserverOpaqueToken : NSObjectProtocol {}
-
 @objc public protocol ZMConversationListObserver : NSObjectProtocol {
     func conversationListDidChange(_ changeInfo: ConversationListChangeInfo)
     @objc optional func conversationInsideList(_ list: ZMConversationList, didChange changeInfo: ConversationChangeInfo)
