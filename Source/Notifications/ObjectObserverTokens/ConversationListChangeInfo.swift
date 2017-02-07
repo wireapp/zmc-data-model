@@ -52,9 +52,7 @@ extension ConversationListChangeInfo {
     /// You must hold on to the token and use it to unregister
     @objc(addObserver:forList:)
     public static func add(observer: ZMConversationListObserver,for list: ZMConversationList) -> NSObjectProtocol {
-        return NotificationCenter.default.addObserver(forName: .ZMConversationListDidChange,
-                                                      object: list,
-                                                      queue: nil)
+        return NotificationCenterObserverToken(name: .ZMConversationListDidChange, object: list)
         { [weak observer] (note) in
             guard let `observer` = observer, let list = note.object as? ZMConversationList
                 else { return }
@@ -72,6 +70,10 @@ extension ConversationListChangeInfo {
     
     @objc(removeObserver:forList:)
     public static func remove(observer: NSObjectProtocol, for list: ZMConversationList?) {
-        NotificationCenter.default.removeObserver(observer, name: .ZMConversationListDidChange, object: list)
+        guard let token = (observer as? NotificationCenterObserverToken)?.token else {
+            NotificationCenter.default.removeObserver(observer, name: .ZMConversationListDidChange, object: list)
+            return
+        }
+        NotificationCenter.default.removeObserver(token, name: .ZMConversationListDidChange, object: list)
     }
 }

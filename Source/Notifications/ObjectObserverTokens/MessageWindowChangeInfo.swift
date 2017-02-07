@@ -51,9 +51,7 @@ extension MessageWindowChangeInfo {
     /// You must hold on to the token and use it to unregister
     @objc(addObserver:forWindow:)
     public static func add(observer: ZMConversationMessageWindowObserver,for window: ZMConversationMessageWindow) -> NSObjectProtocol {
-        return NotificationCenter.default.addObserver(forName: .MessageWindowDidChange,
-                                                      object: window,
-                                                      queue: nil)
+        return NotificationCenterObserverToken(name: .MessageWindowDidChange, object: window)
         { [weak observer] (note) in
             guard let `observer` = observer, let window = note.object as? ZMConversationMessageWindow else { return }
             if let changeInfo = note.userInfo?["messageWindowChangeInfo"] as? MessageWindowChangeInfo{
@@ -67,6 +65,10 @@ extension MessageWindowChangeInfo {
     
     @objc(removeObserver:forWindow:)
     public static func remove(observer: NSObjectProtocol, for window: ZMConversationMessageWindow?) {
-        NotificationCenter.default.removeObserver(observer, name: .MessageWindowDidChange, object: window)
+        guard let token = (observer as? NotificationCenterObserverToken)?.token else {
+            NotificationCenter.default.removeObserver(observer, name: .MessageWindowDidChange, object: window)
+            return
+        }
+        NotificationCenter.default.removeObserver(token, name: .MessageWindowDidChange, object: window)
     }
 }

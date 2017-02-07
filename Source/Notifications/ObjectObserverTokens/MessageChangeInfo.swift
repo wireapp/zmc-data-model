@@ -182,9 +182,7 @@ extension MessageChangeInfo {
     /// You must hold on to the token and use it to unregister
     @objc(addObserver:forMessage:)
     public static func add(observer: ZMMessageObserver, for message: ZMConversationMessage) -> NSObjectProtocol {
-        return NotificationCenter.default.addObserver(forName: .MessageChange,
-                                                      object: message,
-                                                      queue: nil)
+        return NotificationCenterObserverToken(name: .MessageChange, object: message)
         { [weak observer] (note) in
             guard let `observer` = observer,
                 let changeInfo = note.userInfo?["changeInfo"] as? MessageChangeInfo
@@ -196,7 +194,11 @@ extension MessageChangeInfo {
     
     @objc(removeObserver:forMessage:)
     public static func remove(observer: NSObjectProtocol, for message: ZMConversationMessage?) {
-        NotificationCenter.default.removeObserver(observer, name: .MessageChange, object: message)
+        guard let token = (observer as? NotificationCenterObserverToken)?.token else {
+            NotificationCenter.default.removeObserver(observer, name: .MessageChange, object: message)
+            return
+        }
+        NotificationCenter.default.removeObserver(token, name: .MessageChange, object: message)
     }
 }
 

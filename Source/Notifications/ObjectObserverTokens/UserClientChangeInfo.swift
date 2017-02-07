@@ -96,9 +96,7 @@ extension UserClientChangeInfo {
     /// You must hold on to the token and use it to unregister
     @objc(addObserver:forClient:)
     public static func add(observer: UserClientObserver, for client: UserClient) -> NSObjectProtocol {
-        return NotificationCenter.default.addObserver(forName: .UserClientChange,
-                                                      object: client,
-                                                      queue: nil)
+        return NotificationCenterObserverToken(name: .UserClientChange, object: client)
         { [weak observer] (note) in
             guard let `observer` = observer,
                 let changeInfo = note.userInfo?["changeInfo"] as? UserClientChangeInfo
@@ -110,7 +108,11 @@ extension UserClientChangeInfo {
     
     @objc(removeObserver:forClient:)
     public static func remove(observer: NSObjectProtocol, for client: UserClient?) {
-        NotificationCenter.default.removeObserver(observer, name: .UserClientChange, object: client)
+        guard let token = (observer as? NotificationCenterObserverToken)?.token else {
+            NotificationCenter.default.removeObserver(observer, name: .UserClientChange, object: client)
+            return
+        }
+        NotificationCenter.default.removeObserver(token, name: .UserClientChange, object: client)
     }
 }
 

@@ -62,16 +62,6 @@ class MessageObserver : NSObject, ZMMessageObserver {
         token = MessageChangeInfo.add(observer: self, for: message)
     }
     
-    deinit {
-        tearDown()
-    }
-    
-    func tearDown() {
-        if let token = token {
-            MessageChangeInfo.remove(observer: token, for: nil)
-        }
-    }
-    
     var notifications : [MessageChangeInfo] = []
     
     func messageDidChange(_ changeInfo: MessageChangeInfo) {
@@ -93,16 +83,6 @@ class ConversationObserver: NSObject, ZMConversationObserver {
     init(conversation : ZMConversation) {
         super.init()
         token = ConversationChangeInfo.add(observer: self, for: conversation)
-    }
-    
-    deinit {
-        tearDown()
-    }
-    
-    func tearDown() {
-        if let token = token {
-            ConversationChangeInfo.remove(observer: token, for: nil)
-        }
     }
     
     var notifications = [ConversationChangeInfo]()

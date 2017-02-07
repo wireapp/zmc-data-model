@@ -143,9 +143,7 @@ extension UserChangeInfo {
     /// You must hold on to the token and use it to unregister
     @objc(addUserObserver:forUser:)
     static func add(observer: ZMUserObserver, for user: ZMUser?) -> NSObjectProtocol {
-        return NotificationCenter.default.addObserver(forName: .UserChange,
-                                                      object: user,
-                                                      queue: nil)
+        return NotificationCenterObserverToken(name: .UserChange, object: user)
         { [weak observer] (note) in
             guard let `observer` = observer,
                 let changeInfo = note.userInfo?["changeInfo"] as? UserChangeInfo
@@ -157,7 +155,11 @@ extension UserChangeInfo {
     
     @objc(removeUserObserver:forUser:)
     static func remove(observer: NSObjectProtocol, for user: ZMUser?) {
-        NotificationCenter.default.removeObserver(observer, name: .UserChange, object: user)
+        guard let token = (observer as? NotificationCenterObserverToken)?.token else {
+            NotificationCenter.default.removeObserver(observer, name: .UserChange, object: user)
+            return
+        }
+        NotificationCenter.default.removeObserver(token, name: .UserChange, object: user)
     }
     
     
@@ -168,9 +170,7 @@ extension UserChangeInfo {
     public static func add(searchUserObserver observer: ZMUserObserver,
                            for user: ZMSearchUser?) -> NSObjectProtocol
     {
-        return NotificationCenter.default.addObserver(forName: .SearchUserChange,
-                                                      object: user,
-                                                      queue: nil)
+        return NotificationCenterObserverToken(name: .SearchUserChange, object: user)
         { [weak observer] (note) in
             guard let `observer` = observer,
                 let changeInfo = note.userInfo?["changeInfo"] as? UserChangeInfo
@@ -184,7 +184,11 @@ extension UserChangeInfo {
     static func remove(searchUserObserver observer: NSObjectProtocol,
                               for user: ZMSearchUser?)
     {
-        NotificationCenter.default.removeObserver(observer, name: .SearchUserChange, object: user)
+        guard let token = (observer as? NotificationCenterObserverToken)?.token else {
+            NotificationCenter.default.removeObserver(observer, name: .SearchUserChange, object: user)
+            return
+        }
+        NotificationCenter.default.removeObserver(token, name: .SearchUserChange, object: user)
     }
     
     // MARK: Registering ZMBareUser
@@ -208,14 +212,14 @@ extension UserChangeInfo {
                               forBareUser user: ZMBareUser?)
     {
         if let user = user as? ZMSearchUser {
-            NotificationCenter.default.removeObserver(observer, name: .SearchUserChange, object: user)
+            UserChangeInfo.remove(searchUserObserver: observer, for: user)
         }
         else if let user = user as? ZMUser {
-            NotificationCenter.default.removeObserver(observer, name: .UserChange, object: user)
+            UserChangeInfo.remove(observer: observer, for: user)
         }
         else if user == nil {
-            NotificationCenter.default.removeObserver(observer, name: .SearchUserChange, object: nil)
-            NotificationCenter.default.removeObserver(observer, name: .UserChange, object: nil)
+            UserChangeInfo.remove(searchUserObserver: observer, for: nil)
+            UserChangeInfo.remove(observer: observer, for: nil)
         }
     }
 

@@ -50,9 +50,7 @@ extension NewUnreadMessagesChangeInfo {
     /// You must hold on to the token and use it to unregister
     @objc(addNewMessageObserver:)
     public static func add(observer: ZMNewUnreadMessagesObserver) -> NSObjectProtocol {
-        return NotificationCenter.default.addObserver(forName: .NewUnreadMessage,
-                                                      object: nil,
-                                                      queue: nil)
+        return NotificationCenterObserverToken(name: .NewUnreadMessage)
         { [weak observer] (note) in
             guard let `observer` = observer,
                 let changeInfo = note.userInfo?["changeInfo"] as? NewUnreadMessagesChangeInfo
@@ -63,7 +61,11 @@ extension NewUnreadMessagesChangeInfo {
     
     @objc(removeNewMessageObserver:)
     public static func remove(observer: NSObjectProtocol) {
-        NotificationCenter.default.removeObserver(observer, name: .NewUnreadMessage, object: nil)
+        guard let token = (observer as? NotificationCenterObserverToken)?.token else {
+            NotificationCenter.default.removeObserver(observer, name: .NewUnreadMessage, object: nil)
+            return
+        }
+        NotificationCenter.default.removeObserver(token, name: .NewUnreadMessage, object: nil)
     }
 }
 
@@ -101,9 +103,7 @@ extension NewUnreadKnockMessagesChangeInfo {
     /// You must hold on to the token and use it to unregister
     @objc(addNewKnockObserver:)
     public static func add(observer: ZMNewUnreadKnocksObserver) -> NSObjectProtocol {
-        return NotificationCenter.default.addObserver(forName: .NewUnreadKnock,
-                                                      object: nil,
-                                                      queue: nil)
+        return NotificationCenterObserverToken(name: .NewUnreadKnock)
         { [weak observer] (note) in
             guard let `observer` = observer,
                 let changeInfo = note.userInfo?["changeInfo"] as? NewUnreadKnockMessagesChangeInfo
@@ -114,7 +114,11 @@ extension NewUnreadKnockMessagesChangeInfo {
     
     @objc(removeNewKnockObserver:)
     public static func remove(observer: NSObjectProtocol) {
-        NotificationCenter.default.removeObserver(observer, name: .NewUnreadKnock, object: nil)
+        guard let token = (observer as? NotificationCenterObserverToken)?.token else {
+            NotificationCenter.default.removeObserver(observer, name: .NewUnreadKnock, object: nil)
+            return
+        }
+        NotificationCenter.default.removeObserver(token, name: .NewUnreadKnock, object: nil)
     }
 }
 
@@ -150,9 +154,7 @@ extension NewUnreadUnsentMessageChangeInfo {
     /// You must hold on to the token and use it to unregister
     @objc(addNewUnreadUnsentMessageObserver:)
     public static func add(observer: ZMNewUnreadUnsentMessageObserver) -> NSObjectProtocol {
-        return NotificationCenter.default.addObserver(forName: .NewUnreadUnsentMessage,
-                                                      object: nil,
-                                                      queue: nil)
+        return NotificationCenterObserverToken(name: .NewUnreadUnsentMessage)
         { [weak observer] (note) in
             guard let `observer` = observer,
                 let changeInfo = note.userInfo?["changeInfo"] as? NewUnreadUnsentMessageChangeInfo
@@ -163,7 +165,11 @@ extension NewUnreadUnsentMessageChangeInfo {
     
     @objc(removeNewUnreadUnsentMessageObserver:)
     public static func remove(observer: NSObjectProtocol) {
-        NotificationCenter.default.removeObserver(observer, name: .NewUnreadKnock, object: nil)
+        guard let token = (observer as? NotificationCenterObserverToken)?.token else {
+            NotificationCenter.default.removeObserver(observer, name: .NewUnreadUnsentMessage, object: nil)
+            return
+        }
+        NotificationCenter.default.removeObserver(token, name: .NewUnreadUnsentMessage, object: nil)
     }
 }
 

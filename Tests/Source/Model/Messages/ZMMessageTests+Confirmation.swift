@@ -251,12 +251,6 @@ extension ZMMessageTests_Confirmation {
         self.performIgnoringZMLogError{
             messageObserver = MessageObserver(message: sut)
         }
-        defer {
-            self.performIgnoringZMLogError{
-                convObserver.tearDown()
-                messageObserver.tearDown()
-            }
-        }
         
         // when
         let updateEvent = createMessageConfirmationUpdateEvent(sut.nonce, conversationID: conversation.remoteIdentifier!)

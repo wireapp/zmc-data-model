@@ -37,11 +37,8 @@ typedef void(^ObserverCallback)( NSObject * _Nonnull  note);
 
 @property (nonatomic, readonly, nonnull) NSMutableArray *notifications;
 @property (nonatomic, copy, nullable) ObserverCallback notificationCallback;
-@property (nonatomic) BOOL tornDown;
 @property (nonatomic, weak) ZMConversationList *conversationList;
 @property (nonatomic) id token;
-
-- (void)tearDown;
 
 - (nonnull instancetype)initWithConversationList:(nonnull ZMConversationList *)conversationList;
 
@@ -60,19 +57,6 @@ ZM_EMPTY_ASSERTING_INIT()
         self.token = [ConversationListChangeInfo addObserver:self forList:conversationList];
     }
     return self;
-}
-
-
-- (void)tearDown
-{
-    [ConversationListChangeInfo removeObserver:self.token forList:self.conversationList];
-    self.token = nil;
-    self.tornDown = YES;
-}
-
-- (void)dealloc
-{
-    NSAssert(self.tornDown, @"needs to teardown conversationList token");
 }
 
 - (void)conversationListDidChange:(ConversationListChangeInfo *)note;
@@ -260,8 +244,6 @@ ZM_EMPTY_ASSERTING_INIT()
         NSArray *expected = @[c1, c2];
         XCTAssertEqualObjects(list, expected);
     }
-    [obs tearDown];
-    
 }
 
 - (void)testThatItUpdatesWhenNewConversationsAreInserted
@@ -295,7 +277,7 @@ ZM_EMPTY_ASSERTING_INIT()
     XCTAssertEqual(list.count, 4u);
     expected = @[c1, c2, c3, c4];
     AssertArraysContainsSameObjects(list, expected);
-    [observer tearDown];
+    (void)observer;
 }
 
 - (void)testThatItUpdatesWhenNewConversationLastModifiedChangesThroughTheNotificationDispatcher
@@ -329,7 +311,7 @@ ZM_EMPTY_ASSERTING_INIT()
     XCTAssertEqual(list.count, 3u);
     expected = @[c3, c2, c1];
     XCTAssertEqualObjects(list, expected);
-    [observer tearDown];
+    (void)observer;
 }
 
 - (void)testThatItUpdatesWhenNewConnectionIsIgnored;
@@ -360,7 +342,7 @@ ZM_EMPTY_ASSERTING_INIT()
     // then
     XCTAssertEqual(list.count, 0u);
     XCTAssertEqualObjects(list, @[]);
-    [observer tearDown];
+    (void)observer;
 }
 
 - (void)testThatItUpdatesWhenNewConnectionIsCancelled;
@@ -390,7 +372,7 @@ ZM_EMPTY_ASSERTING_INIT()
     // then
     XCTAssertEqual(list.count, 0u);
     XCTAssertEqualObjects(list, @[]);
-    [observer tearDown];
+    (void)observer;
 }
 
 - (void)testThatItUpdatesWhenNewConnectionIsAccepted;
@@ -426,8 +408,8 @@ ZM_EMPTY_ASSERTING_INIT()
     XCTAssertEqualObjects(normalList, @[conversation]);
     XCTAssertEqual(pendingList.count, 0u);
     XCTAssertEqualObjects(pendingList, @[]);
-    [normalObserver tearDown];
-    [pendingObserver tearDown];
+    (void)normalObserver;
+    (void)pendingObserver;
 }
 
 - (void)testThatItUpdatesWhenNewAUserIsUnblocked;
@@ -455,7 +437,7 @@ ZM_EMPTY_ASSERTING_INIT()
     // then
     XCTAssertEqual(normalList.count, 1u);
     XCTAssertEqualObjects(normalList, @[conversation]);
-    [observer tearDown];
+    (void)observer;
 }
 
 - (void)testThatItUpdatesWhenTwoNewConnectionsAreAccepted;
@@ -501,8 +483,8 @@ ZM_EMPTY_ASSERTING_INIT()
     XCTAssertEqualObjects(normalList, conversations);
     XCTAssertEqual(pendingList.count, 0u);
     XCTAssertEqualObjects(pendingList, @[]);
-    [normalObserver tearDown];
-    [pendingObserver tearDown];
+    (void)normalObserver;
+    (void)pendingObserver;
 }
 
 
@@ -538,8 +520,8 @@ ZM_EMPTY_ASSERTING_INIT()
     XCTAssertEqualObjects(normalList, @[]);
     XCTAssertEqual(archivedList.count, 1u);
     XCTAssertEqualObjects(archivedList, @[conversation]);
-    [normalObserver tearDown];
-    [archivedObserver tearDown];
+    (void)normalObserver;
+    (void)archivedObserver;
 }
 
 - (void)testThatClearingConversationMovesItToClearedList
