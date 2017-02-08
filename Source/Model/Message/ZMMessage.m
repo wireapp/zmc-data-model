@@ -124,6 +124,7 @@ NSString * const ZMMessageCachedCategoryKey = @"cachedCategory";
 @dynamic reactions;
 @dynamic confirmations;
 @dynamic isObfuscated;
+@dynamic normalizedText;
 
 + (instancetype)createOrUpdateMessageFromUpdateEvent:(ZMUpdateEvent *)updateEvent
                               inManagedObjectContext:(NSManagedObjectContext *)moc
