@@ -96,9 +96,9 @@ public protocol TextSearchQueryDelegate: class {
 }
 
 public class TextQueryResult: NSObject {
-    var matches: [ZMMessage]
-    var hasMore: Bool
-    var query: String
+    public var matches: [ZMMessage]
+    public var hasMore: Bool
+    public var query: String
 
     init(query: String, matches: [ZMMessage], hasMore: Bool) {
         self.query = query
