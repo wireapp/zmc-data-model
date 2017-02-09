@@ -131,7 +131,7 @@ public class TextSearchQuery: NSObject {
 
     private var result: TextQueryResult?
 
-    init?(conversation: ZMConversation, query: String, delegate: TextSearchQueryDelegate) {
+    public init?(conversation: ZMConversation, query: String, delegate: TextSearchQueryDelegate) {
         guard query.characters.count > 0 else { return nil }
         guard let uiMOC = conversation.managedObjectContext, let syncMOC = uiMOC.zm_sync else {
             fatal("NSManagedObjectContexts not accessible")
@@ -152,7 +152,7 @@ public class TextSearchQuery: NSObject {
         }
     }
 
-    func cancel() {
+    public func cancel() {
         cancelled = true
     }
 
