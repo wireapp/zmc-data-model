@@ -640,7 +640,7 @@ NSString * const ZMMessageCachedCategoryKey = @"cachedCategory";
     NSSet *noncesData = [nonces mapWithBlock:^NSData*(NSUUID *uuid) {
         return uuid.data;
     }];
-    NSPredicate *noncePredicate = [NSPredicate predicateWithFormat:@"%K IN %@", noncesData];
+    NSPredicate *noncePredicate = [NSPredicate predicateWithFormat:@"%K IN %@", noncesData]; // FIXME? How can this work at all?
     return [NSCompoundPredicate andPredicateWithSubpredicates:@[conversationPredicate, noncePredicate]];
 }
 
