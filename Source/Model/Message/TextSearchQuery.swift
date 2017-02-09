@@ -144,6 +144,8 @@ public class TextSearchQuery: NSObject {
         self.delegate = delegate
     }
 
+    /// Start the search, the delegate will be called with 
+    /// results one or more times if not cancelled.
     public func execute() {
         precondition(!executed, "Trying to re-execute an already executed query")
         executed = true
@@ -152,10 +154,17 @@ public class TextSearchQuery: NSObject {
         }
     }
 
+    /// Cancel the current search query.
+    /// A new `TextSearchQuery` object has to be created to start a new search.
     public func cancel() {
         cancelled = true
     }
 
+    /// Fetches the next batch of indexed messages in a conversation and notifies
+    /// the delegate about the result.
+    /// - param callCount The number of times this method has been called recursivly, used the compute the `fetchOffset`
+    /// - param totalCount The total amount of indexed messages in the conversation
+    /// - param completion The completion handler which will be called after all indexed messages have been queried
     private func executeQueryForIndexedMessages(callCount: Int = 0, totalCount: Int, completion: @escaping () -> Void) {
         guard !self.cancelled else { return }
         guard totalCount > 0 else { return completion() }
@@ -183,18 +192,9 @@ public class TextSearchQuery: NSObject {
         }
     }
 
-    /// Returns the count of indexed messages. Needs to be called from the syncMOC's Queue.
-    private func countForIndexedMessages() -> Int {
-        guard let request = ZMMessage.sortedFetchRequest(with: ZMMessage.predicateForIndexedMessages()) else { return 0 }
-        return (try? self.syncMOC.count(for: request)) ?? 0
-    }
-
-    /// Returns the count of not indexed indexed messages. Needs to be called from the syncMOC's Queue.
-    private func countForNonIndexedMessages() -> Int {
-        guard let request = ZMMessage.sortedFetchRequest(with: predicateForNotIndexedMessages) else { return 0 }
-        return (try? self.syncMOC.count(for: request)) ?? 0
-    }
-
+    /// Fetches the next batch of not indexed messages in a conversation and updates
+    /// their `noralizedText` property. After the indexing the indexed messages
+    /// are queried for the search term and the delegate is notified.
     private func executeQueryForNonIndexedMessages() {
         guard !self.cancelled && countForNonIndexedMessages() > 0 else { return }
 
@@ -239,6 +239,18 @@ public class TextSearchQuery: NSObject {
             self.result = queryResult
             self.delegate?.textSearchQueryDidReceive(result: queryResult)
         }
+    }
+
+    /// Returns the count of indexed messages. Needs to be called from the syncMOC's Queue.
+    private func countForIndexedMessages() -> Int {
+        guard let request = ZMMessage.sortedFetchRequest(with: ZMMessage.predicateForIndexedMessages()) else { return 0 }
+        return (try? self.syncMOC.count(for: request)) ?? 0
+    }
+
+    /// Returns the count of not indexed indexed messages. Needs to be called from the syncMOC's Queue.
+    private func countForNonIndexedMessages() -> Int {
+        guard let request = ZMMessage.sortedFetchRequest(with: predicateForNotIndexedMessages) else { return 0 }
+        return (try? self.syncMOC.count(for: request)) ?? 0
     }
 
     private lazy var predicateForQueryMatch: NSPredicate = {
