@@ -76,6 +76,7 @@ NSString * const ZMMessageConfirmationKey = @"confirmations";
 NSString * const ZMMessageDestructionDateKey = @"destructionDate";
 NSString * const ZMMessageIsObfuscatedKey = @"isObfuscated";
 NSString * const ZMMessageCachedCategoryKey = @"cachedCategory";
+NSString * const ZMMessageNormalizedTextKey = @"normalizedText";
 
 
 @interface ZMMessage ()
@@ -124,6 +125,7 @@ NSString * const ZMMessageCachedCategoryKey = @"cachedCategory";
 @dynamic reactions;
 @dynamic confirmations;
 @dynamic isObfuscated;
+@dynamic normalizedText;
 
 + (instancetype)createOrUpdateMessageFromUpdateEvent:(ZMUpdateEvent *)updateEvent
                               inManagedObjectContext:(NSManagedObjectContext *)moc
@@ -639,7 +641,7 @@ NSString * const ZMMessageCachedCategoryKey = @"cachedCategory";
     NSSet *noncesData = [nonces mapWithBlock:^NSData*(NSUUID *uuid) {
         return uuid.data;
     }];
-    NSPredicate *noncePredicate = [NSPredicate predicateWithFormat:@"%K IN %@", noncesData];
+    NSPredicate *noncePredicate = [NSPredicate predicateWithFormat:@"%K IN %@", noncesData]; // FIXME? How can this work at all?
     return [NSCompoundPredicate andPredicateWithSubpredicates:@[conversationPredicate, noncePredicate]];
 }
 
@@ -691,7 +693,8 @@ NSString * const ZMMessageCachedCategoryKey = @"cachedCategory";
                              ZMMessageReactionKey,
                              ZMMessageDestructionDateKey,
                              ZMMessageIsObfuscatedKey,
-                             ZMMessageCachedCategoryKey
+                             ZMMessageCachedCategoryKey,
+                             ZMMessageNormalizedTextKey
                              ];
         ignoredKeys = [keys setByAddingObjectsFromArray:newKeys];
     });
