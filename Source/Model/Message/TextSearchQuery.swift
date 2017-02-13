@@ -32,7 +32,6 @@ extension ZMMessage {
 extension ZMClientMessage {
 
     override func updateNormalizedText() {
-        // TODO: Check transforms
         if let normalized = textMessageData?.messageText?.normalized() as? String {
             normalizedText = normalized
         } else {
