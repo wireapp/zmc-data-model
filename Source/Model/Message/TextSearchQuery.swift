@@ -32,7 +32,7 @@ extension ZMMessage {
 extension ZMClientMessage {
 
     override func updateNormalizedText() {
-        if let normalized = textMessageData?.messageText?.normalized() as? String {
+        if let normalized = textMessageData?.messageText?.normalizedForSearch() as? String {
             normalizedText = normalized
         } else {
             normalizedText = ""
@@ -153,7 +153,7 @@ public class TextSearchQuery: NSObject {
         self.syncMOC = syncMOC
         self.conversation = conversation
         self.conversationRemoteIdentifier = conversation.remoteIdentifier!
-        self.queryStrings = query.normalized().components(separatedBy: .whitespacesAndNewlines).filter { $0.characters.count > 1 }
+        self.queryStrings = query.normalizedForSearch().components(separatedBy: .whitespacesAndNewlines).filter { $0.characters.count > 1 }
         self.delegate = delegate
         self.fetchConfiguration = configuration
     }
