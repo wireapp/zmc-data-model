@@ -44,9 +44,8 @@ extension ZMClientMessage {
 
 extension ZMClientMessage {
 
-    static func predicateForMessagesMatching(_ query: String) -> NSPredicate {
-        let components = query.components(separatedBy: .whitespaces)
-        let predicates = components.map { NSPredicate(format: "%K CONTAINS[n] %@", #keyPath(ZMMessage.normalizedText), $0) }
+    static func predicateForMessagesMatching(_ queryComponents: [String]) -> NSPredicate {
+        let predicates = queryComponents.map { NSPredicate(format: "%K CONTAINS[n] %@", #keyPath(ZMMessage.normalizedText), $0) }
         return NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
     }
 
@@ -113,7 +112,7 @@ public class TextSearchQuery: NSObject {
 
     private let conversationRemoteIdentifier: UUID
     private let conversation: ZMConversation
-    private let query: String
+    private let queryStrings: [String]
 
     /// The fetch configuration specifies the fetch requests batch sizes
     private let fetchConfiguration: TextSearchQueryFetchConfiguration
@@ -127,7 +126,6 @@ public class TextSearchQuery: NSObject {
     private var executed = false
 
     private var result: TextQueryResult?
-
     private var numberOfIndexedMessages = 0
     private var numberOfNonIndexedMessages = 0
 
@@ -143,7 +141,7 @@ public class TextSearchQuery: NSObject {
         configuration: TextSearchQueryFetchConfiguration = .init(notIndexedBatchSize: 200, indexedBatchSize: 200)
         ) {
 
-        guard query.characters.count > 0 else { return nil }
+        guard query.characters.count > 1 else { return nil }
         guard let uiMOC = conversation.managedObjectContext, let syncMOC = uiMOC.zm_sync else {
             fatal("NSManagedObjectContexts not accessible.")
         }
@@ -156,7 +154,7 @@ public class TextSearchQuery: NSObject {
         self.syncMOC = syncMOC
         self.conversation = conversation
         self.conversationRemoteIdentifier = conversation.remoteIdentifier!
-        self.query = query.normalized() as String
+        self.queryStrings = query.normalized().components(separatedBy: .whitespacesAndNewlines).filter { $0.characters.count > 1 }
         self.delegate = delegate
         self.fetchConfiguration = configuration
     }
@@ -166,6 +164,10 @@ public class TextSearchQuery: NSObject {
     public func execute() {
         precondition(!executed, "Trying to re-execute an already executed query. Each query can only be executed once.")
         executed = true
+
+        if queryStrings.isEmpty {
+            return notifyDelegate(with: [], hasMore: false)
+        }
 
         syncMOC.performGroupedBlock { [weak self] in
             guard let `self` = self else { return }
@@ -284,7 +286,7 @@ public class TextSearchQuery: NSObject {
 
     /// Predicate matching messages containing the query in the conversation
     private lazy var predicateForQueryMatch: NSPredicate = {
-        return ZMClientMessage.predicateForMessagesMatching(self.query)
+        return ZMClientMessage.predicateForMessagesMatching(self.queryStrings)
             && ZMClientMessage.predicateForMessages(inConversationWith: self.conversationRemoteIdentifier)
     }()
 
