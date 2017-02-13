@@ -48,7 +48,7 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
             $0.normalizedText = nil
         }
 
-        uiMOC.saveOrRollback()
+        XCTAssert(uiMOC.saveOrRollback())
         XCTAssertNil(firstMessage.normalizedText)
         XCTAssertNil(otherMessage.normalizedText)
         XCTAssertEqual(conversation.messages.count, 41)
@@ -84,7 +84,7 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
         fillConversationWithMessages(conversation: conversation, messageCount: 40, normalized: true)
         fillConversationWithMessages(conversation: otherConversation, messageCount: 40, normalized: true)
 
-        uiMOC.saveOrRollback()
+        XCTAssert(uiMOC.saveOrRollback())
         XCTAssertNotNil(firstMessage.normalizedText)
         XCTAssertNotNil(otherMessage.normalizedText)
         XCTAssertEqual(conversation.messages.count, 41)
@@ -121,7 +121,7 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
             $0.normalizedText = nil
         }
 
-        uiMOC.saveOrRollback()
+        XCTAssert(uiMOC.saveOrRollback())
         XCTAssertNil(firstMessage.normalizedText)
         XCTAssertNil(secondMessage.normalizedText)
         XCTAssertNil(lastMessage.normalizedText)
@@ -161,7 +161,7 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
         let secondMessage = conversation.appendMessage(withText: "This is the second message in the conversation") as! ZMMessage
         secondMessage.serverTimestamp = firstMessage.serverTimestamp?.addingTimeInterval(100)
 
-        uiMOC.saveOrRollback()
+        XCTAssert(uiMOC.saveOrRollback())
         XCTAssertNotNil(firstMessage.normalizedText)
         XCTAssertNotNil(secondMessage.normalizedText)
         XCTAssertEqual(conversation.messages.count, 2)
@@ -195,7 +195,7 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
         fillConversationWithMessages(conversation: conversation, messageCount: 400, normalized: true)
         let lastMessage = conversation.appendMessage(withText: "This is the last message in the conversation") as! ZMMessage
 
-        uiMOC.saveOrRollback()
+        XCTAssert(uiMOC.saveOrRollback())
         XCTAssertNotNil(firstMessage.normalizedText)
         XCTAssertNotNil(secondMessage.normalizedText)
         XCTAssertNotNil(lastMessage.normalizedText)
@@ -234,7 +234,7 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
         fillConversationWithMessages(conversation: conversation, messageCount: 2, normalized: true)
         let lastMessage = conversation.appendMessage(withText: "This is the last message in the conversation") as! ZMMessage
 
-        uiMOC.saveOrRollback()
+        XCTAssert(uiMOC.saveOrRollback())
         XCTAssertNotNil(firstMessage.normalizedText)
         XCTAssertNotNil(secondMessage.normalizedText)
         XCTAssertNotNil(lastMessage.normalizedText)
@@ -279,7 +279,7 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
             $0.normalizedText = nil
         }
 
-        uiMOC.saveOrRollback()
+        XCTAssert(uiMOC.saveOrRollback())
         XCTAssertNil(firstMessage.normalizedText)
         XCTAssertNil(secondMessage.normalizedText)
         XCTAssertNotNil(lastMessage.normalizedText)
@@ -309,6 +309,78 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
         verifyAllMessagesAreIndexed(in: conversation)
     }
 
+    func testThatItFindsSpecialCharactersInNormalizedTextMessages() {
+        verifyThatItFindsMessage(withText: "Hello Håkon", whenSearchingFor: "hakon")
+        verifyThatItFindsMessage(withText: "Hello hakon", whenSearchingFor: "Håkon")
+        verifyThatItFindsMessage(withText: "Hello björn", whenSearchingFor: "björn")
+        verifyThatItFindsMessage(withText: "Hello björn", whenSearchingFor: "bjorn")
+        verifyThatItFindsMessage(withText: "Let's meet in Saint-Étienne", whenSearchingFor: "etienne")
+        verifyThatItFindsMessage(withText: "Let's meet in Saint-Etienne", whenSearchingFor: "ētienne")
+        verifyThatItFindsMessage(withText: "Coração", whenSearchingFor: "Coracao")
+        verifyThatItFindsMessage(withText: "Coracao", whenSearchingFor: "Coração")
+        verifyThatItFindsMessage(withText: "❤️🍕", whenSearchingFor: "❤️🍕")
+        verifyThatItFindsMessage(withText: "苹果", whenSearchingFor: "苹果")
+        verifyThatItFindsMessage(withText: "苹果", whenSearchingFor: "Ping guo")
+        verifyThatItFindsMessage(withText: "苹果", whenSearchingFor: "Ping")
+        verifyThatItFindsMessage(withText: "苹果", whenSearchingFor: "gu")
+        verifyThatItFindsMessage(withText: "Ping guo", whenSearchingFor: "苹果")
+        verifyThatItFindsMessage(withText: "सेवफलम्", whenSearchingFor: "sevaphalam")
+        verifyThatItFindsMessage(withText: "सेवफलम्", whenSearchingFor: "सेवफलम्")
+        verifyThatItFindsMessage(withText: "sevaphalam", whenSearchingFor: "सेवफलम्")
+        verifyThatItFindsMessage(withText: "μήλο", whenSearchingFor: "μήλο")
+        verifyThatItFindsMessage(withText: "μήλο", whenSearchingFor: "melo")
+        verifyThatItFindsMessage(withText: "Яблоко", whenSearchingFor: "abloko")
+        verifyThatItFindsMessage(withText: "abloko", whenSearchingFor: "Яблоко")
+        verifyThatItFindsMessage(withText: "خطای سطح دسترسی", whenSearchingFor: "khtay sth dstrsy")
+        verifyThatItFindsMessage(withText: "khtay sth dstrsy", whenSearchingFor: "خطای سطح دسترسی")
+        verifyThatItFindsMessage(withText: "תפוח", whenSearchingFor: "tpwh")
+        verifyThatItFindsMessage(withText: "tpwh", whenSearchingFor: "תפוח")
+        verifyThatItFindsMessage(withText: "ᑭᒻᒥᓇᐅᔭᖅ", whenSearchingFor: "ᑭᒻᒥᓇᐅᔭᖅ")
+        verifyThatItFindsMessage(withText: "aa aa aa", whenSearchingFor: "aa")
+        verifyThatItFindsMessage(withText: "aa.aa", whenSearchingFor: "aa")
+        verifyThatItFindsMessage(withText: "11:45", whenSearchingFor: "11:45")
+    }
+
+    func testThatItUsesANDConjunctionForSearchTerms() {
+        verifyThatItFindsMessage(withText: "This is a test message", whenSearchingFor: "this message")
+        verifyThatItFindsMessage(withText: "This is a test message", whenSearchingFor: "this conversation", shouldFind: false)
+    }
+
+    func testThatItDoesNotCreateASearchQueryWithQuerySmallerThanTwoCharacters() {
+        // Given
+        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+        conversation.remoteIdentifier = .create()
+
+        // Then
+        XCTAssertNil(TextSearchQuery(conversation: conversation, query: "", delegate: MockTextSearchQueryDelegate()))
+        XCTAssertNil(TextSearchQuery(conversation: conversation, query: "a", delegate: MockTextSearchQueryDelegate()))
+        XCTAssertNotNil(TextSearchQuery(conversation: conversation, query: "ab", delegate: MockTextSearchQueryDelegate()))
+    }
+
+    func testThatItDoesNotReturnsAnyResultsWithOnlyOneCharacterSearchTerms() {
+        // Given
+        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+        conversation.remoteIdentifier = .create()
+        _ = conversation.appendMessage(withText: "aa bb a b c dd") as! ZMMessage
+        XCTAssert(uiMOC.saveOrRollback())
+
+        let delegate = MockTextSearchQueryDelegate()
+        guard let sut = TextSearchQuery(conversation: conversation, query: "a b c d", delegate: delegate) else {
+            return XCTFail("Should have created a `TextSearchQuery`")
+        }
+
+        // When
+        sut.execute()
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+
+        // Then
+        guard delegate.fetchedResults.count == 1 else { return XCTFail("Unexpected count \(delegate.fetchedResults.count)") }
+        let result = delegate.fetchedResults.first!
+        XCTAssertFalse(result.hasMore)
+
+        XCTAssertTrue(result.matches.isEmpty, "Expected to not find a match")
+    }
+
     // MARK: Helper
 
     func fillConversationWithMessages(conversation: ZMConversation, messageCount: Int, normalized: Bool) {
@@ -325,7 +397,7 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
         uiMOC.saveOrRollback()
     }
 
-    func verifyAllMessagesAreIndexed(in conversation: ZMConversation, file: String = #file, line: UInt = #line) {
+    func verifyAllMessagesAreIndexed(in conversation: ZMConversation, file: StaticString = #file, line: UInt = #line) {
         let predicate = ZMClientMessage.predicateForNotIndexedMessages()
                      && ZMClientMessage.predicateForMessages(inConversationWith: conversation.remoteIdentifier!)
         let request = ZMClientMessage.sortedFetchRequest(with: predicate)!
@@ -334,10 +406,44 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
         if notIndexedMessageCount > 0 {
             recordFailure(
                 withDescription: "Found \(notIndexedMessageCount) messages in conversation",
-                inFile: file,
+                inFile: String(describing: file),
                 atLine: line,
                 expected: true
             )
+        }
+    }
+
+    func verifyThatItFindsMessage(
+        withText text: String,
+        whenSearchingFor query: String,
+        shouldFind: Bool = true,
+        file: StaticString = #file,
+        line: UInt = #line
+        ) {
+
+        // Given
+        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+        conversation.remoteIdentifier = .create()
+        let message = conversation.appendMessage(withText: text) as! ZMMessage
+        XCTAssert(uiMOC.saveOrRollback(), file: file, line: line)
+
+        // When
+        let delegate = MockTextSearchQueryDelegate()
+        let sut = TextSearchQuery(conversation: conversation, query: query, delegate: delegate)!
+        sut.execute()
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5), file: file, line: line)
+
+        // Then
+        guard delegate.fetchedResults.count == 1 else { return XCTFail("Unexpected count \(delegate.fetchedResults.count)", file: file, line: line) }
+        let result = delegate.fetchedResults.first!
+        XCTAssertFalse(result.hasMore, file: file, line: line)
+
+        if shouldFind {
+            guard let match = result.matches.first else { return XCTFail("No match found", file: file, line: line) }
+            XCTAssertEqual(match.textMessageData?.messageText, message.textMessageData?.messageText, file: file, line: line)
+            verifyAllMessagesAreIndexed(in: conversation, file: file, line: line)
+        } else {
+            XCTAssertTrue(result.matches.isEmpty, "Expected to not find a match", file: file, line: line)
         }
     }
 
