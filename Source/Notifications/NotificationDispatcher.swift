@@ -252,7 +252,6 @@ public class NotificationDispatcher : NSObject {
         let insertedObjects = extractObjects(for: NSInsertedObjectsKey, from: userInfo)
         let deletedObjects = extractObjects(for: NSDeletedObjectsKey, from: userInfo)
         
-        // TODO Sabine: Only do this when saving, this is an expensive operation
         let updatedAndRefreshed : Set<ZMManagedObject> = updatedObjects.union(refreshedObjects)
         let existingUsers : [ZMUser] = updatedAndRefreshed.flatMap{$0 as? ZMUser}
         let usersWithNewName : Set<ZMManagedObject> = checkForDisplayNameUpdates(updatedUsers:  Set(existingUsers),
