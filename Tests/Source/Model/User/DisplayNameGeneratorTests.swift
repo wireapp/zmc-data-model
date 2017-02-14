@@ -94,7 +94,6 @@ class DisplayNameGeneratorTests : ZMBaseManagedObjectTest {
         let user1 = ZMUser.insertNewObject(in: uiMOC)
         let user2 = ZMUser.insertNewObject(in: uiMOC)
         let user3 = ZMUser.insertNewObject(in: uiMOC)
-        let allUsers = Set([user1, user2, user3])
         
         let generator = DisplayNameGenerator(managedObjectContext: uiMOC)
         let emptyString = ""
@@ -182,4 +181,53 @@ class DisplayNameGeneratorTests : ZMBaseManagedObjectTest {
         XCTAssertEqual(givenName, "Rob")
     }
     
+}
+
+
+// MARK: Conversation based names
+
+extension DisplayNameGeneratorTests {
+    
+    func testThatItCalculatesTheDisplayNamesOnConversationBasis_Group(){
+        // given
+        let user1 = ZMUser.insertNewObject(in: uiMOC)
+        let user2 = ZMUser.insertNewObject(in: uiMOC)
+        let user3 = ZMUser.insertNewObject(in: uiMOC)
+        
+        user1.name = "Hans Schmidt"
+        user2.name = "Hans Meier"
+        user3.name = "Mutti Meier"
+        
+        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+        conversation.conversationType = .group
+        conversation.mutableOtherActiveParticipants.addObjects(from: [user1, user2, user3])
+
+        // when
+        let displayName1 = user1.displayName(in: conversation)
+        let displayName2 = user2.displayName(in: conversation)
+        let displayName3 = user3.displayName(in: conversation)
+        
+        // then
+        XCTAssertEqual(displayName1, user1.name)
+        XCTAssertEqual(displayName2, user2.name)
+        XCTAssertEqual(displayName3, "Mutti")
+    }
+    
+    func testThatItCalculatesTheDisplayNamesOnConversationBasis_OneOnOne(){
+        // given
+        let user1 = ZMUser.insertNewObject(in: uiMOC)
+        user1.name = "Hans Schmidt"
+        
+        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+        conversation.conversationType = .oneOnOne
+        conversation.connection = ZMConnection.insertNewObject(in: uiMOC)
+        conversation.connection?.to = user1
+        
+        // when
+        let displayName1 = user1.displayName(in: conversation)
+        
+        // then
+        XCTAssertEqual(displayName1, "Hans")
+    }
+
 }

@@ -232,6 +232,11 @@ static NSString *const AnnaBotHandle = @"annathebot";
     return personName.givenName ?: @"";
 }
 
+- (NSString *)displayNameInConversation:(ZMConversation *)conversation;
+{
+    return [self.managedObjectContext.nameGenerator displayNameFor:self in:conversation];
+}
+
 - (NSString *)initials
 {
     PersonName *personName = [self.managedObjectContext.nameGenerator personNameFor:self];
