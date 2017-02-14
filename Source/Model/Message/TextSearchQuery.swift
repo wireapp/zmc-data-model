@@ -52,7 +52,7 @@ extension ZMClientMessage {
     /// - parameter queryComponents: The array of the search terms to match the normalized text against.
     static func predicateForMessagesMatching(_ queryComponents: [String]) -> NSPredicate {
         guard queryComponents.count > 0 else { return NSPredicate(value: false) }
-        let predicates = queryComponents.map { NSPredicate(format: "%K CONTAINS[n] %@", #keyPath(ZMMessage.normalizedText), $0) }
+        let predicates = Set(queryComponents).map { NSPredicate(format: "%K CONTAINS[n] %@", #keyPath(ZMMessage.normalizedText), $0) }
         return NSCompoundPredicate(andPredicateWithSubpredicates: predicates)
     }
 
@@ -214,12 +214,10 @@ public class TextSearchQuery: NSObject {
         guard !cancelled else { return }
         guard indexedMessageCount > 0 else { return completion() }
 
-        let queryPredicateForIndexedMessages = ZMClientMessage.predicateForIndexedMessages() && predicateForQueryMatch
-
         syncMOC.performGroupedBlock { [weak self] in
             guard let `self` = self else { return }
 
-            let request = ZMClientMessage.descendingFetchRequest(with: queryPredicateForIndexedMessages)
+            let request = ZMClientMessage.descendingFetchRequest(with: self.predicateForIndexedMessagesQueryMatch)
             request?.fetchLimit = self.fetchConfiguration.indexedBatchSize
             request?.fetchOffset = callCount * self.fetchConfiguration.indexedBatchSize
 
@@ -303,20 +301,34 @@ public class TextSearchQuery: NSObject {
 
     /// Predicate matching messages containing the query in the conversation
     private lazy var predicateForQueryMatch: NSPredicate = {
-        return ZMClientMessage.predicateForMessagesMatching(self.queryStrings)
-            && ZMClientMessage.predicateForMessages(inConversationWith: self.conversationRemoteIdentifier)
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [
+            ZMClientMessage.predicateForMessagesMatching(self.queryStrings),
+            ZMClientMessage.predicateForMessages(inConversationWith: self.conversationRemoteIdentifier)
+        ])
+    }()
+
+    /// Predicate matching indexed messages containing the query in the conversation
+    private lazy var predicateForIndexedMessagesQueryMatch: NSPredicate = {
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [
+            self.predicateForQueryMatch,
+            ZMClientMessage.predicateForIndexedMessages(),
+        ])
     }()
 
     /// Predicate matching messages without a populated `normalizedText` field in the conversation
     private lazy var predicateForNotIndexedMessages: NSPredicate = {
-        return ZMClientMessage.predicateForNotIndexedMessages()
-            && ZMClientMessage.predicateForMessages(inConversationWith: self.conversationRemoteIdentifier)
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [
+            ZMClientMessage.predicateForNotIndexedMessages(),
+            ZMClientMessage.predicateForMessages(inConversationWith: self.conversationRemoteIdentifier)
+        ])
     }()
 
     /// Predicate matching messages with a populated `normalizedText` field in the conversation
     private lazy var predicateForIndexedMessages: NSPredicate = {
-        return ZMClientMessage.predicateForIndexedMessages()
-            && ZMClientMessage.predicateForMessages(inConversationWith: self.conversationRemoteIdentifier)
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [
+            ZMClientMessage.predicateForIndexedMessages(),
+            ZMClientMessage.predicateForMessages(inConversationWith: self.conversationRemoteIdentifier)
+        ])
     }()
-
+    
 }
