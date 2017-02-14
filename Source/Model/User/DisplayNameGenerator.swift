@@ -21,8 +21,8 @@ private var zmLog = ZMSLog(tag: "DisplayNameGenerator")
 
 public class DisplayNameGenerator : NSObject {
     private var idToPersonNameMap : [NSManagedObjectID: PersonName] = [:]
-    unowned var managedObjectContext: NSManagedObjectContext
-    let tagger =  NSLinguisticTagger(tagSchemes: [NSLinguisticTagSchemeScript], options: 0)
+    unowned private var managedObjectContext: NSManagedObjectContext
+    private let tagger =  NSLinguisticTagger(tagSchemes: [NSLinguisticTagSchemeScript], options: 0)
     
     init(managedObjectContext: NSManagedObjectContext) {
         self.managedObjectContext = managedObjectContext
@@ -54,11 +54,11 @@ public class DisplayNameGenerator : NSObject {
     
     // MARK : DisplayNames on a conversation basis
     
-    var currentDisplayNameMap : ConversationDisplayNameMap?
+    private var currentDisplayNameMap : ConversationDisplayNameMap?
     
     /// Can be used by the UI to return the displayNames for a conversation. Note that the name does not update when a user is added or removed or their name changes. It is however updated every time a different conversation is requested.
     /// Calculates a map for this conversation, as soon as another conversation's displayNames are requested, it discards the map
-    func displayName(for user: ZMUser, in conversation: ZMConversation) -> String {
+    @objc public func displayName(for user: ZMUser, in conversation: ZMConversation) -> String {
         if let map = currentDisplayNameMap, map.conversationObjectID == conversation.objectID, let name = map.map[user.objectID] {
             return name
         }
@@ -71,7 +71,7 @@ public class DisplayNameGenerator : NSObject {
         return name
     }
     
-    func displayNames(for conversation: ZMConversation) -> [NSManagedObjectID : String] {
+    private func displayNames(for conversation: ZMConversation) -> [NSManagedObjectID : String] {
         let givenNames : [String] = conversation.activeParticipants.array.flatMap{
             guard let user = $0 as? ZMUser else { return nil }
             let personName = self.personName(for: user)
