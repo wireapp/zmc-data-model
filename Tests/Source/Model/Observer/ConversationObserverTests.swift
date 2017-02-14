@@ -47,7 +47,11 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
             "connectionStateChanged",
             "isArchivedChanged",
             "isSilencedChanged",
-            "conversationListIndicatorChanged"
+            "conversationListIndicatorChanged",
+            "clearedChanged",
+            "securityLevelChanged",
+            "callParticipantsChanged",
+            "videoParticipantsChanged"
         ]
     }
     
@@ -645,6 +649,35 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
                                                      expectedChangedFields: KeySet(["securityLevelChanged", "messagesChanged"]),
                                                      expectedChangedKeys: KeySet(["securityLevel", "messages"]))
         
+    }
+    
+    func testThatItNotifiesAboutSecurityLevelChange_SendingMessageToDegradedConversation(){
+        // given
+        let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
+        conversation.securityLevel = .secureWithIgnored
+        self.uiMOC.saveOrRollback()
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        let observer = ConversationObserver()
+        let token = ConversationChangeInfo.add(observer: observer, for: conversation)
+        
+        // when
+        conversation.appendMessage(withText: "Foo")
+        self.uiMOC.saveOrRollback()
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+
+        // then
+        XCTAssertEqual(observer.notifications.count, 2)
+        
+        guard let first = observer.notifications.first, let second = observer.notifications.last else { return }
+        
+        // We get two notifications - one for messages added and another for non-core data change
+        let messagesNotification = first.messagesChanged ? first : second
+        let securityNotification = first.securityLevelChanged ? first : second
+        
+        XCTAssertTrue(messagesNotification.messagesChanged)
+        XCTAssertTrue(securityNotification.securityLevelChanged)
+
+        ConversationChangeInfo.remove(observer:token, for: conversation)
     }
     
     func testThatItStopsNotifyingAfterUnregisteringTheToken() {
