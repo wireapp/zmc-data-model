@@ -981,6 +981,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 - (void)resortMessagesWithUpdatedMessage:(ZMMessage *)message
 {
     if (message.visibleInConversation == nil) {
+        ZMLogWarn(@"Attempt to resort message not visible in conversation");
         return;
     }
     
