@@ -18,11 +18,11 @@
 
 import XCTest
 import ZMUtilities
-import ZMCDataModel
+@testable import ZMCDataModel
 import ZMCLinkPreview
 
 
-class ZMOTRMessage_SecurityDegradationTests : ZMBaseManagedObjectTest {
+class ZMOTRMessage_SecurityDegradationTests : BaseZMClientMessageTests {
     
     func testThatAtCreationAMessageIsNotCausingDegradation_UIMoc() {
         
@@ -70,6 +70,33 @@ class ZMOTRMessage_SecurityDegradationTests : ZMBaseManagedObjectTest {
             XCTAssertTrue(convo.messagesThatCausedSecurityLevelDegradation.contains(message))
             XCTAssertTrue(self.syncMOC.zm_hasChanges)
 
+        }
+    }
+    
+    func testThatItDoesNotSetDeliveryReceiptAsCausingDegradation() {
+        
+        self.syncMOC.performGroupedBlockAndWait {
+            // GIVEN
+            let convo = self.createConversation(moc: self.syncMOC)
+            let message = convo.appendMessage(withText: "fooo") as! ZMClientMessage
+            message.markAsSent()
+            convo.securityLevel = .secure
+            self.syncMOC.saveOrRollback()
+            
+            let confirmation = message.confirmReception()!
+            convo.sortedAppendMessage(confirmation)
+
+            // WHEN
+            let newClient = UserClient.insertNewObject(in: self.syncMOC)
+            convo.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [newClient], causedBy: confirmation)
+            self.syncMOC.saveOrRollback()
+            
+            // THEN
+            XCTAssertEqual(convo.securityLevel, .secureWithIgnored)
+            XCTAssertFalse(message.causedSecurityLevelDegradation)
+            XCTAssertFalse(confirmation.causedSecurityLevelDegradation)
+            XCTAssertFalse(convo.messagesThatCausedSecurityLevelDegradation.contains(confirmation))
+            XCTAssertFalse(self.syncMOC.zm_hasChanges)
         }
     }
     

@@ -178,8 +178,16 @@ extension ZMConversation {
         self.messages.enumerateObjects(options: .reverse) { (msg, idx, stop) in
             guard let message = msg as? ZMOTRMessage else { return }
             if message.deliveryState != .delivered && message.deliveryState != .sent {
-                message.expire()
-                message.causedSecurityLevelDegradation = true
+                if let clientMessage = message as? ZMClientMessage,
+                    let genericMessage = clientMessage.genericMessage,
+                    genericMessage.hasConfirmation() {
+                    // Delivery receipt: just expire it
+                    clientMessage.expire()
+                } else {
+                    // All other messages: expire and mark that it caused security degradation
+                    message.expire()
+                    message.causedSecurityLevelDegradation = true
+                }
             }
             if startingMessage == message {
                 stop.initialize(to: true)
