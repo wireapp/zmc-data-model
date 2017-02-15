@@ -980,6 +980,10 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (void)resortMessagesWithUpdatedMessage:(ZMMessage *)message
 {
+    if (message.visibleInConversation == nil) {
+        return;
+    }
+    
     [self.mutableMessages removeObject:message];
     [self sortedAppendMessage:message];
     [self updateUnreadCountIfNeededForMessage:message];
