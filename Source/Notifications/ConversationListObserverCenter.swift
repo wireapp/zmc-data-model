@@ -217,7 +217,7 @@ class ConversationListSnapshot: NSObject {
     
     func recalculateListAndNotify() {
         guard let list = self.conversationList, needsToRecalculate || conversationChanges.count > 0 else {
-            zmLog.debug("Asked to recalculate list, but nothing to do here - needs to recalculate \(needsToRecalculate), conversationChanges: \(conversationChanges.count)")
+            zmLog.debug("List \(self.conversationList?.identifier) has no changes")
             return
         }
         
