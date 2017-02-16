@@ -176,7 +176,7 @@ class ConversationListSnapshot: NSObject {
             needsToRecalculate = true
         }
         
-        zmLog.debug("Snapshot processed change, needsToRecalculate: \(needsToRecalculate)")
+        zmLog.debug("Snapshot for list \(list.identifier) processed change, needsToRecalculate: \(needsToRecalculate)")
     }
     
     private func updateDidRemoveConversation(list: ZMConversationList, changes: ConversationChangeInfo) -> Bool {
@@ -199,11 +199,11 @@ class ConversationListSnapshot: NSObject {
         if accumulated {
             list.resort()
             needsToRecalculate = true
-            zmLog.debug("List resorted")
+            zmLog.debug("List \(list.identifier) resorted")
         } else {
             let conversationsToInsert = Set(inserted.filter { list.predicateMatchesConversation($0)})
             let conversationsToRemove = Set(deleted.filter { list.contains($0)})
-            zmLog.debug("List is inserting \(conversationsToInsert.count) and deletes \(conversationsToRemove.count) conversations")
+            zmLog.debug("List \(list.identifier) is inserting \(conversationsToInsert.count) and deletes \(conversationsToRemove.count) conversations")
 
             list.insertConversations(conversationsToInsert)
             list.removeConversations(conversationsToRemove)
@@ -212,7 +212,7 @@ class ConversationListSnapshot: NSObject {
                 needsToRecalculate = true
             }
         }
-        zmLog.debug("Snapshot processed inserts and deletes, needsToRecalculate: \(needsToRecalculate)")
+        zmLog.debug("Snapshot for  list \(list.identifier) processed inserts and deletes, needsToRecalculate: \(needsToRecalculate)")
     }
     
     func recalculateListAndNotify() {
@@ -231,11 +231,11 @@ class ConversationListSnapshot: NSObject {
         let changedSet = NSOrderedSet(array: conversationChanges.flatMap{$0.conversation})
         guard let newStateUpdate = self.state.updatedState(changedSet, observedObject: list, newSet: list.toOrderedSet())
         else {
-            zmLog.debug("Recalculated list, but old state is same as new state")
+            zmLog.debug("Recalculated list \(list.identifier), but old state is same as new state")
             return
         }
 
-        zmLog.debug("Recalculated list and updated snapshot")
+        zmLog.debug("Recalculated  list \(list.identifier) and updated snapshot")
         self.state = newStateUpdate.newSnapshot
         listChange = ConversationListChangeInfo(setChangeInfo: newStateUpdate.changeInfo)
     }
@@ -255,7 +255,7 @@ class ConversationListSnapshot: NSObject {
     }
     
     func logMessage(for conversationChanges: [ConversationChangeInfo], listChanges: ConversationListChangeInfo?) -> String {
-        var message = "Posting notification with conversationChanges: \n"
+        var message = "Posting notification for list \(conversationList?.identifier) with conversationChanges: \n"
         message.append(conversationChanges.map{$0.customDebugDescription}.joined(separator: "\n"))
         
         guard let changeInfo = listChanges else { return message }
