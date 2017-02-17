@@ -180,7 +180,7 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
         // Then
         let results = search(for: "search query", in: conversation)
         XCTAssertEqual(results.count, 1)
-        XCTAssertEqual(results.first?.matches.count, 1)
+        XCTAssertEqual(results.first?.matches.count, 0)
     }
 
 
