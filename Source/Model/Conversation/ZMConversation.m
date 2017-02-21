@@ -1240,7 +1240,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 - (ZMAssetClientMessage *)appendOTRMessageWithImageData:(NSData *)imageData nonce:(NSUUID *)nonce version3:(BOOL)version3
 {
     NSError *metadataError = nil;
-    NSData *imageDataWithoutMetadata = [imageData wr_removingImageMetadataAndReturnError:&metadataError];
+    NSData *imageDataWithoutMetadata = [imageData wr_imageDataWithoutMetadataAndReturnError:&metadataError];
     
     if (metadataError != nil) {
         ZMLogError(@"Cannot remove image metadata: %@", metadataError);
