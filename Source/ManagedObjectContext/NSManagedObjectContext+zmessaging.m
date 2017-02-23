@@ -34,6 +34,7 @@
 #import <ZMUtilities/ZMUtilities-Swift.h>
 #import <ZMCDataModel/ZMCDataModel-Swift.h>
 
+static NSString * const StoreURLKey = @"ZMStoreURLKey";
 static NSString * const IsSyncContextKey = @"ZMIsSyncContext";
 static NSString * const IsSearchContextKey = @"ZMIsSearchContext";
 static NSString * const SyncContextKey = @"ZMSyncContext";
@@ -179,6 +180,7 @@ static BOOL storeIsReady = NO;
     [SharedUserInterfaceContext initialiseSessionAndSelfUser];
     
     SharedUserInterfaceContext.mergePolicy = [[ZMSyncMergePolicy alloc] initWithMergeType:NSRollbackMergePolicyType];
+    SharedUserInterfaceContext.userInfo[StoreURLKey] = storeURL;
     
     return SharedUserInterfaceContext;
 }
@@ -203,6 +205,7 @@ static BOOL storeIsReady = NO;
         [moc setupUserKeyStoreForDirectory:keyStoreURL];
         moc.undoManager = nil;
         moc.mergePolicy = [[ZMSyncMergePolicy alloc] initWithMergeType:NSMergeByPropertyObjectTrumpMergePolicyType];
+        moc.userInfo[StoreURLKey] = storeURL;
     }];
     [moc performGroupedBlock:^{
         // this will be done async, not to block the UI thread, but
@@ -225,6 +228,7 @@ static BOOL storeIsReady = NO;
         [moc setupLocalCachedSessionAndSelfUser];
         moc.undoManager = nil;
         moc.mergePolicy = [[ZMSyncMergePolicy alloc] initWithMergeType:NSRollbackMergePolicyType];
+        moc.userInfo[StoreURLKey] = storeURL;
     }];
     return moc;
 }
@@ -331,6 +335,10 @@ static BOOL storeIsReady = NO;
 - (BOOL)zm_shouldRefreshObjectsWithUIContextPolicy
 {
     return self.zm_isUserInterfaceContext && !self.zm_isRefreshOfObjectsDisabled;
+}
+
+- (NSURL *)zm_storeURL {
+    return (NSURL *)self.userInfo[StoreURLKey];
 }
 
 + (BOOL)useInMemoryStore;
