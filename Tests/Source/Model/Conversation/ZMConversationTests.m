@@ -2192,7 +2192,7 @@
     ZMConversationList *clearedList = [ZMConversationList clearedConversationsInUserSession:self.mockUserSessionWithUIMOC];
     
     // when
-    [conversation internalRemoveParticipant:selfUser sender:user0];
+    [conversation internalRemoveParticipants:[NSSet setWithObject:selfUser] sender:user0];
     
     // then
     XCTAssertTrue([activeList predicateMatchesConversation:conversation]);
