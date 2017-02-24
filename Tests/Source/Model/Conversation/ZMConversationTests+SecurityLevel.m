@@ -746,6 +746,9 @@
     ZMUpdateEvent *event = [ZMUpdateEvent eventFromEventStreamPayload:payload uuid:nil];
     __block ZMSystemMessage *result = nil;
     [self performPretendingUiMocIsSyncMoc:^{
+        [usersToAdd enumerateObjectsUsingBlock:^(ZMUser * _Nonnull obj, BOOL * _Nonnull stop __unused) {
+            [conv.mutableOtherActiveParticipants addObject:obj];
+        }];
         result = [ZMSystemMessage createOrUpdateMessageFromUpdateEvent:event
                                                 inManagedObjectContext:conv.managedObjectContext
                                                         prefetchResult:nil];
@@ -889,10 +892,8 @@
     NSSet<ZMUser *> *unverifiedUsers = [self setupUnverifiedUsers:1];
     
     // THEN
-    XCTAssertEqual(conversation.messages.count, (NSUInteger)2);
+    XCTAssertEqual(conversation.messages.count, (NSUInteger)1);
     XCTAssertTrue([conversation.messages.lastObject isKindOfClass:[ZMSystemMessage class]]);
-    XCTAssertEqual(((ZMSystemMessage *)conversation.messages.lastObject).systemMessageType, ZMSystemMessageTypeNewClient);
-    XCTAssertTrue([((ZMSystemMessage *)conversation.messages.lastObject).addedUsers isEqualToSet:unverifiedUsers]);
     
     // WHEN
     ZMSystemMessage *addingSystemMessage = [self simulateAdding:unverifiedUsers to:conversation by:verifiedUser];
@@ -920,10 +921,8 @@
     NSSet<ZMUser *> *unverifiedUsers = [self setupUnverifiedUsers:5];
     
     // THEN
-    XCTAssertEqual(conversation.messages.count, (NSUInteger)2);
+    XCTAssertEqual(conversation.messages.count, (NSUInteger)1);
     XCTAssertTrue([conversation.messages.lastObject isKindOfClass:[ZMSystemMessage class]]);
-    XCTAssertEqual(((ZMSystemMessage *)conversation.messages.lastObject).systemMessageType, ZMSystemMessageTypeNewClient);
-    XCTAssertTrue([((ZMSystemMessage *)conversation.messages.lastObject).addedUsers isEqualToSet:unverifiedUsers]);
     
     // WHEN
     ZMSystemMessage *addingSystemMessage = [self simulateAdding:unverifiedUsers to:conversation by:verifiedUser];
