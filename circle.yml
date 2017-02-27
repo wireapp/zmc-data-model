@@ -42,11 +42,7 @@ test:
     - xcodebuild -scheme ZMCDataModel test-without-building -enableCodeCoverage YES -destination platform=iOS\ Simulator,name=iPhone\ 7,OS=10.2 | xcpretty -r junit --output tests.xml:
         pwd:
           $CIRCLE_PROJECT_REPONAME
-    - slather coverage --html --input-format profdata --scheme ZMCDataModel --output-directory code_coverage --ignore ../../* ZMCDataModel.xcproj:
-        pwd:
-          $CIRCLE_PROJECT_REPONAME
   post:
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
     - mkdir -p $CIRCLE_TEST_REPORTS/code_coverage/
     - cp $CIRCLE_PROJECT_REPONAME/tests.xml $CIRCLE_TEST_REPORTS/junit/
-    - rsync -auv $CIRCLE_PROJECT_REPONAME/code-coverage/ $CIRCLE_TEST_REPORTS/code-coverage/
