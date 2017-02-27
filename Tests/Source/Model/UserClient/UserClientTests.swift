@@ -314,9 +314,9 @@ class UserClientTests: ZMBaseManagedObjectTest {
 
         self.syncMOC.performGroupedBlockAndWait {
             // then
-            XCTAssertEqual(connection?.conversation.messages.count, 1)
+            XCTAssertEqual(connection?.conversation.hiddenMessages.count, 1)
             
-            if let message = connection?.conversation.messages.lastObject as? ZMClientMessage {
+            if let message = connection?.conversation.hiddenMessages.lastObject as? ZMClientMessage {
                 XCTAssertTrue(message.genericMessage!.hasClientAction())
                 XCTAssertEqual(message.genericMessage!.clientAction, ZMClientAction.RESETSESSION)
             } else {
