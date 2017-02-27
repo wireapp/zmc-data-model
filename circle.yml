@@ -39,7 +39,7 @@ compile:
 
 test:
   override:
-    - xcodebuild -scheme ZMCDataModel test-without-building -enableCodeCoverage YES -destination platform=iOS\ Simulator,name=iPhone\ 7,OS=10.2 | xcpretty -r junit --output $CIRCLE_PROJECT_REPONAME/tests.xml:
+    - xcodebuild -scheme ZMCDataModel test-without-building -enableCodeCoverage YES -destination platform=iOS\ Simulator,name=iPhone\ 7,OS=10.2 | xcpretty -r junit --output tests.xml:
         pwd:
           $CIRCLE_PROJECT_REPONAME
   post:
