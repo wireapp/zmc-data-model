@@ -1257,7 +1257,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 - (ZMClientMessage *)appendOTRSessionResetMessage
 {
     ZMGenericMessage *genericMessage = [ZMGenericMessage sessionResetWithNonce:NSUUID.UUID.transportString];
-    ZMClientMessage *message = [self appendClientMessageWithData:genericMessage.data];
+    ZMClientMessage *message = [self appendGenericMessage:genericMessage expires:YES hidden:YES];
     message.isEncrypted = YES;
     return message;
 }
