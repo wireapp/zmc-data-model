@@ -28,11 +28,17 @@ dependencies:
   cache_directories:
     - wire-ios-scripts
 
+compile:
+  override:
+    - xcodebuild -scheme ZMCDataModel clean analyze build-for-testing -enableCodeCoverage YES -destination platform=iOS\ Simulator,name=iPhone\ 7,OS=10.2 | xcpretty:
+        pwd:
+          $CIRCLE_PROJECT_REPONAME
+
 test:
   override:
-    - ./CI/Bots/bot-build.swift --workspace "../${CIRCLE_PROJECT_REPONAME}":
+    - xcodebuild -scheme ZMCDataModel test-without-building -enableCodeCoverage YES -destination platform=iOS\ Simulator,name=iPhone\ 7,OS=10.2 | xcpretty:
         pwd:
-          wire-ios-scripts
+          $CIRCLE_PROJECT_REPONAME
   post:
     - mkdir -p $CIRCLE_TEST_REPORTS/junit/
     - mkdir -p $CIRCLE_TEST_REPORTS/code_coverage/
