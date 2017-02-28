@@ -820,7 +820,7 @@
     return result;
 }
 
-- (void)testThatItMovesExistingDeradedMessageWhenLocalParticpantsAdd
+- (void)testThatItMovesExistingDegradedMessageWhenLocalParticpantsAdd
 {
     // GIVEN
     ZMConversation *conversation = [self setupVerifiedConversation];
@@ -850,7 +850,7 @@
     XCTAssertTrue([((ZMSystemMessage *)conversation.messages.lastObject).addedUsers isEqualToSet:unverifiedUsers]);
 }
 
-- (void)testThatItMovesExistingDeradedMessageWhenLocalParticpantsAdd_Multiple
+- (void)testThatItMovesExistingDegradedMessageWhenLocalParticpantsAdd_Multiple
 {
     // GIVEN
     ZMConversation *conversation = [self setupVerifiedConversation];
@@ -880,7 +880,7 @@
     XCTAssertTrue([((ZMSystemMessage *)conversation.messages.lastObject).addedUsers isEqualToSet:unverifiedUsers]);
 }
 
-- (void)testThatItMovesExistingDeradedMessageWhenRemoteParticpantsAdd
+- (void)testThatItMovesExistingDegradedMessageWhenRemoteParticpantsAdd
 {
     // GIVEN
     ZMConversation *conversation = [self setupVerifiedConversation];
@@ -909,7 +909,7 @@
     XCTAssertTrue([((ZMSystemMessage *)conversation.messages.lastObject).addedUsers isEqualToSet:unverifiedUsers]);
 }
 
-- (void)testThatItMovesExistingDeradedMessageWhenRemoteParticpantsAdd_Multiple
+- (void)testThatItMovesExistingDegradedMessageWhenRemoteParticpantsAdd_Multiple
 {
     // GIVEN
     ZMConversation *conversation = [self setupVerifiedConversation];
@@ -971,7 +971,7 @@
     XCTAssertEqual(((ZMSystemMessage *)conversation.messages.lastObject).systemMessageType, ZMSystemMessageTypeParticipantsAdded);
 }
 
-- (void)testThatItDoesNotMoveExistingDeradedMessageWhenRemoteParticpantsAdd_OtherParticipants
+- (void)testThatItDoesNotMoveExistingDegradedMessageWhenRemoteParticpantsAdd_OtherParticipants
 {
     // GIVEN
     ZMConversation *conversation = [self setupVerifiedConversation];
