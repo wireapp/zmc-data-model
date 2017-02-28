@@ -1474,13 +1474,10 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     
     NSSet<ZMUser *>* selfUserSet = [NSSet setWithObject:[ZMUser selfUserInContext:self.managedObjectContext]];
     
-    NSMutableSet<ZMUser *>* selfUser = [participants mutableCopy];
-    [selfUser intersectSet:selfUserSet];
-    
     NSMutableSet<ZMUser *>* otherUsers = [participants mutableCopy];
     [otherUsers minusSet:selfUserSet];
     
-    if (selfUser.count != 0) {
+    if ([participants intersectsSet:selfUserSet]) {
         self.isSelfAnActiveMember = YES;
         self.needsToBeUpdatedFromBackend = YES;
     }
@@ -1505,13 +1502,10 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     
     NSSet<ZMUser *>* selfUserSet = [NSSet setWithObject:[ZMUser selfUserInContext:self.managedObjectContext]];
     
-    NSMutableSet<ZMUser *>* selfUser = [participants mutableCopy];
-    [selfUser intersectSet:selfUserSet];
-    
     NSMutableSet<ZMUser *>* otherUsers = [participants mutableCopy];
     [otherUsers minusSet:selfUserSet];
     
-    if (selfUser.count != 0) {
+    if ([participants intersectsSet:selfUserSet]) {
         self.isSelfAnActiveMember = NO;
         self.isArchived = sender.isSelfUser;
     }
