@@ -1472,12 +1472,14 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         RequireString([participant isKindOfClass:ZMUser.class], "Participant must be a ZMUser");
     }];
     
-    NSSet<ZMUser *>* selfUser = [participants filteredSetUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(ZMUser * evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings __unused) {
-        return evaluatedObject.isSelfUser;
-    }]];
-    NSSet<ZMUser *>* otherUsers = [participants filteredSetUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(ZMUser * evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings __unused) {
-        return !evaluatedObject.isSelfUser;
-    }]];
+    NSSet<ZMUser *>* selfUserSet = [NSSet setWithObject:[ZMUser selfUserInContext:self.managedObjectContext]];
+    
+    NSMutableSet<ZMUser *>* selfUser = [participants mutableCopy];
+    [selfUser intersectSet:selfUserSet];
+    
+    NSMutableSet<ZMUser *>* otherUsers = [participants mutableCopy];
+    [otherUsers minusSet:selfUserSet];
+    
     if (selfUser.count != 0) {
         self.isSelfAnActiveMember = YES;
         self.needsToBeUpdatedFromBackend = YES;
@@ -1501,12 +1503,14 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         RequireString([participant isKindOfClass:ZMUser.class], "Participant must be a ZMUser");
     }];
     
-    NSSet<ZMUser *>* selfUser = [participants filteredSetUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(ZMUser * evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings __unused) {
-        return evaluatedObject.isSelfUser;
-    }]];
-    NSSet<ZMUser *>* otherUsers = [participants filteredSetUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(ZMUser * evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings __unused) {
-        return !evaluatedObject.isSelfUser;
-    }]];
+    NSSet<ZMUser *>* selfUserSet = [NSSet setWithObject:[ZMUser selfUserInContext:self.managedObjectContext]];
+    
+    NSMutableSet<ZMUser *>* selfUser = [participants mutableCopy];
+    [selfUser intersectSet:selfUserSet];
+    
+    NSMutableSet<ZMUser *>* otherUsers = [participants mutableCopy];
+    [otherUsers minusSet:selfUserSet];
+    
     if (selfUser.count != 0) {
         self.isSelfAnActiveMember = NO;
         self.isArchived = sender.isSelfUser;
