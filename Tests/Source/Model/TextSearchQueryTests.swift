@@ -322,6 +322,65 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
         verifyThatItFindsMessage(withText: "aa aa aa", whenSearchingFor: "aa")
         verifyThatItFindsMessage(withText: "aa.aa", whenSearchingFor: "aa")
         verifyThatItFindsMessage(withText: "11:45", whenSearchingFor: "11:45")
+        verifyThatItFindsMessage(withText: "aabb", whenSearchingFor: "aabb")
+        verifyThatItFindsMessage(withText: "aabb", whenSearchingFor: "aa")
+        verifyThatItFindsMessage(withText: "aabb", whenSearchingFor: "bb")
+        verifyThatItFindsMessage(withText: "bb aa", whenSearchingFor: "aa")
+        verifyThatItFindsMessage(withText: "aa bb", whenSearchingFor: "aa bb")
+        verifyThatItFindsMessage(withText: "aa", whenSearchingFor: "bb ")
+        verifyThatItFindsMessage(withText: "aabb", whenSearchingFor: "aa\nbb")
+        verifyThatItFindsMessage(withText: "aa aa aa", whenSearchingFor: "aa")
+        verifyThatItFindsMessage(withText: "aa bb aa", whenSearchingFor: "aa")
+        verifyThatItFindsMessage(withText: "aa bb", whenSearchingFor: "aa cc")
+        verifyThatItFindsMessage(withText: "aa aa aa", whenSearchingFor: "aa aa")
+        verifyThatItFindsMessage(withText: "aabb", whenSearchingFor: "a")
+        verifyThatItFindsMessage(withText: "a aa", whenSearchingFor: "a")
+        verifyThatItFindsMessage(withText: "a aa", whenSearchingFor: "a ")
+        verifyThatItFindsMessage(withText: "aa.bb", whenSearchingFor: "bb")
+        verifyThatItFindsMessage(withText: "aa...bb", whenSearchingFor: "bb")
+        verifyThatItFindsMessage(withText: "aa.bb", whenSearchingFor: "aa")
+        verifyThatItFindsMessage(withText: "aa...bb", whenSearchingFor: "aa")
+        verifyThatItFindsMessage(withText: "aa-bb", whenSearchingFor: "aa-bb")
+        verifyThatItFindsMessage(withText: "aa-bb", whenSearchingFor: "aa bb")
+        verifyThatItFindsMessage(withText: "aa-bb", whenSearchingFor: "aa")
+        verifyThatItFindsMessage(withText: "aa/bb", whenSearchingFor: "aa")
+        verifyThatItFindsMessage(withText: "aa/bb", whenSearchingFor: "bb")
+        verifyThatItFindsMessage(withText: "aa:bb", whenSearchingFor: "aa")
+        verifyThatItFindsMessage(withText: "aa:bb", whenSearchingFor: "bb")
+        verifyThatItFindsMessage(withText: "@peter", whenSearchingFor: "peter")
+        verifyThatItFindsMessage(withText: "rené", whenSearchingFor: "Rene")
+        verifyThatItFindsMessage(withText: "https://www.link.com/something-to-read?q=12&second#reader", whenSearchingFor: "something to read")
+        verifyThatItFindsMessage(withText: "<8000 x a's>", whenSearchingFor: "<8000 x a's>")
+        verifyThatItFindsMessage(withText: "bb бб bb", whenSearchingFor: "бб")
+        verifyThatItFindsMessage(withText: "bb бб bb", whenSearchingFor: "bb")
+        verifyThatItFindsMessage(withText: "苹果", whenSearchingFor: "Ping")
+
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 
     func testThatItUsesANDConjunctionForSearchTerms() {
