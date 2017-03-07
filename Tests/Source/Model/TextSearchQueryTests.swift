@@ -577,7 +577,7 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
         XCTAssert(uiMOC.saveOrRollback(), file: file, line: line)
 
         // When
-        let results = search(for: query, in: conversation)
+        let results = search(for: query, in: conversation, file: file, line: line)
 
         // Then
         guard results.count == 1 else { return XCTFail("Unexpected count \(results.count)", file: file, line: line) }
@@ -595,7 +595,10 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
 
     fileprivate func search(for text: String, in conversation: ZMConversation, file: StaticString = #file, line: UInt = #line) -> [TextQueryResult] {
         let delegate = MockTextSearchQueryDelegate()
-        let sut = TextSearchQuery(conversation: conversation, query: text, delegate: delegate)!
+        guard let sut = TextSearchQuery(conversation: conversation, query: text, delegate: delegate) else {
+            XCTFail("Unable to create a query object, ensure the query is >= 2 characters", file: file, line: line)
+            return []
+        }
         sut.execute()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5), file: file, line: line)
         return delegate.fetchedResults
