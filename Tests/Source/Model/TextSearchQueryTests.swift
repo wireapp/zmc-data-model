@@ -327,15 +327,10 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
         verifyThatItFindsMessage(withText: "aabb", whenSearchingFor: "bb")
         verifyThatItFindsMessage(withText: "bb aa", whenSearchingFor: "aa")
         verifyThatItFindsMessage(withText: "aa bb", whenSearchingFor: "aa bb")
-        verifyThatItFindsMessage(withText: "aa", whenSearchingFor: "bb ")
         verifyThatItFindsMessage(withText: "aabb", whenSearchingFor: "aa\nbb")
         verifyThatItFindsMessage(withText: "aa aa aa", whenSearchingFor: "aa")
         verifyThatItFindsMessage(withText: "aa bb aa", whenSearchingFor: "aa")
-        verifyThatItFindsMessage(withText: "aa bb", whenSearchingFor: "aa cc")
         verifyThatItFindsMessage(withText: "aa aa aa", whenSearchingFor: "aa aa")
-        verifyThatItFindsMessage(withText: "aabb", whenSearchingFor: "a")
-        verifyThatItFindsMessage(withText: "a aa", whenSearchingFor: "a")
-        verifyThatItFindsMessage(withText: "a aa", whenSearchingFor: "a ")
         verifyThatItFindsMessage(withText: "aa.bb", whenSearchingFor: "bb")
         verifyThatItFindsMessage(withText: "aa...bb", whenSearchingFor: "bb")
         verifyThatItFindsMessage(withText: "aa.bb", whenSearchingFor: "aa")
@@ -353,33 +348,6 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
         verifyThatItFindsMessage(withText: "<8000 x a's>", whenSearchingFor: "<8000 x a's>")
         verifyThatItFindsMessage(withText: "bb бб bb", whenSearchingFor: "бб")
         verifyThatItFindsMessage(withText: "bb бб bb", whenSearchingFor: "bb")
-        verifyThatItFindsMessage(withText: "苹果", whenSearchingFor: "Ping")
-
-
-
-
-
-        
-
-
-
-
-
-
-
-        
-
-
-
-
-
-
-
-
-
-
-
-
 
     }
 
