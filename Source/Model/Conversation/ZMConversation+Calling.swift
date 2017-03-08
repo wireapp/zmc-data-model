@@ -21,7 +21,38 @@ import Foundation
 public extension ZMConversation {
     
     public func appendMissedCallMessage(fromUser user: ZMUser, at timestamp: Date) {
-        appendSystemMessage(type: .missedCall, sender: user, users: Set<ZMUser>([user]), clients: nil, timestamp: timestamp)
+        let (message, index) = appendSystemMessage(type: .missedCall, sender: user, users: [user], clients: nil, timestamp: timestamp)
+        if let previous = associatedMessage(before: message, at: index) {
+            previous.childMessages.insert(message)
+            message.visibleInConversation = nil
+            message.hiddenInConversation = self
+        }
     }
-    
+
+    public func appendPerformedCallMessage(with duration: TimeInterval, caller: ZMUser) {
+        let (message, index) = appendSystemMessage(
+            type: .performedCall,
+            sender: caller,
+            users: [caller],
+            clients: nil,
+            timestamp: Date(),
+            duration: duration
+        )
+
+        if let previous = associatedMessage(before: message, at: index) {
+            previous.childMessages.insert(message)
+            message.visibleInConversation = nil
+            message.hiddenInConversation = self
+            managedObjectContext?.enqueueDelayedSave()
+        }
+    }
+
+    private func associatedMessage(before message: ZMSystemMessage, at index: UInt) -> ZMSystemMessage? {
+        guard index > 1 else { return nil }
+        guard let previous = messages[Int(index - 1)] as? ZMSystemMessage else { return nil }
+        guard previous.systemMessageType == message.systemMessageType else { return nil }
+        guard previous.users == message.users, previous.sender == message.sender else { return nil }
+        return previous
+    }
+
 }

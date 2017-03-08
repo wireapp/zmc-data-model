@@ -80,6 +80,13 @@ extension ZMImageMessage {
     }
 }
 
+extension ZMSystemMessage {
+
+    public class override var observableKeys : Set<String> {
+        return super.observableKeys.union([#keyPath(ZMSystemMessage.childMessages)])
+    }
+
+}
 
 @objc final public class MessageChangeInfo : ObjectChangeInfo {
     
@@ -119,6 +126,10 @@ extension ZMImageMessage {
     
     public var reactionsChanged : Bool {
         return changedKeysContain(keys: #keyPath(ZMMessage.reactions)) || reactionChangeInfos.count != 0
+    }
+
+    public var childMessagesChanged : Bool {
+        return changedKeysContain(keys: #keyPath(ZMSystemMessage.childMessages))
     }
 
     /// Whether the image data on disk changed

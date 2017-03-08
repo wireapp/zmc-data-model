@@ -844,6 +844,9 @@ NSString * const ZMMessageDeliveryStateKey = @"deliveryState";
 @dynamic addedUsers;
 @dynamic removedUsers;
 @dynamic needsUpdatingUsers;
+@dynamic duration;
+@dynamic childMessages;
+@dynamic parentMessage;
 
 + (instancetype)createOrUpdateMessageFromUpdateEvent:(ZMUpdateEvent *)updateEvent
                               inManagedObjectContext:(NSManagedObjectContext *)moc
@@ -954,6 +957,7 @@ NSString * const ZMMessageDeliveryStateKey = @"deliveryState";
             case ZMSystemMessageTypeNewClient:
             case ZMSystemMessageTypePotentialGap:
             case ZMSystemMessageTypeIgnoredClient:
+            case ZMSystemMessageTypePerformedCall:
             case ZMSystemMessageTypeUsingNewDevice:
             case ZMSystemMessageTypeDecryptionFailed:
             case ZMSystemMessageTypeReactivatedDevice:
