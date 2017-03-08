@@ -78,6 +78,9 @@ NSString * const ZMMessageIsObfuscatedKey = @"isObfuscated";
 NSString * const ZMMessageCachedCategoryKey = @"cachedCategory";
 NSString * const ZMMessageNormalizedTextKey = @"normalizedText";
 NSString * const ZMMessageDeliveryStateKey = @"deliveryState";
+NSString * const ZMMessageDurationKey = @"duration";
+NSString * const ZMMessageChildMessagesKey = @"childMessages";
+NSString * const ZMMessageParentMessageKey = @"parentMessage";
 
 
 @interface ZMMessage ()
@@ -689,7 +692,10 @@ NSString * const ZMMessageDeliveryStateKey = @"deliveryState";
                              ZMMessageDestructionDateKey,
                              ZMMessageIsObfuscatedKey,
                              ZMMessageCachedCategoryKey,
-                             ZMMessageNormalizedTextKey
+                             ZMMessageNormalizedTextKey,
+                             ZMMessageDurationKey,
+                             ZMMessageChildMessagesKey,
+                             ZMMessageParentMessageKey
                              ];
         ignoredKeys = [keys setByAddingObjectsFromArray:newKeys];
     });

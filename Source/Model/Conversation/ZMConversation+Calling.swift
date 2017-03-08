@@ -57,7 +57,7 @@ public extension ZMConversation {
     }
 
     private func associatedMessage(before message: ZMSystemMessage, at index: UInt) -> ZMSystemMessage? {
-        guard index > 1 else { return nil }
+        guard index >= 1 else { return nil }
         guard let previous = messages[Int(index - 1)] as? ZMSystemMessage else { return nil }
         guard previous.systemMessageType == message.systemMessageType else { return nil }
         guard previous.users == message.users, previous.sender == message.sender else { return nil }
