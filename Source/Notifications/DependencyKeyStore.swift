@@ -99,7 +99,7 @@ class DependencyKeyStore {
             return Set([#keyPath(ZMConnection.status)])
         case UserClient.entityName():
             return UserClient.observableKeys
-        case ZMMessage.entityName(), ZMSystemMessage.entityName():
+        case ZMMessage.entityName():
             return ZMMessage.observableKeys
         case ZMAssetClientMessage.entityName():
             return ZMAssetClientMessage.observableKeys

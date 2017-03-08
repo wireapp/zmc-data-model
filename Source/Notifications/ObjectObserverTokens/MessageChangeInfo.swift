@@ -83,7 +83,9 @@ extension ZMImageMessage {
 extension ZMSystemMessage {
 
     public class override var observableKeys : Set<String> {
-        return super.observableKeys.union([#keyPath(ZMSystemMessage.childMessages)])
+        let keys = super.observableKeys
+        let additionalKeys = [#keyPath(ZMSystemMessage.childMessages)]
+        return keys.union(additionalKeys)
     }
 
 }

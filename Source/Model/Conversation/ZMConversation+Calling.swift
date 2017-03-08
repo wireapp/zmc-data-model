@@ -16,17 +16,23 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-import Foundation
 
 public extension ZMConversation {
     
     public func appendMissedCallMessage(fromUser user: ZMUser, at timestamp: Date) {
-        let (message, index) = appendSystemMessage(type: .missedCall, sender: user, users: [user], clients: nil, timestamp: timestamp)
+        let (message, index) = appendSystemMessage(
+            type: .missedCall,
+            sender: user,
+            users: [user],
+            clients: nil,
+            timestamp: timestamp
+        )
+
         if let previous = associatedMessage(before: message, at: index) {
-            previous.childMessages.insert(message)
-            message.visibleInConversation = nil
-            message.hiddenInConversation = self
+            previous.addChild(message)
         }
+
+        managedObjectContext?.enqueueDelayedSave()
     }
 
     public func appendPerformedCallMessage(with duration: TimeInterval, caller: ZMUser) {
@@ -40,11 +46,10 @@ public extension ZMConversation {
         )
 
         if let previous = associatedMessage(before: message, at: index) {
-            previous.childMessages.insert(message)
-            message.visibleInConversation = nil
-            message.hiddenInConversation = self
-            managedObjectContext?.enqueueDelayedSave()
+            previous.addChild(message)
         }
+
+        managedObjectContext?.enqueueDelayedSave()
     }
 
     private func associatedMessage(before message: ZMSystemMessage, at index: UInt) -> ZMSystemMessage? {
@@ -53,6 +58,17 @@ public extension ZMConversation {
         guard previous.systemMessageType == message.systemMessageType else { return nil }
         guard previous.users == message.users, previous.sender == message.sender else { return nil }
         return previous
+    }
+
+}
+
+
+fileprivate extension ZMSystemMessage {
+
+    func addChild(_ message: ZMSystemMessage) {
+        mutableSetValue(forKey: #keyPath(ZMSystemMessage.childMessages)).add(message)
+        message.visibleInConversation = nil
+        message.hiddenInConversation = conversation
     }
 
 }
