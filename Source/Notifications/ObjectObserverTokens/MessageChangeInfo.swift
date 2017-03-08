@@ -50,7 +50,6 @@ extension ZMAssetClientMessage {
                               #keyPath(ZMAssetClientMessage.hasDownloadedImage),
                               #keyPath(ZMAssetClientMessage.hasDownloadedFile),
                               #keyPath(ZMAssetClientMessage.progress),
-                              #keyPath(ZMAssetClientMessage.transferState),
                               #keyPath(ZMMessage.reactions)]
         return keys.union(additionalKeys)
     }
@@ -154,6 +153,10 @@ extension ZMSystemMessage {
     
     public var linkPreviewChanged: Bool {
         return changedKeysContain(keys: #keyPath(ZMClientMessage.linkPreviewState), MessageKey.linkPreview.rawValue)
+    }
+
+    public var transferStateChanged: Bool {
+        return changedKeysContain(keys: #keyPath(ZMAssetClientMessage.transferState))
     }
 
     public var senderChanged : Bool {

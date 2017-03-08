@@ -18,8 +18,9 @@
 
 
 public extension ZMConversation {
-    
-    public func appendMissedCallMessage(fromUser user: ZMUser, at timestamp: Date) {
+
+    @discardableResult
+    public func appendMissedCallMessage(fromUser user: ZMUser, at timestamp: Date) -> ZMSystemMessage {
         let (message, index) = appendSystemMessage(
             type: .missedCall,
             sender: user,
@@ -33,9 +34,11 @@ public extension ZMConversation {
         }
 
         managedObjectContext?.enqueueDelayedSave()
+        return message
     }
 
-    public func appendPerformedCallMessage(with duration: TimeInterval, caller: ZMUser) {
+    @discardableResult
+    public func appendPerformedCallMessage(with duration: TimeInterval, caller: ZMUser) -> ZMSystemMessage {
         let (message, index) = appendSystemMessage(
             type: .performedCall,
             sender: caller,
@@ -50,6 +53,7 @@ public extension ZMConversation {
         }
 
         managedObjectContext?.enqueueDelayedSave()
+        return message
     }
 
     private func associatedMessage(before message: ZMSystemMessage, at index: UInt) -> ZMSystemMessage? {
