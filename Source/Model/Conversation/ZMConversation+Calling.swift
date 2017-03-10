@@ -29,6 +29,10 @@ public extension ZMConversation {
             timestamp: timestamp
         )
 
+        if isArchived && !isSilenced {
+            isArchived = false
+        }
+
         if let previous = associatedMessage(before: message, at: index) {
             previous.addChild(message)
         }
@@ -47,6 +51,10 @@ public extension ZMConversation {
             timestamp: Date(),
             duration: duration
         )
+
+        if isArchived && !isSilenced {
+            isArchived = false
+        }
 
         if let previous = associatedMessage(before: message, at: index) {
             previous.addChild(message)
