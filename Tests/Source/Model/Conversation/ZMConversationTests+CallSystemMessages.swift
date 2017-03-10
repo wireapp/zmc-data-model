@@ -25,85 +25,100 @@ class ZMConversationCallSystemMessageTests: ZMConversationTestsBase {
     // MARK: - Missed Call
 
     func testThatItInsertAMissedCallSystemMessage() {
-        // given
-        let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        let user = createUser()!
-        let timestamp = Date()
+        syncMOC.performGroupedBlock {
+            // given
+            let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
+            let user = self.createUser(onMoc: self.syncMOC)!
+            let timestamp = Date()
 
-        // when
-        conversation.appendMissedCallMessage(fromUser: user, at: timestamp)
+            // when
+            conversation.appendMissedCallMessage(fromUser: user, at: timestamp)
 
-        // then
-        guard let message = conversation.messages.lastObject as? ZMSystemMessage else {
-            return XCTFail("No system message")
+            // then
+            guard let message = conversation.messages.lastObject as? ZMSystemMessage else {
+                return XCTFail("No system message")
+            }
+
+            XCTAssertEqual(message.sender, user)
+            XCTAssertEqual(message.users, [user])
+            XCTAssertEqual(message.serverTimestamp, timestamp)
+            XCTAssertEqual(message.systemMessageType, .missedCall)
         }
 
-        XCTAssertEqual(message.sender, user)
-        XCTAssertEqual(message.users, [user])
-        XCTAssertEqual(message.serverTimestamp, timestamp)
-        XCTAssertEqual(message.systemMessageType, .missedCall)
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
     }
 
     func testThatItUpdatesAMissedCallSystemMessageIfAnotherOneIsInsertedSubsequently() {
-        // given
-        let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        let user = createUser()!
-        let timestamp = Date()
-        let first = conversation.appendMissedCallMessage(fromUser: user, at: timestamp)
+        syncMOC.performGroupedBlock {
+            // given
+            let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
+            let user = self.createUser(onMoc: self.syncMOC)!
+            let timestamp = Date()
+            let first = conversation.appendMissedCallMessage(fromUser: user, at: timestamp)
 
-        // when
-        let second = conversation.appendMissedCallMessage(fromUser: user, at: timestamp.addingTimeInterval(100))
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
+            // when
+            let second = conversation.appendMissedCallMessage(fromUser: user, at: timestamp.addingTimeInterval(100))
 
-        // then
-        guard let message = conversation.messages.lastObject as? ZMSystemMessage else {
-            return XCTFail("No system message")
+            // then
+            guard let message = conversation.messages.lastObject as? ZMSystemMessage else {
+                return XCTFail("No system message")
+            }
+
+            XCTAssertEqual(message, first)
+            XCTAssertNil(message.hiddenInConversation)
+            XCTAssertEqual(message.visibleInConversation, conversation)
+            XCTAssertEqual(message.childMessages, [second])
+
+            XCTAssertEqual(second.users, [user])
+            XCTAssertEqual(second.parentMessage as? ZMSystemMessage, message)
+            XCTAssertEqual(second.systemMessageType, .missedCall)
+            XCTAssertNil(second.visibleInConversation)
+            XCTAssertEqual(second.hiddenInConversation, conversation)
         }
-
-        XCTAssertEqual(message, first)
-        XCTAssertNil(message.hiddenInConversation)
-        XCTAssertEqual(message.visibleInConversation, conversation)
-        XCTAssertEqual(message.childMessages, [second])
-
-        XCTAssertEqual(second.users, [user])
-        XCTAssertEqual(second.parentMessage as? ZMSystemMessage, message)
-        XCTAssertEqual(second.systemMessageType, .missedCall)
-        XCTAssertNil(second.visibleInConversation)
-        XCTAssertEqual(second.hiddenInConversation, conversation)
+        
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
     }
 
     func testThatItDoesNotUpdateAMissedCallSystemMessageIfAnotherOneIsInsertedIntermediateMessage() {
-        // given
-        let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        let user = createUser()!
-        let timestamp = Date()
-        let first = conversation.appendMissedCallMessage(fromUser: user, at: timestamp)
-        let intermediate = conversation.appendMessage(withText: "Answer the call, please!") as! ZMMessage
+        syncMOC.performGroupedBlock {
+            // given
+            let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
+            let user = self.createUser(onMoc: self.syncMOC)!
+            let timestamp = Date()
+            let first = conversation.appendMissedCallMessage(fromUser: user, at: timestamp)
+            let intermediate = conversation.appendMessage(withText: "Answer the call, please!") as! ZMMessage
 
-        // when
-        let second = conversation.appendMissedCallMessage(fromUser: user, at: timestamp.addingTimeInterval(100))
+            // when
+            let second = conversation.appendMissedCallMessage(fromUser: user, at: timestamp.addingTimeInterval(100))
 
-        // then
-        XCTAssertEqual(conversation.messages.count, 3)
-        XCTAssertEqual(conversation.messages[0] as? ZMSystemMessage , first)
-        XCTAssertEqual(conversation.messages[1] as? ZMMessage, intermediate)
-        XCTAssertEqual(conversation.messages[2] as? ZMSystemMessage, second)
+            // then
+            XCTAssertEqual(conversation.messages.count, 3)
+            XCTAssertEqual(conversation.messages[0] as? ZMSystemMessage , first)
+            XCTAssertEqual(conversation.messages[1] as? ZMMessage, intermediate)
+            XCTAssertEqual(conversation.messages[2] as? ZMSystemMessage, second)
+        }
+
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
     }
 
     func testThatItDoesNotUpdatePreviousMissedCallMessageWhenCallerIsDifferent() {
-        // given
-        let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        let firstUser = createUser()!, secondUser = createUser()!
-        let timestamp = Date()
-        let first = conversation.appendMissedCallMessage(fromUser: firstUser, at: timestamp)
+        syncMOC.performGroupedBlock {
+            // given
+            let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
+            let firstUser = self.createUser(onMoc: self.syncMOC)!, secondUser = self.createUser(onMoc: self.syncMOC)!
+            let timestamp = Date()
+            let first = conversation.appendMissedCallMessage(fromUser: firstUser, at: timestamp)
 
-        // when
-        let second = conversation.appendMissedCallMessage(fromUser: secondUser, at: timestamp.addingTimeInterval(100))
+            // when
+            let second = conversation.appendMissedCallMessage(fromUser: secondUser, at: timestamp.addingTimeInterval(100))
 
-        // then
-        XCTAssertEqual(conversation.messages.count, 2)
-        XCTAssertEqual(conversation.messages[0] as? ZMSystemMessage , first)
-        XCTAssertEqual(conversation.messages[1] as? ZMSystemMessage, second)
+            // then
+            XCTAssertEqual(conversation.messages.count, 2)
+            XCTAssertEqual(conversation.messages[0] as? ZMSystemMessage , first)
+            XCTAssertEqual(conversation.messages[1] as? ZMSystemMessage, second)
+        }
+
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
     }
 
     // MARK: - Performed Call
