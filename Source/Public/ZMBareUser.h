@@ -19,10 +19,6 @@
 
 #import <ZMUtilities/ZMAccentColor.h>
 
-@protocol ZMCommonContactsSearchDelegate;
-@protocol ZMCommonContactsSearchToken
-@end
-
 /// The minimal set of properties and methods that something User-like must include
 @protocol ZMBareUser <NSObject>
 
@@ -66,13 +62,6 @@
 
 @end
 
-
-
-@protocol ZMCommonContactsSearchDelegate
-
-- (void)didReceiveNumberOfTotalMutualConnections:(NSUInteger)numberOfConnections forSearchToken:(id<ZMCommonContactsSearchToken>)searchToken;
-
-@end
 
 
 @protocol ZMBareUserConnection <NSObject>
