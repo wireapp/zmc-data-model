@@ -70,7 +70,7 @@
 
 @protocol ZMCommonContactsSearchDelegate
 
-- (void)didReceiveCommonContactsUsers:(NSOrderedSet *)users forSearchToken:(id<ZMCommonContactsSearchToken>)searchToken;
+- (void)didReceiveNumberOfTotalMutualConnections:(NSUInteger)numberOfConnections forSearchToken:(id<ZMCommonContactsSearchToken>)searchToken;
 
 @end
 
