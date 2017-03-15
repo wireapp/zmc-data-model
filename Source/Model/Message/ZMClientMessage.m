@@ -364,7 +364,7 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
 
 - (NSString *)name
 {
-    return self.genericMessage.locationData.name;
+    return self.genericMessage.locationData.name.stringByRemovingExtremeCombiningCharacters;
 }
 
 - (int32_t)zoomLevel
@@ -379,7 +379,7 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
 
 - (NSString *)messageText
 {
-    return self.genericMessage.textData.content;
+    return self.genericMessage.textData.content.stringByRemovingExtremeCombiningCharacters;
 }
 
 - (BOOL)isEdited
@@ -391,14 +391,16 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
 {
     ZMLinkPreview *linkPreview = self.firstZMLinkPreview;
     
+    LinkPreview *result = nil;
+    
     if (linkPreview.hasTweet) {
-        return [[TwitterStatus alloc] initWithProtocolBuffer:linkPreview];
+        result = [[TwitterStatus alloc] initWithProtocolBuffer:linkPreview];
     }
     else if (linkPreview.hasArticle) {
-        return [[Article alloc] initWithProtocolBuffer:linkPreview];
+        result = [[Article alloc] initWithProtocolBuffer:linkPreview];
     }
     
-    return nil;
+    return [result linkPreviewByRemovingExcessiveDiacriticsUsage];
 }
 
 + (NSSet *)keyPathsForValuesAffectingLinkPreview
