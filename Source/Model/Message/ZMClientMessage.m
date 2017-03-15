@@ -391,16 +391,14 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
 {
     ZMLinkPreview *linkPreview = self.firstZMLinkPreview;
     
-    LinkPreview *result = nil;
-    
     if (linkPreview.hasTweet) {
-        result = [[TwitterStatus alloc] initWithProtocolBuffer:linkPreview];
+        return [[TwitterStatus alloc] initWithProtocolBuffer:linkPreview];
     }
     else if (linkPreview.hasArticle) {
-        result = [[Article alloc] initWithProtocolBuffer:linkPreview];
+        return [[Article alloc] initWithProtocolBuffer:linkPreview];
     }
     
-    return [result linkPreviewByRemovingExcessiveDiacriticsUsage];
+    return nil;
 }
 
 + (NSSet *)keyPathsForValuesAffectingLinkPreview
