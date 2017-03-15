@@ -509,12 +509,12 @@ static NSString *const AnnaBotHandle = @"annathebot";
     
     NSString *email = [transportData optionalStringForKey:@"email"];
     if (email != nil || authoritative) {
-        self.emailAddress = email;
+        self.emailAddress = email.stringByRemovingExtremeCombiningCharacters;
     }
     
     NSString *phone = [transportData optionalStringForKey:@"phone"];
     if (phone != nil || authoritative) {
-        self.phoneNumber = phone;
+        self.phoneNumber = phone.stringByRemovingExtremeCombiningCharacters;
     }
     
     NSNumber *accentId = [transportData optionalNumberForKey:@"accent_id"];
