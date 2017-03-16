@@ -18,39 +18,14 @@
 
 import Foundation
 
-let previewProfileAssetIdentifierKey = #keyPath(ZMUser.previewProfileAssetIdentifier)
-let completeProfileAssetIdentifierKey = #keyPath(ZMUser.completeProfileAssetIdentifier)
-
 extension ZMUser {
-    public var previewProfileAssetIdentifier: String? {
-        set {
-            modifyValue(newValue, forKey: previewProfileAssetIdentifierKey)
-        }
-        get {
-            return getValue(forKey: previewProfileAssetIdentifierKey)
-        }
-    }
+    @NSManaged public var previewProfileAssetIdentifier: String?
+    @NSManaged public var completeProfileAssetIdentifier: String?
     
-    public var completeProfileAssetIdentifier: String? {
-        set {
-            modifyValue(newValue, forKey: completeProfileAssetIdentifierKey)
-        }
-        get {
-            return getValue(forKey: completeProfileAssetIdentifierKey)
-        }
-    }
-    
-    fileprivate func modifyValue(_ value: Any?, forKey key: String) {
-        willChangeValue(forKey: key)
-        setPrimitiveValue(value, forKey: key)
-        didChangeValue(forKey: key)
-        setLocallyModifiedKeys([key])
-    }
-    
-    fileprivate func getValue<T>(forKey key: String) -> T? {
-        willAccessValue(forKey: key)
-        let value = primitiveValue(forKey: key) as? T
-        didAccessValue(forKey: key)
-        return value
+    public func updateAndSyncProfileAssetIdentifiers(previewIdentifier: String, completeIdentifier: String) {
+        guard isSelfUser else { return }
+        previewProfileAssetIdentifier = previewIdentifier
+        completeProfileAssetIdentifier = completeIdentifier
+        setLocallyModifiedKeys([#keyPath(ZMUser.previewProfileAssetIdentifier), #keyPath(ZMUser.completeProfileAssetIdentifier)])
     }
 }
