@@ -22,7 +22,7 @@ let previewProfileAssetIdentifierKey = #keyPath(ZMUser.previewProfileAssetIdenti
 let completeProfileAssetIdentifierKey = #keyPath(ZMUser.completeProfileAssetIdentifier)
 
 extension ZMUser {
-    public var previewProfileAssetIdentifier: String {
+    public var previewProfileAssetIdentifier: String? {
         set {
             modifyValue(newValue, forKey: previewProfileAssetIdentifierKey)
         }
@@ -31,7 +31,7 @@ extension ZMUser {
         }
     }
     
-    public var completeProfileAssetIdentifier: String {
+    public var completeProfileAssetIdentifier: String? {
         set {
             modifyValue(newValue, forKey: completeProfileAssetIdentifierKey)
         }
@@ -47,9 +47,9 @@ extension ZMUser {
         setLocallyModifiedKeys([key])
     }
     
-    fileprivate func getValue<T>(forKey key: String) -> T {
+    fileprivate func getValue<T>(forKey key: String) -> T? {
         willAccessValue(forKey: key)
-        let value = primitiveValue(forKey: key) as! T
+        let value = primitiveValue(forKey: key) as? T
         didAccessValue(forKey: key)
         return value
     }
