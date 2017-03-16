@@ -103,6 +103,7 @@
 		F16378511E5C805100898F84 /* ZMConversationSecurityLevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16378501E5C805100898F84 /* ZMConversationSecurityLevel.swift */; };
 		F18998831E7AC6D900E579A2 /* ZMUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18998821E7AC6D900E579A2 /* ZMUser.swift */; };
 		F18998861E7AEECF00E579A2 /* ZMUserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18998841E7AEEC900E579A2 /* ZMUserTests.swift */; };
+		F189988B1E7AF80500E579A2 /* store2-28-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = F189988A1E7AF80500E579A2 /* store2-28-0.wiredatabase */; };
 		F1B025621E53500400900C65 /* ZMConversationTests+PrepareToSend.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1B025601E534CF900900C65 /* ZMConversationTests+PrepareToSend.swift */; };
 		F90D99A51E02DC6B00034070 /* AssetCollectionBatched.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90D99A41E02DC6B00034070 /* AssetCollectionBatched.swift */; };
 		F90D99A81E02E22900034070 /* AssetCollectionBatchedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90D99A61E02E22400034070 /* AssetCollectionBatchedTests.swift */; };
@@ -505,6 +506,7 @@
 		F18998821E7AC6D900E579A2 /* ZMUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZMUser.swift; sourceTree = "<group>"; };
 		F18998841E7AEEC900E579A2 /* ZMUserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZMUserTests.swift; sourceTree = "<group>"; };
 		F18998871E7AF0BE00E579A2 /* ZMUserTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZMUserTests.h; sourceTree = "<group>"; };
+		F189988A1E7AF80500E579A2 /* store2-28-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; name = "store2-28-0.wiredatabase"; path = "Tests/Resources/store2-28-0.wiredatabase"; sourceTree = SOURCE_ROOT; };
 		F1B025601E534CF900900C65 /* ZMConversationTests+PrepareToSend.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZMConversationTests+PrepareToSend.swift"; sourceTree = "<group>"; };
 		F90D99A41E02DC6B00034070 /* AssetCollectionBatched.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetCollectionBatched.swift; sourceTree = "<group>"; };
 		F90D99A61E02E22400034070 /* AssetCollectionBatchedTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetCollectionBatchedTests.swift; sourceTree = "<group>"; };
@@ -1662,6 +1664,7 @@
 				BF8EDC731E53182F00DA6C40 /* store2-25-0.wiredatabase */,
 				BF8E024C1E606846003310E1 /* store2-26-0.wiredatabase */,
 				BF735CFE1E70626F003BC61F /* store2-27-0.wiredatabase */,
+				F189988A1E7AF80500E579A2 /* store2-28-0.wiredatabase */,
 				F91EAAC41D885D720010ACBE /* video.mp4 */,
 				F9A708591CAEEC0700C2F5FE /* Test-Bridging-Header.h */,
 				5495BC421E019F1B004253ED /* audio.m4a */,
@@ -1883,6 +1886,7 @@
 				F9A706FE1CAEE32A00C2F5FE /* not_animated.gif in Resources */,
 				54829DB71DE6F7BA009100D3 /* store2-21-1.wiredatabase in Resources */,
 				F9A706FC1CAEE32A00C2F5FE /* Lorem Ipsum.txt in Resources */,
+				F189988B1E7AF80500E579A2 /* store2-28-0.wiredatabase in Resources */,
 				54829DB81DE6F7BA009100D3 /* store2-21-2.wiredatabase in Resources */,
 				F9A706F81CAEE32400C2F5FE /* InfoPlist.strings in Resources */,
 				BF8EDC741E53182F00DA6C40 /* store2-25-0.wiredatabase in Resources */,
