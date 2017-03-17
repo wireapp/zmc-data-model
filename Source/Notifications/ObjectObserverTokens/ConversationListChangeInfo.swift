@@ -35,7 +35,7 @@ extension ZMConversationList {
     public var conversationList : ZMConversationList { return self.observedObject as! ZMConversationList }
     
     init(setChangeInfo: SetChangeInfo) {
-        super.init(observedObject: object,
+        super.init(observedObject: setChangeInfo.observedObject,
                    changeSet: setChangeInfo.changeSet,
                    orderedSetState: setChangeInfo.orderedSetState)
     }
