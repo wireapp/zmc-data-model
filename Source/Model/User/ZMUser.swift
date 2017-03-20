@@ -25,6 +25,24 @@ extension ZMUser {
     @NSManaged public var previewProfileAssetIdentifier: String?
     @NSManaged public var completeProfileAssetIdentifier: String?
     
+    public static var previewImageDownloadFilter: NSPredicate {
+        let assetIdExists = NSPredicate(format: "(%K != nil)", ZMUser.previewProfileAssetIdentifierKey)
+        let notCached = NSPredicate() { (user, _) -> Bool in
+            guard let user = user as? ZMUser else { return false }
+            return user.imageSmallProfileData == nil
+        }
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [assetIdExists, notCached])
+    }
+    
+    public static var completeImageDownloadFilter: NSPredicate {
+        let assetIdExists = NSPredicate(format: "(%K != nil)", ZMUser.completeProfileAssetIdentifierKey)
+        let notCached = NSPredicate() { (user, _) -> Bool in
+            guard let user = user as? ZMUser else { return false }
+            return user.imageMediumData == nil
+        }
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [assetIdExists, notCached])
+    }
+    
     public func updateAndSyncProfileAssetIdentifiers(previewIdentifier: String, completeIdentifier: String) {
         guard isSelfUser else { return }
         previewProfileAssetIdentifier = previewIdentifier
