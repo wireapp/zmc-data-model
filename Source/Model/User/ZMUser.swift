@@ -56,6 +56,36 @@ extension ZMUser {
     @NSManaged public var previewProfileAssetIdentifier: String?
     @NSManaged public var completeProfileAssetIdentifier: String?
     
+    
+    @objc(setImageData:size:)
+    public func setImage(data: Data?, size: ProfileImageSize) {
+        let key = size.userKeyPath
+        willChangeValue(forKey: key)
+        if isSelfUser {
+            setPrimitiveValue(data, forKey: key)
+            if originalProfileImageData != nil {
+                setLocallyModifiedKeys([key])
+            }
+        } else {
+            guard let imageData = data else {
+                managedObjectContext?.zm_userImageCache.removeAllUserImages(self)
+                return
+            }
+            managedObjectContext?.zm_userImageCache.setUserImage(self, imageData: imageData, size: size)
+        }
+        didChangeValue(forKey: key)
+        managedObjectContext?.saveOrRollback()
+    }
+    
+    @objc(imageDataforSize:)
+    public func imageData(for size: ProfileImageSize) -> Data? {
+        if isSelfUser {
+            return primitiveValue(forKey: size.userKeyPath) as? Data
+        } else {
+            return managedObjectContext?.zm_userImageCache.userImage(self, size: size)
+        }
+    }
+    
     public static var previewImageDownloadFilter: NSPredicate {
         let assetIdExists = NSPredicate(format: "(%K != nil)", ZMUser.previewProfileAssetIdentifierKey)
         let notCached = NSPredicate() { (user, _) -> Bool in
