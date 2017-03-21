@@ -50,6 +50,9 @@ extension ZMUser {
     static let previewProfileAssetIdentifierKey = #keyPath(ZMUser.previewProfileAssetIdentifier)
     static let completeProfileAssetIdentifierKey = #keyPath(ZMUser.completeProfileAssetIdentifier)
     
+    public static let previewAssetFetchNotification = Notification.Name(rawValue:"ZMRequestUserProfilePreviewAssetV3NotificationName")
+    public static let completeAssetFetchNotification = Notification.Name(rawValue:"ZMRequestUserProfileCompleteAssetV3NotificationName")
+
     @NSManaged public var previewProfileAssetIdentifier: String?
     @NSManaged public var completeProfileAssetIdentifier: String?
     
@@ -107,5 +110,13 @@ extension ZMUser {
                 }
             }
         }
+    }
+    
+    @objc public func requestPreviewAsset() {
+        NotificationCenter.default.post(name: ZMUser.previewAssetFetchNotification, object: objectID)
+    }
+    
+    @objc public func requestCompleteAsset() {
+        NotificationCenter.default.post(name: ZMUser.completeAssetFetchNotification, object: objectID)
     }
 }
