@@ -1189,12 +1189,12 @@ static NSString *const AnnaBotHandle = @"annathebot";
 
 + (NSPredicate *)predicateForMediumImageNeedingToBeUpdatedFromBackend;
 {
-    return [NSPredicate predicateWithFormat:@"(%K != nil)", MediumRemoteIdentifierDataKey];
+    return [NSPredicate predicateWithFormat:@"(%K != nil) && (%K == nil)", MediumRemoteIdentifierDataKey, ZMUser.completeProfileAssetIdentifierKey];
 }
 
 + (NSPredicate *)predicateForSmallImageNeedingToBeUpdatedFromBackend;
 {
-    return [NSPredicate predicateWithFormat:@"(%K != nil)", SmallProfileRemoteIdentifierDataKey];
+    return [NSPredicate predicateWithFormat:@"(%K != nil) && (%K == nil)", SmallProfileRemoteIdentifierDataKey, ZMUser.previewProfileAssetIdentifierKey];
 }
 
 + (NSPredicate *)predicateForUsersOtherThanSelf
