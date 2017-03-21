@@ -527,7 +527,7 @@ static NSString *const AnnaBotHandle = @"annathebot";
         [self updateImageWithTransportData:picture];
     }
     
-    NSArray *assets = [transportData optionalArrayForKey:@"picture"];
+    NSArray *assets = [transportData optionalArrayForKey:@"assets"];
     [self updateAssetDataWith:assets authoritative:authoritative];
     
     // We intentionally ignore the preview data.
