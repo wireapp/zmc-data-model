@@ -18,6 +18,34 @@
 
 import Foundation
 
+@objc public enum ProfileImageSize: Int {
+    case preview
+    case complete
+    
+    public var imageFormat: ZMImageFormat {
+        switch self {
+        case .preview:
+            return .medium
+        case .complete:
+            return .profile
+        }
+    }
+    
+    public static var allSizes: [ProfileImageSize] {
+        return [.preview, .complete]
+    }
+    
+    internal var userKeyPath: String {
+        switch self {
+        case .preview:
+            return #keyPath(ZMUser.imageSmallProfileData)
+        case .complete:
+            return #keyPath(ZMUser.imageMediumData)
+        }
+    }
+}
+
+
 extension ZMUser {
     static let previewProfileAssetIdentifierKey = #keyPath(ZMUser.previewProfileAssetIdentifier)
     static let completeProfileAssetIdentifierKey = #keyPath(ZMUser.completeProfileAssetIdentifier)
