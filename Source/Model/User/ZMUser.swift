@@ -65,11 +65,15 @@ extension ZMUser {
             if let size = data["size"], let key = data["key"] {
                 switch size {
                 case "preview":
-                    previewProfileAssetIdentifier = key
-                    imageSmallProfileData = nil
+                    if key != previewProfileAssetIdentifier {
+                        previewProfileAssetIdentifier = key
+                        imageSmallProfileData = nil
+                    }
                 case "complete":
-                    completeProfileAssetIdentifier = key
-                    imageMediumData = nil
+                    if key != completeProfileAssetIdentifier {
+                        completeProfileAssetIdentifier = key
+                        imageMediumData = nil
+                    }
                 default:
                     break
                 }
