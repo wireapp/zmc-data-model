@@ -19,6 +19,7 @@
 import Foundation
 @testable import ZMCDataModel
 
+// MARK: - Modified keys for profile picture upload
 extension ZMUserTests {
     func testThatSettingUserProfileAssetIdentifiersDirectlyDoesNotMarkAsModified() {
         // GIVEN
@@ -62,4 +63,85 @@ extension ZMUserTests {
         XCTAssertEqual(user.completeProfileAssetIdentifier, initialComplete)
     }
     
+}
+
+// MARK: - AssetV3 filter predicates
+extension ZMUserTests {
+    func testThatPreviewImageDownloadFilterPicksUpUser() {
+        syncMOC.performGroupedBlockAndWait {
+            // GIVEN
+            let predicate = ZMUser.previewImageDownloadFilter
+            let user = ZMUser(remoteID: UUID.create(), createIfNeeded: true, in: self.syncMOC)
+            user?.previewProfileAssetIdentifier = "some identifier"
+            user?.imageSmallProfileData = nil
+            
+            // THEN
+            XCTAssert(predicate.evaluate(with: user))
+        }
+    }
+    
+    func testThatCompleteImageDownloadFilterPicksUpUser() {
+        syncMOC.performGroupedBlockAndWait {
+            // GIVEN
+            let predicate = ZMUser.completeImageDownloadFilter
+            let user = ZMUser(remoteID: UUID.create(), createIfNeeded: true, in: self.syncMOC)
+            user?.completeProfileAssetIdentifier = "some identifier"
+            user?.imageMediumData = nil
+            
+            // THEN
+            XCTAssert(predicate.evaluate(with: user))
+        }
+    }
+    
+    func testThatPreviewImageDownloadFilterDoesNotPickUpUsersWithoutAssetId() {
+        syncMOC.performGroupedBlockAndWait {
+            // GIVEN
+            let predicate = ZMUser.previewImageDownloadFilter
+            let user = ZMUser(remoteID: UUID.create(), createIfNeeded: true, in: self.syncMOC)
+            user?.previewProfileAssetIdentifier = nil
+            user?.imageSmallProfileData = "foo".data(using: .utf8)
+            
+            // THEN
+            XCTAssertFalse(predicate.evaluate(with: user))
+        }
+    }
+    
+    func testThatCompleteImageDownloadFilterDoesNotPickUpUsersWithoutAssetId() {
+        syncMOC.performGroupedBlockAndWait {
+            // GIVEN
+            let predicate = ZMUser.completeImageDownloadFilter
+            let user = ZMUser(remoteID: UUID.create(), createIfNeeded: true, in: self.syncMOC)
+            user?.completeProfileAssetIdentifier = nil
+            user?.imageMediumData = "foo".data(using: .utf8)
+            
+            // THEN
+            XCTAssertFalse(predicate.evaluate(with: user))
+        }
+    }
+    
+    func testThatPreviewImageDownloadFilterDoesNotPickUpUsersWithCachedImages() {
+        syncMOC.performGroupedBlockAndWait {
+            // GIVEN
+            let predicate = ZMUser.completeImageDownloadFilter
+            let user = ZMUser(remoteID: UUID.create(), createIfNeeded: true, in: self.syncMOC)
+            user?.previewProfileAssetIdentifier = "1234"
+            user?.imageSmallProfileData = "foo".data(using: .utf8)
+            
+            // THEN
+            XCTAssertFalse(predicate.evaluate(with: user))
+        }
+    }
+    
+    func testThatCompleteImageDownloadFilterDoesNotPickUpUsersWithCachedImages() {
+        syncMOC.performGroupedBlockAndWait {
+            // GIVEN
+            let predicate = ZMUser.completeImageDownloadFilter
+            let user = ZMUser(remoteID: UUID.create(), createIfNeeded: true, in: self.syncMOC)
+            user?.completeProfileAssetIdentifier = "1234"
+            user?.imageMediumData = "foo".data(using: .utf8)
+            
+            // THEN
+            XCTAssertFalse(predicate.evaluate(with: user))
+        }
+    }
 }
