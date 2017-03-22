@@ -487,7 +487,7 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     user.mediumRemoteIdentifier = [NSUUID createUUID];
     NSData *imageData = [self verySmallJPEGData];
     user.imageMediumData = imageData;
-    XCTAssertEqual(user.imageMediumData, imageData);
+    XCTAssertEqualObjects(user.imageMediumData, imageData);
     
     [self.syncMOC performGroupedBlockAndWait:^{
         [self.syncMOC saveOrRollback];
