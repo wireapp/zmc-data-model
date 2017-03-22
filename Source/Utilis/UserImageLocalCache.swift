@@ -117,7 +117,7 @@ extension NSManagedObjectContext
         super.init()
     }
     
-    /// Stores image in cache and removes legacy copy if it was there, returns true is the data was stored
+    /// Stores image in cache and removes legacy copy if it was there, returns true if the data was stored
     private func setImage(inCache cache: PINCache, legacyCacheKey: String?, cacheKey: String?, data: Data) -> Bool {
         let resolvedCacheKey: String?
         if let cacheKey = cacheKey {
