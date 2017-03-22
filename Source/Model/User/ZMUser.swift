@@ -113,7 +113,7 @@ extension ZMUser {
     
     @objc public func updateAssetData(with assets: NSArray?, authoritative: Bool) {
         guard !hasLocalModifications(forKeys: [ZMUser.previewProfileAssetIdentifierKey, ZMUser.completeProfileAssetIdentifierKey]) else { return }
-        guard let assets = assets as? [[String : String]] else {
+        guard let assets = assets as? [[String : String]], !assets.isEmpty else {
             if authoritative {
                 previewProfileAssetIdentifier = nil
                 imageSmallProfileData = nil
