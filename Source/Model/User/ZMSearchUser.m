@@ -107,11 +107,11 @@ NSString *const ZMSearchUserTotalMutualFriendsKey = @"total_mutual_friends";
 }
 
 - (NSString *)smallProfileImageCacheKey {
-    return @"";
+    return @""; // TODO: add v3 profile image support for search users
 }
 
 - (NSString *)mediumProfileImageCacheKey {
-    return @"";
+    return @""; // TODO: add v3 profile image support for search users
 }
 
 - (instancetype)initWithName:(NSString *)name
