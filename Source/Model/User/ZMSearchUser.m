@@ -106,6 +106,14 @@ NSString *const ZMSearchUserTotalMutualFriendsKey = @"total_mutual_friends";
     return self;
 }
 
+- (NSString *)smallProfileImageCacheKey {
+    return @"";
+}
+
+- (NSString *)mediumProfileImageCacheKey {
+    return @"";
+}
+
 - (instancetype)initWithName:(NSString *)name
                       handle:(NSString *)handle
                  accentColor:(ZMAccentColor)color
