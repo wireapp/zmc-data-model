@@ -37,8 +37,8 @@ class UserImageLocalCacheTests : BaseZMMessageTests {
     
     func testThatItHasNilDataWhenNotSet() {
         
-        XCTAssertNil(sut.largeUserImage(testUser))
-        XCTAssertNil(sut.smallUserImage(testUser))
+        XCTAssertNil(sut.userImage(testUser, size: .preview))
+        XCTAssertNil(sut.userImage(testUser, size: .complete))
     }
     
     func testThatItSetsSmallAndLargeUserImage() {
@@ -48,13 +48,13 @@ class UserImageLocalCacheTests : BaseZMMessageTests {
         let smallData = "SMALL".data(using: String.Encoding.utf8)!
         
         // when
-        sut.setLargeUserImage(testUser, imageData: largeData)
-        sut.setSmallUserImage(testUser, imageData: smallData)
+        sut.setUserImage(testUser, imageData: largeData, size: .complete)
+        sut.setUserImage(testUser, imageData: smallData, size: .preview)
 
         
         // then
-        XCTAssertEqual(sut.largeUserImage(testUser), largeData)
-        XCTAssertEqual(sut.smallUserImage(testUser), smallData)
+        XCTAssertEqual(sut.userImage(testUser, size: .complete), largeData)
+        XCTAssertEqual(sut.userImage(testUser, size: .preview), smallData)
 
     }
     
@@ -65,14 +65,15 @@ class UserImageLocalCacheTests : BaseZMMessageTests {
         let smallData = "SMALL".data(using: String.Encoding.utf8)!
         
         // when
-        sut.setLargeUserImage(testUser, imageData: largeData)
-        sut.setSmallUserImage(testUser, imageData: smallData)
+        sut.setUserImage(testUser, imageData: largeData, size: .complete)
+        sut.setUserImage(testUser, imageData: smallData, size: .preview)
         sut = UserImageLocalCache()
         
         // then
-        XCTAssertEqual(sut.largeUserImage(testUser), largeData)
-        XCTAssertEqual(sut.smallUserImage(testUser), smallData)
-        
+        XCTAssertEqual(sut.userImage(testUser, size: .complete), largeData)
+        XCTAssertEqual(sut.userImage(testUser, size: .preview), smallData)
+
+    
     }
     
 }
