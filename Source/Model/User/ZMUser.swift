@@ -60,12 +60,14 @@ extension ZMUser {
     @objc(setImageData:size:)
     public func setImage(data: Data?, size: ProfileImageSize) {
         let key = size.userKeyPath
-        willChangeValue(forKey: key)
         if isSelfUser {
+            willChangeValue(forKey: key)
             setPrimitiveValue(data, forKey: key)
+            didChangeValue(forKey: key)
             if originalProfileImageData != nil {
                 setLocallyModifiedKeys([key])
             }
+            managedObjectContext?.saveOrRollback()
         } else {
             guard let imageData = data else {
                 managedObjectContext?.zm_userImageCache.removeAllUserImages(self)
@@ -73,14 +75,15 @@ extension ZMUser {
             }
             managedObjectContext?.zm_userImageCache.setUserImage(self, imageData: imageData, size: size)
         }
-        didChangeValue(forKey: key)
-        managedObjectContext?.saveOrRollback()
     }
     
     @objc(imageDataforSize:)
     public func imageData(for size: ProfileImageSize) -> Data? {
         if isSelfUser {
-            return primitiveValue(forKey: size.userKeyPath) as? Data
+            willAccessValue(forKey: size.userKeyPath)
+            let value = primitiveValue(forKey: size.userKeyPath) as? Data
+            didAccessValue(forKey: size.userKeyPath)
+            return value
         } else {
             return managedObjectContext?.zm_userImageCache.userImage(self, size: size)
         }
