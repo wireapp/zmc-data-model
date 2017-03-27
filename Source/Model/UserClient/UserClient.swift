@@ -435,6 +435,11 @@ public extension UserClient {
             }
         }
         
+        // Because of caching within the `perform` block, it commits to disk only at the end of a block. 
+        // I don't think the cache is smart enough to perform the sum of operations (delete + recreate)
+        // if at the end of the block the session is still there. Just to be safe, I split the operations
+        // in two separate `perform` blocks.
+        
         keysStore.encryptionContext.perform { (sessionsDirectory) in
             do {
                 try sessionsDirectory.createClientSession(sessionIdentifier, base64PreKeyString: preKey)
