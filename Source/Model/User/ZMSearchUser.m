@@ -40,7 +40,7 @@ NSString *const ZMSearchUserTotalMutualFriendsKey = @"total_mutual_friends";
 {
     NSData *_imageSmallProfileData;
     NSString *_imageSmallProfileIdentifier;
-    
+
     NSData *_imageMediumData;
 }
 
@@ -104,14 +104,6 @@ NSString *const ZMSearchUserTotalMutualFriendsKey = @"total_mutual_friends";
     }
 
     return self;
-}
-
-- (NSString *)smallProfileImageCacheKey {
-    return @"";
-}
-
-- (NSString *)mediumProfileImageCacheKey {
-    return @"";
 }
 
 - (instancetype)initWithName:(NSString *)name
@@ -498,6 +490,14 @@ NSString *const ZMSearchUserTotalMutualFriendsKey = @"total_mutual_friends";
         return self.remoteIdentifier.transportString;
     }
     return nil;
+}
+
+- (NSString *)smallProfileImageCacheKey {
+    return self.imageSmallProfileIdentifier;
+}
+
+- (NSString *)mediumProfileImageCacheKey {
+    return self.imageMediumIdentifier;
 }
 
 
