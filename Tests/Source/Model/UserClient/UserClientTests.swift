@@ -230,6 +230,7 @@ class UserClientTests: ZMBaseManagedObjectTest {
 
             // when
             otherClient2.deleteClientAndEndSession()
+            self.syncMOC.saveOrRollback()
             
             // then
             XCTAssertTrue(otherClient2.isZombieObject)

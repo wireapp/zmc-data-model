@@ -164,6 +164,8 @@ public class UserClient: ZMManagedObject, UserClientType {
         if let sessionIdentifier = self.sessionIdentifier {
             UserClient.deleteSession(for: sessionIdentifier, managedObjectContext: managedObjectContext!)
         }
+        // reset the relationship
+        self.user = nil
         // delete the object
         managedObjectContext?.delete(self)
         
