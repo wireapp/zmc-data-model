@@ -429,11 +429,13 @@ public extension UserClient {
         keysStore.encryptionContext.perform { (sessionsDirectory) in
             
             // Session is already established?
-            guard !sessionsDirectory.hasSession(for: sessionIdentifier) else {
-                zmLog.debug("Session with \(sessionIdentifier) is already established")
-                return
+            if sessionsDirectory.hasSession(for: sessionIdentifier) {
+                zmLog.debug("Session with \(sessionIdentifier) was already established, re-creating")
+                sessionsDirectory.delete(sessionIdentifier)
             }
-            
+        }
+        
+        keysStore.encryptionContext.perform { (sessionsDirectory) in
             do {
                 try sessionsDirectory.createClientSession(sessionIdentifier, base64PreKeyString: preKey)
                 client.fingerprint = sessionsDirectory.fingerprint(for: sessionIdentifier)
