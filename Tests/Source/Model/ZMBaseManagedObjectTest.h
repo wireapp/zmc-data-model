@@ -87,8 +87,8 @@
 - (nonnull UserClient *)createClientForUser:(nonnull ZMUser *)user createSessionWithSelfUser:(BOOL)createSessionWithSeflUser;
 - (nonnull UserClient *)createClientForUser:(nonnull ZMUser *)user createSessionWithSelfUser:(BOOL)createSessionWithSeflUser onMOC:(nonnull NSManagedObjectContext *)moc;
 
-- (nonnull ZMClientMessage *)createClientTextMessage:(BOOL)encrypted;
-- (nonnull ZMClientMessage *)createClientTextMessage:(nonnull NSString *)text encrypted:(BOOL)encrypted;
+- (nonnull ZMClientMessage *)createClientTextMessage;
+- (nonnull ZMClientMessage *)createClientTextMessage:(nonnull NSString *)text;
 - (nonnull ZMAssetClientMessage *)createImageMessageWithImageData:(nonnull NSData *)imageData
                                                    format:(ZMImageFormat)format
                                                 processed:(BOOL)processed

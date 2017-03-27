@@ -776,34 +776,32 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 
 - (instancetype)updateMessageWithImageData:(NSData *)imageData forFormat:(ZMImageFormat)format
 {
-    [self.managedObjectContext.zm_imageAssetCache storeAssetData:self.nonce format:format encrypted:self.isEncrypted data:imageData];
+    [self.managedObjectContext.zm_imageAssetCache storeAssetData:self.nonce format:format encrypted:true data:imageData];
     
-    if (self.isEncrypted) {
-        NSData *otrKey = nil;
-        NSData *sha256 = nil;
-        
-        if (self.fileMessageData != nil) {
-            ZMAssetRemoteData *remote = self.genericAssetMessage.assetData.preview.remote;
-            otrKey = remote.otrKey;
-            sha256 = remote.sha256;
-        } else if (self.imageMessageData != nil) {
-            ZMImageAsset *imageAsset = [self genericMessageForFormat:format].imageAssetData;
-            otrKey = imageAsset.otrKey;
-            sha256 = imageAsset.sha256;
-        }
-        
-        BOOL decrypted = NO;
-        if (nil != otrKey && nil != sha256) {
-            decrypted = [self.managedObjectContext.zm_imageAssetCache decryptFileIfItMatchesDigest:self.nonce
-                                                                                                 format:format
-                                                                                          encryptionKey:otrKey
-                                                                                           sha256Digest:sha256];
-        }
-        
-        if (!decrypted && self.imageMessageData != nil) {
-            [self.managedObjectContext deleteObject:self];
-            return nil;
-        }
+    NSData *otrKey = nil;
+    NSData *sha256 = nil;
+    
+    if (self.fileMessageData != nil) {
+        ZMAssetRemoteData *remote = self.genericAssetMessage.assetData.preview.remote;
+        otrKey = remote.otrKey;
+        sha256 = remote.sha256;
+    } else if (self.imageMessageData != nil) {
+        ZMImageAsset *imageAsset = [self genericMessageForFormat:format].imageAssetData;
+        otrKey = imageAsset.otrKey;
+        sha256 = imageAsset.sha256;
+    }
+    
+    BOOL decrypted = NO;
+    if (nil != otrKey && nil != sha256) {
+        decrypted = [self.managedObjectContext.zm_imageAssetCache decryptFileIfItMatchesDigest:self.nonce
+                                                                                             format:format
+                                                                                      encryptionKey:otrKey
+                                                                                       sha256Digest:sha256];
+    }
+    
+    if (!decrypted && self.imageMessageData != nil) {
+        [self.managedObjectContext deleteObject:self];
+        return nil;
     }
     
     return self;

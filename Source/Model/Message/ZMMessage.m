@@ -41,7 +41,6 @@
 static NSTimeInterval ZMDefaultMessageExpirationTime = 30;
 
 NSString * const ZMMessageEventIDDataKey = @"eventID_data";
-NSString * const ZMMessageIsEncryptedKey = @"isEncrypted";
 NSString * const ZMMessageIsPlainTextKey = @"isPlainText";
 NSString * const ZMMessageIsExpiredKey = @"isExpired";
 NSString * const ZMMessageMissingRecipientsKey = @"missingRecipients";
@@ -678,7 +677,6 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
                              ZMMessageEventIDDataKey,
                              ZMMessageUsersKey,
                              ZMMessageClientsKey,
-                             ZMMessageIsEncryptedKey,
                              ZMMessageIsPlainTextKey,
                              ZMMessageHiddenInConversationKey,
                              ZMMessageMissingRecipientsKey,
@@ -753,7 +751,6 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
     }
     
     message.isPlainText = YES;
-    message.isEncrypted = NO;
     message.nonce = nonce;
     [message updateWithUpdateEvent:updateEvent forConversation:conversation isUpdatingExistingMessage:NO];
     message.text = text;
@@ -914,7 +911,6 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
         message.text = name.stringByRemovingExtremeCombiningCharacters;
     }
 
-    message.isEncrypted = NO;
     message.isPlainText = YES;
     
     if (type == ZMSystemMessageTypeParticipantsAdded || type == ZMSystemMessageTypeParticipantsRemoved) {

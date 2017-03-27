@@ -254,7 +254,6 @@ class AssetColletionBatchedTests : ModelObjectsTests {
         // given
         let data = self.data(forResource: "animated", extension: "gif")!
         let message = ZMAssetClientMessage(originalImageData: data, nonce: .create(), managedObjectContext: uiMOC, expiresAfter: 0)
-        message.isEncrypted = true
         let testProperties = ZMIImageProperties(size: CGSize(width: 33, height: 55), length: UInt(10), mimeType: "image/gif")
         message.imageAssetStorage!.setImageData(data, for: .medium, properties: testProperties)
         conversation.mutableMessages.add(message)
@@ -280,7 +279,6 @@ class AssetColletionBatchedTests : ModelObjectsTests {
         // given
         let data = self.data(forResource: "animated", extension: "gif")!
         let message = ZMAssetClientMessage(originalImageData: data, nonce: .create(), managedObjectContext: uiMOC, expiresAfter: 0)
-        message.isEncrypted = true
         let testProperties = ZMIImageProperties(size: CGSize(width: 33, height: 55), length: UInt(10), mimeType: "image/gif")
         message.imageAssetStorage!.setImageData(data, for: .medium, properties: testProperties)
         conversation.mutableMessages.add(message)
@@ -328,7 +326,6 @@ class AssetColletionBatchedTests : ModelObjectsTests {
         insertAssetMessages(count: 1)
         let data = self.data(forResource: "animated", extension: "gif")!
         let message = ZMAssetClientMessage(originalImageData: data, nonce: .create(), managedObjectContext: uiMOC, expiresAfter: 0)
-        message.isEncrypted = true
         let testProperties = ZMIImageProperties(size: CGSize(width: 33, height: 55), length: UInt(10), mimeType: "image/gif")
         message.imageAssetStorage!.setImageData(data, for: .medium, properties: testProperties)
         conversation.mutableMessages.add(message)

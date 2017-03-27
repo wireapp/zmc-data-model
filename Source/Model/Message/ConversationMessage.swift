@@ -31,10 +31,6 @@ public enum ZMDeliveryState : UInt {
 @objc
 public protocol ZMConversationMessage : NSObjectProtocol {
     
-    /// Whether the message was received in its encrypted form.
-    /// In the transition period, a message can be both encrypted and plaintext.
-    var isEncrypted: Bool { get }
-    
     /// Whether the message was received in its plain-text form.
     /// In the transition period, a message can be both encrypted and plaintext.
     var isPlainText: Bool { get }
@@ -141,7 +137,6 @@ extension ZMMessage : ZMConversationMessage {
 
 extension ZMMessage {
     
-    @NSManaged public var isEncrypted : Bool
     @NSManaged public var isPlainText : Bool
     @NSManaged public var sender : ZMUser?
     @NSManaged public var serverTimestamp : Date?

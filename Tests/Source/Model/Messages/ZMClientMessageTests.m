@@ -106,7 +106,7 @@
 - (void)testThatItStoresClientAsMissing
 {
     UserClient *client = [self createSelfClient];
-    ZMClientMessage *message = [self createClientTextMessage:self.name encrypted:YES];
+    ZMClientMessage *message = [self createClientTextMessage:self.name];
     [message missesRecipient:client];
     
     XCTAssertEqualObjects(message.missingRecipients, [NSSet setWithObject:client]);
@@ -115,7 +115,7 @@
 - (void)testThatItRemovesMissingClient
 {
     UserClient *client = [self createSelfClient];
-    ZMClientMessage *message = [self createClientTextMessage:self.name encrypted:YES];
+    ZMClientMessage *message = [self createClientTextMessage:self.name];
     [message missesRecipient:client];
     
     XCTAssertEqualObjects(message.missingRecipients, [NSSet setWithObject:client]);
@@ -128,7 +128,7 @@
 
 - (void)testThatClientMessageIsMarkedAsDelivered
 {
-    ZMClientMessage *message = [self createClientTextMessage:self.name encrypted:YES];
+    ZMClientMessage *message = [self createClientTextMessage:self.name];
     [message setExpirationDate];
     
     [message markAsSent];
@@ -138,7 +138,7 @@
 
 - (void)testThatResendingClientMessageResetsExpirationDate
 {
-    ZMClientMessage *message = [self createClientTextMessage:self.name encrypted:YES];
+    ZMClientMessage *message = [self createClientTextMessage:self.name];
     
     [message resend];
     XCTAssertNotNil(message.expirationDate);
@@ -162,7 +162,7 @@
 - (void)assertThatItSetsLocallyModifiedKeysWhenLinkPreviewStateIsSet:(ZMLinkPreviewState)state shouldSet:(BOOL)shouldSet
 {
     // given
-    ZMClientMessage *message = [self createClientTextMessage:self.name encrypted:YES];
+    ZMClientMessage *message = [self createClientTextMessage:self.name];
     XCTAssertFalse([message.keysThatHaveLocalModifications containsObject:ZMClientMessageLinkPreviewStateKey]);
     
     // when
@@ -227,7 +227,6 @@
     XCTAssertEqualObjects(sut.sender.remoteIdentifier.transportString, payload[@"from"]);
     XCTAssertEqualObjects(sut.serverTimestamp.transportString, payload[@"time"]);
     
-    XCTAssertFalse(sut.isEncrypted);
     XCTAssertTrue(sut.isPlainText);
     XCTAssertEqualObjects(sut.nonce, nonce);
     AssertEqualData(sut.genericMessage.data, contentData);
@@ -263,7 +262,6 @@
     XCTAssertEqualObjects(sut.serverTimestamp.transportString, payload[@"time"]);
     XCTAssertEqualObjects(sut.senderClientID, senderClientID);
     
-    XCTAssertTrue(sut.isEncrypted);
     XCTAssertFalse(sut.isPlainText);
     XCTAssertEqualObjects(sut.nonce, nonce);
     AssertEqualData(sut.genericMessage.data, contentData);
@@ -519,66 +517,6 @@
     // then
     XCTAssertNil(sut);
     XCTAssertEqualObjects(existingMessage.textMessageData.messageText, initialText);
-}
-
-- (void)testThatItUpdates_IsEncrypted_OnAnAlreadyExistingAssetMessageWithTheSameNonceWhenReceivingAnOTRAssetMessage
-{
-    // given
-    NSUUID *nonce = [NSUUID createUUID];
-    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    conversation.remoteIdentifier = [NSUUID createUUID];
-    
-    ZMImageMessage *existingMessage = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
-    existingMessage.nonce = nonce;
-    existingMessage.visibleInConversation = conversation;
-    XCTAssertFalse(existingMessage.isEncrypted);
-    
-    ZMGenericMessage *message = [ZMGenericMessage genericMessageWithImageData:[self verySmallJPEGData] format:ZMImageFormatMedium nonce:nonce.transportString expiresAfter:nil];
-    NSData *contentData = message.data;
-    NSDictionary *data = @{@"info": [contentData base64EncodedStringWithOptions:0]};
-    
-    NSDictionary *payload = [self payloadForMessageInConversation:conversation type:EventConversationAddOTRAsset data:data];
-    
-    ZMUpdateEvent *event = [ZMUpdateEvent eventFromEventStreamPayload:payload uuid:nil];
-    XCTAssertNotNil(event);
-    
-    // when
-    [self performPretendingUiMocIsSyncMoc:^{
-        [ZMAssetClientMessage messageUpdateResultFromUpdateEvent:event inManagedObjectContext:self.uiMOC prefetchResult:nil];
-    }];
-    
-    // then
-    XCTAssertTrue(existingMessage.isEncrypted);
-}
-
-- (void)testThatItDoesNotUpdate_IsEncrypted_OnAnAlreadyExistingTextMessageWithTheSameNonceWhenReceivingANonEncryptedClientMessage
-{
-    // given
-    NSUUID *nonce = [NSUUID createUUID];
-    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    conversation.remoteIdentifier = [NSUUID createUUID];
-    
-    ZMTextMessage *existingMessage = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
-    existingMessage.nonce = nonce;
-    existingMessage.visibleInConversation = conversation;
-    XCTAssertFalse(existingMessage.isEncrypted);
-    
-    ZMGenericMessage *message = [ZMGenericMessage messageWithText:self.name nonce:nonce.transportString expiresAfter:nil];
-    NSData *contentData = message.data;
-    
-    NSString *data = [contentData base64EncodedStringWithOptions:0];
-    NSDictionary *payload = [self payloadForMessageInConversation:conversation type:EventConversationAddClientMessage data:data];
-    
-    ZMUpdateEvent *event = [ZMUpdateEvent eventFromEventStreamPayload:payload uuid:nil];
-    XCTAssertNotNil(event);
-    
-    // when
-    [self performPretendingUiMocIsSyncMoc:^{
-        [ZMClientMessage messageUpdateResultFromUpdateEvent:event inManagedObjectContext:self.uiMOC prefetchResult:nil];
-    }];
-    
-    // then
-    XCTAssertFalse(existingMessage.isEncrypted);
 }
 
 - (void)testThatItReturnsNilIfTheClientMessageContentIsInvalid

@@ -925,7 +925,6 @@ NSString * const ReactionsKey = @"reactions";
     FHAssertNotNil(fr, user2);
     FHAssertEqual(fr, conversation.messages.count, 1u);
     FHAssertEqual(fr, message, conversation.messages.firstObject);
-    FHAssertFalse(fr, message.isEncrypted);
     FHAssertTrue(fr, message.isPlainText);
 }
 
@@ -1399,7 +1398,6 @@ NSString * const ReactionsKey = @"reactions";
     XCTAssertEqualObjects(sut.conversation, conversation);
     XCTAssertEqualObjects(sut.sender.remoteIdentifier.transportString, payload[@"from"]);
     XCTAssertEqualObjects(sut.serverTimestamp.transportString, payload[@"time"]);
-    XCTAssertFalse(sut.isEncrypted);
     XCTAssertTrue(sut.isPlainText);
     XCTAssertEqualObjects(sut.nonce, nonce);
     XCTAssertEqualObjects(sut.text, self.name);
@@ -1889,7 +1887,6 @@ NSString * const ReactionsKey = @"reactions";
     XCTAssertEqualObjects(message.sender.remoteIdentifier.transportString, payload[@"from"]);
     XCTAssertEqualObjects(message.serverTimestamp.transportString, payload[@"time"]);
     XCTAssertEqualObjects(message.senderClientID, senderClientID);
-    XCTAssertTrue(message.isEncrypted);
     XCTAssertFalse(message.isPlainText);
     XCTAssertEqualObjects(message.nonce, nonce);
 }

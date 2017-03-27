@@ -71,23 +71,18 @@ NSString * const DeliveredKey = @"delivered";
 
 - (ZMDeliveryState)deliveryState
 {
-    if (self.isEncrypted) {
-        //we set server time stamp in awake from insert to be able to sort messages
-        //probably we need to store "deliveryTimestamp" separately and check it here
-        if (self.isExpired) {
-            return ZMDeliveryStateFailedToSend;
-        }
-        if (self.delivered == NO) {
-            return ZMDeliveryStatePending;
-        }
-        if (self.confirmations.count == 0){
-            return ZMDeliveryStateSent;
-        }
-        return ZMDeliveryStateDelivered;
+    //we set server time stamp in awake from insert to be able to sort messages
+    //probably we need to store "deliveryTimestamp" separately and check it here
+    if (self.isExpired) {
+        return ZMDeliveryStateFailedToSend;
     }
-    else {
-        return [super deliveryState];
+    if (self.delivered == NO) {
+        return ZMDeliveryStatePending;
     }
+    if (self.confirmations.count == 0){
+        return ZMDeliveryStateSent;
+    }
+    return ZMDeliveryStateDelivered;
 }
 
 + (NSSet *)keyPathsForValuesAffectingDeliveryState;
@@ -207,7 +202,6 @@ NSString * const DeliveredKey = @"delivered";
                                                                          inManagedObjectContext:moc
                                                                                  prefetchResult:prefetchResult];
     if (preExistingPlainMessage != nil) {
-        preExistingPlainMessage.isEncrypted = encrypted;
         return nil;
     }
     
@@ -231,7 +225,6 @@ NSString * const DeliveredKey = @"delivered";
         return nil;
     }
     
-    clientMessage.isEncrypted = encrypted;
     clientMessage.isPlainText = !encrypted;
     clientMessage.nonce = nonce;
     clientMessage.senderClientID = updateEvent.senderClientID;

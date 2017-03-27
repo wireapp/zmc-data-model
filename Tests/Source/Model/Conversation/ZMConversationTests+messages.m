@@ -308,7 +308,6 @@
     XCTAssertEqual(conversation.messages.count, 1lu);
     XCTAssertEqualObjects(conversation.messages.firstObject, fileMessage);
     
-    XCTAssertTrue(fileMessage.isEncrypted);
     XCTAssertNotNil(fileMessage);
     XCTAssertNotNil(fileMessage.nonce);
     XCTAssertNotNil(fileMessage.fileMessageData);
@@ -353,7 +352,6 @@
     [self.syncMOC performGroupedBlock:^{
         XCTAssertEqual(conversation.messages.count, 1lu);
         XCTAssertEqualObjects(conversation.messages.firstObject, message);
-        XCTAssertTrue(message.isEncrypted);
         
         id <ZMLocationMessageData> locationMessageData = message.locationMessageData;
         XCTAssertNotNil(locationMessageData);
@@ -391,7 +389,6 @@
     XCTAssertEqual(conversation.messages.count, 1lu);
     XCTAssertEqualObjects(conversation.messages.firstObject, fileMessage);
     
-    XCTAssertTrue(fileMessage.isEncrypted);
     XCTAssertNotNil(fileMessage);
     XCTAssertNotNil(fileMessage.nonce);
     XCTAssertNotNil(fileMessage.fileMessageData);
@@ -437,7 +434,6 @@
     XCTAssertEqual(conversation.messages.count, 1lu);
     XCTAssertEqualObjects(conversation.messages.firstObject, fileMessage);
     
-    XCTAssertTrue(fileMessage.isEncrypted);
     XCTAssertNotNil(fileMessage);
     XCTAssertNotNil(fileMessage.nonce);
     XCTAssertNotNil(fileMessage.fileMessageData);
