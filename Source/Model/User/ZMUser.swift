@@ -95,7 +95,10 @@ extension ZMUser {
     @objc(imageDataforSize:)
     public func imageData(for size: ProfileImageSize) -> Data? {
         if isSelfUser {
-            return primitiveValue(forKey: size.userKeyPath) as? Data
+            willAccessValue(forKey: size.userKeyPath)
+            let value = primitiveValue(forKey: size.userKeyPath) as? Data
+            didAccessValue(forKey: size.userKeyPath)
+            return value
         } else {
             return managedObjectContext?.zm_userImageCache?.userImage(self, size: size)
         }
