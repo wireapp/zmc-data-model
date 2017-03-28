@@ -398,7 +398,7 @@ NSString *const ZMSearchUserTotalMutualFriendsKey = @"total_mutual_friends";
     return searchUserToMediumImageCache;
 }
 
-+ (NSCache *)searchUserToMediumAssetIDCache;
++ (NSCache <NSUUID *, SearchUserAssetObjC* > *)searchUserToMediumAssetIDCache;
 {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
@@ -420,7 +420,17 @@ NSString *const ZMSearchUserTotalMutualFriendsKey = @"total_mutual_friends";
 
 - (NSUUID *)cachedMediumAssetID
 {
-    return [[ZMSearchUser searchUserToMediumAssetIDCache] objectForKey:self.remoteIdentifier];
+    return self.cachedMediumAsset.legacyID;
+}
+
+- (NSString *)cachedCompleteAssetKey
+{
+    return self.cachedMediumAsset.assetKey;
+}
+
+- (SearchUserAssetObjC *)cachedMediumAsset
+{
+    return [ZMSearchUser.searchUserToMediumAssetIDCache objectForKey:self.remoteIdentifier];
 }
 
 - (NSData *)imageSmallProfileData

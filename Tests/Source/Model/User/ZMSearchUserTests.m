@@ -686,6 +686,7 @@
     [smallImageCache setObject:smallImage forKey:searchUser.remoteIdentifier];
     
     NSCache *mediumAssetCache = [ZMSearchUser searchUserToMediumAssetIDCache];
+    
     [mediumAssetCache setObject:mediumAssetID forKey:searchUser.remoteIdentifier];
     
     // then

@@ -150,8 +150,6 @@ extension ZMUser {
                         completeProfileAssetIdentifier = key
                         imageMediumData = nil
                     }
-                default:
-                    break
                 }
             }
         }
