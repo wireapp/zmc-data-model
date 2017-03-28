@@ -250,7 +250,7 @@ NSString *const ZMSearchUserTotalMutualFriendsKey = @"total_mutual_friends";
 
 - (BOOL)hasCachedMediumAssetIDOrData
 {
-    return (self.imageMediumData != nil || self.mediumAssetID != nil);
+    return (self.imageMediumData != nil || self.mediumLegacyId != nil || self.completeAssetKey != nil);
 }
 
 - (BOOL)isLocalOrHasCachedProfileImageData;
@@ -418,7 +418,7 @@ NSString *const ZMSearchUserTotalMutualFriendsKey = @"total_mutual_friends";
     return [[ZMSearchUser searchUserToMediumImageCache] objectForKey:self.remoteIdentifier];
 }
 
-- (NSUUID *)cachedMediumAssetID
+- (NSUUID *)cachedMediumLegacyId
 {
     return self.cachedMediumAsset.legacyID;
 }
@@ -465,12 +465,20 @@ NSString *const ZMSearchUserTotalMutualFriendsKey = @"total_mutual_friends";
 }
 
 
-- (NSUUID *)mediumAssetID
+- (NSUUID *)mediumLegacyId
 {
-    if (_mediumAssetID == nil) {
-        _mediumAssetID = [self cachedMediumAssetID];
+    if (_mediumLegacyId == nil) {
+        _mediumLegacyId = [self cachedMediumLegacyId];
     }
-    return _mediumAssetID;
+    return _mediumLegacyId;
+}
+
+- (NSString *)completeAssetKey
+{
+    if (_completeAssetKey == nil) {
+        _completeAssetKey = [self cachedCompleteAssetKey];
+    }
+    return _completeAssetKey;
 }
 
 - (NSString *)imageSmallProfileIdentifier
@@ -493,8 +501,11 @@ NSString *const ZMSearchUserTotalMutualFriendsKey = @"total_mutual_friends";
     if (self.user != nil) {
         return self.user.imageMediumIdentifier;
     }
-    if (self.mediumAssetID != nil) {
-        return self.mediumAssetID.transportString;
+    if (self.completeAssetKey != nil) {
+        return self.completeAssetKey;
+    }
+    if (self.mediumLegacyId != nil) {
+        return self.mediumLegacyId.transportString;
     }
     if ([self cachedMediumProfileData] != nil) {
         return self.remoteIdentifier.transportString;
