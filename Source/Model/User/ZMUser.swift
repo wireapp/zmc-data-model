@@ -31,7 +31,7 @@ import Foundation
         }
     }
 
-    init?(stringValue: String) {
+    public init?(stringValue: String) {
         switch stringValue {
         case ProfileImageSize.preview.stringValue: self = .preview
         case ProfileImageSize.complete.stringValue: self = .complete
