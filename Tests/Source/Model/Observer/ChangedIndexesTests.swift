@@ -181,7 +181,7 @@ class ChangedIndexesTests : ZMBaseManagedObjectTest {
         let endState = ZMCDataModel.OrderedSetState(array:["A", "F", "D", "C", "E"])
         
         // when
-        let sut = ZMCDataModel.ChangedIndexes(start: startState, end: endState, updated: Set(), moveType: .tableView)
+        let sut = ZMCDataModel.ChangedIndexes(start: startState, end: endState, updated: Set(), moveType: .uiTableView)
         
         // then
         // [A,B,C,D,E] -> [A,F,C,D,E] delete & insert
@@ -214,7 +214,7 @@ class ChangedIndexesTests : ZMBaseManagedObjectTest {
         let endState = ZMCDataModel.OrderedSetState(array:["A", "D", "E", "F", "C"])
         
         // when
-        let sut = ZMCDataModel.ChangedIndexes(start: startState, end: endState, updated: Set(), moveType: .tableView)
+        let sut = ZMCDataModel.ChangedIndexes(start: startState, end: endState, updated: Set(), moveType: .uiTableView)
         
         // then
         // [A,B,C,D,E] -> [A,C,D,F,E] delete & insert
@@ -260,7 +260,7 @@ class ChangedIndexesTests : ZMBaseManagedObjectTest {
         let endState = ZMCDataModel.OrderedSetState(array:["C", "B", "A"])
         
         // when
-        let sut = ZMCDataModel.ChangedIndexes(start: startState, end: endState, updated: Set(), moveType: .tableView)
+        let sut = ZMCDataModel.ChangedIndexes(start: startState, end: endState, updated: Set(), moveType: .uiTableView)
         
         // then
         XCTAssertEqual(sut.deletedIndexes, IndexSet())

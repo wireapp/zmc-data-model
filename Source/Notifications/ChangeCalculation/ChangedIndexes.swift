@@ -19,12 +19,12 @@
 import Foundation
 
 
-struct OrderedSetState<T: Hashable> {
+public struct OrderedSetState<T: Hashable> {
 
-    var array : [T]
-    var order : [T : Int]
+    public private(set) var array : [T]
+    public private(set) var order : [T : Int]
     
-    init(array: [T]) {
+    public init(array: [T]) {
         guard array.count == Set(array).count else {
             fatalError("Array contains duplicate items")
         }
@@ -37,7 +37,8 @@ struct OrderedSetState<T: Hashable> {
         self.order = order
     }
     
-    @discardableResult mutating func move(item: T, to: Int) -> Int? {
+    @discardableResult
+    public mutating func move(item: T, to: Int) -> Int? {
         guard let oldIndex = order[item] else { return nil }
         
         array.remove(at: oldIndex)
@@ -49,34 +50,34 @@ struct OrderedSetState<T: Hashable> {
     }
 }
 
-public enum MoveType {
-    case tableView, uiCollectionView
+public enum SetChangeMoveType {
+    case uiTableView, uiCollectionView
 }
 
-struct MovedIndex {
-    let from : Int
-    let to: Int
+public struct MovedIndex {
+    public let from : Int
+    public let to: Int
 }
 
 
-struct ChangedIndexes<T : Hashable> {
+public struct ChangedIndexes<T : Hashable> {
 
-    let startState : OrderedSetState<T>
-    let endState : OrderedSetState<T>
-    let updatedObjects : Set<T>
+    public let startState : OrderedSetState<T>
+    public let endState : OrderedSetState<T>
+    public let updatedObjects : Set<T>
 
-    let deletedIndexes : IndexSet
-    let insertedIndexes : IndexSet
-    let updatedIndexes : IndexSet
-    let movedIndexes : [MovedIndex]
-    let moveType : MoveType
+    public let deletedIndexes : IndexSet
+    public let insertedIndexes : IndexSet
+    public let updatedIndexes : IndexSet
+    public let movedIndexes : [MovedIndex]
+    public let moveType : SetChangeMoveType
     
     /// Calculates the inserts, deletes, moves and updates comparing two sets of ordered, distinct objects
     /// @param startState: State before the updates
     /// @param endState: State after the updates
     /// @param updatedObjects: Objects that need to be reloaded
     /// @param moveType: depending on viewController, default is uiCollectionView
-    init(start: OrderedSetState<T>, end : OrderedSetState<T>, updated: Set<T>, moveType: MoveType = .uiCollectionView) {
+    public init(start: OrderedSetState<T>, end : OrderedSetState<T>, updated: Set<T>, moveType: SetChangeMoveType = .uiCollectionView) {
         let (deletedIndexes, insertedIndexes, updatedIndexes, movedIndexes) = type(of: self).calculateChanges(start: start, end: end, updated: updated, moveType: moveType)
         
         self.startState = start
@@ -90,7 +91,7 @@ struct ChangedIndexes<T : Hashable> {
         self.moveType = moveType
     }
     
-    static func calculateChanges(start: OrderedSetState<T>, end: OrderedSetState<T>, updated: Set<T>, moveType: MoveType) -> ( deletedIndexes: IndexSet, insertedIndexes: IndexSet, updatedIndexes: IndexSet, movedIndexes: [MovedIndex])
+    static func calculateChanges(start: OrderedSetState<T>, end: OrderedSetState<T>, updated: Set<T>, moveType: SetChangeMoveType) -> ( deletedIndexes: IndexSet, insertedIndexes: IndexSet, updatedIndexes: IndexSet, movedIndexes: [MovedIndex])
     {
         var deletedIndexes = IndexSet()
         var updatedIndexes = IndexSet()
@@ -121,7 +122,7 @@ struct ChangedIndexes<T : Hashable> {
                 movedIndexes: movedIndexes)
     }
     
-    static func calculateMoves(start: OrderedSetState<T>, end: OrderedSetState<T>, afterDeletesAndInserts: [T], moveType: MoveType) -> [MovedIndex]
+    static func calculateMoves(start: OrderedSetState<T>, end: OrderedSetState<T>, afterDeletesAndInserts: [T], moveType: SetChangeMoveType) -> [MovedIndex]
     {
         var intermediateState = afterDeletesAndInserts
         var movedIndexes = [MovedIndex]()
@@ -148,7 +149,7 @@ struct ChangedIndexes<T : Hashable> {
                 }
             }
         }
-        else if moveType == .tableView {
+        else if moveType == .uiTableView {
             // Moved `from` indexes are referring to the index in the intermediate state
             // Moves must be calculated comparing the endState the immediately updated intermediate state
 
@@ -174,7 +175,7 @@ struct ChangedIndexes<T : Hashable> {
         return movedIndexes
     }
     
-    func enumerateMovedIndexes(block: (_ from: Int, _ to: Int) -> Void) {
+    public func enumerateMovedIndexes(block: (_ from: Int, _ to: Int) -> Void) {
         for pair in movedIndexes {
             block(Int(pair.from), Int(pair.to))
         }
