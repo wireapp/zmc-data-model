@@ -776,7 +776,7 @@ static NSString * const AssociatedTaskIdentifierDataKey = @"associatedTaskIdenti
 
 - (instancetype)updateMessageWithImageData:(NSData *)imageData forFormat:(ZMImageFormat)format
 {
-    [self.managedObjectContext.zm_imageAssetCache storeAssetData:self.nonce format:format encrypted:false data:imageData];
+    [self.managedObjectContext.zm_imageAssetCache storeAssetData:self.nonce format:format encrypted:true data:imageData];
     
     NSData *otrKey = nil;
     NSData *sha256 = nil;
