@@ -45,6 +45,16 @@ import Foundation
     }
 }
 
+extension ProfileImageSize: CustomDebugStringConvertible {
+     public var debugDescription: String {
+        switch self {
+        case .preview:
+            return "ProfileImageSize.preview"
+        case .complete:
+            return "ProfileImageSize.complete"
+        }
+    }
+}
 
 extension ZMUser {
     static let previewProfileAssetIdentifierKey = #keyPath(ZMUser.previewProfileAssetIdentifier)
@@ -68,10 +78,10 @@ extension ZMUser {
             }
         } else {
             guard let imageData = data else {
-                managedObjectContext?.zm_userImageCache.removeAllUserImages(self)
+                managedObjectContext?.zm_userImageCache?.removeAllUserImages(self)
                 return
             }
-            managedObjectContext?.zm_userImageCache.setUserImage(self, imageData: imageData, size: size)
+            managedObjectContext?.zm_userImageCache?.setUserImage(self, imageData: imageData, size: size)
         }
         didChangeValue(forKey: key)
         managedObjectContext?.saveOrRollback()
@@ -85,7 +95,7 @@ extension ZMUser {
             didAccessValue(forKey: size.userKeyPath)
             return value
         } else {
-            return managedObjectContext?.zm_userImageCache.userImage(self, size: size)
+            return managedObjectContext?.zm_userImageCache?.userImage(self, size: size)
         }
     }
     
@@ -114,14 +124,17 @@ extension ZMUser {
         setLocallyModifiedKeys([ZMUser.previewProfileAssetIdentifierKey, ZMUser.completeProfileAssetIdentifierKey])
     }
     
-    @objc public func updateAssetData(with assets: NSArray?, authoritative: Bool) {
+    @objc public func updateAssetData(with assets: NSArray?, hasLegacyImages: Bool, authoritative: Bool) {
         guard !hasLocalModifications(forKeys: [ZMUser.previewProfileAssetIdentifierKey, ZMUser.completeProfileAssetIdentifierKey]) else { return }
         guard let assets = assets as? [[String : String]], !assets.isEmpty else {
             if authoritative {
                 previewProfileAssetIdentifier = nil
-                imageSmallProfileData = nil
                 completeProfileAssetIdentifier = nil
-                imageMediumData = nil
+                // Deleting image data only if we don't have V2 profile image as well
+                if !hasLegacyImages {
+                    imageSmallProfileData = nil
+                    imageMediumData = nil
+                }
             }
             return
         }

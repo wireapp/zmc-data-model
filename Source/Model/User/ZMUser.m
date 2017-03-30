@@ -538,7 +538,7 @@ static NSString *const AnnaBotHandle = @"annathebot";
     }
     
     NSArray *assets = [transportData optionalArrayForKey:@"assets"];
-    [self updateAssetDataWith:assets authoritative:authoritative];
+    [self updateAssetDataWith:assets hasLegacyImages:(picture.count > 0) authoritative:authoritative];
     
     // We intentionally ignore the preview data.
     //
