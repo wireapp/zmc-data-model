@@ -30,6 +30,21 @@ import Foundation
             return .profile
         }
     }
+
+    public init?(stringValue: String) {
+        switch stringValue {
+        case ProfileImageSize.preview.stringValue: self = .preview
+        case ProfileImageSize.complete.stringValue: self = .complete
+        default: return nil
+        }
+    }
+
+    var stringValue: String {
+        switch self {
+        case .preview: return "preview"
+        case .complete: return "complete"
+        }
+    }
     
     public static var allSizes: [ProfileImageSize] {
         return [.preview, .complete]
@@ -139,20 +154,18 @@ extension ZMUser {
             return
         }
         for data in assets {
-            if let size = data["size"], let key = data["key"] {
+            if let size = data["size"].flatMap(ProfileImageSize.init), let key = data["key"] {
                 switch size {
-                case "preview":
+                case .preview:
                     if key != previewProfileAssetIdentifier {
                         previewProfileAssetIdentifier = key
                         imageSmallProfileData = nil
                     }
-                case "complete":
+                case .complete:
                     if key != completeProfileAssetIdentifier {
                         completeProfileAssetIdentifier = key
                         imageMediumData = nil
                     }
-                default:
-                    break
                 }
             }
         }
