@@ -87,6 +87,8 @@ extension NSManagedObjectContext
 // MARK: Cache
 @objc open class UserImageLocalCache : NSObject {
     
+    fileprivate let log = ZMSLog(tag: "UserImageCache")
+    
     /// Cache for large user profile image
     fileprivate let largeUserImageCache : PINCache
     
@@ -142,15 +144,19 @@ extension NSManagedObjectContext
     }
     
     open func setUserImage(_ user: ZMUser, imageData: Data, size: ProfileImageSize) {
+        let legacyKey = user.legacyImageCacheKey(for: size)
+        let key = user.imageCacheKey(for: size)
         switch size {
         case .preview:
-            let stored = setImage(inCache: smallUserImageCache, legacyCacheKey: user.legacyImageCacheKey(for: size), cacheKey: user.imageCacheKey(for: size), data: imageData)
+            let stored = setImage(inCache: smallUserImageCache, legacyCacheKey: legacyKey, cacheKey: key, data: imageData)
             if stored {
+                log.info("Setting [\(user.displayName)] preview image [\(imageData)] cache keys: V3[\(key)] V2[\(legacyKey)]")
                 usersWithChangedSmallImage.append(user.objectID)
             }
         case .complete:
-            let stored = setImage(inCache: largeUserImageCache, legacyCacheKey: user.legacyImageCacheKey(for: size), cacheKey: user.imageCacheKey(for: size), data: imageData)
+            let stored = setImage(inCache: largeUserImageCache, legacyCacheKey: legacyKey, cacheKey: key, data: imageData)
             if stored {
+                log.info("Setting [\(user.displayName)] complete image [\(imageData)] cache keys: V3[\(key)] V2[\(legacyKey)]")
                 usersWithChangedLargeImage.append(user.objectID)
             }
         }
@@ -158,12 +164,18 @@ extension NSManagedObjectContext
     
     open func userImage(_ user: ZMUser, size: ProfileImageSize) -> Data? {
         guard let cacheKey = user.resolvedCacheKey(for: size) else { return nil }
+        let data: Data?
         switch size {
         case .preview:
-            return smallUserImageCache.object(forKey: cacheKey) as? Data
+            data = smallUserImageCache.object(forKey: cacheKey) as? Data
         case .complete:
-            return largeUserImageCache.object(forKey: cacheKey) as? Data
+            data = largeUserImageCache.object(forKey: cacheKey) as? Data
         }
+        if let data = data {
+            log.info("Getting [\(user.displayName ?? user.remoteIdentifier?.transportString() ?? "")] \(size == .preview ? "preview" : "complete") image [\(data)] cache key: [\(cacheKey)]")
+        }
+
+        return data
     }
     
     var usersWithChangedSmallImage : [NSManagedObjectID] = []
