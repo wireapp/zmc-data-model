@@ -87,7 +87,7 @@ extension ZMUserTests {
             
             // WHEN
             user.updateAndSyncProfileAssetIdentifiers(previewIdentifier: previewId, completeIdentifier: completeId)
-            user.updateAssetData(with: payload, authoritative: true)
+            user.updateAssetData(with: payload, hasLegacyImages:false, authoritative: true)
             
             // THEN
             XCTAssertEqual(user.previewProfileAssetIdentifier, previewId)
@@ -103,7 +103,7 @@ extension ZMUserTests {
             user?.completeProfileAssetIdentifier = "other"
             
             // WHEN
-            user?.updateAssetData(with: NSArray(), authoritative: true)
+            user?.updateAssetData(with: NSArray(), hasLegacyImages:false, authoritative: true)
             
             // THEN
             XCTAssertNil(user?.previewProfileAssetIdentifier)
@@ -126,7 +126,7 @@ extension ZMUserTests {
             let payload = self.assetPayload(previewId: previewId, completeId: completeId)
             
             // WHEN
-            user?.updateAssetData(with: payload, authoritative: true)
+            user?.updateAssetData(with: payload, hasLegacyImages:false, authoritative: true)
             
             // THEN
             XCTAssertEqual(user?.previewProfileAssetIdentifier, previewId)
@@ -153,7 +153,7 @@ extension ZMUserTests {
             let payload = self.assetPayload(previewId: previewId, completeId: completeId)
             
             // WHEN
-            user?.updateAssetData(with: payload, authoritative: true)
+            user?.updateAssetData(with: payload, hasLegacyImages:false, authoritative: true)
             
             // THEN
             XCTAssertEqual(user?.previewProfileAssetIdentifier, previewId)
