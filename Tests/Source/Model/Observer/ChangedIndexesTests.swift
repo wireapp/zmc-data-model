@@ -253,7 +253,7 @@ class ChangedIndexesTests : ZMBaseManagedObjectTest {
     }
     
     func testThatItCalculatesMovedIndexesForSwappedIndexesCorrectly_tableView() {
-        // If you move an item from 0->1 other item move implicitely as well, their moves do not need to be defined
+        // If you move an item from 0->1 the item at index 1 moves implicitly to 0, its move do not need to be defined
         
         // given
         let startState = ZMCDataModel.OrderedSetState(array:["A","B", "C"])
