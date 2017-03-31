@@ -150,6 +150,7 @@ inManagedObjectContext:(NSManagedObjectContext * _Nonnull)moc;
 @property (nonatomic) NSSet<ZMUser *> * _Nonnull removedUsers; // Only filled for ZMSystemMessageTypePotentialGap
 @property (nonatomic, copy) NSString * _Nullable text;
 @property (nonatomic) BOOL needsUpdatingUsers;
+@property (nonatomic, readonly) BOOL delivered;
 
 @property (nonatomic) NSTimeInterval duration; // Only filled for .performedCall
 @property (nonatomic) NSSet<id <ZMSystemMessageData>>  * _Nonnull childMessages; // Only filled for .performedCall & .missedCall

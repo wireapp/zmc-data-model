@@ -926,6 +926,11 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
     return ZMDeliveryStateDelivered;
 }
 
+- (BOOL)delivered
+{
+    return YES;
+}
+
 - (NSDictionary<NSString *,NSArray<ZMUser *> *> *)usersReaction
 {
     return [NSDictionary dictionary];
