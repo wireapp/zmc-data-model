@@ -111,7 +111,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
             ],
             "type": "conversation.otr-message-add"
         ]
-        return ZMUpdateEvent(fromEventStreamPayload: payload as WireTransportData, uuid: UUID())!
+        return ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: UUID())!
     }
     
     func testThatWhenUpdatingTheThumbnailAssetIDWeReplaceAnEphemeralMessageWithAnEphemeral(){

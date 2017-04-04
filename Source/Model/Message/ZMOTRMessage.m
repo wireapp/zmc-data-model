@@ -187,7 +187,7 @@ NSString * const DeliveredKey = @"delivered";
     }
     if (message.hasConfirmation) {
         ZMUser *sender = [ZMUser userWithRemoteID:updateEvent.senderUUID createIfNeeded:YES inContext:moc];
-        [ZMMessageConfirmation createOrUpdateMessageConfirmation:message conversation:conversation sender:sender];
+        NOT_USED([ZMMessageConfirmation createOrUpdateMessageConfirmation:message conversation:conversation sender:sender]);
         return nil;
     }
     ZMMessage *clearedMessage;

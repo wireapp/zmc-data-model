@@ -48,7 +48,7 @@ NSString * const ZMConversationErrorMaxMembersForGroupCallKey = @"ZMConversation
     return [NSError errorWithDomain:ZMConversationErrorDomain code:code userInfo:userInfo];
 }
 
-+ (instancetype)tooManyParticipantsInConversationErrorFromResponse:(WireTransportResponse *)response
++ (instancetype)tooManyParticipantsInConversationErrorFromResponse:(ZMTransportResponse *)response
 {
     NSError *error;
     if (response.HTTPStatus == 409 && [[response payloadLabel] isEqualToString:@"conv-too-big"]) {
@@ -63,7 +63,7 @@ NSString * const ZMConversationErrorMaxMembersForGroupCallKey = @"ZMConversation
     return error;
 }
 
-+ (instancetype)fullVoiceChannelErrorFromResponse:(WireTransportResponse *)response
++ (instancetype)fullVoiceChannelErrorFromResponse:(ZMTransportResponse *)response
 {
     NSError *error;
     if (response.HTTPStatus == 409 && [[response payloadLabel] isEqualToString:@"voice-channel-full"]) {

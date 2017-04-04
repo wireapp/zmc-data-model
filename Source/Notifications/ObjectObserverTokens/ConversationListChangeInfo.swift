@@ -74,7 +74,7 @@ extension ConversationListChangeInfo {
     
     @objc(removeObserver:forList:)
     public static func remove(observer: NSObjectProtocol, for list: ZMConversationList?) {
-        zmLog.debug("Removing observer \(observer) for list \(list?.identifier)")
+        zmLog.debug("Removing observer \(observer) for list \(String(describing: list?.identifier))")
         guard let token = (observer as? NotificationCenterObserverToken)?.token else {
             NotificationCenter.default.removeObserver(observer, name: .ZMConversationListDidChange, object: list)
             return

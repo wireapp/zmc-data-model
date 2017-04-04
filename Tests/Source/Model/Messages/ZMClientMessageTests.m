@@ -28,7 +28,7 @@
 #import <WireDataModel/WireDataModel-Swift.h>
 
 @import CoreGraphics;
-@import ZMCLinkPreview;
+@import WireLinkPreview;
 @import WireDataModel;
 
 @interface ZMClientMessageTests : BaseZMMessageTests

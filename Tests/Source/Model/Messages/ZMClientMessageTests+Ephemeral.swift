@@ -18,7 +18,7 @@
 
 import Foundation
 import WireCryptobox
-import ZMCLinkPreview
+import WireLinkPreview
 
 @testable import WireDataModel
 

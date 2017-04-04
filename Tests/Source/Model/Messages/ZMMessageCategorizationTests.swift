@@ -19,7 +19,7 @@
 import XCTest
 import WireUtilities
 import WireDataModel
-import ZMCLinkPreview
+import WireLinkPreview
 
 extension ZMConversationMessage {
     fileprivate var categorization : MessageCategory {
@@ -362,7 +362,7 @@ extension ZMMessageCategorizationTests {
         
         // THEN
         guard let messages = results as? [ZMMessage] else {
-            XCTFail("Result is \(results)")
+            XCTFail("Result is \(String(describing: results))")
             return
         }
         XCTAssertTrue(messages.contains(textMessage))
@@ -394,7 +394,7 @@ extension ZMMessageCategorizationTests {
         
         // THEN
         guard let messages = results as? [ZMMessage] else {
-            XCTFail("Result is \(results)")
+            XCTFail("Result is \(String(describing: results))")
             return
         }
         XCTAssertTrue(messages.contains(textMessage))
@@ -426,7 +426,7 @@ extension ZMMessageCategorizationTests {
         
         // THEN
         guard let messages = results as? [ZMMessage] else {
-            XCTFail("Result is \(results)")
+            XCTFail("Result is \(String(describing: results))")
             return
         }
         XCTAssertFalse(messages.contains(textMessage))
@@ -458,7 +458,7 @@ extension ZMMessageCategorizationTests {
         
         // THEN
         guard let messages = results as? [ZMMessage] else {
-            XCTFail("Result is \(results)")
+            XCTFail("Result is \(String(describing: results))")
             return
         }
         XCTAssertFalse(messages.contains(textMessage))
@@ -490,7 +490,7 @@ extension ZMMessageCategorizationTests {
         
         // THEN
         guard let messages = results as? [ZMMessage] else {
-            XCTFail("Result is \(results)")
+            XCTFail("Result is \(String(describing: results))")
             return
         }
         XCTAssertTrue(messages.contains(textMessage))
@@ -520,7 +520,7 @@ extension ZMMessageCategorizationTests {
 
         // THEN
         guard let messages = results as? [ZMMessage] else {
-            XCTFail("Result is \(results)")
+            XCTFail("Result is \(String(describing: results))")
             return
         }
         XCTAssertTrue(messages.contains(textMessage1))
@@ -548,7 +548,7 @@ extension ZMMessageCategorizationTests {
         
         // THEN
         guard let messages = results as? [ZMMessage] else {
-            XCTFail("Result is \(results)")
+            XCTFail("Result is \(String(describing: results))")
             return
         }
         XCTAssertFalse(messages.contains(textMessage1))

@@ -232,7 +232,7 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
 - (void)resend
 {
     if (self.genericMessage.hasEdited) {
-        [ZMMessage edit:self newText:self.textMessageData.messageText];
+        NOT_USED([ZMMessage edit:self newText:self.textMessageData.messageText]);
     } else {
         [super resend];
     }

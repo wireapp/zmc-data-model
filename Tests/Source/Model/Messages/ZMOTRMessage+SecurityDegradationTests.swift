@@ -19,7 +19,7 @@
 import XCTest
 import WireUtilities
 @testable import WireDataModel
-import ZMCLinkPreview
+import WireLinkPreview
 
 
 class ZMOTRMessage_SecurityDegradationTests : BaseZMClientMessageTests {

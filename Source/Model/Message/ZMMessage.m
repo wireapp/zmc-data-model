@@ -197,7 +197,7 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
 
 + (void)resetDefaultExpirationTime
 {
-    ZMDefaultMessageExpirationTime = WireTransportRequestDefaultExpirationInterval;
+    ZMDefaultMessageExpirationTime = ZMTransportRequestDefaultExpirationInterval;
 }
 
 - (void)resend;
@@ -1120,7 +1120,7 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
         NSError *error;
         ZMMessage *message = [uiContext existingObjectWithID:self.objectID error:&error];
         if (error == nil && message != nil) {
-            [uiContext.zm_messageDeletionTimer startDeletionTimerWithMessage:message timeout:remainingTime];
+            NOT_USED([uiContext.zm_messageDeletionTimer startDeletionTimerWithMessage:message timeout:remainingTime]);
         }
     }];
 }

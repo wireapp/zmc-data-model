@@ -276,7 +276,7 @@ NSString * const ReactionsKey = @"reactions";
     ZMTextMessage *message = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
     [message expire];
     
-    NSDate *expectedDate = [NSDate dateWithTimeIntervalSinceNow:WireTransportRequestDefaultExpirationInterval];
+    NSDate *expectedDate = [NSDate dateWithTimeIntervalSinceNow:ZMTransportRequestDefaultExpirationInterval];
     
     // when
     [message resend];
