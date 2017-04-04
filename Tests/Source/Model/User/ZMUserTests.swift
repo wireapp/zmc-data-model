@@ -17,7 +17,7 @@
 //
 
 import Foundation
-@testable import ZMCDataModel
+@testable import WireDataModel
 
 // MARK: - Modified keys for profile picture upload
 extension ZMUserTests {
