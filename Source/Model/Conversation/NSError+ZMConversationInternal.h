@@ -19,12 +19,12 @@
 
 #import "NSError+ZMConversation.h"
 
-@class ZMTransportResponse;
+@class WireTransportResponse;
 
 @interface NSError (ZMConversationInternal)
 
 + (instancetype)conversationErrorWithErrorCode:(ZMConversationErrorCode)code userInfo:(NSDictionary *)userInfo;
-+ (instancetype)tooManyParticipantsInConversationErrorFromResponse:(ZMTransportResponse *)response;
-+ (instancetype)fullVoiceChannelErrorFromResponse:(ZMTransportResponse *)response;
++ (instancetype)tooManyParticipantsInConversationErrorFromResponse:(WireTransportResponse *)response;
++ (instancetype)fullVoiceChannelErrorFromResponse:(WireTransportResponse *)response;
 
 @end

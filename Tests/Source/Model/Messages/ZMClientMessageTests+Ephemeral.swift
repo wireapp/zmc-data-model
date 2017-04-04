@@ -17,10 +17,10 @@
 //
 
 import Foundation
-import Cryptobox
+import WireCryptobox
 import ZMCLinkPreview
 
-@testable import ZMCDataModel
+@testable import WireDataModel
 
 class ZMClientMessageTests_Ephemeral : BaseZMClientMessageTests {
     

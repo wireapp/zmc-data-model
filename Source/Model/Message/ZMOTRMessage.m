@@ -21,11 +21,11 @@
 #import "ZMGenericMessage+UpdateEvent.h"
 #import "ZMConversation+Internal.h"
 #import "ZMConversation+Transport.h"
-#import <ZMCDataModel/ZMCDataModel-Swift.h>
+#import <WireDataModel/WireDataModel-Swift.h>
 #import "ZMGenericMessageData.h"
 
 
-@import ZMTransport;
+@import WireTransport;
 
 
 NSString * const DeliveredKey = @"delivered";

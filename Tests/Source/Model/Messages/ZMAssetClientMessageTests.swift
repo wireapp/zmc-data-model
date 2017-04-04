@@ -18,7 +18,7 @@
 
 
 import Foundation
-@testable import ZMCDataModel
+@testable import WireDataModel
 
 enum MimeType : String {
     case text = "text/plain"
@@ -1075,7 +1075,7 @@ extension ZMAssetClientMessageTests {
                     "id" : uuid
                 ] as AnyObject
             ]
-            let updateEvent = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: UUID.create())
+            let updateEvent = ZMUpdateEvent(fromEventStreamPayload: payload as WireTransportData, uuid: UUID.create())
             XCTAssertNil(sut.fileMessageData?.thumbnailAssetID)
             
             // when
@@ -1122,7 +1122,7 @@ extension ZMAssetClientMessageTests {
                     "id" : UUID.create().transportString()
                 ] as AnyObject
             ]
-            let updateEvent = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: UUID.create())
+            let updateEvent = ZMUpdateEvent(fromEventStreamPayload: payload as WireTransportData, uuid: UUID.create())
             XCTAssertNil(sut.fileMessageData?.thumbnailAssetID)
             
             
@@ -1171,7 +1171,7 @@ extension ZMAssetClientMessageTests {
                     "id" : uuid
                 ] as AnyObject
             ]
-            let updateEvent = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: UUID.create())
+            let updateEvent = ZMUpdateEvent(fromEventStreamPayload: payload as WireTransportData, uuid: UUID.create())
             XCTAssertNil(sutInSyncContext.fileMessageData?.thumbnailAssetID)
             
             sutInSyncContext.update(with: genericMessage, updateEvent: updateEvent) // Append preview

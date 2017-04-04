@@ -20,7 +20,7 @@
 import Foundation
 import ZMCLinkPreview
 
-@testable import ZMCDataModel
+@testable import WireDataModel
 
 enum ContentType {
     case textMessage, editMessage

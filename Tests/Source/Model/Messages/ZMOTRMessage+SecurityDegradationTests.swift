@@ -17,8 +17,8 @@
 //
 
 import XCTest
-import ZMUtilities
-@testable import ZMCDataModel
+import WireUtilities
+@testable import WireDataModel
 import ZMCLinkPreview
 
 

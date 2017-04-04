@@ -18,7 +18,7 @@
 
 
 import Foundation
-@testable import ZMCDataModel
+@testable import WireDataModel
 
 class BaseZMClientMessageTests : BaseZMMessageTests {
     
@@ -167,11 +167,11 @@ class BaseZMClientMessageTests : BaseZMMessageTests {
         ]
         switch eventSource {
         case .download:
-            return ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: nonce)!
+            return ZMUpdateEvent(fromEventStreamPayload: payload as WireTransportData, uuid: nonce)!
         default:
             let streamPayload = ["payload" : [payload],
                                  "id" : UUID.create().transportString()] as [String : Any]
-            let event = ZMUpdateEvent.eventsArray(from: streamPayload as ZMTransportData,
+            let event = ZMUpdateEvent.eventsArray(from: streamPayload as WireTransportData,
                                                                    source: eventSource)!.first!
             XCTAssertNotNil(event)
             return event

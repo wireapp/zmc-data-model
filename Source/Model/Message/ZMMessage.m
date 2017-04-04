@@ -17,8 +17,8 @@
 // 
 
 
-@import ZMUtilities;
-@import ZMProtos;
+@import WireUtilities;
+@import WireProtos;
 @import MobileCoreServices;
 @import ImageIO;
 
@@ -32,10 +32,10 @@
 #import "ZMConversation+Transport.h"
 
 #import "ZMConversation+UnreadCount.h"
-#import "ZMUpdateEvent+ZMCDataModel.h"
+#import "ZMUpdateEvent+WireDataModel.h"
 #import "ZMClientMessage.h"
 
-#import <ZMCDataModel/ZMCDataModel-Swift.h>
+#import <WireDataModel/WireDataModel-Swift.h>
 
 
 static NSTimeInterval ZMDefaultMessageExpirationTime = 30;
@@ -197,7 +197,7 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
 
 + (void)resetDefaultExpirationTime
 {
-    ZMDefaultMessageExpirationTime = ZMTransportRequestDefaultExpirationInterval;
+    ZMDefaultMessageExpirationTime = WireTransportRequestDefaultExpirationInterval;
 }
 
 - (void)resend;

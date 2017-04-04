@@ -17,7 +17,7 @@
 // 
 
 
-@import ZMTransport;
+@import WireTransport;
 
 #import "NSError+ZMConversationInternal.h"
 
@@ -48,7 +48,7 @@ NSString * const ZMConversationErrorMaxMembersForGroupCallKey = @"ZMConversation
     return [NSError errorWithDomain:ZMConversationErrorDomain code:code userInfo:userInfo];
 }
 
-+ (instancetype)tooManyParticipantsInConversationErrorFromResponse:(ZMTransportResponse *)response
++ (instancetype)tooManyParticipantsInConversationErrorFromResponse:(WireTransportResponse *)response
 {
     NSError *error;
     if (response.HTTPStatus == 409 && [[response payloadLabel] isEqualToString:@"conv-too-big"]) {
@@ -63,7 +63,7 @@ NSString * const ZMConversationErrorMaxMembersForGroupCallKey = @"ZMConversation
     return error;
 }
 
-+ (instancetype)fullVoiceChannelErrorFromResponse:(ZMTransportResponse *)response
++ (instancetype)fullVoiceChannelErrorFromResponse:(WireTransportResponse *)response
 {
     NSError *error;
     if (response.HTTPStatus == 409 && [[response payloadLabel] isEqualToString:@"voice-channel-full"]) {

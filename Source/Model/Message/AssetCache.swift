@@ -17,8 +17,8 @@
 //
 
 import Foundation
-import ZMCSystem
-import zimages
+import WireSystem
+import WireImages
 import PINCache
 
 private let NSManagedObjectContextImageAssetCacheKey = "zm_imageAssetCache"

@@ -17,8 +17,8 @@
 //
 
 import XCTest
-import ZMUtilities
-import ZMCDataModel
+import WireUtilities
+import WireDataModel
 import ZMCLinkPreview
 
 extension ZMConversationMessage {

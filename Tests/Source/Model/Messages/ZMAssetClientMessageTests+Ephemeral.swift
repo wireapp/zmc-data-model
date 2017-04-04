@@ -17,7 +17,7 @@
 //
 
 import Foundation
-@testable import ZMCDataModel
+@testable import WireDataModel
 
 class ZMAssetClientMessageTests_Ephemeral : BaseZMAssetClientMessageTests {
     
@@ -111,7 +111,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
             ],
             "type": "conversation.otr-message-add"
         ]
-        return ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: UUID())!
+        return ZMUpdateEvent(fromEventStreamPayload: payload as WireTransportData, uuid: UUID())!
     }
     
     func testThatWhenUpdatingTheThumbnailAssetIDWeReplaceAnEphemeralMessageWithAnEphemeral(){

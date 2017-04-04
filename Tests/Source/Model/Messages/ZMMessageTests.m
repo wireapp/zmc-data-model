@@ -17,11 +17,11 @@
 // 
 
 
-@import ZMCDataModel;
+@import WireDataModel;
 @import CoreGraphics;
 @import Foundation;
 @import MobileCoreServices;
-@import zimages;
+@import WireImages;
 
 #import "ModelObjectsTests.h"
 #import "ZMClientMessage.h"
@@ -33,7 +33,7 @@
 #import "MessagingTest+EventFactory.h"
 #import <OCMock/OCMock.h>
 #import "ZMConversation+Transport.h"
-#import "ZMUpdateEvent+ZMCDataModel.h"
+#import "ZMUpdateEvent+WireDataModel.h"
 #import "NSString+RandomString.h"
 
 NSString * const IsExpiredKey = @"isExpired";
@@ -276,7 +276,7 @@ NSString * const ReactionsKey = @"reactions";
     ZMTextMessage *message = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
     [message expire];
     
-    NSDate *expectedDate = [NSDate dateWithTimeIntervalSinceNow:ZMTransportRequestDefaultExpirationInterval];
+    NSDate *expectedDate = [NSDate dateWithTimeIntervalSinceNow:WireTransportRequestDefaultExpirationInterval];
     
     // when
     [message resend];
