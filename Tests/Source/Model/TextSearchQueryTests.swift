@@ -505,12 +505,14 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
 
     func testThatItDoesNotReturnAnyMessagesOtherThanTextInTheResults() {
         // Given
+        ZMConversation.setUseVersion3Assets(true)
+
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.remoteIdentifier = .create()
         _ = conversation.appendMessage(with: .init(latitude: 52.520008, longitude: 13.404954, name: "Berlin, Germany", zoomLevel: 8))
         _ = conversation.appendMessage(withImageData: mediumJPEGData())
         _ = conversation.appendKnock()
-        _ = conversation.appendMessage(withImageData: verySmallJPEGData(), version3: true)
+        _ = conversation.appendMessage(withImageData: verySmallJPEGData())
         fillConversationWithMessages(conversation: conversation, messageCount: 10, normalized: true)
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         verifyAllMessagesAreIndexed(in: conversation)
@@ -521,6 +523,8 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
             whenSearchingFor: "get the picture",
             in: conversation
         )
+
+        ZMConversation.setUseVersion3Assets(false)
     }
 
     // MARK: Helper

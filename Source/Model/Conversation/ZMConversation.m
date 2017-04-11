@@ -111,6 +111,9 @@ static NSString *const ArchivedEventIDDataKey = @"archivedEventID_data";
 static NSString *const LastReadEventIDDataKey = @"lastReadEventID_data";
 
 
+static BOOL UseAssetsV3 = NO;
+
+
 NSTimeInterval ZMConversationDefaultLastReadTimestampSaveDelay = 3.0;
 
 const NSUInteger ZMConversationMaxEncodedTextMessageLength = 1500;
@@ -173,6 +176,11 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @synthesize lastReadTimestampSaveDelay;
 @synthesize lastReadTimestampUpdateCounter;
 @synthesize unreadTimeStamps;
+
++ (void)setUseVersion3Assets:(BOOL)useV3Assets;
+{
+    UseAssetsV3 = useV3Assets;
+}
 
 - (BOOL)isArchived
 {
@@ -661,11 +669,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (id<ZMConversationMessage>)appendMessageWithImageAtURL:(NSURL *)fileURL;
 {
-    return [self appendMessageWithImageAtURL:fileURL version3:NO];
-}
-
-- (id<ZMConversationMessage>)appendMessageWithImageAtURL:(NSURL *)fileURL version3:(BOOL)version3;
-{
     VerifyReturnNil(fileURL != nil);
     if (! fileURL.isFileURL) {
         ZMLogWarn(@"Trying to add an image message, but the URL is not a file URL.");
@@ -677,22 +680,17 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     VerifyReturnNil(originalImageData != nil);
     CGSize const originalSize = [ZMImagePreprocessor sizeOfPrerotatedImageAtURL:fileURL];
     VerifyReturnNil(! CGSizeEqualToSize(originalSize, CGSizeZero));
-    return [self appendMessageWithOriginalImageData:originalImageData originalSize:originalSize version3:version3];
+    return [self appendMessageWithOriginalImageData:originalImageData originalSize:originalSize];
 }
 
 - (id<ZMConversationMessage>)appendMessageWithImageData:(NSData *)imageData;
-{
-    return [self appendMessageWithImageData:imageData version3:NO];
-}
-
-- (id<ZMConversationMessage>)appendMessageWithImageData:(NSData *)imageData version3:(BOOL)version3;
 {
     imageData = [imageData copy];
     VerifyReturnNil(imageData != nil);
     CGSize const originalSize = [ZMImagePreprocessor sizeOfPrerotatedImageWithData:imageData];
     VerifyReturnNil(! CGSizeEqualToSize(originalSize, CGSizeZero));
 
-    return [self appendMessageWithOriginalImageData:imageData originalSize:originalSize version3:version3];
+    return [self appendMessageWithOriginalImageData:imageData originalSize:originalSize];
 }
 
 - (nullable id<ZMConversationMessage>)appendMessageWithFileMetadata:(nonnull ZMFileMetadata *)fileMetadata
@@ -700,19 +698,14 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return [self appendOTRMessageWithFileMetadata:fileMetadata nonce:NSUUID.UUID];
 }
 
-- (id<ZMConversationMessage>)appendMessageWithFileMetadata:(ZMFileMetadata *)fileMetadata version3:(BOOL)version3
-{
-    return [self appendOTRMessageWithFileMetadata:fileMetadata nonce:NSUUID.UUID version3:version3];
-}
-
 - (nullable id<ZMConversationMessage>)appendMessageWithLocationData:(nonnull ZMLocationData *)locationData
 {
     return [self appendOTRMessageWithLocationData:locationData nonce:NSUUID.UUID];
 }
 
-- (id<ZMConversationMessage>)appendMessageWithOriginalImageData:(NSData *)originalImageData originalSize:(CGSize __unused)originalSize version3:(BOOL)version3;
+- (id<ZMConversationMessage>)appendMessageWithOriginalImageData:(NSData *)originalImageData originalSize:(CGSize __unused)originalSize;
 {
-    return [self appendOTRMessageWithImageData:originalImageData nonce:NSUUID.UUID version3:version3];
+    return [self appendOTRMessageWithImageData:originalImageData nonce:NSUUID.UUID];
 }
 
 - (id<ZMConversationMessage>)appendKnock;
@@ -1203,12 +1196,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (ZMAssetClientMessage *)appendOTRMessageWithFileMetadata:(ZMFileMetadata *)fileMetadata nonce:(NSUUID *)nonce
 {
-    return [self appendOTRMessageWithFileMetadata:fileMetadata nonce:nonce version3:NO];
-}
-
-- (nonnull ZMAssetClientMessage *)appendOTRMessageWithFileMetadata:(nonnull ZMFileMetadata *)fileMetadata nonce:(nonnull NSUUID *)nonce version3:(BOOL)version3;
-{
-    ZMAssetClientMessage *message = [ZMAssetClientMessage assetClientMessageWithFileMetadata:fileMetadata nonce:nonce managedObjectContext:self.managedObjectContext expiresAfter:self.messageDestructionTimeout version3:version3];
+    ZMAssetClientMessage *message = [ZMAssetClientMessage assetClientMessageWithFileMetadata:fileMetadata nonce:nonce managedObjectContext:self.managedObjectContext expiresAfter:self.messageDestructionTimeout version3:UseAssetsV3];
     message.sender = [ZMUser selfUserInContext:self.managedObjectContext];
     message.isEncrypted = YES;
     [message updateCategoryCache];
@@ -1251,11 +1239,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (ZMAssetClientMessage *)appendOTRMessageWithImageData:(NSData *)imageData nonce:(NSUUID *)nonce
 {
-    return [self appendOTRMessageWithImageData:imageData nonce:nonce version3:NO];
-}
-
-- (ZMAssetClientMessage *)appendOTRMessageWithImageData:(NSData *)imageData nonce:(NSUUID *)nonce version3:(BOOL)version3
-{
     NSError *metadataError = nil;
     NSData *imageDataWithoutMetadata = [imageData wr_imageDataWithoutMetadataAndReturnError:&metadataError];
     
@@ -1266,7 +1249,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         imageDataWithoutMetadata = imageData;
     }
     
-    ZMAssetClientMessage *message = [self appendAssetClientMessageWithNonce:nonce hidden:false imageData:imageDataWithoutMetadata version3:version3];
+    ZMAssetClientMessage *message = [self appendAssetClientMessageWithNonce:nonce hidden:false imageData:imageDataWithoutMetadata version3:UseAssetsV3];
     message.isEncrypted = YES;
     return message;
 }

@@ -99,6 +99,10 @@ extern NSString * _Null_unspecified const ZMConversationIsVerifiedNotificationNa
 /// Or import the internal header for testing
 @property (nonatomic, readonly) NSTimeInterval messageDestructionTimeout;
 
+
+/// Specifies whether assets should be using the `/assets/v3` protocol version.
++ (void)setUseVersion3Assets:(BOOL)useV3Assets;
+
 - (void)addParticipant:(nonnull ZMUser *)participant;
 - (void)addParticipants:(nonnull NSSet<ZMUser *> *)participants;
 - (void)removeParticipant:(nonnull ZMUser *)participant;
@@ -125,10 +129,8 @@ extern NSString * _Null_unspecified const ZMConversationIsVerifiedNotificationNa
 - (nullable id<ZMConversationMessage>)appendMessageWithImageAtURL:(nonnull NSURL *)fileURL;
 /// The given data must be compressed image dat, e.g. JPEG data. It's safe to pass @c nil. Returns @c nil if no message was inserted.
 - (nullable id<ZMConversationMessage>)appendMessageWithImageData:(nonnull NSData *)imageData;
-- (nullable id<ZMConversationMessage>)appendMessageWithImageData:(nonnull NSData *)imageData version3:(BOOL)version3;
 /// Appends a file. see ZMFileMetaData, ZMAudioMetaData, ZMVideoMetaData.
 - (nullable id<ZMConversationMessage>)appendMessageWithFileMetadata:(nonnull ZMFileMetadata *)fileMetadata;
-- (nullable id<ZMConversationMessage>)appendMessageWithFileMetadata:(nonnull ZMFileMetadata *)fileMetadata version3:(BOOL)version3;
 
 /// Appends a location, see @c LocationData.
 - (nullable id<ZMConversationMessage>)appendMessageWithLocationData:(nonnull ZMLocationData *)locationData;
