@@ -61,7 +61,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         conversation.messageDestructionTimeout = timeout
         
         // when
-        let message = conversation.appendMessage(withImageData: verySmallJPEGData(), version3: false) as! ZMAssetClientMessage
+        let message = conversation.appendMessage(withImageData: verySmallJPEGData()) as! ZMAssetClientMessage
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
@@ -80,7 +80,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         let fileMetadata = addFile()
         
         // when
-        let message = conversation.appendMessage(with: fileMetadata, version3: false) as! ZMAssetClientMessage
+        let message = conversation.appendMessage(with: fileMetadata) as! ZMAssetClientMessage
         
         // then
         XCTAssertTrue(message.genericAssetMessage!.hasEphemeral())
@@ -120,7 +120,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         let fileMetadata = addFile()
         
         // when
-        let message = conversation.appendMessage(with: fileMetadata, version3: false) as! ZMAssetClientMessage
+        let message = conversation.appendMessage(with: fileMetadata) as! ZMAssetClientMessage
         
         let remoteMessage = ZMGenericMessage.genericMessage(pbMessage: assetWithImage(), messageID: message.nonce.transportString())
         
@@ -139,7 +139,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
             // given
             self.syncConversation.messageDestructionTimeout = 10
             let fileMetadata = self.addFile()
-            let message = self.syncConversation.appendMessage(with: fileMetadata, version3: false) as! ZMAssetClientMessage
+            let message = self.syncConversation.appendMessage(with: fileMetadata) as! ZMAssetClientMessage
             message.uploadState = .uploadingFullAsset
             
             // when
@@ -156,7 +156,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         self.syncMOC.performGroupedBlockAndWait {
             // given
             self.syncConversation.messageDestructionTimeout = 10
-            let message = self.syncConversation.appendMessage(withImageData: self.verySmallJPEGData(), version3: false) as! ZMAssetClientMessage
+            let message = self.syncConversation.appendMessage(withImageData: self.verySmallJPEGData()) as! ZMAssetClientMessage
             message.uploadState = .uploadingFullAsset
             
             // when
@@ -174,7 +174,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
             // given
             self.syncConversation.messageDestructionTimeout = 10
             let fileMetadata = self.addFile()
-            let message = self.syncConversation.appendMessage(with: fileMetadata, version3: false) as! ZMAssetClientMessage
+            let message = self.syncConversation.appendMessage(with: fileMetadata) as! ZMAssetClientMessage
             
             // when
             message.update(withPostPayload: [:], updatedKeys: Set())
@@ -189,7 +189,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         self.syncMOC.performGroupedBlockAndWait {
             // given
             self.syncConversation.messageDestructionTimeout = 10
-            let message = self.syncConversation.appendMessage(withImageData: self.verySmallJPEGData(), version3: false) as! ZMAssetClientMessage
+            let message = self.syncConversation.appendMessage(withImageData: self.verySmallJPEGData()) as! ZMAssetClientMessage
             
             // when
             message.update(withPostPayload: [:], updatedKeys: Set())
@@ -216,7 +216,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         sender.remoteIdentifier = UUID.create()
         
         let fileMetadata = self.addFile()
-        let message = conversation.appendMessage(with: fileMetadata, version3: false) as! ZMAssetClientMessage
+        let message = conversation.appendMessage(with: fileMetadata) as! ZMAssetClientMessage
         message.sender = sender
         message.add(ZMGenericMessage.genericMessage(withUploadedOTRKey: Data(), sha256: Data(), messageID: message.nonce.transportString()))
         XCTAssertTrue(message.genericAssetMessage!.assetData!.hasUploaded())
@@ -236,7 +236,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         let sender = ZMUser.insertNewObject(in: uiMOC)
         sender.remoteIdentifier = UUID.create()
         
-        let message = conversation.appendMessage(withImageData: verySmallJPEGData(), version3: false) as! ZMAssetClientMessage
+        let message = conversation.appendMessage(withImageData: verySmallJPEGData()) as! ZMAssetClientMessage
         message.sender = sender
         XCTAssertNotNil(message.imageAssetStorage?.mediumGenericMessage)
         
@@ -296,7 +296,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         sender.remoteIdentifier = UUID.create()
         
         let fileMetadata = self.addFile()
-        let message = conversation.appendMessage(with: fileMetadata, version3: false) as! ZMAssetClientMessage
+        let message = conversation.appendMessage(with: fileMetadata) as! ZMAssetClientMessage
         message.sender = sender
         XCTAssertFalse(message.genericAssetMessage!.assetData!.hasUploaded())
         
@@ -316,7 +316,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         sender.remoteIdentifier = UUID.create()
         
         let fileMetadata = self.addFile()
-        let message = conversation.appendMessage(with: fileMetadata, version3: false) as! ZMAssetClientMessage
+        let message = conversation.appendMessage(with: fileMetadata) as! ZMAssetClientMessage
         message.sender = sender
         message.add(ZMGenericMessage.genericMessage(notUploaded: ZMAssetNotUploaded.CANCELLED, messageID: message.nonce.transportString()))
         XCTAssertTrue(message.genericAssetMessage!.assetData!.hasNotUploaded())
@@ -334,7 +334,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         let timeout : TimeInterval = 0.1
         conversation.messageDestructionTimeout = timeout
         let fileMetadata = self.addFile()
-        let message = conversation.appendMessage(with: fileMetadata, version3: false) as! ZMAssetClientMessage
+        let message = conversation.appendMessage(with: fileMetadata) as! ZMAssetClientMessage
         message.add(ZMGenericMessage.genericMessage(withUploadedOTRKey: Data(), sha256: Data(), messageID: message.nonce.transportString()))
         XCTAssertTrue(message.genericAssetMessage!.assetData!.hasUploaded())
         
@@ -351,7 +351,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         conversation.messageDestructionTimeout = timeout
         
         let fileMetadata = self.addFile()
-        let message = conversation.appendMessage(with: fileMetadata, version3: false) as! ZMAssetClientMessage
+        let message = conversation.appendMessage(with: fileMetadata) as! ZMAssetClientMessage
         conversation.conversationType = .oneOnOne
         message.sender = ZMUser.insertNewObject(in: uiMOC)
         message.sender?.remoteIdentifier = UUID.create()

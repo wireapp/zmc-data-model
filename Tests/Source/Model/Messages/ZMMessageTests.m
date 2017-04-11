@@ -1289,7 +1289,7 @@ NSString * const ReactionsKey = @"reactions";
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     NSData *jpegData = [self.verySmallJPEGData wr_imageDataWithoutMetadataAndReturnError:nil];
-    id<ZMConversationMessage> temporaryMessage = [conversation appendMessageWithImageData:jpegData version3:NO];
+    id<ZMConversationMessage> temporaryMessage = [conversation appendMessageWithImageData:jpegData];
     
     // when
     NSData *imageData = [temporaryMessage imageMessageData].imageData;
