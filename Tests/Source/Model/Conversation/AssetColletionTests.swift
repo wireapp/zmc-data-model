@@ -81,7 +81,7 @@ class AssetColletionTests : ModelObjectsTests {
         var offset : TimeInterval = 0
         var messages = [ZMMessage]()
         (0..<count).forEach{ _ in
-            let message = conversation.appendMessage(withImageData: verySmallJPEGData()) as! ZMMessage
+            let message = conversation.appendMessage(withImageData: verySmallJPEGData(), version3: false) as! ZMMessage
             offset = offset + 5
             message.setValue(Date().addingTimeInterval(offset), forKey: "serverTimestamp")
             messages.append(message)
@@ -402,8 +402,8 @@ class AssetColletionTests : ModelObjectsTests {
     
     func testThatItDoesNotReturnFailedToUploadAssets_Uncategorized(){
         // given
-        let includedMessage = self.conversation.appendMessage(with: ZMVideoMetadata(fileURL: self.fileURL(forResource: "video", extension: "mp4"), thumbnail: self.verySmallJPEGData())) as! ZMAssetClientMessage
-        let excludedMessage = self.conversation.appendMessage(with: ZMVideoMetadata(fileURL: self.fileURL(forResource: "video", extension: "mp4"), thumbnail: self.verySmallJPEGData())) as! ZMAssetClientMessage
+        let includedMessage = self.conversation.appendMessage(with: ZMVideoMetadata(fileURL: self.fileURL(forResource: "video", extension: "mp4"), thumbnail: self.verySmallJPEGData()), version3: false) as! ZMAssetClientMessage
+        let excludedMessage = self.conversation.appendMessage(with: ZMVideoMetadata(fileURL: self.fileURL(forResource: "video", extension: "mp4"), thumbnail: self.verySmallJPEGData()), version3: false) as! ZMAssetClientMessage
         excludedMessage.transferState = .failedUpload
         excludedMessage.setPrimitiveValue(NSNumber(value: 0), forKey: ZMMessageCachedCategoryKey)
         includedMessage.setPrimitiveValue(NSNumber(value: 0), forKey: ZMMessageCachedCategoryKey)
@@ -423,8 +423,8 @@ class AssetColletionTests : ModelObjectsTests {
     
     func testThatItDoesNotReturnFailedToUploadAssets_PreCategorized(){
         // given
-        let includedMessage = self.conversation.appendMessage(with: ZMVideoMetadata(fileURL: self.fileURL(forResource: "video", extension: "mp4"), thumbnail: self.verySmallJPEGData())) as! ZMAssetClientMessage
-        let excludedMessage = self.conversation.appendMessage(with: ZMVideoMetadata(fileURL: self.fileURL(forResource: "video", extension: "mp4"), thumbnail: self.verySmallJPEGData())) as! ZMAssetClientMessage
+        let includedMessage = self.conversation.appendMessage(with: ZMVideoMetadata(fileURL: self.fileURL(forResource: "video", extension: "mp4"), thumbnail: self.verySmallJPEGData()), version3: false) as! ZMAssetClientMessage
+        let excludedMessage = self.conversation.appendMessage(with: ZMVideoMetadata(fileURL: self.fileURL(forResource: "video", extension: "mp4"), thumbnail: self.verySmallJPEGData()), version3: false) as! ZMAssetClientMessage
         excludedMessage.transferState = .failedUpload
         excludedMessage.updateCategoryCache()
         uiMOC.saveOrRollback()

@@ -67,7 +67,7 @@
     conversation.lastModifiedDate = msg1.serverTimestamp;
     
     // when
-    ZMMessage *msg2 = (id)[conversation appendMessageWithImageData:[self verySmallJPEGData]];
+    ZMMessage *msg2 = (id)[conversation appendMessageWithImageData:[self verySmallJPEGData] version3:NO];
     
     // then
     XCTAssertNotNil(msg2.serverTimestamp);
@@ -117,7 +117,7 @@
     conversation.remoteIdentifier = NSUUID.createUUID;
     
     // when
-    ZMImageMessage *message = (ZMImageMessage *)[conversation appendMessageWithImageAtURL:imageFileURL];
+    ZMImageMessage *message = (ZMImageMessage *)[conversation appendMessageWithImageAtURL:imageFileURL version3:NO];
     
     // then
     XCTAssertNotNil(message);
@@ -140,7 +140,7 @@
     conversation.remoteIdentifier = NSUUID.createUUID;
     
     // when
-    ZMImageMessage *message = (ZMImageMessage *)[conversation appendMessageWithImageAtURL:imageFileURL];
+    ZMImageMessage *message = (ZMImageMessage *)[conversation appendMessageWithImageAtURL:imageFileURL version3:NO];
     
     // then
     XCTAssertNotNil(message);
@@ -165,7 +165,7 @@
     // when
     __block ZMImageMessage *message;
     [self performIgnoringZMLogError:^{
-        message = (ZMImageMessage *)[conversation appendMessageWithImageAtURL:imageURL];
+        message = (ZMImageMessage *)[conversation appendMessageWithImageAtURL:imageURL version3:NO];
     }];
     
     // then
@@ -185,7 +185,7 @@
     // when
     __block ZMImageMessage *message;
     [self performIgnoringZMLogError:^{
-        message = (ZMImageMessage *)[conversation appendMessageWithImageAtURL:textFileURL];
+        message = (ZMImageMessage *)[conversation appendMessageWithImageAtURL:textFileURL version3:NO];
     }];
     
     // then
@@ -202,7 +202,7 @@
     conversation.remoteIdentifier = NSUUID.createUUID;
     
     // when
-    ZMImageMessage *message = (ZMImageMessage *)[conversation appendMessageWithImageData:imageData];
+    ZMImageMessage *message = (ZMImageMessage *)[conversation appendMessageWithImageData:imageData version3:NO];
     
     // then
     XCTAssertNotNil(message);
@@ -224,7 +224,7 @@
     conversation.remoteIdentifier = NSUUID.createUUID;
     
     // when
-    ZMImageMessage *message = (ZMImageMessage *)[conversation appendMessageWithImageData:imageData];
+    ZMImageMessage *message = (ZMImageMessage *)[conversation appendMessageWithImageData:imageData version3:NO];
     
     // then
     [imageData appendBytes:((const char []) {1, 2}) length:2];
@@ -243,7 +243,7 @@
     // when
     __block ZMImageMessage *message;
     [self performIgnoringZMLogError:^{
-        message = (ZMImageMessage *)[conversation appendMessageWithImageData:textData];
+        message = (ZMImageMessage *)[conversation appendMessageWithImageData:textData version3:NO];
     }];
     
     // then
@@ -301,7 +301,7 @@
     
     // when
     ZMFileMetadata *fileMetadata = [[ZMFileMetadata alloc] initWithFileURL:fileURL thumbnail:nil];
-    ZMAssetClientMessage *fileMessage = (id)[conversation appendMessageWithFileMetadata:fileMetadata];
+    ZMAssetClientMessage *fileMessage = (id)[conversation appendMessageWithFileMetadata:fileMetadata version3:NO];
     WaitForAllGroupsToBeEmpty(0.5);
     
     // then
@@ -384,7 +384,7 @@
     
     // when
     ZMVideoMetadata *videoMetadata = [[ZMVideoMetadata alloc] initWithFileURL:fileURL duration:duration dimensions:dimensions thumbnail:thumbnailData];
-    ZMAssetClientMessage *fileMessage = (id)[conversation appendMessageWithFileMetadata:videoMetadata];
+    ZMAssetClientMessage *fileMessage = (id)[conversation appendMessageWithFileMetadata:videoMetadata version3:NO];
     WaitForAllGroupsToBeEmpty(0.5);
     
     // then
@@ -430,7 +430,7 @@
     
     // when
     ZMAudioMetadata *audioMetadata = [[ZMAudioMetadata alloc] initWithFileURL:fileURL duration:duration normalizedLoudness:@[] thumbnail:thumbnailData];
-    ZMAssetClientMessage *fileMessage = (id)[conversation appendMessageWithFileMetadata:audioMetadata];
+    ZMAssetClientMessage *fileMessage = (id)[conversation appendMessageWithFileMetadata:audioMetadata version3:NO];
     WaitForAllGroupsToBeEmpty(0.5);
     
     // then

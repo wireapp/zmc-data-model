@@ -190,7 +190,7 @@
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.remoteIdentifier = [NSUUID createUUID];
-    ZMMessage *message = (id) [conversation appendMessageWithImageData:self.verySmallJPEGData];
+    ZMMessage *message = (id) [conversation appendMessageWithImageData:self.verySmallJPEGData version3:NO];
     message.serverTimestamp = [NSDate dateWithTimeIntervalSinceNow:-20];
     [message markAsSent];
 

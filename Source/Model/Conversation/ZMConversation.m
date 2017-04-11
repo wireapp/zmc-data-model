@@ -659,11 +659,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return message;
 }
 
-- (id<ZMConversationMessage>)appendMessageWithImageAtURL:(NSURL *)fileURL;
-{
-    return [self appendMessageWithImageAtURL:fileURL version3:NO];
-}
-
 - (id<ZMConversationMessage>)appendMessageWithImageAtURL:(NSURL *)fileURL version3:(BOOL)version3;
 {
     VerifyReturnNil(fileURL != nil);
@@ -680,11 +675,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return [self appendMessageWithOriginalImageData:originalImageData originalSize:originalSize version3:version3];
 }
 
-- (id<ZMConversationMessage>)appendMessageWithImageData:(NSData *)imageData;
-{
-    return [self appendMessageWithImageData:imageData version3:NO];
-}
-
 - (id<ZMConversationMessage>)appendMessageWithImageData:(NSData *)imageData version3:(BOOL)version3;
 {
     imageData = [imageData copy];
@@ -695,12 +685,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return [self appendMessageWithOriginalImageData:imageData originalSize:originalSize version3:version3];
 }
 
-- (nullable id<ZMConversationMessage>)appendMessageWithFileMetadata:(nonnull ZMFileMetadata *)fileMetadata
-{
-    return [self appendOTRMessageWithFileMetadata:fileMetadata nonce:NSUUID.UUID];
-}
-
-- (id<ZMConversationMessage>)appendMessageWithFileMetadata:(ZMFileMetadata *)fileMetadata version3:(BOOL)version3
+- (nullable id<ZMConversationMessage>)appendMessageWithFileMetadata:(nonnull ZMFileMetadata *)fileMetadata version3:(BOOL)version3
 {
     return [self appendOTRMessageWithFileMetadata:fileMetadata nonce:NSUUID.UUID version3:version3];
 }

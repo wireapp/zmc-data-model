@@ -545,7 +545,7 @@
         ZMUser *user = [self insertUserInConversation:conversation userIsTrusted:YES managedObjectContext:self.syncMOC];
         conversation.securityLevel = ZMConversationSecurityLevelSecure;
 
-        ZMOTRMessage *message1 = (ZMOTRMessage *)[conversation appendMessageWithImageData:[self verySmallJPEGData]];
+        ZMOTRMessage *message1 = (ZMOTRMessage *)[conversation appendMessageWithImageData:[self verySmallJPEGData] version3:NO];
         [NSThread sleepForTimeInterval:0.05]; // cause system time to advance
         ZMOTRMessage *message2 = (ZMOTRMessage *)[conversation appendMessageWithText:@"foo 2" fetchLinkPreview:NO];
         [NSThread sleepForTimeInterval:0.05]; // cause system time to advance
@@ -553,7 +553,7 @@
         [NSThread sleepForTimeInterval:0.05]; // cause system time to advance
         ZMOTRMessage *message4 = (ZMOTRMessage *)[conversation appendMessageWithText:@"foo 4" fetchLinkPreview:NO];
         [NSThread sleepForTimeInterval:0.05]; // cause system time to advance
-        ZMOTRMessage *message5 = (ZMOTRMessage *)[conversation appendMessageWithImageData:[self verySmallJPEGData]];
+        ZMOTRMessage *message5 = (ZMOTRMessage *)[conversation appendMessageWithImageData:[self verySmallJPEGData] version3:NO];
         
         
         UserClient *client = [UserClient insertNewObjectInManagedObjectContext:self.syncMOC];
@@ -621,7 +621,7 @@
         [NSThread sleepForTimeInterval:0.05]; // cause system time to advance
         message2 = (ZMOTRMessage *)[conversation appendMessageWithText:@"foo 3" fetchLinkPreview:NO];
         [NSThread sleepForTimeInterval:0.05]; // cause system time to advance
-        message3 = (ZMOTRMessage *)[conversation appendMessageWithImageData:[self verySmallJPEGData]];
+        message3 = (ZMOTRMessage *)[conversation appendMessageWithImageData:[self verySmallJPEGData] version3:NO];
         
         
         UserClient *client = [UserClient insertNewObjectInManagedObjectContext:self.syncMOC];
@@ -677,7 +677,7 @@
         [NSThread sleepForTimeInterval:0.05]; // cause system time to advance
         message2 = (ZMOTRMessage *)[conversation appendMessageWithText:@"foo 3" fetchLinkPreview:NO];
         [NSThread sleepForTimeInterval:0.05]; // cause system time to advance
-        message3 = (ZMOTRMessage *)[conversation appendMessageWithImageData:[self verySmallJPEGData]];
+        message3 = (ZMOTRMessage *)[conversation appendMessageWithImageData:[self verySmallJPEGData] version3:NO];
         
         
         UserClient *client = [UserClient insertNewObjectInManagedObjectContext:self.syncMOC];

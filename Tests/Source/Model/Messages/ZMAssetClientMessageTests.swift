@@ -40,7 +40,7 @@ class BaseZMAssetClientMessageTests : BaseZMClientMessageTests {
     func appendImageMessage(toConversation conversation: ZMConversation) {
         let imageData = verySmallJPEGData()
         let messageNonce = UUID.create()
-        message = conversation.appendOTRMessage(withImageData: imageData, nonce: messageNonce)
+        message = conversation.appendOTRMessage(withImageData: imageData, nonce: messageNonce, version3: false)
         
         let imageSize = ZMImagePreprocessor.sizeOfPrerotatedImage(with: imageData)
         let properties = ZMIImageProperties(size:imageSize, length:UInt(imageData.count), mimeType:"image/jpeg")
@@ -58,7 +58,7 @@ class BaseZMAssetClientMessageTests : BaseZMClientMessageTests {
         let otherFormat = format == ZMImageFormat.medium ? ZMImageFormat.preview : ZMImageFormat.medium
         let imageData = verySmallJPEGData()
         let messageNonce = UUID.create()
-        let message = conversation.appendOTRMessage(withImageData: imageData, nonce: messageNonce)
+        let message = conversation.appendOTRMessage(withImageData: imageData, nonce: messageNonce, version3: false)
         
         let imageSize = ZMImagePreprocessor.sizeOfPrerotatedImage(with: imageData)
         let properties = ZMIImageProperties(size:imageSize, length:UInt(imageData.count), mimeType:"image/jpeg")

@@ -508,7 +508,7 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.remoteIdentifier = .create()
         _ = conversation.appendMessage(with: .init(latitude: 52.520008, longitude: 13.404954, name: "Berlin, Germany", zoomLevel: 8))
-        _ = conversation.appendMessage(withImageData: mediumJPEGData())
+        _ = conversation.appendMessage(withImageData: mediumJPEGData(), version3: false)
         _ = conversation.appendKnock()
         _ = conversation.appendMessage(withImageData: verySmallJPEGData(), version3: true)
         fillConversationWithMessages(conversation: conversation, messageCount: 10, normalized: true)

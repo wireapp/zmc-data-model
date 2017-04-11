@@ -2431,7 +2431,7 @@
 - (void)testThatAppendingAnImageMessageInAnArchivedConversationUnarchivesIt
 {
     [self assertThatAppendingAMessageUnarchivesAConversation:^(ZMConversation *conversation) {
-        [conversation appendMessageWithImageData:self.verySmallJPEGData];
+        [conversation appendMessageWithImageData:self.verySmallJPEGData version3:NO];
     }];
 }
 
@@ -3514,7 +3514,7 @@
         
         ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
         conversation.remoteIdentifier = [NSUUID createUUID];
-        [conversation appendOTRMessageWithImageData:self.verySmallJPEGData nonce:messageID];
+        [conversation appendOTRMessageWithImageData:self.verySmallJPEGData nonce:messageID version3:NO];
         
         // store asset data
         [self.syncMOC.zm_imageAssetCache storeAssetData:messageID format:ZMImageFormatOriginal encrypted:NO data:imageData];
@@ -3569,7 +3569,7 @@
         ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
         conversation.remoteIdentifier = [NSUUID createUUID];
         ZMFileMetadata *fileMetadata = [[ZMFileMetadata alloc] initWithFileURL:fileURL thumbnail:nil];
-        [conversation appendOTRMessageWithFileMetadata:fileMetadata nonce:messageID];
+        [conversation appendOTRMessageWithFileMetadata:fileMetadata nonce:messageID version3:NO];
         
         // store asset data
         [self.syncMOC.zm_fileAssetCache storeAssetData:messageID fileName:fileName encrypted:NO data:fileData];
@@ -3734,7 +3734,7 @@
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     
     // when
-    [conversation appendMessageWithImageData:self.verySmallJPEGData];
+    [conversation appendMessageWithImageData:self.verySmallJPEGData version3:NO];
     
     // then
     NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:[ZMMessage entityName]];
