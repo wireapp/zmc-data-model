@@ -99,10 +99,6 @@ extern NSString * _Null_unspecified const ZMConversationIsVerifiedNotificationNa
 /// Or import the internal header for testing
 @property (nonatomic, readonly) NSTimeInterval messageDestructionTimeout;
 
-
-/// Specifies whether assets should be using the `/assets/v3` protocol version.
-+ (void)setUseVersion3Assets:(BOOL)useV3Assets;
-
 - (void)addParticipant:(nonnull ZMUser *)participant;
 - (void)addParticipants:(nonnull NSSet<ZMUser *> *)participants;
 - (void)removeParticipant:(nonnull ZMUser *)participant;

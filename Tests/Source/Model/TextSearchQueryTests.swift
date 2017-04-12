@@ -505,8 +505,6 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
 
     func testThatItDoesNotReturnAnyMessagesOtherThanTextInTheResults() {
         // Given
-        ZMConversation.setUseVersion3Assets(true)
-
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.remoteIdentifier = .create()
         _ = conversation.appendMessage(with: .init(latitude: 52.520008, longitude: 13.404954, name: "Berlin, Germany", zoomLevel: 8))
@@ -523,8 +521,6 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
             whenSearchingFor: "get the picture",
             in: conversation
         )
-
-        ZMConversation.setUseVersion3Assets(false)
     }
 
     // MARK: Helper

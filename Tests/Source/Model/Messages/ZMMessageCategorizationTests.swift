@@ -223,12 +223,10 @@ class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
     func testThatItCategorizesV3Images() {
         
         // GIVEN
-        ZMConversation.setUseVersion3Assets(true)
         let message = self.conversation.appendMessage(withImageData: self.verySmallJPEGData())!
         
         // THEN
         XCTAssertEqual(message.categorization, MessageCategory.image)
-        ZMConversation.setUseVersion3Assets(false)
     }
     
     func testThatItCategorizesSystemMessage() {

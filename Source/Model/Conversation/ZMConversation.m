@@ -111,9 +111,6 @@ static NSString *const ArchivedEventIDDataKey = @"archivedEventID_data";
 static NSString *const LastReadEventIDDataKey = @"lastReadEventID_data";
 
 
-static BOOL UseAssetsV3 = NO;
-
-
 NSTimeInterval ZMConversationDefaultLastReadTimestampSaveDelay = 3.0;
 
 const NSUInteger ZMConversationMaxEncodedTextMessageLength = 1500;
@@ -176,11 +173,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @synthesize lastReadTimestampSaveDelay;
 @synthesize lastReadTimestampUpdateCounter;
 @synthesize unreadTimeStamps;
-
-+ (void)setUseVersion3Assets:(BOOL)useV3Assets;
-{
-    UseAssetsV3 = useV3Assets;
-}
 
 - (BOOL)isArchived
 {
@@ -1176,12 +1168,10 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (ZMAssetClientMessage *)appendAssetClientMessageWithNonce:(NSUUID *)nonce hidden:(BOOL)hidden imageData:(NSData *)imageData
 {
-    return [self appendAssetClientMessageWithNonce:nonce hidden:hidden imageData:imageData version3:NO];
-}
-
-- (ZMAssetClientMessage *)appendAssetClientMessageWithNonce:(NSUUID *)nonce hidden:(BOOL)hidden imageData:(NSData *)imageData version3:(BOOL)version3
-{
-    ZMAssetClientMessage *message = [ZMAssetClientMessage assetClientMessageWithOriginalImageData:imageData nonce:nonce managedObjectContext:self.managedObjectContext expiresAfter:self.messageDestructionTimeout version3:version3];
+    ZMAssetClientMessage *message = [ZMAssetClientMessage assetClientMessageWithOriginalImageData:imageData
+                                                                                            nonce:nonce
+                                                                             managedObjectContext:self.managedObjectContext
+                                                                                     expiresAfter:self.messageDestructionTimeout];
     message.sender = [ZMUser selfUserInContext:self.managedObjectContext];
     [message updateCategoryCache];
     if(hidden) {
@@ -1196,7 +1186,10 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (ZMAssetClientMessage *)appendOTRMessageWithFileMetadata:(ZMFileMetadata *)fileMetadata nonce:(NSUUID *)nonce
 {
-    ZMAssetClientMessage *message = [ZMAssetClientMessage assetClientMessageWithFileMetadata:fileMetadata nonce:nonce managedObjectContext:self.managedObjectContext expiresAfter:self.messageDestructionTimeout version3:UseAssetsV3];
+    ZMAssetClientMessage *message = [ZMAssetClientMessage assetClientMessageWithFileMetadata:fileMetadata
+                                                                                       nonce:nonce
+                                                                        managedObjectContext:self.managedObjectContext
+                                                                                expiresAfter:self.messageDestructionTimeout];
     message.sender = [ZMUser selfUserInContext:self.managedObjectContext];
     message.isEncrypted = YES;
     [message updateCategoryCache];
@@ -1249,7 +1242,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         imageDataWithoutMetadata = imageData;
     }
     
-    ZMAssetClientMessage *message = [self appendAssetClientMessageWithNonce:nonce hidden:false imageData:imageDataWithoutMetadata version3:UseAssetsV3];
+    ZMAssetClientMessage *message = [self appendAssetClientMessageWithNonce:nonce hidden:false imageData:imageDataWithoutMetadata];
     message.isEncrypted = YES;
     return message;
 }
