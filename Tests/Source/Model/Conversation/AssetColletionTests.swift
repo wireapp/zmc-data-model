@@ -70,6 +70,7 @@ class AssetColletionTests : ModelObjectsTests {
             XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
             sut = nil
         }
+        conversation = nil
         super.tearDown()
     }
     
