@@ -35,4 +35,23 @@ extension IntegerClusterizer {
         ClusterRange(30000, 40000),
         ClusterRange(40000, 75000)
     ])
+
+    static let databaseSize = IntegerClusterizer(ranges: [
+        ClusterRange(0, 5),
+        ClusterRange(5, 10),
+        ClusterRange(10, 25),
+        ClusterRange(25, 50),
+        ClusterRange(50, 100),
+        ClusterRange(100, 200),
+        ClusterRange(200, 500),
+        ClusterRange(500, 1000),
+        ClusterRange(1000, 2000),
+        ClusterRange(2000, 3000),
+        ClusterRange(3000, 4000),
+        ClusterRange(4000, 5000),
+        ClusterRange(5000, 10000),
+        ClusterRange(10000, 15000),
+        ClusterRange(15000, 20000)
+        ])
+
 }

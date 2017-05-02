@@ -32,9 +32,10 @@ fileprivate struct MessageCountEvent {
     let name = "legacy.message_count"
     let attributes: [String: NSObject]
 
-    init(messageCount: MessageCount) {
+    init(messageCount: MessageCount, databaseSize: UInt) {
         let clusterizer = IntegerClusterizer.messageCount
         attributes = [
+            "database_size_mb": IntegerClusterizer.databaseSize.clusterize(Int(databaseSize / 1_000_000)) as NSObject,
             "unencrypted_images": clusterizer.clusterize(messageCount.unencryptedImageCount) as NSObject,
             "unencrypted_text": clusterizer.clusterize(messageCount.plaintextMessageCount) as NSObject,
             "asset_messages": clusterizer.clusterize(messageCount.assetClientMessageCount) as NSObject,
@@ -118,6 +119,9 @@ final fileprivate class LegacyMessageCountFetcher: CountFetcherType {
 }
 
 
+private let debugTrackingOverride = false
+
+
 @objc final public class LegacyMessageTracker: NSObject {
 
     private let lastTrackDateKey = "LegacyMessageTracker.lastTrackDate"
@@ -170,11 +174,22 @@ final fileprivate class LegacyMessageCountFetcher: CountFetcherType {
     }
 
     public func trackLegacyMessageCount() {
-        guard shouldTrack() else { return }
+        guard shouldTrack() || debugTrackingOverride else { return }
         lastTrackDate = createDate()
         countFetcher.fetchNumberOfLegacyMessages {
-            let event = MessageCountEvent(messageCount: $0)
+            let event = MessageCountEvent(messageCount: $0, databaseSize: self.databaseSize() ?? 0)
+            print(event.attributes)
             self.managedObjectContext.analytics?.tagEvent(event.name, attributes: event.attributes)
+        }
+    }
+
+    private func databaseSize() -> UInt? {
+        do {
+            let attributes = try FileManager.default.attributesOfItem(atPath: managedObjectContext.zm_storeURL.path)
+            return attributes[FileAttributeKey.size] as? UInt
+        } catch {
+            log.error("Unable to retrieve database attributes: \(error), path: \(managedObjectContext.zm_storeURL.path)")
+            return nil
         }
     }
 }
