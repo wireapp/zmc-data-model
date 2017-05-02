@@ -178,10 +178,12 @@ class MessageCountTrackerTests: BaseZMMessageTests {
         }
 
         // When
-        guard let sut = LegacyMessageTracker(managedObjectContext: syncMOC, userDefaults: defaults, createDate: Date.init ) else { return XCTFail("Unable to create SUT") }
+        guard let sut = LegacyMessageTracker(managedObjectContext: syncMOC, userDefaults: defaults, createDate: Date.init) else { return XCTFail("Unable to create SUT") }
 
-        sut.trackLegacyMessageCount()
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        performIgnoringZMLogError {
+            sut.trackLegacyMessageCount()
+            XCTAssert(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        }
 
         // Then
         guard let (event, attributes) = mockAnalytics.taggedEventsWithAttributes.first else { return XCTFail("No trackin data") }
