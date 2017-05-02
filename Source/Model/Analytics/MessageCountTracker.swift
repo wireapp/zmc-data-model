@@ -33,11 +33,12 @@ fileprivate struct MessageCountEvent {
     let attributes: [String: NSObject]
 
     init(messageCount: MessageCount) {
+        let clusterizer = IntegerClusterizer.messageCount
         attributes = [
-            "unencrypted_images": NSNumber(value: messageCount.unencryptedImageCount),
-            "unencrypted_text": NSNumber(value: messageCount.plaintextMessageCount),
-            "asset_messages": NSNumber(value: messageCount.assetClientMessageCount),
-            "client_messages": NSNumber(value: messageCount.clientMessageCount)
+            "unencrypted_images": clusterizer.clusterize(messageCount.unencryptedImageCount) as NSObject,
+            "unencrypted_text": clusterizer.clusterize(messageCount.plaintextMessageCount) as NSObject,
+            "asset_messages": clusterizer.clusterize(messageCount.assetClientMessageCount) as NSObject,
+            "client_messages": clusterizer.clusterize(messageCount.clientMessageCount) as NSObject
         ]
     }
 }
@@ -131,7 +132,15 @@ final fileprivate class LegacyMessageCountFetcher: CountFetcherType {
         self.init(
             managedObjectContext: managedObjectContext,
             userDefaults: .standard,
-            createDate: Date.init,
+            createDate: Date.init
+        )
+    }
+
+    convenience init?(managedObjectContext: NSManagedObjectContext, userDefaults: UserDefaults, createDate: @escaping () -> Date) {
+        self.init(
+            managedObjectContext: managedObjectContext,
+            userDefaults: userDefaults,
+            createDate: createDate,
             countFetcher: LegacyMessageCountFetcher(managedObjectContext: managedObjectContext)
         )
     }
@@ -150,12 +159,8 @@ final fileprivate class LegacyMessageCountFetcher: CountFetcherType {
     }
 
     var lastTrackDate: Date? {
-        get {
-            return userDefaults.object(forKey: lastTrackDateKey) as? Date
-        }
-        set {
-            userDefaults.set(newValue, forKey: lastTrackDateKey)
-        }
+        get { return userDefaults.object(forKey: lastTrackDateKey) as? Date }
+        set { userDefaults.set(newValue, forKey: lastTrackDateKey) }
     }
 
     func shouldTrack() -> Bool {

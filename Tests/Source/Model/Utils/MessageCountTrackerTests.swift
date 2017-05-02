@@ -39,6 +39,31 @@ private class MockCountFetcher: CountFetcherType {
     }
 }
 
+final private class MockAnalytics: NSObject, AnalyticsType {
+
+    var taggedEvents = [String]()
+    var taggedEventsWithAttributes = [(String, [String: NSObject])]()
+
+    @objc func tagEvent(_ event: String) {
+        taggedEvents.append(event)
+    }
+
+    @objc func tagEvent(_ event: String, attributes: [String : NSObject]) {
+        taggedEventsWithAttributes.append((event, attributes))
+    }
+
+    @objc func upload() {}
+}
+
+
+fileprivate extension Int {
+
+    func times(_ execute: () -> Void) {
+        (0..<self).forEach { _ in execute() }
+    }
+
+}
+
 
 class MessageCountTrackerTests: BaseZMMessageTests {
 
@@ -54,6 +79,7 @@ class MessageCountTrackerTests: BaseZMMessageTests {
         super.tearDown()
     }
 
+    // MARK: - Execution Interval
 
     func testThatItTracksTheMessageCountInitially() {
         // Given
@@ -78,6 +104,7 @@ class MessageCountTrackerTests: BaseZMMessageTests {
         // Then
         XCTAssertEqual(sut.lastTrackDate, currentDate)
         XCTAssertEqual(mockFetcher.callCount, 1)
+        XCTAssertFalse(sut.shouldTrack())
     }
 
     func testThatItDoesNotTrackTheMessageCountWhenItTrackedInTheLast14Days() {
@@ -134,5 +161,35 @@ class MessageCountTrackerTests: BaseZMMessageTests {
         XCTAssertEqual(mockFetcher.callCount, 1)
     }
 
-}
+    // MARK: - Tracking
 
+    func testThatItTracksTheClusterizedCountsOfMessagesInTheDatabase() {
+        // Given
+        let defaults = UserDefaults(suiteName: #function)!
+        defaults.removePersistentDomain(forName: #function)
+        let mockAnalytics = MockAnalytics()
+
+        syncMOC.performGroupedBlockAndWait {
+            self.syncMOC.analytics = mockAnalytics
+            101.times { ZMClientMessage.insertNewObject(in: self.syncMOC) }
+            4.times { ZMImageMessage.insertNewObject(in: self.syncMOC) }
+            3.times { ZMAssetClientMessage.insertNewObject(in: self.syncMOC) }
+            2.times { ZMTextMessage.insertNewObject(in: self.syncMOC) }
+        }
+
+        // When
+        guard let sut = LegacyMessageTracker(managedObjectContext: syncMOC, userDefaults: defaults, createDate: Date.init ) else { return XCTFail("Unable to create SUT") }
+
+        sut.trackLegacyMessageCount()
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+
+        // Then
+        guard let (event, attributes) = mockAnalytics.taggedEventsWithAttributes.first else { return XCTFail("No trackin data") }
+        XCTAssertEqual(event, "legacy.message_count")
+        XCTAssertEqual(attributes["client_messages"] as? String, "100-250")
+        XCTAssertEqual(attributes["unencrypted_images"] as? String, "0-100")
+        XCTAssertEqual(attributes["asset_messages"] as? String, "0-100")
+        XCTAssertEqual(attributes["unencrypted_text"] as? String, "0-100")
+    }
+
+}
