@@ -178,7 +178,6 @@ private let debugTrackingOverride = false
         lastTrackDate = createDate()
         countFetcher.fetchNumberOfLegacyMessages {
             let event = MessageCountEvent(messageCount: $0, databaseSize: self.databaseSize() ?? 0)
-            print(event.attributes)
             self.managedObjectContext.analytics?.tagEvent(event.name, attributes: event.attributes)
         }
     }
