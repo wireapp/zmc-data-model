@@ -29,14 +29,14 @@ public struct ClusterRange<T> {
     }
 }
 
-protocol ClusterizerType {
+public protocol ClusterizerType {
     associatedtype ClusterType: Comparable
     var ranges:  [ClusterRange<ClusterType>] { get }
     func clusterize(_ value: ClusterType) -> String
 }
 
 extension ClusterizerType {
-    func clusterize(_ value: ClusterType) -> String {
+    public func clusterize(_ value: ClusterType) -> String {
         guard let range = ranges.first, value >= range.start else { return String(describing: value) }
         for range in ranges where range.start <= value && value <= range.end {
             return range.stringValue
@@ -47,6 +47,10 @@ extension ClusterizerType {
 }
 
 public struct IntegerClusterizer: ClusterizerType {
-    typealias ClusterType = Int
-    let ranges: [ClusterRange<ClusterType>]
+    public typealias ClusterType = Int
+    public let ranges: [ClusterRange<ClusterType>]
+
+    public init(ranges: [ClusterRange<ClusterType>]) {
+        self.ranges = ranges
+    }
 }
