@@ -186,7 +186,7 @@ class MessageCountTrackerTests: BaseZMMessageTests {
         }
 
         // Then
-        guard let (event, attributes) = mockAnalytics.taggedEventsWithAttributes.first else { return XCTFail("No trackin data") }
+        guard let (event, attributes) = mockAnalytics.taggedEventsWithAttributes.first else { return XCTFail("No tracking data") }
         XCTAssertEqual(event, "legacy.message_count")
         XCTAssertEqual(attributes["client_messages"] as? String, "100-250")
         XCTAssertEqual(attributes["unencrypted_images"] as? String, "0-100")
