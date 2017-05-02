@@ -23,7 +23,7 @@ public struct ClusterRange<T> {
     let start, end: T
     var stringValue: String { return "\(start)-\(end)" }
 
-    init(_ start: T, _ end: T) {
+    public init(_ start: T, _ end: T) {
         self.start = start
         self.end = end
     }
