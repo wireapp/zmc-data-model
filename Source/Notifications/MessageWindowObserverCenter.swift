@@ -219,7 +219,7 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
     func updateMessageChangeInfos(window: ZMConversationMessageWindow) {
         messageChangeInfos.forEach{
             guard let user = $0.message.sender, let userChange = userChanges.removeValue(forKey:user.objectID) else { return }
-            $0.changeInfos["userChanges"] = userChange
+            $0.changeInfos[MessageChangeInfo.UserChangeInfoKey] = userChange
         }
         
         guard userChanges.count > 0, let messages = window.messages.array as? [ZMMessage] else { return }
@@ -230,7 +230,7 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
                 guard userIDs.contains(objectID) else { return }
                 
                 let changeInfo = MessageChangeInfo(object: message)
-                changeInfo.changeInfos["userChanges"] = change
+                changeInfo.changeInfos[MessageChangeInfo.UserChangeInfoKey] = change
                 messageChangeInfos.append(changeInfo)
             }
         }
@@ -247,10 +247,10 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
         
         var userInfo = [String : Any]()
         if messageChangeInfos.count > 0 {
-            userInfo["messageChangeInfos"] = messageChangeInfos
+            userInfo[MessageWindowChangeInfo.MessageChangeUserInfoKey] = messageChangeInfos
         }
         if let changeInfo = windowChangeInfo {
-            userInfo["messageWindowChangeInfo"] = changeInfo
+            userInfo[MessageWindowChangeInfo.MessageWindowChangeUserInfoKey] = changeInfo
         }
         guard !userInfo.isEmpty else {
             zmLog.debug("No changes to post for window \(window)")

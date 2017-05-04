@@ -20,6 +20,10 @@
 import Foundation
 
 @objc public final class MessageWindowChangeInfo: NSObject, SetChangeInfoOwner {
+    
+    public static let MessageWindowChangeUserInfoKey = "messageWindowChangeInfo"
+    public static let MessageChangeUserInfoKey = "messageChangeInfos"
+    
     public typealias ChangeInfoContent = ZMMessage
     public var setChangeInfo: SetChangeInfo<ZMMessage>
     
@@ -66,10 +70,10 @@ extension MessageWindowChangeInfo {
         return NotificationCenterObserverToken(name: .MessageWindowDidChange, object: window)
         { [weak observer] (note) in
             guard let `observer` = observer, let window = note.object as? ZMConversationMessageWindow else { return }
-            if let changeInfo = note.userInfo?["messageWindowChangeInfo"] as? MessageWindowChangeInfo{
+            if let changeInfo = note.userInfo?[self.MessageWindowChangeUserInfoKey] as? MessageWindowChangeInfo {
                 observer.conversationWindowDidChange(changeInfo)
             }
-            if let messageChangeInfos = note.userInfo?["messageChangeInfos"] as? [MessageChangeInfo] {
+            if let messageChangeInfos = note.userInfo?[self.MessageChangeUserInfoKey] as? [MessageChangeInfo] {
                 observer.messagesInsideWindow?(window, didChange: messageChangeInfos)
             }
         } 
