@@ -186,7 +186,9 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
     
     // MARK: Change computing
     /// Compute the changes, update window and notify observers
-    fileprivate func computeChanges() {
+    ///
+    /// - Parameter needsReload: set to true when there might be changes that are not reflected in change info
+    fileprivate func computeChanges(needsReload: Bool = false) {
         guard let window = conversationWindow else { return }
         defer {
             updatedMessages = []
@@ -208,6 +210,15 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
             state = newStateUpdate.newSnapshot
             changeInfo = MessageWindowChangeInfo(setChangeInfo: newStateUpdate.changeInfo)
             tempUserIDsInWindow = nil
+        } else if needsReload {
+            // We need to reload, just make empty change info
+            let emptyChangeInfo = SetChangeInfo<ZMMessage>(observedObject: window)
+            changeInfo = MessageWindowChangeInfo(setChangeInfo: emptyChangeInfo)
+        }
+        
+        if needsReload {
+            zmLog.debug("Needs reloading")
+            changeInfo?.needsReload = true
         }
         
         // Notify observers
@@ -264,7 +275,7 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
     
     public func applicationWillEnterForeground() {
         shouldRecalculate = true
-        computeChanges()
+        computeChanges(needsReload: true)
     }
     
     func logMessage(for messageChangeInfos: [MessageChangeInfo], windowChangeInfo: MessageWindowChangeInfo?) -> String {

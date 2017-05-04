@@ -31,6 +31,9 @@ import Foundation
     public var isFetchingMessagesChanged = false
     public var isFetchingMessages = false
     
+    /// Set to true when there might be some changes that are not reflected in the change info and it's better to reload
+    public var needsReload = false
+    
     init(setChangeInfo: SetChangeInfo<ZMMessage>) {
         self.setChangeInfo = setChangeInfo
     }
