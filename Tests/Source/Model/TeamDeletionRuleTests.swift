@@ -103,7 +103,7 @@ class TeamDeletionRuleTests: BaseZMClientMessageTests {
         // then
         let fetchedUser = ZMUser.fetch(withRemoteIdentifier: userId, in: uiMOC)
         XCTAssertEqual(fetchedUser, user)
-        XCTAssertEqual(fetchedUser?.members.isEmpty, true)
+        XCTAssertEqual(fetchedUser?.memberships.isEmpty, true)
     }
 
     func testThatItDoesNotDeleteATeamWhenAMemberOfItGetsDeleted() {

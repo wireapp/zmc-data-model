@@ -35,7 +35,7 @@
 @property (nonatomic, readonly) ZMConversation *oneToOneConversation;
 @property (nonatomic) AddressBookEntry *addressBookEntry;
 
-@property (nonatomic, readonly) NSSet<Member *> *members;
+@property (nonatomic, readonly) NSSet<Member *> *memberships;
 
 ///
 @property (nonatomic, readonly) NSSet<UserClient *> *clients;

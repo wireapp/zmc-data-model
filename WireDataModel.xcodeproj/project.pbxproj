@@ -78,6 +78,7 @@
 		BF2ADF631E28CF1E00E81B1E /* SharedObjectStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF2ADF621E28CF1E00E81B1E /* SharedObjectStore.swift */; };
 		BF3493EB1EC34C0B00B0C314 /* TeamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF3493EA1EC34C0B00B0C314 /* TeamTests.swift */; };
 		BF3493ED1EC34FF700B0C314 /* store2-29-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = BF3493EC1EC34FF700B0C314 /* store2-29-0.wiredatabase */; };
+		BF3493F01EC3569800B0C314 /* MemberTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF3493EF1EC3569800B0C314 /* MemberTests.swift */; };
 		BF46662A1DCB71B0007463FF /* V3Asset.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4666291DCB71B0007463FF /* V3Asset.swift */; };
 		BF6EA4D21E2512E800B7BD4B /* ZMConversation+DisplayName.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF6EA4D11E2512E800B7BD4B /* ZMConversation+DisplayName.swift */; };
 		BF707C391EB8780800108D4E /* MessageCountTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF707C381EB8780800108D4E /* MessageCountTracker.swift */; };
@@ -479,6 +480,7 @@
 		BF2ADF621E28CF1E00E81B1E /* SharedObjectStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SharedObjectStore.swift; sourceTree = "<group>"; };
 		BF3493EA1EC34C0B00B0C314 /* TeamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TeamTests.swift; sourceTree = "<group>"; };
 		BF3493EC1EC34FF700B0C314 /* store2-29-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; name = "store2-29-0.wiredatabase"; path = "Tests/Resources/store2-29-0.wiredatabase"; sourceTree = SOURCE_ROOT; };
+		BF3493EF1EC3569800B0C314 /* MemberTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MemberTests.swift; sourceTree = "<group>"; };
 		BF4666291DCB71B0007463FF /* V3Asset.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = V3Asset.swift; sourceTree = "<group>"; };
 		BF6EA4D11E2512E800B7BD4B /* ZMConversation+DisplayName.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZMConversation+DisplayName.swift"; sourceTree = "<group>"; };
 		BF707C381EB8780800108D4E /* MessageCountTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageCountTracker.swift; sourceTree = "<group>"; };
@@ -953,6 +955,17 @@
 			path = Conversation;
 			sourceTree = "<group>";
 		};
+		BF3493EE1EC3566500B0C314 /* Teams */ = {
+			isa = PBXGroup;
+			children = (
+				BF1B980A1EC31D6100DE033B /* TeamDeletionRuleTests.swift */,
+				BF1B980C1EC3410000DE033B /* PermissionsTests.swift */,
+				BF3493EA1EC34C0B00B0C314 /* TeamTests.swift */,
+				BF3493EF1EC3569800B0C314 /* MemberTests.swift */,
+			);
+			name = Teams;
+			sourceTree = "<group>";
+		};
 		CE4EDC071D6D9A04002A20AA /* Reaction */ = {
 			isa = PBXGroup;
 			children = (
@@ -1337,12 +1350,10 @@
 				F9B71F6B1CB2BC85001DB03F /* VoiceChannel */,
 				F9B720011CB2C68B001DB03F /* UserClient */,
 				F9A7080C1CAEEB7400C2F5FE /* MockDataModel */,
+				BF3493EE1EC3566500B0C314 /* Teams */,
 				F9A7080B1CAEEB7400C2F5FE /* CoreDataRelationshipsTests.m */,
 				F94A208E1CB51AF50059632A /* ManagedObjectValidationTests.m */,
 				F9A708131CAEEB7400C2F5FE /* ModelObjectsTests.h */,
-				BF1B980A1EC31D6100DE033B /* TeamDeletionRuleTests.swift */,
-				BF1B980C1EC3410000DE033B /* PermissionsTests.swift */,
-				BF3493EA1EC34C0B00B0C314 /* TeamTests.swift */,
 				F9A708141CAEEB7400C2F5FE /* ModelObjectsTests.m */,
 				F9A708151CAEEB7400C2F5FE /* NSFetchRequestTests+ZMRelationshipKeyPaths.m */,
 				F9A708161CAEEB7400C2F5FE /* PersistentChangeTrackingTests.m */,
@@ -2161,6 +2172,7 @@
 				54DE05DD1CF8711F00C35253 /* ProtobufUtilitiesTests.swift in Sources */,
 				F9C8770B1E015AAF00792613 /* AssetColletionTests.swift in Sources */,
 				F18998861E7AEECF00E579A2 /* ZMUserTests.swift in Sources */,
+				BF3493F01EC3569800B0C314 /* MemberTests.swift in Sources */,
 				F9A7083B1CAEEB7500C2F5FE /* MockEntity2.m in Sources */,
 				F9B71FA51CB2BF37001DB03F /* ZMConversationTests+participants.m in Sources */,
 				F9331C5A1CB3BECB00139ECC /* ZMClientMessageTests+OTR.swift in Sources */,

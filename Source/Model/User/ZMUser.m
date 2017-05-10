@@ -77,7 +77,7 @@ static NSString *const ShowingUserRemovedKey = @"showingUserRemoved";
 static NSString *const UserClientsKey = @"clients";
 static NSString *const ReactionsKey = @"reactions";
 static NSString *const AddressBookEntryKey = @"addressBookEntry";
-static NSString *const MembersKey = @"members";
+static NSString *const MembershipsKey = @"memberships";
 
 @interface ZMBoxedSelfUser : NSObject
 
@@ -180,7 +180,7 @@ static NSString *const MembersKey = @"members";
 @dynamic clients;
 @dynamic handle;
 @dynamic addressBookEntry;
-@dynamic members;
+@dynamic memberships;
 
 - (UserClient *)selfClient
 {
@@ -401,7 +401,7 @@ static NSString *const MembersKey = @"members";
                                            ReactionsKey,
                                            AddressBookEntryKey,
                                            HandleKey, // this is not set on the user directly
-                                           MembersKey
+                                           MembershipsKey
                                            ]];
         keys = [ignoredKeys copy];
     });
