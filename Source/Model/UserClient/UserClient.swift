@@ -200,7 +200,7 @@ public class UserClient: ZMManagedObject, UserClientType {
     
     /// Resets the session between the client and the selfClient
     /// Can be called several times without issues
-    public func resetSession() {
+    public func resetSession(in team: Team?) {
         guard let sessionIdentifier = self.sessionIdentifier,
               let uiMOC = self.managedObjectContext,
               let syncMOC = uiMOC.zm_sync
@@ -223,7 +223,7 @@ public class UserClient: ZMManagedObject, UserClientType {
             uiMOC.performGroupedBlock {
                 // Send session reset message so other user can send us messages immediately
                 guard let user = self.user,
-                      let conversation = user.isSelfUser ? ZMConversation.selfConversation(in: uiMOC) : user.oneToOneConversation
+                    let conversation = user.isSelfUser ? ZMConversation.selfConversation(in: uiMOC) : user.oneToOneConversation(in: team)
                 else { return }
                 
                 let message = ZMGenericMessage.sessionReset(withNonce: UUID().transportString())

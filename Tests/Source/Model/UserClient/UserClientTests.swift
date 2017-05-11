@@ -321,7 +321,7 @@ class UserClientTests: ZMBaseManagedObjectTest {
             selfClient.trustClient(otherClient)
             
             // when
-            otherClient.resetSession()
+            otherClient.resetSession(in: nil)
         }
 
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))

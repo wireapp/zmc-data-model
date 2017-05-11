@@ -63,7 +63,8 @@
     
     // when
     ZMConversation *conversation = [ZMConversation insertGroupConversationIntoUserSession:session
-                                                                         withParticipants:@[user1, user2, user3]];
+                                                                         withParticipants:@[user1, user2, user3]
+                                                                                   inTeam:nil];
     
     // then
     NSFetchRequest *fetchRequest = [ZMConversation sortedFetchRequest];

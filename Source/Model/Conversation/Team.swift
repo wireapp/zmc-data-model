@@ -22,6 +22,8 @@ public class Team: ZMManagedObject {
     @NSManaged public var conversations: Set<ZMConversation>?
     @NSManaged public var members: Set<Member>?
     @NSManaged public var name: String?
+    @NSManaged public var teamPictureAssetKey: String?
+    @NSManaged public var isActive: Bool
 
     @NSManaged private var remoteIdentifier_data: Data?
 
@@ -53,3 +55,44 @@ public class Team: ZMManagedObject {
         return nil
     }
 }
+
+public enum TeamError: Error {
+    case insufficientPermissions
+}
+
+extension Team {
+
+    public func addConversation(with participants: Set<ZMUser>) throws -> ZMConversation? {
+        guard ZMUser.selfUser(in: managedObjectContext!).canCreateConversation(in: self) else { throw TeamError.insufficientPermissions }
+        switch participants.count {
+        case 1: return ZMConversation.fetchOrCreateTeamConversation(in: managedObjectContext!, withParticipant: participants.first!, team: self)
+        default: return ZMConversation.insertGroupConversation(into: managedObjectContext!, withParticipants: Array(participants), in: self)
+        }
+    }
+
+}
+
+extension Team {
+
+    public func guests() -> Set<ZMUser> {
+        guard let conversations = conversations else { return Set() }
+        let users = allUsers()
+        var guests = Set<ZMUser>()
+        for conversation in conversations {
+            guard let participants = conversation.otherActiveParticipants.set as? Set<ZMUser> else { continue }
+            guests.formUnion(participants.subtracting(users))
+        }
+
+        return guests
+    }
+
+    private func allUsers() -> Set<ZMUser> {
+        if let users = members?.flatMap({ $0.user }) {
+            return Set(users)
+        }
+        return Set()
+    }
+
+}
+
+

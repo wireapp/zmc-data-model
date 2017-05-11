@@ -21,7 +21,7 @@ import WireTesting
 @testable import WireDataModel
 
 
-class TeamTests: BaseZMClientMessageTests {
+class TeamTests: BaseTeamTests {
 
     func testThatItCreatesANewTeamIfThereIsNone() {
         syncMOC.performGroupedBlockAndWait {
@@ -47,6 +47,60 @@ class TeamTests: BaseZMClientMessageTests {
         // then
         XCTAssertNotNil(existing)
         XCTAssertEqual(existing, sut)
+    }
+
+    func testThatItReturnsGuestsOfATeam() {
+        do {
+            // given
+            let (team, _) = createTeamAndMember(for: .selfUser(in: uiMOC), with: .member)
+
+            // we add actual team members as well
+            createUserAndAddMember(to: team)
+            createUserAndAddMember(to: team)
+
+            let guest = ZMUser.insertNewObject(in: uiMOC)
+            _ = try team.addConversation(with: [guest])
+
+            // when
+            let guests = team.guests()
+
+            // then
+            XCTAssertEqual(guests, [guest])
+            XCTAssertTrue(guest.isGuest(of: team))
+            XCTAssertFalse(guest.isMember(of: team))
+        } catch {
+            XCTFail("Eror: \(error)")
+        }
+    }
+
+    func testThatItDoesNotReturnGuestsOfOtherTeams() {
+        do {
+            // given
+            let (team1, _) = createTeamAndMember(for: .selfUser(in: uiMOC), with: .member)
+            let (team2, _) = createTeamAndMember(for: .selfUser(in: uiMOC), with: .member)
+
+            // we add actual team members as well
+            createUserAndAddMember(to: team1)
+            let (otherUser, _) = createUserAndAddMember(to: team2)
+
+            let guest = ZMUser.insertNewObject(in: uiMOC)
+
+            // when
+            _ = try team1.addConversation(with: [guest])
+            _ = try team2.addConversation(with: [otherUser])
+
+            // then
+            XCTAssertEqual(team2.guests(), [])
+            XCTAssertEqual(team1.guests(), [guest])
+            XCTAssertTrue(guest.isGuest(of: team1))
+            XCTAssertFalse(guest.isGuest(of: team2))
+            XCTAssertFalse(guest.isGuest(of: team2))
+            XCTAssertFalse(otherUser.isGuest(of: team1))
+            XCTAssertFalse(guest.isMember(of: team1))
+            XCTAssertFalse(guest.isMember(of: team2))
+        } catch {
+            XCTFail("Eror: \(error)")
+        }
     }
     
 }
