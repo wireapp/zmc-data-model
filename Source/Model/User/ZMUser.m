@@ -312,7 +312,6 @@ static NSString *const AddressBookEntryKey = @"addressBookEntry";
             case ZMConnectionStatusIgnored:
             case ZMConnectionStatusBlocked:
                 self.connection.status = ZMConnectionStatusAccepted;
-
                 if(self.connection.conversation.conversationType == ZMConversationTypeConnection) {
                     self.connection.conversation.conversationType = ZMConversationTypeOneOnOne;
                 }
