@@ -92,7 +92,7 @@ class Conversationtests_Teams: BaseTeamTests {
         XCTAssertNotEqual(conversation, newConversation)
     }
 
-    func testThatItReturnsNilWhenAskedForOneOnOneConversationWithoutTeam() {
+    func testThatItReturnsNotNilWhenAskedForOneOnOneConversationWithoutTeam() {
         // given
         let oneOnOne = ZMConversation.insertNewObject(in: uiMOC)
         oneOnOne.conversationType = .oneOnOne
@@ -102,7 +102,9 @@ class Conversationtests_Teams: BaseTeamTests {
         oneOnOne.connection?.to = userOutsideTeam
 
         // then
-        performIgnoringZMLogError { XCTAssertNil(userOutsideTeam.oneToOneConversation(in: self.team)) }
+        let teamConversationWithGuest = userOutsideTeam.oneToOneConversation(in: team)
+        XCTAssertNotNil(teamConversationWithGuest)
+        XCTAssertNotEqual(teamConversationWithGuest, oneOnOne)
         XCTAssertEqual(userOutsideTeam.oneToOneConversation(in: nil), oneOnOne)
     }
 
@@ -125,17 +127,16 @@ class Conversationtests_Teams: BaseTeamTests {
         XCTAssertNotEqual(conversation, newConversation)
     }
 
-    func testThatItCanNotCreateAOneOnOneConversationWithAParticipantNotInTheTeam() {
+    func testThatItCanCreateAOneOnOneConversationWithAParticipantNotInTheTeam() {
         // given
         let userOutsideTeam = ZMUser.insertNewObject(in: uiMOC)
 
-        performIgnoringZMLogError {
-            // when
-            let conversation = ZMConversation.fetchOrCreateTeamConversation(in: self.uiMOC, withParticipant: userOutsideTeam, team: self.team)
+        // when
+        let conversation = ZMConversation.fetchOrCreateTeamConversation(in: uiMOC, withParticipant: userOutsideTeam, team: team)
 
-            // then
-            XCTAssertNil(conversation)
-        }
+        // then
+        XCTAssertNotNil(conversation)
+        XCTAssertNil(userOutsideTeam.oneToOneConversation(in: nil))
     }
 
     func testThatItReturnsTeamConversationForOneOnOneConversation() {

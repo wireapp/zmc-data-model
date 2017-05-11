@@ -21,7 +21,7 @@ import WireTesting
 @testable import WireDataModel
 
 
-class BaseTeamTests: BaseZMClientMessageTests {
+class BaseTeamTests: ZMConversationTestsBase {
 
     @discardableResult func createTeamAndMember(for user: ZMUser, with permissions: Permissions? = nil) -> (Team, Member) {
         let member = Member.insertNewObject(in: uiMOC)
