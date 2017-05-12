@@ -38,5 +38,5 @@ extern NSString * const ZMUserClientTypeTemporary;
 @property (nonatomic) double activationLongitude;
 @property (nonatomic) NSData *fingerprint;
 @property (nonatomic, readonly) BOOL verified;
-- (void)resetSessionInTeam:(Team *)team;
+- (void)resetSession;
 @end

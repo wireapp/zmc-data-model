@@ -22,6 +22,7 @@
 #import "ZMUser.h"
 #import "ZMEditableUser.h"
 #import "ZMManagedObject+Internal.h"
+#import "ZMUser+OneOnOne.h"
 
 @class ZMConnection;
 

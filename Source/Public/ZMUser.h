@@ -46,8 +46,6 @@
 
 - (NSString *)displayNameInConversation:(ZMConversation *)conversation;
 
-- (ZMConversation *)oneToOneConversationInTeam:(Team *)team;
-
 @end
 
 
