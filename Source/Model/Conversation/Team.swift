@@ -18,20 +18,20 @@
 
 
 public protocol TeamType {
-    var conversations: Set<ZMConversation>? { get }
+
+    var conversations: Set<ZMConversation> { get }
     var name: String? { get }
     var teamPictureAssetKey: String? { get }
-    var isActive: Bool { get }
+    var isActive: Bool { get set }
+    var remoteIdentifier: UUID? { get }
 
-    func guests() -> Set<ZMUser>
-    func allUsers() -> Set<ZMUser>
 }
 
 
 public class Team: ZMManagedObject, TeamType {
 
-    @NSManaged public var conversations: Set<ZMConversation>?
-    @NSManaged public var members: Set<Member>?
+    @NSManaged public var conversations: Set<ZMConversation>
+    @NSManaged public var members: Set<Member>
     @NSManaged public var name: String?
     @NSManaged public var teamPictureAssetKey: String?
     @NSManaged public var isActive: Bool
@@ -70,9 +70,11 @@ public class Team: ZMManagedObject, TeamType {
     }
 }
 
+
 public enum TeamError: Error {
     case insufficientPermissions
 }
+
 
 extension Team {
 
@@ -85,28 +87,3 @@ extension Team {
     }
 
 }
-
-extension Team {
-
-    public func guests() -> Set<ZMUser> {
-        guard let conversations = conversations else { return Set() }
-        let users = allUsers()
-        var guests = Set<ZMUser>()
-        for conversation in conversations {
-            guard let participants = conversation.otherActiveParticipants.set as? Set<ZMUser> else { continue }
-            guests.formUnion(participants.subtracting(users))
-        }
-
-        return guests
-    }
-
-    public func allUsers() -> Set<ZMUser> {
-        if let users = members?.flatMap({ $0.user }) {
-            return Set(users)
-        }
-        return Set()
-    }
-
-}
-
-

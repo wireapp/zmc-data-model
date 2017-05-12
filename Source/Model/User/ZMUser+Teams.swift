@@ -45,8 +45,10 @@ public extension ZMUser {
         return permissions(in: team)?.contains(.createConversation) ?? false
     }
 
-    public func isGuest(of team: Team) -> Bool {
-        return !isMember(of: team) && team.guests().contains(self)
+    public func isGuest(in conversation: ZMConversation) -> Bool {
+        return conversation.otherActiveParticipants.contains(self)
+            && conversation.team != nil
+            && !isMember(of: conversation.team!)
     }
 
     public func membership(in team: Team) -> Member? {
