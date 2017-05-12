@@ -255,9 +255,15 @@ static NSString *const MembershipsKey = @"memberships";
     return personName.initials ?: @"";
 }
 
-- (ZMConversation *)oneToOneConversation
+- (ZMConversation *)oneToOneConversationInTeam:(Team *)team
 {
-    return self.connection.conversation;
+    if (nil == team) {
+        return self.connection.conversation;
+    } else {
+        return [ZMConversation fetchOrCreateTeamConversationInManagedObjectContext:self.managedObjectContext
+                                                                   withParticipant:self
+                                                                              team:team];
+    }
 }
 
 - (BOOL)isBot

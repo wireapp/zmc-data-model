@@ -399,10 +399,12 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return [NSSet setWithObjects:ZMConversationConversationTypeKey, @"otherActiveParticipants", @"otherActiveParticipants.name", @"connection.to.name", ZMConversationUserDefinedNameKey, nil];
 }
 
-+ (instancetype)insertGroupConversationIntoUserSession:(id<ZMManagedObjectContextProvider>)session withParticipants:(NSArray *)participants
++ (nonnull instancetype)insertGroupConversationIntoUserSession:(nonnull id<ZMManagedObjectContextProvider> )session
+                                              withParticipants:(nonnull NSArray<ZMUser *> *)participants
+                                                        inTeam:(nullable Team *)team;
 {
     VerifyReturnNil(session != nil);
-    return [self insertGroupConversationIntoManagedObjectContext:session.managedObjectContext withParticipants:participants];
+    return [self insertGroupConversationIntoManagedObjectContext:session.managedObjectContext withParticipants:participants inTeam:team];
 }
 
 + (instancetype)existingOneOnOneConversationWithUser:(ZMUser *)otherUser inUserSession:(id<ZMManagedObjectContextProvider>)session;
@@ -1088,14 +1090,61 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return nil;
 }
 
-+ (instancetype)insertGroupConversationIntoManagedObjectContext:(NSManagedObjectContext *)moc withParticipants:(NSArray *)participants;
++ (instancetype)fetchOrCreateTeamConversationInManagedObjectContext:(NSManagedObjectContext *)moc withParticipant:(ZMUser *)participant team:(Team *)team
 {
-    RequireString((participants.count >= 2u), "Not enough users to create group conversations");
+    VerifyReturnNil(team != nil);
+    VerifyReturnNil(!participant.isSelfUser);
     ZMUser *selfUser = [ZMUser selfUserInContext:moc];
+    VerifyReturnNil([selfUser canCreateConversationIn:team]);
+
+    ZMConversation *conversation = [self existingTeamConversationInManagedObjectContext:moc withParticipant:participant team:team];
+    if (nil != conversation) {
+        return conversation;
+    }
+
+    conversation = (ZMConversation *)[super insertNewObjectInManagedObjectContext:moc];
+    conversation.lastModifiedDate = [NSDate date];
+    conversation.conversationType = ZMConversationTypeGroup;
+    conversation.creator = selfUser;
+    conversation.team = team;
+
+    [conversation internalAddParticipants:[NSSet setWithObject:participant] isAuthoritative:NO];
+
+    // We need to check if we should add a 'secure' system message in case all participants are trusted
+    [conversation increaseSecurityLevelIfNeededAfterTrustingClients:participant.clients];
+    [conversation appendNewConversationSystemMessageIfNeeded];
+    return conversation;
+}
+
++ (instancetype)existingTeamConversationInManagedObjectContext:(NSManagedObjectContext *)moc withParticipant:(ZMUser *)participant team:(Team *)team
+{
+    NSPredicate *sameTeam = [NSPredicate predicateWithFormat:@"%K == %@", TeamKey, team];
+    NSPredicate *groupConversation = [NSPredicate predicateWithFormat:@"%K == %d", ZMConversationConversationTypeKey, ZMConversationTypeGroup];
+    NSPredicate *sameParticipant = [NSPredicate predicateWithFormat:@"ALL %K == %@ AND %K.@count == 1", ZMConversationOtherActiveParticipantsKey, participant, ZMConversationOtherActiveParticipantsKey];
+    NSFetchRequest *request = [self sortedFetchRequestWithPredicate:[NSCompoundPredicate andPredicateWithSubpredicates:@[sameTeam, groupConversation, sameParticipant]]];
+    return [moc executeFetchRequestOrAssert:request].firstObject;
+}
+
++ (instancetype)insertGroupConversationIntoManagedObjectContext:(NSManagedObjectContext *)moc withParticipants:(NSArray *)participants
+{
+    return [self insertGroupConversationIntoManagedObjectContext:moc withParticipants:participants inTeam:nil];
+}
+
++ (instancetype)insertGroupConversationIntoManagedObjectContext:(NSManagedObjectContext *)moc withParticipants:(NSArray *)participants inTeam:(nullable Team *)team;
+{
+    ZMUser *selfUser = [ZMUser selfUserInContext:moc];
+
+    if (nil != team && ![selfUser canCreateConversationIn:team]) {
+        return nil;
+    }
+
+    RequireString((participants.count >= 2u), "Not enough users to create group conversations");
+
     ZMConversation *conversation = (ZMConversation *)[super insertNewObjectInManagedObjectContext:moc];
     conversation.lastModifiedDate = [NSDate date];
     conversation.conversationType = ZMConversationTypeGroup;
     conversation.creator = selfUser;
+    conversation.team = team;
 
     for (ZMUser *participant in participants) {
         Require([participant isKindOfClass:[ZMUser class]]);
