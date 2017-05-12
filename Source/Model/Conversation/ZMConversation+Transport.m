@@ -24,6 +24,7 @@
 #import "ZMUser+Internal.h"
 #import "ZMMessage+Internal.h"
 #import "ZMUpdateEvent+WireDataModel.h"
+#import <WireDataModel/WireDataModel-Swift.h>
 
 static NSString *const ConversationInfoStatusKey = @"status";
 static NSString *const ConversationInfoNameKey = @"name";
@@ -33,6 +34,7 @@ static NSString *const ConversationInfoIDKey = @"id";
 static NSString *const ConversationInfoOthersKey = @"others";
 static NSString *const ConversationInfoMembersKey = @"members";
 static NSString *const ConversationInfoCreatorKey = @"creator";
+static NSString *const ConversationInfoTeamKey = @"team";
 static NSString *const ConversationInfoLastEventTimeKey = @"last_event_time";
 
 NSString *const ZMConversationInfoOTRMutedValueKey = @"otr_muted";
@@ -97,6 +99,11 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
     }
     else {
         ZMLogError(@"Invalid members in conversation JSON: %@", transportData);
+    }
+
+    NSUUID *teamId = [transportData optionalUuidForKey:ConversationInfoTeamKey];
+    if (nil != teamId) {
+        self.team = [Team fetchOrCreateTeamWithRemoteIdentifier:teamId createIfNeeded:YES inContext:self.managedObjectContext];
     }
 }
 

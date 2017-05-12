@@ -37,4 +37,15 @@ public class Member: ZMManagedObject {
         return false
     }
 
+    public static func getOrCreateMember(for user: ZMUser, in team: Team, context: NSManagedObjectContext) -> Member {
+        if let existing = user.membership(in: team) {
+            return existing
+        }
+
+        let member = insertNewObject(in: context)
+        member.team = team
+        member.user = user
+        return member
+    }
+
 }

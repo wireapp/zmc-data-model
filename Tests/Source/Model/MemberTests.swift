@@ -139,5 +139,31 @@ class MemberTests: BaseTeamTests {
         // then
         XCTAssertEqual(user.activeTeams, [team2])
     }
+
+    func testThatItReturnsExistingMemberOfAUserInATeam() {
+        // given
+        let user = ZMUser.insertNewObject(in: uiMOC)
+        let (team, existingMember) = createTeamAndMember(for: user)
+
+        // when
+        let member = Member.getOrCreateMember(for: user, in: team, context: uiMOC)
+
+        // then
+        XCTAssertEqual(member, existingMember)
+    }
+
+    func testThatItCreatesNewMemberIfUserHasNoMemberInTeam() {
+        // given
+        let user = ZMUser.insertNewObject(in: uiMOC)
+        let team = Team.insertNewObject(in: uiMOC)
+
+        // when
+        let member = Member.getOrCreateMember(for: user, in: team, context: uiMOC)
+
+        // then
+        XCTAssertNotNil(member)
+        XCTAssertEqual(member.user, user)
+        XCTAssertEqual(member.team, team)
+    }
     
 }

@@ -74,4 +74,33 @@ class PermissionsTests: BaseZMClientMessageTests {
         XCTAssertEqual(Permissions.owner, allPermissions)
     }
 
+    // MARK: - Transport Data
+
+    func testThatItCreatesPermissionsFromStrings() {
+        XCTAssertNil(Permissions(string: ""))
+        XCTAssertEqual(Permissions(string: "CreateConversation"), .createConversation)
+        XCTAssertEqual(Permissions(string: "DeleteConversation"), .deleteConversation)
+        XCTAssertEqual(Permissions(string: "AddTeamMember"), .addTeamMember)
+        XCTAssertEqual(Permissions(string: "RemoveTeamMember"), .removeTeamMember)
+        XCTAssertEqual(Permissions(string: "AddConversationMember"), .addConversationMember)
+        XCTAssertEqual(Permissions(string: "RemoveConversationMember"), .removeConversationMember)
+        XCTAssertEqual(Permissions(string: "GetBilling"), .getBilling)
+        XCTAssertEqual(Permissions(string: "SetBilling"), .setBilling)
+        XCTAssertEqual(Permissions(string: "SetTeamData"), .setTeamData)
+        XCTAssertEqual(Permissions(string: "Member"), .member)
+        XCTAssertEqual(Permissions(string: "Admin"), .admin)
+        XCTAssertEqual(Permissions(string: "Owner"), .owner)
+    }
+
+    func testThatItCreatesPermissionsFromPayload() {
+        XCTAssertEqual(Permissions(payload: ["CreateConversation"]), .createConversation)
+        XCTAssertEqual(Permissions(payload: ["CreateConversation", "DeleteConversation"]), [.createConversation, .deleteConversation])
+        XCTAssertEqual(Permissions(payload: ["Admin"]), .admin)
+        XCTAssertEqual(Permissions(payload: ["Admin", "Owner"]), .owner)
+    }
+
+    func testThatItCreatesEmptyPermissionsFromEmptyPayload() {
+        XCTAssertEqual(Permissions(payload: []), [])
+    }
+
 }

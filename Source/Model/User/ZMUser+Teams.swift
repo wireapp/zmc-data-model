@@ -38,7 +38,7 @@ public extension ZMUser {
     }
 
     public func permissions(in team: Team) -> Permissions? {
-        return memberships?.first { team.isEqual($0.team) }?.permissions ?? nil
+        return membership(in: team)?.permissions
     }
 
     public func canCreateConversation(in team: Team) -> Bool {
@@ -47,6 +47,10 @@ public extension ZMUser {
 
     public func isGuest(of team: Team) -> Bool {
         return !isMember(of: team) && team.guests().contains(self)
+    }
+
+    public func membership(in team: Team) -> Member? {
+        return memberships?.first { team.isEqual($0.team) }
     }
 
 }

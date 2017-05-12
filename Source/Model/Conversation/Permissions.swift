@@ -38,5 +38,36 @@ public struct Permissions: OptionSet {
     public static let member: Permissions = [.createConversation, .deleteConversation, .addConversationMember, .removeConversationMember]
     public static let admin: Permissions  = [.member, .addTeamMember, .removeTeamMember]
     public static let owner: Permissions  = [.admin, .getBilling, .setBilling, .setTeamData]
-    
+
+}
+
+
+// MARK: - Transport Data
+
+
+extension Permissions {
+
+    public init(payload: [String]) {
+        var permissions: Permissions = []
+        payload.flatMap(Permissions.init).forEach { permissions.formUnion($0) }
+        self = permissions
+    }
+
+    public init?(string: String) {
+        switch string {
+        case "CreateConversation": self = .createConversation
+        case "DeleteConversation": self = .deleteConversation
+        case "AddTeamMember": self = .addTeamMember
+        case "RemoveTeamMember": self = .removeTeamMember
+        case "AddConversationMember": self = .addConversationMember
+        case "RemoveConversationMember": self = .removeConversationMember
+        case "GetBilling": self = .getBilling
+        case "SetBilling": self = .setBilling
+        case "SetTeamData": self = .setTeamData
+        case "Member": self = .member
+        case "Admin": self = .admin
+        case "Owner": self = .owner
+        default: return nil
+        }
+    }
 }
