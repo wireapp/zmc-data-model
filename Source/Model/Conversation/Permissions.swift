@@ -32,14 +32,17 @@ public struct Permissions: OptionSet {
     public static let removeTeamMember         = Permissions(rawValue: 1 << 3)
     public static let addConversationMember    = Permissions(rawValue: 1 << 4)
     public static let removeConversationMember = Permissions(rawValue: 1 << 5)
-    public static let getBilling               = Permissions(rawValue: 1 << 6)
-    public static let setBilling               = Permissions(rawValue: 1 << 7)
-    public static let setTeamData              = Permissions(rawValue: 1 << 8)
+    public static let getMemberPermissions     = Permissions(rawValue: 1 << 6)
+    public static let getTeamConversations     = Permissions(rawValue: 1 << 7)
+    public static let getBilling               = Permissions(rawValue: 1 << 8)
+    public static let setBilling               = Permissions(rawValue: 1 << 9)
+    public static let setTeamData              = Permissions(rawValue: 1 << 10)
+    public static let deleteTeam               = Permissions(rawValue: 1 << 11)
 
     // MARK: - Common Combined Values
-    public static let member: Permissions = [.createConversation, .deleteConversation, .addConversationMember, .removeConversationMember]
-    public static let admin: Permissions  = [.member, .addTeamMember, .removeTeamMember]
-    public static let owner: Permissions  = [.admin, .getBilling, .setBilling, .setTeamData]
+    public static let member: Permissions = [.createConversation, .deleteConversation, .addConversationMember, .removeConversationMember, .getTeamConversations, .getMemberPermissions]
+    public static let admin: Permissions  = [.member, .addTeamMember, .removeTeamMember, .setTeamData]
+    public static let owner: Permissions  = [.admin, .getBilling, .setBilling]
 
 }
 
@@ -63,12 +66,12 @@ extension Permissions {
         case "RemoveTeamMember": self = .removeTeamMember
         case "AddConversationMember": self = .addConversationMember
         case "RemoveConversationMember": self = .removeConversationMember
+        case "GetMemberPermissions": self = .getMemberPermissions
+        case "GetTeamConversations": self = .getTeamConversations
         case "GetBilling": self = .getBilling
         case "SetBilling": self = .setBilling
         case "SetTeamData": self = .setTeamData
-        case "Member": self = .member
-        case "Admin": self = .admin
-        case "Owner": self = .owner
+        case "DeleteTeam": self = .deleteTeam
         default: return nil
         }
     }
@@ -87,9 +90,12 @@ extension Permissions: CustomDebugStringConvertible {
         .removeTeamMember: "RemoveTeamMember",
         .addConversationMember: "AddConversationMember",
         .removeConversationMember: "RemoveConversationMember",
+        .getMemberPermissions: "GetMemberPermissions",
+        .getTeamConversations: "GetTeamConversations",
         .getBilling : "GetBilling",
         .setBilling: "SetBilling",
-        .setTeamData: "SetTeamData"
+        .setTeamData: "SetTeamData",
+        .deleteTeam: "DeleteTeam"
     ]
 
     public var debugDescription: String {

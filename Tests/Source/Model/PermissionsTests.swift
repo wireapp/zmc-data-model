@@ -30,9 +30,12 @@ class PermissionsTests: BaseZMClientMessageTests {
         .removeTeamMember,
         .addConversationMember,
         .removeConversationMember,
+        .getMemberPermissions,
+        .getTeamConversations,
         .getBilling,
         .setBilling,
-        .setTeamData
+        .setTeamData,
+        .deleteTeam
     ]
 
     func testThatDefaultValueDoesNotHaveAnyPermissions() {
@@ -46,13 +49,16 @@ class PermissionsTests: BaseZMClientMessageTests {
         XCTAssertFalse(sut.contains(.removeTeamMember))
         XCTAssertFalse(sut.contains(.addConversationMember))
         XCTAssertFalse(sut.contains(.removeConversationMember))
+        XCTAssertFalse(sut.contains(.getMemberPermissions))
+        XCTAssertFalse(sut.contains(.getTeamConversations))
         XCTAssertFalse(sut.contains(.getBilling))
         XCTAssertFalse(sut.contains(.setBilling))
         XCTAssertFalse(sut.contains(.setTeamData))
+        XCTAssertFalse(sut.contains(.deleteTeam))
     }
 
     func testMemberPermissions() {
-        XCTAssertEqual(Permissions.member, [.createConversation, .deleteConversation, .addConversationMember, .removeConversationMember])
+        XCTAssertEqual(Permissions.member, [.createConversation, .deleteConversation, .addConversationMember, .removeConversationMember, .getMemberPermissions, .getTeamConversations])
     }
 
     func testAdminPermissions() {
@@ -62,8 +68,11 @@ class PermissionsTests: BaseZMClientMessageTests {
             .deleteConversation,
             .addConversationMember,
             .removeConversationMember,
+            .getMemberPermissions,
+            .getTeamConversations,
             .addTeamMember,
-            .removeTeamMember
+            .removeTeamMember,
+            .setTeamData
         ]
 
         // then
@@ -71,7 +80,7 @@ class PermissionsTests: BaseZMClientMessageTests {
     }
 
     func testOwnerPermissions() {
-        XCTAssertEqual(Permissions.owner, allPermissions)
+        XCTAssertEqual(Permissions.owner, allPermissions.subtracting(.deleteTeam))
     }
 
     // MARK: - Transport Data
@@ -84,19 +93,27 @@ class PermissionsTests: BaseZMClientMessageTests {
         XCTAssertEqual(Permissions(string: "RemoveTeamMember"), .removeTeamMember)
         XCTAssertEqual(Permissions(string: "AddConversationMember"), .addConversationMember)
         XCTAssertEqual(Permissions(string: "RemoveConversationMember"), .removeConversationMember)
+        XCTAssertEqual(Permissions(string: "GetMemberPermissions"), .getMemberPermissions)
+        XCTAssertEqual(Permissions(string: "GetTeamConversations"), .getTeamConversations)
         XCTAssertEqual(Permissions(string: "GetBilling"), .getBilling)
         XCTAssertEqual(Permissions(string: "SetBilling"), .setBilling)
         XCTAssertEqual(Permissions(string: "SetTeamData"), .setTeamData)
-        XCTAssertEqual(Permissions(string: "Member"), .member)
-        XCTAssertEqual(Permissions(string: "Admin"), .admin)
-        XCTAssertEqual(Permissions(string: "Owner"), .owner)
+        XCTAssertEqual(Permissions(string: "DeleteTeam"), .deleteTeam)
     }
 
     func testThatItCreatesPermissionsFromPayload() {
-        XCTAssertEqual(Permissions(payload: ["CreateConversation"]), .createConversation)
-        XCTAssertEqual(Permissions(payload: ["CreateConversation", "DeleteConversation"]), [.createConversation, .deleteConversation])
-        XCTAssertEqual(Permissions(payload: ["Admin"]), .admin)
-        XCTAssertEqual(Permissions(payload: ["Admin", "Owner"]), .owner)
+        XCTAssertEqual(Permissions(payload: ["CreateConversation", "DeleteTeam"]), [.createConversation, .deleteTeam])
+
+        let memberPayload = [
+            "CreateConversation",
+            "DeleteConversation",
+            "AddConversationMember",
+            "RemoveConversationMember",
+            "GetMemberPermissions",
+            "GetTeamConversations"
+            ]
+
+        XCTAssertEqual(Permissions(payload: memberPayload), .member)
     }
 
     func testThatItCreatesEmptyPermissionsFromEmptyPayload() {
