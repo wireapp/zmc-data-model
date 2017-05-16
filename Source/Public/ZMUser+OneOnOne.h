@@ -25,5 +25,6 @@
 @interface ZMUser (OneOnOne)
 
 - (nullable ZMConversation *)oneToOneConversationInTeam:(nullable Team *)team;
+@property (nonatomic, nullable) ZMConversation *oneToOneConversation; // TODO: Fix this
 
 @end

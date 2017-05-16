@@ -105,3 +105,28 @@ extension Permissions: Hashable {
     }
 
 }
+
+
+// MARK: - Objective-C Interoperability
+
+
+@objc public enum PermissionsObjC: Int {
+    case none = 0, member, admin, owner
+
+    var permissions: Permissions {
+        switch self {
+        case .none: return Permissions(rawValue: 0)
+        case .member: return .member
+        case .admin: return .admin
+        case .owner: return .owner
+        }
+    }
+}
+
+extension Member {
+
+    @objc public func setPermissionsObjC(_ permissionsObjC: PermissionsObjC) {
+        permissions = permissionsObjC.permissions
+    }
+    
+}
