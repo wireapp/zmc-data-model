@@ -17,7 +17,7 @@
 //
 
 
-public protocol TeamType {
+public protocol TeamType: class {
 
     var conversations: Set<ZMConversation> { get }
     var name: String? { get }
