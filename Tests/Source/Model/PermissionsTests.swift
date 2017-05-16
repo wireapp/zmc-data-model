@@ -103,4 +103,23 @@ class PermissionsTests: BaseZMClientMessageTests {
         XCTAssertEqual(Permissions(payload: []), [])
     }
 
+    // MARK: - Objective-C Interoperability
+
+    func testThatItCreatesTheCorrectSwiftPermissions() {
+        XCTAssertEqual(PermissionsObjC.member.permissions, .member)
+        XCTAssertEqual(PermissionsObjC.admin.permissions, .admin)
+        XCTAssertEqual(PermissionsObjC.owner.permissions, .owner)
+    }
+
+    func testThatItSetsObjectiveCPermissions() {
+        // given
+        let member = Member.insertNewObject(in: uiMOC)
+
+        // when
+        member.setPermissionsObjC(.admin)
+
+        // then
+        XCTAssertEqual(member.permissions, .admin)
+    }
+
 }
