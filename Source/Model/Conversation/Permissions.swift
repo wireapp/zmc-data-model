@@ -25,6 +25,7 @@ public struct Permissions: OptionSet {
         self.rawValue = rawValue
     }
 
+    // MARK: - Base Values
     public static let createConversation       = Permissions(rawValue: 1 << 0)
     public static let deleteConversation       = Permissions(rawValue: 1 << 1)
     public static let addTeamMember            = Permissions(rawValue: 1 << 2)
@@ -35,6 +36,7 @@ public struct Permissions: OptionSet {
     public static let setBilling               = Permissions(rawValue: 1 << 7)
     public static let setTeamData              = Permissions(rawValue: 1 << 8)
 
+    // MARK: - Common Combined Values
     public static let member: Permissions = [.createConversation, .deleteConversation, .addConversationMember, .removeConversationMember]
     public static let admin: Permissions  = [.member, .addTeamMember, .removeTeamMember]
     public static let owner: Permissions  = [.admin, .getBilling, .setBilling, .setTeamData]
@@ -70,4 +72,36 @@ extension Permissions {
         default: return nil
         }
     }
+}
+
+
+// MARK: - Debugging
+
+
+extension Permissions: CustomDebugStringConvertible {
+
+    private static let descriptions: [Permissions: String] = [
+        .createConversation: "CreateConversation",
+        .deleteConversation: "DeleteConversation",
+        .addTeamMember: "AddTeamMember",
+        .removeTeamMember: "RemoveTeamMember",
+        .addConversationMember: "AddConversationMember",
+        .removeConversationMember: "RemoveConversationMember",
+        .getBilling : "GetBilling",
+        .setBilling: "SetBilling",
+        .setTeamData: "SetTeamData"
+    ]
+
+    public var debugDescription: String {
+        return "[\(Permissions.descriptions.filter { contains($0.0) }.map { $0.1 }.joined(separator: ", "))]"
+    }
+
+}
+
+extension Permissions: Hashable {
+
+    public var hashValue : Int {
+        return rawValue.hashValue
+    }
+
 }
