@@ -50,3 +50,21 @@ public class Member: ZMManagedObject {
     }
 
 }
+
+
+// MARK: - Transport
+
+extension Member {
+
+    @discardableResult
+    public static func createOrUpdate(with payload: [String: Any], in team: Team, context: NSManagedObjectContext) -> Member? {
+        guard let id = (payload["user"] as? String).flatMap(UUID.init),
+            let user = ZMUser(remoteID: id, createIfNeeded: true, in: context),
+            let permissions = payload["permissions"] as? [String] else { return nil }
+
+        let member = getOrCreateMember(for: user, in: team, context: context)
+        member.permissions = Permissions(payload: permissions)
+        return member
+    }
+
+}

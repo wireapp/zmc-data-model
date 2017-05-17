@@ -104,6 +104,7 @@ extension Permissions: CustomDebugStringConvertible {
 
 }
 
+
 extension Permissions: Hashable {
 
     public var hashValue : Int {
@@ -111,7 +112,6 @@ extension Permissions: Hashable {
     }
 
 }
-
 
 // MARK: - Objective-C Interoperability
 
