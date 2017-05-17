@@ -58,7 +58,7 @@ public class Team: ZMManagedObject, TeamType {
     }
 
     @objc(fetchOrCreateTeamWithRemoteIdentifier:createIfNeeded:inContext:)
-    public static func fetchOrCreate(with identifier: UUID, _ create: Bool, in context: NSManagedObjectContext) -> Team? {
+    public static func fetchOrCreate(with identifier: UUID, create: Bool, in context: NSManagedObjectContext) -> Team? {
         precondition(!create || context.zm_isSyncContext, "Needs to be called on the sync context")
         if let existing = Team.fetch(withRemoteIdentifier: identifier, in: context) {
             return existing
