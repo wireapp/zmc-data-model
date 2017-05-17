@@ -35,7 +35,9 @@ public class Team: ZMManagedObject, TeamType {
     @NSManaged public var name: String?
     @NSManaged public var teamPictureAssetKey: String?
     @NSManaged public var isActive: Bool
+    @NSManaged public var creator: ZMUser?
 
+    @NSManaged public var needsToRedownloadMembers: Bool
     @NSManaged private var remoteIdentifier_data: Data?
 
     public var remoteIdentifier: UUID? {
