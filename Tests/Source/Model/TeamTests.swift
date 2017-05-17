@@ -58,15 +58,12 @@ class TeamTests: BaseTeamTests {
             createUserAndAddMember(to: team)
             createUserAndAddMember(to: team)
 
-            let guest = ZMUser.insertNewObject(in: uiMOC)
-            _ = try team.addConversation(with: [guest])
-
             // when
-            let guests = team.guests()
+            let guest = ZMUser.insertNewObject(in: uiMOC)
+            let conversation = try team.addConversation(with: [guest])!
 
             // then
-            XCTAssertEqual(guests, [guest])
-            XCTAssertTrue(guest.isGuest(of: team))
+            XCTAssertTrue(guest.isGuest(in: conversation))
             XCTAssertFalse(guest.isMember(of: team))
         } catch {
             XCTFail("Eror: \(error)")
@@ -86,16 +83,14 @@ class TeamTests: BaseTeamTests {
             let guest = ZMUser.insertNewObject(in: uiMOC)
 
             // when
-            _ = try team1.addConversation(with: [guest])
-            _ = try team2.addConversation(with: [otherUser])
+            let conversation1 = try team1.addConversation(with: [guest])!
+            let conversation2 = try team2.addConversation(with: [otherUser])!
 
             // then
-            XCTAssertEqual(team2.guests(), [])
-            XCTAssertEqual(team1.guests(), [guest])
-            XCTAssertTrue(guest.isGuest(of: team1))
-            XCTAssertFalse(guest.isGuest(of: team2))
-            XCTAssertFalse(guest.isGuest(of: team2))
-            XCTAssertFalse(otherUser.isGuest(of: team1))
+            XCTAssertTrue(guest.isGuest(in: conversation1))
+            XCTAssertFalse(guest.isGuest(in: conversation2))
+            XCTAssertFalse(guest.isGuest(in: conversation2))
+            XCTAssertFalse(otherUser.isGuest(in: conversation1))
             XCTAssertFalse(guest.isMember(of: team1))
             XCTAssertFalse(guest.isMember(of: team2))
         } catch {

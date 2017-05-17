@@ -28,12 +28,12 @@
 - (NSDictionary *)payloadForMetaDataOfConversation:(ZMConversation *)conversation conversationType:(ZMBackendConversationType)conversationType isArchived:(BOOL)isArchived archivedRef:(NSDate *)archivedRef isSilenced:(BOOL)isSilenced
     silencedRef: (NSDate *)silencedRef;
 {
-    return  [self payloadForMetaDataOfConversation:conversation conversationType:conversationType activeUserIDs:@[] inactiveUserIDs:@[]  lastServerTimestamp:nil isArchived:isArchived archivedRef:archivedRef isSilenced:isSilenced silencedRef:silencedRef];
+    return  [self payloadForMetaDataOfConversation:conversation conversationType:conversationType activeUserIDs:@[] inactiveUserIDs:@[]  lastServerTimestamp:nil isArchived:isArchived archivedRef:archivedRef isSilenced:isSilenced silencedRef:silencedRef teamID:nil];
 }
 
 - (NSDictionary *)payloadForMetaDataOfConversation:(ZMConversation *)conversation activeUserIDs:(NSArray <NSUUID *>*)activeUserIDs inactiveUserIDs:(NSArray <NSUUID *>*)inactiveUserIDs;
 {
-    return  [self payloadForMetaDataOfConversation:conversation conversationType:1 activeUserIDs:activeUserIDs inactiveUserIDs:inactiveUserIDs  lastServerTimestamp:nil isArchived:NO archivedRef:nil isSilenced:NO silencedRef:nil];
+    return  [self payloadForMetaDataOfConversation:conversation conversationType:1 activeUserIDs:activeUserIDs inactiveUserIDs:inactiveUserIDs  lastServerTimestamp:nil isArchived:NO archivedRef:nil isSilenced:NO silencedRef:nil teamID:nil];
 }
 
 - (NSDictionary *)payloadForMetaDataOfConversation:(ZMConversation *)conversation
@@ -41,7 +41,7 @@
                                    inactiveUserIDs:(NSArray <NSUUID *>*)inactiveUserIDs
                                lastServerTimestamp:(NSDate*)lastServerTimestamp
 {
-    return  [self payloadForMetaDataOfConversation:conversation conversationType:1 activeUserIDs:activeUserIDs inactiveUserIDs:inactiveUserIDs lastServerTimestamp:lastServerTimestamp isArchived:NO archivedRef:nil isSilenced:NO silencedRef:nil];
+    return  [self payloadForMetaDataOfConversation:conversation conversationType:1 activeUserIDs:activeUserIDs inactiveUserIDs:inactiveUserIDs lastServerTimestamp:lastServerTimestamp isArchived:NO archivedRef:nil isSilenced:NO silencedRef:nil teamID:nil];
 }
 
 - (NSDictionary *)payloadForMetaDataOfConversation:(ZMConversation *)conversation
@@ -52,7 +52,8 @@
                                         isArchived:(BOOL)isArchived
                                        archivedRef:(NSDate *)archivedRef
                                         isSilenced:(BOOL)isSilenced
-                                       silencedRef:(NSDate *)silencedRef;
+                                       silencedRef:(NSDate *)silencedRef
+                                            teamID:(NSUUID *)teamID;
 {
     NSMutableArray *others = [NSMutableArray array];
     for (NSUUID *uuid in activeUserIDs) {
@@ -91,7 +92,8 @@
                                       @"others" : others
                                       },
                               @"type" : @(conversationType),
-                              @"id" : [conversation.remoteIdentifier transportString]
+                              @"id" : [conversation.remoteIdentifier transportString],
+                              @"team": [teamID transportString] ?: [NSNull null]
                               };
     return  payload;
 }
@@ -126,7 +128,6 @@
         XCTAssertEqualObjects(conversation.creator.remoteIdentifier, [payload[@"creator"] UUID]);
         XCTAssertEqual(conversation.unsyncedInactiveParticipants.count, 0u);
         XCTAssertEqual(conversation.unsyncedActiveParticipants.count, 0u);
-        
     }];
 }
 
@@ -169,6 +170,49 @@
         XCTAssertEqual(conversation.unsyncedActiveParticipants.count, 0u);
         XCTAssertEqual(conversation.unsyncedInactiveParticipants.count, 0u);
         
+        XCTAssertFalse(conversation.isArchived);
+        XCTAssertFalse(conversation.isSilenced);
+    }];
+}
+
+- (void)testThatItUpdatesItselfFromTransportDataForTeamConversation
+{
+    [self.syncMOC performGroupedBlockAndWait:^{
+        // given
+        ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
+        NSUUID *uuid = NSUUID.createUUID;
+        conversation.remoteIdentifier = uuid;
+
+        NSUUID *user1UUID = [NSUUID createUUID];
+        NSUUID *user2UUID = [NSUUID createUUID];
+        NSUUID *teamID = [NSUUID createUUID];
+
+        NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation conversationType:ZMConvTypeGroup activeUserIDs:@[user1UUID, user2UUID] inactiveUserIDs:nil lastServerTimestamp:nil isArchived:NO archivedRef:nil isSilenced:NO silencedRef:nil teamID:teamID];
+
+        // when
+        [conversation updateWithTransportData:payload];
+
+        // then
+        XCTAssertEqualObjects(conversation.remoteIdentifier, [payload[@"id"] UUID]);
+        XCTAssertNil(conversation.userDefinedName);
+        XCTAssertEqual(conversation.conversationType, ZMConversationTypeGroup);
+        XCTAssertEqualObjects(conversation.lastModifiedDate, [NSDate dateWithTransportString:payload[@"last_event_time"]]);
+        XCTAssertEqualObjects(conversation.creator.remoteIdentifier, [payload[@"creator"] UUID]);
+
+
+        ZMUser *user1 = [ZMUser userWithRemoteID:user1UUID createIfNeeded:NO inContext:self.syncMOC];
+        XCTAssertNotNil(user1);
+
+        ZMUser *user2 = [ZMUser userWithRemoteID:user2UUID createIfNeeded:NO inContext:self.syncMOC];
+        XCTAssertNotNil(user2);
+
+        XCTAssertEqualObjects(conversation.otherActiveParticipants, ([NSOrderedSet orderedSetWithObjects:user1, user2, nil]) );
+        XCTAssertNotNil(conversation.team);
+        XCTAssertEqualObjects(conversation.team.remoteIdentifier, teamID);
+
+        XCTAssertEqual(conversation.unsyncedActiveParticipants.count, 0u);
+        XCTAssertEqual(conversation.unsyncedInactiveParticipants.count, 0u);
+
         XCTAssertFalse(conversation.isArchived);
         XCTAssertFalse(conversation.isSilenced);
     }];

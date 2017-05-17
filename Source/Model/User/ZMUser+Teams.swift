@@ -38,15 +38,21 @@ public extension ZMUser {
     }
 
     public func permissions(in team: Team) -> Permissions? {
-        return memberships?.first { team.isEqual($0.team) }?.permissions ?? nil
+        return membership(in: team)?.permissions
     }
 
     public func canCreateConversation(in team: Team) -> Bool {
         return permissions(in: team)?.contains(.createConversation) ?? false
     }
 
-    public func isGuest(of team: Team) -> Bool {
-        return !isMember(of: team) && team.guests().contains(self)
+    public func isGuest(in conversation: ZMConversation) -> Bool {
+        return conversation.otherActiveParticipants.contains(self)
+            && conversation.team != nil
+            && !isMember(of: conversation.team!)
+    }
+
+    public func membership(in team: Team) -> Member? {
+        return memberships?.first { team.isEqual($0.team) }
     }
 
 }

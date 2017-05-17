@@ -148,6 +148,7 @@
     <entity name="Team" representedClassName=".Team" syncable="YES">
         <attribute name="isActive" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="needsToBeUpdatedFromBackend" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="remoteIdentifier" optional="YES" transient="YES" syncable="YES"/>
         <attribute name="remoteIdentifier_data" optional="YES" attributeType="Binary" indexed="YES" syncable="YES"/>
         <attribute name="teamPictureAssetKey" optional="YES" attributeType="String" syncable="YES"/>
@@ -241,7 +242,7 @@
         <element name="Reaction" positionX="18" positionY="162" width="128" height="105"/>
         <element name="Session" positionX="9" positionY="153" width="128" height="60"/>
         <element name="SystemMessage" positionX="0" positionY="0" width="128" height="195"/>
-        <element name="Team" positionX="9" positionY="153" width="128" height="150"/>
+        <element name="Team" positionX="9" positionY="153" width="128" height="165"/>
         <element name="TextMessage" positionX="0" positionY="0" width="128" height="60"/>
         <element name="User" positionX="0" positionY="0" width="128" height="615"/>
         <element name="UserClient" positionX="9" positionY="153" width="128" height="450"/>

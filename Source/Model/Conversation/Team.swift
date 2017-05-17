@@ -17,10 +17,21 @@
 //
 
 
-public class Team: ZMManagedObject {
+public protocol TeamType: class {
 
-    @NSManaged public var conversations: Set<ZMConversation>?
-    @NSManaged public var members: Set<Member>?
+    var conversations: Set<ZMConversation> { get }
+    var name: String? { get }
+    var teamPictureAssetKey: String? { get }
+    var isActive: Bool { get set }
+    var remoteIdentifier: UUID? { get }
+
+}
+
+
+public class Team: ZMManagedObject, TeamType {
+
+    @NSManaged public var conversations: Set<ZMConversation>
+    @NSManaged public var members: Set<Member>
     @NSManaged public var name: String?
     @NSManaged public var teamPictureAssetKey: String?
     @NSManaged public var isActive: Bool
@@ -36,6 +47,10 @@ public class Team: ZMManagedObject {
         return "Team"
     }
 
+    override public static func sortKey() -> String {
+        return #keyPath(Team.name)
+    }
+
     public override static func isTrackingLocalModifications() -> Bool {
         return false
     }
@@ -43,7 +58,6 @@ public class Team: ZMManagedObject {
     @objc(fetchOrCreateTeamWithRemoteIdentifier:createIfNeeded:inContext:)
     public static func fetchOrCreate(with identifier: UUID, _ create: Bool, in context: NSManagedObjectContext) -> Team? {
         precondition(!create || context.zm_isSyncContext, "Needs to be called on the sync context")
-
         if let existing = Team.fetch(withRemoteIdentifier: identifier, in: context) {
             return existing
         } else if create {
@@ -56,9 +70,11 @@ public class Team: ZMManagedObject {
     }
 }
 
+
 public enum TeamError: Error {
     case insufficientPermissions
 }
+
 
 extension Team {
 
@@ -71,28 +87,3 @@ extension Team {
     }
 
 }
-
-extension Team {
-
-    public func guests() -> Set<ZMUser> {
-        guard let conversations = conversations else { return Set() }
-        let users = allUsers()
-        var guests = Set<ZMUser>()
-        for conversation in conversations {
-            guard let participants = conversation.otherActiveParticipants.set as? Set<ZMUser> else { continue }
-            guests.formUnion(participants.subtracting(users))
-        }
-
-        return guests
-    }
-
-    private func allUsers() -> Set<ZMUser> {
-        if let users = members?.flatMap({ $0.user }) {
-            return Set(users)
-        }
-        return Set()
-    }
-
-}
-
-
