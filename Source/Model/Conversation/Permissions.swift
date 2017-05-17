@@ -42,7 +42,7 @@ public struct Permissions: OptionSet {
     // MARK: - Common Combined Values
     public static let member: Permissions = [.createConversation, .deleteConversation, .addConversationMember, .removeConversationMember, .getTeamConversations, .getMemberPermissions]
     public static let admin: Permissions  = [.member, .addTeamMember, .removeTeamMember, .setTeamData]
-    public static let owner: Permissions  = [.admin, .getBilling, .setBilling]
+    public static let owner: Permissions  = [.admin, .getBilling, .setBilling, .deleteTeam]
 
 }
 

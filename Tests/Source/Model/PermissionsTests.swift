@@ -80,7 +80,7 @@ class PermissionsTests: BaseZMClientMessageTests {
     }
 
     func testOwnerPermissions() {
-        XCTAssertEqual(Permissions.owner, allPermissions.subtracting(.deleteTeam))
+        XCTAssertEqual(Permissions.owner, allPermissions)
     }
 
     // MARK: - Transport Data
