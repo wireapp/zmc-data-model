@@ -111,6 +111,7 @@ static NSString *const ArchivedEventIDDataKey = @"archivedEventID_data";
 static NSString *const LastReadEventIDDataKey = @"lastReadEventID_data";
 
 static NSString *const TeamKey = @"team";
+static NSString *const TeamManagedKey = @"managed";
 
 NSTimeInterval ZMConversationDefaultLastReadTimestampSaveDelay = 3.0;
 
@@ -170,6 +171,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @dynamic messageDestructionTimeout;
 @dynamic callParticipants;
 @dynamic team;
+@dynamic managed;
 
 @synthesize tempMaxLastReadServerTimeStamp;
 @synthesize lastReadTimestampSaveDelay;
@@ -371,7 +373,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
             ClearedEventIDDataKey,
             ArchivedEventIDDataKey,
             LastReadEventIDDataKey,
-            TeamKey
+            TeamKey,
+            TeamManagedKey
         };
         
         NSSet *additionalKeys = [NSSet setWithObjects:KeysIgnoredForTrackingModifications count:(sizeof(KeysIgnoredForTrackingModifications) / sizeof(*KeysIgnoredForTrackingModifications))];
@@ -1118,10 +1121,16 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 + (instancetype)existingTeamConversationInManagedObjectContext:(NSManagedObjectContext *)moc withParticipant:(ZMUser *)participant team:(Team *)team
 {
+    // We consider a conversation being an existing 1:1 team conversation in case the following point are true:
+    //  1. It is a conversation inside the team
+    //  2. The only participants are the current user and the selected user
+    //  3. It does not have a custom display name
     NSPredicate *sameTeam = [NSPredicate predicateWithFormat:@"%K == %@", TeamKey, team];
     NSPredicate *groupConversation = [NSPredicate predicateWithFormat:@"%K == %d", ZMConversationConversationTypeKey, ZMConversationTypeGroup];
     NSPredicate *sameParticipant = [NSPredicate predicateWithFormat:@"ALL %K == %@ AND %K.@count == 1", ZMConversationOtherActiveParticipantsKey, participant, ZMConversationOtherActiveParticipantsKey];
-    NSFetchRequest *request = [self sortedFetchRequestWithPredicate:[NSCompoundPredicate andPredicateWithSubpredicates:@[sameTeam, groupConversation, sameParticipant]]];
+    NSPredicate *noUserDefinedName = [NSPredicate predicateWithFormat:@"%K == NULL", ZMConversationUserDefinedNameKey];
+    NSCompoundPredicate *compoundPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[sameTeam, groupConversation, sameParticipant, noUserDefinedName]];
+    NSFetchRequest *request = [self sortedFetchRequestWithPredicate:compoundPredicate];
     return [moc executeFetchRequestOrAssert:request].firstObject;
 }
 
