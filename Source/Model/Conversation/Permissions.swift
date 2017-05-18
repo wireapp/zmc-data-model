@@ -44,6 +44,39 @@ public struct Permissions: OptionSet {
     public static let admin: Permissions  = [.member, .addTeamMember, .removeTeamMember, .setTeamData]
     public static let owner: Permissions  = [.admin, .getBilling, .setBilling, .deleteTeam]
 
+
+    public enum TransportString: String {
+        case createConversation = "CreateConversation"
+        case deleteConversation = "DeleteConversation"
+        case addTeamMember = "AddTeamMember"
+        case removeTeamMember = "RemoveTeamMember"
+        case addConversationMember = "AddConversationMember"
+        case removeConversationMember = "RemoveConversationMember"
+        case getMemberPermissions = "GetMemberPermissions"
+        case getTeamConversations = "GetTeamConversations"
+        case getBilling  = "GetBilling"
+        case setBilling = "SetBilling"
+        case setTeamData = "SetTeamData"
+        case deleteTeam = "DeleteTeam"
+
+        var permissions: Permissions {
+            switch self {
+            case .createConversation: return .createConversation
+            case .deleteConversation: return .deleteConversation
+            case .addTeamMember: return .addTeamMember
+            case .removeTeamMember: return .removeTeamMember
+            case .addConversationMember: return .addConversationMember
+            case .removeConversationMember: return .removeConversationMember
+            case .getMemberPermissions: return .getMemberPermissions
+            case .getTeamConversations: return .getTeamConversations
+            case .getBilling: return .getBilling
+            case .setBilling: return .setBilling
+            case .setTeamData: return .setTeamData
+            case .deleteTeam: return .deleteTeam
+            }
+        }
+    }
+
 }
 
 
@@ -59,21 +92,8 @@ extension Permissions {
     }
 
     public init?(string: String) {
-        switch string {
-        case "CreateConversation": self = .createConversation
-        case "DeleteConversation": self = .deleteConversation
-        case "AddTeamMember": self = .addTeamMember
-        case "RemoveTeamMember": self = .removeTeamMember
-        case "AddConversationMember": self = .addConversationMember
-        case "RemoveConversationMember": self = .removeConversationMember
-        case "GetMemberPermissions": self = .getMemberPermissions
-        case "GetTeamConversations": self = .getTeamConversations
-        case "GetBilling": self = .getBilling
-        case "SetBilling": self = .setBilling
-        case "SetTeamData": self = .setTeamData
-        case "DeleteTeam": self = .deleteTeam
-        default: return nil
-        }
+        guard let value = Permissions.TransportString(rawValue: string)?.permissions else { return nil }
+        self = value
     }
 }
 
@@ -83,23 +103,23 @@ extension Permissions {
 
 extension Permissions: CustomDebugStringConvertible {
 
-    private static let descriptions: [Permissions: String] = [
-        .createConversation: "CreateConversation",
-        .deleteConversation: "DeleteConversation",
-        .addTeamMember: "AddTeamMember",
-        .removeTeamMember: "RemoveTeamMember",
-        .addConversationMember: "AddConversationMember",
-        .removeConversationMember: "RemoveConversationMember",
-        .getMemberPermissions: "GetMemberPermissions",
-        .getTeamConversations: "GetTeamConversations",
-        .getBilling : "GetBilling",
-        .setBilling: "SetBilling",
-        .setTeamData: "SetTeamData",
-        .deleteTeam: "DeleteTeam"
+    private static let descriptions: [Permissions: Permissions.TransportString] = [
+        .createConversation: .createConversation,
+        .deleteConversation: .deleteConversation,
+        .addTeamMember: .addTeamMember,
+        .removeTeamMember: .removeTeamMember,
+        .addConversationMember: .addConversationMember,
+        .removeConversationMember: .removeConversationMember,
+        .getMemberPermissions: .getMemberPermissions,
+        .getTeamConversations: .getTeamConversations,
+        .getBilling : .getBilling,
+        .setBilling: .setBilling,
+        .setTeamData: .setTeamData,
+        .deleteTeam: .deleteTeam
     ]
 
     public var debugDescription: String {
-        return "[\(Permissions.descriptions.filter { contains($0.0) }.map { $0.1 }.joined(separator: ", "))]"
+        return "[\(Permissions.descriptions.filter { contains($0.0) }.map { $0.1.rawValue }.joined(separator: ", "))]"
     }
 
 }

@@ -26,7 +26,7 @@ class TeamTests: BaseTeamTests {
     func testThatItCreatesANewTeamIfThereIsNone() {
         syncMOC.performGroupedBlockAndWait {
             let uuid = UUID.create()
-            let sut = Team.fetchOrCreate(with: uuid, true, in: self.syncMOC)
+            let sut = Team.fetchOrCreate(with: uuid, create: true, in: self.syncMOC)
             XCTAssertNotNil(sut)
             XCTAssertEqual(sut?.remoteIdentifier, uuid)
         }
@@ -42,7 +42,7 @@ class TeamTests: BaseTeamTests {
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
 
         // when
-        let existing = Team.fetchOrCreate(with: uuid, false, in: uiMOC)
+        let existing = Team.fetchOrCreate(with: uuid, create: false, in: uiMOC)
 
         // then
         XCTAssertNotNil(existing)
