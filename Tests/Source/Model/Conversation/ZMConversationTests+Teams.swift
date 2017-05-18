@@ -92,6 +92,18 @@ class Conversationtests_Teams: BaseTeamTests {
         XCTAssertNotEqual(conversation, newConversation)
     }
 
+    func testThatItReturnsANewConversationIfAnExistingOneHasAUserDefinedName() {
+        // given
+        let conversation = ZMConversation.fetchOrCreateTeamConversation(in: uiMOC, withParticipant: otherUser, team: team)
+        conversation?.userDefinedName = "Best Conversation"
+
+        // when
+        let newConversation = ZMConversation.fetchOrCreateTeamConversation(in: uiMOC, withParticipant: otherUser, team: team)
+
+        // then
+        XCTAssertNotEqual(conversation, newConversation)
+    }
+
     func testThatItReturnsNotNilWhenAskedForOneOnOneConversationWithoutTeam() {
         // given
         let oneOnOne = ZMConversation.insertNewObject(in: uiMOC)
