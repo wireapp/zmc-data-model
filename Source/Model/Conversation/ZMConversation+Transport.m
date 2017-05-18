@@ -35,6 +35,8 @@ static NSString *const ConversationInfoOthersKey = @"others";
 static NSString *const ConversationInfoMembersKey = @"members";
 static NSString *const ConversationInfoCreatorKey = @"creator";
 static NSString *const ConversationInfoTeamKey = @"team";
+static NSString *const ConversationInfoTeamIdKey = @"teamid";
+static NSString *const ConversationInfoManagedTeamKey = @"managed";
 static NSString *const ConversationInfoLastEventTimeKey = @"last_event_time";
 
 NSString *const ZMConversationInfoOTRMutedValueKey = @"otr_muted";
@@ -101,9 +103,9 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
         ZMLogError(@"Invalid members in conversation JSON: %@", transportData);
     }
 
-    NSUUID *teamId = [transportData optionalUuidForKey:ConversationInfoTeamKey];
-    if (nil != teamId) {
-        self.team = [Team fetchOrCreateTeamWithRemoteIdentifier:teamId createIfNeeded:YES inContext:self.managedObjectContext];
+    NSDictionary *team = [transportData optionalDictionaryForKey:ConversationInfoTeamKey];
+    if (nil != team) {
+        [self updateTeamWithPayload:team];
     }
 }
 
@@ -124,6 +126,19 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
         else {
             [self.mutableOtherActiveParticipants removeObject:user];
             [self.mutableLastServerSyncedActiveParticipants removeObject:user];
+        }
+    }
+}
+
+- (void)updateTeamWithPayload:(NSDictionary *)payload
+{
+    NSUUID *teamId = [payload optionalUuidForKey:ConversationInfoTeamIdKey];
+    if (nil != teamId) {
+        self.team = [Team fetchOrCreateTeamWithRemoteIdentifier:teamId createIfNeeded:YES inContext:self.managedObjectContext];
+
+        NSNumber *managed = [payload optionalNumberForKey:ConversationInfoManagedTeamKey];
+        if (nil != managed) {
+            self.managed = managed.boolValue;
         }
     }
 }
