@@ -21,7 +21,8 @@ public protocol TeamType: class {
 
     var conversations: Set<ZMConversation> { get }
     var name: String? { get }
-    var teamPictureAssetKey: String? { get }
+    var pictureAssetId: String? { get }
+    var pictureAssetKey: String? { get }
     var isActive: Bool { get set }
     var remoteIdentifier: UUID? { get }
 
@@ -33,7 +34,8 @@ public class Team: ZMManagedObject, TeamType {
     @NSManaged public var conversations: Set<ZMConversation>
     @NSManaged public var members: Set<Member>
     @NSManaged public var name: String?
-    @NSManaged public var teamPictureAssetKey: String?
+    @NSManaged public var pictureAssetId: String?
+    @NSManaged public var pictureAssetKey: String?
     @NSManaged public var isActive: Bool
     @NSManaged public var creator: ZMUser?
 

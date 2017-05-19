@@ -97,5 +97,30 @@ class TeamTests: BaseTeamTests {
             XCTFail("Eror: \(error)")
         }
     }
+
+    func testThatItUpdatesATeamWithPayload() {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let team = Team.insertNewObject(in: self.syncMOC)
+            let userId = UUID.create()
+            let assetId = UUID.create().transportString(), assetKey = UUID.create().transportString()
+
+            let payload = [
+                "name": "Wire GmbH",
+                "creator": userId.transportString(),
+                "icon": assetId,
+                "icon_key": assetKey
+            ]
+
+            // when
+            team.update(with: payload)
+
+            // then
+            XCTAssertEqual(team.creator?.remoteIdentifier, userId)
+            XCTAssertEqual(team.name, "Wire GmbH")
+            XCTAssertEqual(team.pictureAssetId, assetId)
+            XCTAssertEqual(team.pictureAssetKey, assetKey)
+        }
+    }
     
 }

@@ -225,6 +225,7 @@ class Conversationtests_Teams: BaseTeamTests {
             let conversation = try team.addConversation(with: [otherUser])
             XCTAssertNotNil(conversation)
             XCTAssertEqual(conversation?.otherActiveParticipants, [otherUser])
+            XCTAssertTrue(otherUser.isMember(of: team))
             XCTAssertEqual(conversation?.team, team)
         } catch {
             XCTFail("Eror: \(error)")
