@@ -85,39 +85,15 @@ class PermissionsTests: BaseZMClientMessageTests {
 
     // MARK: - Transport Data
 
-    func testThatItCreatesPermissionsFromStrings() {
-        XCTAssertNil(Permissions(string: ""))
-        XCTAssertEqual(Permissions(string: "CreateConversation"), .createConversation)
-        XCTAssertEqual(Permissions(string: "DeleteConversation"), .deleteConversation)
-        XCTAssertEqual(Permissions(string: "AddTeamMember"), .addTeamMember)
-        XCTAssertEqual(Permissions(string: "RemoveTeamMember"), .removeTeamMember)
-        XCTAssertEqual(Permissions(string: "AddConversationMember"), .addConversationMember)
-        XCTAssertEqual(Permissions(string: "RemoveConversationMember"), .removeConversationMember)
-        XCTAssertEqual(Permissions(string: "GetMemberPermissions"), .getMemberPermissions)
-        XCTAssertEqual(Permissions(string: "GetTeamConversations"), .getTeamConversations)
-        XCTAssertEqual(Permissions(string: "GetBilling"), .getBilling)
-        XCTAssertEqual(Permissions(string: "SetBilling"), .setBilling)
-        XCTAssertEqual(Permissions(string: "SetTeamData"), .setTeamData)
-        XCTAssertEqual(Permissions(string: "DeleteTeam"), .deleteTeam)
-    }
-
     func testThatItCreatesPermissionsFromPayload() {
-        XCTAssertEqual(Permissions(payload: ["CreateConversation", "DeleteTeam"]), [.createConversation, .deleteTeam])
-
-        let memberPayload = [
-            "CreateConversation",
-            "DeleteConversation",
-            "AddConversationMember",
-            "RemoveConversationMember",
-            "GetMemberPermissions",
-            "GetTeamConversations"
-            ]
-
-        XCTAssertEqual(Permissions(payload: memberPayload), .member)
+        XCTAssertEqual(Permissions(rawValue: 5), [.createConversation, .addTeamMember])
+        XCTAssertEqual(Permissions(rawValue: 1587), .member)
+        XCTAssertEqual(Permissions(rawValue: 1855), .admin)
+        XCTAssertEqual(Permissions(rawValue: 4095), .owner)
     }
 
     func testThatItCreatesEmptyPermissionsFromEmptyPayload() {
-        XCTAssertEqual(Permissions(payload: []), [])
+        XCTAssertEqual(Permissions(rawValue: 0), [])
     }
 
     // MARK: - Objective-C Interoperability

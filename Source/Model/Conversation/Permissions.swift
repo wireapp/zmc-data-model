@@ -26,75 +26,24 @@ public struct Permissions: OptionSet {
     }
 
     // MARK: - Base Values
-    public static let createConversation       = Permissions(rawValue: 1 << 0)
-    public static let deleteConversation       = Permissions(rawValue: 1 << 1)
-    public static let addTeamMember            = Permissions(rawValue: 1 << 2)
-    public static let removeTeamMember         = Permissions(rawValue: 1 << 3)
-    public static let addConversationMember    = Permissions(rawValue: 1 << 4)
-    public static let removeConversationMember = Permissions(rawValue: 1 << 5)
-    public static let getMemberPermissions     = Permissions(rawValue: 1 << 6)
-    public static let getTeamConversations     = Permissions(rawValue: 1 << 7)
-    public static let getBilling               = Permissions(rawValue: 1 << 8)
-    public static let setBilling               = Permissions(rawValue: 1 << 9)
-    public static let setTeamData              = Permissions(rawValue: 1 << 10)
-    public static let deleteTeam               = Permissions(rawValue: 1 << 11)
+    public static let createConversation       = Permissions(rawValue: 0x001)
+    public static let deleteConversation       = Permissions(rawValue: 0x002)
+    public static let addTeamMember            = Permissions(rawValue: 0x004)
+    public static let removeTeamMember         = Permissions(rawValue: 0x008)
+    public static let addConversationMember    = Permissions(rawValue: 0x010)
+    public static let removeConversationMember = Permissions(rawValue: 0x020)
+    public static let getBilling               = Permissions(rawValue: 0x040)
+    public static let setBilling               = Permissions(rawValue: 0x080)
+    public static let setTeamData              = Permissions(rawValue: 0x100)
+    public static let getMemberPermissions     = Permissions(rawValue: 0x200)
+    public static let getTeamConversations     = Permissions(rawValue: 0x400)
+    public static let deleteTeam               = Permissions(rawValue: 0x800)
 
     // MARK: - Common Combined Values
     public static let member: Permissions = [.createConversation, .deleteConversation, .addConversationMember, .removeConversationMember, .getTeamConversations, .getMemberPermissions]
     public static let admin: Permissions  = [.member, .addTeamMember, .removeTeamMember, .setTeamData]
     public static let owner: Permissions  = [.admin, .getBilling, .setBilling, .deleteTeam]
 
-
-    public enum TransportString: String {
-        case createConversation = "CreateConversation"
-        case deleteConversation = "DeleteConversation"
-        case addTeamMember = "AddTeamMember"
-        case removeTeamMember = "RemoveTeamMember"
-        case addConversationMember = "AddConversationMember"
-        case removeConversationMember = "RemoveConversationMember"
-        case getMemberPermissions = "GetMemberPermissions"
-        case getTeamConversations = "GetTeamConversations"
-        case getBilling  = "GetBilling"
-        case setBilling = "SetBilling"
-        case setTeamData = "SetTeamData"
-        case deleteTeam = "DeleteTeam"
-
-        var permissions: Permissions {
-            switch self {
-            case .createConversation: return .createConversation
-            case .deleteConversation: return .deleteConversation
-            case .addTeamMember: return .addTeamMember
-            case .removeTeamMember: return .removeTeamMember
-            case .addConversationMember: return .addConversationMember
-            case .removeConversationMember: return .removeConversationMember
-            case .getMemberPermissions: return .getMemberPermissions
-            case .getTeamConversations: return .getTeamConversations
-            case .getBilling: return .getBilling
-            case .setBilling: return .setBilling
-            case .setTeamData: return .setTeamData
-            case .deleteTeam: return .deleteTeam
-            }
-        }
-    }
-
-}
-
-
-// MARK: - Transport Data
-
-
-extension Permissions {
-
-    public init(payload: [String]) {
-        var permissions: Permissions = []
-        payload.flatMap(Permissions.init).forEach { permissions.formUnion($0) }
-        self = permissions
-    }
-
-    public init?(string: String) {
-        guard let value = Permissions.TransportString(rawValue: string)?.permissions else { return nil }
-        self = value
-    }
 }
 
 
@@ -103,23 +52,23 @@ extension Permissions {
 
 extension Permissions: CustomDebugStringConvertible {
 
-    private static let descriptions: [Permissions: Permissions.TransportString] = [
-        .createConversation: .createConversation,
-        .deleteConversation: .deleteConversation,
-        .addTeamMember: .addTeamMember,
-        .removeTeamMember: .removeTeamMember,
-        .addConversationMember: .addConversationMember,
-        .removeConversationMember: .removeConversationMember,
-        .getMemberPermissions: .getMemberPermissions,
-        .getTeamConversations: .getTeamConversations,
-        .getBilling : .getBilling,
-        .setBilling: .setBilling,
-        .setTeamData: .setTeamData,
-        .deleteTeam: .deleteTeam
+    private static let descriptions: [Permissions: String] = [
+        .createConversation: "CreateConversation",
+        .deleteConversation: "DeleteConversation",
+        .addTeamMember: "AddTeamMember",
+        .removeTeamMember: "RemoveTeamMember",
+        .addConversationMember: "AddConversationMember",
+        .removeConversationMember: "RemoveConversationMember",
+        .getMemberPermissions: "GetMemberPermissions",
+        .getTeamConversations: "GetTeamConversations",
+        .getBilling : "GetBilling",
+        .setBilling: "SetBilling",
+        .setTeamData: "SetTeamData",
+        .deleteTeam: "DeleteTeam"
     ]
 
     public var debugDescription: String {
-        return "[\(Permissions.descriptions.filter { contains($0.0) }.map { $0.1.rawValue }.joined(separator: ", "))]"
+        return "[\(Permissions.descriptions.filter { contains($0.0) }.map { $0.1 }.joined(separator: ", "))]"
     }
 
 }
