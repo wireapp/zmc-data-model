@@ -887,4 +887,57 @@ class ConversationListObserverTests : NotificationDispatcherTestBase {
         }
     }
 
+    func testThatItNotifiesObserversWhenAConversationsTeamChangesSoItNowDoesMatch() {
+        // given
+        let team = Team.insertNewObject(in: uiMOC)
+        team.remoteIdentifier = .create()
+        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+        conversation.conversationType = .group
+        let conversationList = ZMConversation.conversationsExcludingArchived(in: uiMOC, team: team)
+
+        XCTAssert(uiMOC.saveOrRollback())
+
+        let token = ConversationListChangeInfo.add(observer: testObserver, for: conversationList)
+        defer { ConversationListChangeInfo.remove(observer: token, for: conversationList) }
+
+        // when
+        conversation.team = team
+        XCTAssert(uiMOC.saveOrRollback())
+
+        // then
+        XCTAssertEqual(testObserver.changes.count, 1)
+        guard let first = testObserver.changes.first else { return }
+        XCTAssertEqual(first.insertedIndexes, IndexSet(integer: 0))
+        XCTAssertEqual(first.deletedIndexes, IndexSet())
+        XCTAssertEqual(first.updatedIndexes, IndexSet())
+        XCTAssertEqual(movedIndexes(first), [])
+    }
+
+    func testThatItNotifiesObserversWhenAConversationsTeamChangesSoItNowDoesNotMatch() {
+        // given
+        let team = Team.insertNewObject(in: uiMOC)
+        team.remoteIdentifier = .create()
+        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+        conversation.conversationType = .group
+        conversation.team = team
+        let conversationList = ZMConversation.conversationsExcludingArchived(in: uiMOC, team: team)
+
+        XCTAssert(uiMOC.saveOrRollback())
+
+        let token = ConversationListChangeInfo.add(observer: testObserver, for: conversationList)
+        defer { ConversationListChangeInfo.remove(observer: token, for: conversationList) }
+
+        // when
+        conversation.team = nil
+        XCTAssert(uiMOC.saveOrRollback())
+
+        // then
+        XCTAssertEqual(testObserver.changes.count, 1)
+        guard let first = testObserver.changes.first else { return }
+        XCTAssertEqual(first.insertedIndexes, IndexSet())
+        XCTAssertEqual(first.deletedIndexes, IndexSet(integer: 0))
+        XCTAssertEqual(first.updatedIndexes, IndexSet())
+        XCTAssertEqual(movedIndexes(first), [])
+    }
+
 }
