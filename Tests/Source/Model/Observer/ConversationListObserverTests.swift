@@ -714,7 +714,6 @@ class ConversationListObserverTests : NotificationDispatcherTestBase {
         ConversationListChangeInfo.remove(observer: token, for:conversationList)
     }
     
-    
     func testThatCanGetTheCurrentStateFromTheChangeInfo() {
         // given
         let conversation1 = ZMConversation.insertNewObject(in:self.uiMOC)
@@ -758,4 +757,134 @@ class ConversationListObserverTests : NotificationDispatcherTestBase {
         
         ConversationListChangeInfo.remove(observer: token, for:conversationList)
     }
+
+    // MARK: - Teams
+
+    func testThatItOnlyNotifiesTheObserverWhenTheTeamMatches() {
+        // given
+        let team = Team.insertNewObject(in: uiMOC)
+        let teamId = UUID.create()
+        team.remoteIdentifier = teamId
+        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+        conversation.conversationType = .group
+        conversation.team = team
+        let conversationList = ZMConversation.conversationsExcludingArchived(in: uiMOC, team: team)
+        XCTAssert(uiMOC.saveOrRollback())
+
+        let token = ConversationListChangeInfo.add(observer: testObserver, for: conversationList)
+        defer { ConversationListChangeInfo.remove(observer: token, for:conversationList) }
+
+        // when
+        syncMOC.performGroupedBlockAndWait {
+            let team = Team.fetch(withRemoteIdentifier: teamId, in: self.syncMOC)
+            let conversation = ZMConversation.insertNewObject(in:self.syncMOC)
+            conversation.conversationType = .group
+            conversation.team = team
+
+            let otherTeamConversation = ZMConversation.insertNewObject(in:self.syncMOC)
+            otherTeamConversation.conversationType = .group
+            otherTeamConversation.team = Team.fetchOrCreate(with: .create(), create: true, in: self.syncMOC, created: nil)
+
+            self.syncMOC.saveOrRollback()
+        }
+
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        mergeLastChanges()
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+
+        // then
+        XCTAssertEqual(testObserver.changes.count, 1)
+        if let first = testObserver.changes.first {
+            XCTAssertEqual(first.insertedIndexes, IndexSet(integer: 0))
+            XCTAssertEqual(first.deletedIndexes, IndexSet())
+            XCTAssertEqual(first.updatedIndexes, IndexSet())
+            XCTAssertEqual(movedIndexes(first), [])
+        }
+    }
+
+    func testThatItNotifiesObserversWhenAConversationUpdatesUserDefinedNameInATeam() {
+        // given
+        let team = Team.insertNewObject(in: uiMOC)
+        team.remoteIdentifier = .create()
+        let conversation = ZMConversation.insertNewObject(in:uiMOC)
+        conversation.conversationType = .group
+        conversation.team = team
+        let conversationList = ZMConversation.conversationsExcludingArchived(in: uiMOC, team: team)
+        XCTAssert(uiMOC.saveOrRollback())
+
+        let token = ConversationListChangeInfo.add(observer: testObserver, for: conversationList)
+        defer { ConversationListChangeInfo.remove(observer: token, for:conversationList) }
+
+        // when
+        conversation.userDefinedName = "New Name"
+        XCTAssert(uiMOC.saveOrRollback())
+
+        // then
+        XCTAssertEqual(testObserver.changes.count, 1)
+        if let first = testObserver.changes.first {
+            XCTAssertEqual(first.insertedIndexes, IndexSet())
+            XCTAssertEqual(first.deletedIndexes, IndexSet())
+            XCTAssertEqual(first.updatedIndexes, IndexSet(integer: 0))
+            XCTAssertEqual(movedIndexes(first), [])
+        }
+    }
+
+    func testThatItDoesNotNotifyAnObserversWhenAConversationUpdatesUserDefinedNameInADifferentTeam() {
+        // given
+        let team = Team.insertNewObject(in: uiMOC)
+        team.remoteIdentifier = .create()
+        let otherTeam = Team.insertNewObject(in: uiMOC)
+        otherTeam.remoteIdentifier = .create()
+        let teamConversation = ZMConversation.insertNewObject(in:uiMOC)
+        teamConversation.conversationType = .group
+        teamConversation.team = team
+        let otherTeamConversation = ZMConversation.insertNewObject(in:uiMOC)
+        otherTeamConversation.conversationType = .group
+        otherTeamConversation.team = otherTeam
+        let conversationList = ZMConversation.conversationsExcludingArchived(in: uiMOC, team: team)
+        XCTAssert(uiMOC.saveOrRollback())
+
+        let token = ConversationListChangeInfo.add(observer: testObserver, for: conversationList)
+        defer { ConversationListChangeInfo.remove(observer: token, for:conversationList) }
+
+        // when
+        otherTeamConversation.userDefinedName = "New Name"
+        XCTAssert(uiMOC.saveOrRollback())
+
+        // then
+        XCTAssertEqual(testObserver.changes.count, 0)
+    }
+
+    func testThatItNotifiesObserversWhenAUserInAConversationOfATeamChangesTheirName() {
+        // given
+        let team = Team.insertNewObject(in: uiMOC)
+        team.remoteIdentifier = .create()
+        let conversation = ZMConversation.insertNewObject(in:uiMOC)
+        conversation.conversationType = .group
+        conversation.team = team
+        let user = ZMUser.insertNewObject(in: uiMOC)
+        conversation.mutableOtherActiveParticipants.add(user)
+        let conversationList = ZMConversation.conversationsExcludingArchived(in: uiMOC, team: team)
+        XCTAssert(uiMOC.saveOrRollback())
+
+        user.name = "Old Name"
+        XCTAssert(uiMOC.saveOrRollback())
+
+        let token = ConversationListChangeInfo.add(observer: testObserver, for: conversationList)
+        defer { ConversationListChangeInfo.remove(observer: token, for:conversationList) }
+
+        // when
+        user.name = "New Name"
+        XCTAssert(uiMOC.saveOrRollback())
+
+        // then
+        XCTAssertEqual(testObserver.changes.count, 1)
+        if let first = testObserver.changes.first {
+            XCTAssertEqual(first.insertedIndexes, IndexSet())
+            XCTAssertEqual(first.deletedIndexes, IndexSet())
+            XCTAssertEqual(first.updatedIndexes, IndexSet(integer: 0))
+            XCTAssertEqual(movedIndexes(first), [])
+        }
+    }
+
 }
