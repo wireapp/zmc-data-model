@@ -19,9 +19,9 @@
 
 public struct Permissions: OptionSet {
 
-    public let rawValue: Int32
+    public let rawValue: Int64
 
-    public init(rawValue: Int32) {
+    public init(rawValue: Int64) {
         self.rawValue = rawValue
     }
 

@@ -22,7 +22,7 @@ public class Member: ZMManagedObject {
     @NSManaged public var team: Team?
     @NSManaged public var user: ZMUser?
 
-    @NSManaged private var permissionsRawValue: Int32
+    @NSManaged private var permissionsRawValue: Int64
 
     public var permissions: Permissions {
         get { return Permissions(rawValue: permissionsRawValue) }
@@ -60,10 +60,10 @@ extension Member {
     public static func createOrUpdate(with payload: [String: Any], in team: Team, context: NSManagedObjectContext) -> Member? {
         guard let id = (payload["user"] as? String).flatMap(UUID.init),
             let user = ZMUser(remoteID: id, createIfNeeded: true, in: context),
-            let permissions = payload["permissions"] as? Int else { return nil }
+            let permissions = payload["permissions"] as? NSNumber else { return nil }
 
         let member = getOrCreateMember(for: user, in: team, context: context)
-        member.permissions = Permissions(rawValue: Int32(permissions))
+        member.permissions = Permissions(rawValue: permissions.int64Value)
         return member
     }
 
