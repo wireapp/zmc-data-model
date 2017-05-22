@@ -25,10 +25,19 @@ class TeamTests: BaseTeamTests {
 
     func testThatItCreatesANewTeamIfThereIsNone() {
         syncMOC.performGroupedBlockAndWait {
+            // given
             let uuid = UUID.create()
-            let sut = Team.fetchOrCreate(with: uuid, create: true, in: self.syncMOC)
-            XCTAssertNotNil(sut)
-            XCTAssertEqual(sut?.remoteIdentifier, uuid)
+            var created = false
+
+            withUnsafeMutablePointer(to: &created) {
+                // when
+                let sut = Team.fetchOrCreate(with: uuid, create: true, in: self.syncMOC, created: $0)
+
+                // then
+                XCTAssertNotNil(sut)
+                XCTAssertEqual(sut?.remoteIdentifier, uuid)
+                XCTAssertTrue(created)
+            }
         }
     }
 
@@ -42,11 +51,15 @@ class TeamTests: BaseTeamTests {
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
 
         // when
-        let existing = Team.fetchOrCreate(with: uuid, create: false, in: uiMOC)
+        var created = false
+        withUnsafeMutablePointer(to: &created) {
+            let existing = Team.fetchOrCreate(with: uuid, create: false, in: uiMOC, created: $0)
+            XCTAssertFalse(created)
 
-        // then
-        XCTAssertNotNil(existing)
-        XCTAssertEqual(existing, sut)
+            // then
+            XCTAssertNotNil(existing)
+            XCTAssertEqual(existing, sut)
+        }
     }
 
     func testThatItReturnsGuestsOfATeam() {
@@ -95,6 +108,31 @@ class TeamTests: BaseTeamTests {
             XCTAssertFalse(guest.isMember(of: team2))
         } catch {
             XCTFail("Eror: \(error)")
+        }
+    }
+
+    func testThatItUpdatesATeamWithPayload() {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let team = Team.insertNewObject(in: self.syncMOC)
+            let userId = UUID.create()
+            let assetId = UUID.create().transportString(), assetKey = UUID.create().transportString()
+
+            let payload = [
+                "name": "Wire GmbH",
+                "creator": userId.transportString(),
+                "icon": assetId,
+                "icon_key": assetKey
+            ]
+
+            // when
+            team.update(with: payload)
+
+            // then
+            XCTAssertEqual(team.creator?.remoteIdentifier, userId)
+            XCTAssertEqual(team.name, "Wire GmbH")
+            XCTAssertEqual(team.pictureAssetId, assetId)
+            XCTAssertEqual(team.pictureAssetKey, assetKey)
         }
     }
     

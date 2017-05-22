@@ -215,8 +215,56 @@
 
         XCTAssertEqualObjects(conversation.otherActiveParticipants, ([NSOrderedSet orderedSetWithObjects:user1, user2, nil]) );
         XCTAssertNotNil(conversation.team);
+        XCTAssertTrue(conversation.team.needsToBeUpdatedFromBackend);
+        XCTAssertFalse(conversation.team.needsToRedownloadMembers);
         XCTAssertTrue(conversation.managed);
         XCTAssertEqualObjects(conversation.team.remoteIdentifier, teamID);
+
+        XCTAssertEqual(conversation.unsyncedActiveParticipants.count, 0u);
+        XCTAssertEqual(conversation.unsyncedInactiveParticipants.count, 0u);
+
+        XCTAssertFalse(conversation.isArchived);
+        XCTAssertFalse(conversation.isSilenced);
+    }];
+}
+
+- (void)testThatItUpdatesItselfFromTransportDataForTeamConversation_ExistingTeam
+{
+    [self.syncMOC performGroupedBlockAndWait:^{
+        // given
+        ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
+        NSUUID *uuid = NSUUID.createUUID;
+        conversation.remoteIdentifier = uuid;
+
+        NSUUID *user1UUID = [NSUUID createUUID];
+        NSUUID *user2UUID = [NSUUID createUUID];
+        Team *team = [Team fetchOrCreateTeamWithRemoteIdentifier:NSUUID.createUUID createIfNeeded:YES inContext:self.syncMOC created:nil];
+
+        NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation conversationType:ZMConvTypeGroup activeUserIDs:@[user1UUID, user2UUID] inactiveUserIDs:nil lastServerTimestamp:nil isArchived:NO archivedRef:nil isSilenced:NO silencedRef:nil teamID:team.remoteIdentifier managed:YES includeTeamPayload:YES];
+
+        // when
+        [conversation updateWithTransportData:payload];
+
+        // then
+        XCTAssertEqualObjects(conversation.remoteIdentifier, [payload[@"id"] UUID]);
+        XCTAssertNil(conversation.userDefinedName);
+        XCTAssertEqual(conversation.conversationType, ZMConversationTypeGroup);
+        XCTAssertEqualObjects(conversation.lastModifiedDate, [NSDate dateWithTransportString:payload[@"last_event_time"]]);
+        XCTAssertEqualObjects(conversation.creator.remoteIdentifier, [payload[@"creator"] UUID]);
+
+
+        ZMUser *user1 = [ZMUser userWithRemoteID:user1UUID createIfNeeded:NO inContext:self.syncMOC];
+        XCTAssertNotNil(user1);
+
+        ZMUser *user2 = [ZMUser userWithRemoteID:user2UUID createIfNeeded:NO inContext:self.syncMOC];
+        XCTAssertNotNil(user2);
+
+        XCTAssertEqualObjects(conversation.otherActiveParticipants, ([NSOrderedSet orderedSetWithObjects:user1, user2, nil]) );
+        XCTAssertNotNil(conversation.team);
+        XCTAssertFalse(conversation.team.needsToBeUpdatedFromBackend);
+        XCTAssertFalse(conversation.team.needsToRedownloadMembers);
+        XCTAssertTrue(conversation.managed);
+        XCTAssertEqualObjects(conversation.team.remoteIdentifier, team.remoteIdentifier);
 
         XCTAssertEqual(conversation.unsyncedActiveParticipants.count, 0u);
         XCTAssertEqual(conversation.unsyncedInactiveParticipants.count, 0u);
