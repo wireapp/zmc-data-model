@@ -21,10 +21,7 @@ import Foundation
 fileprivate extension NSPredicate {
 
     func predicate(for team: Team?) -> NSCompoundPredicate {
-        return .init(andPredicateWithSubpredicates: [
-            ZMConversation.predicateForConversations(in: team),
-            self
-        ])
+        return .init(andPredicateWithSubpredicates: [ZMConversation.predicateForConversations(in: team), self])
     }
 
 }

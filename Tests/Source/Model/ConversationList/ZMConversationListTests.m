@@ -284,6 +284,7 @@
     conversation.connection.to = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     XCTAssert([self.uiMOC saveOrRollback]);
 
+    
     // then
     ZMConversationList *list = [ZMConversation pendingConversationsInContext:self.uiMOC team:nil];
     XCTAssertEqual(list.count, 1u);
@@ -353,7 +354,7 @@
     XCTAssertEqualObjects(pendingList, @[conversation]);
     
     ConversationListChangeObserver *normalObserver = [[ConversationListChangeObserver alloc] initWithConversationList:normalList];
-    ConversationListChangeObserver *pendingObserver =[[ConversationListChangeObserver alloc] initWithConversationList:pendingList];
+    ConversationListChangeObserver *pendingObserver = [[ConversationListChangeObserver alloc] initWithConversationList:pendingList];
 
     // when
     XCTAssert([self.uiMOC saveOrRollback]);
