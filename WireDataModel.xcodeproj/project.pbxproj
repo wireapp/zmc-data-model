@@ -156,7 +156,7 @@
 		F9331C6A1CB3D5B700139ECC /* ZMUpdateEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F9331C681CB3D56000139ECC /* ZMUpdateEventTests.m */; };
 		F9331C771CB4165100139ECC /* NSString+ZMPersonName.h in Headers */ = {isa = PBXBuildFile; fileRef = F9331C751CB4165100139ECC /* NSString+ZMPersonName.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F9331C781CB4165100139ECC /* NSString+ZMPersonName.m in Sources */ = {isa = PBXBuildFile; fileRef = F9331C761CB4165100139ECC /* NSString+ZMPersonName.m */; };
-		F9331C831CB4191B00139ECC /* NSPredicate+ZMSearch.h in Headers */ = {isa = PBXBuildFile; fileRef = F9331C811CB4191B00139ECC /* NSPredicate+ZMSearch.h */; };
+		F9331C831CB4191B00139ECC /* NSPredicate+ZMSearch.h in Headers */ = {isa = PBXBuildFile; fileRef = F9331C811CB4191B00139ECC /* NSPredicate+ZMSearch.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F9331C841CB4191B00139ECC /* NSPredicate+ZMSearch.m in Sources */ = {isa = PBXBuildFile; fileRef = F9331C821CB4191B00139ECC /* NSPredicate+ZMSearch.m */; };
 		F9331C871CB419B500139ECC /* NSFetchRequest+ZMRelationshipKeyPaths.h in Headers */ = {isa = PBXBuildFile; fileRef = F9331C851CB419B500139ECC /* NSFetchRequest+ZMRelationshipKeyPaths.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F9331C881CB419B500139ECC /* NSFetchRequest+ZMRelationshipKeyPaths.m in Sources */ = {isa = PBXBuildFile; fileRef = F9331C861CB419B500139ECC /* NSFetchRequest+ZMRelationshipKeyPaths.m */; };

@@ -93,3 +93,12 @@ extension Team {
     }
 
 }
+
+extension Team {
+    
+    public func members(matchingQuery query: String) -> [Member] {
+        guard let matchingName = NSPredicate(formatDictionary: ["normalizedName" : "%K MATCHES %@"], matchingSearch: query) else { return [] }
+        return members.filter({ matchingName.evaluate(with: $0.user) })
+    }
+    
+}

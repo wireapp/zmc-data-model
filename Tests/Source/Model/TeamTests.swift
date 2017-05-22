@@ -136,4 +136,23 @@ class TeamTests: BaseTeamTests {
         }
     }
     
+    func testThatMembersMatchingQueryReturnCorrectMember() {
+        // given
+        let (team, _) = createTeamAndMember(for: .selfUser(in: uiMOC), with: .member)
+        
+        // we add actual team members as well
+        let (user1, membership) = createUserAndAddMember(to: team)
+        let (user2, _) = createUserAndAddMember(to: team)
+        
+        user1.name = "UserA"
+        user2.name = "UserB"
+        
+        // when
+        let result = team.members(matchingQuery: "userA")
+        
+        // then
+        XCTAssertEqual(result, [membership])
+    }
+
+    
 }

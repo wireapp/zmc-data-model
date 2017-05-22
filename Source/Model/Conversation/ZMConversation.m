@@ -1175,12 +1175,12 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return conversation;
 }
 
-+ (NSPredicate *)predicateForSearchString:(NSString *)searchString
++ (NSPredicate *)predicateForSearchQuery:(NSString *)searchQuery team:(Team *)team
 {
     NSDictionary *formatDict = @{ZMConversationOtherActiveParticipantsKey : @"ANY %K.normalizedName MATCHES %@",
                                    ZMNormalizedUserDefinedNameKey: @"%K MATCHES %@"};
     NSPredicate *searchPredicate = [NSPredicate predicateWithFormatDictionary:formatDict
-                                                         matchingSearchString:searchString];
+                                                         matchingSearchString:searchQuery];
     NSPredicate *activeMemberPredicate = [NSPredicate predicateWithFormat:@"%K == NULL OR %K == YES",
                                           ZMConversationClearedTimeStampKey,
                                           ZMConversationIsSelfAnActiveMemberKey];
@@ -1188,8 +1188,13 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     NSPredicate *basePredicate = [NSPredicate predicateWithFormat:@"(%K == %@)",
                                   ZMConversationConversationTypeKey, @(ZMConversationTypeGroup)];
     
-    NSPredicate *fullPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[basePredicate, searchPredicate,activeMemberPredicate]];
-    return fullPredicate;
+    NSPredicate *teamPredicate = [NSPredicate predicateWithFormat:@"(%K == %@)", TeamKey, team];
+    
+    if (team != nil) {
+        return [NSCompoundPredicate andPredicateWithSubpredicates:@[basePredicate, searchPredicate, activeMemberPredicate, teamPredicate]];
+    } else {
+        return [NSCompoundPredicate andPredicateWithSubpredicates:@[basePredicate, searchPredicate, activeMemberPredicate]];
+    }
 }
 
 + (NSPredicate *)userDefinedNamePredicateForSearchString:(NSString *)searchString;
