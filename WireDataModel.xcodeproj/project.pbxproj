@@ -186,6 +186,8 @@
 		F964700A1D5B5E9D00A81A92 /* ZMClientMessageTests+Editing.m in Sources */ = {isa = PBXBuildFile; fileRef = F96470091D5B5E9D00A81A92 /* ZMClientMessageTests+Editing.m */; };
 		F991CE191CB55E95004D8465 /* ZMSearchUserTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F991CE181CB55E95004D8465 /* ZMSearchUserTests.m */; };
 		F991CE1B1CB561B0004D8465 /* ZMAddressBookContact.m in Sources */ = {isa = PBXBuildFile; fileRef = F991CE1A1CB561B0004D8465 /* ZMAddressBookContact.m */; };
+		F99C5B8A1ED460E20049CCD7 /* TeamChangeInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = F99C5B891ED460E20049CCD7 /* TeamChangeInfo.swift */; };
+		F99C5B8C1ED466760049CCD7 /* TeamObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F99C5B8B1ED466760049CCD7 /* TeamObserverTests.swift */; };
 		F9A706501CAEE01D00C2F5FE /* NSManagedObjectContext+tests.h in Headers */ = {isa = PBXBuildFile; fileRef = F9A705CA1CAEE01D00C2F5FE /* NSManagedObjectContext+tests.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F9A706511CAEE01D00C2F5FE /* NSManagedObjectContext+zmessaging-Internal.h in Headers */ = {isa = PBXBuildFile; fileRef = F9A705CB1CAEE01D00C2F5FE /* NSManagedObjectContext+zmessaging-Internal.h */; };
 		F9A706521CAEE01D00C2F5FE /* NSManagedObjectContext+zmessaging.h in Headers */ = {isa = PBXBuildFile; fileRef = F9A705CC1CAEE01D00C2F5FE /* NSManagedObjectContext+zmessaging.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -617,6 +619,8 @@
 		F991CE101CB5549D004D8465 /* ZMConversation+Testing.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ZMConversation+Testing.h"; sourceTree = "<group>"; };
 		F991CE181CB55E95004D8465 /* ZMSearchUserTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZMSearchUserTests.m; sourceTree = "<group>"; };
 		F991CE1A1CB561B0004D8465 /* ZMAddressBookContact.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZMAddressBookContact.m; sourceTree = "<group>"; };
+		F99C5B891ED460E20049CCD7 /* TeamChangeInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TeamChangeInfo.swift; sourceTree = "<group>"; };
+		F99C5B8B1ED466760049CCD7 /* TeamObserverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TeamObserverTests.swift; sourceTree = "<group>"; };
 		F9A705CA1CAEE01D00C2F5FE /* NSManagedObjectContext+tests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSManagedObjectContext+tests.h"; sourceTree = "<group>"; };
 		F9A705CB1CAEE01D00C2F5FE /* NSManagedObjectContext+zmessaging-Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSManagedObjectContext+zmessaging-Internal.h"; sourceTree = "<group>"; };
 		F9A705CC1CAEE01D00C2F5FE /* NSManagedObjectContext+zmessaging.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSManagedObjectContext+zmessaging.h"; sourceTree = "<group>"; };
@@ -1248,6 +1252,7 @@
 				F9A706391CAEE01D00C2F5FE /* ObjectChangeInfo.swift */,
 				F9A7063B1CAEE01D00C2F5FE /* UserClientChangeInfo.swift */,
 				F9A7063C1CAEE01D00C2F5FE /* UserChangeInfo.swift */,
+				F99C5B891ED460E20049CCD7 /* TeamChangeInfo.swift */,
 			);
 			path = ObjectObserverTokens;
 			sourceTree = "<group>";
@@ -1534,6 +1539,7 @@
 				F9DBA5261E28EEBD00BE23C0 /* UserObserverTests.swift */,
 				F9DBA5281E29162A00BE23C0 /* MessageObserverTests.swift */,
 				F9C348821E2CC0730015D69D /* UserClientObserverTests.swift */,
+				F99C5B8B1ED466760049CCD7 /* TeamObserverTests.swift */,
 				F9C348851E2CC27D0015D69D /* NewUnreadMessageObserverTests.swift */,
 				F9C3488E1E2E2DEC0015D69D /* MessageWindowObserverTests.swift */,
 				F9FD75741E2E79B200B4558B /* ConversationListObserverTests.swift */,
@@ -2132,6 +2138,7 @@
 				F9A7069C1CAEE01D00C2F5FE /* ZMCalculateSetChanges.mm in Sources */,
 				F943BC2D1E88FEC80048A768 /* ChangedIndexes.swift in Sources */,
 				F9A706A31CAEE01D00C2F5FE /* ConversationListChangeInfo.swift in Sources */,
+				F99C5B8A1ED460E20049CCD7 /* TeamChangeInfo.swift in Sources */,
 				F963E9711D9ADD5A00098AD3 /* ZMGenericMessage+Utils.m in Sources */,
 				F9FD75781E2F9A0600B4558B /* SearchUserObserverCenter.swift in Sources */,
 				54F6CEAB1CE2972200A1276D /* ZMAssetClientMessage+Download.swift in Sources */,
@@ -2238,6 +2245,7 @@
 				F9DBA5271E28EEBD00BE23C0 /* UserObserverTests.swift in Sources */,
 				5473CC751E14268600814C03 /* NSManagedObjectContextDebuggingTests.swift in Sources */,
 				F9C348901E2E2DFF0015D69D /* MessageWindowObserverTests.swift in Sources */,
+				F99C5B8C1ED466760049CCD7 /* TeamObserverTests.swift in Sources */,
 				F9A7083C1CAEEB7500C2F5FE /* MockModelObjectContextFactory.m in Sources */,
 				F9331C5C1CB3BF9F00139ECC /* UserClientKeyStoreTests.swift in Sources */,
 				F9A708361CAEEB7500C2F5FE /* NSManagedObjectContext+TestHelpers.m in Sources */,
