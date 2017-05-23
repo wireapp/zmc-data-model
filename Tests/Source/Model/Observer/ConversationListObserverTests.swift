@@ -243,80 +243,90 @@ class ConversationListObserverTests : NotificationDispatcherTestBase {
     }
     
     
-    func testThatTheListIsReorderedWhenAConversationChangesTheLastModifiedTime()
-    {
+    func testThatTheListIsReorderedWhenAConversationChangesTheLastModifiedTime() {
+        assertThatTheListIsReorderedWhenAConversationChangesTheLastModifiedTime()
+    }
+
+    func assertThatTheListIsReorderedWhenAConversationChangesTheLastModifiedTime(team: Team? = nil, file: StaticString = #file, line: UInt = #line) {
         // given
-        let conversation1 = ZMConversation.insertNewObject(in:self.uiMOC)
+        let conversation1 = ZMConversation.insertNewObject(in: uiMOC)
+        conversation1.team = team
         conversation1.conversationType = .group
         conversation1.lastModifiedDate = Date(timeIntervalSince1970: 30)
-        
-        let conversation2 = ZMConversation.insertNewObject(in:self.uiMOC)
+
+        let conversation2 = ZMConversation.insertNewObject(in: uiMOC)
         conversation2.conversationType = .group
+        conversation2.team = team
         conversation2.lastModifiedDate = Date(timeIntervalSince1970: 90)
-        
-        let conversation3 = ZMConversation.insertNewObject(in:self.uiMOC)
+
+        let conversation3 = ZMConversation.insertNewObject(in: uiMOC)
         conversation3.conversationType = .group
+        conversation3.team = team
         conversation3.lastModifiedDate = Date(timeIntervalSince1970: 1400)
-        self.uiMOC.saveOrRollback()
-        
-        let conversationList = ZMConversation.conversationsExcludingArchived(in: self.uiMOC, team: nil)
+        XCTAssert(uiMOC.saveOrRollback(), file: file, line: line)
+
+        let conversationList = ZMConversation.conversationsExcludingArchived(in: uiMOC, team: nil)
         XCTAssertEqual(conversationList.map{ ($0 as! ZMConversation).objectID},
-                       [conversation3, conversation2, conversation1].map{$0.objectID})
-        
+                       [conversation3, conversation2, conversation1].map{$0.objectID}, file: file, line: line)
+
         let token = ConversationListChangeInfo.add(observer: testObserver, for: conversationList)
-        XCTAssertEqual(conversationList.count, 3)
-        
+        defer { ConversationListChangeInfo.remove(observer: token, for:conversationList) }
+        XCTAssertEqual(conversationList.count, 3, file: file, line: line)
+
         // when
         conversation2.lastModifiedDate = Date(timeIntervalSince1970: 1000000)
-        self.uiMOC.saveOrRollback()
-        
+        XCTAssert(uiMOC.saveOrRollback(), file: file, line: line)
+
         // then
         XCTAssertEqual(conversationList.map{ ($0 as! ZMConversation).objectID},
-                       [conversation2, conversation3, conversation1].map{$0.objectID})
-        XCTAssertEqual(conversationList.count, 3)
-        XCTAssertEqual(testObserver.changes.count, 1)
+                       [conversation2, conversation3, conversation1].map{$0.objectID}, file: file, line: line))
+        XCTAssertEqual(conversationList.count, 3, file: file, line: line)
+        XCTAssertEqual(testObserver.changes.count, 1, file: file, line: line)
         if let first = testObserver.changes.last {
-            XCTAssertEqual(first.insertedIndexes, IndexSet())
-            XCTAssertEqual(first.deletedIndexes, IndexSet())
-            XCTAssertEqual(first.updatedIndexes, IndexSet(integer: 0))
-            XCTAssertEqual(movedIndexes(first), [MovedIndex(from: 1, to: 0)])
+            XCTAssertEqual(first.insertedIndexes, IndexSet(), file: file, line: line)
+            XCTAssertEqual(first.deletedIndexes, IndexSet(), file: file, line: line)
+            XCTAssertEqual(first.updatedIndexes, IndexSet(integer: 0), file: file, line: line)
+            XCTAssertEqual(movedIndexes(first), [MovedIndex(from: 1, to: 0)], file: file, line: line)
         }
-        ConversationListChangeInfo.remove(observer: token, for:conversationList)
-        
     }
     
-    func testThatTheListIsOrderedWhenAConversationIsInserted()
-    {
+    func testThatTheListIsOrderedWhenAConversationIsInserted() {
+        assertThatTheListIsOrderedWhenAConversationIsInserted()
+    }
+
+    func assertThatTheListIsOrderedWhenAConversationIsInserted(team: Team? = nil, file: StaticString = #file, line: UInt = #line) {
         // given
-        let conversation1 = ZMConversation.insertNewObject(in:self.uiMOC)
+        let conversation1 = ZMConversation.insertNewObject(in: uiMOC)
         conversation1.conversationType = .group
+        conversation1.team = team
         conversation1.lastModifiedDate = Date(timeIntervalSince1970: 30)
-        
-        let conversation2 = ZMConversation.insertNewObject(in:self.uiMOC)
+
+        let conversation2 = ZMConversation.insertNewObject(in: uiMOC)
         conversation2.conversationType = .group
+        conversation2.team = team
         conversation2.lastModifiedDate = Date(timeIntervalSince1970: 100)
-        self.uiMOC.saveOrRollback()
-        
-        let conversationList = ZMConversation.conversationsExcludingArchived(in: self.uiMOC, team: nil)
+        XCTAssert(uiMOC.saveOrRollback(), file: file, line: line)
+
+        let conversationList = ZMConversation.conversationsExcludingArchived(in: uiMOC, team: team)
         let testObserver = TestObserver()
-        
+
         let token = ConversationListChangeInfo.add(observer: testObserver, for: conversationList)
-        XCTAssertEqual(conversationList.count, 2)
-        
+        defer { ConversationListChangeInfo.remove(observer: token, for:conversationList) }
+        XCTAssertEqual(conversationList.count, 2, file: file, line: line)
+
         // when
-        let conversation3 = ZMConversation.insertNewObject(in:self.uiMOC)
+        let conversation3 = ZMConversation.insertNewObject(in: uiMOC)
         conversation3.conversationType = .group
+        conversation3.team = team
         conversation3.lastModifiedDate = Date(timeIntervalSince1970: 50)
-        self.uiMOC.saveOrRollback()
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        
+        XCTAssert(uiMOC.saveOrRollback(), file: file, line: line)
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5), file: file, line: line)
+
         // then
-        XCTAssertEqual(conversationList.count, 3)
-        XCTAssertEqual(conversationList[0] as? ZMConversation, conversation2)
-        XCTAssertEqual(conversationList[1] as? ZMConversation, conversation3)
-        XCTAssertEqual(conversationList[2] as? ZMConversation, conversation1)
-        
-        ConversationListChangeInfo.remove(observer: token, for:conversationList)
+        XCTAssertEqual(conversationList.count, 3, file: file, line: line)
+        XCTAssertEqual(conversationList[0] as? ZMConversation, conversation2, file: file, line: line)
+        XCTAssertEqual(conversationList[1] as? ZMConversation, conversation3, file: file, line: line)
+        XCTAssertEqual(conversationList[2] as? ZMConversation, conversation1, file: file, line: line)
     }
     
     func testThatAnObserverIsNotNotifiedAfterBeingRemoved()
@@ -509,38 +519,41 @@ class ConversationListObserverTests : NotificationDispatcherTestBase {
     
     func testThatItNotifiesObserversWhenTheEstimatedUnreadCountChanges()
     {
+        assertThatItNotifiesObserversWhenTheEstimatedUnreadCountChanges()
+
+    }
+
+    func assertThatItNotifiesObserversWhenTheEstimatedUnreadCountChanges(team: Team? = nil, file: StaticString = #file, line: UInt = #line) {
         // given
-        let conversation =  ZMConversation.insertNewObject(in:self.uiMOC)
+        let conversation =  ZMConversation.insertNewObject(in: uiMOC)
         conversation.conversationType = .group
         conversation.lastServerTimeStamp = Date()
+        conversation.team = team
         conversation.lastReadServerTimeStamp = conversation.lastServerTimeStamp
-        
-        let message = ZMMessage.insertNewObject(in: self.uiMOC)
+
+        let message = ZMMessage.insertNewObject(in: uiMOC)
         message.serverTimestamp = Date()
-        
-        self.uiMOC.saveOrRollback()
-        
-        
-        let conversationList = ZMConversation.conversationsExcludingArchived(in: self.uiMOC, team: nil)
+        XCTAssert(uiMOC.saveOrRollback(), file: file, line: line)
+
+        let conversationList = ZMConversation.conversationsExcludingArchived(in: uiMOC, team: team)
         let token = ConversationListChangeInfo.add(observer: testObserver, for: conversationList)
-        
-        XCTAssertEqual(conversation.estimatedUnreadCount, 0)
-        
+        defer { ConversationListChangeInfo.remove(observer: token, for:conversationList) }
+
+        XCTAssertEqual(conversation.estimatedUnreadCount, 0, file: file, line: line)
+
         // when
-        self.simulateUnreadCount(1, for: conversation, merge: mergeLastChanges)
-        
+        simulateUnreadCount(1, for: conversation, merge: mergeLastChanges)
+
         // then
-        XCTAssertEqual(conversation.estimatedUnreadCount, 1)
-        
-        XCTAssertEqual(testObserver.changes.count, 1)
+        XCTAssertEqual(conversation.estimatedUnreadCount, 1, file: file, line: line)
+
+        XCTAssertEqual(testObserver.changes.count, 1, file: file, line: line)
         if let first = testObserver.changes.first {
-            XCTAssertEqual(first.insertedIndexes, IndexSet())
-            XCTAssertEqual(first.deletedIndexes, IndexSet())
-            XCTAssertEqual(first.updatedIndexes, IndexSet(integer: 0))
-            XCTAssertEqual(movedIndexes(first), [])
+            XCTAssertEqual(first.insertedIndexes, IndexSet(), file: file, line: line)
+            XCTAssertEqual(first.deletedIndexes, IndexSet(), file: file, line: line)
+            XCTAssertEqual(first.updatedIndexes, IndexSet(integer: 0), file: file, line: line)
+            XCTAssertEqual(movedIndexes(first), [], file: file, line: line)
         }
-        ConversationListChangeInfo.remove(observer: token, for:conversationList)
-        
     }
     
     func testThatItDoesNotNotifyObserversWhenTheOnlyChangeIsAnInsertedMessage()
@@ -715,47 +728,53 @@ class ConversationListObserverTests : NotificationDispatcherTestBase {
     }
     
     func testThatCanGetTheCurrentStateFromTheChangeInfo() {
+        assertThatCanGetTheCurrentStateFromTheChangeInfo()
+    }
+
+    func assertThatCanGetTheCurrentStateFromTheChangeInfo(team: Team? = nil, file: StaticString = #file, line: UInt = #line) {
         // given
-        let conversation1 = ZMConversation.insertNewObject(in:self.uiMOC)
+        let conversation1 = ZMConversation.insertNewObject(in:uiMOC)
         conversation1.conversationType = .group
         conversation1.lastModifiedDate = Date(timeIntervalSince1970: 100)
-        self.uiMOC.saveOrRollback()
-        
-        let conversationList = ZMConversation.conversationsExcludingArchived(in: self.uiMOC, team: nil)
+        conversation1.team = team
+        XCTAssert(uiMOC.saveOrRollback(), file: file, line: line)
+
+        let conversationList = ZMConversation.conversationsExcludingArchived(in: uiMOC, team: team)
         let testObserver = TestObserver()
-        
+
         let token = ConversationListChangeInfo.add(observer: testObserver, for: conversationList)
-        XCTAssertEqual(conversationList.count, 1)
-        
-        // when
-        let conversation2 = ZMConversation.insertNewObject(in:self.uiMOC)
-        conversation2.conversationType = .group
-        conversation2.lastModifiedDate = Date(timeIntervalSince1970: 50)
-        self.uiMOC.saveOrRollback()
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        
-        // when
-        guard let changes1 = testObserver.changes.last else { return XCTFail("Did not sent notification")}
-        XCTAssertEqual(changes1.orderedSetState, OrderedSetState(array: [conversation1, conversation2]))
-        XCTAssertEqual(conversationList.count, 2)
+        defer { ConversationListChangeInfo.remove(observer: token, for:conversationList) }
+        XCTAssertEqual(conversationList.count, 1, file: file, line: line)
 
         // when
-        let conversation3 = ZMConversation.insertNewObject(in:self.uiMOC)
+        let conversation2 = ZMConversation.insertNewObject(in: uiMOC)
+        conversation2.conversationType = .group
+        conversation2.team = team
+        conversation2.lastModifiedDate = Date(timeIntervalSince1970: 50)
+        XCTAssert(uiMOC.saveOrRollback(), file: file, line: line)
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5), file: file, line: line)
+
+        // when
+        guard let changes1 = testObserver.changes.last else { return XCTFail("Did not sent notification")}
+        XCTAssertEqual(changes1.orderedSetState, OrderedSetState(array: [conversation1, conversation2]), file: file, line: line)
+        XCTAssertEqual(conversationList.count, 2, file: file, line: line)
+
+        // when
+        let conversation3 = ZMConversation.insertNewObject(in: uiMOC)
         conversation3.conversationType = .group
+        conversation3.team = team
         conversation3.lastModifiedDate = Date(timeIntervalSince1970: 30)
-        self.uiMOC.saveOrRollback()
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        
+        XCTAssert(uiMOC.saveOrRollback(), file: file, line: line)
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5), file: file, line: line)
+
         // then
         // The set of the previous notification should not change
-        XCTAssertEqual(changes1.orderedSetState, OrderedSetState(array: [conversation1, conversation2]))
-        XCTAssertEqual(conversationList.count, 3)
+        XCTAssertEqual(changes1.orderedSetState, OrderedSetState(array: [conversation1, conversation2]), file: file, line: line)
+        XCTAssertEqual(conversationList.count, 3, file: file, line: line)
 
         // The set of the new notification contains the new state
         guard let changes2 = testObserver.changes.last else { return XCTFail("Did not sent notification")}
-        XCTAssertEqual(changes2.orderedSetState, OrderedSetState(array: [conversation1, conversation2, conversation3]))
-        
-        ConversationListChangeInfo.remove(observer: token, for:conversationList)
+        XCTAssertEqual(changes2.orderedSetState, OrderedSetState(array: [conversation1, conversation2, conversation3]), file: file, line: line)
     }
 
     // MARK: - Teams
@@ -938,6 +957,42 @@ class ConversationListObserverTests : NotificationDispatcherTestBase {
         XCTAssertEqual(first.deletedIndexes, IndexSet(integer: 0))
         XCTAssertEqual(first.updatedIndexes, IndexSet())
         XCTAssertEqual(movedIndexes(first), [])
+    }
+
+    func testThatTheListIsOrderedAfterChangesInATeam() {
+        // given
+        let team = Team.insertNewObject(in: uiMOC)
+        team.remoteIdentifier = .create()
+
+        // then
+        assertThatTheListIsOrderedWhenAConversationIsInserted(team: team)
+    }
+
+    func testThatItCanGetTheCurrentStateFromTheChangeInfoInATeam() {
+        // given
+        let team = Team.insertNewObject(in: uiMOC)
+        team.remoteIdentifier = .create()
+
+        // then
+        assertThatCanGetTheCurrentStateFromTheChangeInfo(team: team)
+    }
+
+    func testThatItNotifiesTheObserversWhenTheEstimatedUnreadCountChangesInATeam() {
+        // given
+        let team = Team.insertNewObject(in: uiMOC)
+        team.remoteIdentifier = .create()
+
+        // then
+        assertThatItNotifiesObserversWhenTheEstimatedUnreadCountChanges(team: team)
+    }
+
+    func testThatTheListIsReorderedWhenAConversationChangesTheLastModifiedTimeInATeam() {
+        // given
+        let team = Team.insertNewObject(in: uiMOC)
+        team.remoteIdentifier = .create()
+
+        // then
+        assertThatTheListIsReorderedWhenAConversationChangesTheLastModifiedTime(team: team)
     }
 
 }
