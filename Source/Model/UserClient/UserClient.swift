@@ -574,7 +574,7 @@ extension UserClient {
                 return $0.union(user.activeConversations.array as! [ZMConversation])
             }
             let fetchRequest = NSFetchRequest<ZMConversation>(entityName: ZMConversation.entityName())
-            fetchRequest.predicate = ZMConversation.predicateForConversationsIncludingArchived()
+            fetchRequest.predicate = ZMConversation.predicateForConversationsIncludingArchivedInAllTeams()
             let conversations = managedObjectContext!.fetchOrAssert(request: fetchRequest)
             return $0.union(conversations)
         }

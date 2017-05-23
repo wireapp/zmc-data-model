@@ -972,29 +972,29 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return [self mutableOrderedSetValueForKey:ZMConversationMessagesKey];
 }
 
-+ (ZMConversationList *)conversationsIncludingArchivedInContext:(NSManagedObjectContext *)moc;
++ (ZMConversationList *)conversationsIncludingArchivedInContext:(NSManagedObjectContext *)moc team:(Team *)team;
 {
-    return [moc.conversationListDirectory conversationsIncludingArchived];
+    return [moc conversationListDirectoryForTeam:team].conversationsIncludingArchived;
 }
 
-+ (ZMConversationList *)archivedConversationsInContext:(NSManagedObjectContext *)moc;
++ (ZMConversationList *)archivedConversationsInContext:(NSManagedObjectContext *)moc team:(Team *)team;
 {
-    return [moc.conversationListDirectory archivedConversations];
+    return [moc conversationListDirectoryForTeam:team].archivedConversations;
 }
 
-+ (ZMConversationList *)clearedConversationsInContext:(NSManagedObjectContext *)moc;
++ (ZMConversationList *)clearedConversationsInContext:(NSManagedObjectContext *)moc team:(Team *)team;
 {
-    return [moc.conversationListDirectory clearedConversations];
+    return [moc conversationListDirectoryForTeam:team].clearedConversations;
 }
 
-+ (ZMConversationList *)conversationsExcludingArchivedInContext:(NSManagedObjectContext *)moc;
++ (ZMConversationList *)conversationsExcludingArchivedInContext:(NSManagedObjectContext *)moc team:(Team *)team;
 {
-    return [moc.conversationListDirectory unarchivedConversations];
+    return [moc conversationListDirectoryForTeam:team].unarchivedConversations;
 }
 
-+ (ZMConversationList *)pendingConversationsInContext:(NSManagedObjectContext *)moc;
++ (ZMConversationList *)pendingConversationsInContext:(NSManagedObjectContext *)moc team:(Team *)team;
 {
-    return [moc.conversationListDirectory pendingConnectionConversations];
+    return [moc conversationListDirectoryForTeam:team].pendingConnectionConversations;
 }
 
 - (void)sortMessages
@@ -1125,7 +1125,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     //  1. It is a conversation inside the team
     //  2. The only participants are the current user and the selected user
     //  3. It does not have a custom display name
-    NSPredicate *sameTeam = [NSPredicate predicateWithFormat:@"%K == %@", TeamKey, team];
+
+    NSPredicate *sameTeam = [ZMConversation predicateForConversationsInTeam:team];
     NSPredicate *groupConversation = [NSPredicate predicateWithFormat:@"%K == %d", ZMConversationConversationTypeKey, ZMConversationTypeGroup];
     NSPredicate *sameParticipant = [NSPredicate predicateWithFormat:@"ALL %K == %@ AND %K.@count == 1", ZMConversationOtherActiveParticipantsKey, participant, ZMConversationOtherActiveParticipantsKey];
     NSPredicate *noUserDefinedName = [NSPredicate predicateWithFormat:@"%K == NULL", ZMConversationUserDefinedNameKey];
