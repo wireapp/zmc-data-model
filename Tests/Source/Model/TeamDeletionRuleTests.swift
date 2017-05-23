@@ -146,4 +146,69 @@ class TeamDeletionRuleTests: BaseZMClientMessageTests {
         XCTAssertEqual(Team.fetch(withRemoteIdentifier: uuid, in: uiMOC), team)
     }
 
+    func testThatItDeletesMembersOfAUserWhenTheUserGetsDeleted() {
+        // given
+        let teamId = UUID.create()
+        let team = Team.insertNewObject(in: uiMOC)
+        team.remoteIdentifier = teamId
+
+        let userId = UUID.create()
+        let user = ZMUser.insertNewObject(in: uiMOC)
+        user.remoteIdentifier = userId
+
+        let member1 = Member.insertNewObject(in: uiMOC)
+        member1.user = user
+        member1.team = team
+
+        let member2 = Member.insertNewObject(in: uiMOC)
+        member2.user = user
+        member2.team = team
+
+        XCTAssert(uiMOC.saveOrRollback())
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.1))
+
+        // when
+        uiMOC.delete(user)
+        XCTAssert(uiMOC.saveOrRollback())
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.1))
+
+        // then
+        do {
+            XCTAssertNil(ZMUser.fetch(withRemoteIdentifier: userId, in: uiMOC))
+            guard let team = Team.fetch(withRemoteIdentifier: teamId, in: uiMOC) else { return XCTFail("No team") }
+            XCTAssertTrue(team.members.isEmpty)
+        }
+    }
+
+    func testThatItDoesNotDeleteAMembersUserWhenThatMemberGetsDeleted() {
+        // given
+        let teamId = UUID.create()
+        let team = Team.insertNewObject(in: uiMOC)
+        team.remoteIdentifier = teamId
+
+        let userId = UUID.create()
+        let user = ZMUser.insertNewObject(in: uiMOC)
+        user.remoteIdentifier = userId
+
+        let member = Member.insertNewObject(in: uiMOC)
+        member.user = user
+        member.team = team
+
+        XCTAssert(uiMOC.saveOrRollback())
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.1))
+
+        // when
+        uiMOC.delete(member)
+        XCTAssert(uiMOC.saveOrRollback())
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.1))
+
+        // then
+        do {
+            guard let user = ZMUser.fetch(withRemoteIdentifier: userId, in: uiMOC) else { return XCTFail("No user") }
+            XCTAssertTrue(user.memberships.isEmpty)
+            guard let team = Team.fetch(withRemoteIdentifier: teamId, in: uiMOC) else { return XCTFail("No team") }
+            XCTAssertTrue(team.members.isEmpty)
+        }
+    }
+
 }
