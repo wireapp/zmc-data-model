@@ -265,7 +265,7 @@ class ConversationListObserverTests : NotificationDispatcherTestBase {
         conversation3.lastModifiedDate = Date(timeIntervalSince1970: 1400)
         XCTAssert(uiMOC.saveOrRollback(), file: file, line: line)
 
-        let conversationList = ZMConversation.conversationsExcludingArchived(in: uiMOC, team: nil)
+        let conversationList = ZMConversation.conversationsExcludingArchived(in: uiMOC, team: team)
         XCTAssertEqual(conversationList.map{ ($0 as! ZMConversation).objectID},
                        [conversation3, conversation2, conversation1].map{$0.objectID}, file: file, line: line)
 
