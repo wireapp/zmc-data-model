@@ -197,7 +197,7 @@
         <relationship name="conversationsCreated" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Conversation" inverseName="creator" inverseEntity="Conversation" syncable="YES"/>
         <relationship name="createdTeams" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Team" inverseName="creator" inverseEntity="Team" syncable="YES"/>
         <relationship name="lastServerSyncedActiveConversations" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Conversation" inverseName="lastServerSyncedActiveParticipants" inverseEntity="Conversation" syncable="YES"/>
-        <relationship name="memberships" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Member" inverseName="user" inverseEntity="Member" syncable="YES"/>
+        <relationship name="memberships" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Member" inverseName="user" inverseEntity="Member" syncable="YES"/>
         <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Reaction" inverseName="users" inverseEntity="Reaction" syncable="YES"/>
         <relationship name="showingUserAdded" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SystemMessage" inverseName="addedUsers" inverseEntity="SystemMessage" syncable="YES"/>
         <relationship name="showingUserRemoved" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SystemMessage" inverseName="removedUsers" inverseEntity="SystemMessage" syncable="YES"/>
