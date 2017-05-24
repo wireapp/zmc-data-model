@@ -97,6 +97,7 @@ static NSString *const LastServerSyncedActiveParticipantsKey = @"lastServerSynce
 static NSString *const NeedsToBeUpdatedFromBackendKey = @"needsToBeUpdatedFromBackend";
 static NSString *const RemoteIdentifierKey = @"remoteIdentifier";
 static NSString *const TeamRemoteIdentifierKey = @"teamRemoteIdentifier";
+static NSString *const TeamRemoteIdentifierDataKey = @"teamRemoteIdentifier_data";
 static NSString *const VoiceChannelKey = @"voiceChannel";
 static NSString *const VoiceChannelStateKey = @"voiceChannelState";
 static NSString *const CallDeviceIsActiveKey = @"callDeviceIsActive";
@@ -376,7 +377,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
             LastReadEventIDDataKey,
             TeamKey,
             TeamManagedKey,
-            TeamRemoteIdentifierKey
+            TeamRemoteIdentifierKey,
+            TeamRemoteIdentifierDataKey
         };
         
         NSSet *additionalKeys = [NSSet setWithObjects:KeysIgnoredForTrackingModifications count:(sizeof(KeysIgnoredForTrackingModifications) / sizeof(*KeysIgnoredForTrackingModifications))];
