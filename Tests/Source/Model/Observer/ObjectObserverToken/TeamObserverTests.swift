@@ -35,7 +35,7 @@ class TeamObserverTests: NotificationDispatcherTestBase {
     }
     
     var userInfoKeys : [String] {
-        return [#keyPath(TeamChangeInfo.membersChanged), #keyPath(TeamChangeInfo.nameChanged)]
+        return [#keyPath(TeamChangeInfo.membersChanged), #keyPath(TeamChangeInfo.nameChanged), #keyPath(TeamChangeInfo.isActiveChanged)]
     }
     
     func checkThatItNotifiesTheObserverOfAChange(_ team : Team, modifier: (Team) -> Void, expectedChangedFields: [String], customAffectedKeys: AffectedKeys? = nil) {
@@ -77,6 +77,20 @@ class TeamObserverTests: NotificationDispatcherTestBase {
         self.checkThatItNotifiesTheObserverOfAChange(team,
                                                      modifier: { $0.name =  "foo"},
                                                      expectedChangedFields: [#keyPath(TeamChangeInfo.nameChanged)]
+        )
+        
+    }
+    
+    func testThatItNotifiesTheObserverOfChangedIsActive() {
+        // given
+        let team = Team.insertNewObject(in: self.uiMOC)
+        team.isActive = true
+        self.uiMOC.saveOrRollback()
+        
+        // when
+        self.checkThatItNotifiesTheObserverOfAChange(team,
+                                                     modifier: { $0.isActive =  false },
+                                                     expectedChangedFields: [#keyPath(TeamChangeInfo.isActiveChanged)]
         )
         
     }

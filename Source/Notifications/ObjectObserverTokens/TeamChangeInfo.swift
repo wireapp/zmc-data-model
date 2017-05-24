@@ -24,7 +24,8 @@ extension Team : ObjectInSnapshot {
     
     static public var observableKeys : Set<String> {
         return Set([#keyPath(Team.name),
-                    #keyPath(Team.members)])
+                    #keyPath(Team.members),
+                    #keyPath(Team.isActive)])
     }
     
     public var notificationName : Notification.Name {
@@ -56,6 +57,10 @@ extension Team : ObjectInSnapshot {
 
     public var nameChanged : Bool {
         return changedKeys.contains(#keyPath(Team.name))
+    }
+    
+    public var isActiveChanged : Bool {
+        return changedKeys.contains(#keyPath(Team.isActive))
     }
 }
 
