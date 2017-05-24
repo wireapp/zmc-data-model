@@ -23,8 +23,8 @@ public extension ZMUser {
         return memberships?.any { $0.team != nil } ?? false
     }
 
-    public var teams: Set<Team>? {
-        guard let memberships = memberships else { return nil }
+    public var teams: Set<Team> {
+        guard let memberships = memberships else { return Set() }
         return Set(memberships.flatMap { $0.team })
     }
     
@@ -32,8 +32,7 @@ public extension ZMUser {
         return Set([#keyPath(ZMUser.memberships)])
     }
     
-    public var activeTeams: Set<Team>? {
-        guard let teams = teams else { return nil }
+    public var activeTeams: Set<Team> {
         return Set(teams.filter { $0.isActive })
     }
 
