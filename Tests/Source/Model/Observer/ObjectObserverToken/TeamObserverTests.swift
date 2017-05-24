@@ -35,7 +35,7 @@ class TeamObserverTests: NotificationDispatcherTestBase {
     }
     
     var userInfoKeys : [String] {
-        return [TeamChangeInfo.MembersChangedKey, TeamChangeInfo.NameChangedKey]
+        return [#keyPath(TeamChangeInfo.membersChanged), #keyPath(TeamChangeInfo.nameChanged)]
     }
     
     func checkThatItNotifiesTheObserverOfAChange(_ team : Team, modifier: (Team) -> Void, expectedChangedFields: [String], customAffectedKeys: AffectedKeys? = nil) {
@@ -76,7 +76,7 @@ class TeamObserverTests: NotificationDispatcherTestBase {
         // when
         self.checkThatItNotifiesTheObserverOfAChange(team,
                                                      modifier: { $0.name =  "foo"},
-                                                     expectedChangedFields: [TeamChangeInfo.NameChangedKey]
+                                                     expectedChangedFields: [#keyPath(TeamChangeInfo.nameChanged)]
         )
         
     }
@@ -92,7 +92,7 @@ class TeamObserverTests: NotificationDispatcherTestBase {
                                                         let member = Member.insertNewObject(in: uiMOC)
                                                         member.team = $0
         },
-                                                     expectedChangedFields: [TeamChangeInfo.MembersChangedKey]
+                                                     expectedChangedFields: [#keyPath(TeamChangeInfo.membersChanged)]
         )
     }
     
@@ -111,7 +111,7 @@ class TeamObserverTests: NotificationDispatcherTestBase {
                                                         }
                                                         self.uiMOC.delete(member)
                                                         },
-                                                     expectedChangedFields: [TeamChangeInfo.MembersChangedKey]
+                                                     expectedChangedFields: [#keyPath(TeamChangeInfo.membersChanged)]
         )
     }
 }

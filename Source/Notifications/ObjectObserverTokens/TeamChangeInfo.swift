@@ -35,9 +35,6 @@ extension Team : ObjectInSnapshot {
 
 @objc public class TeamChangeInfo : ObjectChangeInfo {
     
-    static let MembersChangedKey = "membersChanged"
-    static let NameChangedKey = "nameChanged"
-    
     static func changeInfo(for team: Team, changes: Changes) -> TeamChangeInfo? {
         guard changes.changedKeys.count > 0 || changes.originalChanges.count > 0 else { return nil }
         let changeInfo = TeamChangeInfo(object: team)
@@ -71,8 +68,8 @@ extension Team : ObjectInSnapshot {
 
 extension TeamChangeInfo {
     
-    // MARK: Registering UserObservers
-    /// Adds an observer for the user if one specified or to all ZMUsers is none is specified
+    // MARK: Registering TeamObservers
+    /// Adds an observer for the team if one specified or to all Teams is none is specified
     /// You must hold on to the token and use it to unregister
     @objc(addTeamObserver:forTeam:)
     static func add(observer: TeamObserver, for user: Team?) -> NSObjectProtocol {
