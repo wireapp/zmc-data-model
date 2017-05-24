@@ -77,7 +77,7 @@ extension TeamChangeInfo {
     /// Adds an observer for the team if one specified or to all Teams is none is specified
     /// You must hold on to the token and use it to unregister
     @objc(addTeamObserver:forTeam:)
-    static func add(observer: TeamObserver, for user: Team?) -> NSObjectProtocol {
+    public static func add(observer: TeamObserver, for user: Team?) -> NSObjectProtocol {
         return NotificationCenterObserverToken(name: .TeamChange, object: user)
         { [weak observer] (note) in
             guard let `observer` = observer,
@@ -89,7 +89,7 @@ extension TeamChangeInfo {
     }
     
     @objc(removeTeamObserver:forTeam:)
-    static func remove(observer: NSObjectProtocol, for team: Team?) {
+    public static func remove(observer: NSObjectProtocol, for team: Team?) {
         guard let token = (observer as? NotificationCenterObserverToken)?.token else {
             NotificationCenter.default.removeObserver(observer, name: .TeamChange, object: team)
             return
