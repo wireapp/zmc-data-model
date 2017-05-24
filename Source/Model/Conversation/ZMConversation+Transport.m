@@ -135,6 +135,7 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
     NSUUID *teamId = [payload optionalUuidForKey:ConversationInfoTeamIdKey];
     if (nil != teamId) {
         BOOL created = NO;
+        self.teamRemoteIdentifier = teamId;
         self.team = [Team fetchOrCreateTeamWithRemoteIdentifier:teamId createIfNeeded:YES inContext:self.managedObjectContext created:&created];
         // If we are added to a conversation in a team than we should have gotten the
         // team creation update event and fetched the team before.
