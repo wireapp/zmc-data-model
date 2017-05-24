@@ -60,10 +60,11 @@ extension Member {
     public static func createOrUpdate(with payload: [String: Any], in team: Team, context: NSManagedObjectContext) -> Member? {
         guard let id = (payload["user"] as? String).flatMap(UUID.init),
             let user = ZMUser(remoteID: id, createIfNeeded: true, in: context),
-            let permissions = payload["permissions"] as? NSNumber else { return nil }
+            let permissions = payload["permissions"] as? [String: Any],
+            let selfPermissions = permissions["self"] as? NSNumber else { return nil }
 
         let member = getOrCreateMember(for: user, in: team, context: context)
-        member.permissions = Permissions(rawValue: permissions.int64Value)
+        member.permissions = Permissions(rawValue: selfPermissions.int64Value)
         return member
     }
 
