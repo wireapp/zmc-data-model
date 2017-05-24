@@ -36,6 +36,7 @@ class BaseTeamTests: ZMConversationTestsBase {
     @discardableResult func createUserAndAddMember(to team: Team) -> (ZMUser, Member) {
         let member = Member.insertNewObject(in: uiMOC)
         member.user = .insertNewObject(in: uiMOC)
+        member.user?.remoteIdentifier = .create()
         member.team = team
         return (member.user!, member)
     }

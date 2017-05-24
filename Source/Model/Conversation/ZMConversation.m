@@ -96,6 +96,8 @@ static NSString *const LastReadMessageKey = @"lastReadMessage";
 static NSString *const LastServerSyncedActiveParticipantsKey = @"lastServerSyncedActiveParticipants";
 static NSString *const NeedsToBeUpdatedFromBackendKey = @"needsToBeUpdatedFromBackend";
 static NSString *const RemoteIdentifierKey = @"remoteIdentifier";
+static NSString *const TeamRemoteIdentifierKey = @"teamRemoteIdentifier";
+static NSString *const TeamRemoteIdentifierDataKey = @"teamRemoteIdentifier_data";
 static NSString *const VoiceChannelKey = @"voiceChannel";
 static NSString *const VoiceChannelStateKey = @"voiceChannelState";
 static NSString *const CallDeviceIsActiveKey = @"callDeviceIsActive";
@@ -374,7 +376,9 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
             ArchivedEventIDDataKey,
             LastReadEventIDDataKey,
             TeamKey,
-            TeamManagedKey
+            TeamManagedKey,
+            TeamRemoteIdentifierKey,
+            TeamRemoteIdentifierDataKey
         };
         
         NSSet *additionalKeys = [NSSet setWithObjects:KeysIgnoredForTrackingModifications count:(sizeof(KeysIgnoredForTrackingModifications) / sizeof(*KeysIgnoredForTrackingModifications))];
@@ -446,6 +450,17 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 {
     [self setTransientUUID:remoteIdentifier forKey:RemoteIdentifierKey];
 }
+
+- (NSUUID *)teamRemoteIdentifier;
+{
+    return [self transientUUIDForKey:TeamRemoteIdentifierKey];
+}
+
+- (void)setTeamRemoteIdentifier:(NSUUID *)teamRemoteIdentifier;
+{
+    [self setTransientUUID:teamRemoteIdentifier forKey:TeamRemoteIdentifierKey];
+}
+
 
 + (NSSet *)keyPathsForValuesAffectingRemoteIdentifier
 {
