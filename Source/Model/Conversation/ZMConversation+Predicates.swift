@@ -45,10 +45,13 @@ extension ZMConversation {
 
     @objc(predicateForPendingConversationsInTeam:)
     class func predicateForPendingConversations(in team: Team?) -> NSPredicate {
+        // There are no connection requests inside of a team, we need 
+        // to ensure that we won't show the private ones
+        guard nil == team else { return .init(value: false) }
         let basePredicate = predicateForFilteringResults()
         let pendingConversationPredicate = NSPredicate(format: "\(ZMConversationConversationTypeKey) == \(ZMConversationType.connection.rawValue) AND \(ZMConversationConnectionKey).status == \(ZMConnectionStatus.pending.rawValue)")
         
-        return NSCompoundPredicate(andPredicateWithSubpredicates: [basePredicate, pendingConversationPredicate]).predicate(for: team)
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [basePredicate, pendingConversationPredicate])
     }
 
     @objc(predicateForClearedConversationsInTeam:)
