@@ -101,7 +101,7 @@ extension Team {
         return members.filter({ member in
             guard let user = member.user else { return false }
             
-            return matchingName.evaluate(with: user) && !user.isSelfUser
+            return !user.isSelfUser && matchingName.evaluate(with: user)
         })
     }
     
