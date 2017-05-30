@@ -61,6 +61,38 @@ class ZMConversationTests_Teams: BaseTeamTests {
         XCTAssert(ZMUser.selfUser(in: uiMOC).isGuest(in: conversation))
     }
 
+    func testThatAUserCanAddUsersToAConversationWithoutTeamAndWithoutTeamRemoteIdentifier() {
+        // when & then
+        XCTAssert(ZMUser.selfUser(in: uiMOC).canAddUser(to: conversation))
+    }
+
+    func testThatAUserCantAddUsersToAConversationWhereHeIsGuest() {
+        // when
+        conversation.teamRemoteIdentifier = team.remoteIdentifier
+
+        // then
+        XCTAssertFalse(ZMUser.selfUser(in: uiMOC).canAddUser(to: conversation))
+    }
+
+    func testThatAUserCantAddUsersToAConversationWhereHeIsMemberWithMissingPermissions() {
+        // when
+        let selfUser = ZMUser.selfUser(in: uiMOC)
+        let member = Member.getOrCreateMember(for: selfUser, in: team, context: uiMOC)
+
+        // then
+        XCTAssertFalse(ZMUser.selfUser(in: uiMOC).canAddUser(to: conversation))
+    }
+
+    func testThatAUserCanAddUsersToAConversationWhereHeIsMemberWithSufficientPermissions() {
+        // when
+        let selfUser = ZMUser.selfUser(in: uiMOC)
+        let member = Member.getOrCreateMember(for: selfUser, in: team, context: uiMOC)
+        member.permissions = .member
+
+        // then
+        XCTAssert(ZMUser.selfUser(in: uiMOC).canAddUser(to: conversation))
+    }
+
     func testThatItSetsTheConversationTeamRemoteIdentifierWhenUpdatingWithTransportData() {
         // given
         let user = ZMUser.insertNewObject(in: uiMOC)
