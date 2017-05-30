@@ -74,6 +74,14 @@ class ZMConversationTests_Teams: BaseTeamTests {
         XCTAssertFalse(ZMUser.selfUser(in: uiMOC).canAddUser(to: conversation))
     }
 
+    func testThatAUserCantAddUsersToAConversationWhereHeIsNotAnActiveMember() {
+        // when
+        conversation.isSelfAnActiveMember = false
+
+        // then
+        XCTAssertFalse(ZMUser.selfUser(in: uiMOC).canAddUser(to: conversation))
+    }
+
     func testThatAUserCantAddUsersToAConversationWhereHeIsMemberWithUnsufficientPermissions() {
         // when
         let selfUser = ZMUser.selfUser(in: uiMOC)
@@ -104,6 +112,14 @@ class ZMConversationTests_Teams: BaseTeamTests {
     func testThatAUserCantRemoveUsersToAConversationWhereHeIsGuest() {
         // when
         conversation.teamRemoteIdentifier = team.remoteIdentifier
+
+        // then
+        XCTAssertFalse(ZMUser.selfUser(in: uiMOC).canRemoveUser(from: conversation))
+    }
+
+    func testThatAUserCantRemoveUsersToAConversationWhereHeIsNotAnActiveMember() {
+        // when
+        conversation.isSelfAnActiveMember = false
 
         // then
         XCTAssertFalse(ZMUser.selfUser(in: uiMOC).canRemoveUser(from: conversation))
