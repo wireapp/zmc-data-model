@@ -101,7 +101,7 @@ class TeamTests: BaseTeamTests {
 
             // then
             XCTAssertTrue(guest.isGuest(in: conversation1))
-            XCTAssertFalse(guest.canCreateConversation(in: team))
+            XCTAssertFalse(guest.canAddUser(to: conversation1))
             XCTAssertFalse(guest.isGuest(in: conversation2))
             XCTAssertFalse(guest.isGuest(in: conversation2))
             XCTAssertFalse(otherUser.isGuest(in: conversation1))

@@ -77,10 +77,10 @@ class ZMConversationTests_Teams: BaseTeamTests {
     func testThatAUserCantAddUsersToAConversationWhereHeIsMemberWithMissingPermissions() {
         // when
         let selfUser = ZMUser.selfUser(in: uiMOC)
-        let member = Member.getOrCreateMember(for: selfUser, in: team, context: uiMOC)
+        _ = Member.getOrCreateMember(for: selfUser, in: team, context: uiMOC)
 
         // then
-        XCTAssertFalse(ZMUser.selfUser(in: uiMOC).canAddUser(to: conversation))
+        XCTAssertFalse(selfUser.canAddUser(to: conversation))
     }
 
     func testThatAUserCanAddUsersToAConversationWhereHeIsMemberWithSufficientPermissions() {
@@ -90,7 +90,7 @@ class ZMConversationTests_Teams: BaseTeamTests {
         member.permissions = .member
 
         // then
-        XCTAssert(ZMUser.selfUser(in: uiMOC).canAddUser(to: conversation))
+        XCTAssert(selfUser.canAddUser(to: conversation))
     }
 
     func testThatItSetsTheConversationTeamRemoteIdentifierWhenUpdatingWithTransportData() {
