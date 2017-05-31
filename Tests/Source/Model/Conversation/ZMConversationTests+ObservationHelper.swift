@@ -23,15 +23,15 @@ import Foundation
 class ZMConversationObservationHelperTests: NotificationDispatcherTestBase {
     
     
-    func testThatOnExistsRemotelyIsCalledWhenRemoteIdentifierIsModified() {
+    func testThatOnCreatedRemotelyIsCalledWhenRemoteIdentifierIsModified() {
         // given
-        let existsRemotely = expectation(description: "Exist remotely")
+        let createdRemotely = expectation(description: "Created remotely")
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         uiMOC.saveOrRollback()
         
         // expect
-        var token = conversation.onExistsRemotely {
-            existsRemotely.fulfill()
+        var token = conversation.onCreatedRemotely {
+            createdRemotely.fulfill()
         }
         
         // when
@@ -42,16 +42,16 @@ class ZMConversationObservationHelperTests: NotificationDispatcherTestBase {
         token = nil
     }
     
-    func testTHatOnExistsRemotelyIsCalledIfConversationAlreadyHasRemoteIdentifier() {
+    func testTHatOnCreatedRemotelyIsCalledIfConversationAlreadyHasRemoteIdentifier() {
         // given
-        let existsRemotely = expectation(description: "Exist remotely")
+        let createdRemotely = expectation(description: "Created remotely")
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.remoteIdentifier = UUID.create()
         uiMOC.saveOrRollback()
         
         // expect
-        var token = conversation.onExistsRemotely {
-            existsRemotely.fulfill()
+        var token = conversation.onCreatedRemotely {
+            createdRemotely.fulfill()
         }
         
         XCTAssertNil(token)

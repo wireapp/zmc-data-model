@@ -117,7 +117,7 @@ extension ZMConversation : ObjectInSnapshot {
         return changedKeysContain(keys: #keyPath(ZMConversation.otherActiveVideoCallParticipants))
     }
     
-    public var existsRemotelyChanged : Bool {
+    public var createdRemotelyChanged : Bool {
         return changedKeysContain(keys: #keyPath(ZMConversation.remoteIdentifier))
     }
     
@@ -137,7 +137,7 @@ extension ZMConversation : ObjectInSnapshot {
         "clearedChanged \(clearedChanged)," +
         "securityLevelChanged \(securityLevelChanged)," +
         "teamChanged \(teamChanged)" +
-        "existsRemotelyChanged \(existsRemotelyChanged)"
+        "createdRemotelyChanged \(createdRemotelyChanged)"
     }
     
     public required init(object: NSObject) {

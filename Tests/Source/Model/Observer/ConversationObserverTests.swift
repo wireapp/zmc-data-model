@@ -52,7 +52,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
             "securityLevelChanged",
             "callParticipantsChanged",
             "videoParticipantsChanged",
-            "existsRemotelyChanged"
+            "createdRemotelyChanged"
         ]
     }
     
@@ -658,7 +658,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         ConversationChangeInfo.remove(observer:token, for: conversation)
     }
     
-    func testThatItNotifiesWhenConversationExistsRemotely() {
+    func testThatItNotifiesWhenConversationIsCreatedRemotely() {
         // given
         let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
         conversation.conversationType = .group
@@ -669,7 +669,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
                                                      modifier: { conversation, _ in
                                                         conversation.remoteIdentifier = UUID.create()
         },
-                                                     expectedChangedFields: ["existsRemotelyChanged"],
+                                                     expectedChangedFields: ["createdRemotelyChanged"],
                                                      expectedChangedKeys: ["remoteIdentifier"])
         
     }
