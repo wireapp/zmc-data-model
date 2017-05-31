@@ -51,7 +51,8 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
             "clearedChanged",
             "securityLevelChanged",
             "callParticipantsChanged",
-            "videoParticipantsChanged"
+            "videoParticipantsChanged",
+            "existsRemotelyChanged"
         ]
     }
     
@@ -655,6 +656,22 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         XCTAssertTrue(securityNotification.securityLevelChanged)
 
         ConversationChangeInfo.remove(observer:token, for: conversation)
+    }
+    
+    func testThatItNotifiesWhenConversationExistsRemotely() {
+        // given
+        let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
+        conversation.conversationType = .group
+        self.uiMOC.saveOrRollback()
+        
+        // when
+        self.checkThatItNotifiesTheObserverOfAChange(conversation,
+                                                     modifier: { conversation, _ in
+                                                        conversation.remoteIdentifier = UUID.create()
+        },
+                                                     expectedChangedFields: ["existsRemotelyChanged"],
+                                                     expectedChangedKeys: ["remoteIdentifier"])
+        
     }
     
     func testThatItStopsNotifyingAfterUnregisteringTheToken() {
