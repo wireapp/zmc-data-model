@@ -21,7 +21,8 @@ import WireUtilities
 
 struct Snapshot {
     let attributes : [String : NSObject?]
-    let relationships : [String : Int]
+    let toManyRelationships : [String : Int]
+    let toOneRelationships : [String : Bool]
 }
 
 protocol Countable {
@@ -59,15 +60,21 @@ public class SnapshotCenter {
         let relationShips = object.entity.relationshipsByName
         
         let attributesDict = attributes.mapToDictionaryWithOptionalValue{object.primitiveValue(forKey: $0) as? NSObject}
-        let relationshipsDict : [String : Int] = relationShips.mapKeysAndValues(keysMapping: {$0}, valueMapping: { (key, relationShipDescription) in
-            if relationShipDescription.isToMany {
-                return (object.primitiveValue(forKey: key) as? Countable)?.count
-            } else {
-                return object.primitiveValue(forKey: key) != nil ? 1 : 0
-            }
+        let toManyRelationshipsDict : [String : Int] = relationShips.mapKeysAndValues(keysMapping: {$0}, valueMapping: { (key, relationShipDescription) in
+            guard relationShipDescription.isToMany else { return nil }
+            return (object.primitiveValue(forKey: key) as? Countable)?.count
         })
-        
-        return Snapshot(attributes : attributesDict, relationships : relationshipsDict)
+
+        let toOneRelationShipsDict : [String : Bool] = relationShips.mapKeysAndValues(keysMapping: {$0}, valueMapping: { (key, relationShipDescription) in
+            guard !relationShipDescription.isToMany else { return nil }
+            return object.primitiveValue(forKey: key) != nil
+        })
+
+        return Snapshot(
+            attributes: attributesDict,
+            toManyRelationships: toManyRelationshipsDict,
+            toOneRelationships: toOneRelationShipsDict
+        )
     }
     
     /// Before merging the sync into the ui context, we create a snapshot of all changed objects
@@ -81,7 +88,7 @@ public class SnapshotCenter {
             let newSnapshot = createSnapshot(for: object)
             snapshots[object.objectID] = newSnapshot
             // return all keys as changed
-            return Set(newSnapshot.attributes.keys).union(newSnapshot.relationships.keys)
+            return Set(newSnapshot.attributes.keys).union(newSnapshot.toManyRelationships.keys)
         }
         
         var changedKeys = Set<String>()
@@ -91,15 +98,13 @@ public class SnapshotCenter {
                 changedKeys.insert($0)
             }
         }
-        snapshot.relationships.forEach {
-            if let count = (object.value(forKey: $0) as? Countable)?.count, count != $1 {
-                changedKeys.insert($0)
-            } else {
-                let isPresent = object.value(forKey: $0) != nil ? 1 : 0
-                if isPresent != $1 {
-                    changedKeys.insert($0)
-                }
-            }
+        snapshot.toManyRelationships.forEach {
+            guard let count = (object.value(forKey: $0) as? Countable)?.count, count != $1 else { return }
+            changedKeys.insert($0)
+        }
+        snapshot.toOneRelationships.forEach {
+            guard (object.value(forKey: $0) != nil) != $1 else { return }
+            changedKeys.insert($0)
         }
         // Update snapshot
         if changedKeys.count > 0 {
