@@ -172,7 +172,6 @@ extension ZMUser {
     @objc(setImageData:size:)
     public func setImage(data: Data?, size: ProfileImageSize) {
         let key = size.userKeyPath
-        
         willChangeValue(forKey: key)
         if isSelfUser {
             setPrimitiveValue(data, forKey: key)
