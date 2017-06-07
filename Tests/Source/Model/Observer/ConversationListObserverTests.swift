@@ -994,7 +994,7 @@ class ConversationListObserverTests : NotificationDispatcherTestBase {
         XCTAssertEqual(movedIndexes(first), [])
     }
     
-    func testThatItNotifiesObserversWhenAConversationsTeamDeletedSoItNowMatch() {
+    func testThatItNotifiesObserversWhenAConversationsTeamDeletedSoConversationAppears() {
         // NB! This test is checking the general behaviour of the conversation list observer, however in real life
         // the `conversation` object can possibly be faulted. It is not possible to implement the desired behaviour 
         // currently in the test setup.
