@@ -514,7 +514,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (void)addParticipants:(nonnull NSSet<ZMUser *> *)participants
 {
-    VerifyReturn(self.conversationType == ZMConversationTypeGroup);
+    VerifyReturn(self.internalConversationType == ZMConversationTypeGroup);
     [participants enumerateObjectsUsingBlock:^(ZMUser * _Nonnull participant, BOOL * _Nonnull stop __unused) {
         RequireString(participant != [ZMUser selfUserInContext:self.managedObjectContext], "Can't add self user to a conversation");
     }];
