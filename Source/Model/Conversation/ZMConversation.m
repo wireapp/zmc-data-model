@@ -124,6 +124,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 @property (nonatomic) NSString *normalizedUserDefinedName;
 @property (nonatomic) ZMConversationType conversationType;
+@property (nonatomic, readonly) ZMConversationType internalConversationType;
 
 @property (nonatomic) NSDate *tempMaxLastReadServerTimeStamp;
 @property (nonatomic) NSMutableOrderedSet *unreadTimeStamps;
@@ -146,6 +147,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @property (nonatomic) NSDate *primitiveLastReadServerTimeStamp;
 @property (nonatomic) NSDate *primitiveLastServerTimeStamp;
 @property (nonatomic) NSUUID *primitiveRemoteIdentifier;
+@property (nonatomic) NSNumber *primitiveConversationType;
 @property (nonatomic) NSData *remoteIdentifier_data;
 
 @property (nonatomic) ZMConversationSecurityLevel securityLevel;
@@ -278,7 +280,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 {
     NSMutableOrderedSet *activeParticipants = [NSMutableOrderedSet orderedSet];
     
-    if (self.conversationType != ZMConversationTypeGroup) {
+    if (self.internalConversationType != ZMConversationTypeGroup) {
         [activeParticipants addObject:[ZMUser selfUserInContext:self.managedObjectContext]];
         if (self.connectedUser != nil) {
             [activeParticipants addObject:self.connectedUser];
@@ -312,9 +314,15 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (ZMUser *)connectedUser
 {
-    if(self.conversationType == ZMConversationTypeOneOnOne || self.conversationType == ZMConversationTypeConnection) {
+    ZMConversationType conversationType = self.internalConversationType;
+    
+    if (conversationType == ZMConversationTypeOneOnOne || conversationType == ZMConversationTypeConnection) {
         return self.connection.to;
     }
+    else if (conversationType == ZMConversationTypeGroup && self.otherActiveParticipants.count == 1) {
+        return self.otherActiveParticipants.firstObject;
+    }
+    
     return nil;
 }
 
@@ -471,6 +479,24 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     [self didChangeValueForKey:ZMConversationUserDefinedNameKey];
     
     self.normalizedUserDefinedName = [self.userDefinedName normalizedString];
+}
+
+- (ZMConversationType)conversationType
+{
+    [self willAccessValueForKey:ZMConversationConversationTypeKey];
+    ZMConversationType conversationType = [self internalConversationType];
+    
+    if (conversationType == ZMConversationTypeGroup && self.teamRemoteIdentifier != nil && self.otherActiveParticipants.count == 1) {
+        conversationType = ZMConversationTypeOneOnOne;
+    }
+    
+    [self didAccessValueForKey:ZMConversationConversationTypeKey];
+    return conversationType;
+}
+
+- (ZMConversationType)internalConversationType
+{
+    return (ZMConversationType)[[self primitiveConversationType] shortValue];
 }
 
 
