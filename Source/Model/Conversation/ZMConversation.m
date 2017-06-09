@@ -483,20 +483,21 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (ZMConversationType)conversationType
 {
-    [self willAccessValueForKey:ZMConversationConversationTypeKey];
     ZMConversationType conversationType = [self internalConversationType];
     
     if (conversationType == ZMConversationTypeGroup && self.teamRemoteIdentifier != nil && self.otherActiveParticipants.count == 1) {
         conversationType = ZMConversationTypeOneOnOne;
     }
     
-    [self didAccessValueForKey:ZMConversationConversationTypeKey];
     return conversationType;
 }
 
 - (ZMConversationType)internalConversationType
 {
-    return (ZMConversationType)[[self primitiveConversationType] shortValue];
+    [self willAccessValueForKey:ZMConversationConversationTypeKey];
+    ZMConversationType conversationType =  (ZMConversationType)[[self primitiveConversationType] shortValue];
+    [self didAccessValueForKey:ZMConversationConversationTypeKey];
+    return conversationType;
 }
 
 
