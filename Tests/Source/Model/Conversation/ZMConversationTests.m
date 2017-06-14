@@ -384,7 +384,7 @@
     invalidConversation.conversationType = ZMConversationTypeInvalid;
     
     // when
-    NSArray *conversationsInContext = [ZMConversation conversationsIncludingArchivedInContext:self.uiMOC team:nil];
+    NSArray *conversationsInContext = [ZMConversation conversationsIncludingArchivedInContext:self.uiMOC];
     
     // then
     XCTAssertEqualObjects(conversationsInContext, @[oneToOneConversation]);
@@ -2202,9 +2202,9 @@
     ZMConversation *conversation = [self insertConversationWithParticipants:users callParticipants:users callStateNeedsToBeUpdatedFromBackend:NO];
     [conversation appendMessageWithText:@"0"];
     
-    ZMConversationList *activeList = [ZMConversationList conversationsInUserSession:self.mockUserSessionWithUIMOC team:nil];
-    ZMConversationList *archivedList = [ZMConversationList archivedConversationsInUserSession:self.mockUserSessionWithUIMOC team:nil];
-    ZMConversationList *clearedList = [ZMConversationList clearedConversationsInUserSession:self.mockUserSessionWithUIMOC team:nil];
+    ZMConversationList *activeList = [ZMConversationList conversationsInUserSession:self.mockUserSessionWithUIMOC];
+    ZMConversationList *archivedList = [ZMConversationList archivedConversationsInUserSession:self.mockUserSessionWithUIMOC];
+    ZMConversationList *clearedList = [ZMConversationList clearedConversationsInUserSession:self.mockUserSessionWithUIMOC];
     
     // when
     [conversation internalRemoveParticipants:[NSSet setWithObject:selfUser] sender:user0];
@@ -3184,7 +3184,7 @@
     WaitForAllGroupsToBeEmpty(0.5);
     
     // when
-    NSPredicate *sut = [ZMConversation predicateForConversationsIncludingArchivedInTeam:nil];
+    NSPredicate *sut = [ZMConversation predicateForConversationsIncludingArchived];
     
     // then
     XCTAssertFalse([sut evaluateWithObject:conversation]);
@@ -3206,7 +3206,7 @@
     XCTAssertNil(conversation.clearedTimeStamp);
     
     // when
-    NSPredicate *sut = [ZMConversation predicateForConversationsIncludingArchivedInTeam:nil];
+    NSPredicate *sut = [ZMConversation predicateForConversationsIncludingArchived];
     
     // then
     XCTAssertTrue([sut evaluateWithObject:conversation]);
@@ -3232,7 +3232,7 @@
     XCTAssertEqualObjects(conversation.clearedTimeStamp, clearedTimeStamp);
     
     // when
-    NSPredicate *sut = [ZMConversation predicateForConversationsIncludingArchivedInTeam:nil];
+    NSPredicate *sut = [ZMConversation predicateForConversationsIncludingArchived];
     
     // then
     XCTAssertTrue([sut evaluateWithObject:conversation]);
@@ -3256,7 +3256,7 @@
     XCTAssertEqualObjects(conversation.clearedTimeStamp, clearedTimeStamp);
 
     // when
-    NSPredicate *sut = [ZMConversation predicateForConversationsIncludingArchivedInTeam:nil];
+    NSPredicate *sut = [ZMConversation predicateForConversationsIncludingArchived];
     
     // then
     XCTAssertFalse([sut evaluateWithObject:conversation]);
@@ -3280,7 +3280,7 @@
     XCTAssertEqualObjects(conversation.clearedTimeStamp, clearedTimeStamp);
     
     // when
-    NSPredicate *sut = [ZMConversation predicateForConversationsIncludingArchivedInTeam:nil];
+    NSPredicate *sut = [ZMConversation predicateForConversationsIncludingArchived];
     
     // then
     XCTAssertTrue([sut evaluateWithObject:conversation]);
@@ -3414,7 +3414,7 @@
     archived.remoteIdentifier = [NSUUID createUUID];
     
     NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:[ZMConversation entityName]];
-    request.predicate = [ZMConversation predicateForSharableConversationsInTeam:nil];
+    request.predicate = [ZMConversation predicateForSharableConversations];
     
     //when
     NSArray *result = [self.uiMOC executeFetchRequestOrAssert:request];
