@@ -21,7 +21,6 @@ public extension ZMUser {
 
     public var hasTeam: Bool {
         return nil != team
-        // TODO: Check membership / or check user session
     }
 
     public var team: Team? {
