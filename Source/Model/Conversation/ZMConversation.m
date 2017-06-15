@@ -1137,7 +1137,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     VerifyReturnNil(team != nil);
     VerifyReturnNil(!participant.isSelfUser);
     ZMUser *selfUser = [ZMUser selfUserInContext:moc];
-    VerifyReturnNil([selfUser canCreateConversationIn:team]);
+    VerifyReturnNil(selfUser.canCreateConversation);
 
     ZMConversation *conversation = [self existingTeamConversationInManagedObjectContext:moc withParticipant:participant team:team];
     if (nil != conversation) {
@@ -1183,7 +1183,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 {
     ZMUser *selfUser = [ZMUser selfUserInContext:moc];
 
-    if (nil != team && ![selfUser canCreateConversationIn:team]) {
+    if (nil != team && !selfUser.canCreateConversation) {
         return nil;
     }
 
