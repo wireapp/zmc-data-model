@@ -87,6 +87,7 @@
 		BF3494061EC4B86500B0C314 /* BaseTeamTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF3494051EC4B86500B0C314 /* BaseTeamTests.swift */; };
 		BF3494081EC5A90400B0C314 /* ZMUser+OneOnOne.h in Headers */ = {isa = PBXBuildFile; fileRef = BF3494071EC5A90400B0C314 /* ZMUser+OneOnOne.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		BF421B2D1EF3F91D0079533A /* Team+Patches.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF421B2C1EF3F91D0079533A /* Team+Patches.swift */; };
+		BF421B311EF4015E0079533A /* store2-30-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = BF421B301EF4015E0079533A /* store2-30-0.wiredatabase */; };
 		BF46662A1DCB71B0007463FF /* V3Asset.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4666291DCB71B0007463FF /* V3Asset.swift */; };
 		BF6EA4D21E2512E800B7BD4B /* ZMConversation+DisplayName.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF6EA4D11E2512E800B7BD4B /* ZMConversation+DisplayName.swift */; };
 		BF707C391EB8780800108D4E /* MessageCountTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF707C381EB8780800108D4E /* MessageCountTracker.swift */; };
@@ -503,6 +504,7 @@
 		BF3494051EC4B86500B0C314 /* BaseTeamTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = BaseTeamTests.swift; sourceTree = "<group>"; };
 		BF3494071EC5A90400B0C314 /* ZMUser+OneOnOne.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "ZMUser+OneOnOne.h"; sourceTree = "<group>"; };
 		BF421B2C1EF3F91D0079533A /* Team+Patches.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Team+Patches.swift"; sourceTree = "<group>"; };
+		BF421B301EF4015E0079533A /* store2-30-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; name = "store2-30-0.wiredatabase"; path = "Tests/Resources/store2-30-0.wiredatabase"; sourceTree = SOURCE_ROOT; };
 		BF4666291DCB71B0007463FF /* V3Asset.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = V3Asset.swift; sourceTree = "<group>"; };
 		BF6EA4D11E2512E800B7BD4B /* ZMConversation+DisplayName.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZMConversation+DisplayName.swift"; sourceTree = "<group>"; };
 		BF707C381EB8780800108D4E /* MessageCountTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageCountTracker.swift; sourceTree = "<group>"; };
@@ -1769,6 +1771,7 @@
 				BF8EDC731E53182F00DA6C40 /* store2-25-0.wiredatabase */,
 				BF8E024C1E606846003310E1 /* store2-26-0.wiredatabase */,
 				BF735CFE1E70626F003BC61F /* store2-27-0.wiredatabase */,
+				BF421B301EF4015E0079533A /* store2-30-0.wiredatabase */,
 				F189988A1E7AF80500E579A2 /* store2-28-0.wiredatabase */,
 				BF3493EC1EC34FF700B0C314 /* store2-29-0.wiredatabase */,
 				F91EAAC41D885D720010ACBE /* video.mp4 */,
@@ -1977,6 +1980,7 @@
 			files = (
 				BF735CFF1E70626F003BC61F /* store2-27-0.wiredatabase in Resources */,
 				F9A706F61CAEE31800C2F5FE /* 1900x1500.jpg in Resources */,
+				BF421B311EF4015E0079533A /* store2-30-0.wiredatabase in Resources */,
 				F9A706FA1CAEE32A00C2F5FE /* ExternalMessageTextFixture.txt in Resources */,
 				5495BC431E019F1B004253ED /* audio.m4a in Resources */,
 				54829DAE1DE6F7BA009100D3 /* store1-25.wiredatabase in Resources */,
