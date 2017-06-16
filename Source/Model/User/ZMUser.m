@@ -66,7 +66,6 @@ static NSString *const MediumRemoteIdentifierDataKey = @"mediumRemoteIdentifier_
 static NSString *const MediumRemoteIdentifierKey = @"mediumRemoteIdentifier";
 static NSString *const SmallProfileRemoteIdentifierDataKey = @"smallProfileRemoteIdentifier_data";
 static NSString *const SmallProfileRemoteIdentifierKey = @"smallProfileRemoteIdentifier";
-static NSString *const OriginalProfileImageDataKey = @"originalProfileImageData";
 static NSString *const NameKey = @"name";
 static NSString *const HandleKey = @"handle";
 static NSString *const ImageMediumDataKey = @"imageMediumData";
@@ -419,7 +418,6 @@ static NSString *const CreatedTeamsKey = @"createdTeams";
                                            LocalSmallProfileRemoteIdentifierDataKey,
                                            NormalizedEmailAddressKey,
                                            NormalizedNameKey,
-                                           OriginalProfileImageDataKey,
                                            SystemMessagesKey,
                                            UserClientsKey,
                                            ShowingUserAddedKey,

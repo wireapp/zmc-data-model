@@ -167,8 +167,6 @@
         <attribute name="completeProfileAssetIdentifier" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="emailAddress" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="handle" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="imageCorrelationIdentifier" optional="YES" transient="YES" syncable="YES"/>
-        <attribute name="imageCorrelationIdentifier_data" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="imageMediumData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
         <attribute name="imageSmallProfileData" optional="YES" attributeType="Binary" allowsExternalBinaryDataStorage="YES" syncable="YES"/>
         <attribute name="localMediumRemoteIdentifier" optional="YES" transient="YES" syncable="YES"/>
@@ -182,7 +180,6 @@
         <attribute name="needsToBeUpdatedFromBackend" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="normalizedEmailAddress" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="normalizedName" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
-        <attribute name="originalProfileImageData" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="phoneNumber" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="previewProfileAssetIdentifier" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="remoteIdentifier" optional="YES" transient="YES" syncable="YES"/>
@@ -249,7 +246,7 @@
         <element name="SystemMessage" positionX="0" positionY="0" width="128" height="195"/>
         <element name="Team" positionX="9" positionY="153" width="128" height="195"/>
         <element name="TextMessage" positionX="-153" positionY="-117" width="128" height="60"/>
-        <element name="User" positionX="-434" positionY="-72" width="128" height="628"/>
+        <element name="User" positionX="-434" positionY="-72" width="128" height="585"/>
         <element name="UserClient" positionX="9" positionY="153" width="128" height="450"/>
     </elements>
 </model>
