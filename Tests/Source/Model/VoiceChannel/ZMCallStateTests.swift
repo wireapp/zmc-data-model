@@ -53,29 +53,29 @@ extension ZMCallStateTests {
         // given
         let mainSut = ZMConversationCallState()
         let syncSut = ZMConversationCallState()
-        syncSut.isCallDeviceActiveV3 = false
-        mainSut.isCallDeviceActiveV3 = true
+        syncSut.isCallDeviceActive = false
+        mainSut.isCallDeviceActive = true
         
         // when
         syncSut.mergeChangesFromState(mainSut)
         
         // then
-        XCTAssertTrue(mainSut.isCallDeviceActiveV3)
-        XCTAssertTrue(syncSut.isCallDeviceActiveV3)
+        XCTAssertTrue(mainSut.isCallDeviceActive)
+        XCTAssertTrue(syncSut.isCallDeviceActive)
     }
     
     func testThatItDoesMergeIsIgnoringCall() {
         // given
         let mainSut = ZMConversationCallState()
         let syncSut = ZMConversationCallState()
-        syncSut.isIgnoringCallV3 = false
-        mainSut.isIgnoringCallV3 = true
+        syncSut.isIgnoringCall = false
+        mainSut.isIgnoringCall = true
         
         // when
         syncSut.mergeChangesFromState(mainSut)
         
         // then
-        XCTAssertTrue(mainSut.isIgnoringCallV3)
-        XCTAssertTrue(syncSut.isIgnoringCallV3)
+        XCTAssertTrue(mainSut.isIgnoringCall)
+        XCTAssertTrue(syncSut.isIgnoringCall)
     }
 }

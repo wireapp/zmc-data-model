@@ -78,25 +78,25 @@ extension ZMConversation {
         return managedObjectContext!.zm_callState.stateForConversation(self)
     }
     
-    public var isIgnoringCallV3: Bool {
+    public var isIgnoringCall: Bool {
         get {
-            return callState.isIgnoringCallV3
+            return callState.isIgnoringCall
         }
         set {
-            if callState.isIgnoringCallV3 != newValue {
-                callState.isIgnoringCallV3 = newValue
+            if callState.isIgnoringCall != newValue {
+                callState.isIgnoringCall = newValue
                 managedObjectContext?.zm_hasUserInfoChanges = true
             }
         }
     }
     
-    public var isCallDeviceActiveV3: Bool {
+    public var isCallDeviceActive: Bool {
         get {
-            return callState.isCallDeviceActiveV3
+            return callState.isCallDeviceActive
         }
         set {
-            if callState.isCallDeviceActiveV3 != newValue {
-                callState.isCallDeviceActiveV3 = newValue
+            if callState.isCallDeviceActive != newValue {
+                callState.isCallDeviceActive = newValue
                 managedObjectContext?.zm_hasUserInfoChanges = true
             }
         }
@@ -162,18 +162,18 @@ open class ZMCallState : NSObject, Sequence {
 /// This is the call state for a specific conversation.
 open class ZMConversationCallState : NSObject {
     
-    open var isCallDeviceActiveV3: Bool = false
-    open var isIgnoringCallV3: Bool = false
+    open var isCallDeviceActive: Bool = false
+    open var isIgnoringCall: Bool = false
     
     /// returns true if the merge changed the current state
     open func mergeChangesFromState(_ other: ZMConversationCallState) {
-        isCallDeviceActiveV3 = other.isCallDeviceActiveV3
-        isIgnoringCallV3 = other.isIgnoringCallV3
+        isCallDeviceActive = other.isCallDeviceActive
+        isIgnoringCall = other.isIgnoringCall
     }
 
     open override var description : String {
         return "CallState \(SwiftDebugging.address(self)) \n" +
-        " --> isCallDeviceActive: \(isCallDeviceActiveV3) \n"
+        " --> isCallDeviceActive: \(isCallDeviceActive) \n"
     }
     
     open override var debugDescription : String {

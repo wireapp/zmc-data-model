@@ -2886,7 +2886,7 @@
         [self simulateUnreadMissedKnockInConversation:conversation];
         [self simulateUnreadMissedCallInConversation:conversation];
         [conversation setHasUnreadUnsentMessage:YES];
-        [conversation setIsIgnoringCallV3:YES];
+        [conversation setIsIgnoringCall:YES];
         
         // then
         XCTAssertEqual(conversation.conversationListIndicator, ZMConversationListIndicatorInactiveCall);
@@ -3964,27 +3964,27 @@
 
 @implementation ZMConversationTests (GroupCallingV3)
 
-- (void)testThatItReturnsActiveCall_isCallDeviceActiveV3
+- (void)testThatItReturnsActiveCall_isCallDeviceActive
 {
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     XCTAssertNotEqual(conversation.conversationListIndicator, ZMConversationListIndicatorActiveCall);
 
     // when
-    conversation.isCallDeviceActiveV3 = YES;
+    conversation.isCallDeviceActive = YES;
 
     // then
     XCTAssertEqual(conversation.conversationListIndicator, ZMConversationListIndicatorActiveCall);
 }
 
-- (void)testThatItReturnsInactiveCall_isIgnoringCallV3
+- (void)testThatItReturnsInactiveCall_isIgnoringCall
 {
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     XCTAssertNotEqual(conversation.conversationListIndicator, ZMConversationListIndicatorInactiveCall);
 
     // when
-    conversation.isIgnoringCallV3 = YES;
+    conversation.isIgnoringCall = YES;
     
     // then
     XCTAssertEqual(conversation.conversationListIndicator, ZMConversationListIndicatorInactiveCall);

@@ -758,10 +758,10 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     if (self.connectedUser.isPendingApprovalByOtherUser) {
         return ZMConversationListIndicatorPending;
     }
-    else if (self.isCallDeviceActiveV3) {
+    else if (self.isCallDeviceActive) {
         return ZMConversationListIndicatorActiveCall;
     }
-    else if (self.isIgnoringCallV3) {
+    else if (self.isIgnoringCall) {
         return ZMConversationListIndicatorInactiveCall;        
     }
     
