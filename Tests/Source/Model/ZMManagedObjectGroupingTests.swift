@@ -42,6 +42,15 @@ public final class ZMManagedObjectGroupingTests: DatabaseBaseTest {
     let storeURL = PersistentStoreRelocator.storeURL(in: .cachesDirectory)!
     var moc: NSManagedObjectContext!
     
+    public func testThatItFindsNoDuplicates_None() {
+        // GIVEN
+        // WHEN
+        let duplicates: [String: [UserClient]] = self.moc.findDuplicated(by: #keyPath(UserClient.remoteIdentifier))
+        
+        // THEN
+        XCTAssertEqual(duplicates.keys.count, 0)
+    }
+
     public func testThatItFindsNoDuplicates_One() {
         // GIVEN
         let remoteIdentifier = UUID().transportString()
@@ -52,7 +61,7 @@ public final class ZMManagedObjectGroupingTests: DatabaseBaseTest {
         self.moc.saveOrRollback()
         
         // WHEN
-        let duplicates: [String: [UserClient]] = findDuplicated(in: self.moc, by: #keyPath(UserClient.remoteIdentifier))
+        let duplicates: [String: [UserClient]] = self.moc.findDuplicated(by: #keyPath(UserClient.remoteIdentifier))
         
         // THEN
         XCTAssertEqual(duplicates.keys.count, 0)
@@ -70,7 +79,7 @@ public final class ZMManagedObjectGroupingTests: DatabaseBaseTest {
         self.moc.saveOrRollback()
         
         // WHEN
-        let duplicates: [String: [UserClient]] = findDuplicated(in: self.moc, by: #keyPath(UserClient.remoteIdentifier))
+        let duplicates: [String: [UserClient]] = self.moc.findDuplicated(by: #keyPath(UserClient.remoteIdentifier))
         
         // THEN
         XCTAssertEqual(duplicates.keys.count, 1)

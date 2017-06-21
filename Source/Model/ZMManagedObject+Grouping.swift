@@ -44,44 +44,53 @@ extension Array where Element: TupleKeyArrayType {
     }
 }
 
-public func findDuplicated<T: ZMManagedObject, Key: Hashable & CVarArg>(in context: NSManagedObjectContext, by keyPath: String) -> [Key: [T]] {
-    
-    guard let entity = NSEntityDescription.entity(forEntityName: T.entityName(), in: context),
-          let attribute = entity.attributesByName[keyPath],
-          let property = entity.propertiesByName[keyPath] else {
-            fatal("Cannot preapare the fetch")
-    }
-    
-    let request = NSFetchRequest<NSDictionary>()
-    request.entity = entity
-    request.propertiesToGroupBy = [attribute]
-    request.propertiesToFetch = [property]
-    request.resultType = .dictionaryResultType
-    
-    let result: [Key: [T]]
-    do {
-        let distinctIDs = try context.execute(request) as! NSAsynchronousFetchResult<NSDictionary>
+extension NSManagedObjectContext {
+    public func findDuplicated<T: ZMManagedObject, Key: Hashable>(by keyPath: String) -> [Key: [T]] {
         
-        func fetchRequest<T>(for keyPath: String, value: Key) -> NSFetchRequest<T> {
-            let innerFetchRequest = NSFetchRequest<T>()
-            innerFetchRequest.predicate = NSPredicate(format: "%K == %@", keyPath, value)
-            innerFetchRequest.entity = entity
-            return innerFetchRequest
+        guard let entity = NSEntityDescription.entity(forEntityName: T.entityName(), in: self),
+              let attribute = entity.attributesByName[keyPath] else {
+                fatal("Cannot preapare the fetch")
         }
         
-        result = distinctIDs.finalResult!
-            .map {
-                $0[keyPath as NSString]! as! Key
-            }.filter {
-                return try! context.count(for: fetchRequest(for: keyPath, value: $0)) > 1
-            }.map {
-                return TupleKeyArray(key: $0, value: context.fetchOrAssert(request: fetchRequest(for: keyPath, value: $0)) as! [T])
-            }.merge()
-    } catch let error {
-        fatal("Cannot perform the fetch: \(error)")
+        let keyPathExpression = NSExpression(forKeyPath: keyPath)
+        let countExpression = NSExpression(forFunction: "count:", arguments: [keyPathExpression])
+        
+        let countExpressionDescription = NSExpressionDescription()
+        countExpressionDescription.name = "count"
+        countExpressionDescription.expression = countExpression
+        countExpressionDescription.expressionResultType = .integer32AttributeType
+
+        let request = NSFetchRequest<NSNumber>()
+        request.entity = entity
+        request.propertiesToFetch = [attribute, countExpressionDescription]
+        request.propertiesToGroupBy = [attribute]
+        request.resultType = .dictionaryResultType
+        
+        do {
+            let distinctIDAndCount = try self.execute(request) as! NSAsynchronousFetchResult<NSDictionary>
+            
+            guard let finalResult = distinctIDAndCount.finalResult else {
+                return [:]
+            }
+            
+            let ids = finalResult.filter {
+                ($0["count"] as? Int ?? 0) > 1
+            }.flatMap {
+                $0["remoteIdentifier"] as? String
+            }
+
+            let fetchAllDuplicatesRequest = NSFetchRequest<T>()
+            fetchAllDuplicatesRequest.entity = entity
+            fetchAllDuplicatesRequest.predicate = NSPredicate(format: "%K IN %@", argumentArray: [keyPath, ids])
+
+            return self.fetchOrAssert(request: fetchAllDuplicatesRequest).group(by: keyPath)
+            
+        } catch let error {
+            fatal("Cannot perform the fetch: \(error)")
+        }
+        
+        return [:]
     }
-    
-    return result
 }
 
 extension Array where Element: NSObject {
