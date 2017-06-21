@@ -18,7 +18,10 @@
 
 import Foundation
 
-
+// Describing the generic storage type that contains the data in the format of
+// Key => [Value, 
+//         Value, 
+//         ...]
 public protocol TupleKeyArrayType {
     associatedtype Key: Hashable
     associatedtype Value: Any
@@ -26,12 +29,38 @@ public protocol TupleKeyArrayType {
     var value: [Value] { get }
 }
 
+// Struct to store the pairs of key-value, where value is an array of @c Value.
+// Generic struct conforming to @c TupleKeyArrayType.
 public struct TupleKeyArray<Key: Hashable, Value: Any>: TupleKeyArrayType {
     public let key: Key
     public let value: [Value]
 }
 
 extension Array where Element: TupleKeyArrayType {
+    // Merges the array in the format of
+    // [[Key_a => [Value_v1_1,
+    //             Value_v1_2,
+    //             ...]],
+    //  [Key_a => [Value_v2_1,
+    //             Value_v2_2,
+    //             ...]],
+    //  [Key_b => [Value_v3_1,
+    //             Value_v3_2,
+    //             ...]],
+    //  ...]
+    // (Array containing @c TupleKeyArrayType)
+    // To format
+    // [Key_a => [Value_v1_1,
+    //            Value_v1_2,
+    //            ...,
+    //            Value_v2_1,
+    //            Value_v2_2,
+    //            ...],
+    //  Key_b => [Value_v3_1,
+    //            Value_v3_2,
+    //            ...]
+    //  ...]
+    // (Dictionary from @c Key to array of @c Value)
     public func merge() -> [Element.Key: [Element.Value]] {
         let initialValue: [Element.Key: [Element.Value]] = [:]
         return self.reduce(initialValue) {
@@ -45,7 +74,10 @@ extension Array where Element: TupleKeyArrayType {
 }
 
 extension NSManagedObjectContext {
-    public func findDuplicated<T: ZMManagedObject, Key: Hashable>(by keyPath: String) -> [Key: [T]] {
+    // Locates the entities of type @c T that have the same value for @c keyPath.
+    // @param keyPath valid keyPath that can be fetched from the disk store (computed properties are not permitted).
+    // @return dictionary containing the pairs of value and array of objects containing the value for @keyPath.
+    public func findDuplicated<T: ZMManagedObject, ValueForKey>(by keyPath: String) -> [ValueForKey: [T]] {
         
         guard let entity = NSEntityDescription.entity(forEntityName: T.entityName(), in: self),
               let attribute = entity.attributesByName[keyPath] else {
@@ -94,9 +126,12 @@ extension NSManagedObjectContext {
 }
 
 extension Array where Element: NSObject {
-    public func group<Key: Hashable>(by keyPath: String) -> [Key: [Element]] {
+    // Groups the elements of the array by the equal values in @keyPath.
+    // @param keyPath the key path in @c Element to group by.
+    // @return dictionary containing the pairs of value and array of objects containing the value for @keyPath.
+    public func group<ValueForKey>(by keyPath: String) -> [ValueForKey: [Element]] {
         return self.map {
-            return TupleKeyArray(key: $0.value(forKey: keyPath) as! Key, value: [$0])
+            return TupleKeyArray(key: $0.value(forKey: keyPath) as! ValueForKey, value: [$0])
         }.merge()
     }
 }
