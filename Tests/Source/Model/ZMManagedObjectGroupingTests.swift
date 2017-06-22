@@ -144,5 +144,21 @@ public final class ZMManagedObjectGroupingTests: DatabaseBaseTest {
             XCTAssertEqual(grouped[key]!.count, 1)
         }
     }
-
+    
+    public func testThatItIgnoresNil() {
+        // GIVEN
+        let range = 1...10
+        let clients: [UserClient] = range.map { _ in
+            let client = UserClient.insertNewObject(in: self.moc)
+            client.remoteIdentifier = UUID().transportString()
+            client.user = nil
+            return client
+        }
+        
+        // WHEN
+        let grouped: [ZMUser: [UserClient]] = clients.group(by: ZMUserClientUserKey)
+        
+        // THEN
+        XCTAssertEqual(grouped.keys.count, 0)
+    }
 }

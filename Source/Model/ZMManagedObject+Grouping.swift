@@ -130,8 +130,13 @@ extension Array where Element: NSObject {
     // @param keyPath the key path in @c Element to group by.
     // @return dictionary containing the pairs of value and array of objects containing the value for @keyPath.
     public func group<ValueForKey>(by keyPath: String) -> [ValueForKey: [Element]] {
-        return self.map {
-            return TupleKeyArray(key: $0.value(forKey: keyPath) as! ValueForKey, value: [$0])
-        }.merge()
+        let tuples: [TupleKeyArray<ValueForKey, Element>?] = self.map {
+                guard let valueForKey = $0.value(forKey: keyPath) as? ValueForKey else {
+                    return nil
+                }
+                return TupleKeyArray(key: valueForKey, value: [$0])
+            }
+        
+        return tuples.flatMap { $0 }.merge()
     }
 }
