@@ -37,6 +37,7 @@ public final class ZMManagedObjectGroupingTests: DatabaseBaseTest {
     public override func tearDown() {
         super.tearDown()
         try? FileManager.default.removeItem(at: storeURL)
+        moc = nil
     }
     
     let storeURL = PersistentStoreRelocator.storeURL(in: .cachesDirectory)!
