@@ -37,9 +37,7 @@
 
 @property (nonatomic) NSMutableArray *receivedNotifications;
 
-- (ZMConversation *)insertConversationWithParticipants:(NSArray *)participants
-                                      callParticipants:(NSArray *)callParticipants
-                  callStateNeedsToBeUpdatedFromBackend:(BOOL)callStateNeedsToBeUpdatedFromBackend;
+- (ZMConversation *)insertConversationWithParticipants:(NSArray *)participants;
 - (NSDate *)timeStampForSortAppendMessageToConversation:(ZMConversation *)conversation;
 
 - (ZMMessage *)insertDownloadedMessageAfterMessageIntoConversation:(ZMConversation *)conversation;
@@ -81,8 +79,6 @@
 }
 
 - (ZMConversation *)insertConversationWithParticipants:(NSArray *)participants
-                                      callParticipants:(NSArray *)callParticipants
-                  callStateNeedsToBeUpdatedFromBackend:(BOOL)callStateNeedsToBeUpdatedFromBackend
 {
     __block NSManagedObjectID *objectID;
     [self.syncMOC performGroupedBlockAndWait:^{
@@ -97,11 +93,6 @@
         ZMConversation *conversation = [ZMConversation insertGroupConversationIntoManagedObjectContext:self.syncMOC withParticipants:syncParticipants];
         conversation.conversationType = ZMConversationTypeGroup;
         conversation.remoteIdentifier = NSUUID.createUUID;
-        for (ZMUser *user in callParticipants) {
-            ZMUser *syncUser = (id)[self.syncMOC objectWithID:user.objectID];
-            [[conversation mutableOrderedSetValueForKey:ZMConversationCallParticipantsKey] addObject:syncUser];
-        }
-        conversation.callStateNeedsToBeUpdatedFromBackend = callStateNeedsToBeUpdatedFromBackend;
         [self.syncMOC saveOrRollback];
         objectID = conversation.objectID;
     }];
@@ -226,11 +217,8 @@
                           ZMConversationUnsyncedInactiveParticipantsKey,
                           ZMConversationUnsyncedActiveParticipantsKey,
                           ZMConversationIsSelfAnActiveMemberKey,
-                          ZMConversationCallDeviceIsActiveKey,
                           ZMConversationLastReadServerTimeStampKey,
                           ZMConversationClearedTimeStampKey,
-                          ZMConversationIsSendingVideoKey,
-                          ZMConversationIsIgnoringCallKey,
                           ZMConversationSilencedChangedTimeStampKey,
                           ZMConversationArchivedChangedTimeStampKey,
                           ]];
@@ -241,23 +229,6 @@
     // then
     XCTAssertEqualObjects(conversation.keysTrackedForLocalModifications, expected);
 }
-
-- (void)testThatItAddsCallDeviceIsActiveToLocallyModifiedKeysIfHasLocalModificationsForCallDeviceIsActiveIsSet
-{
-    // given
-    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    conversation.conversationType = ZMConversationTypeOneOnOne;
-    XCTAssertFalse(conversation.hasLocalModificationsForCallDeviceIsActive);
-    XCTAssertFalse([conversation.keysThatHaveLocalModifications containsObject:ZMConversationCallDeviceIsActiveKey]);
-
-    // when
-    conversation.callDeviceIsActive = YES;
-    
-    // then
-    XCTAssertTrue(conversation.hasLocalModificationsForCallDeviceIsActive);
-    XCTAssertTrue([conversation.keysThatHaveLocalModifications containsObject:ZMConversationCallDeviceIsActiveKey]);
-}
-
 
 - (void)testThatItReturnsAnExistingConversationByUUID
 {
@@ -384,7 +355,7 @@
     invalidConversation.conversationType = ZMConversationTypeInvalid;
     
     // when
-    NSArray *conversationsInContext = [ZMConversation conversationsIncludingArchivedInContext:self.uiMOC team:nil];
+    NSArray *conversationsInContext = [ZMConversation conversationsIncludingArchivedInContext:self.uiMOC];
     
     // then
     XCTAssertEqualObjects(conversationsInContext, @[oneToOneConversation]);
@@ -775,32 +746,6 @@
     // then
     XCTAssertTrue([selfID isSelfConversationRemoteIdentifierInContext:self.uiMOC]);
     XCTAssertFalse([NSUUID.createUUID isSelfConversationRemoteIdentifierInContext:self.uiMOC]);
-}
-
-- (void)testThatWhenSetNotToBeUpdatedFromBackendCallStateDoesNotChangeFromTrue
-{
-    // given
-    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    conversation.callStateNeedsToBeUpdatedFromBackend = YES;
-    
-    // when
-    conversation.needsToBeUpdatedFromBackend = NO;
-    
-    // then
-    XCTAssertTrue(conversation.callStateNeedsToBeUpdatedFromBackend);
-}
-
-- (void)testThatWhenSetNotToBeUpdatedFromBackendCallStateDoesNotChangeFromFalse
-{
-    // given
-    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    conversation.callStateNeedsToBeUpdatedFromBackend = NO;
-    
-    // when
-    conversation.needsToBeUpdatedFromBackend = NO;
-    
-    // then
-    XCTAssertFalse(conversation.callStateNeedsToBeUpdatedFromBackend);
 }
 
 - (void)testThatItDoesNotUpdateLastModifiedDateWithLocalSystemMessages
@@ -2269,12 +2214,12 @@
     WaitForAllGroupsToBeEmpty(0.5);
     
     NSArray *users = @[user0, user1, selfUser];
-    ZMConversation *conversation = [self insertConversationWithParticipants:users callParticipants:users callStateNeedsToBeUpdatedFromBackend:NO];
+    ZMConversation *conversation = [self insertConversationWithParticipants:users];
     [conversation appendMessageWithText:@"0"];
     
-    ZMConversationList *activeList = [ZMConversationList conversationsInUserSession:self.mockUserSessionWithUIMOC team:nil];
-    ZMConversationList *archivedList = [ZMConversationList archivedConversationsInUserSession:self.mockUserSessionWithUIMOC team:nil];
-    ZMConversationList *clearedList = [ZMConversationList clearedConversationsInUserSession:self.mockUserSessionWithUIMOC team:nil];
+    ZMConversationList *activeList = [ZMConversationList conversationsInUserSession:self.mockUserSessionWithUIMOC];
+    ZMConversationList *archivedList = [ZMConversationList archivedConversationsInUserSession:self.mockUserSessionWithUIMOC];
+    ZMConversationList *clearedList = [ZMConversationList clearedConversationsInUserSession:self.mockUserSessionWithUIMOC];
     
     // when
     [conversation internalRemoveParticipants:[NSSet setWithObject:selfUser] sender:user0];
@@ -2415,7 +2360,7 @@
     ZMUser *selfUser = [ZMUser selfUserInContext:self.uiMOC];
     [self.uiMOC saveOrRollback];
     NSArray *users = @[user1, user2, selfUser];
-    ZMConversation *conversation = [self insertConversationWithParticipants:users callParticipants:users callStateNeedsToBeUpdatedFromBackend:NO];
+    ZMConversation *conversation = [self insertConversationWithParticipants:users];
     
     ZMMessage *message1 = (id)[conversation appendMessageWithText:@"1"];
     message1.serverTimestamp = [NSDate date];
@@ -2851,20 +2796,6 @@
     [self simulateUnreadMissedCallInConversation:conversation];
 }
 
-- (void)setConversationAsHavingActiveCall:(ZMConversation *)conversation
-{
-    conversation.callDeviceIsActive = YES;
-}
-
-- (void)setConversationAsHavingIgnoredCall:(ZMConversation *)conversation
-{
-    conversation.isIgnoringCall = YES;
-    
-    ZMUser *participant = [self createUserOnMoc:self.syncMOC];
-    NSMutableOrderedSet *participants = [conversation mutableOrderedSetValueForKey:ZMConversationCallParticipantsKey];
-    [participants addObject:participant];
-}
-
 - (void)setConversationAsBeingPending:(ZMConversation *)conversation inContext:(NSManagedObjectContext *)context
 {
     conversation.conversationType = ZMConversationTypeConnection;
@@ -2955,7 +2886,7 @@
         [self simulateUnreadMissedKnockInConversation:conversation];
         [self simulateUnreadMissedCallInConversation:conversation];
         [conversation setHasUnreadUnsentMessage:YES];
-        [self setConversationAsHavingIgnoredCall:conversation];
+        [conversation setIsIgnoringCall:YES];
         
         // then
         XCTAssertEqual(conversation.conversationListIndicator, ZMConversationListIndicatorInactiveCall);
@@ -3214,34 +3145,6 @@
 
 @implementation ZMConversationTests (Predicates)
 
-
-
-- (void)testThatItFetchesConversationsWithCallStateNeededToBeSynced
-{
-    //given
-    ZMUser *otherUser = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    ZMUser *secondUser = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    [self.uiMOC saveOrRollback];
-    
-    NSArray *users = @[otherUser,secondUser];
-    
-    ZMConversation *conversationWithCallParticipants = [self insertConversationWithParticipants:users callParticipants:users callStateNeedsToBeUpdatedFromBackend:NO];
-    ZMConversation *alreadyMarkedConversation = [self insertConversationWithParticipants:users callParticipants:users callStateNeedsToBeUpdatedFromBackend:YES];
-    ZMConversation *conversationWithNoCallParticipants = [self insertConversationWithParticipants:users callParticipants:@[] callStateNeedsToBeUpdatedFromBackend:NO];
-    
-    //when
-    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:[ZMConversation entityName]];
-    request.predicate = [ZMConversation predicateForUpdatingCallStateDuringSlowSync];
-    
-    // when
-    NSArray *result = [self.uiMOC executeFetchRequestOrAssert:request];
-    XCTAssertTrue([result containsObject:conversationWithCallParticipants]);
-    XCTAssertFalse([result containsObject:alreadyMarkedConversation]);
-    XCTAssertFalse([result containsObject:conversationWithNoCallParticipants]);
-    
-    WaitForAllGroupsToBeEmpty(0.5);
-}
-
 - (void)testThatItFiltersOut_SelfConversation
 {
     // given
@@ -3254,7 +3157,7 @@
     WaitForAllGroupsToBeEmpty(0.5);
     
     // when
-    NSPredicate *sut = [ZMConversation predicateForConversationsIncludingArchivedInTeam:nil];
+    NSPredicate *sut = [ZMConversation predicateForConversationsIncludingArchived];
     
     // then
     XCTAssertFalse([sut evaluateWithObject:conversation]);
@@ -3276,7 +3179,7 @@
     XCTAssertNil(conversation.clearedTimeStamp);
     
     // when
-    NSPredicate *sut = [ZMConversation predicateForConversationsIncludingArchivedInTeam:nil];
+    NSPredicate *sut = [ZMConversation predicateForConversationsIncludingArchived];
     
     // then
     XCTAssertTrue([sut evaluateWithObject:conversation]);
@@ -3302,7 +3205,7 @@
     XCTAssertEqualObjects(conversation.clearedTimeStamp, clearedTimeStamp);
     
     // when
-    NSPredicate *sut = [ZMConversation predicateForConversationsIncludingArchivedInTeam:nil];
+    NSPredicate *sut = [ZMConversation predicateForConversationsIncludingArchived];
     
     // then
     XCTAssertTrue([sut evaluateWithObject:conversation]);
@@ -3326,7 +3229,7 @@
     XCTAssertEqualObjects(conversation.clearedTimeStamp, clearedTimeStamp);
 
     // when
-    NSPredicate *sut = [ZMConversation predicateForConversationsIncludingArchivedInTeam:nil];
+    NSPredicate *sut = [ZMConversation predicateForConversationsIncludingArchived];
     
     // then
     XCTAssertFalse([sut evaluateWithObject:conversation]);
@@ -3350,7 +3253,7 @@
     XCTAssertEqualObjects(conversation.clearedTimeStamp, clearedTimeStamp);
     
     // when
-    NSPredicate *sut = [ZMConversation predicateForConversationsIncludingArchivedInTeam:nil];
+    NSPredicate *sut = [ZMConversation predicateForConversationsIncludingArchived];
     
     // then
     XCTAssertTrue([sut evaluateWithObject:conversation]);
@@ -3484,7 +3387,7 @@
     archived.remoteIdentifier = [NSUUID createUUID];
     
     NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:[ZMConversation entityName]];
-    request.predicate = [ZMConversation predicateForSharableConversationsInTeam:nil];
+    request.predicate = [ZMConversation predicateForSharableConversations];
     
     //when
     NSArray *result = [self.uiMOC executeFetchRequestOrAssert:request];
@@ -4061,27 +3964,27 @@
 
 @implementation ZMConversationTests (GroupCallingV3)
 
-- (void)testThatItReturnsActiveCall_isCallDeviceActiveV3
+- (void)testThatItReturnsActiveCall_isCallDeviceActive
 {
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     XCTAssertNotEqual(conversation.conversationListIndicator, ZMConversationListIndicatorActiveCall);
 
     // when
-    conversation.isCallDeviceActiveV3 = YES;
+    conversation.isCallDeviceActive = YES;
 
     // then
     XCTAssertEqual(conversation.conversationListIndicator, ZMConversationListIndicatorActiveCall);
 }
 
-- (void)testThatItReturnsInactiveCall_isIgnoringCallV3
+- (void)testThatItReturnsInactiveCall_isIgnoringCall
 {
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     XCTAssertNotEqual(conversation.conversationListIndicator, ZMConversationListIndicatorInactiveCall);
 
     // when
-    conversation.isIgnoringCallV3 = YES;
+    conversation.isIgnoringCall = YES;
     
     // then
     XCTAssertEqual(conversation.conversationListIndicator, ZMConversationListIndicatorInactiveCall);
