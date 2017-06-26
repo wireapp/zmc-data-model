@@ -40,7 +40,7 @@ class ManagedObjectContextChangeObserverTests : ZMBaseManagedObjectTest {
         _ = sut
     }
 
-    func testThatItCallsTheCallbackWhenObjectsAreDelted() {
+    func testThatItCallsTheCallbackWhenObjectsAreDeleted() {
         // given
         let message = ZMMessage.insertNewObject(in: uiMOC)
         XCTAssert(uiMOC.saveOrRollback())
