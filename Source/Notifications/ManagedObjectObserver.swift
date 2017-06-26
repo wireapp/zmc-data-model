@@ -31,10 +31,10 @@ import Foundation
         self.context = context
         self.callback = callback
         super.init()
-        addSaveNotificationObsever()
+        addSaveNotificationObserver()
     }
 
-    private func addSaveNotificationObsever() {
+    private func addSaveNotificationObserver() {
         token = NotificationCenter.default.addObserver(
             forName: .NSManagedObjectContextObjectsDidChange,
             object: context,
