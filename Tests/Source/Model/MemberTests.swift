@@ -133,4 +133,17 @@ class MemberTests: BaseTeamTests {
         XCTAssertEqual(member.team, team)
     }
     
+    func testThatItSetsTheUsersRemoteIDAsMemberRemoteId(){
+        // given
+        let user = ZMUser.insertNewObject(in: uiMOC)
+        user.remoteIdentifier = UUID()
+        let team = Team.insertNewObject(in: uiMOC)
+        
+        // when
+        let member = Member.getOrCreateMember(for: user, in: team, context: uiMOC)
+        
+        // then
+        XCTAssertNotNil(member.remoteIdentifier)
+        XCTAssertEqual(member.remoteIdentifier, user.remoteIdentifier)
+    }
 }

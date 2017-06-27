@@ -21,7 +21,7 @@ public class Member: ZMManagedObject {
 
     @NSManaged public var team: Team?
     @NSManaged public var user: ZMUser?
-
+    @NSManaged public var remoteIdentifier_data : Data?
     @NSManaged private var permissionsRawValue: Int64
 
     public var permissions: Permissions {
@@ -36,10 +36,18 @@ public class Member: ZMManagedObject {
     public override static func isTrackingLocalModifications() -> Bool {
         return false
     }
+    
+    public var remoteIdentifier: UUID? {
+        get { return remoteIdentifier_data.flatMap { NSUUID(uuidBytes: $0.withUnsafeBytes(UnsafePointer<UInt8>.init)) } as UUID? }
+        set { remoteIdentifier_data = (newValue as NSUUID?)?.data() }
+    }
 
     @objc(getOrCreateMemberForUser:inTeam:context:)
     public static func getOrCreateMember(for user: ZMUser, in team: Team, context: NSManagedObjectContext) -> Member {
         if let existing = user.membership {
+            return existing
+        }
+        else if let userId = user.remoteIdentifier, let existing = Member.fetch(withRemoteIdentifier: userId, in: context) {
             return existing
         }
 
