@@ -145,17 +145,28 @@ public class UserClient: ZMManagedObject, UserClientType {
             zmLog.error("Detected duplicate clients: \(existingClients.map({ $0.remoteIdentifier! }))")
         }
         
-        guard let client = existingClients.first
-        else {
-            if (createIfNeeded) {
-                let newClient = UserClient.insertNewObject(in: user.managedObjectContext!)
-                newClient.remoteIdentifier = remoteIdentifier
-                newClient.user = user
-                return newClient
-            }
-            return nil
+        if let client = existingClients.first {
+            return client
         }
-        return client
+        
+        let fetchRequest = NSFetchRequest<UserClient>(entityName: UserClient.entityName())
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", ZMUserClientRemoteIdentifierKey, remoteIdentifier)
+        let fetchResult = user.managedObjectContext?.fetchOrAssert(request: fetchRequest)
+        
+        if let client = fetchResult?.first {
+            return client
+        }
+        
+        if (createIfNeeded) {
+            let newClient = UserClient.insertNewObject(in: user.managedObjectContext!)
+            newClient.remoteIdentifier = remoteIdentifier
+            newClient.user = user
+            // Form reverse relationship
+            user.mutableSetValue(forKey: "clients").add(newClient)
+            return newClient
+        }
+        
+        return nil
     }
 
     /// Resets releationships and ends an exisiting session before deleting the object
