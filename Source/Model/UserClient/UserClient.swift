@@ -139,21 +139,32 @@ public class UserClient: ZMManagedObject, UserClientType {
     public static func fetchUserClient(withRemoteId remoteIdentifier: String, forUser user:ZMUser, createIfNeeded: Bool) -> UserClient? {
         precondition(!createIfNeeded || user.managedObjectContext!.zm_isSyncContext, "clients can only be created on the syncContext")
         
-        let existingClients = user.clients.filter({$0.remoteIdentifier == remoteIdentifier})
-        
-        requireInternal(existingClients.count <= 1, "Detected duplicate clients: \(existingClients.map({ $0.remoteIdentifier! }))")
-        
-        guard let client = existingClients.first
-        else {
-            if (createIfNeeded) {
-                let newClient = UserClient.insertNewObject(in: user.managedObjectContext!)
-                newClient.remoteIdentifier = remoteIdentifier
-                newClient.user = user
-                return newClient
-            }
-            return nil
+        guard let context = user.managedObjectContext else {
+            fatal("User \(user) is not a member of a managed object context (deleted object).")
         }
-        return client
+        
+        let relationClients = user.clients.filter({$0.remoteIdentifier == remoteIdentifier})
+        
+        requireInternal(relationClients.count <= 1, "Detected duplicate clients: \(relationClients.map({ $0.remoteIdentifier! }))")
+        
+        if let client = relationClients.first {
+            return client
+        }
+        
+        if let client = self.fetchExistingUserClient(with: remoteIdentifier, in: context) {
+            return client
+        }
+        
+        if (createIfNeeded) {
+            let newClient = UserClient.insertNewObject(in: context)
+            newClient.remoteIdentifier = remoteIdentifier
+            newClient.user = user
+            // Form reverse relationship
+            user.mutableSetValue(forKey: "clients").add(newClient)
+            return newClient
+        }
+        
+        return nil
     }
 
     /// Resets releationships and ends an exisiting session before deleting the object
@@ -243,6 +254,14 @@ public class UserClient: ZMManagedObject, UserClientType {
 // MARK: - SelfUser client methods (selfClient + other clients of the selfUser)
 public extension UserClient {
 
+    public static func fetchExistingUserClient(with remoteIdentifier: String, in context: NSManagedObjectContext) -> UserClient? {
+        let fetchRequest = NSFetchRequest<UserClient>(entityName: UserClient.entityName())
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", ZMUserClientRemoteIdentifierKey, remoteIdentifier)
+        fetchRequest.fetchLimit = 1
+        
+        return context.fetchOrAssert(request: fetchRequest).first
+    }
+    
     /// Use this method only for selfUser clients (selfClient + remote clients)
     public static func createOrUpdateSelfUserClient(_ payloadData: [String: AnyObject], context: NSManagedObjectContext) -> UserClient? {
         
@@ -263,11 +282,7 @@ public extension UserClient {
         let longitude = (locationCoordinates?["lon"] as NSNumber?) ?? 0
         
         // TODO: could optimize: look into self user relationship before executing a fetch request
-        let fetchRequest = NSFetchRequest<UserClient>(entityName: UserClient.entityName())
-        fetchRequest.predicate = NSPredicate(format: "%K == %@", ZMUserClientRemoteIdentifierKey, id)
-        fetchRequest.fetchLimit = 1
-        
-        let fetchedClient = context.fetchOrAssert(request: fetchRequest).first
+        let fetchedClient = fetchExistingUserClient(with: id, in: context)
         let client = fetchedClient ?? UserClient.insertNewObject(in: context)
 
         client.label = label
