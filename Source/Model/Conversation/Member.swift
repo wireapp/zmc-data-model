@@ -36,6 +36,10 @@ public class Member: ZMManagedObject {
     public override static func isTrackingLocalModifications() -> Bool {
         return false
     }
+
+    public override static func defaultSortDescriptors() -> [NSSortDescriptor] {
+        return []
+    }
     
     public var remoteIdentifier: UUID? {
         get { return remoteIdentifier_data.flatMap { NSUUID(uuidBytes: $0.withUnsafeBytes(UnsafePointer<UInt8>.init)) } as UUID? }
@@ -63,18 +67,34 @@ public class Member: ZMManagedObject {
 
 // MARK: - Transport
 
+
+fileprivate enum ResponseKey: String {
+    case user, permissions
+
+    enum Permissions: String {
+        case `self`, copy
+    }
+}
+
+
 extension Member {
 
     @discardableResult
     public static func createOrUpdate(with payload: [String: Any], in team: Team, context: NSManagedObjectContext) -> Member? {
-        guard let id = (payload["user"] as? String).flatMap(UUID.init),
-            let user = ZMUser(remoteID: id, createIfNeeded: true, in: context),
-            let permissions = payload["permissions"] as? [String: Any],
-            let selfPermissions = permissions["self"] as? NSNumber else { return nil }
+        guard let id = (payload[ResponseKey.user.rawValue] as? String).flatMap(UUID.init),
+            let user = ZMUser(remoteID: id, createIfNeeded: true, in: context) else { return nil }
 
         let member = getOrCreateMember(for: user, in: team, context: context)
-        member.permissions = Permissions(rawValue: selfPermissions.int64Value)
+        member.updatePermissions(with: payload)
         return member
+    }
+
+    public func updatePermissions(with payload: [String: Any]) {
+        guard let userID = (payload[ResponseKey.user.rawValue] as? String).flatMap(UUID.init) else { return }
+        precondition(remoteIdentifier == userID, "Trying to update member with non-matching payload: \(payload), \(self)")
+        guard let permissionsPayload = payload[ResponseKey.permissions.rawValue] as? [String: Any] else { return }
+        guard let selfPermissions = permissionsPayload[ResponseKey.Permissions.`self`.rawValue] as? NSNumber else { return }
+        permissions = Permissions(rawValue: selfPermissions.int64Value)
     }
 
 }
