@@ -141,9 +141,7 @@ public class UserClient: ZMManagedObject, UserClientType {
         
         let existingClients = user.clients.filter({$0.remoteIdentifier == remoteIdentifier})
         
-        if existingClients.count > 1 {
-            zmLog.error("Detected duplicate clients: \(existingClients.map({ $0.remoteIdentifier! }))")
-        }
+        requireInternal(existingClients.count <= 1, "Detected duplicate clients: \(existingClients.map({ $0.remoteIdentifier! }))")
         
         guard let client = existingClients.first
         else {
