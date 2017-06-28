@@ -54,6 +54,7 @@ public class Member: ZMManagedObject {
         let member = insertNewObject(in: context)
         member.team = team
         member.user = user
+        member.remoteIdentifier = user.remoteIdentifier
         return member
     }
 
