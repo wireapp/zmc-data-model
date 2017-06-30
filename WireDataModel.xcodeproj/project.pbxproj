@@ -101,6 +101,7 @@
 		BF491CEA1F063F440055EE44 /* AccountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF491CDA1F0525DC0055EE44 /* AccountTests.swift */; };
 		BF491CEB1F063F480055EE44 /* AccountManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF491CDC1F0525E50055EE44 /* AccountManagerTests.swift */; };
 		BF491CEC1F063F4B0055EE44 /* AccountStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF491CDF1F0529D80055EE44 /* AccountStoreTests.swift */; };
+		BF491CD91F0506150055EE44 /* ZMOTRMessage+ConfirmationThreshold.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF491CD81F0506150055EE44 /* ZMOTRMessage+ConfirmationThreshold.swift */; };
 		BF6EA4D21E2512E800B7BD4B /* ZMConversation+DisplayName.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF6EA4D11E2512E800B7BD4B /* ZMConversation+DisplayName.swift */; };
 		BF707C391EB8780800108D4E /* MessageCountTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF707C381EB8780800108D4E /* MessageCountTracker.swift */; };
 		BF707C3B1EB8879300108D4E /* MessageCountTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF707C3A1EB8879300108D4E /* MessageCountTrackerTests.swift */; };
@@ -526,6 +527,7 @@
 		BF491CE31F063EDB0055EE44 /* Account.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Account.swift; sourceTree = "<group>"; };
 		BF491CE51F063EE50055EE44 /* AccountStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountStore.swift; sourceTree = "<group>"; };
 		BF491CE71F063EEB0055EE44 /* AccountManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountManager.swift; sourceTree = "<group>"; };
+		BF491CD81F0506150055EE44 /* ZMOTRMessage+ConfirmationThreshold.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZMOTRMessage+ConfirmationThreshold.swift"; sourceTree = "<group>"; };
 		BF6EA4D11E2512E800B7BD4B /* ZMConversation+DisplayName.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZMConversation+DisplayName.swift"; sourceTree = "<group>"; };
 		BF707C381EB8780800108D4E /* MessageCountTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageCountTracker.swift; sourceTree = "<group>"; };
 		BF707C3A1EB8879300108D4E /* MessageCountTrackerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageCountTrackerTests.swift; sourceTree = "<group>"; };
@@ -1219,6 +1221,7 @@
 				F9A706011CAEE01D00C2F5FE /* ZMOTRMessage.h */,
 				BFABEB8B1E647054003BE9F3 /* GenericMessageScheduleNotification.swift */,
 				F9A706021CAEE01D00C2F5FE /* ZMOTRMessage.m */,
+				BF491CD81F0506150055EE44 /* ZMOTRMessage+ConfirmationThreshold.swift */,
 				544A46AD1E2E82BA00D6A748 /* ZMOTRMessage+SecurityDegradation.swift */,
 				F93666FC1D78274D00E15420 /* MessageUpdateResult.swift */,
 				CE4EDC0A1D6DC2D2002A20AA /* ConversationMessage+Reaction.swift */,
@@ -2210,6 +2213,7 @@
 				F18998A61E7BE03800E579A2 /* zmessaging.xcdatamodeld in Sources */,
 				F920AE501E3FA285001BC14F /* DisplayNameGenerator.swift in Sources */,
 				BF103F9D1F0112F30047FDE5 /* ManagedObjectObserver.swift in Sources */,
+				BF491CD91F0506150055EE44 /* ZMOTRMessage+ConfirmationThreshold.swift in Sources */,
 				F9A706B71CAEE01D00C2F5FE /* UserChangeInfo.swift in Sources */,
 				F9A7067F1CAEE01D00C2F5FE /* ZMImageMessage.m in Sources */,
 				5473CC731E14245C00814C03 /* NSManagedObjectContext+Debugging.swift in Sources */,
