@@ -23,36 +23,33 @@ import Foundation
 private let log = ZMSLog(tag: "Accounts")
 
 
-public protocol LoginProvider {
-    func login(_ account: Account, completion: (Bool) -> Void)
+fileprivate extension UserDefaults {
+
+    static let selectedAccountKey = "AccountManagerSelectedAccountKey"
+
+    /// The identifier of the currently selected `Account` or `nil` if there is none.
+    var selectedAccountIdentifier: UUID? {
+        get { return string(forKey: UserDefaults.selectedAccountKey).flatMap(UUID.init) }
+        set { set(newValue?.uuidString, forKey: UserDefaults.selectedAccountKey) }
+    }
+
 }
 
 
 /// Class used to safely access and change stored accounts and the current selected account.
 public final class AccountManager: NSObject {
 
-    static let selectedAccountKey = "AccountManagerSelectedAccountKey"
-
     private let defaults = UserDefaults.shared()
     private(set) public var accounts = [Account]()
     private(set) public var selectedAccount: Account? // The currently selected account or `nil` in case there is none
 
-    private(set) public var selectedAccountIdentifier: UUID? {
-        get { return defaults?.string(forKey: AccountManager.selectedAccountKey).flatMap(UUID.init) }
-        set { defaults?.set(newValue?.uuidString, forKey: AccountManager.selectedAccountKey) }
-    }
-
     private var store: AccountStore
-    private let loginProvider: LoginProvider
 
     /// Creates a new `AccountManager`.
     /// - parameter sharedDirectory: The directory of the shared container.
-    /// - parameter loginProvider: The login provider object to login accounts.
-    public init(sharedDirectory: URL, loginProvider: LoginProvider) {
+    public init(sharedDirectory: URL) {
         store = AccountStore(root: sharedDirectory)
-        self.loginProvider = loginProvider
         super.init()
-        selectedAccountIdentifier = UserDefaults.shared().string(forKey: AccountManager.selectedAccountKey).flatMap(UUID.init)
         updateAccounts()
     }
 
@@ -68,25 +65,18 @@ public final class AccountManager: NSObject {
     public func remove(_ account: Account) {
         store.remove(account)
         if selectedAccount == account {
-            selectedAccountIdentifier = nil
+            defaults?.selectedAccountIdentifier = nil
         }
         updateAccounts()
     }
 
-    /// Selects a new account. The `LoginProvider` is asked to perform the login operation.
-    /// In case the operation completes successfully the passed in account will be selected.
+    /// Selects a new account.
     /// - parameter account: The account to select.
     public func select(_ account: Account) {
+        precondition(accounts.contains(account), "Selecting an account without first adding it is not allowed")
         guard account != selectedAccount else { return }
-        loginProvider.login(account) { [weak self] success in
-            guard let `self` = self else { return }
-            if success {
-                self.selectedAccountIdentifier = account.userIdentifier
-                self.updateAccounts()
-            } else {
-                log.error("Unable to select account: \(account)")
-            }
-        }
+        defaults?.selectedAccountIdentifier = account.userIdentifier
+        updateAccounts()
     }
 
     // MARK: - Private Helper
@@ -102,7 +92,7 @@ public final class AccountManager: NSObject {
     /// Loads and computes the locally selected account if any
     /// - returns: The currently selected account or `nil` if there is none.
     private func computeSelectedAccount() -> Account? {
-        return selectedAccountIdentifier.flatMap(store.load)
+        return defaults?.selectedAccountIdentifier.flatMap(store.load)
     }
 
     /// Loads and sorts the stored accounts.
@@ -114,7 +104,9 @@ public final class AccountManager: NSObject {
             switch (lhs.teamName, rhs.teamName) {
             case (.some, .none): return false
             case (.none, .some): return true
-            case (.some(let leftName), .some(let rightName)): return leftName < rightName
+            case (.some(let leftName), .some(let rightName)):
+                guard leftName != rightName else { fallthrough }
+                return leftName < rightName
             default: return lhs.userName < rhs.userName
             }
         }

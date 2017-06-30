@@ -21,7 +21,7 @@ import Foundation
 @testable import WireDataModel
 
 
-public final class AccountTests: ZMConversationTestsBase {
+final class AccountTests: ZMConversationTestsBase {
 
     func testThatItCanSerializeAnAccountToDisk() throws {
         // given
