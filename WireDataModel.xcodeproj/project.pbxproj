@@ -95,6 +95,12 @@
 		BF46662A1DCB71B0007463FF /* V3Asset.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF4666291DCB71B0007463FF /* V3Asset.swift */; };
 		BF491CCF1F02A6CF0055EE44 /* Member+Patches.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF491CCE1F02A6CF0055EE44 /* Member+Patches.swift */; };
 		BF491CD71F0402F80055EE44 /* store2-31-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = BF491CD61F0402F80055EE44 /* store2-31-0.wiredatabase */; };
+		BF491CE41F063EDB0055EE44 /* Account.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF491CE31F063EDB0055EE44 /* Account.swift */; };
+		BF491CE61F063EE50055EE44 /* AccountStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF491CE51F063EE50055EE44 /* AccountStore.swift */; };
+		BF491CE81F063EEB0055EE44 /* AccountManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF491CE71F063EEB0055EE44 /* AccountManager.swift */; };
+		BF491CEA1F063F440055EE44 /* AccountTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF491CDA1F0525DC0055EE44 /* AccountTests.swift */; };
+		BF491CEB1F063F480055EE44 /* AccountManagerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF491CDC1F0525E50055EE44 /* AccountManagerTests.swift */; };
+		BF491CEC1F063F4B0055EE44 /* AccountStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF491CDF1F0529D80055EE44 /* AccountStoreTests.swift */; };
 		BF6EA4D21E2512E800B7BD4B /* ZMConversation+DisplayName.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF6EA4D11E2512E800B7BD4B /* ZMConversation+DisplayName.swift */; };
 		BF707C391EB8780800108D4E /* MessageCountTracker.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF707C381EB8780800108D4E /* MessageCountTracker.swift */; };
 		BF707C3B1EB8879300108D4E /* MessageCountTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF707C3A1EB8879300108D4E /* MessageCountTrackerTests.swift */; };
@@ -514,6 +520,12 @@
 		BF4666291DCB71B0007463FF /* V3Asset.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = V3Asset.swift; sourceTree = "<group>"; };
 		BF491CCE1F02A6CF0055EE44 /* Member+Patches.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Member+Patches.swift"; sourceTree = "<group>"; };
 		BF491CD61F0402F80055EE44 /* store2-31-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; name = "store2-31-0.wiredatabase"; path = "Tests/Resources/store2-31-0.wiredatabase"; sourceTree = SOURCE_ROOT; };
+		BF491CDA1F0525DC0055EE44 /* AccountTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountTests.swift; sourceTree = "<group>"; };
+		BF491CDC1F0525E50055EE44 /* AccountManagerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountManagerTests.swift; sourceTree = "<group>"; };
+		BF491CDF1F0529D80055EE44 /* AccountStoreTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountStoreTests.swift; sourceTree = "<group>"; };
+		BF491CE31F063EDB0055EE44 /* Account.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Account.swift; sourceTree = "<group>"; };
+		BF491CE51F063EE50055EE44 /* AccountStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountStore.swift; sourceTree = "<group>"; };
+		BF491CE71F063EEB0055EE44 /* AccountManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountManager.swift; sourceTree = "<group>"; };
 		BF6EA4D11E2512E800B7BD4B /* ZMConversation+DisplayName.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZMConversation+DisplayName.swift"; sourceTree = "<group>"; };
 		BF707C381EB8780800108D4E /* MessageCountTracker.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageCountTracker.swift; sourceTree = "<group>"; };
 		BF707C3A1EB8879300108D4E /* MessageCountTrackerTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MessageCountTrackerTests.swift; sourceTree = "<group>"; };
@@ -1008,6 +1020,26 @@
 			name = Teams;
 			sourceTree = "<group>";
 		};
+		BF491CDE1F0525ED0055EE44 /* Accounts */ = {
+			isa = PBXGroup;
+			children = (
+				BF491CDA1F0525DC0055EE44 /* AccountTests.swift */,
+				BF491CDC1F0525E50055EE44 /* AccountManagerTests.swift */,
+				BF491CDF1F0529D80055EE44 /* AccountStoreTests.swift */,
+			);
+			name = Accounts;
+			sourceTree = "<group>";
+		};
+		BF491CE91F063F0A0055EE44 /* Accounts */ = {
+			isa = PBXGroup;
+			children = (
+				BF491CE31F063EDB0055EE44 /* Account.swift */,
+				BF491CE51F063EE50055EE44 /* AccountStore.swift */,
+				BF491CE71F063EEB0055EE44 /* AccountManager.swift */,
+			);
+			name = Accounts;
+			sourceTree = "<group>";
+		};
 		CE4EDC071D6D9A04002A20AA /* Reaction */ = {
 			isa = PBXGroup;
 			children = (
@@ -1089,6 +1121,7 @@
 				CE4EDC071D6D9A04002A20AA /* Reaction */,
 				F93A30281D6EFB66005CCB1D /* Confirmation */,
 				F9A705D51CAEE01D00C2F5FE /* Connection */,
+				BF491CE91F063F0A0055EE44 /* Accounts */,
 				BF1B98051EC313D100DE033B /* Teams */,
 				F9A705D91CAEE01D00C2F5FE /* Conversation */,
 				F9A705F01CAEE01D00C2F5FE /* Message */,
@@ -1397,6 +1430,7 @@
 				F9B720011CB2C68B001DB03F /* UserClient */,
 				F9A7080C1CAEEB7400C2F5FE /* MockDataModel */,
 				BF3493EE1EC3566500B0C314 /* Teams */,
+				BF491CDE1F0525ED0055EE44 /* Accounts */,
 				F9A7080B1CAEEB7400C2F5FE /* CoreDataRelationshipsTests.m */,
 				F94A208E1CB51AF50059632A /* ManagedObjectValidationTests.m */,
 				F9A708131CAEEB7400C2F5FE /* ModelObjectsTests.h */,
@@ -2111,6 +2145,7 @@
 				BF794FE31D143DE300E618C6 /* LocationMessage+Coordinate.swift in Sources */,
 				F9A706531CAEE01D00C2F5FE /* NSManagedObjectContext+zmessaging.m in Sources */,
 				F9A706571CAEE01D00C2F5FE /* NSNotification+ManagedObjectContextSave.m in Sources */,
+				BF491CE61F063EE50055EE44 /* AccountStore.swift in Sources */,
 				F9B71F2E1CB264EF001DB03F /* ZMConversationMessageWindow.m in Sources */,
 				F9A706B01CAEE01D00C2F5FE /* MessageChangeInfo.swift in Sources */,
 				F9A706A71CAEE01D00C2F5FE /* AnyClassTuple.swift in Sources */,
@@ -2181,6 +2216,7 @@
 				BF46662A1DCB71B0007463FF /* V3Asset.swift in Sources */,
 				545FA5D91E2FD3D20054171A /* ZMConversation+NotifyOnUI.swift in Sources */,
 				F9A706991CAEE01D00C2F5FE /* ZMManagedObject.m in Sources */,
+				BF491CE41F063EDB0055EE44 /* Account.swift in Sources */,
 				16DCB6631DDA2715002A7AC2 /* PersistentStoreRelocator.swift in Sources */,
 				F991CE1B1CB561B0004D8465 /* ZMAddressBookContact.m in Sources */,
 				F9A706BA1CAEE01D00C2F5FE /* ZMNotifications.m in Sources */,
@@ -2188,6 +2224,7 @@
 				F9B71F281CB264EF001DB03F /* ZMConversation+Timestamps.m in Sources */,
 				F9C877091E000C9D00792613 /* AssetCollection.swift in Sources */,
 				BF10B58B1E6432ED00E7036E /* Message.swift in Sources */,
+				BF491CE81F063EEB0055EE44 /* AccountManager.swift in Sources */,
 				F9A7067E1CAEE01D00C2F5FE /* ZMGenericMessageData.m in Sources */,
 				F9331C881CB419B500139ECC /* NSFetchRequest+ZMRelationshipKeyPaths.m in Sources */,
 				F9C3488D1E2E219C0015D69D /* MessageWindowObserverCenter.swift in Sources */,
@@ -2210,6 +2247,7 @@
 				F920AE171E38C547001BC14F /* NotificationObservers.swift in Sources */,
 				F93265291D89648B0076AAD6 /* ZMAssetClientMessageTests.swift in Sources */,
 				F9B71F9C1CB2BF18001DB03F /* ZMCallStateTests.swift in Sources */,
+				BF491CEB1F063F480055EE44 /* AccountManagerTests.swift in Sources */,
 				544E8C0F1E2F69EB00F9B8B8 /* ZMOTRMessage+SecurityDegradationTests.swift in Sources */,
 				F9B720041CB2C770001DB03F /* UserClientTests.swift in Sources */,
 				BF0D07FB1E4C7B7A00B934EB /* TextSearchQueryTests.swift in Sources */,
@@ -2302,6 +2340,7 @@
 				F9B71FA91CB2BF37001DB03F /* ZMConversationTests.m in Sources */,
 				F963E9931D9E9D1800098AD3 /* ZMAssetClientMessageTests+Ephemeral.swift in Sources */,
 				F9A708341CAEEB7500C2F5FE /* ManagedObjectContextSaveNotificationTests.m in Sources */,
+				BF491CEC1F063F4B0055EE44 /* AccountStoreTests.swift in Sources */,
 				F9B71FA01CB2BF2B001DB03F /* ZMConversationListTests.m in Sources */,
 				F9B71FA21CB2BF37001DB03F /* ZMConversationMessageWindowTests.m in Sources */,
 				BF794FE61D1442B100E618C6 /* ZMClientMessageTests+Location.swift in Sources */,
@@ -2325,6 +2364,7 @@
 				F9DBA5251E28EE1500BE23C0 /* ConversationObserverTests.swift in Sources */,
 				BFE3A96C1ED2EC110024A05B /* ZMConversationListDirectoryTests+Teams.swift in Sources */,
 				BF707C511EB9F9CC00108D4E /* ClusterizerTests.swift in Sources */,
+				BF491CEA1F063F440055EE44 /* AccountTests.swift in Sources */,
 				F9A7083F1CAEEB7500C2F5FE /* PersistentChangeTrackingTests.m in Sources */,
 				BF1B980B1EC31D6100DE033B /* TeamDeletionRuleTests.swift in Sources */,
 				BF735CFD1E7050D5003BC61F /* ZMConversationTests+CallSystemMessages.swift in Sources */,
