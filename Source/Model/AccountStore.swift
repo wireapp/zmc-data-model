@@ -32,7 +32,7 @@ private let log = ZMSLog(tag: "Accounts")
 ///         - 47B3C313-E3FA-4DE4-8DBE-5BBDB6A0A14B
 ///         - 0F5771BB-2103-4E45-9ED2-E7E6B9D46C0F
 /// ```
-final class AccountStore: NSObject {
+public final class AccountStore: NSObject {
 
     private static let directoryName = "Accounts"
     private let fileManager = FileManager.default
@@ -41,7 +41,7 @@ final class AccountStore: NSObject {
     /// Creates a new `AccountStore`.
     /// `Account` objects will be stored in a subdirectory of the passed in url.
     /// - parameter root: The root url in which the storage will use to store its data
-    required init(root: URL) {
+    public required init(root: URL) {
         directory = root.appendingPathComponent(AccountStore.directoryName)
         super.init()
         createDirectoryIfNeeded()
@@ -103,7 +103,7 @@ final class AccountStore: NSObject {
     private func loadURLs() -> Set<URL> {
         do {
             let paths = try fileManager.contentsOfDirectory(atPath: directory.path)
-            return Set<URL>(paths.filter { $0 == ".DS_STORE" }.map(directory.appendingPathComponent))
+            return Set<URL>(paths.filter { $0 != ".DS_STORE" }.map(directory.appendingPathComponent))
         } catch {
             log.error("Unable to load accounts from \(directory), error: \(error)")
             return []
@@ -128,7 +128,7 @@ final class AccountStore: NSObject {
     /// Excludes the directory from backend as well as set the correct `FileProtectionType`.
     private func createDirectoryIfNeeded() {
         do {
-            guard fileManager.fileExists(atPath: directory.path) else { return }
+            guard !fileManager.fileExists(atPath: directory.path) else { return }
             try fileManager.createDirectory(at: directory, withIntermediateDirectories: true, attributes: nil)
             try (directory as NSURL).setResourceValue(true, forKey: .isExcludedFromBackupKey)
             let attributes = [FileAttributeKey.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication]

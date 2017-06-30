@@ -38,6 +38,21 @@ public final class Account: NSObject {
         super.init()
     }
 
+    public override func isEqual(_ object: Any?) -> Bool {
+        guard let other = object as? Account else { return false }
+        return userName == other.userName
+            && teamName == other.teamName
+            && userIdentifier == other.userIdentifier
+            && imageData == other.imageData
+    }
+
+    public override var hash: Int {
+        return userName.hash ^ userIdentifier.hashValue
+    }
+
+    public override var debugDescription: String {
+        return "<Account>:\n\tname: \(userName)\n\tid: \(userIdentifier)\n\tteam: \(String(describing: teamName))\n\timage: \(String(describing: imageData?.count))\n"
+    }
 }
 
 // MARK: - NSCoding
