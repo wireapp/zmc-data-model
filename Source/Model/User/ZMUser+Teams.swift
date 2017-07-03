@@ -60,7 +60,8 @@ public extension ZMUser {
             return conversation.team == nil
                 && conversation.teamRemoteIdentifier != nil
         } else {
-            return conversation.otherActiveParticipants.contains(self)
+            return ZMUser.selfUser(in: managedObjectContext!).hasTeam
+                && conversation.otherActiveParticipants.contains(self)
                 && membership == nil
         }
     }
