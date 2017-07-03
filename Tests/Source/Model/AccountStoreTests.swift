@@ -161,7 +161,7 @@ final class AccountStoreTests: ZMConversationTestsBase {
         let uuid = UUID.create()
 
         // when
-        let account = Account(userName: "Sabinee", userIdentifier: uuid)
+        let account = Account(userName: "Sabine", userIdentifier: uuid)
         XCTAssert(store.add(account))
         XCTAssertEqual(store.load(uuid), account)
     }
@@ -201,6 +201,25 @@ final class AccountStoreTests: ZMConversationTestsBase {
 
         // then
         XCTAssertFalse(store.contains(account2))
+    }
+
+    func testThatASecondAccountAtTheSameLocationShowsTheSameAccounts() {
+        // given
+        let account1 = Account(userName: "John", userIdentifier: .create())
+        let account2 = Account(userName: "Sabine", userIdentifier: .create())
+
+        // when
+        do {
+            let store = AccountStore(root: url)
+            XCTAssert(store.add(account1))
+            XCTAssert(store.add(account2))
+        }
+
+        // then
+        do {
+            let store = AccountStore(root: url)
+            XCTAssertEqual(store.load(), [account1, account2])
+        }
     }
 
 }
