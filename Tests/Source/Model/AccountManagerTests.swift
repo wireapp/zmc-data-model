@@ -119,7 +119,7 @@ final class AccountManagerTests: ZMConversationTestsBase {
         // given
         let manager = AccountManager(sharedDirectory: url)
         let account1 = Account(userName: "Jacob", userIdentifier: .create())
-        let account2 = Account(userName: "Jacob", teamName: "Wire", userIdentifier: .create())
+        let account2 = Account(userName: "Jacob", userIdentifier: .create(), teamName: "Wire")
 
         // when
         manager.add(account2)
@@ -132,8 +132,8 @@ final class AccountManagerTests: ZMConversationTestsBase {
     func testThatItSortsTeamAccountsAlphabetically() {
         // given
         let manager = AccountManager(sharedDirectory: url)
-        let account1 = Account(userName: "Jacob", teamName: "Wire", userIdentifier: .create())
-        let account2 = Account(userName: "Vytis", teamName: "Wire", userIdentifier: .create())
+        let account1 = Account(userName: "Jacob", userIdentifier: .create(), teamName: "Wire")
+        let account2 = Account(userName: "Vytis", userIdentifier: .create(), teamName: "Wire")
 
         // when
         manager.add(account2)
@@ -148,8 +148,8 @@ final class AccountManagerTests: ZMConversationTestsBase {
         let manager = AccountManager(sharedDirectory: url)
         let account1 = Account(userName: "Jacob", userIdentifier: .create())
         let account2 = Account(userName: "Vytis", userIdentifier: .create())
-        let account3 = Account(userName: "Jacob", teamName: "Wire", userIdentifier: .create())
-        let account4 = Account(userName: "Vytis", teamName: "Wire", userIdentifier: .create())
+        let account3 = Account(userName: "Jacob", userIdentifier: .create(), teamName: "Wire")
+        let account4 = Account(userName: "Vytis", userIdentifier: .create(), teamName: "Wire")
 
         // when
         manager.add(account4)

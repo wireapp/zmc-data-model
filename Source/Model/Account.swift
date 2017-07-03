@@ -30,10 +30,10 @@ public final class Account: NSObject {
     let userIdentifier: UUID
     var imageData: Data?
 
-    public required init(userName: String, teamName: String? = nil, userIdentifier: UUID, imageData: Data? = nil) {
+    public required init(userName: String, userIdentifier: UUID, teamName: String? = nil, imageData: Data? = nil) {
         self.userName = userName
-        self.teamName = teamName
         self.userIdentifier = userIdentifier
+        self.teamName = teamName
         self.imageData = imageData
         super.init()
     }
@@ -55,18 +55,20 @@ public final class Account: NSObject {
     }
 }
 
-// MARK: - NSCoding
+// MARK: - NSSecureCoding
 
-extension Account: NSCoding {
+extension Account: NSSecureCoding {
+
+    public static var supportsSecureCoding = true
 
     public convenience init?(coder aDecoder: NSCoder) {
-        guard let identifier = (aDecoder.decodeObject(forKey: #keyPath(Account.userIdentifier)) as? String).flatMap(UUID.init),
-            let userName = aDecoder.decodeObject(forKey: #keyPath(Account.userName)) as? String else { return nil }
+        guard let id = aDecoder.decodeString(forKey: #keyPath(Account.userIdentifier)).flatMap(UUID.init),
+            let name = aDecoder.decodeString(forKey: #keyPath(Account.userName)) else { return nil }
         self.init(
-            userName: userName,
-            teamName: aDecoder.decodeObject(forKey: #keyPath(Account.teamName)) as? String,
-            userIdentifier: identifier,
-            imageData: aDecoder.decodeObject(forKey: #keyPath(Account.imageData)) as? Data
+            userName: name,
+            userIdentifier: id,
+            teamName: aDecoder.decodeString(forKey: #keyPath(Account.teamName)),
+            imageData: aDecoder.decodeData(forKey: #keyPath(Account.imageData))
         )
     }
 

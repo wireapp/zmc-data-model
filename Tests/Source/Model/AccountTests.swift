@@ -30,8 +30,8 @@ final class AccountTests: ZMConversationTestsBase {
 
         let account = Account(
             userName: "Bruno",
-            teamName: "Wire",
             userIdentifier: .create(),
+            teamName: "Wire",
             imageData: verySmallJPEGData()
         )
 
@@ -49,7 +49,7 @@ final class AccountTests: ZMConversationTestsBase {
 
         // we create and store an account
         do {
-            let account = Account(userName: userName, teamName: team, userIdentifier: id, imageData: image)
+            let account = Account(userName: userName, userIdentifier: id, teamName: team, imageData: image)
             try account.write(to: url)
         }
 

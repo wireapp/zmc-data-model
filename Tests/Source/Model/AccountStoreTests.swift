@@ -144,7 +144,7 @@ final class AccountStoreTests: ZMConversationTestsBase {
         // when
         let name = "Marco", team = "Wire"
         do {
-            let account = Account(userName: name, teamName: team, userIdentifier: uuid)
+            let account = Account(userName: name, userIdentifier: uuid, teamName: team)
             XCTAssert(store.add(account))
         }
 
