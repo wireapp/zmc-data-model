@@ -43,7 +43,7 @@ final class AccountTests: ZMConversationTestsBase {
 
     func testThatItCanLoadAnAccountFromDisk() throws {
         // given
-        let url = URL(fileURLWithPath: NSTemporaryDirectory() + "/account")
+        let url = URL(fileURLWithPath: NSTemporaryDirectory() + "/AccountTests")
         defer { try? FileManager.default.removeItem(at: url) }
         let userName = "Bruno", team = "Wire", id = UUID.create(), image = verySmallJPEGData()
 

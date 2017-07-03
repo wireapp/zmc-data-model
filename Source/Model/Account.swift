@@ -55,28 +55,39 @@ public final class Account: NSObject {
     }
 }
 
-// MARK: - NSSecureCoding
+// MARK: - Dictionary Representation
 
-extension Account: NSSecureCoding {
+extension Account {
 
-    public static var supportsSecureCoding = true
+    /// The use of a separate enum, instead of using #keyPath
+    /// is intentional here to allow easy renaming of properties.
+    private enum Key: String {
+        case name, identifier, team, image
+    }
 
-    public convenience init?(coder aDecoder: NSCoder) {
-        guard let id = aDecoder.decodeString(forKey: #keyPath(Account.userIdentifier)).flatMap(UUID.init),
-            let name = aDecoder.decodeString(forKey: #keyPath(Account.userName)) else { return nil }
+    public convenience init?(json: [String: Any]) {
+        guard let id = (json[Key.identifier.rawValue] as? String).flatMap(UUID.init),
+            let name = json[Key.name.rawValue] as? String else { return nil }
         self.init(
             userName: name,
             userIdentifier: id,
-            teamName: aDecoder.decodeString(forKey: #keyPath(Account.teamName)),
-            imageData: aDecoder.decodeData(forKey: #keyPath(Account.imageData))
+            teamName: json[Key.team.rawValue] as? String,
+            imageData: (json[Key.image.rawValue] as? String).flatMap { Data(base64Encoded: $0) }
         )
     }
 
-    public func encode(with aCoder: NSCoder) {
-        aCoder.encode(userName, forKey: #keyPath(Account.userName))
-        aCoder.encode(userIdentifier.uuidString, forKey: #keyPath(Account.userIdentifier))
-        aCoder.encode(teamName, forKey: #keyPath(Account.teamName))
-        aCoder.encode(imageData, forKey: #keyPath(Account.imageData))
+    public func jsonRepresentation() -> [String: Any] {
+        var json: [String: Any] = [
+            Key.name.rawValue: userName,
+            Key.identifier.rawValue: userIdentifier.uuidString
+        ]
+        if let teamName = teamName {
+            json[Key.team.rawValue] = teamName
+        }
+        if let imageData = imageData {
+            json[Key.image.rawValue] = imageData.base64EncodedString()
+        }
+        return json
     }
 
 }
@@ -86,13 +97,15 @@ extension Account: NSSecureCoding {
 extension Account {
 
     func write(to url: URL) throws {
-        let data = NSKeyedArchiver.archivedData(withRootObject: self)
+        let data = try JSONSerialization.data(withJSONObject: jsonRepresentation())
         try data.write(to: url)
     }
 
     static func load(from url: URL) -> Account? {
         let data = try? Data(contentsOf: url)
-        return data.map(NSKeyedUnarchiver.unarchiveObject) as? Account
+        return data.flatMap {
+            (try? JSONSerialization.jsonObject(with: $0, options: [])) as? [String: Any]
+        }.flatMap(Account.init)
     }
-    
+
 }
