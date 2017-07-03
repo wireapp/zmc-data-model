@@ -102,8 +102,9 @@ public final class AccountStore: NSObject {
     /// - returns: The urls to all accounts stored in this `AccountStore`.
     private func loadURLs() -> Set<URL> {
         do {
+            let uuidName: (String) -> Bool = { UUID(uuidString: $0) != nil }
             let paths = try fileManager.contentsOfDirectory(atPath: directory.path)
-            return Set<URL>(paths.filter { $0 != ".DS_STORE" }.map(directory.appendingPathComponent))
+            return Set<URL>(paths.filter(uuidName).map(directory.appendingPathComponent))
         } catch {
             log.error("Unable to load accounts from \(directory), error: \(error)")
             return []
