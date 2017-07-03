@@ -47,7 +47,7 @@ public final class Account: NSObject {
     }
 
     public override var hash: Int {
-        return userName.hash ^ userIdentifier.hashValue
+        return userIdentifier.hashValue
     }
 
     public override var debugDescription: String {
