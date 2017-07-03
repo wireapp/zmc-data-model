@@ -132,8 +132,6 @@ public final class AccountStore: NSObject {
             guard !fileManager.fileExists(atPath: directory.path) else { return }
             try fileManager.createDirectory(at: directory, withIntermediateDirectories: true, attributes: nil)
             try (directory as NSURL).setResourceValue(true, forKey: .isExcludedFromBackupKey)
-            let attributes = [FileAttributeKey.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication]
-            try fileManager.setAttributes(attributes, ofItemAtPath: directory.path)
         } catch {
             log.error("Failed to create AccountStore store directory at: \(directory), error: \(error)")
         }
