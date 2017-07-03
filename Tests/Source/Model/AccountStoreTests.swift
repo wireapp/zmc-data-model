@@ -28,7 +28,7 @@ final class AccountStoreTests: ZMConversationTestsBase {
     override func setUp() {
         super.setUp()
         let applicationSupport = FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        url = applicationSupport.appendingPathComponent("Accounts")
+        url = applicationSupport.appendingPathComponent("AccountStoreTests")
     }
 
     override func tearDown() {
@@ -220,6 +220,26 @@ final class AccountStoreTests: ZMConversationTestsBase {
             let store = AccountStore(root: url)
             XCTAssertEqual(store.load(), [account1, account2])
         }
+    }
+
+    func testThatItOnlyReadsFilesNamedByUUIDs() throws {
+        // given
+        let store = AccountStore(root: url)
+        let account1 = Account(userName: "John", userIdentifier: .create())
+        let account2 = Account(userName: "Sabine", userIdentifier: .create())
+
+        // when
+        let invalidAccountUrl = url.appendingPathComponent("Accounts/invalid_account")
+        try account1.write(to: invalidAccountUrl)
+
+        // then
+        XCTAssert(store.load().isEmpty)
+
+        // when
+        store.add(account2)
+
+        // then
+        XCTAssertEqual(store.load(), [account2])
     }
 
 }

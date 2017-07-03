@@ -25,7 +25,7 @@ final class AccountTests: ZMConversationTestsBase {
 
     func testThatItCanSerializeAnAccountToDisk() throws {
         // given
-        let url = URL(fileURLWithPath: NSTemporaryDirectory() + "/account")
+        let url = URL(fileURLWithPath: NSTemporaryDirectory() + "/AccountTests")
         defer { try? FileManager.default.removeItem(at: url) }
 
         let account = Account(
