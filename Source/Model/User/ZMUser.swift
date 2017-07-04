@@ -102,8 +102,6 @@ extension ZMUser {
         return predicateForUsers(withSearch: query, excludingBots: false, connectionStatuses: nil)
     }
     
-    
-    
     /// Retrieves users with name or handle matching search string, having one of given connection statuses
     ///
     /// - Parameters:
@@ -124,26 +122,17 @@ extension ZMUser {
     /// - Returns: predicate having search query and supplied connection statuses
     @objc(predicateForUsersWithSearchString:excludingBots:connectionStatusInArray:)
     public static func predicateForUsers(withSearch query: String, excludingBots: Bool, connectionStatuses: [Int16]? ) -> NSPredicate {
-        let normalizedQuery = (query.normalizedForSearch() as String?) ?? ""
         var allPredicates = [[NSPredicate]]()
         if let statuses = connectionStatuses {
             let statusPredicate = NSPredicate(format: "(%K IN (%@))", #keyPath(ZMUser.connection.status), statuses)
             allPredicates.append([statusPredicate])
         }
-        
+
+        let normalizedQuery = query.normalizedAndTrimmed()
+
         if !normalizedQuery.isEmpty {
             let namePredicate = NSPredicate(formatDictionary: [#keyPath(ZMUser.normalizedName) : "%K MATCHES %@"], matchingSearch: normalizedQuery)
-            let normalizedHandle: String
-            if query.hasPrefix("@") {
-                // Use query as provided by the user but strip the @ symbol
-                var withoutAt = query
-                withoutAt.remove(at: query.startIndex)
-                normalizedHandle = withoutAt
-            } else {
-                // User regular normalized query otherwise
-                normalizedHandle = normalizedQuery
-            }
-            
+            let normalizedHandle = normalizedQuery.strippingLeadingAtSign()
             let handlePredicate = NSPredicate(format: "%K BEGINSWITH %@", #keyPath(ZMUser.handle), normalizedHandle)
             allPredicates.append([namePredicate, handlePredicate].flatMap {$0})
         }
@@ -156,6 +145,23 @@ extension ZMUser {
         
         return NSCompoundPredicate(andPredicateWithSubpredicates: orPredicates)
     }
+
+}
+
+fileprivate extension String {
+
+    func normalizedAndTrimmed() -> String {
+        guard let normalized = self.normalizedForSearch() as String? else { return "" }
+        return normalized.trimmingCharacters(in: .whitespaces)
+    }
+
+    func strippingLeadingAtSign() -> String {
+        guard hasPrefix("@") else { return self }
+        var copy = self
+        copy.remove(at: startIndex)
+        return copy
+    }
+
 }
 
 extension ZMUser {
