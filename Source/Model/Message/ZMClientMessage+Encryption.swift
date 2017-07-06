@@ -113,11 +113,13 @@ extension ZMGenericMessage {
         var messageDataAndStrategy : (data: Data, strategy: MissingClientsStrategy)?
         
         encryptionContext.perform { (sessionsDirectory) in
-            let messageAndStrategy = self.otrMessage(selfClient,
+            guard let messageAndStrategy = self.otrMessage(selfClient,
                 conversation: conversation,
                 externalData: externalData,
                 sessionDirectory: sessionsDirectory
-            )
+                ) else {
+                    return
+                }
             var messageData = messageAndStrategy.message.data()
             
             // message too big?
@@ -135,22 +137,22 @@ extension ZMGenericMessage {
     }
     
     
-    func recipientUsersforMessage(in conversation: ZMConversation, selfUser: ZMUser) -> (users: Set<ZMUser>, strategy: MissingClientsStrategy) {
+    func recipientsForConfirmationMessage(in conversation: ZMConversation) -> Set<ZMUser>? {
+        guard self.hasConfirmation(), self.confirmation.messageId != nil else { return nil }
+        guard let message = ZMMessage.fetch(withNonce:UUID(uuidString:self.confirmation.messageId), for:conversation, in:conversation.managedObjectContext!) else { return nil }
+        guard let sender = message.sender else { return nil }
+        return Set(arrayLiteral: sender)
+    }
     
-        func recipientForConfirmationMessage() -> Set<ZMUser>? {
-            guard self.hasConfirmation(), self.confirmation.messageId != nil else { return nil }
-            guard let message = ZMMessage.fetch(withNonce:UUID(uuidString:self.confirmation.messageId), for:conversation, in:conversation.managedObjectContext!) else { return nil }
-            guard let sender = message.sender else { return nil }
-            return Set(arrayLiteral: sender)
-        }
-        
-        func recipientForOtherUsers() -> Set<ZMUser>? {
-            guard conversation.connectedUser != nil || conversation.otherActiveParticipants.firstObject != nil else { return nil }
-            if let connectedUser = conversation.connectedUser { return Set(arrayLiteral:connectedUser) }
-            if let otherUsers = conversation.otherActiveParticipants.set as? Set<ZMUser> { return otherUsers }
-            return nil
-        }
-        
+    func recipientsForOtherUsers(in conversation: ZMConversation) -> Set<ZMUser>? {
+        guard conversation.connectedUser != nil || conversation.otherActiveParticipants.firstObject != nil else { return nil }
+        if let connectedUser = conversation.connectedUser { return Set(arrayLiteral:connectedUser) }
+        if let otherUsers = conversation.otherActiveParticipants.set as? Set<ZMUser> { return otherUsers }
+        return nil
+    }
+    
+    func recipientUsersForMessage(in conversation: ZMConversation, selfUser: ZMUser) -> (users: Set<ZMUser>, strategy: MissingClientsStrategy)? {
+    
         func recipientsForDeletedEphemeral() -> Set<ZMUser>? {
             guard (self.hasDeleted() && conversation.conversationType == .group ) else { return nil }
             let nonce = UUID(uuidString: self.deleted.messageId)
@@ -166,9 +168,10 @@ extension ZMGenericMessage {
         var recipientUsers = Set<ZMUser>()
         var specifiedUsersOnly = true
         if self.hasConfirmation() || self.hasEphemeral() {
-            guard let recipients = recipientForConfirmationMessage() ?? recipientForOtherUsers() else {
+            guard let recipients = recipientsForConfirmationMessage(in: conversation) ?? recipientsForOtherUsers(in: conversation) else {
                 let confirmationInfo = hasConfirmation() ? ", original message: \(self.confirmation.messageId)" : ""
-                fatal("confirmation need a recipient\n ConvID: \(String(describing: conversation.remoteIdentifier)) ConvType: \(conversation.conversationType.rawValue), connection: \(String(describing: conversation.connection))\(confirmationInfo)")
+                zmLog.error("confirmation need a recipient\n ConvID: \(String(describing: conversation.remoteIdentifier)) ConvType: \(conversation.conversationType.rawValue), connection: \(String(describing: conversation.connection))\(confirmationInfo)")
+                return nil
             }
             recipientUsers = recipients
         }
@@ -191,9 +194,11 @@ extension ZMGenericMessage {
     fileprivate func otrMessage(_ selfClient: UserClient,
                             conversation: ZMConversation,
                             externalData: Data?,
-                            sessionDirectory: EncryptionSessionsDirectory) -> (message: ZMNewOtrMessage, strategy: MissingClientsStrategy) {
+                            sessionDirectory: EncryptionSessionsDirectory) -> (message: ZMNewOtrMessage, strategy: MissingClientsStrategy)? {
 
-        let (recipientUsers, strategy) = recipientUsersforMessage(in: conversation, selfUser: selfClient.user!)
+        guard let (recipientUsers, strategy) = recipientUsersForMessage(in: conversation, selfUser: selfClient.user!) else {
+            return nil
+        }
         let recipients = self.recipientsWithEncryptedData(selfClient, recipients: recipientUsers, sessionDirectory: sessionDirectory)
 
         let nativePush = !hasConfirmation() // We do not want to send pushes for delivery receipts
