@@ -365,10 +365,10 @@ extension ZMConversation {
     public var allUsersTrusted : Bool {
         guard self.otherActiveParticipants.count > 0, self.isSelfAnActiveMember else { return false }
         let hasOnlyTrustedUsers = (self.activeParticipants.array as! [ZMUser]).first { !$0.trusted() } == nil
-        return hasOnlyTrustedUsers && !self.containsUnconnectedParticipant
+        return hasOnlyTrustedUsers && !self.containsUnconnectedOrExternalParticipant
     }
     
-    fileprivate var containsUnconnectedParticipant : Bool {
+    fileprivate var containsUnconnectedOrExternalParticipant : Bool {
         guard let managedObjectContext = self.managedObjectContext else {
             return true
         }
