@@ -369,7 +369,19 @@ extension ZMConversation {
     }
     
     fileprivate var containsUnconnectedParticipant : Bool {
-        return (self.otherActiveParticipants.array as! [ZMUser]).first { !$0.isConnected } != nil
+        guard let managedObjectContext = self.managedObjectContext else {
+            return true
+        }
+        
+        let selfUser = ZMUser.selfUser(in: managedObjectContext)
+        return (self.otherActiveParticipants.array as! [ZMUser]).first {
+            if $0.isConnected {
+                return false
+            }
+            else {
+                return $0.team != selfUser.team
+            }
+        } != nil
     }
     
     fileprivate var allParticipantsHaveClients : Bool {
