@@ -88,7 +88,6 @@ class ZMConversationTests_Ephemeral : BaseZMMessageTests {
     func testThatSendingEphemeralToEmptyConversationIsNotPossible() {
         // given
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        conversation.conversationType = .oneOnOne
         conversation.conversationType = .group
 
         // when
@@ -101,7 +100,6 @@ class ZMConversationTests_Ephemeral : BaseZMMessageTests {
     func testThatSendingEphemeralToNormalConversationIsPossible() {
         // given
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        conversation.conversationType = .oneOnOne
         conversation.conversationType = .group
         
         // when
