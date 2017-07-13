@@ -19,6 +19,7 @@
 import Foundation
 import WireCryptobox
 import WireLinkPreview
+import WireTesting
 
 @testable import WireDataModel
 
@@ -298,6 +299,26 @@ extension ZMClientMessageTests_Ephemeral {
             //when
             guard let _ = textMessage.encryptedMessagePayloadData()
                 else { return XCTFail()}
+        }
+    }
+    
+    func testThatItCreatesNoPayloadForEphemeralMessageInEmptyConversation() {
+        syncMOC.performGroupedBlockAndWait {
+            //given
+            let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
+            conversation.conversationType = .group
+            conversation.remoteIdentifier = UUID.create()
+            conversation.messageDestructionTimeout = 10
+            
+            self.syncMOC.saveOrRollback()
+            
+            let textMessage = conversation.appendOTRMessage(withText: "foo", nonce: UUID.create(), fetchLinkPreview: true)
+            
+            //when
+            self.performIgnoringZMLogError {
+                guard textMessage.encryptedMessagePayloadData() == nil
+                    else { return XCTFail()}
+            }
         }
     }
 }
