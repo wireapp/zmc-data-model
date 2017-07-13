@@ -927,7 +927,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @dynamic messageDestructionTimeout;
 
 
-
 + (NSSet *)keyPathsForValuesAffectingIsArchived
 {
     return [NSSet setWithObject:ZMConversationIsArchivedKey];
@@ -1027,7 +1026,9 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 - (void)updateWithMessage:(ZMMessage *)message timeStamp:(NSDate *)timeStamp
 {
     [self updateLastServerTimeStampIfNeeded:timeStamp];
-    [self updateLastModifiedDateIfNeeded:timeStamp];
+    if (message.shouldUpdateLastModifiedDate) {
+        [self updateLastModifiedDateIfNeeded:timeStamp];
+    }
     [self updateUnreadMessagesWithMessage:message];
 }
 
@@ -1149,8 +1150,15 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 + (NSPredicate *)predicateForSearchQuery:(NSString *)searchQuery team:(Team *)team
 {
+    NSPredicate *teamPredicate = [NSPredicate predicateWithFormat:@"(%K == %@)", TeamKey, team];
+    
+    return [NSCompoundPredicate andPredicateWithSubpredicates:@[[self predicateForSearchQuery:searchQuery], teamPredicate]];
+}
+
++ (nonnull NSPredicate *)predicateForSearchQuery:(nonnull NSString *)searchQuery
+{
     NSDictionary *formatDict = @{ZMConversationOtherActiveParticipantsKey : @"ANY %K.normalizedName MATCHES %@",
-                                   ZMNormalizedUserDefinedNameKey: @"%K MATCHES %@"};
+                                 ZMNormalizedUserDefinedNameKey: @"%K MATCHES %@"};
     NSPredicate *searchPredicate = [NSPredicate predicateWithFormatDictionary:formatDict
                                                          matchingSearchString:searchQuery];
     NSPredicate *activeMemberPredicate = [NSPredicate predicateWithFormat:@"%K == NULL OR %K == YES",
@@ -1159,10 +1167,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     
     NSPredicate *basePredicate = [NSPredicate predicateWithFormat:@"(%K == %@)",
                                   ZMConversationConversationTypeKey, @(ZMConversationTypeGroup)];
-    
-    NSPredicate *teamPredicate = [NSPredicate predicateWithFormat:@"(%K == %@)", TeamKey, team];
-    
-    return [NSCompoundPredicate andPredicateWithSubpredicates:@[basePredicate, searchPredicate, activeMemberPredicate, teamPredicate]];
+    return [NSCompoundPredicate andPredicateWithSubpredicates:@[searchPredicate, activeMemberPredicate, basePredicate]];
 }
 
 + (NSPredicate *)userDefinedNamePredicateForSearchString:(NSString *)searchString;
@@ -1355,7 +1360,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     
     NSPredicate *localSystemMessagePredicate = [ZMSystemMessage predicateForSystemMessagesInsertedLocally];
     if ([message.serverTimestamp compare:self.lastModifiedDate] == NSOrderedDescending
-       && ![localSystemMessagePredicate evaluateWithObject:message]) {
+       && ![localSystemMessagePredicate evaluateWithObject:message] && message.shouldUpdateLastModifiedDate) {
         self.lastModifiedDate = message.serverTimestamp;
     }
     
