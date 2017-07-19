@@ -1970,7 +1970,7 @@
 		F9C9A4F31CAD5DF10039E10C /* Project object */ = {
 			isa = PBXProject;
 			attributes = {
-				LastUpgradeCheck = 0820;
+				LastUpgradeCheck = 0830;
 				ORGANIZATIONNAME = "Wire Swiss GmbH";
 				TargetAttributes = {
 					F9C9A4FB1CAD5DF10039E10C = {
@@ -2527,7 +2527,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.wire.WireDataModel;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SKIP_INSTALL = YES;
-				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_OPTIMIZATION_LEVEL = "-Owholemodule";
 				SWIFT_VERSION = 3.0;
 			};
 			name = Release;
