@@ -24,10 +24,14 @@ import MobileCoreServices
 extension String {
 
     var isGIF: Bool {
-        guard let UTIString = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, self as CFString, nil)?.takeUnretainedValue() else { return false }
-        return UTIString == kUTTypeGIF
+        guard let UTIStringUnmanaged = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, self as CFString, nil) else { return false }
+        
+        defer {
+            UTIStringUnmanaged.release()
+        }
+        
+        return UTIStringUnmanaged.takeUnretainedValue() == kUTTypeGIF
     }
-
 }
 
 
