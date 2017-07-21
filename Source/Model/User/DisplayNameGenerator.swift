@@ -21,7 +21,7 @@ private var zmLog = ZMSLog(tag: "DisplayNameGenerator")
 
 public class DisplayNameGenerator : NSObject {
     private var idToPersonNameMap : [NSManagedObjectID: PersonName] = [:]
-    unowned private var managedObjectContext: NSManagedObjectContext
+    weak private var managedObjectContext: NSManagedObjectContext?
     private let tagger =  NSLinguisticTagger(tagSchemes: [NSLinguisticTagSchemeScript], options: 0)
     
     init(managedObjectContext: NSManagedObjectContext) {
@@ -33,7 +33,7 @@ public class DisplayNameGenerator : NSObject {
 
     public func personName(for user: ZMUser) -> PersonName {
         if user.objectID.isTemporaryID {
-            try! managedObjectContext.obtainPermanentIDs(for: [user])
+            try! managedObjectContext!.obtainPermanentIDs(for: [user])
         }
         if let name = idToPersonNameMap[user.objectID], name.rawFullName == (user.name ?? "") {
             return name
@@ -95,8 +95,7 @@ public class DisplayNameGenerator : NSObject {
             }
         }
         return map
-    }
-    
+    }    
 }
 
 struct ConversationDisplayNameMap {
@@ -105,23 +104,6 @@ struct ConversationDisplayNameMap {
     let map : [NSManagedObjectID : String]
 }
 
-let DisplayNameGeneratorKey = "DisplayNameGenerator"
-
-extension NSManagedObjectContext {
-    
-    var nameGenerator : DisplayNameGenerator? {
-        get {
-            return userInfo.object(forKey: DisplayNameGeneratorKey) as? DisplayNameGenerator
-        }
-        set {
-            if newValue == nil {
-                userInfo.removeObject(forKey:DisplayNameGeneratorKey)
-            } else {
-                userInfo[DisplayNameGeneratorKey] = newValue
-            }
-        }
-    }
-}
 
 
 
