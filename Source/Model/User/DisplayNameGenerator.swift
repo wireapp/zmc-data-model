@@ -103,10 +103,3 @@ struct ConversationDisplayNameMap {
     let conversationObjectID : NSManagedObjectID
     let map : [NSManagedObjectID : String]
 }
-
-
-
-
-
-
-
