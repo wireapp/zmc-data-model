@@ -94,6 +94,13 @@ final class AccountStoreTests: ZMConversationTestsBase {
         }
     }
 
+    func testThatItReturnsFalseWhenTryingToDeleteANonExistentAccountStore() {
+        // then
+        performIgnoringZMLogError {
+            XCTAssertFalse(AccountStore.delete(at: self.url))
+        }
+    }
+
     func testThatItCanStoreMultipleAccounts() {
         // given
         let store = AccountStore(root: url)
