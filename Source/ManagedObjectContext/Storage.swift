@@ -87,7 +87,8 @@ import UIKit
 @objc class InMemoryStoreInitialization: NSObject {
     
     @objc public static func createManagedObjectContextDirectory(keyStore: URL) -> ManagedObjectContextDirectory {
-        let psc = NSPersistentStoreCoordinator(inMemoryWithModel: loadManagedObjectModel())
+        let model = NSManagedObjectModel.loadManagedObjectModel()
+        let psc = NSPersistentStoreCoordinator(inMemoryWithModel: model)
         let managedObjectContextDirectory = ManagedObjectContextDirectory(
             persistentStoreCoordinator: psc,
             keyStore: keyStore)
@@ -132,7 +133,7 @@ fileprivate class PersistentStorageInitialization {
         startedMigrationCallback: @escaping (Void)->(Void),
         completionHandler: @escaping (ManagedObjectContextDirectory)->(Void))
     {
-        let model = loadManagedObjectModel()
+        let model = NSManagedObjectModel.loadManagedObjectModel()
         self.createPersistentStoreCoordinator(
             at: url,
             model: model,
@@ -172,7 +173,8 @@ extension PersistentStorageInitialization {
                 completionHandler(creation())
             }
         } else {
-            completionHandler(creation())
+            let store = creation()
+            completionHandler(store)
         }
     }
     
@@ -210,12 +212,14 @@ extension PersistentStorageInitialization {
     }
 }
 
-/// Loads the CoreData model from the current bundle
-private func loadManagedObjectModel() -> NSManagedObjectModel {
-    let modelBundle = Bundle(for: ZMManagedObject.self)
-    guard let result = NSManagedObjectModel.mergedModel(from: [modelBundle]) else {
-        fatal("Can't load data model bundle")
+extension NSManagedObjectModel {
+    /// Loads the CoreData model from the current bundle
+    @objc public static func loadManagedObjectModel() -> NSManagedObjectModel {
+        let modelBundle = Bundle(for: ZMManagedObject.self)
+        guard let result = NSManagedObjectModel.mergedModel(from: [modelBundle]) else {
+            fatal("Can't load data model bundle")
+        }
+        return result
     }
-    return result
 }
 

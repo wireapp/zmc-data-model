@@ -40,31 +40,20 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
 - (void)testThatItDoesNotMigrateFromANonE2EEVersionAndWipesTheDB {
     
     // given
-    NSManagedObjectModel *currentMom = [NSManagedObjectContext loadManagedObjectModel];
+    NSManagedObjectModel *currentMom = [NSManagedObjectModel loadManagedObjectModel];
     
     WaitForAllGroupsToBeEmpty(0.5);
     
-    __block NSManagedObjectContext *syncContext;
     __block NSMutableArray *managedObjects = [[NSMutableArray alloc] init];
     
     // when
-    [self performMockingStoreURLWithVersion:@"1.24" block:^(NSURL *storeURL) {
-
-        [self performIgnoringZMLogError:^{
-            syncContext = [self checkThatItCreatesSyncContextAndPreparesLocalStoreAtURL:storeURL];
-        }];
-        
-        XCTestExpectation *migrationExpectation = [self expectationWithDescription:@"It should not migrate from non E2EE version"];
-        
-        [syncContext performGroupedBlockAndWait:^{
+    [self performMockingStoreURLWithVersion:@"1.24" expectMigration:NO block:^(ManagedObjectContextDirectory *directory) {
+        [directory.syncContext performGroupedBlockAndWait:^{
             for (NSEntityDescription *entity in currentMom.entities) {
                 NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:entity.name];
-                [managedObjects addObjectsFromArray:[syncContext executeFetchRequestOrAssert:request]];
+                [managedObjects addObjectsFromArray:[directory.syncContext executeFetchRequestOrAssert:request]];
             }
-            [migrationExpectation fulfill];
         }];
-        
-        XCTAssertTrue([self waitForCustomExpectationsWithTimeout:10]);
     }];
     
     // then
@@ -75,7 +64,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
 - (void)testThatItPerformsMigrationFrom_1_25_ToCurrentModelVersion {
     
     // given
-    __block NSManagedObjectContext *syncContext;
     __block NSUInteger conversationCount;
     __block NSUInteger messageCount;
     __block NSUInteger systemMessageCount;
@@ -87,12 +75,8 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
     __block NSUInteger userClientCount;
     
     // when
-    [self performMockingStoreURLWithVersion:@"1.25" block:^(NSURL *storeURL) {
-        
-        syncContext = [self checkThatItCreatesSyncContextAndPreparesLocalStoreAtURL:storeURL];
-        
-        XCTestExpectation *migrationExpectation = [self expectationWithDescription:@"It should migrate from 1.25 to 1.27"];
-        
+    [self performMockingStoreURLWithVersion:@"1.25" block:^(ManagedObjectContextDirectory *directory) {
+        NSManagedObjectContext *syncContext = directory.syncContext;
         [syncContext performGroupedBlockAndWait:^{
             conversationCount = [syncContext countForFetchRequest:[ZMConversation sortedFetchRequest] error:nil];
             messageCount = [syncContext countForFetchRequest:[ZMTextMessage sortedFetchRequest] error:nil];
@@ -110,10 +94,7 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
             userFetchRequest.resultType = NSDictionaryResultType;
             userFetchRequest.propertiesToFetch = self.userPropertiesToFetch;
             userDictionaries = [syncContext executeFetchRequestOrAssert:userFetchRequest];
-            [migrationExpectation fulfill];
         }];
-        
-        XCTAssertTrue([self waitForCustomExpectationsWithTimeout:10]);
     }];
     
     WaitForAllGroupsToBeEmpty(15);
@@ -136,7 +117,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
 
 - (void)testThatItPerformsMigrationFrom_1_27_ToCurrentModelVersion {
     // given
-    __block NSManagedObjectContext *syncContext;
     __block NSUInteger conversationCount;
     __block NSUInteger messageCount;
     __block NSUInteger systemMessageCount;
@@ -145,12 +125,8 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
     __block NSUInteger userClientCount;
     
     // when
-    [self performMockingStoreURLWithVersion:@"1.27" block:^(NSURL *storeURL) {
-        
-        syncContext = [self checkThatItCreatesSyncContextAndPreparesLocalStoreAtURL:storeURL];
-        
-        XCTestExpectation *migrationExpectation = [self expectationWithDescription:@"It should migrate from 1.27 to current mom version"];
-        
+    [self performMockingStoreURLWithVersion:@"1.27" block:^(ManagedObjectContextDirectory *directory) {
+        NSManagedObjectContext *syncContext = directory.syncContext;
         [syncContext performGroupedBlockAndWait:^{
             conversationCount = [syncContext countForFetchRequest:ZMConversation.sortedFetchRequest error:nil];
             messageCount = [syncContext countForFetchRequest:ZMClientMessage.sortedFetchRequest error:nil];
@@ -162,7 +138,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
             userFetchRequest.resultType = NSDictionaryResultType;
             userFetchRequest.propertiesToFetch = self.userPropertiesToFetch;
             userDictionaries = [syncContext executeFetchRequestOrAssert:userFetchRequest];
-            [migrationExpectation fulfill];
         }];
         
         XCTAssertTrue([self waitForCustomExpectationsWithTimeout:10]);
@@ -184,7 +159,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
 
 - (void)testThatItPerformsMigrationFrom_1_28_ToCurrentModelVersion {
     // given
-    __block NSManagedObjectContext *syncContext;
     __block NSUInteger conversationCount;
     __block NSUInteger messageCount;
     __block NSUInteger systemMessageCount;
@@ -193,12 +167,8 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
     __block NSUInteger userClientCount;
     
     // when
-    [self performMockingStoreURLWithVersion:@"1.28" block:^(NSURL *storeURL) {
-        
-        syncContext = [self checkThatItCreatesSyncContextAndPreparesLocalStoreAtURL:storeURL];
-        
-        XCTestExpectation *migrationExpectation = [self expectationWithDescription:@"It should migrate from 1.28 to current mom version"];
-        
+    [self performMockingStoreURLWithVersion:@"1.28" block:^(ManagedObjectContextDirectory *directory) {
+        NSManagedObjectContext *syncContext = directory.syncContext;
         [syncContext performGroupedBlockAndWait:^{
             conversationCount = [syncContext countForFetchRequest:ZMConversation.sortedFetchRequest error:nil];
             messageCount = [syncContext countForFetchRequest:ZMClientMessage.sortedFetchRequest error:nil];
@@ -210,7 +180,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
             userFetchRequest.resultType = NSDictionaryResultType;
             userFetchRequest.propertiesToFetch = self.userPropertiesToFetch;
             userDictionaries = [syncContext executeFetchRequestOrAssert:userFetchRequest];
-            [migrationExpectation fulfill];
         }];
         
         XCTAssertTrue([self waitForCustomExpectationsWithTimeout:10]);
@@ -232,7 +201,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
 
 - (void)testThatItPerformsMigrationFrom_2_3_ToCurrentModelVersion {
     // given
-    __block NSManagedObjectContext *syncContext;
     __block NSUInteger conversationCount;
     __block NSUInteger messageCount;
     __block NSUInteger systemMessageCount;
@@ -241,12 +209,8 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
     __block NSUInteger userClientCount;
     
     // when
-    [self performMockingStoreURLWithVersion:@"2.3" block:^(NSURL *storeURL) {
-        
-        syncContext = [self checkThatItCreatesSyncContextAndPreparesLocalStoreAtURL:storeURL];
-        
-        XCTestExpectation *expectation = [self expectationWithDescription:@"It should migrate from 2.3 to the current mom"];
-        
+    [self performMockingStoreURLWithVersion:@"2.3" block:^(ManagedObjectContextDirectory *directory) {
+        NSManagedObjectContext *syncContext = directory.syncContext;
         [syncContext performGroupedBlockAndWait:^{
             NSError *error = nil;
             conversationCount = [syncContext countForFetchRequest:ZMConversation.sortedFetchRequest error:&error];
@@ -260,7 +224,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
             userFetchRequest.resultType = NSDictionaryResultType;
             userFetchRequest.propertiesToFetch = self.userPropertiesToFetch;
             userDictionaries = [syncContext executeFetchRequestOrAssert:userFetchRequest];
-            [expectation fulfill];
         }];
         
         XCTAssertTrue([self waitForCustomExpectationsWithTimeout:10]);
@@ -282,7 +245,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
 
 - (void)testThatItPerformsMigrationFrom_2_4_ToCurrentModelVersion {
     // given
-    __block NSManagedObjectContext *syncContext;
     __block NSUInteger conversationCount;
     __block NSUInteger messageCount;
     __block NSUInteger systemMessageCount;
@@ -291,12 +253,8 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
     __block NSUInteger userClientCount;
     
     // when
-    [self performMockingStoreURLWithVersion:@"2.4" block:^(NSURL *storeURL) {
-        
-        syncContext = [self checkThatItCreatesSyncContextAndPreparesLocalStoreAtURL:storeURL];
-        
-        XCTestExpectation *expectation = [self expectationWithDescription:@"It should migrate from 2.4 to the current mom"];
-        
+    [self performMockingStoreURLWithVersion:@"2.4" block:^(ManagedObjectContextDirectory *directory) {
+        NSManagedObjectContext *syncContext = directory.syncContext;
         [syncContext performGroupedBlockAndWait:^{
             NSError *error = nil;
             conversationCount = [syncContext countForFetchRequest:ZMConversation.sortedFetchRequest error:&error];
@@ -310,7 +268,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
             userFetchRequest.resultType = NSDictionaryResultType;
             userFetchRequest.propertiesToFetch = self.userPropertiesToFetch;
             userDictionaries = [syncContext executeFetchRequestOrAssert:userFetchRequest];
-            [expectation fulfill];
         }];
         
         XCTAssertTrue([self waitForCustomExpectationsWithTimeout:10]);
@@ -332,7 +289,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
 
 - (void)testThatItPerformsMigrationFrom_2_5_ToCurrentModelVersion {
     // given
-    __block NSManagedObjectContext *syncContext;
     __block NSUInteger conversationCount;
     __block NSUInteger messageCount;
     __block NSUInteger systemMessageCount;
@@ -342,12 +298,8 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
     __block NSArray *assetClientMessages;
     
     // when
-    [self performMockingStoreURLWithVersion:@"2.5" block:^(NSURL *storeURL) {
-        
-        syncContext = [self checkThatItCreatesSyncContextAndPreparesLocalStoreAtURL:storeURL];
-        
-        XCTestExpectation *expectation = [self expectationWithDescription:@"It should migrate from 2.5 to the current mom"];
-        
+    [self performMockingStoreURLWithVersion:@"2.5" block:^(ManagedObjectContextDirectory *directory) {
+        NSManagedObjectContext *syncContext = directory.syncContext;
         [syncContext performGroupedBlockAndWait:^{
             NSError *error = nil;
             conversationCount = [syncContext countForFetchRequest:ZMConversation.sortedFetchRequest error:&error];
@@ -363,7 +315,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
             userFetchRequest.resultType = NSDictionaryResultType;
             userFetchRequest.propertiesToFetch = self.userPropertiesToFetch;
             userDictionaries = [syncContext executeFetchRequestOrAssert:userFetchRequest];
-            [expectation fulfill];
             
             // then #1
             
@@ -395,7 +346,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
 
 - (void)testThatItPerformsMigrationFrom_2_6_ToCurrentModelVersion {
     // given
-    __block NSManagedObjectContext *syncContext;
     __block NSUInteger conversationCount;
     __block NSUInteger messageCount;
     __block NSUInteger systemMessageCount;
@@ -405,12 +355,8 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
     __block NSArray *assetClientMessages;
     
     // when
-    [self performMockingStoreURLWithVersion:@"2.6" block:^(NSURL *storeURL) {
-        
-        syncContext = [self checkThatItCreatesSyncContextAndPreparesLocalStoreAtURL:storeURL];
-        
-        XCTestExpectation *expectation = [self expectationWithDescription:@"It should migrate from 2.6 to the current mom"];
-        
+    [self performMockingStoreURLWithVersion:@"2.6" block:^(ManagedObjectContextDirectory *directory) {
+        NSManagedObjectContext *syncContext = directory.syncContext;
         [syncContext performGroupedBlockAndWait:^{
             NSError *error = nil;
             conversationCount = [syncContext countForFetchRequest:ZMConversation.sortedFetchRequest error:&error];
@@ -426,7 +372,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
             userFetchRequest.resultType = NSDictionaryResultType;
             userFetchRequest.propertiesToFetch = self.userPropertiesToFetch;
             userDictionaries = [syncContext executeFetchRequestOrAssert:userFetchRequest];
-            [expectation fulfill];
         }];
         
         XCTAssertTrue([self waitForCustomExpectationsWithTimeout:10]);
@@ -450,7 +395,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
 
 - (void)testThatItPerformsMigrationFrom_2_7_ToCurrentModelVersion {
     // given
-    __block NSManagedObjectContext *syncContext;
     __block NSUInteger conversationCount;
     __block NSUInteger messageCount;
     __block NSUInteger systemMessageCount;
@@ -460,12 +404,8 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
     __block NSArray *assetClientMessages;
     
     // when
-    [self performMockingStoreURLWithVersion:@"2.7" block:^(NSURL *storeURL) {
-        
-        syncContext = [self checkThatItCreatesSyncContextAndPreparesLocalStoreAtURL:storeURL];
-        
-        XCTestExpectation *expectation = [self expectationWithDescription:@"It should migrate from 2.7 to the current mom"];
-        
+    [self performMockingStoreURLWithVersion:@"2.7" block:^(ManagedObjectContextDirectory *directory) {
+        NSManagedObjectContext *syncContext = directory.syncContext;
         [syncContext performGroupedBlockAndWait:^{
             NSError *error = nil;
             conversationCount = [syncContext countForFetchRequest:ZMConversation.sortedFetchRequest error:&error];
@@ -481,7 +421,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
             userFetchRequest.resultType = NSDictionaryResultType;
             userFetchRequest.propertiesToFetch = self.userPropertiesToFetch;
             userDictionaries = [syncContext executeFetchRequestOrAssert:userFetchRequest];
-            [expectation fulfill];
         }];
         
         XCTAssertTrue([self waitForCustomExpectationsWithTimeout:10]);
@@ -506,7 +445,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
 
 - (void)testThatItPerformsMigrationFrom_2_8_ToCurrentModelVersion {
     // given
-    __block NSManagedObjectContext *syncContext;
     __block NSUInteger conversationCount;
     __block NSUInteger messageCount;
     __block NSUInteger systemMessageCount;
@@ -516,12 +454,8 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
     __block NSArray *assetClientMessages;
     
     // when
-    [self performMockingStoreURLWithVersion:@"2.8" block:^(NSURL *storeURL) {
-        
-        syncContext = [self checkThatItCreatesSyncContextAndPreparesLocalStoreAtURL:storeURL];
-        
-        XCTestExpectation *expectation = [self expectationWithDescription:@"It should migrate from 2.8 to the current mom"];
-        
+    [self performMockingStoreURLWithVersion:@"2.8" block:^(ManagedObjectContextDirectory *directory) {
+        NSManagedObjectContext *syncContext = directory.syncContext;
         [syncContext performGroupedBlockAndWait:^{
             NSError *error = nil;
             conversationCount = [syncContext countForFetchRequest:ZMConversation.sortedFetchRequest error:&error];
@@ -537,7 +471,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
             userFetchRequest.resultType = NSDictionaryResultType;
             userFetchRequest.propertiesToFetch = self.userPropertiesToFetch;
             userDictionaries = [syncContext executeFetchRequestOrAssert:userFetchRequest];
-            [expectation fulfill];
         }];
         
         XCTAssertTrue([self waitForCustomExpectationsWithTimeout:10]);
@@ -561,7 +494,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
 
 - (void)testThatItPerformsMigrationFrom_2_21_1_ToCurrentModelVersion {
     // given
-    __block NSManagedObjectContext *syncContext;
     __block NSUInteger conversationCount;
     __block NSUInteger messageCount;
     __block NSUInteger systemMessageCount;
@@ -571,12 +503,8 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
     __block NSArray *assetClientMessages;
 
     // when
-    [self performMockingStoreURLWithVersion:@"2.21.1" block:^(NSURL *storeURL) {
-
-        syncContext = [self checkThatItCreatesSyncContextAndPreparesLocalStoreAtURL:storeURL];
-
-        XCTestExpectation *expectation = [self expectationWithDescription:@"It should migrate from 2.21.1 to the current mom"];
-
+    [self performMockingStoreURLWithVersion:@"2.21.1" block:^(ManagedObjectContextDirectory *directory) {
+        NSManagedObjectContext *syncContext = directory.syncContext;
         [syncContext performGroupedBlockAndWait:^{
             NSError *error = nil;
             conversationCount = [syncContext countForFetchRequest:ZMConversation.sortedFetchRequest error:&error];
@@ -592,7 +520,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
             userFetchRequest.resultType = NSDictionaryResultType;
             userFetchRequest.propertiesToFetch = self.userPropertiesToFetch;
             userDictionaries = [syncContext executeFetchRequestOrAssert:userFetchRequest];
-            [expectation fulfill];
         }];
 
         XCTAssertTrue([self waitForCustomExpectationsWithTimeout:10]);
@@ -616,7 +543,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
 
 - (void)testThatItPerformsMigrationFrom_2_21_2_ToCurrentModelVersion {
     // given
-    __block NSManagedObjectContext *syncContext;
     __block NSUInteger conversationCount;
     __block NSUInteger messageCount;
     __block NSUInteger systemMessageCount;
@@ -626,12 +552,8 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
     __block NSArray *assetClientMessages;
     
     // when
-    [self performMockingStoreURLWithVersion:@"2.21.2" block:^(NSURL *storeURL){
-        
-        syncContext = [self checkThatItCreatesSyncContextAndPreparesLocalStoreAtURL:storeURL];
-        
-        XCTestExpectation *expectation = [self expectationWithDescription:@"It should migrate from 2.21.2 to the current mom"];
-        
+    [self performMockingStoreURLWithVersion:@"2.21.2" block:^(ManagedObjectContextDirectory *directory) {
+        NSManagedObjectContext *syncContext = directory.syncContext;
         [syncContext performGroupedBlockAndWait:^{
             NSError *error = nil;
             conversationCount = [syncContext countForFetchRequest:ZMConversation.sortedFetchRequest error:&error];
@@ -647,7 +569,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
             userFetchRequest.resultType = NSDictionaryResultType;
             userFetchRequest.propertiesToFetch = self.userPropertiesToFetch;
             userDictionaries = [syncContext executeFetchRequestOrAssert:userFetchRequest];
-            [expectation fulfill];
         }];
         
         XCTAssertTrue([self waitForCustomExpectationsWithTimeout:10]);
@@ -671,7 +592,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
 
 - (void)testThatItPerformsMigrationFrom_2_24_1_ToCurrentModelVersion {
     // given
-    __block NSManagedObjectContext *syncContext;
     __block NSUInteger conversationCount;
     __block NSUInteger messageCount;
     __block NSUInteger systemMessageCount;
@@ -681,12 +601,8 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
     __block NSArray *assetClientMessages;
     
     // when
-    [self performMockingStoreURLWithVersion:@"2.24.1" block:^(NSURL *storeURL){
-        
-        syncContext = [self checkThatItCreatesSyncContextAndPreparesLocalStoreAtURL:storeURL];
-        
-        XCTestExpectation *expectation = [self expectationWithDescription:@"It should migrate from 2.24.1 to the current mom"];
-        
+    [self performMockingStoreURLWithVersion:@"2.24.1" block:^(ManagedObjectContextDirectory *directory) {
+        NSManagedObjectContext *syncContext = directory.syncContext;
         [syncContext performGroupedBlockAndWait:^{
             NSError *error = nil;
             conversationCount = [syncContext countForFetchRequest:ZMConversation.sortedFetchRequest error:&error];
@@ -702,7 +618,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
             userFetchRequest.resultType = NSDictionaryResultType;
             userFetchRequest.propertiesToFetch = self.userPropertiesToFetch;
             userDictionaries = [syncContext executeFetchRequestOrAssert:userFetchRequest];
-            [expectation fulfill];
         }];
         
         XCTAssertTrue([self waitForCustomExpectationsWithTimeout:10]);
@@ -726,7 +641,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
 
 - (void)testThatItPerformsMigrationFrom_2_25_0_ToCurrentModelVersion {
     // given
-    __block NSManagedObjectContext *syncContext;
     __block NSUInteger conversationCount;
     __block NSUInteger messageCount;
     __block NSUInteger systemMessageCount;
@@ -737,12 +651,8 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
     __block NSArray<ZMMessage *> *messages;
 
     // when
-    [self performMockingStoreURLWithVersion:@"2.25.0" block:^(NSURL *storeURL){
-
-        syncContext = [self checkThatItCreatesSyncContextAndPreparesLocalStoreAtURL:storeURL];
-
-        XCTestExpectation *expectation = [self expectationWithDescription:@"It should migrate from 2.25.0 to the current mom"];
-
+    [self performMockingStoreURLWithVersion:@"2.25.0" block:^(ManagedObjectContextDirectory *directory) {
+        NSManagedObjectContext *syncContext = directory.syncContext;
         [syncContext performGroupedBlockAndWait:^{
             NSError *error = nil;
             conversationCount = [syncContext countForFetchRequest:ZMConversation.sortedFetchRequest error:&error];
@@ -759,7 +669,9 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
             userFetchRequest.resultType = NSDictionaryResultType;
             userFetchRequest.propertiesToFetch = self.userPropertiesToFetch;
             userDictionaries = [syncContext executeFetchRequestOrAssert:userFetchRequest];
-            [expectation fulfill];
+            for (ZMMessage *message in messages) {
+                XCTAssertNil(message.normalizedText);
+            }
         }];
 
         XCTAssertTrue([self waitForCustomExpectationsWithTimeout:10]);
@@ -780,17 +692,9 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
 
     XCTAssertEqualObjects([userDictionaries subarrayWithRange:NSMakeRange(0, 3)], [self userDictionaryFixture2_25_1]);
     XCTAssertGreaterThan(messages.count, 0lu);
-
-    [syncContext performBlockAndWait:^{
-        for (ZMMessage *message in messages) {
-            XCTAssertNil(message.normalizedText);
-        }
-    }];
 }
 
 - (void)testThatItPerformsMigrationFrom_2_26_0_ToCurrentModelVersion {
-    // given
-    __block NSManagedObjectContext *syncContext;
     __block NSUInteger conversationCount;
     __block NSUInteger messageCount;
     __block NSUInteger systemMessageCount;
@@ -801,14 +705,8 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
     __block NSArray<ZMMessage *> *messages;
 
     // when
-    [self performMockingStoreURLWithVersion:@"2.26.0" block:^(NSURL *storeURL){
-
-        // We additionally check that Core Data will will perform a migration as we only added an index.
-        // Without setting a version hash modifier Core Data will not trigger a migration for this change.
-        XCTAssert([NSManagedObjectContext needsToPrepareLocalStoreAtURL:storeURL]);
-        syncContext = [self checkThatItCreatesSyncContextAndPreparesLocalStoreAtURL:storeURL];
-        XCTestExpectation *expectation = [self expectationWithDescription:@"It should migrate from 2.26.0 to the current mom"];
-
+    [self performMockingStoreURLWithVersion:@"2.26.0" block:^(ManagedObjectContextDirectory *directory) {
+        NSManagedObjectContext *syncContext = directory.syncContext;
         [syncContext performGroupedBlockAndWait:^{
             NSError *error = nil;
             conversationCount = [syncContext countForFetchRequest:ZMConversation.sortedFetchRequest error:&error];
@@ -825,7 +723,9 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
             userFetchRequest.resultType = NSDictionaryResultType;
             userFetchRequest.propertiesToFetch = self.userPropertiesToFetch;
             userDictionaries = [syncContext executeFetchRequestOrAssert:userFetchRequest];
-            [expectation fulfill];
+            for (ZMMessage *message in messages) {
+                XCTAssertNil(message.normalizedText);
+            }
         }];
 
         XCTAssertTrue([self waitForCustomExpectationsWithTimeout:10]);
@@ -846,17 +746,10 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
 
     XCTAssertEqualObjects([userDictionaries subarrayWithRange:NSMakeRange(0, 3)], [self userDictionaryFixture2_25_1]);
     XCTAssertGreaterThan(messages.count, 0lu);
-
-    [syncContext performBlockAndWait:^{
-        for (ZMMessage *message in messages) {
-            XCTAssertNil(message.normalizedText);
-        }
-    }];
 }
 
 - (void)testThatItPerformsMigrationFrom_2_27_0_ToCurrentModelVersion {
     // given
-    __block NSManagedObjectContext *syncContext;
     __block NSUInteger conversationCount;
     __block NSUInteger messageCount;
     __block NSUInteger systemMessageCount;
@@ -867,11 +760,8 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
     __block NSArray<ZMMessage *> *messages;
 
     // when
-    [self performMockingStoreURLWithVersion:@"2.27.0" block:^(NSURL *storeURL){
-        XCTAssert([NSManagedObjectContext needsToPrepareLocalStoreAtURL:storeURL]);
-        syncContext = [self checkThatItCreatesSyncContextAndPreparesLocalStoreAtURL:storeURL];
-        XCTestExpectation *expectation = [self expectationWithDescription:@"It should migrate from 2.27.0 to the current mom"];
-
+    [self performMockingStoreURLWithVersion:@"2.27.0" block:^(ManagedObjectContextDirectory *directory) {
+        NSManagedObjectContext *syncContext = directory.syncContext;
         [syncContext performGroupedBlockAndWait:^{
             NSError *error = nil;
             conversationCount = [syncContext countForFetchRequest:ZMConversation.sortedFetchRequest error:&error];
@@ -888,7 +778,10 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
             userFetchRequest.resultType = NSDictionaryResultType;
             userFetchRequest.propertiesToFetch = self.userPropertiesToFetch;
             userDictionaries = [syncContext executeFetchRequestOrAssert:userFetchRequest];
-            [expectation fulfill];
+            
+            for (ZMMessage *message in messages) {
+                XCTAssertNil(message.normalizedText);
+            }
         }];
 
         XCTAssertTrue([self waitForCustomExpectationsWithTimeout:10]);
@@ -909,17 +802,10 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
 
     XCTAssertEqualObjects([userDictionaries subarrayWithRange:NSMakeRange(0, 3)], [self userDictionaryFixture2_25_1]);
     XCTAssertGreaterThan(messages.count, 0lu);
-
-    [syncContext performBlockAndWait:^{
-        for (ZMMessage *message in messages) {
-            XCTAssertNil(message.normalizedText);
-        }
-    }];
 }
 
 - (void)testThatItPerformsMigrationFrom_2_28_0_ToCurrentModelVersion {
     // given
-    __block NSManagedObjectContext *syncContext;
     __block NSUInteger conversationCount;
     __block NSUInteger messageCount;
     __block NSUInteger systemMessageCount;
@@ -930,11 +816,8 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
     __block NSArray<ZMMessage *> *messages;
     
     // when
-    [self performMockingStoreURLWithVersion:@"2.28.0" block:^(NSURL *storeURL){
-        XCTAssert([NSManagedObjectContext needsToPrepareLocalStoreAtURL:storeURL]);
-        syncContext = [self checkThatItCreatesSyncContextAndPreparesLocalStoreAtURL:storeURL];
-        XCTestExpectation *expectation = [self expectationWithDescription:@"It should migrate from 2.28.0 to the current mom"];
-        
+    [self performMockingStoreURLWithVersion:@"2.28.0" block:^(ManagedObjectContextDirectory *directory) {
+        NSManagedObjectContext *syncContext = directory.syncContext;
         [syncContext performGroupedBlockAndWait:^{
             NSError *error = nil;
             conversationCount = [syncContext countForFetchRequest:ZMConversation.sortedFetchRequest error:&error];
@@ -951,7 +834,11 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
             userFetchRequest.resultType = NSDictionaryResultType;
             userFetchRequest.propertiesToFetch = self.userPropertiesToFetch;
             userDictionaries = [syncContext executeFetchRequestOrAssert:userFetchRequest];
-            [expectation fulfill];
+            
+            for (ZMMessage *message in messages) {
+                XCTAssertNil(message.normalizedText);
+            }
+
         }];
         
         XCTAssertTrue([self waitForCustomExpectationsWithTimeout:10]);
@@ -972,17 +859,10 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
     
     XCTAssertEqualObjects([userDictionaries subarrayWithRange:NSMakeRange(0, 3)], [self userDictionaryFixture2_25_1]);
     XCTAssertGreaterThan(messages.count, 0lu);
-    
-    [syncContext performBlockAndWait:^{
-        for (ZMMessage *message in messages) {
-            XCTAssertNil(message.normalizedText);
-        }
-    }];
 }
 
 - (void)testThatItPerformsMigrationFrom_2_29_0_ToCurrentModelVersion {
     // given
-    __block NSManagedObjectContext *syncContext;
     __block NSUInteger conversationCount;
     __block NSUInteger messageCount;
     __block NSUInteger systemMessageCount;
@@ -993,11 +873,8 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
     __block NSArray<ZMMessage *> *messages;
 
     // when
-    [self performMockingStoreURLWithVersion:@"2.29.0" block:^(NSURL *storeURL){
-        XCTAssert([NSManagedObjectContext needsToPrepareLocalStoreAtURL:storeURL]);
-        syncContext = [self checkThatItCreatesSyncContextAndPreparesLocalStoreAtURL:storeURL];
-        XCTestExpectation *expectation = [self expectationWithDescription:@"It should migrate from 2.29.0 to the current mom"];
-
+    [self performMockingStoreURLWithVersion:@"2.29.0" block:^(ManagedObjectContextDirectory *directory) {
+        NSManagedObjectContext *syncContext = directory.syncContext;
         [syncContext performGroupedBlockAndWait:^{
             NSError *error = nil;
             conversationCount = [syncContext countForFetchRequest:ZMConversation.sortedFetchRequest error:&error];
@@ -1014,7 +891,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
             userFetchRequest.resultType = NSDictionaryResultType;
             userFetchRequest.propertiesToFetch = self.userPropertiesToFetch;
             userDictionaries = [syncContext executeFetchRequestOrAssert:userFetchRequest];
-            [expectation fulfill];
         }];
 
         XCTAssertTrue([self waitForCustomExpectationsWithTimeout:10]);
@@ -1039,7 +915,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
 
 - (void)testThatItPerformsMigrationFrom_2_30_0_ToCurrentModelVersion {
     // given
-    __block NSManagedObjectContext *syncContext;
     __block NSUInteger conversationCount;
     __block NSUInteger messageCount;
     __block NSUInteger systemMessageCount;
@@ -1050,11 +925,8 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
     __block NSArray<ZMMessage *> *messages;
 
     // when
-    [self performMockingStoreURLWithVersion:@"2.30.0" block:^(NSURL *storeURL){
-        XCTAssert([NSManagedObjectContext needsToPrepareLocalStoreAtURL:storeURL]);
-        syncContext = [self checkThatItCreatesSyncContextAndPreparesLocalStoreAtURL:storeURL];
-        XCTestExpectation *expectation = [self expectationWithDescription:@"It should migrate from 2.30.0 to the current mom"];
-
+    [self performMockingStoreURLWithVersion:@"2.30.0" block:^(ManagedObjectContextDirectory *directory) {
+        NSManagedObjectContext *syncContext = directory.syncContext;
         [syncContext performGroupedBlockAndWait:^{
             NSError *error = nil;
             conversationCount = [syncContext countForFetchRequest:ZMConversation.sortedFetchRequest error:&error];
@@ -1071,7 +943,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
             userFetchRequest.resultType = NSDictionaryResultType;
             userFetchRequest.propertiesToFetch = self.userPropertiesToFetch;
             userDictionaries = [syncContext executeFetchRequestOrAssert:userFetchRequest];
-            [expectation fulfill];
         }];
 
         XCTAssertTrue([self waitForCustomExpectationsWithTimeout:10]);
@@ -1096,7 +967,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
 
 - (void)testThatItPerformsMigrationFrom_2_31_0_ToCurrentModelVersion {
     // given
-    __block NSManagedObjectContext *syncContext;
     __block NSUInteger conversationCount;
     __block NSUInteger messageCount;
     __block NSUInteger systemMessageCount;
@@ -1107,11 +977,8 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
     __block NSArray<ZMMessage *> *messages;
 
     // when
-    [self performMockingStoreURLWithVersion:@"2.31.0" block:^(NSURL *storeURL){
-        XCTAssert([NSManagedObjectContext needsToPrepareLocalStoreAtURL:storeURL]);
-        syncContext = [self checkThatItCreatesSyncContextAndPreparesLocalStoreAtURL:storeURL];
-        XCTestExpectation *expectation = [self expectationWithDescription:@"It should migrate from 2.31.0 to the current mom"];
-
+    [self performMockingStoreURLWithVersion:@"2.31.0" block:^(ManagedObjectContextDirectory *directory) {
+        NSManagedObjectContext *syncContext = directory.syncContext;
         [syncContext performGroupedBlockAndWait:^{
             NSError *error = nil;
             conversationCount = [syncContext countForFetchRequest:ZMConversation.sortedFetchRequest error:&error];
@@ -1128,7 +995,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
             userFetchRequest.resultType = NSDictionaryResultType;
             userFetchRequest.propertiesToFetch = self.userPropertiesToFetch;
             userDictionaries = [syncContext executeFetchRequestOrAssert:userFetchRequest];
-            [expectation fulfill];
         }];
 
         XCTAssertTrue([self waitForCustomExpectationsWithTimeout:10]);
@@ -1152,24 +1018,6 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
 }
 
 #pragma mark - Helper
-
-- (NSManagedObjectContext *)checkThatItCreatesSyncContextAndPreparesLocalStoreAtURL:(NSURL *)storeURL
-{
-    __block NSManagedObjectContext *syncContext;
-    
-    dispatch_semaphore_t sem = dispatch_semaphore_create(0);
-    [NSManagedObjectContext prepareLocalStoreAtURL:storeURL backupCorruptedDatabase:NO synchronous:YES completionHandler:^{
-        [NSManagedObjectContext createUserInterfaceContextWithStoreAtURL:storeURL];
-        syncContext = [NSManagedObjectContext createSyncContextWithStoreAtURL:storeURL keyStoreURL:storeURL.URLByDeletingLastPathComponent];
-        dispatch_semaphore_signal(sem);
-    }];
-
-    dispatch_semaphore_wait(sem, DISPATCH_TIME_FOREVER);
-    WaitForAllGroupsToBeEmpty(0.5);
-    XCTAssertNotNil(syncContext);
-    
-    return syncContext;
-}
 
 - (NSArray <NSString *>*)userPropertiesToFetch
 {
@@ -1208,10 +1056,12 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
     for (NSString *extension in self.databaseFileExtensions) {
         [urls addObject:[baseURL URLByAppendingPathExtension:[DataBaseFileExtensionName stringByAppendingString:extension]]];
     }
+    NSString *supportFolder = [NSString stringWithFormat:@".%@_SUPPORT", pathUUID.transportString];
+    [urls addObject:[url URLByAppendingPathComponent:supportFolder isDirectory:YES]];
     return urls;
 }
 
-- (void)performMockingStoreURLWithVersion:(NSString *)version block:(void (^)(NSURL *storeURL))block;
+- (void)performMockingStoreURLWithVersion:(NSString *)version expectMigration:(BOOL)shouldMigrate block:(void (^ _Nonnull)(ManagedObjectContextDirectory * _Nonnull))block
 {
     NSString *suffix = [version stringByReplacingOccurrencesOfString:@"." withString:@"-"];
     NSArray <NSURL *>*databaseURLs = [self testBundleDataBaseURLsWithSuffix:suffix];
@@ -1238,14 +1088,36 @@ static NSString * const DataBaseIdentifier = @"TestDatabase";
         XCTAssertTrue([fm copyItemAtURL:databaseURLs[idx] toURL:mockURLs[idx] error:&error]);
         XCTAssertNil(error);
     }
+    
+    XCTestExpectation *migrationExpectation;
+    if (shouldMigrate) {
+        NSString *description = [NSString stringWithFormat:@"It should migrate from %@ to current version", version];
+        migrationExpectation = [self expectationWithDescription:description];
+    }
+    
+    XCTestExpectation *completionExpectation = [self expectationWithDescription:@"completion block called"];
+    NSURL *storeURL = mockURLs.firstObject;
+    [StorageStack.shared createManagedObjectContextDirectoryAt:storeURL
+                                                      keyStore:storeURL.URLByDeletingLastPathComponent
+                                      startedMigrationCallback:^{
+                                          [migrationExpectation fulfill];
+                                      }
+                                             completionHandler:^(ManagedObjectContextDirectory *directory) {
+                                                 // Perform the migration test
+                                                 block(directory);
+                                                 [completionExpectation fulfill];
+                                             }];
+    XCTAssertTrue([self waitForCustomExpectationsWithTimeout:0.5]);
 
-    // Perform the migration test
-    block(mockURLs.firstObject);
-
-    for (NSUInteger idx = 0; idx < databaseURLs.count; idx++) {
+    for (NSUInteger idx = 0; idx < mockURLs.count; idx++) {
         XCTAssertTrue([fm removeItemAtURL:mockURLs[idx] error:&error]);
         XCTAssertNil(error);
     }
+}
+
+- (void)performMockingStoreURLWithVersion:(NSString *)version block:(void (^ _Nonnull)(ManagedObjectContextDirectory * _Nonnull))block
+{
+    [self performMockingStoreURLWithVersion:version expectMigration:YES block:block];
 }
 
 #pragma mark - Fixtures
