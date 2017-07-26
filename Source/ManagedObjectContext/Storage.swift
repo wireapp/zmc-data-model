@@ -21,12 +21,12 @@ import CoreData
 import UIKit
 
 /// Singleton to manage the creation of the CoreData stack
-public class StorageStack {
+@objc public class StorageStack: NSObject {
 
-    private init() {}
+    private override init() {}
     
     /// Singleton instance
-    public static var shared = StorageStack()
+    @objc public static var shared = StorageStack()
     
     /// Directory of managed object contexes
     private var managedObjectContextDirectory: ManagedObjectContextDirectory? = nil
@@ -43,7 +43,7 @@ public class StorageStack {
     /// This method should not be called again before any previous invocation completion handler has been called.
     /// - parameter completionHandler: this callback is invoked on an arbitrary queue. It is responsibility
     ///     of the caller to switch back to the same queue that this method was invoked on.
-    public func createManagedObjectContextDirectory(
+    @objc public func createManagedObjectContextDirectory(
         at url: URL,
         keyStore: URL,
         startedMigrationCallback: @escaping (Void)->(Void),
@@ -77,16 +77,16 @@ public class StorageStack {
     }
     
     /// Resets the stack. After calling this, the stack is ready to be reinitialized.
-    public static func reset() {
+    @objc public static func reset() {
         StorageStack.shared = StorageStack()
     }
     
 }
 
 /// Creates an in memory stack CoreData stack
-class InMemoryStoreInitialization {
+@objc class InMemoryStoreInitialization: NSObject {
     
-    public static func createManagedObjectContextDirectory(keyStore: URL) -> ManagedObjectContextDirectory {
+    @objc public static func createManagedObjectContextDirectory(keyStore: URL) -> ManagedObjectContextDirectory {
         let psc = NSPersistentStoreCoordinator(inMemoryWithModel: loadManagedObjectModel())
         let managedObjectContextDirectory = ManagedObjectContextDirectory(
             persistentStoreCoordinator: psc,
@@ -97,7 +97,7 @@ class InMemoryStoreInitialization {
 
 
 /// Creates a persistent store CoreData stack
-class PersistentStorageInitialization {
+fileprivate class PersistentStorageInitialization {
     
     private init() {}
     
