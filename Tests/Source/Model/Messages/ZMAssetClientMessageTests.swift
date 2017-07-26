@@ -56,7 +56,7 @@ class BaseZMAssetClientMessageTests : BaseZMClientMessageTests {
         message.add(previewMessage)
     }
     
-    func appendImageMessage(to conversation: ZMConversation) -> ZMAssetClientMessage {
+    func appendImageMessage(to conversation: ZMConversation) -> ZMAssetClientMessage? {
         let imageData = verySmallJPEGData()
         let nonce = UUID.create()
         let message = conversation.appendOTRMessage(withImageData: imageData, nonce: nonce)
@@ -67,7 +67,7 @@ class BaseZMAssetClientMessageTests : BaseZMClientMessageTests {
             messageID: nonce.transportString()
         )
 
-        message.add(uploaded)
+        message?.add(uploaded)
         
         return message
     }
@@ -324,7 +324,7 @@ extension ZMAssetClientMessageTests {
         self.syncMOC.performGroupedBlockAndWait {
             
             //given
-            let sut = self.appendImageMessage(to: self.syncConversation)
+            guard let sut = self.appendImageMessage(to: self.syncConversation) else { return XCTFail() }
                 
             //when
             sut.expire()
@@ -1325,7 +1325,7 @@ extension ZMAssetClientMessageTests {
     func testThatItDoesSetConversationLastServerTimestampWhenPostingFullAssetAndMessageIsImage() {
         // given
         syncMOC.performGroupedBlockAndWait {
-            let message = self.appendImageMessage(to: self.syncConversation)
+            guard let message = self.appendImageMessage(to: self.syncConversation) else { return XCTFail() }
             let emptyDict = [String: String]()
             let payload: [AnyHashable: Any] = ["deleted": emptyDict, "missing": emptyDict, "redundant": emptyDict, "time": Date().transportString()]
             message.uploadState = .uploadingFullAsset
