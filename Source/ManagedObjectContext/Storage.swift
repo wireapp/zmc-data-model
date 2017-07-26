@@ -21,9 +21,7 @@ import CoreData
 import UIKit
 
 /// Singleton to manage the creation of the CoreData stack
-public class StorageStack {
-
-    private init() {}
+@objc public class StorageStack: NSObject {
     
     /// Singleton instance
     public static var shared = StorageStack()
@@ -41,13 +39,13 @@ public class StorageStack {
     /// Creates a managed object context directory in an asynchronous fashion.
     /// This method should be invoked from the main queue, and the callback will be dispatched on the main queue.
     /// This method should not be called again before any previous invocation completion handler has been called.
-    /// - parameter completionHandler: this callback is invoked on an arbitrary queue. It is responsibility
+    /// - parameter completionHandler: this callback is invoked on the main queue. It is responsibility
     ///     of the caller to switch back to the same queue that this method was invoked on.
     public func createManagedObjectContextDirectory(
         at url: URL,
         keyStore: URL,
-        startedMigrationCallback: @escaping (Void)->(Void),
-        completionHandler: @escaping (ManagedObjectContextDirectory)->(Void)
+        startedMigrationCallback: (() -> Void)? = nil,
+        completionHandler: @escaping (ManagedObjectContextDirectory) -> Void
         )
     {
         guard self.currentPersistentStoreInitialization == nil else {
@@ -55,10 +53,8 @@ public class StorageStack {
         }
         
         // destroy previous stack if any
-        
-        
         if self.createStorageAsInMemory {
-            let directory = InMemoryStoreInitialization.createManagedObjectContextDirectory(keyStore: keyStore)
+            let directory = InMemoryStoreInitialization.createManagedObjectContextDirectory(keyStore: keyStore, store: url)
             self.managedObjectContextDirectory = directory
             completionHandler(directory)
         } else {
@@ -86,11 +82,13 @@ public class StorageStack {
 /// Creates an in memory stack CoreData stack
 class InMemoryStoreInitialization {
     
-    public static func createManagedObjectContextDirectory(keyStore: URL) -> ManagedObjectContextDirectory {
+    public static func createManagedObjectContextDirectory(keyStore: URL, store: URL) -> ManagedObjectContextDirectory {
         let psc = NSPersistentStoreCoordinator(inMemoryWithModel: loadManagedObjectModel())
         let managedObjectContextDirectory = ManagedObjectContextDirectory(
             persistentStoreCoordinator: psc,
-            keyStore: keyStore)
+            store: store,
+            keyStore: keyStore
+        )
         return managedObjectContextDirectory
     }
 }
@@ -110,8 +108,8 @@ class PersistentStorageInitialization {
     fileprivate static func createManagedObjectContextDirectory(
         at url: URL,
         keyStore: URL,
-        startedMigrationCallback: @escaping (Void)->(Void),
-        completionHandler: @escaping (ManagedObjectContextDirectory)->(Void)
+        startedMigrationCallback: (() -> Void)?,
+        completionHandler: @escaping (ManagedObjectContextDirectory) -> Void
     ) -> PersistentStorageInitialization {
         let initialization = PersistentStorageInitialization()
         DispatchQueue(label: "Store creation").async { [weak initialization] in
@@ -129,8 +127,8 @@ class PersistentStorageInitialization {
     fileprivate func createPersistentStoreAndContexes(
         at url: URL,
         keyStore: URL,
-        startedMigrationCallback: @escaping (Void)->(Void),
-        completionHandler: @escaping (ManagedObjectContextDirectory)->(Void))
+        startedMigrationCallback: (() -> Void)?,
+        completionHandler: @escaping (ManagedObjectContextDirectory) -> Void)
     {
         let model = loadManagedObjectModel()
         self.createPersistentStoreCoordinator(
@@ -140,6 +138,7 @@ class PersistentStorageInitialization {
             ) { psc in
                 let mocDirectory = ManagedObjectContextDirectory(
                     persistentStoreCoordinator: psc,
+                    store: url,
                     keyStore: keyStore)
                 completionHandler(mocDirectory)
         }
@@ -154,11 +153,11 @@ extension PersistentStorageInitialization {
     fileprivate func createPersistentStoreCoordinator(
         at url: URL,
         model: NSManagedObjectModel,
-        startedMigrationCallback: @escaping (Void)->(Void),
-        completionHandler: @escaping (NSPersistentStoreCoordinator)->(Void)
+        startedMigrationCallback: (() -> Void)?,
+        completionHandler: @escaping (NSPersistentStoreCoordinator) -> Void
         ) {
         
-        let creation: (Void)->NSPersistentStoreCoordinator = {
+        let creation: (Void) -> NSPersistentStoreCoordinator = {
             NSPersistentStoreCoordinator(localStoreAt: url,
                                          model: model,
                                          startedMigrationCallback: startedMigrationCallback
