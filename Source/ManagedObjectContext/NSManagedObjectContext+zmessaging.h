@@ -44,19 +44,19 @@
 @property (readonly) BOOL zm_shouldRefreshObjectsWithUIContextPolicy;
 
 /// Returns @c self in case this is a sync context, or attached sync context, if present
-@property (nonatomic, nullable) NSManagedObjectContext* zm_syncContext;
+@property (nonatomic, null_unspecified) NSManagedObjectContext* zm_syncContext;
 
 /// Returns @c self in case this is a UI context, or attached UI context, if present
-@property (nonatomic, nullable) NSManagedObjectContext* zm_userInterfaceContext;
+@property (nonatomic, null_unspecified) NSManagedObjectContext *zm_userInterfaceContext;
 
 /// Returns the set containing all user clients that failed to establish a session with selfClient
-@property (nonatomic, readonly, nullable) NSMutableSet* zm_failedToEstablishSessionStore;
+@property (nonatomic, readonly, nullable) NSMutableSet *zm_failedToEstablishSessionStore;
 
 /// Returns the URL of the store. This is supposed to be used for debugging purposes only
 @property (nonatomic, readonly, nullable) NSURL *zm_storeURL;
 
 /// Returns the Display Name Generator
-@property (nonatomic, readonly, nullable) DisplayNameGenerator* zm_displayNameGenerator;
+@property (nonatomic, readonly, nullable) DisplayNameGenerator*zm_displayNameGenerator;
 
 /// Calls @c -save: only if the receiver returns @c YES for @c -hasChanges
 /// If the save fails, calls @c -rollback on the receiver.
