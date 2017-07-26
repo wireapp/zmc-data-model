@@ -25,6 +25,11 @@
 @class NSOperationQueue;
 @class DisplayNameGenerator;
 
+extern NSString * const IsUserInterfaceContextKey;
+extern NSString * const IsSyncContextKey;
+extern NSString * const IsSearchContextKey;
+extern NSString * const IsEventContextKey;
+
 @interface NSManagedObjectContext (zmessaging)
 
 /// Returns @c YES if the receiver is a context that is used for synchronisation with the backend.
