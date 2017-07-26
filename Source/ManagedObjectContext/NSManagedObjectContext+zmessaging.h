@@ -25,10 +25,10 @@
 @class NSOperationQueue;
 @class DisplayNameGenerator;
 
-extern NSString * const IsUserInterfaceContextKey;
-extern NSString * const IsSyncContextKey;
-extern NSString * const IsSearchContextKey;
-extern NSString * const IsEventContextKey;
+extern NSString * _Nonnull const IsUserInterfaceContextKey;
+extern NSString * _Nonnull const IsSyncContextKey;
+extern NSString * _Nonnull const IsSearchContextKey;
+extern NSString * _Nonnull const IsEventContextKey;
 
 @interface NSManagedObjectContext (zmessaging)
 
