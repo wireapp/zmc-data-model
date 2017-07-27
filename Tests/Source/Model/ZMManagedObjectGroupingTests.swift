@@ -26,10 +26,10 @@ public final class ZMManagedObjectGroupingTests: DatabaseBaseTest {
         
         super.setUp()
         
-        self.createDatabase(in: .cachesDirectory)
-        NSManagedObjectContext.prepareLocalStore(at: storeURL, backupCorruptedDatabase: false, synchronous: true) {
-            self.moc = NSManagedObjectContext.createUserInterfaceContextWithStore(at: self.storeURL)
-        }
+//        self.createDatabase(in: .cachesDirectory)
+//        NSManagedObjectContext.prepareLocalStore(at: storeURL, backupCorruptedDatabase: false, synchronous: true) {
+//            self.moc = NSManagedObjectContext.createUserInterfaceContextWithStore(at: self.storeURL)
+//        }
         
         assert(self.waitForAllGroupsToBeEmpty(withTimeout: 1))
     }

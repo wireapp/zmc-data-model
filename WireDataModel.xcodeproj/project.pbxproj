@@ -176,9 +176,8 @@
 		F9331C5A1CB3BECB00139ECC /* ZMClientMessageTests+OTR.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9331C591CB3BECB00139ECC /* ZMClientMessageTests+OTR.swift */; };
 		F9331C5C1CB3BF9F00139ECC /* UserClientKeyStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9331C5B1CB3BF9F00139ECC /* UserClientKeyStoreTests.swift */; };
 		F9331C611CB3C7D500139ECC /* DatabaseInitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F9331C5E1CB3C7D500139ECC /* DatabaseInitTests.m */; };
-		F9331C621CB3C7D500139ECC /* DatabaseMovingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F9331C5F1CB3C7D500139ECC /* DatabaseMovingTests.m */; };
-		F9331C631CB3C7D500139ECC /* OTRMigrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F9331C601CB3C7D500139ECC /* OTRMigrationTests.m */; };
 		F9331C6A1CB3D5B700139ECC /* ZMUpdateEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F9331C681CB3D56000139ECC /* ZMUpdateEventTests.m */; };
+		F9331C631CB3C7D500139ECC /* OTRMigrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F9331C601CB3C7D500139ECC /* OTRMigrationTests.m */; };
 		F9331C771CB4165100139ECC /* NSString+ZMPersonName.h in Headers */ = {isa = PBXBuildFile; fileRef = F9331C751CB4165100139ECC /* NSString+ZMPersonName.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F9331C781CB4165100139ECC /* NSString+ZMPersonName.m in Sources */ = {isa = PBXBuildFile; fileRef = F9331C761CB4165100139ECC /* NSString+ZMPersonName.m */; };
 		F9331C831CB4191B00139ECC /* NSPredicate+ZMSearch.h in Headers */ = {isa = PBXBuildFile; fileRef = F9331C811CB4191B00139ECC /* NSPredicate+ZMSearch.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -2284,7 +2283,6 @@
 				F9B71F941CB2BF08001DB03F /* UserImageLocalCacheTests.swift in Sources */,
 				BFE764431ED5AAE500C65C3E /* ZMConversation+TeamsTests.swift in Sources */,
 				F9A708441CAEEB7500C2F5FE /* ZMConnectionTests.m in Sources */,
-				F9331C621CB3C7D500139ECC /* DatabaseMovingTests.m in Sources */,
 				F9FD75761E2E79BF00B4558B /* ConversationListObserverTests.swift in Sources */,
 				BF3493EB1EC34C0B00B0C314 /* TeamTests.swift in Sources */,
 				F9A7085C1CAEED1B00C2F5FE /* ZMBaseManagedObjectTest.m in Sources */,
@@ -2348,8 +2346,8 @@
 				F9B71FA41CB2BF37001DB03F /* ZMConversationTests+messages.m in Sources */,
 				F9B71FF21CB2C4C6001DB03F /* AnyClassTupleTests.swift in Sources */,
 				F9A7083A1CAEEB7500C2F5FE /* MockEntity.m in Sources */,
-				F9331C611CB3C7D500139ECC /* DatabaseInitTests.m in Sources */,
 				F963E9741D9BF9ED00098AD3 /* ProtosTests.swift in Sources */,
+				F9331C611CB3C7D500139ECC /* DatabaseInitTests.m in Sources */,
 				16746B081D2EAF8E00831771 /* ZMClientMessageTests+ZMImageOwner.swift in Sources */,
 				F9FD757B1E2FB60E00B4558B /* SearchUserObserverTests.swift in Sources */,
 				F9B71F9A1CB2BF0E001DB03F /* ZMUserTests.m in Sources */,

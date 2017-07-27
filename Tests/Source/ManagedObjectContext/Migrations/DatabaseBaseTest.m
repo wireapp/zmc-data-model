@@ -30,6 +30,7 @@
 @property (nonatomic) NSURL *applicationSupportDirectoryStoreURL;
 @property (nonatomic) NSURL *sharedContainerDirectoryURL;
 @property (nonatomic) NSURL *sharedContainerStoreURL;
+@property (nonatomic) ManagedObjectContextDirectory *directory;
 
 @end
 
@@ -40,7 +41,7 @@
 {
     [super setUp];
     
-    [NSManagedObjectContext setUseInMemoryStore:NO];
+    StorageStack.shared.createStorageAsInMemory = YES;
     self.fm = [NSFileManager defaultManager];
     self.cachesDirectoryStoreURL = [PersistentStoreRelocator storeURLInDirectory:NSCachesDirectory];
     self.applicationSupportDirectoryStoreURL = [PersistentStoreRelocator storeURLInDirectory:NSApplicationSupportDirectory];
@@ -58,6 +59,7 @@
     self.applicationSupportDirectoryStoreURL = nil;
     self.sharedContainerStoreURL = nil;
     self.sharedContainerDirectoryURL = nil;
+    self.directory = nil;
     [super tearDown];
 }
 
@@ -78,8 +80,8 @@
         [self.fm removeItemAtPath:testSharedContainerPath error:nil];
     }
  
-    [NSManagedObjectContext resetSharedPersistentStoreCoordinator];
-    [NSManagedObjectContext resetUserInterfaceContext];
+//    [NSManagedObjectContext resetSharedPersistentStoreCoordinator];
+//    [NSManagedObjectContext resetUserInterfaceContext];
     
     [self performIgnoringZMLogError:^{
         NSError *error = nil;
@@ -101,12 +103,15 @@
 
 - (BOOL)createDatabaseInDirectory:(NSSearchPathDirectory)directory
 {
+    
     NSURL *storeURL = [PersistentStoreRelocator storeURLInDirectory:directory];
-
-    [NSManagedObjectContext prepareLocalStoreAtURL:storeURL backupCorruptedDatabase:NO synchronous:YES completionHandler:nil];
-
-    XCTAssertTrue([self createExternalSupportFileForDatabaseAtURL:storeURL]);
-    [NSManagedObjectContext resetSharedPersistentStoreCoordinator];
+    
+    
+//
+//    [NSManagedObjectContext prepareLocalStoreAtURL:storeURL backupCorruptedDatabase:NO synchronous:YES completionHandler:nil];
+//
+//    XCTAssertTrue([self createExternalSupportFileForDatabaseAtURL:storeURL]);
+//    [NSManagedObjectContext resetSharedPersistentStoreCoordinator];
     
     return YES;
 }
@@ -155,10 +160,11 @@
 
 - (void)prepareLocalStoreInSharedContainerBackingUpDatabase:(BOOL)backupCorruptedDatabase
 {
-    [self performIgnoringZMLogError:^{
-        [NSManagedObjectContext prepareLocalStoreAtURL:self.sharedContainerStoreURL backupCorruptedDatabase:backupCorruptedDatabase synchronous:YES completionHandler:nil];
-        WaitForAllGroupsToBeEmpty(0.5);
-    }];
+    backupCorruptedDatabase = NO;
+//    [self performIgnoringZMLogError:^{
+//        [NSManagedObjectContext prepareLocalStoreAtURL:self.sharedContainerStoreURL backupCorruptedDatabase:backupCorruptedDatabase synchronous:YES completionHandler:nil];
+//        WaitForAllGroupsToBeEmpty(0.5);
+//    }];
 }
 
 - (void)createDirectoryForStoreAtURL:(NSURL *)storeURL
