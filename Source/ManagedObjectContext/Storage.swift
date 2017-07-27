@@ -41,13 +41,13 @@ import UIKit
     /// Creates a managed object context directory in an asynchronous fashion.
     /// This method should be invoked from the main queue, and the callback will be dispatched on the main queue.
     /// This method should not be called again before any previous invocation completion handler has been called.
-    /// - parameter completionHandler: this callback is invoked on an arbitrary queue. It is responsibility
+    /// - parameter completionHandler: this callback is invoked on the main queue. It is responsibility
     ///     of the caller to switch back to the same queue that this method was invoked on.
     @objc public func createManagedObjectContextDirectory(
         at url: URL,
         keyStore: URL,
-        startedMigrationCallback: @escaping (Void)->(Void),
-        completionHandler: @escaping (ManagedObjectContextDirectory)->(Void)
+        startedMigrationCallback: (() -> Void)? = nil,
+        completionHandler: @escaping (ManagedObjectContextDirectory) -> Void
         )
     {
         guard self.currentPersistentStoreInitialization == nil else {
@@ -55,10 +55,8 @@ import UIKit
         }
         
         // destroy previous stack if any
-        
-        
         if self.createStorageAsInMemory {
-            let directory = InMemoryStoreInitialization.createManagedObjectContextDirectory(keyStore: keyStore)
+            let directory = InMemoryStoreInitialization.createManagedObjectContextDirectory(keyStore: keyStore, store: url)
             self.managedObjectContextDirectory = directory
             completionHandler(directory)
         } else {
@@ -91,7 +89,9 @@ import UIKit
         let psc = NSPersistentStoreCoordinator(inMemoryWithModel: model)
         let managedObjectContextDirectory = ManagedObjectContextDirectory(
             persistentStoreCoordinator: psc,
-            keyStore: keyStore)
+            store: store,
+            keyStore: keyStore
+        )
         return managedObjectContextDirectory
     }
 }
@@ -111,8 +111,8 @@ fileprivate class PersistentStorageInitialization {
     fileprivate static func createManagedObjectContextDirectory(
         at url: URL,
         keyStore: URL,
-        startedMigrationCallback: @escaping (Void)->(Void),
-        completionHandler: @escaping (ManagedObjectContextDirectory)->(Void)
+        startedMigrationCallback: (() -> Void)?,
+        completionHandler: @escaping (ManagedObjectContextDirectory) -> Void
     ) -> PersistentStorageInitialization {
         let initialization = PersistentStorageInitialization()
         DispatchQueue(label: "Store creation").async { [weak initialization] in
@@ -130,8 +130,8 @@ fileprivate class PersistentStorageInitialization {
     fileprivate func createPersistentStoreAndContexes(
         at url: URL,
         keyStore: URL,
-        startedMigrationCallback: @escaping (Void)->(Void),
-        completionHandler: @escaping (ManagedObjectContextDirectory)->(Void))
+        startedMigrationCallback: (() -> Void)?,
+        completionHandler: @escaping (ManagedObjectContextDirectory) -> Void)
     {
         let model = NSManagedObjectModel.loadManagedObjectModel()
         self.createPersistentStoreCoordinator(
@@ -141,6 +141,7 @@ fileprivate class PersistentStorageInitialization {
             ) { psc in
                 let mocDirectory = ManagedObjectContextDirectory(
                     persistentStoreCoordinator: psc,
+                    store: url,
                     keyStore: keyStore)
                 completionHandler(mocDirectory)
         }
@@ -155,11 +156,11 @@ extension PersistentStorageInitialization {
     fileprivate func createPersistentStoreCoordinator(
         at url: URL,
         model: NSManagedObjectModel,
-        startedMigrationCallback: @escaping (Void)->(Void),
-        completionHandler: @escaping (NSPersistentStoreCoordinator)->(Void)
+        startedMigrationCallback: (() -> Void)?,
+        completionHandler: @escaping (NSPersistentStoreCoordinator) -> Void
         ) {
         
-        let creation: (Void)->NSPersistentStoreCoordinator = {
+        let creation: (Void) -> NSPersistentStoreCoordinator = {
             NSPersistentStoreCoordinator(localStoreAt: url,
                                          model: model,
                                          startedMigrationCallback: startedMigrationCallback

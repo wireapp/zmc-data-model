@@ -21,11 +21,17 @@ import Foundation
 /// List of context
 @objc public class ManagedObjectContextDirectory: NSObject {
     
-    init(persistentStoreCoordinator: NSPersistentStoreCoordinator, keyStore: URL) {
+    init(persistentStoreCoordinator: NSPersistentStoreCoordinator, store: URL, keyStore: URL) {
+        self.storeURL = store
+        self.keyStoreURL = keyStore
         self.uiContext = ManagedObjectContextDirectory.createUIManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator)
         self.syncContext = ManagedObjectContextDirectory.createSyncManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator, keyStore: keyStore)
         self.searchContext = ManagedObjectContextDirectory.createSearchManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator)
+        super.init()
     }
+
+    public let storeURL: URL
+    public let keyStoreURL: URL
     
     /// User interface context. It can be used only from the main queue
     @objc public let uiContext: NSManagedObjectContext

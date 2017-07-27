@@ -24,7 +24,7 @@ extension NSPersistentStoreCoordinator {
     convenience init(
         localStoreAt url: URL,
         model: NSManagedObjectModel,
-        startedMigrationCallback: @escaping (Void)->(Void)
+        startedMigrationCallback: (() -> Void)?
         )
     {
         self.init(managedObjectModel: model)
@@ -36,7 +36,7 @@ extension NSPersistentStoreCoordinator {
         
         if NSPersistentStoreCoordinator.shouldMigrateStoreToNewModelVersion(at: url, model: model) {
             DispatchQueue.main.async {
-                startedMigrationCallback()
+                startedMigrationCallback?()
             }
             self.migrateAndAddPersistentStore(url: url)
         } else {
