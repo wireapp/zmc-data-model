@@ -105,7 +105,7 @@
 {
     
     NSURL *storeURL = [PersistentStoreRelocator storeURLInDirectory:directory];
-    
+    (void)storeURL;
     
 //
 //    [NSManagedObjectContext prepareLocalStoreAtURL:storeURL backupCorruptedDatabase:NO synchronous:YES completionHandler:nil];

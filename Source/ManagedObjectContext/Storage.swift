@@ -84,7 +84,7 @@ import UIKit
 /// Creates an in memory stack CoreData stack
 @objc class InMemoryStoreInitialization: NSObject {
     
-    @objc public static func createManagedObjectContextDirectory(keyStore: URL) -> ManagedObjectContextDirectory {
+    @objc public static func createManagedObjectContextDirectory(keyStore: URL, store: URL) -> ManagedObjectContextDirectory {
         let model = NSManagedObjectModel.loadManagedObjectModel()
         let psc = NSPersistentStoreCoordinator(inMemoryWithModel: model)
         let managedObjectContextDirectory = ManagedObjectContextDirectory(
