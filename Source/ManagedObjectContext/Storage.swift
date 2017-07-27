@@ -24,15 +24,23 @@ import UIKit
 @objc public class StorageStack: NSObject {
     
     /// Singleton instance
-    public static var shared = StorageStack()
+    public private(set) static var shared = StorageStack()
     
     /// Directory of managed object contexes
-    private var managedObjectContextDirectory: ManagedObjectContextDirectory? = nil
+    public var managedObjectContextDirectory: ManagedObjectContextDirectory? = nil
     
     /// Whether the next storage should be create as in memory instead of on disk.
     /// This is mostly useful for testing.
     public var createStorageAsInMemory: Bool = false
-    
+
+    private var url: URL?
+
+    public var storeExists: Bool {
+        guard let storeURL = url else { return false }
+        return FileManager.default.fileExists(atPath: storeURL.path)
+            || (managedObjectContextDirectory != nil && createStorageAsInMemory)
+    }
+
     /// Persistent store currently being initialized
     private var currentPersistentStoreInitialization: PersistentStorageInitialization? = nil
     
@@ -51,9 +59,12 @@ import UIKit
         guard self.currentPersistentStoreInitialization == nil else {
             fatal("Trying to create a new store before a previous one is done creating")
         }
+
+        self.url = url
         
         // destroy previous stack if any
         if self.createStorageAsInMemory {
+
             let directory = InMemoryStoreInitialization.createManagedObjectContextDirectory(keyStore: keyStore, store: url)
             self.managedObjectContextDirectory = directory
             completionHandler(directory)
