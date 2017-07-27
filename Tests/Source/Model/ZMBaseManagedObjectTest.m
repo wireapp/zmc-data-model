@@ -26,7 +26,6 @@
 #import "NSManagedObjectContext+zmessaging-Internal.h"
 #import "MockModelObjectContextFactory.h"
 #import "ZMAssetClientMessage.h"
-#import "ZMTestSession.h"
 
 #import "ZMUser+Internal.h"
 #import "ZMConversation+Internal.h"
@@ -35,12 +34,14 @@
 
 #import "NSString+RandomString.h"
 
+@import WireDataModel;
+
 NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
 
 
 @interface ZMBaseManagedObjectTest ()
 
-@property (nonatomic) ZMTestSession *testSession;
+@property (nonatomic) ManagedObjectContextDirectory *contextDirectory;
 @property (nonatomic) NSTimeInterval originalConversationLastReadTimestampTimerValue; // this will speed up the tests A LOT
 
 @end
@@ -60,20 +61,25 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
 
 - (void)performPretendingUiMocIsSyncMoc:(void(^)(void))block;
 {
-    [self.testSession performPretendingUiMocIsSyncMoc:block];
+    block();
+//    [self.testSession performPretendingUiMocIsSyncMoc:block];
 }
 
 - (void)setUp;
 {
     [super setUp];
     
-    self.testSession = [[ZMTestSession alloc] initWithDispatchGroup:self.dispatchGroup];
-    self.testSession.shouldUseInMemoryStore = self.shouldUseInMemoryStore;
-    self.testSession.shouldUseRealKeychain = self.shouldUseRealKeychain;
+    StorageStack *stack = StorageStack.shared;
+    stack.createStorageAsInMemory = self.shouldUseInMemoryStore;
     
-    [self performIgnoringZMLogError:^{
-        [self.testSession prepareForTestNamed:self.name];
-    }];
+//
+//    self.testSession = [[ZMTestSession alloc] initWithDispatchGroup:self.dispatchGroup];
+//    self.testSession.shouldUseInMemoryStore = self.shouldUseInMemoryStore;
+//    self.testSession.shouldUseRealKeychain = self.shouldUseRealKeychain;
+//    
+//    [self performIgnoringZMLogError:^{
+//        [self.testSession prepareForTestNamed:self.name];
+//    }];
     
     NSString *testName = NSStringFromSelector(self.invocation.selector);
     NSString *methodName = [NSString stringWithFormat:@"setup%@%@", [testName substringToIndex:1].capitalizedString, [testName substringFromIndex:1]];
@@ -88,34 +94,35 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
 - (void)tearDown;
 {
     WaitForAllGroupsToBeEmpty(500); // we want the test to get stuck if there is something wrong. Better than random failures
-    [self.testSession tearDown];
-    self.testSession = nil;
+//    [self.testSession tearDown];
+    self.contextDirectory = nil;
     [super tearDown];
 }
 
 - (NSManagedObjectContext *)uiMOC
 {
-    return self.testSession.uiMOC;
+    return self.contextDirectory.uiContext;
 }
 
 - (NSManagedObjectContext *)syncMOC
 {
-    return self.testSession.syncMOC;
+    return self.contextDirectory.syncContext;
 }
 
 - (NSManagedObjectContext *)searchMOC
 {
-    return self.testSession.searchMOC;
+    return self.contextDirectory.searchContext;
 }
 
 - (void)cleanUpAndVerify {
-    [self.testSession waitAndDeleteAllManagedObjectContexts];
+//    [self.testSession waitAndDeleteAllManagedObjectContexts];
     [self verifyMocksNow];
 }
 
 - (void)resetUIandSyncContextsAndResetPersistentStore:(BOOL)resetPersistentStore
 {
-    [self.testSession resetUIandSyncContextsAndResetPersistentStore:resetPersistentStore];
+    resetPersistentStore = YES;
+//    [self.testSession resetUIandSyncContextsAndResetPersistentStore:resetPersistentStore];
 }
 
 
@@ -141,7 +148,7 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
 
 - (void)wipeCaches
 {
-    [self.testSession wipeCaches];
+//    [self.testSession wipeCaches];
 }
 
 @end

@@ -60,6 +60,7 @@ extension NSPersistentStoreCoordinator {
     
     /// Adds the persistent store
     fileprivate func addPersistentStoreWithNoMigration(at url: URL) {
+        removePersistentStoreFromDisk(at: url)
         let options = NSPersistentStoreCoordinator.persistentStoreOptions(supportsMigration: false)
         do {
             try self.addPersistentStore(
@@ -67,10 +68,31 @@ extension NSPersistentStoreCoordinator {
                 configurationName: nil,
                 at: url,
                 options: options)
-        } catch {
+        } catch let error {
             fatal("Can not create Core Data storage at \(url). \(error)")
         }
     }
+    
+    /// Deleted persistent store and related files
+    fileprivate func removePersistentStoreFromDisk(at url: URL) {
+        // Enumerate all files in the store directory and find the ones that match the store name.
+        // We need to do this, because the store consists of several files.
+        let storeName = url.lastPathComponent
+        guard let values = try? url.resourceValues(forKeys: [.parentDirectoryURLKey]) else { return }
+        guard let storeFolder = values.parentDirectory else { return }
+        let fm = FileManager.default
+        guard let fileURLs = fm.enumerator(at: storeFolder, includingPropertiesForKeys: [.nameKey], options: .skipsSubdirectoryDescendants, errorHandler: nil) else { return }
+        
+        for file in fileURLs {
+            guard let url = file as? URL else { continue }
+            guard let values = try? url.resourceValues(forKeys: [.nameKey]) else { continue }
+            guard let name = values.name else { continue }
+            if name.hasPrefix(storeName) || name.hasPrefix(".\(storeName)_") {
+                try? fm.removeItem(at: url)
+            }
+        }
+    }
+    
 }
 
 extension NSPersistentStoreCoordinator {
@@ -102,7 +124,7 @@ extension NSPersistentStoreCoordinator {
     /// Check if the store should be migrated (as opposed to discarded) based on model versions
     fileprivate static func shouldMigrateStoreToNewModelVersion(at url: URL, model: NSManagedObjectModel) -> Bool {
         
-        if FileManager.default.fileExists(atPath: url.path) {
+        if !FileManager.default.fileExists(atPath: url.path) {
             // Store doesn't exist yet so need to migrate it.
             return false
         }
@@ -143,16 +165,18 @@ extension NSPersistentStoreCoordinator {
         
         let metadata = NSPersistentStoreCoordinator.metadataForStore(at: url)
         let options = NSPersistentStoreCoordinator.persistentStoreOptions(supportsMigration: true)
-        guard let _ = try? self.addPersistentStore(
-            ofType: NSSQLiteStoreType,
-            configurationName: nil,
-            at: url,
-            options: options) else
-        {
+        do {
+            _ = try self.addPersistentStore(
+                    ofType: NSSQLiteStoreType,
+                    configurationName: nil,
+                    at: url,
+                    options: options)
+        } catch let error {
             let oldModelVersion = metadata.managedObjectModelVersionIdentifier ?? "n/a"
             let currentModelVersion = self.managedObjectModel.firstVersionIdentifier
             fatal("Unable to perform migration and create SQLite Core Data store." +
-                "Old model version: \(oldModelVersion), current version \(currentModelVersion)"
+                "Old model version: \(oldModelVersion), current version \(currentModelVersion)" +
+                "with error: \(error.localizedDescription)"
             )
         }
     }
@@ -174,11 +198,13 @@ extension NSPersistentStoreCoordinator {
 extension Dictionary where Key == String {
     
     fileprivate var managedObjectModelVersionIdentifier: String? {
-        return (self[NSStoreModelVersionIdentifiersKey] as? [String])?.first
+        guard let versions = self[NSStoreModelVersionIdentifiersKey] as? [String] else { return nil }
+        return versions.first
     }
     
     fileprivate var managedObjectModelEntityNames: Set<String> {
-        return Set(((self[NSStoreModelVersionHashesKey] as? [String: Any]) ?? [:]).keys)
+        guard let entities = self[NSStoreModelVersionHashesKey] as? [String : Any] else { return [] }
+        return Set(entities.keys)
     }
 }
 

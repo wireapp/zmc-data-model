@@ -79,20 +79,20 @@
     XCTAssertEqualObjects(syncConversation.objectID, conversation.objectID);
 }
 
-- (void)testThatPermissionsAreCorrectlySet;
-{
-    NSError *error;
-    NSURL *parentURL;
-    XCTAssert([self.testSession.storeURL getResourceValue:&parentURL forKey:NSURLParentDirectoryURLKey error:&error], @"%@", error);
-    
-    NSNumber *excluded;
-    XCTAssert([parentURL getResourceValue:&excluded forKey:NSURLIsExcludedFromBackupKey error:&error], @"%@", error);
-    XCTAssertTrue(excluded.boolValue);
-    
-    NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:parentURL.path error:&error];
-    XCTAssertNotNil(attributes, @"%@", error);
-    int permissions = ((NSNumber *) attributes[NSFilePosixPermissions]).intValue;
-    XCTAssertEqual(permissions & 0077, 0);
-}
+//- (void)testThatPermissionsAreCorrectlySet;
+//{
+//    NSError *error;
+//    NSURL *parentURL;
+//    XCTAssert([self.testSession.storeURL getResourceValue:&parentURL forKey:NSURLParentDirectoryURLKey error:&error], @"%@", error);
+//    
+//    NSNumber *excluded;
+//    XCTAssert([parentURL getResourceValue:&excluded forKey:NSURLIsExcludedFromBackupKey error:&error], @"%@", error);
+//    XCTAssertTrue(excluded.boolValue);
+//    
+//    NSDictionary *attributes = [[NSFileManager defaultManager] attributesOfItemAtPath:parentURL.path error:&error];
+//    XCTAssertNotNil(attributes, @"%@", error);
+//    int permissions = ((NSNumber *) attributes[NSFilePosixPermissions]).intValue;
+//    XCTAssertEqual(permissions & 0077, 0);
+//}
 
 @end

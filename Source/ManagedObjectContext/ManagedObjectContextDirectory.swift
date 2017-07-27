@@ -34,16 +34,16 @@ import Foundation
     public let keyStoreURL: URL
     
     /// User interface context. It can be used only from the main queue
-    public let uiContext: NSManagedObjectContext
+    @objc public let uiContext: NSManagedObjectContext
     
     /// Local storage and network synchronization context. It can be used only from its private queue.
     /// This context track changes to its objects and synchronizes them from/to the backend.
-    public let syncContext: NSManagedObjectContext
+    @objc public let syncContext: NSManagedObjectContext
     
     /// Search context. It can be used only from its private queue.
     /// This context is used to perform searches, not to slow down or insert temporary results in the
     /// sync context.
-    public let searchContext: NSManagedObjectContext
+    @objc public let searchContext: NSManagedObjectContext
     
     deinit {
         self.uiContext.tearDown()

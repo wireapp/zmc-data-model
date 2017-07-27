@@ -78,7 +78,7 @@ extension ClientMessageTests_OTR {
         self.syncMOC.performGroupedBlockAndWait {
             
             //given
-            let message = self.syncConversation.appendOTRMessage(withText: self.name!, nonce: UUID.create(), fetchLinkPreview: true)
+            guard let message = self.syncConversation.appendOTRMessage(withText: self.name!, nonce: UUID.create(), fetchLinkPreview: true) else { return XCTFail() }
             
             //when
             guard let payloadAndStrategy = message.encryptedMessagePayloadData() else {
@@ -102,7 +102,7 @@ extension ClientMessageTests_OTR {
             
             //given
             self.syncConversation.messageDestructionTimeout = 10
-            let message = self.syncConversation.appendOTRMessage(withText: self.name!, nonce: UUID.create(), fetchLinkPreview: true)
+            guard let message = self.syncConversation.appendOTRMessage(withText: self.name!, nonce: UUID.create(), fetchLinkPreview: true) else { return XCTFail() }
             XCTAssertTrue(message.isEphemeral)
             
             //when
@@ -248,7 +248,7 @@ extension ClientMessageTests_OTR {
         
         syncMOC.performGroupedBlockAndWait {
             // given
-            let message = self.syncConversation.appendOTRMessage(withText: self.name!, nonce: UUID.create(), fetchLinkPreview: true)
+            guard let message = self.syncConversation.appendOTRMessage(withText: self.name!, nonce: UUID.create(), fetchLinkPreview: true) else { return XCTFail() }
             
             //when
             // when
@@ -289,7 +289,7 @@ extension ClientMessageTests_OTR {
             
             self.syncMOC.saveOrRollback()
                         
-            let textMessage = conversation.appendOTRMessage(withText: self.stringLargeEnoughToRequireExternal, nonce: UUID.create(), fetchLinkPreview: true)
+            guard let textMessage = conversation.appendOTRMessage(withText: self.stringLargeEnoughToRequireExternal, nonce: UUID.create(), fetchLinkPreview: true) else { return XCTFail() }
             
             textMessage.sender = self.syncUser1
             textMessage.senderClientID = senderID
@@ -338,7 +338,7 @@ extension ClientMessageTests_OTR {
             
             self.syncMOC.saveOrRollback()
             
-            let textMessage = conversation.appendOTRMessage(withText: self.stringLargeEnoughToRequireExternal, nonce: UUID.create(), fetchLinkPreview: true)
+            guard let textMessage = conversation.appendOTRMessage(withText: self.stringLargeEnoughToRequireExternal, nonce: UUID.create(), fetchLinkPreview: true) else { return XCTFail() }
             
             textMessage.sender = self.syncUser1
             textMessage.senderClientID = senderID

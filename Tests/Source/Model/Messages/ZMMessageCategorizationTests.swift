@@ -90,7 +90,7 @@ class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
         article.summary = "summary"
         let linkPreview = article.protocolBuffer.update(withOtrKey: Data(), sha256: Data())
         let genericMessage = ZMGenericMessage.message(text: "foo", linkPreview: linkPreview, nonce: UUID.create().transportString())
-        let message = self.conversation.appendClientMessage(with: genericMessage.data())
+        guard let message = self.conversation.appendClientMessage(with: genericMessage.data()) else { return XCTFail() }
         message.linkPreviewState = .processed
         
         // THEN

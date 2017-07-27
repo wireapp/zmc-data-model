@@ -107,7 +107,7 @@ extension ZMClientMessageTests_Ephemeral {
     func testItCreatesAnEphemeralMessageForLocation(){
         checkItCreatesAnEphemeralMessage { (conv) -> ZMMessage in
             let location = LocationData(latitude: 1.0, longitude: 1.0, name: "foo", zoomLevel: 1)
-            let message = conv.appendOTRMessage(with: location, nonce: UUID.create())
+            let message = conv.appendOTRMessage(with: location, nonce: UUID.create())!
             XCTAssertTrue(message.genericMessage!.ephemeral.hasLocation())
             return message
         }
@@ -155,7 +155,7 @@ extension ZMClientMessageTests_Ephemeral {
             article.summary = "summary"
             let linkPreview = article.protocolBuffer.update(withOtrKey: Data(), sha256: Data())
             let genericMessage = ZMGenericMessage.message(text: "foo", linkPreview: linkPreview, nonce: UUID.create().transportString(), expiresAfter: NSNumber(value: timeout))
-            let message = self.syncConversation.appendClientMessage(with: genericMessage.data())
+            guard let message = self.syncConversation.appendClientMessage(with: genericMessage.data()) else { return XCTFail() }
             message.linkPreviewState = .processed
             XCTAssertEqual(message.linkPreviewState, .processed)
             XCTAssertEqual(self.obfuscationTimer.runningTimersCount, 0)
@@ -293,7 +293,7 @@ extension ZMClientMessageTests_Ephemeral {
             conversation.mutableOtherActiveParticipants.add(self.syncUser1)
             self.syncMOC.saveOrRollback()
             
-            let textMessage = conversation.appendOTRMessage(withText: "foo", nonce: UUID.create(), fetchLinkPreview: true)
+            guard let textMessage = conversation.appendOTRMessage(withText: "foo", nonce: UUID.create(), fetchLinkPreview: true) else { return XCTFail() }
             
             //when
             guard let _ = textMessage.encryptedMessagePayloadData()
