@@ -62,16 +62,19 @@ extension NSPersistentStoreCoordinator {
     
     /// Adds the persistent store
     fileprivate func addPersistentStoreWithNoMigration(at url: URL) {
-        // TODO Silvan: removePersistentStoreFromDisk(at: url)
         let options = NSPersistentStoreCoordinator.persistentStoreOptions(supportsMigration: false)
+        let addStore = { _ = try self.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: url, options: options) }
         do {
-            try self.addPersistentStore(
-                ofType: NSSQLiteStoreType,
-                configurationName: nil,
-                at: url,
-                options: options)
-        } catch let error {
-            fatal("Can not create Core Data storage at \(url). \(error)")
+            // We try to add the store on disk
+            try addStore()
+        } catch {
+            do {
+                // In case we fail we remove the store and create a new one
+                removePersistentStoreFromDisk(at: url)
+                try addStore()
+            } catch {
+                fatal("Can not create Core Data storage at \(url). \(error)")
+            }
         }
     }
     
@@ -124,7 +127,8 @@ extension NSPersistentStoreCoordinator {
     }
     
     /// Check if the store should be migrated (as opposed to discarded) based on model versions
-    fileprivate static func shouldMigrateStoreToNewModelVersion(at url: URL, model: NSManagedObjectModel) -> Bool {
+    @objc(shouldMigrateStoreToNewModelVersionAtURL:withModel:)
+    static func shouldMigrateStoreToNewModelVersion(at url: URL, model: NSManagedObjectModel) -> Bool {
         
         guard FileManager.default.fileExists(atPath: url.path) else {
             // Store doesn't exist yet so need to migrate it.
