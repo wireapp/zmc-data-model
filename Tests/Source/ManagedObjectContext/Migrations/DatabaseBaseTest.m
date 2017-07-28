@@ -78,23 +78,24 @@
 
 - (void)cleanUp
 {
-    NSString *supportCachesPath = self.cachesDirectoryStoreURL.URLByDeletingLastPathComponent.path;
-    if([self.fm fileExistsAtPath:supportCachesPath]) {
-        [self.fm removeItemAtPath:supportCachesPath error:nil];
+    WaitForAllGroupsToBeEmpty(2.0);
+    [StorageStack reset];
+    [[StorageStack shared] setCreateStorageAsInMemory:NO];
+
+    NSURL *supportCachesDir = [[NSFileManager defaultManager] URLsForDirectory:NSCachesDirectory inDomains:NSUserDomainMask].firstObject;
+    if([self.fm fileExistsAtPath:supportCachesDir.path]) {
+        [self.fm removeItemAtPath:supportCachesDir.path error:nil];
     }
     
-    NSString *supportApplicationSupportPath = self.applicationSupportDirectoryStoreURL.URLByDeletingLastPathComponent.path;
-    if([self.fm fileExistsAtPath:supportApplicationSupportPath]) {
-        [self.fm removeItemAtPath:supportApplicationSupportPath error:nil];
+    NSURL *supportApplicationSupportDir = [[NSFileManager defaultManager] URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask].firstObject;
+    if([self.fm fileExistsAtPath:supportApplicationSupportDir.path]) {
+        [self.fm removeItemAtPath:supportApplicationSupportDir.path error:nil];
     }
     
     NSString *testSharedContainerPath = self.sharedContainerDirectoryURL.URLByDeletingLastPathComponent.path;
     if([self.fm fileExistsAtPath:testSharedContainerPath]) {
         [self.fm removeItemAtPath:testSharedContainerPath error:nil];
     }
- 
-    [StorageStack reset];
-    [[StorageStack shared] setCreateStorageAsInMemory:NO];
     
     [self performIgnoringZMLogError:^{
         NSError *error = nil;
@@ -105,7 +106,6 @@
                 error = nil;
             }
         }
-        
         if (error) {
             ZMLogError(@"Error reading %@: %@", self.sharedContainerDirectoryURL, error);
         }

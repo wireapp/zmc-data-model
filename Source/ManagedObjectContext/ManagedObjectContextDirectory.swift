@@ -51,7 +51,7 @@ import Foundation
     public let searchContext: NSManagedObjectContext
     
     deinit {
-        // TODO Sabine: Test that it tears down
+        // TODO Silvan: Test that it tears down
         self.uiContext.tearDown()
         self.syncContext.tearDown()
         self.searchContext.tearDown()
