@@ -141,13 +141,16 @@ public final class AccountStore: NSObject {
     /// Creates the `Accounts` subdirectory to store accounts data in.
     /// Excludes the directory from backend as well as set the correct `FileProtectionType`.
     private func createDirectoryIfNeeded() {
+        guard !fileManager.fileExists(atPath: directory.path) else { return }
         do {
-            guard !fileManager.fileExists(atPath: directory.path) else { return }
             try fileManager.createDirectory(at: directory, withIntermediateDirectories: true, attributes: nil)
             try (directory as NSURL).setResourceValue(true, forKey: .isExcludedFromBackupKey)
+            try fileManager.setAttributes([FileAttributeKey.protectionKey: FileProtectionType.completeUntilFirstUserAuthentication], ofItemAtPath: directory.path)
         } catch {
             log.error("Failed to create AccountStore store directory at: \(directory), error: \(error)")
         }
+        
+        
     }
     
 }
