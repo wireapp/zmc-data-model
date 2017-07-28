@@ -200,7 +200,6 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
 
 - (void)setUpCaches
 {
-    NSLog(@"%@", self.uiMOC);
     self.uiMOC.zm_imageAssetCache = [[ImageAssetCache alloc] initWithMBLimit:5 location:nil];
     self.uiMOC.zm_userImageCache = [[UserImageLocalCache alloc] initWithLocation:nil];
     self.uiMOC.zm_fileAssetCache = [[FileAssetCache alloc] initWithLocation:nil];
