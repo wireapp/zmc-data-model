@@ -135,6 +135,23 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
     }];
 }
 
+- (BOOL)waitUntilDate:(NSDate *)runUntil verificationBlock:(VerificationBlock)block;
+{
+    BOOL success = NO;
+    while (! success && (0. < [runUntil timeIntervalSinceNow])) {
+        
+        if (! [[NSRunLoop currentRunLoop] runMode:NSDefaultRunLoopMode beforeDate:[NSDate dateWithTimeIntervalSinceNow:0.01]]) {
+            [NSThread sleepForTimeInterval:0.005];
+        }
+        
+        if ((block != nil) && block()) {
+            success = YES;
+            break;
+        }
+    }
+    return success;
+}
+
 - (void)resetUIandSyncContextsAndResetPersistentStore:(BOOL)resetPersistentStore
 {
     NSString *clientID = [self.uiMOC persistentStoreMetadataForKey:ZMPersistedClientIdKey];
@@ -143,14 +160,16 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
         [StorageStack reset];
         [[StorageStack shared] setCreateStorageAsInMemory:self.shouldUseInMemoryStore];
     }
-//    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
+    self.contextDirectory = nil;
     [[StorageStack shared] createManagedObjectContextDirectoryForAccountWith:self.accountIdentifier inContainerAt:self.containerURL startedMigrationCallback:nil completionHandler:^(ManagedObjectContextDirectory * directory) {
         self.contextDirectory = directory;
-//        dispatch_semaphore_signal(semaphore);
     }];
     
-    [self spin]
-//    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
+    NSDate *runUntil = [NSDate dateWithTimeIntervalSinceNow: 5];
+    BOOL didCreateDirectory = [self waitUntilDate:runUntil verificationBlock:^BOOL{
+        return self.contextDirectory != nil;
+    }];
+    RequireString(didCreateDirectory, "Did not create context directory. Something might be blocking the main thread?");
     
     // NOTE this produces logs if self.useInMemoryStore = NO
     [self.uiMOC addGroup:self.dispatchGroup];
