@@ -24,15 +24,23 @@ import UIKit
 @objc public class StorageStack: NSObject {
     
     /// Singleton instance
-    public static var shared = StorageStack()
+    public private(set) static var shared = StorageStack()
     
     /// Directory of managed object contexes
-    private var managedObjectContextDirectory: ManagedObjectContextDirectory? = nil
+    public var managedObjectContextDirectory: ManagedObjectContextDirectory? = nil
     
     /// Whether the next storage should be create as in memory instead of on disk.
     /// This is mostly useful for testing.
     public var createStorageAsInMemory: Bool = false
-    
+
+    private var url: URL?
+
+    public var storeExists: Bool {
+        guard let storeURL = url else { return false }
+        return FileManager.default.fileExists(atPath: storeURL.path)
+            || (managedObjectContextDirectory != nil && createStorageAsInMemory)
+    }
+
     /// Persistent store currently being initialized
     private var currentPersistentStoreInitialization: PersistentStorageInitialization? = nil
     
@@ -51,9 +59,12 @@ import UIKit
         guard self.currentPersistentStoreInitialization == nil else {
             fatal("Trying to create a new store before a previous one is done creating")
         }
+
+        self.url = url
         
         // destroy previous stack if any
         if self.createStorageAsInMemory {
+
             let directory = InMemoryStoreInitialization.createManagedObjectContextDirectory(keyStore: keyStore, store: url)
             self.managedObjectContextDirectory = directory
             completionHandler(directory)
@@ -82,8 +93,9 @@ import UIKit
 /// Creates an in memory stack CoreData stack
 class InMemoryStoreInitialization {
     
-    public static func createManagedObjectContextDirectory(keyStore: URL, store: URL) -> ManagedObjectContextDirectory {
-        let psc = NSPersistentStoreCoordinator(inMemoryWithModel: loadManagedObjectModel())
+    @objc public static func createManagedObjectContextDirectory(keyStore: URL, store: URL) -> ManagedObjectContextDirectory {
+        let model = NSManagedObjectModel.loadModel()
+        let psc = NSPersistentStoreCoordinator(inMemoryWithModel: model)
         let managedObjectContextDirectory = ManagedObjectContextDirectory(
             persistentStoreCoordinator: psc,
             store: store,
@@ -130,7 +142,7 @@ class PersistentStorageInitialization {
         startedMigrationCallback: (() -> Void)?,
         completionHandler: @escaping (ManagedObjectContextDirectory) -> Void)
     {
-        let model = loadManagedObjectModel()
+        let model = NSManagedObjectModel.loadModel()
         self.createPersistentStoreCoordinator(
             at: url,
             model: model,
@@ -171,7 +183,8 @@ extension PersistentStorageInitialization {
                 completionHandler(creation())
             }
         } else {
-            completionHandler(creation())
+            let store = creation()
+            completionHandler(store)
         }
     }
     
@@ -209,12 +222,14 @@ extension PersistentStorageInitialization {
     }
 }
 
-/// Loads the CoreData model from the current bundle
-private func loadManagedObjectModel() -> NSManagedObjectModel {
-    let modelBundle = Bundle(for: ZMManagedObject.self)
-    guard let result = NSManagedObjectModel.mergedModel(from: [modelBundle]) else {
-        fatal("Can't load data model bundle")
+extension NSManagedObjectModel {
+    /// Loads the CoreData model from the current bundle
+    @objc public static func loadModel() -> NSManagedObjectModel {
+        let modelBundle = Bundle(for: ZMManagedObject.self)
+        guard let result = NSManagedObjectModel.mergedModel(from: [modelBundle]) else {
+            fatal("Can't load data model bundle")
+        }
+        return result
     }
-    return result
 }
 
