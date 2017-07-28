@@ -103,7 +103,7 @@ extension NSPersistentStoreCoordinator {
         
         var directory = url //.deletingLastPathComponent()
         if !FileManager.default.fileExists(atPath: directory.path) {
-            let permission = 0700
+            let permission = 0o700
             let attributes = [FileAttributeKey.posixPermissions.rawValue: permission] as [String: Any]
             do {
                 try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true, attributes: attributes)

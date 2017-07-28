@@ -53,7 +53,7 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
     if (self) {
         _dispatchGroup = dispatchGroup;
         self.accountIdentifier = [NSUUID createUUID];
-        self.containerURL = [[NSFileManager defaultManager] urlInUserDomainFor:NSDocumentDirectory];
+        self.containerURL = [[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] firstObject];
         self.storeURL = [NSFileManager currentStoreURLForAccountWith:self.accountIdentifier in:self.containerURL];
     }
     
@@ -107,7 +107,10 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
     [self wipeCaches];
     ZMConversationDefaultLastReadTimestampSaveDelay = self.originalConversationLastReadTimestampTimerValue;
     [self waitAndDeleteAllManagedObjectContexts];
-    [[NSFileManager defaultManager] removeItemAtURL:self.containerURL error:nil];
+    NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:self.containerURL includingPropertiesForKeys:nil options:0 error:nil];
+    for (NSURL *file in files){
+        [[NSFileManager defaultManager] removeItemAtURL:file error:nil];
+    }
 }
 
 - (void)waitAndDeleteAllManagedObjectContexts
@@ -140,12 +143,14 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
         [StorageStack reset];
         [[StorageStack shared] setCreateStorageAsInMemory:self.shouldUseInMemoryStore];
     }
-    [self.dispatchGroup enter];
+//    dispatch_semaphore_t semaphore = dispatch_semaphore_create(0);
     [[StorageStack shared] createManagedObjectContextDirectoryForAccountWith:self.accountIdentifier inContainerAt:self.containerURL startedMigrationCallback:nil completionHandler:^(ManagedObjectContextDirectory * directory) {
         self.contextDirectory = directory;
-        [self.dispatchGroup leave];
+//        dispatch_semaphore_signal(semaphore);
     }];
-    [self.dispatchGroup waitForInterval:2];
+    
+    [self spin]
+//    dispatch_semaphore_wait(semaphore, DISPATCH_TIME_FOREVER);
     
     // NOTE this produces logs if self.useInMemoryStore = NO
     [self.uiMOC addGroup:self.dispatchGroup];
@@ -153,7 +158,6 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
     [self performPretendingUiMocIsSyncMoc:^{
         [self.uiMOC setupUserKeyStoreInSharedContainer:self.containerURL withAccountIdentifier:self.accountIdentifier];
     }];
-    
     
     [self.syncMOC performGroupedBlockAndWait:^{
         self.syncMOC.userInfo[@"TestName"] = self.testName;
@@ -177,6 +181,7 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
 
 - (void)setUpCaches
 {
+    NSLog(@"%@", self.uiMOC);
     self.uiMOC.zm_imageAssetCache = [[ImageAssetCache alloc] initWithMBLimit:5 location:nil];
     self.uiMOC.zm_userImageCache = [[UserImageLocalCache alloc] initWithLocation:nil];
     self.uiMOC.zm_fileAssetCache = [[FileAssetCache alloc] initWithLocation:nil];
