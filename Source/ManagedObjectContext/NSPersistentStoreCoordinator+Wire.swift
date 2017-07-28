@@ -62,7 +62,7 @@ extension NSPersistentStoreCoordinator {
     
     /// Adds the persistent store
     fileprivate func addPersistentStoreWithNoMigration(at url: URL) {
-        removePersistentStoreFromDisk(at: url)
+        // TODO Silvan: removePersistentStoreFromDisk(at: url)
         let options = NSPersistentStoreCoordinator.persistentStoreOptions(supportsMigration: false)
         do {
             try self.addPersistentStore(
@@ -101,7 +101,7 @@ extension NSPersistentStoreCoordinator {
     
     static func createDirectoryForStore(at url: URL) {
         
-        var directory = url //.deletingLastPathComponent()
+        var directory = url.deletingLastPathComponent()
         if !FileManager.default.fileExists(atPath: directory.path) {
             let permission = 0o700
             let attributes = [FileAttributeKey.posixPermissions.rawValue: permission] as [String: Any]

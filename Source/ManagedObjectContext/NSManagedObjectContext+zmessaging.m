@@ -191,25 +191,6 @@ static NSString* ZMLogTag ZM_UNUSED = @"NSManagedObjectContext";
     return self.userInfo[FailedToEstablishSessionStoreKey];
 }
 
-+ (void)createDirectoryForStoreAtURL:(NSURL *)storeURL
-{
-    NSFileManager *fileManager = [NSFileManager defaultManager];
-    NSURL *directory = storeURL.URLByDeletingLastPathComponent;
-    
-    if (! [fileManager fileExistsAtPath:directory.path]) {
-        NSError *error;
-        short const permissions = 0700;
-        NSDictionary *attr = @{NSFilePosixPermissions: @(permissions)};
-        RequireString([fileManager createDirectoryAtURL:directory withIntermediateDirectories:YES attributes:attr error:&error],
-                      "Failed to create directory: %lu, error: %lu", (unsigned long)directory,  (unsigned long) error.code);
-    }
-    
-    // Make sure this is not backed up:
-    NSError *error;
-    if (! [directory setResourceValue:@YES forKey:NSURLIsExcludedFromBackupKey error:&error]) {
-        ZMLogError(@"Error excluding %@ from backup %@", directory.path, error);
-    }
-}
 
 /// Fetch metadata for key from in-memory non-persisted metadata
 /// or from persistent store metadata, in that order
