@@ -49,9 +49,9 @@ import UIKit
     /// This method should not be called again before any previous invocation completion handler has been called.
     /// - parameter completionHandler: this callback is invoked on the main queue. It is responsibility
     ///     of the caller to switch back to the same queue that this method was invoked on.
-    public func createManagedObjectContextDirectory(
-        at url: URL,
-        keyStore: URL,
+    @objc public func createManagedObjectContextDirectory(
+        forAccountWith accountIdentifier: UUID?,
+        inContainerAt containerUrl: URL,
         startedMigrationCallback: (() -> Void)? = nil,
         completionHandler: @escaping (ManagedObjectContextDirectory) -> Void
         )
@@ -60,18 +60,17 @@ import UIKit
             fatal("Trying to create a new store before a previous one is done creating")
         }
 
-        self.url = url
-        
+        self.url = FileManager.currentStoreURLForAccount(with: accountIdentifier, in: containerUrl)
+
         // destroy previous stack if any
         if self.createStorageAsInMemory {
-
-            let directory = InMemoryStoreInitialization.createManagedObjectContextDirectory(keyStore: keyStore, store: url)
+            let directory = InMemoryStoreInitialization.createManagedObjectContextDirectory(forAccountWith: accountIdentifier, inContainerAt: containerUrl)
             self.managedObjectContextDirectory = directory
             completionHandler(directory)
         } else {
             self.currentPersistentStoreInitialization = PersistentStorageInitialization.createManagedObjectContextDirectory(
-                at: url,
-                keyStore: keyStore,
+                forAccountWith: accountIdentifier,
+                inContainerAt: containerUrl,
                 startedMigrationCallback: startedMigrationCallback)
             { [weak self] directory in
                 DispatchQueue.main.async {
@@ -92,14 +91,16 @@ import UIKit
 
 /// Creates an in memory stack CoreData stack
 class InMemoryStoreInitialization {
-    
-    @objc public static func createManagedObjectContextDirectory(keyStore: URL, store: URL) -> ManagedObjectContextDirectory {
+
+    @objc public static func createManagedObjectContextDirectory(forAccountWith accountIdentifier: UUID?,
+                                                           inContainerAt containerUrl: URL) -> ManagedObjectContextDirectory
+    {
         let model = NSManagedObjectModel.loadModel()
         let psc = NSPersistentStoreCoordinator(inMemoryWithModel: model)
         let managedObjectContextDirectory = ManagedObjectContextDirectory(
             persistentStoreCoordinator: psc,
-            store: store,
-            keyStore: keyStore
+            forAccountWith: accountIdentifier,
+            inContainerAt: containerUrl
         )
         return managedObjectContextDirectory
     }
@@ -118,8 +119,8 @@ class PersistentStorageInitialization {
     /// until the `completionHandler` is invoked. 
     /// If not, the callback might end up not being invoked.
     fileprivate static func createManagedObjectContextDirectory(
-        at url: URL,
-        keyStore: URL,
+        forAccountWith accountIdentifier: UUID?,
+        inContainerAt containerUrl: URL,
         startedMigrationCallback: (() -> Void)?,
         completionHandler: @escaping (ManagedObjectContextDirectory) -> Void
     ) -> PersistentStorageInitialization {
@@ -127,8 +128,8 @@ class PersistentStorageInitialization {
         DispatchQueue(label: "Store creation").async { [weak initialization] in
             guard let initialization = initialization else { return }
             initialization.createPersistentStoreAndContexes(
-                at: url,
-                keyStore: keyStore,
+                forAccountWith: accountIdentifier,
+                inContainerAt: containerUrl,
                 startedMigrationCallback: startedMigrationCallback,
                 completionHandler: completionHandler
             )
@@ -137,21 +138,22 @@ class PersistentStorageInitialization {
     }
     
     fileprivate func createPersistentStoreAndContexes(
-        at url: URL,
-        keyStore: URL,
+        forAccountWith accountIdentifier: UUID?,
+        inContainerAt containerUrl: URL,
         startedMigrationCallback: (() -> Void)?,
         completionHandler: @escaping (ManagedObjectContextDirectory) -> Void)
     {
         let model = NSManagedObjectModel.loadModel()
         self.createPersistentStoreCoordinator(
-            at: url,
+            forAccountWith: accountIdentifier,
+            inContainerAt: containerUrl,
             model: model,
             startedMigrationCallback: startedMigrationCallback
             ) { psc in
                 let mocDirectory = ManagedObjectContextDirectory(
                     persistentStoreCoordinator: psc,
-                    store: url,
-                    keyStore: keyStore)
+                    forAccountWith: accountIdentifier,
+                    inContainerAt: containerUrl)
                 completionHandler(mocDirectory)
         }
         
@@ -163,22 +165,25 @@ extension PersistentStorageInitialization {
     
     /// Creates a filesystem-backed persistent store coordinator with the model contained in this bundle
     fileprivate func createPersistentStoreCoordinator(
-        at url: URL,
+        forAccountWith accountIdentifier: UUID?,
+        inContainerAt containerUrl: URL,
         model: NSManagedObjectModel,
         startedMigrationCallback: (() -> Void)?,
         completionHandler: @escaping (NSPersistentStoreCoordinator) -> Void
         ) {
         
         let creation: (Void) -> NSPersistentStoreCoordinator = {
-            NSPersistentStoreCoordinator(localStoreAt: url,
+            NSPersistentStoreCoordinator(forAccountWith: accountIdentifier,
+                                         inContainerAt: containerUrl,
                                          model: model,
                                          startedMigrationCallback: startedMigrationCallback
                                          )
         }
         
+        let storeURL = FileManager.currentStoreURLForAccount(with: accountIdentifier, in: containerUrl)
         // We need to handle the case when the database file is encrypted by iOS and user never entered the passcode
         // We use default core data protection mode NSFileProtectionCompleteUntilFirstUserAuthentication
-        if PersistentStorageInitialization.databaseExistsButIsNotReadableDueToEncryption(at: url) {
+        if PersistentStorageInitialization.databaseExistsButIsNotReadableDueToEncryption(at: storeURL) {
             self.executeOnceFileSystemIsUnlocked {
                 completionHandler(creation())
             }

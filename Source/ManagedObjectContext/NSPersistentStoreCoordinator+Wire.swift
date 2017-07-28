@@ -22,25 +22,27 @@ extension NSPersistentStoreCoordinator {
     
     /// Creates a filesystem-based persistent store at the given url with the given model
     convenience init(
-        localStoreAt url: URL,
+        forAccountWith accountIdentifier: UUID?,
+        inContainerAt containerUrl: URL,
         model: NSManagedObjectModel,
         startedMigrationCallback: (() -> Void)?
         )
     {
         self.init(managedObjectModel: model)
         
-        NSPersistentStoreCoordinator.createDirectoryForStore(at: url)
+        let storeURL = FileManager.currentStoreURLForAccount(with: accountIdentifier, in: containerUrl)
+        NSPersistentStoreCoordinator.createDirectoryForStore(at: storeURL)
         
-        let storeRelocator = PersistentStoreRelocator(storeLocation: url)
+        let storeRelocator = PersistentStoreRelocator(sharedContainerURL: containerUrl, newStoreURL: storeURL)
         try! storeRelocator.moveStoreIfNecessary()
-        
-        if NSPersistentStoreCoordinator.shouldMigrateStoreToNewModelVersion(at: url, model: model) {
+
+        if NSPersistentStoreCoordinator.shouldMigrateStoreToNewModelVersion(at: storeURL, model: model) {
             DispatchQueue.main.async {
                 startedMigrationCallback?()
             }
-            self.migrateAndAddPersistentStore(url: url)
+            self.migrateAndAddPersistentStore(url: storeURL)
         } else {
-            self.addPersistentStoreWithNoMigration(at: url)
+            self.addPersistentStoreWithNoMigration(at: storeURL)
         }
     }
     
@@ -97,9 +99,9 @@ extension NSPersistentStoreCoordinator {
 
 extension NSPersistentStoreCoordinator {
     
-    fileprivate static func createDirectoryForStore(at url: URL) {
+    static func createDirectoryForStore(at url: URL) {
         
-        var directory = url.deletingLastPathComponent()
+        var directory = url //.deletingLastPathComponent()
         if !FileManager.default.fileExists(atPath: directory.path) {
             let permission = 0700
             let attributes = [FileAttributeKey.posixPermissions.rawValue: permission] as [String: Any]
@@ -124,7 +126,7 @@ extension NSPersistentStoreCoordinator {
     /// Check if the store should be migrated (as opposed to discarded) based on model versions
     fileprivate static func shouldMigrateStoreToNewModelVersion(at url: URL, model: NSManagedObjectModel) -> Bool {
         
-        if !FileManager.default.fileExists(atPath: url.path) {
+        guard FileManager.default.fileExists(atPath: url.path) else {
             // Store doesn't exist yet so need to migrate it.
             return false
         }

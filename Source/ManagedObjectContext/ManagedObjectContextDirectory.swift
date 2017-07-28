@@ -21,17 +21,22 @@ import Foundation
 /// List of context
 @objc public class ManagedObjectContextDirectory: NSObject {
     
-    init(persistentStoreCoordinator: NSPersistentStoreCoordinator, store: URL, keyStore: URL) {
-        self.storeURL = store
-        self.keyStoreURL = keyStore
+    init(persistentStoreCoordinator: NSPersistentStoreCoordinator, forAccountWith accountIdentifier: UUID?,
+         inContainerAt containerUrl: URL) {
+        // TODO Sabine
+        //self.storeURL = store
+        //self.keyStoreURL = keyStore
         self.uiContext = ManagedObjectContextDirectory.createUIManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator)
-        self.syncContext = ManagedObjectContextDirectory.createSyncManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator, keyStore: keyStore)
+        self.syncContext = ManagedObjectContextDirectory.createSyncManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator,
+                                                                                        forAccountWith: accountIdentifier,
+                                                                                        inContainerAt: containerUrl)
         self.searchContext = ManagedObjectContextDirectory.createSearchManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator)
         super.init()
     }
 
-    public let storeURL: URL
-    public let keyStoreURL: URL
+    // TODO Sabine
+    //public let storeURL: URL
+    //public let keyStoreURL: URL
     
     /// User interface context. It can be used only from the main queue
     public let uiContext: NSManagedObjectContext
@@ -46,6 +51,7 @@ import Foundation
     public let searchContext: NSManagedObjectContext
     
     deinit {
+        // TODO Sabine: Test that it tears down
         self.uiContext.tearDown()
         self.syncContext.tearDown()
         self.searchContext.tearDown()
@@ -68,14 +74,16 @@ extension ManagedObjectContextDirectory {
     }
     
     fileprivate static func createSyncManagedObjectContext(
-        persistentStoreCoordinator: NSPersistentStoreCoordinator, keyStore: URL) -> NSManagedObjectContext {
+        persistentStoreCoordinator: NSPersistentStoreCoordinator,
+        forAccountWith accountIdentifier: UUID?,
+        inContainerAt containerUrl: URL) -> NSManagedObjectContext {
         
         let moc = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         moc.markAsSyncContext()
         moc.performAndWait {
             moc.configure(with: persistentStoreCoordinator)
             moc.setupLocalCachedSessionAndSelfUser()
-            moc.setupUserKeyStore(for: keyStore)
+            moc.setupUserKeyStore(in: containerUrl, for: accountIdentifier)
             moc.undoManager = nil
             moc.mergePolicy = ZMSyncMergePolicy(merge: .mergeByPropertyObjectTrumpMergePolicyType)
             
