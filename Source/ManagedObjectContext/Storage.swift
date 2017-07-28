@@ -93,8 +93,9 @@ import UIKit
 /// Creates an in memory stack CoreData stack
 class InMemoryStoreInitialization {
     
-    public static func createManagedObjectContextDirectory(keyStore: URL, store: URL) -> ManagedObjectContextDirectory {
-        let psc = NSPersistentStoreCoordinator(inMemoryWithModel: loadManagedObjectModel())
+    @objc public static func createManagedObjectContextDirectory(keyStore: URL, store: URL) -> ManagedObjectContextDirectory {
+        let model = NSManagedObjectModel.loadModel()
+        let psc = NSPersistentStoreCoordinator(inMemoryWithModel: model)
         let managedObjectContextDirectory = ManagedObjectContextDirectory(
             persistentStoreCoordinator: psc,
             store: store,
@@ -141,7 +142,7 @@ class PersistentStorageInitialization {
         startedMigrationCallback: (() -> Void)?,
         completionHandler: @escaping (ManagedObjectContextDirectory) -> Void)
     {
-        let model = loadManagedObjectModel()
+        let model = NSManagedObjectModel.loadModel()
         self.createPersistentStoreCoordinator(
             at: url,
             model: model,
@@ -182,7 +183,8 @@ extension PersistentStorageInitialization {
                 completionHandler(creation())
             }
         } else {
-            completionHandler(creation())
+            let store = creation()
+            completionHandler(store)
         }
     }
     
@@ -220,12 +222,14 @@ extension PersistentStorageInitialization {
     }
 }
 
-/// Loads the CoreData model from the current bundle
-private func loadManagedObjectModel() -> NSManagedObjectModel {
-    let modelBundle = Bundle(for: ZMManagedObject.self)
-    guard let result = NSManagedObjectModel.mergedModel(from: [modelBundle]) else {
-        fatal("Can't load data model bundle")
+extension NSManagedObjectModel {
+    /// Loads the CoreData model from the current bundle
+    @objc public static func loadModel() -> NSManagedObjectModel {
+        let modelBundle = Bundle(for: ZMManagedObject.self)
+        guard let result = NSManagedObjectModel.mergedModel(from: [modelBundle]) else {
+            fatal("Can't load data model bundle")
+        }
+        return result
     }
-    return result
 }
 
