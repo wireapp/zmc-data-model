@@ -19,7 +19,7 @@
 #import <XCTest/XCTest.h>
 
 @import WireTesting;
-
+@class ManagedObjectContextDirectory;
 
 @interface DatabaseBaseTest : ZMTBaseTest
 
@@ -31,6 +31,7 @@
 @property (nonatomic, readonly) NSURL *sharedContainerStoreURL;
 @property (nonatomic, readonly) NSArray <NSString *> *databaseFileExtensions;
 @property (nonatomic, readonly) NSUUID *accountID;
+@property (nonatomic) ManagedObjectContextDirectory *contextDirectory;
 
 - (void)cleanUp;
 - (BOOL)createDatabaseInDirectory:(NSSearchPathDirectory)directory accountIdentifier:(NSUUID *)accountIdentifier;

@@ -71,6 +71,7 @@
     self.applicationSupportDirectoryStoreURL = nil;
     self.sharedContainerStoreURL = nil;
     self.sharedContainerDirectoryURL = nil;
+    self.contextDirectory = nil;
     
     [super tearDown];
 }
@@ -129,21 +130,16 @@
     
     [StorageStack reset];
     [[StorageStack shared] setCreateStorageAsInMemory:NO];
-    
-    __block BOOL didCreateDirectory;
+
     [[StorageStack shared] createManagedObjectContextDirectoryForAccountWith:accountIdentifier inContainerAt:sharedContainerURL startedMigrationCallback:nil completionHandler:^(ManagedObjectContextDirectory * directory) {
-        NOT_USED(directory);
-        didCreateDirectory = YES;
+        self.contextDirectory = directory;
     }];
-    
-    NSDate *runUntil = [NSDate dateWithTimeIntervalSinceNow: 5];
-    (void)[self waitUntilDate:runUntil verificationBlock:^BOOL{
-        return didCreateDirectory;
-    }];
-    XCTAssertTrue(didCreateDirectory, @"Did not create context directory. Something might be blocking the main thread?");
+
+    XCTAssert([self waitWithTimeout:5 verificationBlock:^BOOL{
+        return nil != self.contextDirectory;
+    }], @"Did not create context directory. Something might be blocking the main thread?");
     
     XCTAssertTrue([self createExternalSupportFileForDatabaseAtURL:storeURL]);
-    
     return YES;
 }
 
@@ -154,6 +150,9 @@
     NSString *storeName = [[databaseURL URLByDeletingPathExtension] lastPathComponent];
     NSString *supportFile  = [NSString stringWithFormat:@".%@_SUPPORT", storeName];
     NSString *supportPath = [databaseURL.URLByDeletingLastPathComponent URLByAppendingPathComponent:supportFile].path;
+    if ([self.fm fileExistsAtPath:supportPath]) {
+        [self.fm removeItemAtPath:supportPath error:nil];
+    }
     success &= [self.fm createDirectoryAtPath:supportPath withIntermediateDirectories:NO attributes:nil error:&error];
     XCTAssertNil(error);
     

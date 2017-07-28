@@ -1,176 +1,167 @@
-////
-//// Wire
-//// Copyright (C) 2017 Wire Swiss GmbH
-////
-//// This program is free software: you can redistribute it and/or modify
-//// it under the terms of the GNU General Public License as published by
-//// the Free Software Foundation, either version 3 of the License, or
-//// (at your option) any later version.
-////
-//// This program is distributed in the hope that it will be useful,
-//// but WITHOUT ANY WARRANTY; without even the implied warranty of
-//// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
-//// GNU General Public License for more details.
-////
-//// You should have received a copy of the GNU General Public License
-//// along with this program. If not, see http://www.gnu.org/licenses/.
-////
 //
-//import Foundation
-//import XCTest
-//@testable import WireDataModel
+// Wire
+// Copyright (C) 2017 Wire Swiss GmbH
 //
-//public final class ZMManagedObjectGroupingTests: DatabaseBaseTest {
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
 //
-//    let storeURL = FileManager.storeURL(in: .cachesDirectory)!
-//    var moc: NSManagedObjectContext!
-//    
-//    public override func setUp() {
-//        
-//        super.setUp()
-//// TODO Sabine
-////        self.createDatabase(in: .cachesDirectory, accountIdentifier: nil)
-////        NSManagedObjectContext.prepareLocalStoreForAccount(withIdentifier: accountID, inSharedContainerAt: sharedContainerDirectoryURL, backupCorruptedDatabase: false, synchronous: true) {
-////            self.moc = NSManagedObjectContext.createUserInterfaceContextForAccount(withIdentifier: self.accountID, inSharedContainerAt: self.sharedContainerDirectoryURL)
-////        }
-//        
-//        assert(self.waitForAllGroupsToBeEmpty(withTimeout: 1))
-//    }
-//    
-//    public override func tearDown() {
-//        super.tearDown()
-//        try? FileManager.default.removeItem(at: storeURL)
-//        moc = nil
-//    }
-//    
-//    
-//    public func testThatItFindsNoDuplicates_None() {
-//        // GIVEN
-//        // WHEN
-//        let duplicates: [String: [UserClient]] = self.moc.findDuplicated(by: #keyPath(UserClient.remoteIdentifier))
-//        
-//        // THEN
-//        XCTAssertEqual(duplicates.keys.count, 0)
-//    }
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
 //
-//    public func testThatItFindsNoDuplicates_One() {
-//        // GIVEN
-//        let remoteIdentifier = UUID().transportString()
-//        
-//        let client = UserClient.insertNewObject(in: self.moc)
-//        client.remoteIdentifier = remoteIdentifier
-//        
-//        self.moc.saveOrRollback()
-//        
-//        // WHEN
-//        let duplicates: [String: [UserClient]] = self.moc.findDuplicated(by: #keyPath(UserClient.remoteIdentifier))
-//        
-//        // THEN
-//        XCTAssertEqual(duplicates.keys.count, 0)
-//    }
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see http://www.gnu.org/licenses/.
 //
-//    public func testThatItFindsDuplicates_ManyCommon() {
-//        // GIVEN
-//        let remoteIdentifier = UUID().transportString()
-//        
-//        for _ in 1...10 {
-//            let client = UserClient.insertNewObject(in: self.moc)
-//            client.remoteIdentifier = remoteIdentifier
-//        }
-//        
-//        self.moc.saveOrRollback()
-//        
-//        // WHEN
-//        let duplicates: [String: [UserClient]] = self.moc.findDuplicated(by: #keyPath(UserClient.remoteIdentifier))
-//        
-//        // THEN
-//        XCTAssertEqual(duplicates.keys.count, 1)
-//        XCTAssertEqual(duplicates[remoteIdentifier]!.count, 10)
-//    }
-//    
-//    public func testThatItGroupsByPropertyValue_One() {
-//        // GIVEN
-//        let client = UserClient.insertNewObject(in: self.moc)
-//        client.remoteIdentifier = UUID().transportString()
-//        client.user = ZMUser.insert(in: self.moc, name: "User")
-//        
-//        // WHEN
-//        let grouped: [ZMUser: [UserClient]] = [client].group(by: ZMUserClientUserKey)
-//        
-//        // THEN
-//        XCTAssertEqual(grouped.keys.count, 1)
-//        for key in grouped.keys {
-//            XCTAssertEqual(grouped[key]!.count, 1)
-//        }
-//    }
-//
-//    public func testThatItGroupsByPropertyValue_Many() {
-//        // GIVEN
-//        let range = 1...10
-//        let user = ZMUser.insert(in: self.moc, name: "User")
-//        let clients: [UserClient] = range.map { _ in
-//            let client = UserClient.insertNewObject(in: self.moc)
-//            client.remoteIdentifier = UUID().transportString()
-//            client.user = user
-//            return client
-//        }
-//        
-//        // WHEN
-//        let grouped: [ZMUser: [UserClient]] = clients.group(by: ZMUserClientUserKey)
-//        
-//        // THEN
-//        XCTAssertEqual(grouped.keys.count, 1)
-//        XCTAssertEqual(grouped.keys.first, user)
-//        for key in grouped.keys {
-//            XCTAssertEqual(grouped[key]!.count, 10)
-//        }
-//    }
-//
-//    public func testThatItGroupsByPropertyValue_ManyDistinct() {
-//        // GIVEN
-//        let range = 1...10
-//        let clients: [UserClient] = range.map {
-//            let client = UserClient.insertNewObject(in: self.moc)
-//            client.remoteIdentifier = UUID().transportString()
-//            client.user = ZMUser.insert(in: self.moc, name: "User \($0)")
-//            return client
-//        }
-//        
-//        // WHEN
-//        let grouped: [ZMUser: [UserClient]] = clients.group(by: ZMUserClientUserKey)
-//        
-//        // THEN
-//        XCTAssertEqual(grouped.keys.count, 10)
-//        for key in grouped.keys {
-//            XCTAssertEqual(grouped[key]!.count, 1)
-//        }
-//    }
-//    
-//    public func testThatItIgnoresNil() {
-//        // GIVEN
-//        let range = 1...10
-//        let clients: [UserClient] = range.map { _ in
-//            let client = UserClient.insertNewObject(in: self.moc)
-//            client.remoteIdentifier = UUID().transportString()
-//            client.user = nil
-//            return client
-//        }
-//        
-//        // WHEN
-//        let grouped: [ZMUser: [UserClient]] = clients.group(by: ZMUserClientUserKey)
-//        
-//        // THEN
-//        XCTAssertEqual(grouped.keys.count, 0)
-//    }
-//}
-//
-//public final class ZMManagedObjectGroupingTestsInMemory: ZMBaseManagedObjectTest {
-//    func testThatItErrorsOnInMemoryStore() throws {
-//        // GIVEN && WHEN
-//        self.performIgnoringZMLogError {
-//            let _: [String: [UserClient]] = self.uiMOC.findDuplicated(by: #keyPath(UserClient.remoteIdentifier))
-//        }
-//        // THEN
-//        // test did not fail
-//    }
-//}
+
+import Foundation
+import XCTest
+@testable import WireDataModel
+
+public final class ZMManagedObjectGroupingTests: DatabaseBaseTest {
+
+    var moc: NSManagedObjectContext!
+    
+    public override func setUp() {
+        super.setUp()
+        createDatabase(in: .documentDirectory, accountIdentifier: accountID)
+        moc = contextDirectory.uiContext
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 1))
+    }
+    
+    public override func tearDown() {
+        super.tearDown()
+        moc = nil
+    }
+    
+    public func testThatItFindsNoDuplicates_None() {
+        // WHEN
+        let duplicates: [String: [UserClient]] = self.moc.findDuplicated(by: #keyPath(UserClient.remoteIdentifier))
+        
+        // THEN
+        XCTAssertEqual(duplicates.keys.count, 0)
+    }
+
+    public func testThatItFindsNoDuplicates_One() {
+        // GIVEN
+        let remoteIdentifier = UUID().transportString()
+        
+        let client = UserClient.insertNewObject(in: self.moc)
+        client.remoteIdentifier = remoteIdentifier
+        
+        self.moc.saveOrRollback()
+        
+        // WHEN
+        let duplicates: [String: [UserClient]] = self.moc.findDuplicated(by: #keyPath(UserClient.remoteIdentifier))
+        
+        // THEN
+        XCTAssertEqual(duplicates.keys.count, 0)
+    }
+
+    public func testThatItFindsDuplicates_ManyCommon() {
+        // GIVEN
+        let remoteIdentifier = UUID().transportString()
+        
+        for _ in 1...10 {
+            let client = UserClient.insertNewObject(in: self.moc)
+            client.remoteIdentifier = remoteIdentifier
+        }
+        
+        self.moc.saveOrRollback()
+        
+        // WHEN
+        let duplicates: [String: [UserClient]] = self.moc.findDuplicated(by: #keyPath(UserClient.remoteIdentifier))
+        
+        // THEN
+        XCTAssertEqual(duplicates.keys.count, 1)
+        XCTAssertEqual(duplicates[remoteIdentifier]!.count, 10)
+    }
+    
+    public func testThatItGroupsByPropertyValue_One() {
+        // GIVEN
+        let client = UserClient.insertNewObject(in: self.moc)
+        client.remoteIdentifier = UUID().transportString()
+        client.user = ZMUser.insert(in: self.moc, name: "User")
+        
+        // WHEN
+        let grouped: [ZMUser: [UserClient]] = [client].group(by: ZMUserClientUserKey)
+        
+        // THEN
+        XCTAssertEqual(grouped.keys.count, 1)
+        for key in grouped.keys {
+            XCTAssertEqual(grouped[key]!.count, 1)
+        }
+    }
+
+    public func testThatItGroupsByPropertyValue_Many() {
+        // GIVEN
+        let range = 1...10
+        let user = ZMUser.insert(in: self.moc, name: "User")
+        let clients: [UserClient] = range.map { _ in
+            let client = UserClient.insertNewObject(in: self.moc)
+            client.remoteIdentifier = UUID().transportString()
+            client.user = user
+            return client
+        }
+        
+        // WHEN
+        let grouped: [ZMUser: [UserClient]] = clients.group(by: ZMUserClientUserKey)
+        
+        // THEN
+        XCTAssertEqual(grouped.keys.count, 1)
+        XCTAssertEqual(grouped.keys.first, user)
+        for key in grouped.keys {
+            XCTAssertEqual(grouped[key]!.count, 10)
+        }
+    }
+
+    public func testThatItGroupsByPropertyValue_ManyDistinct() {
+        // GIVEN
+        let range = 1...10
+        let clients: [UserClient] = range.map {
+            let client = UserClient.insertNewObject(in: self.moc)
+            client.remoteIdentifier = UUID().transportString()
+            client.user = ZMUser.insert(in: self.moc, name: "User \($0)")
+            return client
+        }
+        
+        // WHEN
+        let grouped: [ZMUser: [UserClient]] = clients.group(by: ZMUserClientUserKey)
+        
+        // THEN
+        XCTAssertEqual(grouped.keys.count, 10)
+        for key in grouped.keys {
+            XCTAssertEqual(grouped[key]!.count, 1)
+        }
+    }
+    
+    public func testThatItIgnoresNil() {
+        // GIVEN
+        let range = 1...10
+        let clients: [UserClient] = range.map { _ in
+            let client = UserClient.insertNewObject(in: self.moc)
+            client.remoteIdentifier = UUID().transportString()
+            client.user = nil
+            return client
+        }
+        
+        // WHEN
+        let grouped: [ZMUser: [UserClient]] = clients.group(by: ZMUserClientUserKey)
+        
+        // THEN
+        XCTAssertEqual(grouped.keys.count, 0)
+    }
+}
+
+public final class ZMManagedObjectGroupingTestsInMemory: ZMBaseManagedObjectTest {
+    func testThatItErrorsOnInMemoryStore() throws {
+        // GIVEN && WHEN
+        self.performIgnoringZMLogError {
+            let _: [String: [UserClient]] = self.uiMOC.findDuplicated(by: #keyPath(UserClient.remoteIdentifier))
+        }
+        // THEN
+        // test did not fail
+    }
+}
