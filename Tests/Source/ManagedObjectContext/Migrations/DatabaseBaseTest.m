@@ -84,32 +84,28 @@
 
     NSURL *supportCachesDir = [[NSFileManager defaultManager] URLsForDirectory:NSCachesDirectory inDomains:NSUserDomainMask].firstObject;
     if([self.fm fileExistsAtPath:supportCachesDir.path]) {
-        [self.fm removeItemAtPath:supportCachesDir.path error:nil];
+        NSArray *contents = [self.fm contentsOfDirectoryAtURL:supportCachesDir includingPropertiesForKeys:nil options:0 error:nil];
+        for (NSURL *url in contents) {
+            NSError *error = nil;
+            [self.fm removeItemAtURL:url error:&error];
+            if (error) {
+                ZMLogError(@"Error cleaning up %@: %@", url, error);
+            }
+        }
     }
-    
+
     NSURL *supportApplicationSupportDir = [[NSFileManager defaultManager] URLsForDirectory:NSApplicationSupportDirectory inDomains:NSUserDomainMask].firstObject;
     if([self.fm fileExistsAtPath:supportApplicationSupportDir.path]) {
         [self.fm removeItemAtPath:supportApplicationSupportDir.path error:nil];
     }
-    
-    NSString *testSharedContainerPath = self.sharedContainerDirectoryURL.URLByDeletingLastPathComponent.path;
-    if([self.fm fileExistsAtPath:testSharedContainerPath]) {
-        [self.fm removeItemAtPath:testSharedContainerPath error:nil];
-    }
-    
-    [self performIgnoringZMLogError:^{
+
+    for (NSString *path in [self.fm contentsOfDirectoryAtPath:self.sharedContainerDirectoryURL.path error:nil]) {
         NSError *error = nil;
-        for (NSString *path in [self.fm contentsOfDirectoryAtPath:self.sharedContainerDirectoryURL.path error:&error]) {
-            [self.fm removeItemAtPath:[self.sharedContainerDirectoryURL.path stringByAppendingPathComponent:path] error:&error];
-            if (error) {
-                ZMLogError(@"Error cleaning up %@ in %@: %@", path, self.sharedContainerDirectoryURL, error);
-                error = nil;
-            }
-        }
+        [self.fm removeItemAtPath:[self.sharedContainerDirectoryURL.path stringByAppendingPathComponent:path] error:&error];
         if (error) {
-            ZMLogError(@"Error reading %@: %@", self.sharedContainerDirectoryURL, error);
+            ZMLogError(@"Error cleaning up %@ in %@: %@", path, self.sharedContainerDirectoryURL, error);
         }
-    }];
+    }
 }
 
 #pragma mark - Helper
