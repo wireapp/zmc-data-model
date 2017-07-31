@@ -173,7 +173,6 @@
 		F9331C581CB3BE5300139ECC /* ZMConversationTests+SecurityLevel.m in Sources */ = {isa = PBXBuildFile; fileRef = F9331C571CB3BE5300139ECC /* ZMConversationTests+SecurityLevel.m */; };
 		F9331C5A1CB3BECB00139ECC /* ZMClientMessageTests+OTR.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9331C591CB3BECB00139ECC /* ZMClientMessageTests+OTR.swift */; };
 		F9331C5C1CB3BF9F00139ECC /* UserClientKeyStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F9331C5B1CB3BF9F00139ECC /* UserClientKeyStoreTests.swift */; };
-		F9331C611CB3C7D500139ECC /* DatabaseInitTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F9331C5E1CB3C7D500139ECC /* DatabaseInitTests.m */; };
 		F9331C621CB3C7D500139ECC /* DatabaseMovingTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F9331C5F1CB3C7D500139ECC /* DatabaseMovingTests.m */; };
 		F9331C631CB3C7D500139ECC /* OTRMigrationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F9331C601CB3C7D500139ECC /* OTRMigrationTests.m */; };
 		F9331C6A1CB3D5B700139ECC /* ZMUpdateEventTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F9331C681CB3D56000139ECC /* ZMUpdateEventTests.m */; };
@@ -628,7 +627,6 @@
 		F9331C571CB3BE5300139ECC /* ZMConversationTests+SecurityLevel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ZMConversationTests+SecurityLevel.m"; sourceTree = "<group>"; };
 		F9331C591CB3BECB00139ECC /* ZMClientMessageTests+OTR.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZMClientMessageTests+OTR.swift"; sourceTree = "<group>"; };
 		F9331C5B1CB3BF9F00139ECC /* UserClientKeyStoreTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = UserClientKeyStoreTests.swift; sourceTree = "<group>"; };
-		F9331C5E1CB3C7D500139ECC /* DatabaseInitTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DatabaseInitTests.m; sourceTree = "<group>"; };
 		F9331C5F1CB3C7D500139ECC /* DatabaseMovingTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DatabaseMovingTests.m; sourceTree = "<group>"; };
 		F9331C601CB3C7D500139ECC /* OTRMigrationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = OTRMigrationTests.m; sourceTree = "<group>"; };
 		F9331C681CB3D56000139ECC /* ZMUpdateEventTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ZMUpdateEventTests.m; path = Tests/Source/ZMUpdateEventTests.m; sourceTree = SOURCE_ROOT; };
@@ -1070,7 +1068,6 @@
 			children = (
 				BF7AFFCD1D747EFD00B2E089 /* DatabaseBaseTest.h */,
 				BF7AFFCB1D747B5D00B2E089 /* DatabaseBaseTest.m */,
-				F9331C5E1CB3C7D500139ECC /* DatabaseInitTests.m */,
 				F9331C5F1CB3C7D500139ECC /* DatabaseMovingTests.m */,
 				F9331C601CB3C7D500139ECC /* OTRMigrationTests.m */,
 				162FAC661DDB732300FAB30B /* PersistentStoreRelocatorTests.swift */,
@@ -2361,7 +2358,6 @@
 				F94A2C521F2B20480011ED42 /* ZMTestSession.m in Sources */,
 				F9B71FF21CB2C4C6001DB03F /* AnyClassTupleTests.swift in Sources */,
 				F9A7083A1CAEEB7500C2F5FE /* MockEntity.m in Sources */,
-				F9331C611CB3C7D500139ECC /* DatabaseInitTests.m in Sources */,
 				F963E9741D9BF9ED00098AD3 /* ProtosTests.swift in Sources */,
 				16746B081D2EAF8E00831771 /* ZMClientMessageTests+ZMImageOwner.swift in Sources */,
 				F9FD757B1E2FB60E00B4558B /* SearchUserObserverTests.swift in Sources */,
