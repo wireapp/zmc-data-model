@@ -54,7 +54,7 @@ extension URL {
         let bundleId = Bundle.main.bundleIdentifier ?? Bundle(for: ZMUser.self).bundleIdentifier
         require(nil != bundleId, "Bundle identifier not found")
         
-        return appendingPathComponent("store.wiredatabase", isDirectory: false)
+        return appendingPathComponent(bundleId!, isDirectory: true).appendingPathComponent("store.wiredatabase", isDirectory: false)
     }
     
     fileprivate func appendingSuffixToLastPathComponent(suffix: String) -> URL {
