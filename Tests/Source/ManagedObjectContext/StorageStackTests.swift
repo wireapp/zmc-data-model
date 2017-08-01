@@ -102,7 +102,6 @@ class StorageStackTests: XCTestCase {
     
     func testThatItCanReopenAPreviouslyExistingDatabase() {
     
-        
         // GIVEN
         let uuid = UUID()
         let firstStackExpectation = self.expectation(description: "Callback invoked")
@@ -117,7 +116,7 @@ class StorageStackTests: XCTestCase {
             firstStackExpectation.fulfill()
         }
         
-        self.waitForExpectations(timeout: 50000)
+        self.waitForExpectations(timeout: 0.5)
         
         // create an entry to check that it is reopening the same DB
         contextDirectory.uiContext.setPersistentStoreMetadata(testValue, key: testKey)
@@ -138,7 +137,7 @@ class StorageStackTests: XCTestCase {
         }
         
         // THEN
-        self.waitForExpectations(timeout: 50000)
+        self.waitForExpectations(timeout: 0.5)
         XCTAssertEqual(contextDirectory.uiContext.persistentStoreCoordinator!.persistentStores.count, 1)
 
         guard let readValue = contextDirectory.uiContext.persistentStoreMetadata(forKey: testKey) as? String else {
@@ -150,6 +149,47 @@ class StorageStackTests: XCTestCase {
             return
         }
         XCTAssertEqual(readValue, testValue)
+    }
+    
+    func testThatItDoesItInvokesTheMigrationCallback() {
+        
+        // GIVEN
+        let uuid = UUID()
+        let completionExpectation = self.expectation(description: "Callback invoked")
+        let migrationExpectation = self.expectation(description: "Migration started")
+        
+        // WHEN
+        StorageStack.shared.createManagedObjectContextDirectory(
+            forAccountWith: uuid,
+            inContainerAt: self.storeURL,
+            startedMigrationCallback: { _ in migrationExpectation.fulfill() }
+        ) { directory in
+            completionExpectation.fulfill()
+        }
+        
+        // THEN
+        self.waitForExpectations(timeout: 0.5)
+    }
+    
+    func testThatItDoesNotInvokeTheMigrationCallback() {
+        
+        // GIVEN
+        let uuid = UUID()
+        let completionExpectation = self.expectation(description: "Callback invoked")
+        let migrationExpectation = self.expectation(description: "Migration started")
+        migrationExpectation.isInverted = true
+        
+        // WHEN
+        StorageStack.shared.createManagedObjectContextDirectory(
+            forAccountWith: uuid,
+            inContainerAt: self.storeURL,
+            startedMigrationCallback: { _ in migrationExpectation.fulfill() }
+        ) { directory in
+            completionExpectation.fulfill()
+        }
+        
+        // THEN
+        self.waitForExpectations(timeout: 0.5)
     }
     
 }
