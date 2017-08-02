@@ -24,75 +24,45 @@ class StorageStackTests: XCTestCase {
     
     override func setUp() {
         super.setUp()
-        try? FileManager.default.removeItem(at: self.storeURL)
+        self.clearStorageFolder()
         try! FileManager.default.createDirectory(at: self.appURL, withIntermediateDirectories: true)
+    }
+    
+    fileprivate func clearStorageFolder() {
+        try? FileManager.default.removeItem(at: self.storeURL)
+
     }
     
     override func tearDown() {
         StorageStack.reset()
         super.tearDown()
-        try? FileManager.default.removeItem(at: self.storeURL)
+        self.clearStorageFolder()
     }
     
     func testThatTheContextDirectoryIsRetainedInTheSingleton() {
-        
-        // GIVEN
-        let uuid = UUID()
-        let expectation = self.expectation(description: "Callback invoked")
-        weak var contextDirectory: ManagedObjectContextDirectory? = nil
 
         // WHEN
-        StorageStack.shared.createManagedObjectContextDirectory(
-            forAccountWith: uuid,
-            inContainerAt: self.storeURL
-        ) { directory in
-            contextDirectory = directory
-            expectation.fulfill()
-        }
-        
+        weak var contextDirectory: ManagedObjectContextDirectory? = self.createStorageStackAndWaitForCompletion()
+
         // THEN
-        self.waitForExpectations(timeout: 0.5)
         XCTAssertNotNil(contextDirectory)
-        
     }
     
     func testThatItCreatesSubfolderForStorageWithUUID() {
         
-        // GIVEN
-        let uuid = UUID()
-        let expectation = self.expectation(description: "Callback invoked")
-        XCTAssertFalse(FileManager.default.fileExists(atPath: self.storeURL.path))
-
         // WHEN
-        StorageStack.shared.createManagedObjectContextDirectory(
-            forAccountWith: uuid,
-            inContainerAt: self.storeURL
-        ) { _ in
-            expectation.fulfill()
-        }
-        
+        _ = self.createStorageStackAndWaitForCompletion()
+
         // THEN
-        self.waitForExpectations(timeout: 0.5)
         XCTAssertTrue(FileManager.default.fileExists(atPath: self.storeURL.path))
     }
     
     func testThatTheContextDirectoryIsTornDown() {
         
         // GIVEN
-        let uuid = UUID()
-        let expectation = self.expectation(description: "Callback invoked")
-        weak var contextDirectory: ManagedObjectContextDirectory? = nil
-        
-        StorageStack.shared.createManagedObjectContextDirectory(
-            forAccountWith: uuid,
-            inContainerAt: self.storeURL
-        ) { directory in
-            contextDirectory = directory
-            expectation.fulfill()
-        }
-        
+        weak var contextDirectory: ManagedObjectContextDirectory? = self.createStorageStackAndWaitForCompletion()
+
         // WHEN
-        self.waitForExpectations(timeout: 0.5)
         StorageStack.reset()
         
         // THEN
@@ -116,7 +86,7 @@ class StorageStackTests: XCTestCase {
             firstStackExpectation.fulfill()
         }
         
-        self.waitForExpectations(timeout: 0.5)
+        self.waitForExpectations(timeout: 1)
         
         // create an entry to check that it is reopening the same DB
         contextDirectory.uiContext.setPersistentStoreMetadata(testValue, key: testKey)
@@ -137,7 +107,7 @@ class StorageStackTests: XCTestCase {
         }
         
         // THEN
-        self.waitForExpectations(timeout: 0.5)
+        self.waitForExpectations(timeout: 1)
         XCTAssertEqual(contextDirectory.uiContext.persistentStoreCoordinator!.persistentStores.count, 1)
 
         guard let readValue = contextDirectory.uiContext.persistentStoreMetadata(forKey: testKey) as? String else {
@@ -151,12 +121,14 @@ class StorageStackTests: XCTestCase {
         XCTAssertEqual(readValue, testValue)
     }
     
-    func testThatItDoesItInvokesTheMigrationCallback() {
+    func testThatItPerformsMigrationCallbackWhenDifferentVersion() {
         
         // GIVEN
         let uuid = UUID()
         let completionExpectation = self.expectation(description: "Callback invoked")
         let migrationExpectation = self.expectation(description: "Migration started")
+        
+        
         
         // WHEN
         StorageStack.shared.createManagedObjectContextDirectory(
@@ -168,7 +140,62 @@ class StorageStackTests: XCTestCase {
         }
         
         // THEN
-        self.waitForExpectations(timeout: 0.5)
+        self.waitForExpectations(timeout: 1)
+    }
+    
+    func testThatItPerformsMigrationWhenStoreIsInOldLocation() {
+        
+        let oldLocations = PersistentStoreRelocator.possiblePreviousStoreLocations(sharedContainerURL: self.storeURL)
+        let userID = UUID()
+        let testValue = "12345678"
+        let testKey = "aassddffgg"
+        
+        oldLocations.forEach { oldPath in
+            
+            // GIVEN
+            StorageStack.reset()
+            self.clearStorageFolder()
+            
+            // create a proper stack and set some values, so we have something to migrate
+            let storeURL: URL = {
+                // keep this variable in a scope, so contextDirectory is released at the end of scope
+                let contextDirectory = self.createStorageStackAndWaitForCompletion(userID: userID)
+                contextDirectory.uiContext.setPersistentStoreMetadata(testValue, key: testKey)
+                contextDirectory.uiContext.forceSaveOrRollback()
+                return contextDirectory.uiContext.persistentStoreCoordinator!.persistentStores.first!.url!
+            }()
+            StorageStack.reset()
+            
+            // move the stack to "old" location, to simulate that the database needs to be migrated from there
+            let initialFolderWithDatabase = storeURL.deletingLastPathComponent()
+            let legacyFolderWithDatabase = oldPath.deletingLastPathComponent()
+            try? FileManager.default.removeItem(at: legacyFolderWithDatabase)
+            try? FileManager.default.createDirectory(at: legacyFolderWithDatabase.deletingLastPathComponent(), withIntermediateDirectories: true)
+            try! FileManager.default.moveItem(at: initialFolderWithDatabase, to: legacyFolderWithDatabase)
+            
+            // expectations
+            let migrationExpectation = self.expectation(description: "Migration started")
+            let completionExpectation = self.expectation(description: "Stack initialization completed")
+            
+            // WHEN
+            // create the stack, check that the value is there and that it calls the migration callback
+            StorageStack.shared.createManagedObjectContextDirectory(
+                forAccountWith: userID,
+                inContainerAt: self.storeURL,
+                startedMigrationCallback: { _ in migrationExpectation.fulfill() }
+            ) { MOCs in
+                defer { completionExpectation.fulfill() }
+                guard let string = MOCs.uiContext.persistentStoreMetadata(forKey: testKey) as? String else {
+                    XCTFail("Failed to find same value after migrating from \(oldPath.path)")
+                    return
+                }
+                XCTAssertEqual(string, testValue)
+            }
+            
+            // THEN
+            self.waitForExpectations(timeout: 1)
+            StorageStack.reset()
+        }
     }
     
     func testThatItDoesNotInvokeTheMigrationCallback() {
@@ -189,7 +216,29 @@ class StorageStackTests: XCTestCase {
         }
         
         // THEN
-        self.waitForExpectations(timeout: 0.5)
+        self.waitForExpectations(timeout: 1)
+    }
+}
+
+extension StorageStackTests {
+    
+    fileprivate func createStorageStackAndWaitForCompletion(
+            userID: UUID = UUID()
+        ) -> ManagedObjectContextDirectory {
+        
+        let expectation = self.expectation(description: "Stack created")
+        var contextDirectory: ManagedObjectContextDirectory? = nil
+        
+        StorageStack.shared.createManagedObjectContextDirectory(
+            forAccountWith: userID,
+            inContainerAt: self.storeURL
+        ) { directory in
+            contextDirectory = directory
+            expectation.fulfill()
+        }
+        
+        self.waitForExpectations(timeout: 500)
+        return contextDirectory!
     }
     
 }
