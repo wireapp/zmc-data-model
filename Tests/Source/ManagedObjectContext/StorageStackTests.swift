@@ -266,7 +266,7 @@ extension StorageStackTests {
             expectation.fulfill()
         }
         
-        self.waitForExpectations(timeout: 500)
+        self.waitForExpectations(timeout: 2)
         return contextDirectory!
     }
     
