@@ -18,7 +18,7 @@ class StorageStackTests: XCTestCase {
             .first!
     }
     
-    var storeURL: URL {
+    var baseURL: URL {
         return self.appURL.appendingPathComponent("StorageStackTests")
     }
     
@@ -29,7 +29,7 @@ class StorageStackTests: XCTestCase {
     }
     
     fileprivate func clearStorageFolder() {
-        try? FileManager.default.removeItem(at: self.storeURL)
+        try? FileManager.default.removeItem(at: self.baseURL)
 
     }
     
@@ -54,7 +54,7 @@ class StorageStackTests: XCTestCase {
         _ = self.createStorageStackAndWaitForCompletion()
 
         // THEN
-        XCTAssertTrue(FileManager.default.fileExists(atPath: self.storeURL.path))
+        XCTAssertTrue(FileManager.default.fileExists(atPath: self.baseURL.path))
     }
     
     func testThatTheContextDirectoryIsTornDown() {
@@ -80,7 +80,7 @@ class StorageStackTests: XCTestCase {
         weak var contextDirectory: ManagedObjectContextDirectory! = nil
         StorageStack.shared.createManagedObjectContextDirectory(
             forAccountWith: uuid,
-            inContainerAt: self.storeURL
+            inContainerAt: self.baseURL
         ) { directory in
             contextDirectory = directory
             firstStackExpectation.fulfill()
@@ -100,7 +100,7 @@ class StorageStackTests: XCTestCase {
         
         StorageStack.shared.createManagedObjectContextDirectory(
             forAccountWith: uuid,
-            inContainerAt: self.storeURL
+            inContainerAt: self.baseURL
         ) { directory in
             contextDirectory = directory
             secondStackExpectation.fulfill()
@@ -127,25 +127,44 @@ class StorageStackTests: XCTestCase {
         let uuid = UUID()
         let completionExpectation = self.expectation(description: "Callback invoked")
         let migrationExpectation = self.expectation(description: "Migration started")
+        let storeURL = FileManager.currentStoreURLForAccount(with: uuid, in: self.baseURL)
+        try! FileManager.default.createDirectory(at: storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
         
-        
+        PersistentStoreRelocator.storeFileExtensions.forEach { suffix in
+            // copy old version database into the expected location
+            guard let source = Bundle(for: type(of: self)).url(forResource: "store2-3", withExtension: "wiredatabase"+suffix) else {
+                XCTFail("missing resource")
+                return
+            }
+            let destination = URL(string: storeURL.absoluteString+suffix)!
+            try! FileManager.default.copyItem(at: source, to: destination)
+        }
         
         // WHEN
+        var contextDirectory: ManagedObjectContextDirectory? = nil
         StorageStack.shared.createManagedObjectContextDirectory(
             forAccountWith: uuid,
-            inContainerAt: self.storeURL,
+            inContainerAt: self.baseURL,
             startedMigrationCallback: { _ in migrationExpectation.fulfill() }
         ) { directory in
+            contextDirectory = directory
             completionExpectation.fulfill()
         }
         
         // THEN
-        self.waitForExpectations(timeout: 1)
+        self.waitForExpectations(timeout: 2)
+        guard let uiContext = contextDirectory?.uiContext else {
+            XCTFail("No context")
+            return
+        }
+        let messageCount = try! uiContext.count(for: ZMClientMessage.sortedFetchRequest()!)
+        XCTAssertGreaterThan(messageCount, 0)
+        
     }
     
     func testThatItPerformsMigrationWhenStoreIsInOldLocation() {
         
-        let oldLocations = PersistentStoreRelocator.possiblePreviousStoreLocations(sharedContainerURL: self.storeURL)
+        let oldLocations = PersistentStoreRelocator.possiblePreviousStoreLocations(sharedContainerURL: self.baseURL)
         let userID = UUID()
         let testValue = "12345678"
         let testKey = "aassddffgg"
@@ -181,7 +200,7 @@ class StorageStackTests: XCTestCase {
             // create the stack, check that the value is there and that it calls the migration callback
             StorageStack.shared.createManagedObjectContextDirectory(
                 forAccountWith: userID,
-                inContainerAt: self.storeURL,
+                inContainerAt: self.baseURL,
                 startedMigrationCallback: { _ in migrationExpectation.fulfill() }
             ) { MOCs in
                 defer { completionExpectation.fulfill() }
@@ -209,7 +228,7 @@ class StorageStackTests: XCTestCase {
         // WHEN
         StorageStack.shared.createManagedObjectContextDirectory(
             forAccountWith: uuid,
-            inContainerAt: self.storeURL,
+            inContainerAt: self.baseURL,
             startedMigrationCallback: { _ in migrationExpectation.fulfill() }
         ) { directory in
             completionExpectation.fulfill()
@@ -231,7 +250,7 @@ extension StorageStackTests {
         
         StorageStack.shared.createManagedObjectContextDirectory(
             forAccountWith: userID,
-            inContainerAt: self.storeURL
+            inContainerAt: self.baseURL
         ) { directory in
             contextDirectory = directory
             expectation.fulfill()

@@ -62,7 +62,9 @@ extension URL {
     
     let storeLocation : URL
     let previousStoreLocation : URL?
-    static private let storeFileExtensions = ["", "-wal", "-shm"]
+    
+    /// Extension of store files
+    static let storeFileExtensions = ["", "-wal", "-shm"]
 
     public init(sharedContainerURL: URL, newStoreURL: URL) {
         self.storeLocation = newStoreURL

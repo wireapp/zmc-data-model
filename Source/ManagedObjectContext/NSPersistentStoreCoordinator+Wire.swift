@@ -191,8 +191,8 @@ extension NSPersistentStoreCoordinator {
         } catch let error {
             let oldModelVersion = metadata.managedObjectModelVersionIdentifier ?? "n/a"
             let currentModelVersion = self.managedObjectModel.firstVersionIdentifier
-            fatal("Unable to perform migration and create SQLite Core Data store." +
-                "Old model version: \(oldModelVersion), current version \(currentModelVersion)" +
+            fatal("Unable to perform migration and create SQLite Core Data store. " +
+                "Old model version: \(oldModelVersion), current version \(currentModelVersion) " +
                 "with error: \(error.localizedDescription)"
             )
         }
