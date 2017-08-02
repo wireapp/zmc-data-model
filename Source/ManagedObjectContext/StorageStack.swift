@@ -35,12 +35,6 @@ import UIKit
 
     private var url: URL?
 
-    public var storeExists: Bool {
-        guard let storeURL = url else { return false }
-        return FileManager.default.fileExists(atPath: storeURL.path)
-            || (managedObjectContextDirectory != nil && createStorageAsInMemory)
-    }
-
     /// Persistent store currently being initialized
     private var currentPersistentStoreInitialization: PersistentStorageInitialization? = nil
     
@@ -49,7 +43,32 @@ import UIKit
     /// This method should not be called again before any previous invocation completion handler has been called.
     /// - parameter completionHandler: this callback is invoked on the main queue. It is responsibility
     ///     of the caller to switch back to the same queue that this method was invoked on.
+    @objc public func createManagedObjectContextFromLegacyStore(
+        inContainerAt containerUrl: URL,
+        startedMigrationCallback: (() -> Void)? = nil,
+        completionHandler: @escaping (ManagedObjectContextDirectory) -> Void
+        )
+    {
+        directory(forAccountWith: nil, inContainerAt: containerUrl, startedMigrationCallback: startedMigrationCallback, completionHandler: completionHandler)
+    }
+    
+    /// Creates a managed object context directory in an asynchronous fashion.
+    /// This method should be invoked from the main queue, and the callback will be dispatched on the main queue.
+    /// This method should not be called again before any previous invocation completion handler has been called.
+    /// - parameter completionHandler: this callback is invoked on the main queue. It is responsibility
+    ///     of the caller to switch back to the same queue that this method was invoked on.
+    /// - parameter accountIdentifier: user identifier that the store should be created for
     @objc public func createManagedObjectContextDirectory(
+        forAccountWith accountIdentifier: UUID,
+        inContainerAt containerUrl: URL,
+        startedMigrationCallback: (() -> Void)? = nil,
+        completionHandler: @escaping (ManagedObjectContextDirectory) -> Void
+        )
+    {
+        directory(forAccountWith: accountIdentifier, inContainerAt: containerUrl, startedMigrationCallback: startedMigrationCallback, completionHandler: completionHandler)
+    }
+    
+    internal func directory(
         forAccountWith accountIdentifier: UUID?,
         inContainerAt containerUrl: URL,
         startedMigrationCallback: (() -> Void)? = nil,
@@ -60,20 +79,30 @@ import UIKit
             fatal("Trying to create a new store before a previous one is done creating")
         }
 
-        self.url = FileManager.currentStoreURLForAccount(with: accountIdentifier, in: containerUrl)
+        let storeURL = FileManager.currentStoreURLForAccount(with: accountIdentifier, in: containerUrl)
+
 
         // destroy previous stack if any
         if self.createStorageAsInMemory {
-            let directory = InMemoryStoreInitialization.createManagedObjectContextDirectory(forAccountWith: accountIdentifier, inContainerAt: containerUrl)
-            self.managedObjectContextDirectory = directory
-            completionHandler(directory)
+            // we need to reuse the exitisting contexts if we already have them,
+            // otherwise when testing logout / login we loose all data.
+            if let directory = managedObjectContextDirectory, storeURL == url {
+                completionHandler(directory)
+            } else {
+                url = storeURL
+                let directory = InMemoryStoreInitialization.createManagedObjectContextDirectory(forAccountWith: accountIdentifier, inContainerAt: containerUrl)
+                self.managedObjectContextDirectory = directory
+                completionHandler(directory)
+            }
         } else {
+            url = storeURL
+
             self.currentPersistentStoreInitialization = PersistentStorageInitialization.createManagedObjectContextDirectory(
                 forAccountWith: accountIdentifier,
                 inContainerAt: containerUrl,
-                startedMigrationCallback: startedMigrationCallback)
-            { [weak self] directory in
+                startedMigrationCallback: startedMigrationCallback) { [weak self] directory in
                 DispatchQueue.main.async {
+
                     self?.currentPersistentStoreInitialization = nil
                     self?.managedObjectContextDirectory = directory
                     completionHandler(directory)
