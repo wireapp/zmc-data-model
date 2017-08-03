@@ -331,7 +331,6 @@ extension DatabaseBaseTest {
         userID: UUID = UUID()
         ) -> ManagedObjectContextDirectory {
         
-        let expectation = self.expectation(description: "Stack created")
         var contextDirectory: ManagedObjectContextDirectory? = nil
         
         StorageStack.shared.createManagedObjectContextDirectory(
@@ -339,10 +338,12 @@ extension DatabaseBaseTest {
             container: container
         ) { directory in
             contextDirectory = directory
-            expectation.fulfill()
         }
         
-        self.wait(for: [expectation], timeout: 2)
+        guard self.waitOnMainLoop(until: { contextDirectory != nil }, timeout: 5) else {
+            XCTFail()
+            fatalError()
+        }
         let psc = contextDirectory!.uiContext.persistentStoreCoordinator!.persistentStores.first!
         self.createExternalSupportFileForDatabase(at: psc.url!)
         return contextDirectory!
