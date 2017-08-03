@@ -124,9 +124,9 @@
     NSURL *storeURL;
     if(accountIdentifier == nil) {
         storeURL = [sharedContainerURL URLByAppendingStorePath];
-//        [[StorageStack shared] createManagedObjectContextFromLegacyStoreInContainerAt:sharedContainerURL startedMigrationCallback:nil completionHandler:^(ManagedObjectContextDirectory * directory) {
-//            self.contextDirectory = directory;
-//        }];
+        [[StorageStack shared] createManagedObjectContextFromLegacyStoreInContainerAt:sharedContainerURL startedMigrationCallback:nil completionHandler:^(ManagedObjectContextDirectory * directory) {
+            self.contextDirectory = directory;
+        }];
     } else {
         storeURL = [[sharedContainerURL URLByAppendingPathComponent:accountIdentifier.UUIDString isDirectory:YES] URLByAppendingStorePath];
         [[StorageStack shared] createManagedObjectContextDirectoryForAccountWith:accountIdentifier inContainerAt:sharedContainerURL startedMigrationCallback:nil completionHandler:^(ManagedObjectContextDirectory * directory) {

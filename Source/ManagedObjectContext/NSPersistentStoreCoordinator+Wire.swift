@@ -21,7 +21,12 @@ import Foundation
 extension NSPersistentStoreCoordinator {
     
     /// Creates a filesystem-based persistent store at the given url with the given model
-    convenience init(url: URL, model: NSManagedObjectModel, legacyStoreContainerForMigration container: URL?, startedMigrationCallback: (() -> Void)?) {
+    convenience init(
+        url: URL,
+        model: NSManagedObjectModel,
+        legacyStoreContainerForMigration container: URL?,
+        startedMigrationCallback: (() -> Void)?)
+    {
         self.init(managedObjectModel: model)
         
         var migrationStarted = false
@@ -34,8 +39,8 @@ extension NSPersistentStoreCoordinator {
             }
         }
         
-        if let containerUrl = container {
-            let storeRelocator = PersistentStoreRelocator(sharedContainerURL: containerUrl, newStoreURL: url)
+        if let containerURL = container {
+            let storeRelocator = PersistentStoreRelocator(sharedContainerURL: containerURL, newStoreURL: url)
             try! storeRelocator.moveStoreIfNecessary(startedMigrationCallback: notifyMigrationStarted)
         }
         

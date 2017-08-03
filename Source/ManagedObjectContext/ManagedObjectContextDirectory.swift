@@ -21,12 +21,13 @@ import Foundation
 /// List of context
 @objc public class ManagedObjectContextDirectory: NSObject {
     
-    init(persistentStoreCoordinator: NSPersistentStoreCoordinator, forAccountWith accountIdentifier: UUID?,
-         inContainerAt containerUrl: URL) {
+    init(persistentStoreCoordinator: NSPersistentStoreCoordinator,
+         accountIdentifier: UUID?,
+         container: URL) {
         self.uiContext = ManagedObjectContextDirectory.createUIManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator)
         self.syncContext = ManagedObjectContextDirectory.createSyncManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator,
                                                                                         forAccountWith: accountIdentifier,
-                                                                                        inContainerAt: containerUrl)
+                                                                                        inContainerAt: container)
         self.searchContext = ManagedObjectContextDirectory.createSearchManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator)
         super.init()
     }

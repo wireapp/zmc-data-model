@@ -84,8 +84,8 @@ class StorageStackTests: XCTestCase {
         let testKey = "aassddffgg"
         weak var contextDirectory: ManagedObjectContextDirectory! = nil
         StorageStack.shared.createManagedObjectContextDirectory(
-            forAccountWith: uuid,
-            inContainerAt: self.baseURL
+            accountIdentifier: uuid,
+            container: self.baseURL
         ) { directory in
             contextDirectory = directory
             firstStackExpectation.fulfill()
@@ -104,8 +104,8 @@ class StorageStackTests: XCTestCase {
         let secondStackExpectation = self.expectation(description: "Callback invoked")
         
         StorageStack.shared.createManagedObjectContextDirectory(
-            forAccountWith: uuid,
-            inContainerAt: self.baseURL
+            accountIdentifier: uuid,
+            container: self.baseURL
         ) { directory in
             contextDirectory = directory
             secondStackExpectation.fulfill()
@@ -146,8 +146,8 @@ class StorageStackTests: XCTestCase {
         // WHEN
         var contextDirectory: ManagedObjectContextDirectory? = nil
         StorageStack.shared.createManagedObjectContextDirectory(
-            forAccountWith: uuid,
-            inContainerAt: self.baseURL,
+            accountIdentifier: uuid,
+            container: self.baseURL,
             startedMigrationCallback: { _ in migrationExpectation.fulfill() }
         ) { directory in
             contextDirectory = directory
@@ -190,8 +190,8 @@ class StorageStackTests: XCTestCase {
             // WHEN
             // create the stack, check that the value is there and that it calls the migration callback
             StorageStack.shared.createManagedObjectContextDirectory(
-                forAccountWith: userID,
-                inContainerAt: self.baseURL,
+                accountIdentifier: userID,
+                container: self.baseURL,
                 startedMigrationCallback: { _ in migrationExpectation.fulfill() }
             ) { MOCs in
                 defer { completionExpectation.fulfill() }
@@ -218,8 +218,8 @@ class StorageStackTests: XCTestCase {
         
         // WHEN
         StorageStack.shared.createManagedObjectContextDirectory(
-            forAccountWith: uuid,
-            inContainerAt: self.baseURL,
+            accountIdentifier: uuid,
+            container: self.baseURL,
             startedMigrationCallback: { _ in migrationExpectation.fulfill() }
         ) { directory in
             completionExpectation.fulfill()
@@ -237,16 +237,21 @@ extension StorageStackTests {
     func testThatItReturnsNilWhenLegacyStoreDoesNotExist() {
         
         // GIVEN
-        let expectation = self.expectation(description: "Callback invoked")
+        let completionExpectation = self.expectation(description: "Callback invoked")
+        let migrationExpectation = self.expectation(description: "Migration invoked")
+        migrationExpectation.isInverted = true
         
         // WHEN
-        StorageStack.shared.fetchUserIDFromLegacyStore(container: self.baseURL) { userID in
-            expectation.fulfill()
+        StorageStack.shared.fetchUserIDFromLegacyStore(
+            container: self.baseURL,
+            startedMigrationCallback: { migrationExpectation.fulfill() }
+        ) { userID in
+            completionExpectation.fulfill()
             XCTAssertNil(userID)
         }
         
         // THEN
-        self.waitForExpectations(timeout: 1)
+        self.waitForExpectations(timeout: 0.5)
     }
     
     func testThatItReturnsNilWhenLegacyStoreExistsButThereIsNoUser() {
@@ -256,17 +261,22 @@ extension StorageStackTests {
         
         oldLocations.forEach { oldPath in
             
-            let expectation = self.expectation(description: "Callback invoked")
+            let completionExpectation = self.expectation(description: "Callback invoked")
+            let migrationExpectation = self.expectation(description: "Migration invoked")
+            migrationExpectation.isInverted = true
             createAndMoveStore(path: oldPath, changes: nil)
             
             // WHEN
-            StorageStack.shared.fetchUserIDFromLegacyStore(container: self.baseURL) { userID in
-                expectation.fulfill()
+            StorageStack.shared.fetchUserIDFromLegacyStore(
+                container: self.baseURL,
+                startedMigrationCallback: { migrationExpectation.fulfill() }
+            ) { userID in
+                completionExpectation.fulfill()
                 XCTAssertNil(userID)
             }
             
             // THEN
-            self.waitForExpectations(timeout: 1)
+            self.wait(for: [completionExpectation, migrationExpectation], timeout: 0.5)
             StorageStack.reset()
             clearStorageFolder()
         }
@@ -280,20 +290,26 @@ extension StorageStackTests {
         oldLocations.forEach { oldPath in
             
             let userID = UUID()
-            let expectation = self.expectation(description: "Callback invoked")
+            let completionExpectation = self.expectation(description: "Callback invoked")
+            let migrationExpectation = self.expectation(description: "Migration invoked")
+            migrationExpectation.isInverted = true
+            
             createAndMoveStore(path: oldPath) { contextDirectory in
                 ZMUser.selfUser(in: contextDirectory.uiContext).remoteIdentifier = userID
                 contextDirectory.uiContext.forceSaveOrRollback()
             }
             
             // WHEN
-            StorageStack.shared.fetchUserIDFromLegacyStore(container: self.baseURL) { fetchedUserID in
-                expectation.fulfill()
+            StorageStack.shared.fetchUserIDFromLegacyStore(
+                container: self.baseURL,
+                startedMigrationCallback: { migrationExpectation.fulfill() }
+            ) { fetchedUserID in
+                completionExpectation.fulfill()
                 XCTAssertEqual(userID, fetchedUserID)
             }
             
             // THEN
-            self.waitForExpectations(timeout: 1)
+            self.wait(for: [completionExpectation, migrationExpectation], timeout: 0.5)
             StorageStack.reset()
             clearStorageFolder()
         }
@@ -315,8 +331,8 @@ extension StorageStackTests {
         var contextDirectory: ManagedObjectContextDirectory? = nil
         
         StorageStack.shared.createManagedObjectContextDirectory(
-            forAccountWith: userID,
-            inContainerAt: self.baseURL
+            accountIdentifier: userID,
+            container: self.baseURL
         ) { directory in
             contextDirectory = directory
             expectation.fulfill()
