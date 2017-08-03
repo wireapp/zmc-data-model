@@ -80,7 +80,7 @@ extension URL {
         return locations.map{$0.appendingStorePath()}
     }
     
-    static func oldLocationForStore(sharedContainerURL: URL, newLocation: URL) -> URL? {
+    static func oldLocationForStore(sharedContainerURL: URL, newLocation: URL?) -> URL? {
         let previousStoreLocations = self.possiblePreviousStoreLocations(sharedContainerURL: sharedContainerURL)
         return previousStoreLocations.first(where: { $0 != newLocation && storeExists(at: $0)})
     }

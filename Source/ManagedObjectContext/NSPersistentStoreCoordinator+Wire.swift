@@ -21,17 +21,8 @@ import Foundation
 extension NSPersistentStoreCoordinator {
     
     /// Creates a filesystem-based persistent store at the given url with the given model
-    convenience init(
-        forAccountWith accountIdentifier: UUID?,
-        inContainerAt containerUrl: URL,
-        model: NSManagedObjectModel,
-        startedMigrationCallback: (() -> Void)?
-        )
-    {
+    convenience init(url: URL, model: NSManagedObjectModel, legacyStoreContainerForMigration container: URL?, startedMigrationCallback: (() -> Void)?) {
         self.init(managedObjectModel: model)
-        
-        let storeURL = FileManager.currentStoreURLForAccount(with: accountIdentifier, in: containerUrl)
-        NSPersistentStoreCoordinator.createDirectoryForStore(at: storeURL)
         
         var migrationStarted = false
         func notifyMigrationStarted() -> () {
@@ -43,9 +34,12 @@ extension NSPersistentStoreCoordinator {
             }
         }
         
-        let storeRelocator = PersistentStoreRelocator(sharedContainerURL: containerUrl, newStoreURL: storeURL)
-        try! storeRelocator.moveStoreIfNecessary(startedMigrationCallback: notifyMigrationStarted)
-        self.addPersistentStore(at: storeURL, model: model, startedMigrationCallback: notifyMigrationStarted)
+        if let containerUrl = container {
+            let storeRelocator = PersistentStoreRelocator(sharedContainerURL: containerUrl, newStoreURL: url)
+            try! storeRelocator.moveStoreIfNecessary(startedMigrationCallback: notifyMigrationStarted)
+        }
+        
+        self.addPersistentStore(at: url, model: model, startedMigrationCallback: notifyMigrationStarted)
     }
     
     private func addPersistentStore(at storeURL: URL, model: NSManagedObjectModel, startedMigrationCallback: ()->()) {

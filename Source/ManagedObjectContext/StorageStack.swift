@@ -38,18 +38,26 @@ import UIKit
     /// Persistent store currently being initialized
     private var currentPersistentStoreInitialization: PersistentStorageInitialization? = nil
     
-    /// Creates a managed object context directory in an asynchronous fashion.
-    /// This method should be invoked from the main queue, and the callback will be dispatched on the main queue.
-    /// This method should not be called again before any previous invocation completion handler has been called.
-    /// - parameter completionHandler: this callback is invoked on the main queue. It is responsibility
-    ///     of the caller to switch back to the same queue that this method was invoked on.
-    @objc public func createManagedObjectContextFromLegacyStore(
-        inContainerAt containerUrl: URL,
-        startedMigrationCallback: (() -> Void)? = nil,
-        completionHandler: @escaping (ManagedObjectContextDirectory) -> Void
+    /// Attempts to access the legacy store and fetch the user ID of the self user.
+    /// - parameter completionHandler: this callback is invoked with the user ID, if it exists, else nil.
+    @objc public func fetchUserIDFromLegacyStore(
+        container: URL,
+        startedMigrationCallback: (() -> Void)?,
+        completionHandler: @escaping (UUID?) -> Void
         )
     {
-        directory(forAccountWith: nil, inContainerAt: containerUrl, startedMigrationCallback: startedMigrationCallback, completionHandler: completionHandler)
+        // TODO: check filesystem permission
+        
+        guard let oldLocation = PersistentStoreRelocator.oldLocationForStore(sharedContainerURL: container, newLocation: nil) else {
+            completionHandler(nil)
+            return
+        }
+        
+//        let storeCoordinator = NSPersistentStoreCoordinator(url: oldLocation, model: NSManagedObjectModel.loadModel(), startedMigrationCallback: startedMigrationCallback)
+//        let context = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
+//        context.persistentStoreCoordinator = storeCoordinator
+        
+//        completionHandler(ZMUser.selfUser(in: context).remoteIdentifier)
     }
     
     /// Creates a managed object context directory in an asynchronous fashion.
@@ -80,6 +88,7 @@ import UIKit
         }
 
         let storeURL = FileManager.currentStoreURLForAccount(with: accountIdentifier, in: containerUrl)
+        NSPersistentStoreCoordinator.createDirectoryForStore(at: storeURL)
 
 
         // destroy previous stack if any

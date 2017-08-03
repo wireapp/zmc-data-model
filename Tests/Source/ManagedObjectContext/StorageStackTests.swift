@@ -38,11 +38,6 @@ class StorageStackTests: XCTestCase {
         try! FileManager.default.createDirectory(at: self.appURL, withIntermediateDirectories: true)
     }
     
-    fileprivate func clearStorageFolder() {
-        try? FileManager.default.removeItem(at: self.baseURL)
-
-    }
-    
     override func tearDown() {
         StorageStack.reset()
         super.tearDown()
@@ -140,15 +135,13 @@ class StorageStackTests: XCTestCase {
         let storeURL = FileManager.currentStoreURLForAccount(with: uuid, in: self.baseURL)
         try! FileManager.default.createDirectory(at: storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
         
-        PersistentStoreRelocator.storeFileExtensions.forEach { suffix in
-            // copy old version database into the expected location
-            guard let source = Bundle(for: type(of: self)).url(forResource: "store2-3", withExtension: "wiredatabase"+suffix) else {
-                XCTFail("missing resource")
-                return
-            }
-            let destination = URL(string: storeURL.absoluteString+suffix)!
-            try! FileManager.default.copyItem(at: source, to: destination)
+        // copy old version database into the expected location
+        guard let source = Bundle(for: type(of: self)).url(forResource: "store2-3", withExtension: "wiredatabase") else {
+            XCTFail("missing resource")
+            return
         }
+        let destination = URL(string: storeURL.absoluteString)!
+        try! FileManager.default.copyItem(at: source, to: destination)
         
         // WHEN
         var contextDirectory: ManagedObjectContextDirectory? = nil
@@ -185,22 +178,10 @@ class StorageStackTests: XCTestCase {
             StorageStack.reset()
             self.clearStorageFolder()
             
-            // create a proper stack and set some values, so we have something to migrate
-            let storeURL: URL = {
-                // keep this variable in a scope, so contextDirectory is released at the end of scope
-                let contextDirectory = self.createStorageStackAndWaitForCompletion(userID: userID)
+            createAndMoveStore(path: oldPath) { contextDirectory in
                 contextDirectory.uiContext.setPersistentStoreMetadata(testValue, key: testKey)
                 contextDirectory.uiContext.forceSaveOrRollback()
-                return contextDirectory.uiContext.persistentStoreCoordinator!.persistentStores.first!.url!
-            }()
-            StorageStack.reset()
-            
-            // move the stack to "old" location, to simulate that the database needs to be migrated from there
-            let initialFolderWithDatabase = storeURL.deletingLastPathComponent()
-            let legacyFolderWithDatabase = oldPath.deletingLastPathComponent()
-            try? FileManager.default.removeItem(at: legacyFolderWithDatabase)
-            try? FileManager.default.createDirectory(at: legacyFolderWithDatabase.deletingLastPathComponent(), withIntermediateDirectories: true)
-            try! FileManager.default.moveItem(at: initialFolderWithDatabase, to: legacyFolderWithDatabase)
+            }
             
             // expectations
             let migrationExpectation = self.expectation(description: "Migration started")
@@ -249,7 +230,82 @@ class StorageStackTests: XCTestCase {
     }
 }
 
+// MARK: - Legacy User ID
+
 extension StorageStackTests {
+    
+    func testThatItReturnsNilWhenLegacyStoreDoesNotExist() {
+        
+        // GIVEN
+        let expectation = self.expectation(description: "Callback invoked")
+        
+        // WHEN
+        StorageStack.shared.fetchUserIDFromLegacyStore(container: self.baseURL) { userID in
+            expectation.fulfill()
+            XCTAssertNil(userID)
+        }
+        
+        // THEN
+        self.waitForExpectations(timeout: 1)
+    }
+    
+    func testThatItReturnsNilWhenLegacyStoreExistsButThereIsNoUser() {
+        
+        // GIVEN
+        let oldLocations = PersistentStoreRelocator.possiblePreviousStoreLocations(sharedContainerURL: self.baseURL)
+        
+        oldLocations.forEach { oldPath in
+            
+            let expectation = self.expectation(description: "Callback invoked")
+            createAndMoveStore(path: oldPath, changes: nil)
+            
+            // WHEN
+            StorageStack.shared.fetchUserIDFromLegacyStore(container: self.baseURL) { userID in
+                expectation.fulfill()
+                XCTAssertNil(userID)
+            }
+            
+            // THEN
+            self.waitForExpectations(timeout: 1)
+            StorageStack.reset()
+            clearStorageFolder()
+        }
+    }
+    
+    func testThatItReturnsUserIDFromLegacyStoreWhenItExists() {
+        
+        // GIVEN
+        let oldLocations = PersistentStoreRelocator.possiblePreviousStoreLocations(sharedContainerURL: self.baseURL)
+        
+        oldLocations.forEach { oldPath in
+            
+            let userID = UUID()
+            let expectation = self.expectation(description: "Callback invoked")
+            createAndMoveStore(path: oldPath) { contextDirectory in
+                ZMUser.selfUser(in: contextDirectory.uiContext).remoteIdentifier = userID
+                contextDirectory.uiContext.forceSaveOrRollback()
+            }
+            
+            // WHEN
+            StorageStack.shared.fetchUserIDFromLegacyStore(container: self.baseURL) { fetchedUserID in
+                expectation.fulfill()
+                XCTAssertEqual(userID, fetchedUserID)
+            }
+            
+            // THEN
+            self.waitForExpectations(timeout: 1)
+            StorageStack.reset()
+            clearStorageFolder()
+        }
+    }
+}
+
+extension StorageStackTests {
+    
+    fileprivate func clearStorageFolder() {
+        try? FileManager.default.removeItem(at: self.baseURL)
+        
+    }
     
     fileprivate func createStorageStackAndWaitForCompletion(
             userID: UUID = UUID()
@@ -266,8 +322,38 @@ extension StorageStackTests {
             expectation.fulfill()
         }
         
-        self.waitForExpectations(timeout: 2)
+        self.wait(for: [expectation], timeout: 2)
         return contextDirectory!
     }
     
+    fileprivate func createAndMoveStore(path: URL, changes: ((ManagedObjectContextDirectory) -> Void)?) {
+        
+        // create a proper stack and set some values, so we have something to migrate
+        let storeURL: URL = {
+            // keep this variable in a scope, so contextDirectory is released at the end of scope
+            let contextDirectory = self.createStorageStackAndWaitForCompletion(userID: UUID())
+            changes?(contextDirectory)
+            return contextDirectory.uiContext.persistentStoreCoordinator!.persistentStores.first!.url!
+        }()
+        StorageStack.reset()
+        
+        // move the stack to "old" location, to simulate that the database needs to be migrated from there
+        let initialFolderWithDatabase = storeURL.deletingLastPathComponent()
+        let legacyFolderWithDatabase = path.deletingLastPathComponent()
+        try? FileManager.default.removeItem(at: legacyFolderWithDatabase)
+        try? FileManager.default.createDirectory(at: legacyFolderWithDatabase.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try! FileManager.default.moveItem(at: initialFolderWithDatabase, to: legacyFolderWithDatabase)
+    }
+    
 }
+
+
+
+
+
+
+
+
+
+
+
