@@ -21,7 +21,7 @@
 @import WireDataModel;
 #import "NSManagedObjectContext+zmessaging-Internal.h"
 #import "DatabaseBaseTest.h"
-
+#import "WireDataModelTests-Swift.h"
 
 static NSString * const DatabaseIdentifier = @"TestDatabase";
 
@@ -42,7 +42,7 @@ static NSString * const DatabaseIdentifier = @"TestDatabase";
 {
     // given
     [self performIgnoringZMLogError:^{
-        XCTAssertTrue([self createDatabaseInDirectory:NSCachesDirectory accountIdentifier:nil]);
+        [self createLegacyStoreWithPath:NSCachesDirectory];
     }];
     
     for (NSString *extension in self.databaseFileExtensions) {
@@ -89,7 +89,7 @@ static NSString * const DatabaseIdentifier = @"TestDatabase";
 {
     // given
     [self performIgnoringZMLogError:^{
-        XCTAssertTrue([self createDatabaseInDirectory:NSApplicationSupportDirectory accountIdentifier:nil]);
+        [self createLegacyStoreWithPath:NSApplicationSupportDirectory];
     }];
     
     for (NSString *extension in self.databaseFileExtensions) {
@@ -129,7 +129,7 @@ static NSString * const DatabaseIdentifier = @"TestDatabase";
 - (void)testThatItMovesRemainingDatabaseFilesFromTheApplicationSupportDirectoryToTheSharedDirectory
 {
     // given
-    XCTAssertTrue([self createDatabaseInDirectory:NSApplicationSupportDirectory accountIdentifier:nil]);
+    [self createLegacyStoreWithPath:NSApplicationSupportDirectory];
     
     // We simulate that we already moved the main database file previously
     [self createDirectoryForStoreAtURL:self.sharedContainerStoreURL];
@@ -264,7 +264,7 @@ static NSString * const DatabaseIdentifier = @"TestDatabase";
     NSURL *oldBaseURL = [containerURL URLByAppendingStorePath];
 
     [self performIgnoringZMLogError:^{
-        XCTAssertTrue([self createDatabaseAtSharedContainerURL:self.sharedContainerDirectoryURL accountIdentifier:nil]);
+        [self createAndMoveStoreWithPath:self.sharedContainerStoreURL];
     }];
     
     for (NSString *extension in self.databaseFileExtensions) {
@@ -309,7 +309,8 @@ static NSString * const DatabaseIdentifier = @"TestDatabase";
     NSURL *newBaseURL = [[containerURL URLByAppendingPathComponent:self.accountID.UUIDString] URLByAppendingStorePath];
     NSURL *oldBaseURL = [containerURL URLByAppendingStorePath];
 
-    XCTAssertTrue([self createDatabaseAtSharedContainerURL:self.sharedContainerDirectoryURL accountIdentifier:nil]);
+    [self createAndMoveStoreWithPath:self.sharedContainerStoreURL];
+
     [StorageStack reset];
     [[StorageStack shared] setCreateStorageAsInMemory:NO];
 

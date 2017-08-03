@@ -27,7 +27,7 @@ public final class ZMManagedObjectGroupingTests: DatabaseBaseTest {
     public override func setUp() {
         super.setUp()
         createDatabase(in: .documentDirectory, accountIdentifier: accountID)
-        moc = contextDirectory.uiContext
+        self.moc = self.contextDirectory!.uiContext
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 1))
     }
     

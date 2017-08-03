@@ -30,8 +30,9 @@ class PersistentStoreRelocatorTests: DatabaseBaseTest {
     }
     
     func testThatItFindsPreviousStoreInCachesDirectory() {
+        
         // given
-        createDatabase(in: .cachesDirectory, accountIdentifier: nil)
+        self.createLegacyStore(path: .cachesDirectory)
         
         // new store is located in documents directory
         let sut = PersistentStoreRelocator(sharedContainerURL: self.sharedContainerDirectoryURL,
@@ -39,12 +40,13 @@ class PersistentStoreRelocatorTests: DatabaseBaseTest {
                                             with: UUID(), in: self.sharedContainerDirectoryURL))
         
         // then
-        XCTAssertEqual(sut.previousStoreLocation, FileManager.storeURL(in: .cachesDirectory)!)
+        XCTAssertEqual(sut.previousStoreLocation, FileManager.storeURL(in: .cachesDirectory))
     }
     
     func testThatItFindsPreviousStoreInApplicationSupportDirectory() {
+        
         // given
-        createDatabase(in: .applicationSupportDirectory, accountIdentifier: nil)
+        self.createLegacyStore(path: .applicationSupportDirectory)
         
         // new store is located in documents directory
         let sut = PersistentStoreRelocator(sharedContainerURL: self.sharedContainerDirectoryURL,
@@ -52,17 +54,16 @@ class PersistentStoreRelocatorTests: DatabaseBaseTest {
                                             with: UUID(), in: self.sharedContainerDirectoryURL))
         
         // then
-        XCTAssertEqual(sut.previousStoreLocation, FileManager.storeURL(in: .applicationSupportDirectory)!)
+        XCTAssertEqual(sut.previousStoreLocation, FileManager.storeURL(in: .applicationSupportDirectory))
         
     }
     
     func testThatIsNecessaryToRelocateStoreIfItsLocatedInAPreviousLocation_and_newStoreAlreadyExists() {
         // given
-        let cachesStoreURL = FileManager.storeURL(in: .cachesDirectory)!
-        
-        createDatabase(in: .documentDirectory, accountIdentifier: nil)
-        createDirectoryForStore(at: cachesStoreURL)
-        createExternalSupportFileForDatabase(at: cachesStoreURL)
+        let cachesStoreURL = FileManager.storeURL(in: .cachesDirectory)
+        self.createLegacyStore(path: .documentDirectory)
+        self.createDirectoryForStore(at: cachesStoreURL)
+        self.createExternalSupportFileForDatabase(at: cachesStoreURL)
         
         // new store is located in documents directory
         let sut = PersistentStoreRelocator(sharedContainerURL: self.sharedContainerDirectoryURL,

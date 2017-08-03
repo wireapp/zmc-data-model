@@ -20,7 +20,7 @@ import Foundation
 import XCTest
 @testable import WireDataModel
 
-class StorageStackTests: XCTestCase {
+class StorageStackTests: DatabaseBaseTest {
     
     var appURL: URL {
         return FileManager.default
@@ -47,7 +47,7 @@ class StorageStackTests: XCTestCase {
     func testThatTheContextDirectoryIsRetainedInTheSingleton() {
 
         // WHEN
-        weak var contextDirectory: ManagedObjectContextDirectory? = self.createStorageStackAndWaitForCompletion()
+        weak var contextDirectory: ManagedObjectContextDirectory? = self.createStorageStackAndWaitForCompletion(container: self.baseURL)
 
         // THEN
         XCTAssertNotNil(contextDirectory)
@@ -56,7 +56,7 @@ class StorageStackTests: XCTestCase {
     func testThatItCreatesSubfolderForStorageWithUUID() {
         
         // WHEN
-        _ = self.createStorageStackAndWaitForCompletion()
+        _ = self.createStorageStackAndWaitForCompletion(container: self.baseURL)
 
         // THEN
         XCTAssertTrue(FileManager.default.fileExists(atPath: self.baseURL.path))
@@ -65,7 +65,7 @@ class StorageStackTests: XCTestCase {
     func testThatTheContextDirectoryIsTornDown() {
         
         // GIVEN
-        weak var contextDirectory: ManagedObjectContextDirectory? = self.createStorageStackAndWaitForCompletion()
+        weak var contextDirectory: ManagedObjectContextDirectory? = self.createStorageStackAndWaitForCompletion(container: self.baseURL)
 
         // WHEN
         StorageStack.reset()
@@ -322,9 +322,13 @@ extension StorageStackTests {
         try? FileManager.default.removeItem(at: self.baseURL)
         
     }
+}
+
+extension DatabaseBaseTest {
     
-    fileprivate func createStorageStackAndWaitForCompletion(
-            userID: UUID = UUID()
+    func createStorageStackAndWaitForCompletion(
+        container: URL,
+        userID: UUID = UUID()
         ) -> ManagedObjectContextDirectory {
         
         let expectation = self.expectation(description: "Stack created")
@@ -332,22 +336,36 @@ extension StorageStackTests {
         
         StorageStack.shared.createManagedObjectContextDirectory(
             accountIdentifier: userID,
-            container: self.baseURL
+            container: container
         ) { directory in
             contextDirectory = directory
             expectation.fulfill()
         }
         
         self.wait(for: [expectation], timeout: 2)
+        let psc = contextDirectory!.uiContext.persistentStoreCoordinator!.persistentStores.first!
+        self.createExternalSupportFileForDatabase(at: psc.url!)
         return contextDirectory!
     }
     
-    fileprivate func createAndMoveStore(path: URL, changes: ((ManagedObjectContextDirectory) -> Void)?) {
+    @objc public func createLegacyStore(path: FileManager.SearchPathDirectory) {
+        let directory = FileManager.default.urls(for: path, in: .userDomainMask).first!
+        self.createAndMoveStore(path: directory)
+    }
+    
+    @objc public func createAndMoveStore(path: URL) {
+        self.createAndMoveStore(path: path, changes: nil)
+    }
+    
+    func createAndMoveStore(path: URL, changes: ((ManagedObjectContextDirectory) -> Void)?) {
         
         // create a proper stack and set some values, so we have something to migrate
         let storeURL: URL = {
             // keep this variable in a scope, so contextDirectory is released at the end of scope
-            let contextDirectory = self.createStorageStackAndWaitForCompletion(userID: UUID())
+            let contextDirectory = self.createStorageStackAndWaitForCompletion(
+                container: FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!,
+                userID: UUID()
+            )
             changes?(contextDirectory)
             return contextDirectory.uiContext.persistentStoreCoordinator!.persistentStores.first!.url!
         }()
@@ -360,7 +378,6 @@ extension StorageStackTests {
         try? FileManager.default.createDirectory(at: legacyFolderWithDatabase.deletingLastPathComponent(), withIntermediateDirectories: true)
         try! FileManager.default.moveItem(at: initialFolderWithDatabase, to: legacyFolderWithDatabase)
     }
-    
 }
 
 

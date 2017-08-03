@@ -23,30 +23,30 @@
 
 @interface DatabaseBaseTest : ZMTBaseTest
 
-@property (nonatomic, readonly) NSFileManager *fm;
-@property (nonatomic, readonly) NSString *databaseIdentifier;
-@property (nonatomic, readonly) NSURL *cachesDirectoryStoreURL;
-@property (nonatomic, readonly) NSURL *applicationSupportDirectoryStoreURL;
-@property (nonatomic, readonly) NSURL *sharedContainerDirectoryURL;
-@property (nonatomic, readonly) NSURL *sharedContainerStoreURL;
-@property (nonatomic, readonly) NSArray <NSString *> *databaseFileExtensions;
-@property (nonatomic, readonly) NSUUID *accountID;
-@property (nonatomic) ManagedObjectContextDirectory *contextDirectory;
+@property (nonatomic, readonly, nonnull) NSFileManager *fm;
+@property (nonatomic, readonly, nonnull) NSString *databaseIdentifier;
+@property (nonatomic, readonly, nonnull) NSURL *cachesDirectoryStoreURL;
+@property (nonatomic, readonly, nonnull) NSURL *applicationSupportDirectoryStoreURL;
+@property (nonatomic, readonly, nonnull) NSURL *sharedContainerDirectoryURL;
+@property (nonatomic, readonly, nonnull) NSURL *sharedContainerStoreURL;
+@property (nonatomic, readonly, nonnull) NSArray <NSString *> *databaseFileExtensions;
+@property (nonatomic, readonly, nonnull) NSUUID *accountID;
+@property (nonatomic, nullable) ManagedObjectContextDirectory *contextDirectory;
 
 - (void)cleanUp;
-- (BOOL)createDatabaseInDirectory:(NSSearchPathDirectory)directory accountIdentifier:(NSUUID *)accountIdentifier;
-- (BOOL)createDatabaseAtSharedContainerURL:(NSURL *)sharedContainerURL accountIdentifier:(NSUUID *)accountIdentifier;
+- (BOOL)createDatabaseInDirectory:(NSSearchPathDirectory)directory accountIdentifier:(nonnull NSUUID *)accountIdentifier;
+- (BOOL)createDatabaseAtSharedContainerURL:(nonnull NSURL *)sharedContainerURL accountIdentifier:(nonnull NSUUID *)accountIdentifier;
 
-- (NSData *)invalidData;
+- (nonnull NSData *)invalidData;
 - (BOOL)createdUnreadableLocalStore;
-- (BOOL)createExternalSupportFileForDatabaseAtURL:(NSURL *)databaseURL;
-- (void)createDirectoryForStoreAtURL:(NSURL *)storeURL;
+- (BOOL)createExternalSupportFileForDatabaseAtURL:(nonnull NSURL *)databaseURL;
+- (void)createDirectoryForStoreAtURL:(nonnull NSURL *)storeURL;
 
 @end
 
 
 @interface NSFileManager (StoreLocation)
 
-+ (NSURL *)storeURLInDirectory:(NSSearchPathDirectory)directory;
++ (nonnull NSURL *)storeURLInDirectory:(NSSearchPathDirectory)directory;
 
 @end
