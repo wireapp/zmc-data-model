@@ -43,7 +43,7 @@ public struct PersistentStoreRelocator {
     static let storeFileExtensions = ["", "-wal", "-shm"]
     
     /// Returns the list of possible locations for legacy stores
-    static func possiblePreviousStoreLocations(applicationContainer: URL) -> [URL] {
+    static func possiblePreviousStoreFiles(applicationContainer: URL) -> [URL] {
         var locations = [.cachesDirectory, .applicationSupportDirectory].map{
             FileManager.default.urls(for: $0, in: .userDomainMask).first!
         }
@@ -53,7 +53,7 @@ public struct PersistentStoreRelocator {
     
     /// Return the first existing legacy store, if any
     static func exisingLegacyStore(applicationContainer: URL) -> URL? {
-        let previousStoreLocations = self.possiblePreviousStoreLocations(applicationContainer: applicationContainer)
+        let previousStoreLocations = self.possiblePreviousStoreFiles(applicationContainer: applicationContainer)
         return previousStoreLocations.first(where: { storeExists(at: $0)})
     }
     
@@ -76,6 +76,7 @@ public struct PersistentStoreRelocator {
         }
         
         let fileManager = FileManager.default
+        fileManager.createAndProtectDirectory(at: to.deletingLastPathComponent())
         
         self.storeFileExtensions.forEach { storeFileExtension in
             let destination = to.appendingSuffixToLastPathComponent(suffix: storeFileExtension)
@@ -94,14 +95,17 @@ public struct PersistentStoreRelocator {
     private static func moveExternalBinaryStoreFiles(from: URL, to: URL) {
         let fromStoreDirectory = from.deletingLastPathComponent()
         
-        var isDirectory : ObjCBool = false
-        if !FileManager.default.fileExists(atPath: fromStoreDirectory.path, isDirectory: &isDirectory) && !isDirectory.boolValue {
-            return
-        }
-        
         let fromStoreName = from.deletingPathExtension().lastPathComponent
         let fromSupportFile = ".\(fromStoreName)_SUPPORT"
         let source = fromStoreDirectory.appendingPathComponent(fromSupportFile)
+
+        var isDirectory : ObjCBool = false
+        if !FileManager.default.fileExists(atPath: source.path, isDirectory: &isDirectory) || !isDirectory.boolValue {
+            return
+        }
+
+        let toDirectory = to.deletingLastPathComponent()
+        FileManager.default.createAndProtectDirectory(at: toDirectory)
         
         let destinationStoreName = from.deletingPathExtension().lastPathComponent
         let destinationSupportFile = ".\(destinationStoreName)_SUPPORT"

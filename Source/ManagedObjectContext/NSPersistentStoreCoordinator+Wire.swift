@@ -46,6 +46,8 @@ extension NSPersistentStoreCoordinator {
                                                                 startedMigrationCallback: startedMigrationCallback)
         }
         
+        let containingFolder = storeFile.deletingLastPathComponent()
+        FileManager.default.createAndProtectDirectory(at: containingFolder)
         self.addPersistentStore(at: storeFile, model: model, startedMigrationCallback: notifyMigrationStarted)
     }
     
@@ -148,7 +150,9 @@ extension NSPersistentStoreCoordinator {
     
     /// Retrieves the metadata for the store
     fileprivate static func metadataForStore(at url: URL) -> [String: Any] {
-        guard let metadata = try? NSPersistentStoreCoordinator.metadataForPersistentStore(ofType: NSSQLiteStoreType, at: url) else {
+        guard
+            FileManager.default.fileExists(atPath: url.path),
+            let metadata = try? NSPersistentStoreCoordinator.metadataForPersistentStore(ofType: NSSQLiteStoreType, at: url) else {
             return [:]
         }
         return metadata

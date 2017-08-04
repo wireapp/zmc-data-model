@@ -43,7 +43,7 @@
 - (void)setUp
 {
     NSFileManager *fm = [NSFileManager defaultManager];
-    NSURL *storeURL = [[[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] firstObject] URLByAppendingStorePath];
+    NSURL *storeURL = [[[[NSFileManager defaultManager] URLsForDirectory:NSDocumentDirectory inDomains:NSUserDomainMask] firstObject] URLAppendingPersistentStoreLocation];
     
     if ([fm fileExistsAtPath:storeURL.path]) {
         NSError *error = nil;

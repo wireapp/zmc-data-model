@@ -42,7 +42,7 @@ class FileManager_CryptoboxTests : XCTestCase {
         let url = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!
         
         // when
-        let storeURL = FileManager.keyStoreURL(accountDirectory: url, createParentIfNeeded: false)
+        let storeURL = FileManager.keyStoreURL(accountDirectory: url, createParentIfNeeded: true)
         
         // then
         let parentURL = storeURL.deletingLastPathComponent()
@@ -51,7 +51,7 @@ class FileManager_CryptoboxTests : XCTestCase {
         XCTAssertTrue(isDirectory.boolValue)
         XCTAssertTrue(parentURL.isExcludedFromBackup)
         
-        try! FileManager.default.removeItem(at:parentURL)
+        try? FileManager.default.removeItem(at:parentURL)
     }
 }
 

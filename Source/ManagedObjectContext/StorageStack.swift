@@ -274,7 +274,7 @@ public extension StorageStack {
     
     /// Returns the URL that holds the data for the given account
     /// It will be in the format <application container>/<bundle ID>/<account identifier>
-    public static func accountFolder(accountIdentifier: UUID, applicationContainer: URL) -> URL {
+    @objc public static func accountFolder(accountIdentifier: UUID, applicationContainer: URL) -> URL {
         
         guard let bundleId = Bundle.main.bundleIdentifier ?? Bundle(for: ZMUser.self).bundleIdentifier else {
             fatal("No bundle??")
@@ -291,5 +291,13 @@ public extension URL {
     /// Returns the location of the persistent store file in the given account folder
     public var appendingPersistentStoreLocation: URL {
         return self.appendingPathComponent("store").appendingStoreFile
+    }
+}
+
+public extension NSURL {
+
+    /// Returns the location of the persistent store file in the given account folder
+    @objc public func URLAppendingPersistentStoreLocation() -> URL {
+        return (self as URL).appendingPersistentStoreLocation
     }
 }

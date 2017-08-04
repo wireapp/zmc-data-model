@@ -27,11 +27,10 @@ class CryptoBoxTest: OtrBaseTest {
         // when
         let accountId = UUID()
         let accountFolder = StorageStack.accountFolder(accountIdentifier: accountId, applicationContainer: OtrBaseTest.sharedContainerURL)
-        _ = UserClientKeysStore.setupContext(in: accountFolder,
-                                             applicationContainer: OtrBaseTest.sharedContainerURL)
+        let keyStore = UserClientKeysStore(accountDirectory: accountFolder, applicationContainer: OtrBaseTest.sharedContainerURL)
         
         // then
-        guard let values = try? OtrBaseTest.otrDirectoryURL(accountIdentifier: accountId).resourceValues(forKeys: Set(arrayLiteral: .isExcludedFromBackupKey)) else {return XCTFail()}
+        guard let values = try? keyStore.cryptoboxDirectory.resourceValues(forKeys: Set(arrayLiteral: .isExcludedFromBackupKey)) else {return XCTFail()}
         
         XCTAssertTrue(values.isExcludedFromBackup!)
     }
