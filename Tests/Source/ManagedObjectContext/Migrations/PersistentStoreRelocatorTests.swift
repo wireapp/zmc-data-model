@@ -35,9 +35,8 @@ class PersistentStoreRelocatorTests: DatabaseBaseTest {
         self.createLegacyStore(path: .cachesDirectory)
         
         // new store is located in documents directory
-        let sut = PersistentStoreRelocator(sharedContainerURL: self.sharedContainerDirectoryURL,
-                                           newStoreURL: FileManager.currentStoreURLForAccount(
-                                            with: UUID(), in: self.sharedContainerDirectoryURL))
+        let sut = PersistentStoreRelocator (sharedContainerURL: self.sharedContainerDirectoryURL,
+                                           newStoreURL: StorageStack.accountFolder(accountIdentifier: UUID(), applicationContainer: self.sharedContainerDirectoryURL))
         
         // then
         XCTAssertEqual(sut.previousStoreLocation, FileManager.storeURL(in: .cachesDirectory))

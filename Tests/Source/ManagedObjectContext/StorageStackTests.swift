@@ -85,7 +85,7 @@ class StorageStackTests: DatabaseBaseTest {
         weak var contextDirectory: ManagedObjectContextDirectory! = nil
         StorageStack.shared.createManagedObjectContextDirectory(
             accountIdentifier: uuid,
-            container: self.baseURL
+            applicationContainer: self.baseURL
         ) { directory in
             contextDirectory = directory
             firstStackExpectation.fulfill()
@@ -105,7 +105,7 @@ class StorageStackTests: DatabaseBaseTest {
         
         StorageStack.shared.createManagedObjectContextDirectory(
             accountIdentifier: uuid,
-            container: self.baseURL
+            applicationContainer: self.baseURL
         ) { directory in
             contextDirectory = directory
             secondStackExpectation.fulfill()
@@ -132,7 +132,7 @@ class StorageStackTests: DatabaseBaseTest {
         let uuid = UUID()
         let completionExpectation = self.expectation(description: "Callback invoked")
         let migrationExpectation = self.expectation(description: "Migration started")
-        let storeURL = FileManager.currentStoreURLForAccount(with: uuid, in: self.baseURL)
+        let storeURL = StorageStack.accountFolder(accountIdentifier: UUID(), applicationContainer: self.baseURL)
         try! FileManager.default.createDirectory(at: storeURL.deletingLastPathComponent(), withIntermediateDirectories: true)
         
         // copy old version database into the expected location
@@ -147,7 +147,7 @@ class StorageStackTests: DatabaseBaseTest {
         var contextDirectory: ManagedObjectContextDirectory? = nil
         StorageStack.shared.createManagedObjectContextDirectory(
             accountIdentifier: uuid,
-            container: self.baseURL,
+            applicationContainer: self.baseURL,
             startedMigrationCallback: { _ in migrationExpectation.fulfill() }
         ) { directory in
             contextDirectory = directory
@@ -167,7 +167,7 @@ class StorageStackTests: DatabaseBaseTest {
     
     func testThatItPerformsMigrationWhenStoreIsInOldLocation() {
         
-        let oldLocations = PersistentStoreRelocator.possiblePreviousStoreLocations(sharedContainerURL: self.baseURL)
+        let oldLocations = PersistentStoreRelocator.possiblePreviousStoreLocations(applicationContainer: self.baseURL)
         let userID = UUID()
         let testValue = "12345678"
         let testKey = "aassddffgg"
@@ -191,7 +191,7 @@ class StorageStackTests: DatabaseBaseTest {
             // create the stack, check that the value is there and that it calls the migration callback
             StorageStack.shared.createManagedObjectContextDirectory(
                 accountIdentifier: userID,
-                container: self.baseURL,
+                applicationContainer: self.baseURL,
                 startedMigrationCallback: { _ in migrationExpectation.fulfill() }
             ) { MOCs in
                 defer { completionExpectation.fulfill() }
@@ -219,7 +219,7 @@ class StorageStackTests: DatabaseBaseTest {
         // WHEN
         StorageStack.shared.createManagedObjectContextDirectory(
             accountIdentifier: uuid,
-            container: self.baseURL,
+            applicationContainer: self.baseURL,
             startedMigrationCallback: { _ in migrationExpectation.fulfill() }
         ) { directory in
             completionExpectation.fulfill()
@@ -243,7 +243,7 @@ extension StorageStackTests {
         
         // WHEN
         StorageStack.shared.fetchUserIDFromLegacyStore(
-            container: self.baseURL,
+            applicationContainer: self.baseURL,
             startedMigrationCallback: { migrationExpectation.fulfill() }
         ) { userID in
             completionExpectation.fulfill()
@@ -257,7 +257,7 @@ extension StorageStackTests {
     func testThatItReturnsNilWhenLegacyStoreExistsButThereIsNoUser() {
         
         // GIVEN
-        let oldLocations = PersistentStoreRelocator.possiblePreviousStoreLocations(sharedContainerURL: self.baseURL)
+        let oldLocations = PersistentStoreRelocator.possiblePreviousStoreLocations(applicationContainer: self.baseURL)
         
         oldLocations.forEach { oldPath in
             
@@ -268,7 +268,7 @@ extension StorageStackTests {
             
             // WHEN
             StorageStack.shared.fetchUserIDFromLegacyStore(
-                container: self.baseURL,
+                applicationContainer: self.baseURL,
                 startedMigrationCallback: { migrationExpectation.fulfill() }
             ) { userID in
                 completionExpectation.fulfill()
@@ -285,7 +285,7 @@ extension StorageStackTests {
     func testThatItReturnsUserIDFromLegacyStoreWhenItExists() {
         
         // GIVEN
-        let oldLocations = PersistentStoreRelocator.possiblePreviousStoreLocations(sharedContainerURL: self.baseURL)
+        let oldLocations = PersistentStoreRelocator.possiblePreviousStoreLocations(applicationContainer: self.baseURL)
         
         oldLocations.forEach { oldPath in
             
@@ -301,7 +301,7 @@ extension StorageStackTests {
             
             // WHEN
             StorageStack.shared.fetchUserIDFromLegacyStore(
-                container: self.baseURL,
+                applicationContainer: self.baseURL,
                 startedMigrationCallback: { migrationExpectation.fulfill() }
             ) { fetchedUserID in
                 completionExpectation.fulfill()
@@ -335,7 +335,7 @@ extension DatabaseBaseTest {
         
         StorageStack.shared.createManagedObjectContextDirectory(
             accountIdentifier: userID,
-            container: container
+            applicationContainer: container
         ) { directory in
             contextDirectory = directory
         }

@@ -58,8 +58,8 @@ static NSString * const DatabaseIdentifier = @"TestDatabase";
     [[StorageStack shared] setCreateStorageAsInMemory:NO];
     
     XCTestExpectation *expection = [self expectationWithDescription:@"didCreateDirectory"];
-    [StorageStack.shared createManagedObjectContextDirectoryForAccountWith:self.accountID
-                                                             inContainerAt:self.sharedContainerDirectoryURL
+    [StorageStack.shared createManagedObjectContextDirectoryForAccountIdentifier:self.accountID
+                                                             applicationContainer:self.sharedContainerDirectoryURL
                                                   startedMigrationCallback:nil
                                                          completionHandler:^(ManagedObjectContextDirectory * _Nonnull directory) {
                                                              NOT_USED(directory);
@@ -105,8 +105,8 @@ static NSString * const DatabaseIdentifier = @"TestDatabase";
     [[StorageStack shared] setCreateStorageAsInMemory:NO];
     
     XCTestExpectation *expection = [self expectationWithDescription:@"didCreateDirectory"];
-    [StorageStack.shared createManagedObjectContextDirectoryForAccountWith:self.accountID
-                                                             inContainerAt:self.sharedContainerDirectoryURL
+    [StorageStack.shared createManagedObjectContextDirectoryForAccountIdentifier:self.accountID
+                                                             applicationContainer:self.sharedContainerDirectoryURL
                                                   startedMigrationCallback:nil
                                                          completionHandler:^(ManagedObjectContextDirectory * _Nonnull directory) {
                                                              NOT_USED(directory);
@@ -154,8 +154,8 @@ static NSString * const DatabaseIdentifier = @"TestDatabase";
     [[StorageStack shared] setCreateStorageAsInMemory:NO];
     
     XCTestExpectation *expection = [self expectationWithDescription:@"didCreateDirectory"];
-    [StorageStack.shared createManagedObjectContextDirectoryForAccountWith:self.accountID
-                                                             inContainerAt:self.sharedContainerDirectoryURL
+    [StorageStack.shared createManagedObjectContextDirectoryForAccountIdentifier:self.accountID
+                                                             applicationContainer:self.sharedContainerDirectoryURL
                                                   startedMigrationCallback:nil
                                                          completionHandler:^(ManagedObjectContextDirectory * _Nonnull directory) {
                                                              NOT_USED(directory);
@@ -198,8 +198,8 @@ static NSString * const DatabaseIdentifier = @"TestDatabase";
     [[StorageStack shared] setCreateStorageAsInMemory:NO];
     
     XCTestExpectation *expection = [self expectationWithDescription:@"didCreateDirectory"];
-    [StorageStack.shared createManagedObjectContextDirectoryForAccountWith:self.accountID
-                                                             inContainerAt:self.sharedContainerDirectoryURL
+    [StorageStack.shared createManagedObjectContextDirectoryForAccountIdentifier:self.accountID
+                                                             applicationContainer:self.sharedContainerDirectoryURL
                                                   startedMigrationCallback:nil
                                                          completionHandler:^(ManagedObjectContextDirectory * _Nonnull directory) {
                                                              NOT_USED(directory);
@@ -236,8 +236,8 @@ static NSString * const DatabaseIdentifier = @"TestDatabase";
     [[StorageStack shared] setCreateStorageAsInMemory:NO];
     
     XCTestExpectation *expection = [self expectationWithDescription:@"didCreateDirectory"];
-    [StorageStack.shared createManagedObjectContextDirectoryForAccountWith:self.accountID
-                                                             inContainerAt:self.sharedContainerDirectoryURL
+    [StorageStack.shared createManagedObjectContextDirectoryForAccountIdentifier:self.accountID
+                                                             applicationContainer:self.sharedContainerDirectoryURL
                                                   startedMigrationCallback:nil
                                                          completionHandler:^(ManagedObjectContextDirectory * _Nonnull directory) {
                                                              NOT_USED(directory);
@@ -281,7 +281,7 @@ static NSString * const DatabaseIdentifier = @"TestDatabase";
     
     XCTestExpectation *expection = [self expectationWithDescription:@"didCreateDirectory"];
     [StorageStack.shared createManagedObjectContextDirectoryForAccountWith:self.accountID
-                                                             inContainerAt:containerURL
+                                                             applicationContainer:containerURL
                                                   startedMigrationCallback:nil
                                                          completionHandler:^(ManagedObjectContextDirectory * _Nonnull directory) {
                                                              NOT_USED(directory);
@@ -336,7 +336,7 @@ static NSString * const DatabaseIdentifier = @"TestDatabase";
     
     XCTestExpectation *expection = [self expectationWithDescription:@"didCreateDirectory"];
     [StorageStack.shared createManagedObjectContextDirectoryForAccountWith:self.accountID
-                                                             inContainerAt:containerURL
+                                                             applicationContainer:containerURL
                                                   startedMigrationCallback:nil
                                                          completionHandler:^(ManagedObjectContextDirectory * _Nonnull directory) {
                                                              NOT_USED(directory);

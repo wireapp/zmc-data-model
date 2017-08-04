@@ -61,7 +61,8 @@ public struct PersistentStoreRelocator {
     public static func moveLegacyStoreIfNecessary(
         storeFile: URL,
         applicationContainer: URL,
-        startedMigrationCallback: (()->())?) {
+        startedMigrationCallback: (()->())?)
+    {
         if let previousStoreLocation = self.exisingLegacyStore(applicationContainer: applicationContainer), previousStoreLocation != storeFile {
             startedMigrationCallback?()
             self.moveStore(from: previousStoreLocation, to: storeFile)

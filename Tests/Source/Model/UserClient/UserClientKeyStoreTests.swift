@@ -156,13 +156,14 @@ class UserClientKeysStoreTests: OtrBaseTest {
         try! "foo".data(using: String.Encoding.utf8)!.write(to: OtrBaseTest.otrDirectoryURL(accountIdentifier:accountID).appendingPathComponent("dummy.txt"), options: Data.WritingOptions.atomic)
         
         // when
-        let _ = UserClientKeysStore(in: OtrBaseTest.sharedContainerURL, accountIdentifier: accountID)
+        let accountFolder = StorageStack.accountFolder(accountIdentifier: self.accountID, applicationContainer: OtrBaseTest.sharedContainerURL)
+        let _ = UserClientKeysStore(accountDirectory: accountFolder, applicationContainer: OtrBaseTest.sharedContainerURL)
         
         // then
         let fooData = try! Data(contentsOf: OtrBaseTest.otrDirectoryURL(accountIdentifier: accountID).appendingPathComponent("dummy.txt"))
         let fooString = String(data: fooData, encoding: String.Encoding.utf8)!
         XCTAssertEqual(fooString, "foo")
-        XCTAssertFalse(UserClientKeysStore.needToMigrateIdentity(sharedContainerURL: OtrBaseTest.sharedContainerURL))
+        XCTAssertFalse(UserClientKeysStore.needToMigrateIdentity(applicationContainer: OtrBaseTest.sharedContainerURL))
 
     }
 }
