@@ -264,7 +264,7 @@ static NSString * const DatabaseIdentifier = @"TestDatabase";
     NSURL *oldBaseURL = [containerURL URLByAppendingStorePath];
 
     [self performIgnoringZMLogError:^{
-        [self createAndMoveStoreWithPath:self.sharedContainerStoreURL];
+        [self createStorageStackAndWaitForCompletionWithPath:self.sharedContainerStoreURL];
     }];
     
     for (NSString *extension in self.databaseFileExtensions) {
@@ -309,7 +309,7 @@ static NSString * const DatabaseIdentifier = @"TestDatabase";
     NSURL *newBaseURL = [[containerURL URLByAppendingPathComponent:self.accountID.UUIDString] URLByAppendingStorePath];
     NSURL *oldBaseURL = [containerURL URLByAppendingStorePath];
 
-    [self createAndMoveStoreWithPath:self.sharedContainerStoreURL];
+    [self createStorageStackAndWaitForCompletionWithPath:self.sharedContainerStoreURL];
 
     [StorageStack reset];
     [[StorageStack shared] setCreateStorageAsInMemory:NO];

@@ -23,6 +23,9 @@ import UIKit
 /// Singleton to manage the creation of the CoreData stack
 @objc public class StorageStack: NSObject {
     
+    /// In-memory stores. These are mainly used for testing
+    private static var inMemoryStores: [URL: ManagedObjectContextDirectory] = [:]
+    
     /// Singleton instance
     public private(set) static var shared = StorageStack()
     
@@ -33,27 +36,26 @@ import UIKit
     /// This is mostly useful for testing.
     public var createStorageAsInMemory: Bool = false
 
-    private var url: URL?
-
     /// Persistent store currently being initialized
     private var currentPersistentStoreInitialization: PersistentStorageInitialization? = nil
     
     /// Attempts to access the legacy store and fetch the user ID of the self user.
     /// - parameter completionHandler: this callback is invoked with the user ID, if it exists, else nil.
     @objc public func fetchUserIDFromLegacyStore(
-        container: URL,
+        applicationContainer: URL,
         startedMigrationCallback: (() -> Void)?,
         completionHandler: @escaping (UUID?) -> Void
         )
     {
-        guard let oldLocation = PersistentStoreRelocator.oldLocationForStore(sharedContainerURL: container, newLocation: nil) else {
+        guard let oldLocation = PersistentStoreRelocator.exisingLegacyStore(applicationContainer: applicationContainer) else {
             completionHandler(nil)
             return
         }
         
         self.currentPersistentStoreInitialization = PersistentStorageInitialization()
-        self.currentPersistentStoreInitialization?.createPersistentStoreCoordinator(store: oldLocation,
-                                                                                    legacyStoreContainerForMigration: nil,
+        self.currentPersistentStoreInitialization?.createPersistentStoreCoordinator(storeFile: oldLocation,
+                                                                                    applicationContainer: applicationContainer,
+                                                                                    migrateIfNeeded: false,
                                                                                     startedMigrationCallback: nil)
         { [weak self] psc in
             self?.currentPersistentStoreInitialization = nil
@@ -71,10 +73,46 @@ import UIKit
     /// - parameter completionHandler: this callback is invoked on the main queue.
     /// - parameter accountIdentifier: user identifier that the store should be created for
     /// - parameter container: the shared container for the app
-    @objc(createManagedObjectContextDirectoryForAccountWith:inContainerAt:startedMigrationCallback:completionHandler:)
+    @objc(createManagedObjectContextDirectoryForAccountIdentifier:applicationContainer:startedMigrationCallback:completionHandler:)
     public func createManagedObjectContextDirectory(
         accountIdentifier: UUID,
-        container: URL,
+        applicationContainer: URL,
+        startedMigrationCallback: (() -> Void)? = nil,
+        completionHandler: @escaping (ManagedObjectContextDirectory) -> Void
+        )
+    {
+        
+        let accountDirectory = StorageStack.accountFolder(accountIdentifier: accountIdentifier, applicationContainer: applicationContainer)
+        FileManager.default.createAndProtectDirectory(at: accountDirectory)
+        
+        if self.createStorageAsInMemory {
+            // we need to reuse the exitisting contexts if we already have them,
+            // otherwise when testing logout / login we loose all data.
+            if let managedObjectContextDirectory = StorageStack.inMemoryStores[accountDirectory] {
+                completionHandler(managedObjectContextDirectory)
+            } else {
+                let managedObjectContextDirectory = InMemoryStoreInitialization.createManagedObjectContextDirectory(accountDirectory: accountDirectory, applicationContainer: applicationContainer)
+                StorageStack.inMemoryStores[accountDirectory] = managedObjectContextDirectory
+                completionHandler(managedObjectContextDirectory)
+            }
+        } else {
+            let storeFile = accountDirectory.appendingPersistentStoreLocation
+            self.createOnDiskStack(
+                accountDirectory: accountDirectory,
+                storeFile: storeFile,
+                applicationContainer: applicationContainer,
+                migrateIfNeeded: true,
+                startedMigrationCallback: startedMigrationCallback,
+                completionHandler: completionHandler)
+        }
+    }
+
+    /// Creates a managed object context directory on disk
+    func createOnDiskStack(
+        accountDirectory: URL,
+        storeFile: URL,
+        applicationContainer: URL,
+        migrateIfNeeded: Bool,
         startedMigrationCallback: (() -> Void)? = nil,
         completionHandler: @escaping (ManagedObjectContextDirectory) -> Void
         )
@@ -82,38 +120,22 @@ import UIKit
         guard self.currentPersistentStoreInitialization == nil else {
             fatal("Trying to create a new store before a previous one is done creating")
         }
-
-        let storeURL = FileManager.currentStoreURLForAccount(with: accountIdentifier, in: container)
-        NSPersistentStoreCoordinator.createDirectoryForStore(at: storeURL)
-
-        if self.createStorageAsInMemory {
-            // we need to reuse the exitisting contexts if we already have them,
-            // otherwise when testing logout / login we loose all data.
-            if let directory = managedObjectContextDirectory, storeURL == url {
+        
+        self.currentPersistentStoreInitialization = PersistentStorageInitialization()
+        self.currentPersistentStoreInitialization?.createPersistentStoreCoordinator(
+            storeFile: storeFile,
+            applicationContainer: applicationContainer,
+            migrateIfNeeded: migrateIfNeeded,
+            startedMigrationCallback: startedMigrationCallback)
+        { [weak self] psc in
+            DispatchQueue.main.async {
+                self?.currentPersistentStoreInitialization = nil // need to hold a reference, see `PersistentStorageInitialization.createPersistentStoreCoordinator`
+                let directory = ManagedObjectContextDirectory(
+                    persistentStoreCoordinator: psc,
+                    accountDirectory: accountDirectory,
+                    applicationContainer: applicationContainer)
+                self?.managedObjectContextDirectory = directory
                 completionHandler(directory)
-            } else {
-                url = storeURL
-                let directory = InMemoryStoreInitialization.createManagedObjectContextDirectory(accountIdentifier: accountIdentifier, container: container)
-                self.managedObjectContextDirectory = directory
-                completionHandler(directory)
-            }
-        } else {
-            url = storeURL
-            self.currentPersistentStoreInitialization = PersistentStorageInitialization()
-            self.currentPersistentStoreInitialization?.createPersistentStoreCoordinator(
-                store: storeURL,
-                legacyStoreContainerForMigration: container,
-                startedMigrationCallback: startedMigrationCallback)
-            { [weak self] psc in
-                DispatchQueue.main.async {
-                    self?.currentPersistentStoreInitialization = nil
-                    let directory = ManagedObjectContextDirectory(
-                        persistentStoreCoordinator: psc,
-                        accountIdentifier: accountIdentifier,
-                        container: container)
-                    self?.managedObjectContextDirectory = directory
-                    completionHandler(directory)
-                }
             }
         }
     }
@@ -125,25 +147,29 @@ import UIKit
         StorageStack.shared = StorageStack()
     }
     
-    deinit {
-        self.managedObjectContextDirectory?.tearDown()
+    /// Resets all in-memory stores. Since in-memory stores are not persited to disk, these
+    /// are not torn down with a normal reset otherwise the content will be lost
+    public static func resetInMemoryStores() {
+        self.inMemoryStores.values.forEach {
+            $0.tearDown()
+        }
+        self.inMemoryStores = [:]
     }
-    
 }
 
 /// Creates an in memory stack CoreData stack
 class InMemoryStoreInitialization {
 
     static func createManagedObjectContextDirectory(
-        accountIdentifier: UUID?,
-        container: URL) -> ManagedObjectContextDirectory
+        accountDirectory: URL,
+        applicationContainer: URL) -> ManagedObjectContextDirectory
     {
         let model = NSManagedObjectModel.loadModel()
         let psc = NSPersistentStoreCoordinator(inMemoryWithModel: model)
         let managedObjectContextDirectory = ManagedObjectContextDirectory(
             persistentStoreCoordinator: psc,
-            accountIdentifier: accountIdentifier,
-            container: container
+            accountDirectory: accountDirectory,
+            applicationContainer: applicationContainer
         )
         return managedObjectContextDirectory
     }
@@ -165,24 +191,27 @@ class PersistentStorageInitialization {
     /// If not, the callback might end up not being invoked.
     /// The callback will be invoked on an arbitrary queue.
     fileprivate func createPersistentStoreCoordinator(
-        store: URL,
-        legacyStoreContainerForMigration: URL?,
+        storeFile: URL,
+        applicationContainer: URL,
+        migrateIfNeeded: Bool,
         startedMigrationCallback: (() -> Void)?,
         completionHandler: @escaping (NSPersistentStoreCoordinator) -> Void
         ) {
         
         let model = NSManagedObjectModel.loadModel()
         let creation: (Void) -> NSPersistentStoreCoordinator = {
-            NSPersistentStoreCoordinator(url: store,
-                                         model: model,
-                                         legacyStoreContainerForMigration: legacyStoreContainerForMigration,
-                                         startedMigrationCallback: startedMigrationCallback
-                                         )
+            NSPersistentStoreCoordinator(
+                storeFile: storeFile,
+                applicationContainer: applicationContainer,
+                migrateIfNeeded: migrateIfNeeded,
+                model: model,
+                startedMigrationCallback: startedMigrationCallback
+             )
         }
         
         // We need to handle the case when the database file is encrypted by iOS and user never entered the passcode
         // We use default core data protection mode NSFileProtectionCompleteUntilFirstUserAuthentication
-        if PersistentStorageInitialization.databaseExistsButIsNotReadableDueToEncryption(at: store) {
+        if PersistentStorageInitialization.databaseExistsButIsNotReadableDueToEncryption(at: storeFile) {
             self.executeOnceFileSystemIsUnlocked {
                 self.queue.async {
                     completionHandler(creation())
@@ -241,3 +270,26 @@ extension NSManagedObjectModel {
     }
 }
 
+public extension StorageStack {
+    
+    /// Returns the URL that holds the data for the given account
+    /// It will be in the format <application container>/<bundle ID>/<account identifier>
+    public static func accountFolder(accountIdentifier: UUID, applicationContainer: URL) -> URL {
+        
+        guard let bundleId = Bundle.main.bundleIdentifier ?? Bundle(for: ZMUser.self).bundleIdentifier else {
+            fatal("No bundle??")
+        }
+        
+        return applicationContainer
+            .appendingPathComponent(bundleId)
+            .appendingPathComponent(accountIdentifier.uuidString)
+    }
+}
+
+public extension URL {
+    
+    /// Returns the location of the persistent store file in the given account folder
+    public var appendingPersistentStoreLocation: URL {
+        return self.appendingPathComponent("store").appendingStoreFile
+    }
+}

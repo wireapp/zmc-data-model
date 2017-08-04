@@ -22,12 +22,12 @@ import Foundation
 @objc public class ManagedObjectContextDirectory: NSObject {
     
     init(persistentStoreCoordinator: NSPersistentStoreCoordinator,
-         accountIdentifier: UUID?,
-         container: URL) {
+         accountDirectory: URL,
+         applicationContainer: URL) {
         self.uiContext = ManagedObjectContextDirectory.createUIManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator)
         self.syncContext = ManagedObjectContextDirectory.createSyncManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator,
-                                                                                        forAccountWith: accountIdentifier,
-                                                                                        inContainerAt: container)
+                                                                                        accountDirectory: accountDirectory,
+                                                                                        applicationContainer: applicationContainer)
         self.searchContext = ManagedObjectContextDirectory.createSearchManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator)
         super.init()
     }
@@ -77,15 +77,15 @@ extension ManagedObjectContextDirectory {
     
     fileprivate static func createSyncManagedObjectContext(
         persistentStoreCoordinator: NSPersistentStoreCoordinator,
-        forAccountWith accountIdentifier: UUID?,
-        inContainerAt containerUrl: URL) -> NSManagedObjectContext {
+        accountDirectory: URL,
+        applicationContainer: URL) -> NSManagedObjectContext {
         
         let moc = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         moc.markAsSyncContext()
         moc.performAndWait {
             moc.configure(with: persistentStoreCoordinator)
             moc.setupLocalCachedSessionAndSelfUser()
-            moc.setupUserKeyStore(in: containerUrl, for: accountIdentifier)
+            moc.setupUserKeyStore(accountDirectory: accountDirectory, applicationContainer: applicationContainer)
             moc.undoManager = nil
             moc.mergePolicy = ZMSyncMergePolicy(merge: .mergeByPropertyObjectTrumpMergePolicyType)
             
