@@ -32,11 +32,9 @@ extension NSPersistentStoreCoordinator {
         
         var migrationStarted = false
         func notifyMigrationStarted() -> () {
-            DispatchQueue.main.async {
-                if !migrationStarted {
-                    migrationStarted = true
-                    startedMigrationCallback?()
-                }
+            if !migrationStarted {
+                migrationStarted = true
+                startedMigrationCallback?()
             }
         }
         

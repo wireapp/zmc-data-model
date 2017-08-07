@@ -20,7 +20,7 @@ import Foundation
 import WireTesting
 @testable import WireDataModel
 
-public class DatabaseBaseTest: ZMTBaseTest {
+@objc public class DatabaseBaseTest: ZMTBaseTest {
     
     public var applicationContainer: URL {
         return FileManager.default
@@ -71,7 +71,6 @@ public class DatabaseBaseTest: ZMTBaseTest {
     /// Create storage stack at a legacy location
     @objc public func createLegacyStore(filePath: URL, customization: ((ManagedObjectContextDirectory)->())? = nil) {
         
-        var created = false
         StorageStack.shared.createOnDiskStack(
             accountDirectory: filePath.deletingLastPathComponent(),
             storeFile: filePath,
@@ -79,21 +78,20 @@ public class DatabaseBaseTest: ZMTBaseTest {
             migrateIfNeeded: false,
             completionHandler: { mocs in
                 customization?(mocs)
-                created = true
         })
         
-        guard self.waitOnMainLoop(until: { created }, timeout: 5) else {
-            XCTFail()
-            fatalError()
-        }
-        
         StorageStack.reset()
+        self.createDummyExternalSupportFileForDatabase(storeFile: filePath)
     }
     
-    
+    /// Clears the current storage folder and the legacy locations
     public func clearStorageFolder() {
-        try? FileManager.default.removeItem(at: self.applicationContainer)
+        let url = self.applicationContainer
+        try? FileManager.default.removeItem(at: url)
         
+        self.previousDatabaseLocations.forEach {
+            try? FileManager.default.removeItem(at: $0)
+        }
     }
     
     /// Creates some dummy Core Data store support file
@@ -102,5 +100,20 @@ public class DatabaseBaseTest: ZMTBaseTest {
         let supportPath = storeFile.deletingLastPathComponent().appendingPathComponent(".\(storeName)_SUPPORT")
         try! FileManager.default.createDirectory(at: supportPath, withIntermediateDirectories: true)
         try! self.mediumJPEGData().write(to: supportPath.appendingPathComponent("image.dat"))
+    }
+    
+    /// Extensions after the database file name
+    /// This is needed to expose Swift-only property to Obj-c
+    public static var databaseFileExtensions: [String] {
+        return PersistentStoreRelocator.storeFileExtensions
+    }
+    
+    /// Previous locations where the database was stored
+    var previousDatabaseLocations: [URL] {
+        return [
+            FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask).first!,
+            FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!,
+            self.applicationContainer
+        ]
     }
 }

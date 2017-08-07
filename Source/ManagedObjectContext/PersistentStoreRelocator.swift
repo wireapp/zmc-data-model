@@ -21,7 +21,7 @@ import Foundation
 extension URL {
 
     /// Appends a suffix to the last path (e.g. from `/foo/bar` to `/foo/bar_1`)
-    fileprivate func appendingSuffixToLastPathComponent(suffix: String) -> URL {
+    func appendingSuffixToLastPathComponent(suffix: String) -> URL {
         let modifiedComponent = lastPathComponent + suffix
         return deletingLastPathComponent().appendingPathComponent(modifiedComponent)
     }
@@ -40,7 +40,7 @@ public struct PersistentStoreRelocator {
     private static let zmLog = ZMSLog(tag: "PersistentStoreRelocator")
     
     /// Extension of store files
-    static let storeFileExtensions = ["", "-wal", "-shm"]
+    public static let storeFileExtensions = ["", "-wal", "-shm"]
     
     /// Returns the list of possible locations for legacy stores
     static func possiblePreviousStoreFiles(applicationContainer: URL) -> [URL] {

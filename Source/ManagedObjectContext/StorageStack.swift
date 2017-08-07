@@ -53,17 +53,20 @@ import UIKit
         }
         
         self.currentPersistentStoreInitialization = PersistentStorageInitialization()
-        self.currentPersistentStoreInitialization?.createPersistentStoreCoordinator(storeFile: oldLocation,
-                                                                                    applicationContainer: applicationContainer,
-                                                                                    migrateIfNeeded: false,
-                                                                                    startedMigrationCallback: nil)
-        { [weak self] psc in
-            self?.currentPersistentStoreInitialization = nil
-            DispatchQueue.main.async {
-                let context = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
-                context.persistentStoreCoordinator = psc
-                completionHandler(ZMUser.selfUser(in: context).remoteIdentifier)
+        DispatchQueue(label: "StorageStack").async {
+            self.currentPersistentStoreInitialization?.createPersistentStoreCoordinator(storeFile: oldLocation,
+                                                                                        applicationContainer: applicationContainer,
+                                                                                        migrateIfNeeded: false,
+                                                                                        startedMigrationCallback: nil)
+            { [weak self] psc in
+                DispatchQueue.main.async {
+                    self?.currentPersistentStoreInitialization = nil
+                    let context = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
+                    context.persistentStoreCoordinator = psc
+                    completionHandler(ZMUser.selfUser(in: context).remoteIdentifier)
+                }
             }
+
         }
     }
     
@@ -97,13 +100,24 @@ import UIKit
             }
         } else {
             let storeFile = accountDirectory.appendingPersistentStoreLocation
-            self.createOnDiskStack(
-                accountDirectory: accountDirectory,
-                storeFile: storeFile,
-                applicationContainer: applicationContainer,
-                migrateIfNeeded: true,
-                startedMigrationCallback: startedMigrationCallback,
-                completionHandler: completionHandler)
+            DispatchQueue(label: "Storage stack").async {
+                self.createOnDiskStack(
+                    accountDirectory: accountDirectory,
+                    storeFile: storeFile,
+                    applicationContainer: applicationContainer,
+                    migrateIfNeeded: true,
+                    startedMigrationCallback: {
+                        DispatchQueue.main.async {
+                            startedMigrationCallback?()
+                        }
+                    },
+                    completionHandler: { mocs in
+                        DispatchQueue.main.async {
+                            completionHandler(mocs)
+                        }
+                    }
+                )
+            }
         }
     }
 
@@ -128,15 +142,13 @@ import UIKit
             migrateIfNeeded: migrateIfNeeded,
             startedMigrationCallback: startedMigrationCallback)
         { [weak self] psc in
-            DispatchQueue.main.async {
-                self?.currentPersistentStoreInitialization = nil // need to hold a reference, see `PersistentStorageInitialization.createPersistentStoreCoordinator`
-                let directory = ManagedObjectContextDirectory(
-                    persistentStoreCoordinator: psc,
-                    accountDirectory: accountDirectory,
-                    applicationContainer: applicationContainer)
-                self?.managedObjectContextDirectory = directory
-                completionHandler(directory)
-            }
+            self?.currentPersistentStoreInitialization = nil // need to hold a reference, see `PersistentStorageInitialization.createPersistentStoreCoordinator`
+            let directory = ManagedObjectContextDirectory(
+                persistentStoreCoordinator: psc,
+                accountDirectory: accountDirectory,
+                applicationContainer: applicationContainer)
+            self?.managedObjectContextDirectory = directory
+            completionHandler(directory)
         }
     }
     
@@ -179,8 +191,6 @@ class InMemoryStoreInitialization {
 /// Creates a persistent store CoreData stack
 class PersistentStorageInitialization {
     
-    private let queue = DispatchQueue(label: "PersistentStorageInitialization")
-    
     fileprivate init() {}
     
     /// Observer token for application becoming available
@@ -213,15 +223,11 @@ class PersistentStorageInitialization {
         // We use default core data protection mode NSFileProtectionCompleteUntilFirstUserAuthentication
         if PersistentStorageInitialization.databaseExistsButIsNotReadableDueToEncryption(at: storeFile) {
             self.executeOnceFileSystemIsUnlocked {
-                self.queue.async {
-                    completionHandler(creation())
-                }
+                completionHandler(creation())
             }
         } else {
-            self.queue.async {
-                let psc = creation()
-                completionHandler(psc)
-            }
+            let psc = creation()
+            completionHandler(psc)
         }
     }
     

@@ -148,19 +148,19 @@ class StorageStackTests: DatabaseBaseTest {
     }
     
     func testThatItPerformsMigrationWhenStoreIsInOldLocation() {
-        
-        let oldLocations = PersistentStoreRelocator.possiblePreviousStoreFiles(applicationContainer: self.applicationContainer)
+            
         let userID = UUID()
         let testValue = "12345678"
         let testKey = "aassddffgg"
         
-        [oldLocations.first!].forEach { oldPath in
-            
+        self.previousDatabaseLocations.forEach { oldPath in
+
             // GIVEN
             StorageStack.reset()
             self.clearStorageFolder()
             
-            self.createLegacyStore(filePath: oldPath) { contextDirectory in
+            let oldStoreFile = oldPath.appendingStoreFile
+            self.createLegacyStore(filePath: oldStoreFile) { contextDirectory in
                 contextDirectory.uiContext.setPersistentStoreMetadata(testValue, key: testKey)
                 contextDirectory.uiContext.forceSaveOrRollback()
             }
@@ -171,6 +171,7 @@ class StorageStackTests: DatabaseBaseTest {
             
             // WHEN
             // create the stack, check that the value is there and that it calls the migration callback
+            var newStoreFile: URL? = nil
             StorageStack.shared.createManagedObjectContextDirectory(
                 accountIdentifier: userID,
                 applicationContainer: self.applicationContainer,
@@ -181,35 +182,44 @@ class StorageStackTests: DatabaseBaseTest {
                     XCTFail("Failed to find same value after migrating from \(oldPath.path)")
                     return
                 }
+                newStoreFile = MOCs.uiContext.persistentStoreCoordinator!.persistentStores.first!.url
                 XCTAssertEqual(string, testValue)
             }
             
             // THEN
             XCTAssertTrue(self.waitForCustomExpectations(withTimeout: 1))
+            
+            // check that all files are in the new location
+            if let newStore = newStoreFile {
+                XCTAssertTrue(checkSupportFilesExists(storeFile: newStore))
+            } else {
+                XCTFail()
+            }
+            XCTAssertFalse(checkSupportFilesExists(storeFile: oldStoreFile))
+            
             StorageStack.reset()
         }
     }
     
-    func testThatItDoesNotInvokeTheMigrationCallback() {
+    func testThatItDoesNotInvokeTheMigrationCallbackWhenThereIsNoMigration() {
         
         // GIVEN
         let uuid = UUID()
         let completionExpectation = self.expectation(description: "Callback invoked")
-        let migrationExpectation = self.expectation(description: "Migration started")
-        migrationExpectation.isInverted = true
         
         // WHEN
         StorageStack.shared.createManagedObjectContextDirectory(
             accountIdentifier: uuid,
             applicationContainer: self.applicationContainer,
-            startedMigrationCallback: { _ in migrationExpectation.fulfill() }
+            startedMigrationCallback: { _ in XCTFail() }
         ) { directory in
             completionExpectation.fulfill()
         }
         
         // THEN
-        self.waitForExpectations(timeout: 1)
+        XCTAssertTrue(self.waitForCustomExpectations(withTimeout: 0.5))
     }
+
 }
 
 // MARK: - Legacy User ID
@@ -220,45 +230,39 @@ extension StorageStackTests {
         
         // GIVEN
         let completionExpectation = self.expectation(description: "Callback invoked")
-        let migrationExpectation = self.expectation(description: "Migration invoked")
-        migrationExpectation.isInverted = true
         
         // WHEN
         StorageStack.shared.fetchUserIDFromLegacyStore(
             applicationContainer: self.applicationContainer,
-            startedMigrationCallback: { migrationExpectation.fulfill() }
+            startedMigrationCallback: { _ in XCTFail() }
         ) { userID in
             completionExpectation.fulfill()
             XCTAssertNil(userID)
         }
         
         // THEN
-        self.waitForExpectations(timeout: 0.5)
+        XCTAssertTrue(self.waitForCustomExpectations(withTimeout: 0.5))
     }
     
     func testThatItReturnsNilWhenLegacyStoreExistsButThereIsNoUser() {
         
         // GIVEN
-        let oldLocations = PersistentStoreRelocator.possiblePreviousStoreFiles(applicationContainer: self.applicationContainer)
-        
-        oldLocations.forEach { oldPath in
+        self.previousDatabaseLocations.forEach { oldPath in
             
             let completionExpectation = self.expectation(description: "Callback invoked")
-            let migrationExpectation = self.expectation(description: "Migration invoked")
-            migrationExpectation.isInverted = true
-            self.createLegacyStore(filePath: oldPath)
+            self.createLegacyStore(filePath: oldPath.appendingStoreFile)
             
             // WHEN
             StorageStack.shared.fetchUserIDFromLegacyStore(
                 applicationContainer: self.applicationContainer,
-                startedMigrationCallback: { migrationExpectation.fulfill() }
+                startedMigrationCallback: { _ in XCTFail() }
             ) { userID in
                 completionExpectation.fulfill()
                 XCTAssertNil(userID)
             }
             
             // THEN
-            self.wait(for: [completionExpectation, migrationExpectation], timeout: 0.5)
+            XCTAssertTrue(self.waitForCustomExpectations(withTimeout: 0.5))
             StorageStack.reset()
             self.clearStorageFolder()
         }
@@ -267,16 +271,12 @@ extension StorageStackTests {
     func testThatItReturnsUserIDFromLegacyStoreWhenItExists() {
         
         // GIVEN
-        let oldLocations = PersistentStoreRelocator.possiblePreviousStoreFiles(applicationContainer: self.applicationContainer)
-        
-        oldLocations.forEach { oldPath in
+        self.previousDatabaseLocations.forEach { oldPath in
             
             let userID = UUID()
             let completionExpectation = self.expectation(description: "Callback invoked")
-            let migrationExpectation = self.expectation(description: "Migration invoked")
-            migrationExpectation.isInverted = true
             
-            self.createLegacyStore(filePath: oldPath) { contextDirectory in
+            self.createLegacyStore(filePath: oldPath.appendingStoreFile) { contextDirectory in
                 ZMUser.selfUser(in: contextDirectory.uiContext).remoteIdentifier = userID
                 contextDirectory.uiContext.forceSaveOrRollback()
             }
@@ -284,26 +284,38 @@ extension StorageStackTests {
             // WHEN
             StorageStack.shared.fetchUserIDFromLegacyStore(
                 applicationContainer: self.applicationContainer,
-                startedMigrationCallback: { migrationExpectation.fulfill() }
+                startedMigrationCallback: { _ in XCTFail() }
             ) { fetchedUserID in
                 completionExpectation.fulfill()
                 XCTAssertEqual(userID, fetchedUserID)
             }
             
             // THEN
-            self.wait(for: [completionExpectation, migrationExpectation], timeout: 0.5)
+            XCTAssertTrue(self.waitForCustomExpectations(withTimeout: 0.5))
             StorageStack.reset()
             clearStorageFolder()
+            try? FileManager.default.removeItem(at: oldPath.deletingLastPathComponent())
         }
     }
 }
 
-
-
-
-
-
-
+extension StorageStackTests {
+    
+    /// Checks that all support files exists
+    func checkSupportFilesExists(storeFile: URL) -> Bool {
+        for ext in PersistentStoreRelocator.storeFileExtensions {
+            let supportFile = storeFile.appendingSuffixToLastPathComponent(suffix: ext)
+            guard FileManager.default.fileExists(atPath: supportFile.path) else {
+                return false
+            }
+        }
+        let supportDirectory = storeFile.deletingLastPathComponent().appendingPathComponent(".store_SUPPORT")
+        guard FileManager.default.fileExists(atPath: supportDirectory.path) else {
+             return false
+        }
+        return true
+    }
+}
 
 
 
