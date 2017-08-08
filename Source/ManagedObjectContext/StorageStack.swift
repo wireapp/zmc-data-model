@@ -164,14 +164,17 @@ class InMemoryStoreInitialization {
 
     static func createManagedObjectContextDirectory(
         accountDirectory: URL,
+        dispatchGroup: ZMSDispatchGroup? = nil,
         applicationContainer: URL) -> ManagedObjectContextDirectory
+
     {
         let model = NSManagedObjectModel.loadModel()
         let psc = NSPersistentStoreCoordinator(inMemoryWithModel: model)
         let managedObjectContextDirectory = ManagedObjectContextDirectory(
             persistentStoreCoordinator: psc,
             accountDirectory: accountDirectory,
-            applicationContainer: applicationContainer
+            applicationContainer: applicationContainer,
+            dispatchGroup: dispatchGroup
         )
         return managedObjectContextDirectory
     }

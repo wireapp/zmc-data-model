@@ -23,12 +23,14 @@ import Foundation
     
     init(persistentStoreCoordinator: NSPersistentStoreCoordinator,
          accountDirectory: URL,
-         applicationContainer: URL) {
-        self.uiContext = ManagedObjectContextDirectory.createUIManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator)
+         applicationContainer: URL,
+         dispatchGroup: ZMSDispatchGroup? = nil) {
+        self.uiContext = ManagedObjectContextDirectory.createUIManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator, dispatchGroup: dispatchGroup)
         self.syncContext = ManagedObjectContextDirectory.createSyncManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator,
                                                                                         accountDirectory: accountDirectory,
+                                                                                        dispatchGroup: dispatchGroup,
                                                                                         applicationContainer: applicationContainer)
-        self.searchContext = ManagedObjectContextDirectory.createSearchManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator)
+        self.searchContext = ManagedObjectContextDirectory.createSearchManagedObjectContext(persistentStoreCoordinator: persistentStoreCoordinator, dispatchGroup: dispatchGroup)
         super.init()
     }
     
@@ -63,13 +65,14 @@ import Foundation
 extension ManagedObjectContextDirectory {
     
     fileprivate static func createUIManagedObjectContext(
-        persistentStoreCoordinator: NSPersistentStoreCoordinator) -> NSManagedObjectContext {
+        persistentStoreCoordinator: NSPersistentStoreCoordinator, dispatchGroup: ZMSDispatchGroup? = nil) -> NSManagedObjectContext {
         
         let moc = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
         moc.performAndWait {
             moc.markAsUIContext()
             moc.configure(with: persistentStoreCoordinator)
             ZMUser.selfUser(in: moc)
+            dispatchGroup.apply(moc.add)
         }
         moc.mergePolicy = ZMSyncMergePolicy(merge: .rollbackMergePolicyType)
         return moc
@@ -78,6 +81,7 @@ extension ManagedObjectContextDirectory {
     fileprivate static func createSyncManagedObjectContext(
         persistentStoreCoordinator: NSPersistentStoreCoordinator,
         accountDirectory: URL,
+        dispatchGroup: ZMSDispatchGroup? = nil,
         applicationContainer: URL) -> NSManagedObjectContext {
         
         let moc = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
@@ -88,7 +92,7 @@ extension ManagedObjectContextDirectory {
             moc.setupUserKeyStore(accountDirectory: accountDirectory, applicationContainer: applicationContainer)
             moc.undoManager = nil
             moc.mergePolicy = ZMSyncMergePolicy(merge: .mergeByPropertyObjectTrumpMergePolicyType)
-            
+            dispatchGroup.apply(moc.add)
         }
         
         // this will be done async, not to block the UI thread, but
@@ -101,7 +105,9 @@ extension ManagedObjectContextDirectory {
     }
  
     fileprivate static func createSearchManagedObjectContext(
-        persistentStoreCoordinator: NSPersistentStoreCoordinator) -> NSManagedObjectContext {
+        persistentStoreCoordinator: NSPersistentStoreCoordinator,
+        dispatchGroup: ZMSDispatchGroup? = nil
+        ) -> NSManagedObjectContext {
         
         let moc = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         moc.markAsSearch()
@@ -110,6 +116,7 @@ extension ManagedObjectContextDirectory {
             moc.setupLocalCachedSessionAndSelfUser()
             moc.undoManager = nil
             moc.mergePolicy = ZMSyncMergePolicy(merge: .rollbackMergePolicyType)
+            dispatchGroup.apply(moc.add)
         }
         return moc
     }
