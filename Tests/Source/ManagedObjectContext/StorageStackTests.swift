@@ -64,7 +64,7 @@ class StorageStackTests: DatabaseBaseTest {
         let firstStackExpectation = self.expectation(description: "Callback invoked")
         let testValue = "12345678"
         let testKey = "aassddffgg"
-        weak var contextDirectory: ManagedObjectContextDirectory! = nil
+        var contextDirectory: ManagedObjectContextDirectory! = nil
         StorageStack.shared.createManagedObjectContextDirectory(
             accountIdentifier: uuid,
             applicationContainer: self.applicationContainer
@@ -80,9 +80,11 @@ class StorageStackTests: DatabaseBaseTest {
         let conversationTemp = ZMConversation.insertNewObject(in: contextDirectory.uiContext)
         contextDirectory.uiContext.forceSaveOrRollback()
         let objectID = conversationTemp.objectID
+        contextDirectory = nil
+        StorageStack.reset()
         
         // WHEN
-        StorageStack.reset()
+
         let secondStackExpectation = self.expectation(description: "Callback invoked")
         
         StorageStack.shared.createManagedObjectContextDirectory(

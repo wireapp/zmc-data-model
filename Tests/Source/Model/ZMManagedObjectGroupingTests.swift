@@ -34,6 +34,7 @@ class ZMManagedObjectGroupingTests: DatabaseBaseTest {
         super.tearDown()
         self.mocs.tearDown()
         self.mocs = nil
+        super.tearDown()
     }
     
     public func testThatItFindsNoDuplicates_None() {

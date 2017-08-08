@@ -24,7 +24,7 @@ import UIKit
 @objc public class StorageStack: NSObject {
     
     /// In-memory stores. These are mainly used for testing
-    private static var inMemoryStores: [URL: ManagedObjectContextDirectory] = [:]
+    private var inMemoryStores: [URL: ManagedObjectContextDirectory] = [:]
     
     /// Singleton instance
     public private(set) static var shared = StorageStack()
@@ -84,18 +84,17 @@ import UIKit
         completionHandler: @escaping (ManagedObjectContextDirectory) -> Void
         )
     {
-        
         let accountDirectory = StorageStack.accountFolder(accountIdentifier: accountIdentifier, applicationContainer: applicationContainer)
         FileManager.default.createAndProtectDirectory(at: accountDirectory)
         
         if self.createStorageAsInMemory {
             // we need to reuse the exitisting contexts if we already have them,
             // otherwise when testing logout / login we loose all data.
-            if let managedObjectContextDirectory = StorageStack.inMemoryStores[accountDirectory] {
+            if let managedObjectContextDirectory = self.inMemoryStores[accountDirectory] {
                 completionHandler(managedObjectContextDirectory)
             } else {
                 let managedObjectContextDirectory = InMemoryStoreInitialization.createManagedObjectContextDirectory(accountDirectory: accountDirectory, applicationContainer: applicationContainer)
-                StorageStack.inMemoryStores[accountDirectory] = managedObjectContextDirectory
+                self.inMemoryStores[accountDirectory] = managedObjectContextDirectory
                 completionHandler(managedObjectContextDirectory)
             }
         } else {
@@ -157,15 +156,6 @@ import UIKit
     /// reset will cause a crash
     public static func reset() {
         StorageStack.shared = StorageStack()
-    }
-    
-    /// Resets all in-memory stores. Since in-memory stores are not persited to disk, these
-    /// are not torn down with a normal reset otherwise the content will be lost
-    public static func resetInMemoryStores() {
-        self.inMemoryStores.values.forEach {
-            $0.tearDown()
-        }
-        self.inMemoryStores = [:]
     }
 }
 

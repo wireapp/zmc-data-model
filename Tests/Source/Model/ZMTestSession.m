@@ -108,6 +108,8 @@ NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
     [self wipeCaches];
     ZMConversationDefaultLastReadTimestampSaveDelay = self.originalConversationLastReadTimestampTimerValue;
     [self waitAndDeleteAllManagedObjectContexts];
+    self.contextDirectory = nil;
+    [StorageStack reset];
     NSArray *files = [[NSFileManager defaultManager] contentsOfDirectoryAtURL:self.containerURL includingPropertiesForKeys:nil options:0 error:nil];
     for (NSURL *file in files){
         [[NSFileManager defaultManager] removeItemAtURL:file error:nil];

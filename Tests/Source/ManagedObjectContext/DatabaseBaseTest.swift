@@ -37,8 +37,8 @@ import WireTesting
     
     override public func tearDown() {
         StorageStack.reset()
-        super.tearDown()
         self.clearStorageFolder()
+        super.tearDown()
     }
     
     /// Create storage stack
