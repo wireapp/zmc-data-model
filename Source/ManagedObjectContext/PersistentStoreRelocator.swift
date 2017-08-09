@@ -80,7 +80,9 @@ public struct PersistentStoreRelocator {
         let fileManager = FileManager.default
         fileManager.createAndProtectDirectory(at: to.deletingLastPathComponent())
         
-        self.storeFileExtensions.forEach { storeFileExtension in
+        moveExternalBinaryStoreFiles(from: from, to: to)
+        
+        self.storeFileExtensions.reversed().forEach { storeFileExtension in
             let destination = to.appendingSuffixToLastPathComponent(suffix: storeFileExtension)
             let source = from.appendingSuffixToLastPathComponent(suffix: storeFileExtension)
             
@@ -90,8 +92,6 @@ public struct PersistentStoreRelocator {
             
             try! fileManager.moveItem(at: source, to: destination)
         }
-        
-        moveExternalBinaryStoreFiles(from: from, to: to)
     }
     
     private static func moveExternalBinaryStoreFiles(from: URL, to: URL) {
