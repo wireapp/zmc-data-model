@@ -36,6 +36,8 @@ import UIKit
     /// This is mostly useful for testing.
     public var createStorageAsInMemory: Bool = false
 
+    private let isolationQueue = DispatchQueue(label: "StorageStack")
+
     /// Persistent store currently being initialized
     private var currentPersistentStoreInitialization: PersistentStorageInitialization? = nil
     
@@ -43,7 +45,7 @@ import UIKit
     /// - parameter completionHandler: this callback is invoked with the user ID, if it exists, else nil.
     @objc public func fetchUserIDFromLegacyStore(
         applicationContainer: URL,
-        startedMigrationCallback: (() -> Void)?,
+        startedMigrationCallback: (() -> Void)? = nil,
         completionHandler: @escaping (UUID?) -> Void
         )
     {
@@ -53,7 +55,7 @@ import UIKit
         }
         
         self.currentPersistentStoreInitialization = PersistentStorageInitialization()
-        DispatchQueue(label: "StorageStack").async {
+        isolationQueue.async {
             self.currentPersistentStoreInitialization?.createPersistentStoreCoordinator(storeFile: oldLocation,
                                                                                         applicationContainer: applicationContainer,
                                                                                         migrateIfNeeded: false,
@@ -98,8 +100,8 @@ import UIKit
                 completionHandler(managedObjectContextDirectory)
             }
         } else {
-            let storeFile = accountDirectory.appendingPersistentStoreLocation
-            DispatchQueue(label: "Storage stack").async {
+            let storeFile = accountDirectory.appendingPersistentStoreLocation()
+            isolationQueue.async {
                 self.createOnDiskStack(
                     accountDirectory: accountDirectory,
                     storeFile: storeFile,
@@ -288,7 +290,7 @@ public extension StorageStack {
 public extension URL {
     
     /// Returns the location of the persistent store file in the given account folder
-    public var appendingPersistentStoreLocation: URL {
+    public func appendingPersistentStoreLocation() -> URL {
         return self.appendingPathComponent("store").appendingStoreFile
     }
 }
@@ -297,6 +299,6 @@ public extension NSURL {
 
     /// Returns the location of the persistent store file in the given account folder
     @objc public func URLAppendingPersistentStoreLocation() -> URL {
-        return (self as URL).appendingPersistentStoreLocation
+        return (self as URL).appendingPersistentStoreLocation()
     }
 }

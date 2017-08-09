@@ -116,7 +116,7 @@ class StorageStackTests: DatabaseBaseTest {
         let uuid = UUID()
         let completionExpectation = self.expectation(description: "Callback invoked")
         let migrationExpectation = self.expectation(description: "Migration started")
-        let storeFile = StorageStack.accountFolder(accountIdentifier: uuid, applicationContainer: self.applicationContainer).appendingPersistentStoreLocation
+        let storeFile = StorageStack.accountFolder(accountIdentifier: uuid, applicationContainer: self.applicationContainer).appendingPersistentStoreLocation()
         try! FileManager.default.createDirectory(at: storeFile.deletingLastPathComponent(), withIntermediateDirectories: true)
         
         // copy old version database into the expected location
