@@ -291,7 +291,7 @@ public extension URL {
     
     /// Returns the location of the persistent store file in the given account folder
     public func appendingPersistentStoreLocation() -> URL {
-        return self.appendingPathComponent("store").appendingStoreFile
+        return self.appendingPathComponent("store").appendingStoreFile()
     }
 }
 

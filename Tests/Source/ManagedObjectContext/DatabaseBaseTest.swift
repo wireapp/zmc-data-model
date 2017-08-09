@@ -65,7 +65,7 @@ import WireTesting
     /// Create storage stack at a legacy location
     @objc public func createLegacyStore(searchPath: FileManager.SearchPathDirectory) {
         let directory = FileManager.default.urls(for: searchPath, in: .userDomainMask).first!
-        self.createLegacyStore(filePath: directory.appendingStoreFile)
+        self.createLegacyStore(filePath: directory.appendingStoreFile())
     }
     
     /// Create storage stack at a legacy location

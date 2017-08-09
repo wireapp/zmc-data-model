@@ -27,7 +27,7 @@ extension URL {
     }
     
     /// Appends the name of the store to the path
-    var appendingStoreFile: URL {
+    func appendingStoreFile() -> URL {
         return self.appendingPathComponent("store.wiredatabase")
     }
 }
@@ -48,7 +48,7 @@ public struct PersistentStoreRelocator {
             FileManager.default.urls(for: $0, in: .userDomainMask).first!
         }
         locations.append(applicationContainer)
-        return locations.map{ $0.appendingStoreFile }
+        return locations.map{ $0.appendingStoreFile() }
     }
     
     /// Return the first existing legacy store, if any

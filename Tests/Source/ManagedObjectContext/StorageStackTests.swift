@@ -161,7 +161,7 @@ class StorageStackTests: DatabaseBaseTest {
             StorageStack.reset()
             self.clearStorageFolder()
             
-            let oldStoreFile = oldPath.appendingStoreFile
+            let oldStoreFile = oldPath.appendingStoreFile()
             self.createLegacyStore(filePath: oldStoreFile) { contextDirectory in
                 contextDirectory.uiContext.setPersistentStoreMetadata(testValue, key: testKey)
                 contextDirectory.uiContext.forceSaveOrRollback()
@@ -252,7 +252,7 @@ extension StorageStackTests {
         self.previousDatabaseLocations.forEach { oldPath in
             
             let completionExpectation = self.expectation(description: "Callback invoked")
-            self.createLegacyStore(filePath: oldPath.appendingStoreFile)
+            self.createLegacyStore(filePath: oldPath.appendingStoreFile())
             
             // WHEN
             StorageStack.shared.fetchUserIDFromLegacyStore(
@@ -278,7 +278,7 @@ extension StorageStackTests {
             let userID = UUID()
             let completionExpectation = self.expectation(description: "Callback invoked")
             
-            self.createLegacyStore(filePath: oldPath.appendingStoreFile) { contextDirectory in
+            self.createLegacyStore(filePath: oldPath.appendingStoreFile()) { contextDirectory in
                 ZMUser.selfUser(in: contextDirectory.uiContext).remoteIdentifier = userID
                 contextDirectory.uiContext.forceSaveOrRollback()
             }
