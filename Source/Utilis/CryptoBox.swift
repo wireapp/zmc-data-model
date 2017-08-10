@@ -95,13 +95,20 @@ open class UserClientKeysStore: NSObject {
     public init(accountDirectory: URL, applicationContainer: URL) {
         self.cryptoboxDirectory = FileManager.keyStoreURL(accountDirectory: accountDirectory, createParentIfNeeded: true)
         self.applicationContainer = applicationContainer
-        self.encryptionContext = UserClientKeysStore.setupContext(in: self.cryptoboxDirectory,
-                                                             applicationContainer: self.applicationContainer)!
+        self.encryptionContext = UserClientKeysStore.setupContext(in: self.cryptoboxDirectory)!
     }
     
-    private static func setupContext(in directory: URL, applicationContainer: URL) -> EncryptionContext? {
-        let encryptionContext : EncryptionContext
+    private static func setupContext(in directory: URL) -> EncryptionContext? {
+        FileManager.default.createAndProtectDirectory(at: directory)
+        return EncryptionContext(path: directory)
+    }
+    
+    /// Moves the key store if needed from all possible legacy locations to the keystore
+    /// directory within the given account directory.
+    public static func migrateIfNeeded(accountDirectory: URL, applicationContainer: URL) {
+        let directory = FileManager.keyStoreURL(accountDirectory: accountDirectory, createParentIfNeeded: true)
         let fm = FileManager.default
+        fm.createAndProtectDirectory(at: directory)
         
         /// migrate old directories if needed
         var didMigrate = false
@@ -126,15 +133,11 @@ open class UserClientKeysStore: NSObject {
                 }
             }
         }
-        
-        fm.createAndProtectDirectory(at: directory)
-        encryptionContext = EncryptionContext(path: directory)
-        return encryptionContext
     }
     
     open func deleteAndCreateNewBox() {
         _ = try? FileManager.default.removeItem(at: cryptoboxDirectory)
-        self.encryptionContext = UserClientKeysStore.setupContext(in: cryptoboxDirectory, applicationContainer: applicationContainer)!
+        self.encryptionContext = UserClientKeysStore.setupContext(in: cryptoboxDirectory)!
         self.internalLastPreKey = nil
     }
     
