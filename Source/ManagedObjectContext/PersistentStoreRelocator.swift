@@ -35,11 +35,16 @@ extension URL {
 public struct MainPersistentStoreRelocator {
     /// Returns the list of possible locations for legacy stores
     static func possiblePreviousStoreFiles(applicationContainer: URL) -> [URL] {
-        var locations = [.cachesDirectory, .applicationSupportDirectory].map{
+        let locations = possibleLegacyAccountFolders(applicationContainer: applicationContainer)
+        return locations.map{ $0.appendingStoreFile() }
+    }
+    
+    static func possibleLegacyAccountFolders(applicationContainer: URL) -> [URL] {
+        var locations = [.cachesDirectory, .applicationSupportDirectory, .libraryDirectory].map{
             FileManager.default.urls(for: $0, in: .userDomainMask).first!
         }
         locations.append(applicationContainer)
-        return locations.map{ $0.appendingStoreFile() }
+        return locations
     }
     
     /// Return the first existing legacy store, if any

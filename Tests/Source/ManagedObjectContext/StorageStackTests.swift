@@ -215,6 +215,10 @@ class StorageStackTests: DatabaseBaseTest {
                 contextDirectory.uiContext.forceSaveOrRollback()
             }
             
+            self.createKeyStore(accountDirectory: oldPath, filename: "foo")
+            
+            let accountDirectory = StorageStack.accountFolder(accountIdentifier: userID, applicationContainer: self.applicationContainer)
+            
             // expectations
             let migrationExpectation = self.expectation(description: "Migration started")
             let completionExpectation = self.expectation(description: "Stack initialization completed")
@@ -246,6 +250,11 @@ class StorageStackTests: DatabaseBaseTest {
                 XCTFail()
             }
             XCTAssertFalse(checkSupportFilesExists(storeFile: oldStoreFile))
+            
+            
+            XCTAssertFalse(self.doesFileExistInKeyStore(accountDirectory: oldPath, filename: "foo"))
+            XCTAssertTrue(self.doesFileExistInKeyStore(accountDirectory: accountDirectory, filename: "foo"))
+            
             
             StorageStack.reset()
         }

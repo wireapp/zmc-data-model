@@ -46,7 +46,7 @@ class UserClientKeysStoreTests: OtrBaseTest {
     
     func cleanOTRFolder() {
         let fm = FileManager.default
-        var paths = UserClientKeysStore.legacyDirectories(applicationContainer: OtrBaseTest.sharedContainerURL).map{$0.path}
+        var paths = UserClientKeysStore.possibleLegacyKeyStores(applicationContainer: OtrBaseTest.sharedContainerURL).map{$0.path}
         if let accountID = accountID {
             paths.append(OtrBaseTest.otrDirectoryURL(accountIdentifier: accountID).path)
         }
