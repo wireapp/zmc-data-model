@@ -2,14 +2,13 @@ machine:
   xcode:
     version: "9.0"
   environment:
-    DEPENDENCIES_BASE_URL: "https://raw.githubusercontent.com/wireapp/wire-ios-shared-resources/master"
+    DEPENDENCIES_BASE_URL: "https://raw.githubusercontent.com/wireapp/wire-ios-shared-resources/xcode9"
 
 checkout:
   post:
     # Download other scripts
     - curl -O "${DEPENDENCIES_BASE_URL}/environment.sh"
     - bash environment.sh
-    - echo "export DESTINATION='platform=iOS Simulator,name=iPhone 6,OS=11.0'" >> $HOME/.circlerc
     - curl -O "${DEPENDENCIES_BASE_URL}/dependencies.sh"
     - curl -O "${DEPENDENCIES_BASE_URL}/build.sh"
     - curl -O "${DEPENDENCIES_BASE_URL}/test.sh"
