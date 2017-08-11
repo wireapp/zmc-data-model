@@ -108,7 +108,7 @@ open class UserClientKeysStore: NSObject {
     public static func migrateIfNeeded(accountDirectory: URL, applicationContainer: URL) {
         let directory = FileManager.keyStoreURL(accountDirectory: accountDirectory, createParentIfNeeded: true)
         let fm = FileManager.default
-        fm.createAndProtectDirectory(at: directory)
+        fm.createAndProtectDirectory(at: directory.deletingLastPathComponent())
         
         /// migrate old directories if needed
         var didMigrate = false

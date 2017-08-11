@@ -29,9 +29,6 @@ import UIKit
     /// Singleton instance
     public private(set) static var shared = StorageStack()
     
-    /// Directory of managed object contexes
-    public var managedObjectContextDirectory: ManagedObjectContextDirectory? = nil
-    
     /// Whether the next storage should be create as in memory instead of on disk.
     /// This is mostly useful for testing.
     public var createStorageAsInMemory: Bool = false
@@ -135,12 +132,11 @@ import UIKit
             accountDirectory: accountDirectory,
             applicationContainer: applicationContainer,
             startedMigrationCallback: startedMigrationCallback)
-        { [weak self] psc in
+        { psc in
             let directory = ManagedObjectContextDirectory(
                 persistentStoreCoordinator: psc,
                 accountDirectory: accountDirectory,
                 applicationContainer: applicationContainer)
-            self?.managedObjectContextDirectory = directory
             completionHandler(directory)
         }
     }

@@ -23,7 +23,6 @@ extension NSPersistentStoreCoordinator {
             completionHandler(NSPersistentStoreCoordinator(
                 storeFile: storeFile,
                 applicationContainer: applicationContainer,
-                migrateIfNeeded: false,
                 model: model,
                 startedMigrationCallback: nil
             ))
@@ -52,7 +51,6 @@ extension NSPersistentStoreCoordinator {
             completionHandler(NSPersistentStoreCoordinator(
                 storeFile: storeFile,
                 applicationContainer: applicationContainer,
-                migrateIfNeeded: true,
                 model: model,
                 startedMigrationCallback: startedMigrationCallback
             ))
