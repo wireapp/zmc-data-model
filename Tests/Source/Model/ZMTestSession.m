@@ -25,9 +25,6 @@
 #import "NSManagedObjectContext+zmessaging.h"
 #import "NSManagedObjectContext+tests.h"
 
-NSString *const ZMPersistedClientIdKey = @"PersistedClientId";
-
-
 @interface ZMTestSession ()
 
 @property (nonatomic) ManagedObjectContextDirectory *contextDirectory;
