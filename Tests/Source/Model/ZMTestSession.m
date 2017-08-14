@@ -17,9 +17,8 @@
 //
 
 
-@import WireDataModel;
 @import WireTesting;
-@import WireDataModel;
+#import <WireDataModel/WireDataModel-Swift.h>
 
 #import "ZMTestSession.h"
 
