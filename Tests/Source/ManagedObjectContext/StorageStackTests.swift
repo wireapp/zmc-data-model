@@ -252,7 +252,8 @@ class StorageStackTests: DatabaseBaseTest {
             XCTAssertFalse(checkSupportFilesExists(storeFile: oldStoreFile))
             
             let accountDirectory = StorageStack.accountFolder(accountIdentifier: userID, applicationContainer: self.applicationContainer)
-            XCTAssertFalse(self.doesSessionExistInKeyStore(accountDirectory: oldPath, applicationContainer: self.applicationContainer, sessionId: sessionID))
+            let keyStoreFolder = FileManager.keyStoreURL(accountDirectory: oldPath, createParentIfNeeded: false)
+            XCTAssertFalse(FileManager.default.fileExists(atPath: keyStoreFolder.path))
             XCTAssertTrue(self.doesSessionExistInKeyStore(accountDirectory: accountDirectory, applicationContainer: self.applicationContainer, sessionId: sessionID))
             
             
@@ -335,7 +336,8 @@ class StorageStackTests: DatabaseBaseTest {
         for oldPath in self.previousDatabaseLocations {
             let oldStoreFile = oldPath.appendingStoreFile()
             XCTAssertFalse(checkSupportFilesExists(storeFile: oldStoreFile))
-            XCTAssertFalse(self.doesSessionExistInKeyStore(accountDirectory: oldPath, applicationContainer: self.applicationContainer, sessionId: sessionID))
+            let keyStoreFolder = FileManager.keyStoreURL(accountDirectory: oldPath, createParentIfNeeded: false)
+            XCTAssertFalse(FileManager.default.fileExists(atPath: keyStoreFolder.path))
         }
         
         
@@ -426,7 +428,8 @@ class StorageStackTests: DatabaseBaseTest {
         for oldPath in self.previousDatabaseLocations {
             let oldStoreFile = oldPath.appendingStoreFile()
             XCTAssertFalse(checkSupportFilesExists(storeFile: oldStoreFile))
-            XCTAssertFalse(self.doesSessionExistInKeyStore(accountDirectory: oldPath, applicationContainer: self.applicationContainer, sessionId: sessionID))
+            let keyStoreFolder = FileManager.keyStoreURL(accountDirectory: oldPath, createParentIfNeeded: false)
+            XCTAssertFalse(FileManager.default.fileExists(atPath: keyStoreFolder.path))
         }
         
         // new keystore exists
