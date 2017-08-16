@@ -157,14 +157,14 @@ class StorageStackTests: DatabaseBaseTest {
         StorageStack.shared.createStorageAsInMemory = false
     }
     
-    func testThatItPerformsMigrationCallbackWhenDifferentVersion() {
+    func testThatItPerformsMigrationCallbackWhenDifferentVersion() throws {
         
         // GIVEN
         let uuid = UUID.create()
         let completionExpectation = self.expectation(description: "Callback invoked")
         let migrationExpectation = self.expectation(description: "Migration started")
         let storeFile = StorageStack.accountFolder(accountIdentifier: uuid, applicationContainer: self.applicationContainer).appendingPersistentStoreLocation()
-        try! FileManager.default.createDirectory(at: storeFile.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try FileManager.default.createDirectory(at: storeFile.deletingLastPathComponent(), withIntermediateDirectories: true)
         
         // copy old version database into the expected location
         guard let source = Bundle(for: type(of: self)).url(forResource: "store2-3", withExtension: "wiredatabase") else {
@@ -172,7 +172,7 @@ class StorageStackTests: DatabaseBaseTest {
             return
         }
         let destination = URL(string: storeFile.absoluteString)!
-        try! FileManager.default.copyItem(at: source, to: destination)
+        try FileManager.default.copyItem(at: source, to: destination)
         
         // WHEN
         var contextDirectory: ManagedObjectContextDirectory? = nil
@@ -192,7 +192,7 @@ class StorageStackTests: DatabaseBaseTest {
             XCTFail("No context")
             return
         }
-        let messageCount = try! uiContext.count(for: ZMClientMessage.sortedFetchRequest()!)
+        let messageCount = try uiContext.count(for: ZMClientMessage.sortedFetchRequest()!)
         XCTAssertGreaterThan(messageCount, 0)
         
     }
@@ -204,19 +204,19 @@ class StorageStackTests: DatabaseBaseTest {
         let testKey = "aassddffgg"
         let sessionID = EncryptionSessionIdentifier(rawValue: "testSession")
         
-        self.previousDatabaseLocations.forEach { oldPath in
+        zip(previousDatabaseLocations, previousKeyStoreLocations).forEach { oldDatabasePath, oldKeystorePath in
 
             // GIVEN
             StorageStack.reset()
             self.clearStorageFolder()
             
-            let oldStoreFile = oldPath.appendingStoreFile()
+            let oldStoreFile = oldDatabasePath.appendingStoreFile()
             self.createLegacyStore(filePath: oldStoreFile) { contextDirectory in
                 contextDirectory.uiContext.setPersistentStoreMetadata(testValue, key: testKey)
                 contextDirectory.uiContext.forceSaveOrRollback()
             }
-            
-            self.createSessionInKeyStore(accountDirectory: oldPath, applicationContainer: self.applicationContainer, sessionId: sessionID)
+            self.createSessionInKeyStore(accountDirectory: oldKeystorePath, applicationContainer: self.applicationContainer, sessionId: sessionID)
+            let accountDirectory = StorageStack.accountFolder(accountIdentifier: userID, applicationContainer: self.applicationContainer)
             
             // expectations
             let migrationExpectation = self.expectation(description: "Migration started")
@@ -233,8 +233,7 @@ class StorageStackTests: DatabaseBaseTest {
             ) { MOCs in
                 defer { completionExpectation.fulfill() }
                 guard let string = MOCs.uiContext.persistentStoreMetadata(forKey: testKey) as? String else {
-                    XCTFail("Failed to find same value after migrating from \(oldPath.path)")
-                    return
+                    return XCTFail("Failed to find same value after migrating from \(oldDatabasePath.path)")
                 }
                 newStoreFile = MOCs.uiContext.persistentStoreCoordinator!.persistentStores.first!.url
                 XCTAssertEqual(string, testValue)
@@ -251,17 +250,15 @@ class StorageStackTests: DatabaseBaseTest {
             }
             XCTAssertFalse(checkSupportFilesExists(storeFile: oldStoreFile))
             
-            let accountDirectory = StorageStack.accountFolder(accountIdentifier: userID, applicationContainer: self.applicationContainer)
-            let keyStoreFolder = FileManager.keyStoreURL(accountDirectory: oldPath, createParentIfNeeded: false)
+            let keyStoreFolder = FileManager.keyStoreURL(accountDirectory: oldKeystorePath, createParentIfNeeded: false)
             XCTAssertFalse(FileManager.default.fileExists(atPath: keyStoreFolder.path))
             XCTAssertTrue(self.doesSessionExistInKeyStore(accountDirectory: accountDirectory, applicationContainer: self.applicationContainer, sessionId: sessionID))
-            
             
             StorageStack.reset()
         }
     }
     
-    func testThatItPerformsMigrationWhenThereExistsMultipleLegacyStores() {
+    func testThatItPerformsMigrationWhenThereExistsMultipleLegacyStores() throws {
         
         let userID = UUID.create()
         let testKey = "aassddffgg"
@@ -283,20 +280,18 @@ class StorageStackTests: DatabaseBaseTest {
         self.createSessionInKeyStore(accountDirectory: oldPath, applicationContainer: self.applicationContainer, sessionId: sessionID)
         
         // copy the store to all remaining possible legacy locations
-        for oldLocation in self.previousDatabaseLocations {
-            if oldLocation != oldPath {
-                // copy store files
-                ["-shm", "-wal", ""].forEach { storeFileExtension in
-                    let source = oldStoreFile.appendingSuffixToLastPathComponent(suffix: storeFileExtension)
-                    let destination = oldLocation.appendingStoreFile().appendingSuffixToLastPathComponent(suffix: storeFileExtension)
-                    try! FileManager.default.copyItem(at: source, to: destination)
-                }
-                
-                // copy keystore
-                let source = oldPath.appendingPathComponent("otr", isDirectory: true)
-                let destination = oldLocation.appendingPathComponent("otr", isDirectory: true)
-                try! FileManager.default.copyItem(at: source, to: destination)
+        try previousDatabaseLocations.filter { $0 != oldPath }.forEach { oldLocation in
+            // copy store files
+            try ["-shm", "-wal", ""].forEach { storeFileExtension in
+                let source = oldStoreFile.appendingSuffixToLastPathComponent(suffix: storeFileExtension)
+                let destination = oldLocation.appendingStoreFile().appendingSuffixToLastPathComponent(suffix: storeFileExtension)
+                try FileManager.default.copyItem(at: source, to: destination)
             }
+
+            // copy keystore
+            let source = oldPath.appendingPathComponent("otr", isDirectory: true)
+            let destination = oldLocation.appendingPathComponent("otr", isDirectory: true)
+            try FileManager.default.copyItem(at: source, to: destination)
         }
         
         // expectations
@@ -332,14 +327,12 @@ class StorageStackTests: DatabaseBaseTest {
         
         let accountDirectory = StorageStack.accountFolder(accountIdentifier: userID, applicationContainer: self.applicationContainer)
         
-        // check all legacy stores deleted
-        for oldPath in self.previousDatabaseLocations {
-            let oldStoreFile = oldPath.appendingStoreFile()
-            XCTAssertFalse(checkSupportFilesExists(storeFile: oldStoreFile))
-            let keyStoreFolder = FileManager.keyStoreURL(accountDirectory: oldPath, createParentIfNeeded: false)
-            XCTAssertFalse(FileManager.default.fileExists(atPath: keyStoreFolder.path))
+        // check all legacy databses and keystores deleted
+        zip(previousDatabaseLocations, previousKeyStoreLocations).forEach { databaseFolder, keyStorePath in
+            XCTAssertFalse(checkSupportFilesExists(storeFile: databaseFolder.appendingStoreFile()))
+            let keyStoreFolder = FileManager.keyStoreURL(accountDirectory: keyStorePath, createParentIfNeeded: false)
+            XCTAssertFalse(FileManager.default.fileExists(atPath: keyStoreFolder.path), "File still exists at \(keyStorePath.path)")
         }
-        
         
         // new keystore exists
         XCTAssertTrue(self.doesSessionExistInKeyStore(accountDirectory: accountDirectory, applicationContainer: self.applicationContainer, sessionId: sessionID))
