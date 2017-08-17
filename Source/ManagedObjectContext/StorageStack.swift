@@ -36,6 +36,11 @@ import UIKit
         return currentStack!
     }
     
+    /// Created managed object context directory. If I don't retain it here, it will 
+    /// eventually de-init and call the tear down of the contexes, even if someone is still
+    /// holding on to them
+    private var managedObjectContextDirectory: ManagedObjectContextDirectory?
+    
     /// Whether the next storage should be create as in memory instead of on disk.
     /// This is mostly useful for testing.
     public var createStorageAsInMemory: Bool = false
@@ -103,6 +108,7 @@ import UIKit
             }
         } else {
             let storeFile = accountDirectory.appendingPersistentStoreLocation()
+            precondition(self.managedObjectContextDirectory == nil)
             isolationQueue.async {
                 self.createOnDiskStack(
                     accountDirectory: accountDirectory,
@@ -114,7 +120,8 @@ import UIKit
                             startedMigrationCallback?()
                         }
                     },
-                    completionHandler: { mocs in
+                    completionHandler: { [weak self] mocs in
+                        self?.managedObjectContextDirectory = mocs
                         DispatchQueue.main.async {
                             completionHandler(mocs)
                         }
@@ -165,6 +172,7 @@ import UIKit
     /// reset will cause a crash
     public static func reset() {
         StorageStack.currentStack = nil
+        
     }
 }
 
