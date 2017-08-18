@@ -508,13 +508,13 @@
     XCTAssertNotEqual(nameComp1.components.count, 0u);
     XCTAssertNotEqual(nameComp2.components.count, 0u);
 
-    NSString *first1 = [nameComp1.components[0] zmFirstComposedCharacter];
-    NSString *second1 = [nameComp1.components[0] zmSecondComposedCharacter];
+    NSString *first1 = [nameComp1.components.firstObject zmFirstComposedCharacter];
+    NSString *second1 = [nameComp1.components.firstObject zmSecondComposedCharacter];
     XCTAssertEqualObjects(first1, @"𠀲");
     XCTAssertEqualObjects(second1, @"𫝶");
     
-    NSString *first2 = [nameComp2.components[0] zmFirstComposedCharacter];
-    NSString *second2 = [nameComp2.components[0] zmSecondComposedCharacter];
+    NSString *first2 = [nameComp2.components.firstObject zmFirstComposedCharacter];
+    NSString *second2 = [nameComp2.components.firstObject zmSecondComposedCharacter];
     XCTAssertEqualObjects(first2, @"𝓐");
     XCTAssertEqualObjects(second2, @"𝓑");
 //
