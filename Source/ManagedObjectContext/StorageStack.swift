@@ -108,7 +108,6 @@ import UIKit
             }
         } else {
             let storeFile = accountDirectory.appendingPersistentStoreLocation()
-            precondition(self.managedObjectContextDirectory == nil)
             isolationQueue.async {
                 self.createOnDiskStack(
                     accountDirectory: accountDirectory,
