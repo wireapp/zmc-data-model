@@ -128,7 +128,9 @@ class PersistedDataPatchesTests: ZMBaseManagedObjectTest {
         }
         
         // WHEN
-        PersistedDataPatch.applyAll(in: self.syncMOC, patches: [patch])
+        self.syncMOC.performGroupedBlockAndWait {
+            PersistedDataPatch.applyAll(in: self.syncMOC, patches: [patch])
+        }
         
         // THEN
         XCTAssertTrue(patchApplied)
@@ -143,10 +145,14 @@ class PersistedDataPatchesTests: ZMBaseManagedObjectTest {
             patchApplied = true
         }
         // this will bump last patched version to current version, which hopefully is less than 10000000.32.32
-        PersistedDataPatch.applyAll(in: self.syncMOC, patches: [])
+        self.syncMOC.performGroupedBlockAndWait {
+            PersistedDataPatch.applyAll(in: self.syncMOC, patches: [])
+        }
         
         // WHEN
-        PersistedDataPatch.applyAll(in: self.syncMOC, patches: [patch])
+        self.syncMOC.performGroupedBlockAndWait {
+            PersistedDataPatch.applyAll(in: self.syncMOC, patches: [patch])
+        }
         
         // THEN
         XCTAssertTrue(patchApplied)
@@ -161,10 +167,14 @@ class PersistedDataPatchesTests: ZMBaseManagedObjectTest {
             patchApplied = true
         }
         // this will bump last patched version to current version, which is greater than 0.0.1
-        PersistedDataPatch.applyAll(in: self.syncMOC, patches: [])
+        self.syncMOC.performGroupedBlockAndWait {
+            PersistedDataPatch.applyAll(in: self.syncMOC, patches: [])
+        }
         
         // WHEN
-        PersistedDataPatch.applyAll(in: self.syncMOC, patches: [patch])
+        self.syncMOC.performGroupedBlockAndWait {
+            PersistedDataPatch.applyAll(in: self.syncMOC, patches: [patch])
+        }
         
         // THEN
         XCTAssertFalse(patchApplied, "Version: \(Bundle(for: ZMUser.self).infoDictionary!["CFBundleShortVersionString"] as! String)")
@@ -182,7 +192,7 @@ class PersistedDataPatchesTests: ZMBaseManagedObjectTest {
             newClient.user = newUser
             newClient.remoteIdentifier = "aabb2d32ab"
 
-            let otrURL = selfClient.keysStore.cryptoboxDirectoryURL
+            let otrURL = selfClient.keysStore.cryptoboxDirectory
             XCTAssertTrue(selfClient.establishSessionWithClient(newClient, usingPreKey: hardcodedPrekey))
             self.syncMOC.saveOrRollback()
             
