@@ -359,10 +359,11 @@ class StorageStackTests: DatabaseBaseTest {
         XCTAssertTrue(self.waitForCustomExpectations(withTimeout: 0.5))
     }
     
-    // To simulate an interrupted migration, we create the legacy store and
-    // migrate the keystore immediately. Then we start the migration from this
-    // inconsistent state.
-    func testThatWhenMigrationIsAbortedItCanBeRestarted() {
+    func testThatWhenMigrationIsInterruptedAfterMigratingKeystoreItCanBeRestarted() {
+    
+        // To simulate an interrupted migration, we create the legacy store and
+        // migrate the keystore immediately. Then we start the migration from this
+        // inconsistent state.
         
         let userID = UUID.create()
         let testKey = "aassddffgg"
