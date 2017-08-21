@@ -20,6 +20,7 @@ dependencies:
   cache_directories:
     - Carthage/Build
     - ~/.gem
+    - ~/Rome
 
 test:
   override:
