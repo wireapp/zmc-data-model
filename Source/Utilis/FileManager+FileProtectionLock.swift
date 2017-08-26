@@ -44,10 +44,10 @@ extension FileManager {
         let result = fileExistsButIsNotReadableDueToEncryption(at: dummyFile)
         try? self.removeItem(at: dummyFile)
         return result
-        
     }
     
-    /// Check if the file is created, but still locked (potentially due to file system protection)
+    /// Check if the file is created, but still locked.
+    ///
     private func fileExistsButIsNotReadableDueToEncryption(at url: URL) -> Bool {
         guard self.fileExists(atPath: url.path) else { return false }
         return (try? FileHandle(forReadingFrom: url)) == nil
@@ -71,13 +71,15 @@ extension FileManager {
     
     /// Listen for the notification for when first authentication has been completed
     /// (c.f. `NSFileProtectionCompleteUntilFirstUserAuthentication`). Once it's available, it will
-    /// execute the closure
+    /// execute the closure.
+    ///
     private func executeOnceFileSystemIsUnlocked(execute block: @escaping ()->()) -> Any {
         
         // This happens when
         // (1) User has passcode enabled
         // (2) User turns the phone on, but do not enter the passcode yet
         // (3) App is awake on the background due to VoIP push notification
+        
         return NotificationCenter.default.addObserver(
             forName: .UIApplicationProtectedDataDidBecomeAvailable,
             object: nil,
