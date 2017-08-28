@@ -194,7 +194,7 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         UserChangeInfo.remove(observer: token, forBareUser: user)
     }
     
-    func testThatItNotifiesAboutChangeWhenObjectIsFaultedAndDissapears(){
+    func testThatItNotifiesAboutChangeWhenObjectIsFaultedAndDisappears(){
         // given
         var user: ZMUser? = ZMUser.insertNewObject(in: uiMOC)
         user?.name = "foo"
