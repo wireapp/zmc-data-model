@@ -27,6 +27,7 @@ extension FileManager {
         
         // create dummy file
         let tempDir = self.urls(for: .cachesDirectory, in: .userDomainMask).first!
+        self.createAndProtectDirectory(at: tempDir)
         let dummyFile = tempDir.appendingPathComponent("dummy_lock")
         let data = "testing".data(using: .utf8)!
         try! data.write(to: dummyFile)
@@ -43,7 +44,7 @@ extension FileManager {
         // try to access the dummy file then clean up
         let result = fileExistsButIsNotReadableDueToEncryption(at: dummyFile)
         try? self.removeItem(at: dummyFile)
-        return result
+        return !result
     }
     
     /// Check if the file is created, but still locked.
