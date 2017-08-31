@@ -29,33 +29,11 @@ extension FileManager {
         to destination: URL,
         overwriteExistingFiles: Bool) throws
     {
-        self.createAndProtectDirectory(at: destination)
-        
-        var isDirectory : ObjCBool = false
-        let enumerator = self.enumerator(at: source, includingPropertiesForKeys: [.nameKey, .isDirectoryKey])!
-        try enumerator.forEach { item in
-            let sourceItem = item as! URL
-            guard self.fileExists(atPath: sourceItem.path, isDirectory: &isDirectory) else { return }
-            let destinationItem = destination.appendingPathComponent(sourceItem.lastPathComponent)
-            
-            if isDirectory.boolValue {
-                enumerator.skipDescendants() // do not descend in this directory with this forEach loop
-                try self.moveFolderRecursively(
-                    from: sourceItem,
-                    to: destinationItem,
-                    overwriteExistingFiles: overwriteExistingFiles
-                ) // manually do recursion in this subfolder
-            } else {
-                if self.fileExists(atPath: destinationItem.path) {
-                    if !overwriteExistingFiles {
-                        return // skip already existing files!
-                    } else {
-                        try self.removeItem(at: destinationItem)
-                    }
-                }
-                try self.moveItem(at: sourceItem, to: destinationItem)
-            }
-        }
+        try self.moveOrCopyFolderRecursively(
+            operation: .move,
+            from: source,
+            to: destination,
+            overwriteExistingFiles: overwriteExistingFiles)
         
         // we moved everything, now we can delete
         try self.removeItem(at: source)
@@ -68,8 +46,26 @@ extension FileManager {
         to destination: URL,
         overwriteExistingFiles: Bool) throws
     {
+        try self.moveOrCopyFolderRecursively(
+            operation: .copy,
+            from: source,
+            to: destination,
+            overwriteExistingFiles: overwriteExistingFiles)
+    }
+    
+    private enum FileOperation {
+        case move
+        case copy
+    }
+    
+    private func moveOrCopyFolderRecursively(
+        operation: FileOperation,
+        from source: URL,
+        to destination: URL,
+        overwriteExistingFiles: Bool) throws
+    {
         self.createAndProtectDirectory(at: destination)
-        
+
         var isDirectory : ObjCBool = false
         let enumerator = self.enumerator(at: source, includingPropertiesForKeys: [.nameKey, .isDirectoryKey])!
         try enumerator.forEach { item in
@@ -79,7 +75,8 @@ extension FileManager {
             
             if isDirectory.boolValue {
                 enumerator.skipDescendants() // do not descend in this directory with this forEach loop
-                try self.copyFolderRecursively(
+                try self.moveOrCopyFolderRecursively(
+                    operation: operation,
                     from: sourceItem,
                     to: destinationItem,
                     overwriteExistingFiles: overwriteExistingFiles
@@ -92,10 +89,17 @@ extension FileManager {
                         try self.removeItem(at: destinationItem)
                     }
                 }
-                try self.copyItem(at: sourceItem, to: destinationItem)
+                try self.apply(operation, at: sourceItem, to: destinationItem)
             }
         }
     }
     
-    
+    private func apply(_ operation: FileOperation, at source: URL, to destination: URL) throws {
+        switch operation {
+        case .move:
+            try self.moveItem(at: source, to: destination)
+        case .copy:
+            try self.copyItem(at: source, to: destination)
+        }
+    }
 }
