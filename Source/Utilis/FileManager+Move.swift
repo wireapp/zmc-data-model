@@ -61,5 +61,41 @@ extension FileManager {
         try self.removeItem(at: source)
     }
     
+    /// Copies the content of the folder recursively to another folder.
+    /// If the destionation folder does not exists, it creates it.
+    @objc public func copyFolderRecursively(
+        from source: URL,
+        to destination: URL,
+        overwriteExistingFiles: Bool) throws
+    {
+        self.createAndProtectDirectory(at: destination)
+        
+        var isDirectory : ObjCBool = false
+        let enumerator = self.enumerator(at: source, includingPropertiesForKeys: [.nameKey, .isDirectoryKey])!
+        try enumerator.forEach { item in
+            let sourceItem = item as! URL
+            guard self.fileExists(atPath: sourceItem.path, isDirectory: &isDirectory) else { return }
+            let destinationItem = destination.appendingPathComponent(sourceItem.lastPathComponent)
+            
+            if isDirectory.boolValue {
+                enumerator.skipDescendants() // do not descend in this directory with this forEach loop
+                try self.copyFolderRecursively(
+                    from: sourceItem,
+                    to: destinationItem,
+                    overwriteExistingFiles: overwriteExistingFiles
+                ) // manually do recursion in this subfolder
+            } else {
+                if self.fileExists(atPath: destinationItem.path) {
+                    if !overwriteExistingFiles {
+                        return // skip already existing files!
+                    } else {
+                        try self.removeItem(at: destinationItem)
+                    }
+                }
+                try self.copyItem(at: sourceItem, to: destinationItem)
+            }
+        }
+    }
+    
     
 }
