@@ -183,7 +183,7 @@ import UIKit
 public extension StorageStack {
     
     /// Returns the URL that holds the data for the given account
-    /// It will be in the format <application container>/<bundle ID>/<account identifier>
+    /// It will be in the format <application container>/AccountData/<account identifier>
     @objc public static func accountFolder(accountIdentifier: UUID, applicationContainer: URL) -> URL {
         return applicationContainer
             .appendingPathComponent(StorageStack.accountDataFolder)
