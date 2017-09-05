@@ -25,8 +25,8 @@ import Foundation
 /// team name if there is any, picture and uuid.
 public final class Account: NSObject {
 
-    public let userName: String
-    public let teamName: String?
+    public var userName: String
+    public var teamName: String?
     public let userIdentifier: UUID
     public var imageData: Data?
 
@@ -98,7 +98,7 @@ extension Account {
 
     func write(to url: URL) throws {
         let data = try JSONSerialization.data(withJSONObject: jsonRepresentation())
-        try data.write(to: url)
+        try data.write(to: url, options: [.atomic])
     }
 
     static func load(from url: URL) -> Account? {
