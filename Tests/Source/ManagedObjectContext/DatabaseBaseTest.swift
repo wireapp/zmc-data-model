@@ -75,15 +75,6 @@ import WireTesting
     /// Create storage stack at a legacy location
     @objc public func createLegacyStore(filePath: URL, customization: ((ManagedObjectContextDirectory)->())? = nil) {
         
-//        StorageStack.shared.createOnDiskStack(
-//            accountDirectory: filePath.deletingLastPathComponent(),
-//            storeFile: filePath,
-//            applicationContainer: self.applicationContainer,
-//            migrateIfNeeded: false,
-//            completionHandler: { mocs in
-//                customization?(mocs)
-//        })
-        
         NSPersistentStoreCoordinator.create(
             storeFile: filePath,
             applicationContainer: applicationContainer)
@@ -95,21 +86,6 @@ import WireTesting
             MemoryReferenceDebugger.register(directory)
             customization?(directory)
         }
-        
-//        NSPersistentStoreCoordinator.createAndMigrate(
-//            storeFile: storeFile,
-//            accountIdentifier: accountIdentifier,
-//            accountDirectory: accountDirectory,
-//            applicationContainer: applicationContainer,
-//            startedMigrationCallback: startedMigrationCallback)
-//        { psc in
-//            let directory = ManagedObjectContextDirectory(
-//                persistentStoreCoordinator: psc,
-//                accountDirectory: accountDirectory,
-//                applicationContainer: applicationContainer)
-//            MemoryReferenceDebugger.register(directory)
-//            completionHandler(directory)
-//        }
         
         StorageStack.reset()
         self.createDummyExternalSupportFileForDatabase(storeFile: filePath)
