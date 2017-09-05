@@ -53,15 +53,39 @@ extension Notification.Name {
 public class NotificationCenterObserverToken : NSObject {
     
     let token : AnyObject
-    let object : AnyObject?
+    private let object: AnyObject?  // We keep strong reference to the `object` because the notifications would not get delivered
+                                    // if no one has references to it anymore. This could happen with faulted NSManagedObject.
     
     deinit {
         NotificationCenter.default.removeObserver(token)
     }
     
-    public init(name: NSNotification.Name, object: AnyObject? = nil, queue: OperationQueue? = nil, block: @escaping (_ note: Notification) -> Void) {
-        token = NotificationCenter.default.addObserver(forName: name, object: object, queue: queue, using: block)
+    public init(name: NSNotification.Name,
+                managedObjectContext: NSManagedObjectContext,
+                object: AnyObject? = nil,
+                queue: OperationQueue? = nil,
+                block: @escaping (_ note: Notification) -> Void)
+    {
         self.object = object
+        // I have to manage the object that I want to listen forseparatedly
+        // from the `object` for which I register for the notification.
+        // This is because I might want to register for `nil` object, but this
+        // does not work in case of multiple instances of sync engine, it will
+        // fire even when the other instance is posting notification.
+        // So I always register for the managed object context as the notification
+        // object, and insert the real object in the user info.
+        self.token = NotificationCenter.default.addObserver(forName: name,
+                                                            object: managedObjectContext,
+                                                            queue: queue)
+        { note in
+            if let object = object, // was not for "any object"
+                let notificationObject = note.userInfoObject,
+                (notificationObject as AnyObject) !== object // the object does not match
+            {
+                return
+            }
+            block(note)
+        }
     }
 }
 
@@ -159,63 +183,75 @@ public class NotificationDispatcher : NSObject {
         self.snapshotCenter = SnapshotCenter(managedObjectContext: managedObjectContext)
         super.init()
 
-        NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcher.objectsDidChange(_:)), name:.NSManagedObjectContextObjectsDidChange, object: self.managedObjectContext)
-        NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcher.contextDidSave(_:)), name:.NSManagedObjectContextDidSave, object: self.managedObjectContext)
-        NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcher.nonCoreDataChange(_:)), name:.NonCoreDataChangeInManagedObject, object: self.managedObjectContext)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(NotificationDispatcher.objectsDidChange(_:)),
+            name:.NSManagedObjectContextObjectsDidChange,
+            object: self.managedObjectContext)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(NotificationDispatcher.contextDidSave(_:)),
+            name:.NSManagedObjectContextDidSave,
+            object: self.managedObjectContext)
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(NotificationDispatcher.nonCoreDataChange(_:)),
+            name:.NonCoreDataChangeInManagedObject,
+            object: self.managedObjectContext)
     }
     
     public func tearDown() {
         NotificationCenter.default.removeObserver(self)
-        conversationListObserverCenter.tearDown()
-        tornDown = true
+        self.conversationListObserverCenter.tearDown()
+        self.tornDown = true
     }
     
     deinit {
-        assert(tornDown)
+        assert(self.tornDown)
     }
     
     /// To receive and process changeInfos, call this method to add yourself as an consumer
     @objc public func addChangeInfoConsumer(_ consumer: ChangeInfoConsumer) {
         let boxed = UnownedNSObject(consumer as! NSObject)
-        changeInfoConsumers.append(boxed)
+        self.changeInfoConsumers.append(boxed)
     }
     
     /// Call this when the application enters the background to stop sending notifications and clear current changes
     @objc func applicationDidEnterBackground() {
-        forwardChanges = false
-        unreadMessages = [:]
-        allChanges = [:]
-        userChanges = [:]
-        snapshotCenter.clearAllSnapshots()
-        allChangeInfoConsumers.forEach{$0.applicationDidEnterBackground()}
+        self.forwardChanges = false
+        self.unreadMessages = [:]
+        self.allChanges = [:]
+        self.userChanges = [:]
+        self.snapshotCenter.clearAllSnapshots()
+        self.allChangeInfoConsumers.forEach{$0.applicationDidEnterBackground()}
     }
     
     /// Call this when the application will enter the foreground to start sending notifications again
     @objc func applicationWillEnterForeground() {
-        forwardChanges = true
-        allChangeInfoConsumers.forEach{$0.applicationWillEnterForeground()}
+        self.forwardChanges = true
+        self.allChangeInfoConsumers.forEach{$0.applicationWillEnterForeground()}
     }
     
     /// This is called when objects in the uiMOC change
     /// Might be called several times in between saves
     @objc func objectsDidChange(_ note: Notification){
         guard forwardChanges else { return }
-        forwardChangesToConversationListObserver(note: note)
-        process(note: note)
+        self.forwardChangesToConversationListObserver(note: note)
+        self.process(note: note)
     }
     
     /// This is called when the uiMOC saved
     @objc func contextDidSave(_ note: Notification){
-        guard forwardChanges else { return }
-        fireAllNotifications()
+        guard self.forwardChanges else { return }
+        self.fireAllNotifications()
     }
     
     /// This will be called if a change to an object does not cause a change in Core Data, e.g. downloading the asset and adding it to the cache
     @objc func nonCoreDataChange(_ note: Notification){
         guard forwardChanges else { return }
-        guard let userInfo = note.userInfo as? [String: Any],
-            let changedKeys = userInfo["changedKeys"] as? [String],
-            let object = userInfo["object"] as? ZMManagedObject,
+        guard
+            let changedKeys = note.changedKeys,
+            let object = note.userInfoObject as? ZMManagedObject,
             let managedObjectContext = note.object as? NSManagedObjectContext,
             managedObjectContext == self.managedObjectContext
         else { return }
@@ -223,10 +259,10 @@ public class NotificationDispatcher : NSObject {
         let change = Changes(changedKeys: Set(changedKeys))
 
         let objectAndChangedKeys = [object: change]
-        allChanges = allChanges.merged(with: objectAndChangedKeys)
+        self.allChanges = self.allChanges.merged(with: objectAndChangedKeys)
         // Fire notifications only if there won't be a save happening anytime soon
         if !managedObjectContext.zm_hasChanges {
-            fireAllNotifications()
+            self.fireAllNotifications()
         } else { // make sure we will save eventually, even if we forgot to save somehow
             managedObjectContext.enqueueDelayedSave()
         }
@@ -238,7 +274,7 @@ public class NotificationDispatcher : NSObject {
         
         let insertedObjects = (userInfo[NSInsertedObjectsKey] as? Set<NSManagedObject>)?.flatMap{$0 as? ZMConversation} ?? []
         let deletedObjects = (userInfo[NSDeletedObjectsKey] as? Set<NSManagedObject>)?.flatMap{$0 as? ZMConversation} ?? []
-        conversationListObserverCenter.conversationsChanges(inserted: insertedObjects,
+        self.conversationListObserverCenter.conversationsChanges(inserted: insertedObjects,
                                                             deleted: deletedObjects)
     }
     
@@ -246,28 +282,28 @@ public class NotificationDispatcher : NSObject {
     public func didMergeChanges(_ changedObjectIDs: Set<NSManagedObjectID>) {
         guard forwardChanges else { return }
         let changedObjects : [ZMManagedObject] = changedObjectIDs.flatMap{(try? managedObjectContext.existingObject(with: $0)) as? ZMManagedObject}
-        extractChanges(from: Set(changedObjects))
-        fireAllNotifications()
+        self.extractChanges(from: Set(changedObjects))
+        self.fireAllNotifications()
     }
     
     func process(note: Notification) {
         guard let userInfo = note.userInfo as? [String : Any] else { return }
 
-        let updatedObjects = extractObjects(for: NSUpdatedObjectsKey, from: userInfo)
-        let refreshedObjects = extractObjects(for: NSRefreshedObjectsKey, from: userInfo)
-        let insertedObjects = extractObjects(for: NSInsertedObjectsKey, from: userInfo)
-        let deletedObjects = extractObjects(for: NSDeletedObjectsKey, from: userInfo)
+        let updatedObjects = self.extractObjects(for: NSUpdatedObjectsKey, from: userInfo)
+        let refreshedObjects = self.extractObjects(for: NSRefreshedObjectsKey, from: userInfo)
+        let insertedObjects = self.extractObjects(for: NSInsertedObjectsKey, from: userInfo)
+        let deletedObjects = self.extractObjects(for: NSDeletedObjectsKey, from: userInfo)
         
-        snapshotCenter.createSnapshots(for: insertedObjects)
+        self.snapshotCenter.createSnapshots(for: insertedObjects)
         
         let allUpdated = updatedObjects.union(refreshedObjects).union(usersWithChangedImages())
-        extractChanges(from: allUpdated)
-        extractChangesCausedByInsertionOrDeletion(of: insertedObjects)
-        extractChangesCausedByInsertionOrDeletion(of: deletedObjects)
+        self.extractChanges(from: allUpdated)
+        self.extractChangesCausedByInsertionOrDeletion(of: insertedObjects)
+        self.extractChangesCausedByInsertionOrDeletion(of: deletedObjects)
 
-        checkForUnreadMessages(insertedObjects: insertedObjects, updatedObjects:updatedObjects )
+        self.checkForUnreadMessages(insertedObjects: insertedObjects, updatedObjects:updatedObjects )
         
-        userChanges = [:]
+        self.userChanges = [:]
     }
     
     func extractObjects(for key: String, from userInfo: [String : Any]) -> Set<ZMManagedObject> {
@@ -300,35 +336,36 @@ public class NotificationDispatcher : NSObject {
             return (messages, knocks)
         }
         
-        updateExisting(name: .NewUnreadUnsentMessage, newSet: unreadUnsent)
-        updateExisting(name: .NewUnreadMessage, newSet: newUnreadMessages)
-        updateExisting(name: .NewUnreadKnock, newSet: newUnreadKnocks)
+        self.updateExisting(name: .NewUnreadUnsentMessage, newSet: unreadUnsent)
+        self.updateExisting(name: .NewUnreadMessage, newSet: newUnreadMessages)
+        self.updateExisting(name: .NewUnreadKnock, newSet: newUnreadKnocks)
     }
     
     func updateExisting(name: Notification.Name, newSet: [ZMMessage]) {
-        let existingUnreadUnsent = unreadMessages[name]
-        unreadMessages[name] = existingUnreadUnsent?.union(newSet) ?? Set(newSet)
+        let existingUnreadUnsent = self.unreadMessages[name]
+        self.unreadMessages[name] = existingUnreadUnsent?.union(newSet) ?? Set(newSet)
     }
     
     /// Gets additional user changes from userImageCache
     func usersWithChangedImages() -> Set<ZMManagedObject> {
-        let largeImageChanges = managedObjectContext.zm_userImageCache?.usersWithChangedLargeImage
-        let largeImageUsers = extractUsersWithImageChange(objectIDs: largeImageChanges,
+        let largeImageChanges = self.managedObjectContext.zm_userImageCache?.usersWithChangedLargeImage
+        let largeImageUsers = self.extractUsersWithImageChange(objectIDs: largeImageChanges,
                                                           changedKey: "imageMediumData")
-        let smallImageChanges = managedObjectContext.zm_userImageCache?.usersWithChangedSmallImage
-        let smallImageUsers = extractUsersWithImageChange(objectIDs: smallImageChanges,
+        let smallImageChanges = self.managedObjectContext.zm_userImageCache?.usersWithChangedSmallImage
+        let smallImageUsers = self.extractUsersWithImageChange(objectIDs: smallImageChanges,
                                                           changedKey: "imageSmallProfileData")
-        managedObjectContext.zm_userImageCache?.usersWithChangedLargeImage = []
-        managedObjectContext.zm_userImageCache?.usersWithChangedSmallImage = []
+        self.managedObjectContext.zm_userImageCache?.usersWithChangedLargeImage = []
+        self.managedObjectContext.zm_userImageCache?.usersWithChangedSmallImage = []
         return smallImageUsers.union(largeImageUsers)
     }
     
     
-    func extractUsersWithImageChange(objectIDs: [NSManagedObjectID]?, changedKey: String) -> Set<ZMUser> {
+    func extractUsersWithImageChange(objectIDs: [NSManagedObjectID]?, changedKey: String) -> Set<ZMUser>
+    {
         guard let objectIDs = objectIDs else { return Set() }
         var users = Set<ZMUser>()
         objectIDs.forEach { objectID in
-            guard let user = (try? managedObjectContext.existingObject(with: objectID)) as? ZMUser else { return }
+            guard let user = (try? self.managedObjectContext.existingObject(with: objectID)) as? ZMUser else { return }
             var newValue = userChanges[user] ?? Set()
             newValue.insert(changedKey)
             userChanges[user] = newValue
@@ -345,11 +382,11 @@ public class NotificationDispatcher : NSObject {
             if changedKeys.count == 0 || object.isFault  {
                 // If the object is a fault, calling changedValues() will return an empty set
                 // Luckily we created a snapshot of the object before the merge happend which we can use to compare the values
-                changedKeys = snapshotCenter.extractChangedKeysFromSnapshot(for: object)
+                changedKeys = self.snapshotCenter.extractChangedKeysFromSnapshot(for: object)
             } else {
-                snapshotCenter.updateSnapshot(for: object)
+                self.snapshotCenter.updateSnapshot(for: object)
             }
-            if let knownKeys = userChanges[object] {
+            if let knownKeys = self.userChanges[object] {
                 changedKeys = changedKeys.union(knownKeys)
             }
             return changedKeys
@@ -363,7 +400,7 @@ public class NotificationDispatcher : NSObject {
             guard changedKeys.count > 0 else { return nil }
             
             // (2) Get affected changes
-            extractChangesCausedByChangeInObjects(updatedObject: object, knownKeys: changedKeys)
+            self.extractChangesCausedByChangeInObjects(updatedObject: object, knownKeys: changedKeys)
             
             // (3) Map the changed keys to affected keys, remove the ones that we are not reporting
             let affectedKeys = changedKeys.map{affectingKeysStore.observableKeysAffectedByValue(object.classIdentifier, key: $0)}
@@ -372,7 +409,7 @@ public class NotificationDispatcher : NSObject {
             return Changes(changedKeys: affectedKeys)
         }
         // (4) Merge the changes with the other ones
-        allChanges = allChanges.merged(with: changes)
+        self.allChanges = self.allChanges.merged(with: changes)
     }
     
     /// Get all changes that resulted from other objects through dependencies (e.g. user.name -> conversation.displayName)
@@ -382,7 +419,7 @@ public class NotificationDispatcher : NSObject {
         // e.g. changing a users name affects the conversation displayName
         guard let object = updatedObject as? SideEffectSource else { return }
         let changedObjectsAndKeys = object.affectedObjectsAndKeys(keyStore: affectingKeysStore, knownKeys: knownKeys)
-        allChanges = allChanges.merged(with: changedObjectsAndKeys)
+        self.allChanges = self.allChanges.merged(with: changedObjectsAndKeys)
     }
     
     /// Get all changes that resulted from other objects through dependencies (e.g. user.name -> conversation.displayName)
@@ -393,7 +430,7 @@ public class NotificationDispatcher : NSObject {
         objects.forEach{ (obj) in
             guard let object = obj as? SideEffectSource else { return }
             let changedObjectsAndKeys = object.affectedObjectsForInsertionOrDeletion(keyStore: affectingKeysStore)
-            allChanges = allChanges.merged(with: changedObjectsAndKeys)
+            self.allChanges = self.allChanges.merged(with: changedObjectsAndKeys)
         }
     }
     
@@ -401,8 +438,8 @@ public class NotificationDispatcher : NSObject {
         let changes = allChanges
         let unreads = unreadMessages
         
-        unreadMessages = [:]
-        allChanges = [:]
+        self.unreadMessages = [:]
+        self.allChanges = [:]
         
         var allChangeInfos : [ClassIdentifier: [ObjectChangeInfo]] = [:]
         changes.forEach{ (object, changedKeys) in
@@ -411,13 +448,17 @@ public class NotificationDispatcher : NSObject {
                 else { return }
             
             let classIdentifier = object.classIdentifier
-            let notification = Notification(name: notificationName, object: object, userInfo: ["changeInfo" : changeInfo])
+            let notification = Notification(name: notificationName,
+                                            managedObjectContext: self.managedObjectContext,
+                                            object: object,
+                                            changeInfo: changeInfo)
+            
             NotificationCenter.default.post(notification)
             var previousChanges = allChangeInfos[classIdentifier] ?? []
             previousChanges.append(changeInfo)
             allChangeInfos[classIdentifier] = previousChanges
         }
-        forwardNotificationToObserverCenters(changeInfos: allChangeInfos)
+        self.forwardNotificationToObserverCenters(changeInfos: allChangeInfos)
         self.fireNewUnreadMessagesNotifications(unreadMessages: unreads)
     }
     
@@ -430,13 +471,15 @@ public class NotificationDispatcher : NSObject {
                 zmLog.warn("Did you forget to add the mapping for that?")
                 return
             }
-            let notification = Notification(name: notificationName, object:nil, userInfo: ["changeInfo" : changeInfo])
+            let notification = Notification(name: notificationName,
+                                            managedObjectContext: self.managedObjectContext,
+                                            changeInfo: changeInfo)
             NotificationCenter.default.post(notification)
         }
     }
     
     func forwardNotificationToObserverCenters(changeInfos: [ClassIdentifier: [ObjectChangeInfo]]){
-        allChangeInfoConsumers.forEach{
+        self.allChangeInfoConsumers.forEach{
             $0.objectsDidChange(changes: changeInfos)
         }
     }
@@ -448,12 +491,56 @@ extension NotificationDispatcher {
     public static func notifyNonCoreDataChanges(objectID: NSManagedObjectID, changedKeys: [String], uiContext: NSManagedObjectContext) {
         uiContext.performGroupedBlock {
             guard let uiMessage = try? uiContext.existingObject(with: objectID) else { return }
-            NotificationCenter.default.post(name: .NonCoreDataChangeInManagedObject,
-                                            object: uiContext,
-                                            userInfo: [
-                                                "object": uiMessage,
-                                                "changedKeys" : changedKeys
-                ])
+            let notification = Notification(name: .NonCoreDataChangeInManagedObject,
+                                            managedObjectContext: uiContext,
+                                            object: uiMessage,
+                                            changedKeys: changedKeys)
+            NotificationCenter.default.post(notification)
         }
+    }
+}
+
+
+extension Notification {
+    
+    private enum UserInfoKeys: String {
+        case changedKeys
+        case changeInfo
+        case object
+    }
+    
+    init(name: Notification.Name,
+         managedObjectContext: NSManagedObjectContext,
+         object: AnyObject? = nil,
+         changeInfo: ObjectChangeInfo? = nil,
+         changedKeys: [String]? = nil
+         )
+    {
+        var userInfo = [String: Any]()
+        if let object = object {
+            userInfo[UserInfoKeys.object.rawValue] = object
+        }
+        if let changeInfo = changeInfo {
+            userInfo[UserInfoKeys.changeInfo.rawValue] = changeInfo
+        }
+        if let changedKeys = changedKeys {
+            userInfo[UserInfoKeys.changedKeys.rawValue] = changedKeys
+        }
+        self.init(
+            name: name,
+            object: managedObjectContext,
+            userInfo: userInfo)
+    }
+    
+    var userInfoObject: AnyObject? {
+        return self.userInfo?[UserInfoKeys.object.rawValue] as AnyObject
+    }
+    
+    var changeInfo: ObjectChangeInfo? {
+        return self.userInfo?[UserInfoKeys.changeInfo.rawValue] as? ObjectChangeInfo
+    }
+    
+    var changedKeys: [String]? {
+        return self.userInfo?[UserInfoKeys.changedKeys.rawValue] as? [String]
     }
 }

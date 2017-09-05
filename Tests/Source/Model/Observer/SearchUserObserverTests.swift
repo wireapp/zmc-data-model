@@ -55,8 +55,8 @@ class SearchUserObserverTests : NotificationDispatcherTestBase {
                                       syncManagedObjectContext: self.syncMOC,
                                       uiManagedObjectContext:self.uiMOC)!
         
-        uiMOC.searchUserObserverCenter.addSearchUser(searchUser)
-        let token = UserChangeInfo.add(observer: testObserver, forBareUser: searchUser)
+        uiMOC.searchUserObserverCenter.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
+        let token = UserChangeInfo.add(observer: testObserver, forBareUser: searchUser, managedObjectContext: self.uiMOC)
         
         // when
         searchUser.notifyNewSmallImageData(self.verySmallJPEGData(), searchUserObserverCenter: uiMOC.searchUserObserverCenter)
@@ -83,8 +83,8 @@ class SearchUserObserverTests : NotificationDispatcherTestBase {
                                       syncManagedObjectContext: self.syncMOC,
                                       uiManagedObjectContext:self.uiMOC)!
         
-        uiMOC.searchUserObserverCenter.addSearchUser(searchUser)
-        let token = UserChangeInfo.add(observer: testObserver, forBareUser:searchUser)
+        uiMOC.searchUserObserverCenter.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
+        let token = UserChangeInfo.add(observer: testObserver, forBareUser:searchUser, managedObjectContext: self.uiMOC)
         
         // when
         user.smallProfileRemoteIdentifier = UUID.create()
@@ -111,8 +111,8 @@ class SearchUserObserverTests : NotificationDispatcherTestBase {
                                       syncManagedObjectContext: self.syncMOC,
                                       uiManagedObjectContext:self.uiMOC)!
         
-        uiMOC.searchUserObserverCenter.addSearchUser(searchUser)
-        let token = UserChangeInfo.add(observer: testObserver, forBareUser: searchUser)
+        uiMOC.searchUserObserverCenter.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
+        let token = UserChangeInfo.add(observer: testObserver, forBareUser: searchUser, managedObjectContext: self.uiMOC)
         UserChangeInfo.remove(observer: token!, forBareUser: searchUser)
         
         // when
@@ -135,8 +135,8 @@ class SearchUserObserverTests : NotificationDispatcherTestBase {
                                       uiManagedObjectContext:self.uiMOC)!
         
         XCTAssertFalse(searchUser.isPendingApprovalByOtherUser)
-        uiMOC.searchUserObserverCenter.addSearchUser(searchUser)
-        let token = UserChangeInfo.add(observer: testObserver, forBareUser: searchUser)
+        uiMOC.searchUserObserverCenter.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
+        let token = UserChangeInfo.add(observer: testObserver, forBareUser: searchUser, managedObjectContext: self.uiMOC)
 
         // expect
         let callbackCalled = expectation(description: "Connection callback was called")
@@ -172,10 +172,10 @@ class SearchUserObserverTests : NotificationDispatcherTestBase {
                                       uiManagedObjectContext:self.uiMOC)!
         
         let testObserver2 = TestSearchUserObserver()
-        let token1 = UserChangeInfo.add(observer: testObserver, forBareUser: user)
+        let token1 = UserChangeInfo.add(observer: testObserver, forBareUser: user, managedObjectContext: self.uiMOC)
         
-        uiMOC.searchUserObserverCenter.addSearchUser(searchUser)
-        let token2 = UserChangeInfo.add(observer: testObserver2, forBareUser: searchUser)
+        uiMOC.searchUserObserverCenter.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
+        let token2 = UserChangeInfo.add(observer: testObserver2, forBareUser: searchUser, managedObjectContext: self.uiMOC)
         
         // expect
         let callbackCalled = expectation(description: "Connection callback was called")

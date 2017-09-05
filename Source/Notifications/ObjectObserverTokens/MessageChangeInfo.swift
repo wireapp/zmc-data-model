@@ -194,12 +194,16 @@ extension MessageChangeInfo {
     /// To observe messages and their users (senders, systemMessage users), observe the conversation window instead
     /// Messages observed with this call will not contain information about user changes
     /// You must hold on to the token and use it to unregister
-    @objc(addObserver:forMessage:)
-    public static func add(observer: ZMMessageObserver, for message: ZMConversationMessage) -> NSObjectProtocol {
-        return NotificationCenterObserverToken(name: .MessageChange, object: message)
+    @objc(addObserver:forMessage:managedObjectContext:)
+    public static func add(observer: ZMMessageObserver,
+                           for message: ZMConversationMessage,
+                           managedObjectContext: NSManagedObjectContext) -> NSObjectProtocol {
+        return NotificationCenterObserverToken(name: .MessageChange,
+                                               managedObjectContext: managedObjectContext,
+                                               object: message)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                let changeInfo = note.userInfo?["changeInfo"] as? MessageChangeInfo
+                let changeInfo = note.changeInfo as? MessageChangeInfo
                 else { return }
             
             observer.messageDidChange(changeInfo)

@@ -165,7 +165,7 @@
     c1.lastModifiedDate = [c1.lastModifiedDate dateByAddingTimeInterval:10];
     
     NSArray *list = [ZMConversation conversationsIncludingArchivedInContext:self.uiMOC];
-    ConversationListChangeObserver *obs = [[ConversationListChangeObserver alloc] initWithConversationList:(ZMConversationList *)list];
+    ConversationListChangeObserver *obs = [[ConversationListChangeObserver alloc] initWithConversationList:(ZMConversationList *)list managedObjectContext:self.uiMOC];
     ZMConversation *c2;
     
     // when
@@ -226,7 +226,7 @@
     AssertArraysContainsSameObjects(list, expected);
     
     // when
-    ConversationListChangeObserver *observer = [[ConversationListChangeObserver alloc] initWithConversationList:list];
+    ConversationListChangeObserver *observer = [[ConversationListChangeObserver alloc] initWithConversationList:list managedObjectContext:self.uiMOC];
     
     ZMConversation *c4 = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     c4.conversationType = ZMConversationTypeGroup;
@@ -258,7 +258,7 @@
     NSArray *expected = @[c2, c1, c3];
     XCTAssertEqualObjects(list, expected);
    
-    ConversationListChangeObserver *observer = [[ConversationListChangeObserver alloc] initWithConversationList:list];
+    ConversationListChangeObserver *observer = [[ConversationListChangeObserver alloc] initWithConversationList:list managedObjectContext:self.uiMOC];
     
     // when
     XCTAssert([self.uiMOC saveOrRollback]);
@@ -291,7 +291,7 @@
     NSArray *expected = @[conversation];
     XCTAssertEqualObjects(list, expected);
     
-    ConversationListChangeObserver *observer = [[ConversationListChangeObserver alloc] initWithConversationList:list];
+    ConversationListChangeObserver *observer = [[ConversationListChangeObserver alloc] initWithConversationList:list managedObjectContext:self.uiMOC];
 
     // when
     XCTAssert([self.uiMOC saveOrRollback]);
@@ -321,7 +321,7 @@
     NSArray *expected = @[conversation];
     XCTAssertEqualObjects(list, expected);
     
-    ConversationListChangeObserver *observer = [[ConversationListChangeObserver alloc] initWithConversationList:list];
+    ConversationListChangeObserver *observer = [[ConversationListChangeObserver alloc] initWithConversationList:list managedObjectContext:self.uiMOC];
     
     // when
     XCTAssert([self.uiMOC saveOrRollback]);
@@ -353,8 +353,8 @@
     XCTAssertEqual(pendingList.count, 1u);
     XCTAssertEqualObjects(pendingList, @[conversation]);
     
-    ConversationListChangeObserver *normalObserver = [[ConversationListChangeObserver alloc] initWithConversationList:normalList];
-    ConversationListChangeObserver *pendingObserver = [[ConversationListChangeObserver alloc] initWithConversationList:pendingList];
+    ConversationListChangeObserver *normalObserver = [[ConversationListChangeObserver alloc] initWithConversationList:normalList managedObjectContext:self.uiMOC];
+    ConversationListChangeObserver *pendingObserver = [[ConversationListChangeObserver alloc] initWithConversationList:pendingList managedObjectContext:self.uiMOC];
 
     // when
     XCTAssert([self.uiMOC saveOrRollback]);
@@ -388,7 +388,7 @@
     XCTAssertEqual(normalList.count, 0u);
     XCTAssertEqualObjects(normalList, @[]);
 
-    ConversationListChangeObserver *observer = [[ConversationListChangeObserver alloc] initWithConversationList:normalList];
+    ConversationListChangeObserver *observer = [[ConversationListChangeObserver alloc] initWithConversationList:normalList managedObjectContext:self.uiMOC];
     
     // when
     [conversation.connection.to accept];
@@ -426,8 +426,8 @@
     XCTAssertEqual(pendingList.count, 2u);
     XCTAssertEqualObjects(pendingList, conversations);
     
-    ConversationListChangeObserver *normalObserver = [[ConversationListChangeObserver alloc] initWithConversationList:normalList];
-    ConversationListChangeObserver *pendingObserver =[[ConversationListChangeObserver alloc] initWithConversationList:pendingList];
+    ConversationListChangeObserver *normalObserver = [[ConversationListChangeObserver alloc] initWithConversationList:normalList managedObjectContext:self.uiMOC];
+    ConversationListChangeObserver *pendingObserver =[[ConversationListChangeObserver alloc] initWithConversationList:pendingList managedObjectContext:self.uiMOC];
 
     // when
     XCTAssert([self.uiMOC saveOrRollback]);
@@ -466,8 +466,8 @@
     XCTAssertEqual(archivedList.count, 0u);
     XCTAssertEqualObjects(archivedList, @[]);
     
-    ConversationListChangeObserver *normalObserver = [[ConversationListChangeObserver alloc] initWithConversationList:normalList];
-    ConversationListChangeObserver *archivedObserver =[[ConversationListChangeObserver alloc] initWithConversationList:archivedList];
+    ConversationListChangeObserver *normalObserver = [[ConversationListChangeObserver alloc] initWithConversationList:normalList managedObjectContext:self.uiMOC];
+    ConversationListChangeObserver *archivedObserver =[[ConversationListChangeObserver alloc] initWithConversationList:archivedList managedObjectContext:self.uiMOC];
 
     // when
     XCTAssert([self.uiMOC saveOrRollback]);

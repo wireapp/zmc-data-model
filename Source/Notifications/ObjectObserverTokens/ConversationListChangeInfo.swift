@@ -65,10 +65,13 @@ extension ConversationListChangeInfo {
     
     /// Adds a ZMConversationListObserver to the specified list
     /// You must hold on to the token and use it to unregister
-    @objc(addObserver:forList:)
-    public static func add(observer: ZMConversationListObserver,for list: ZMConversationList) -> NSObjectProtocol {
+    @objc(addObserver:forList:managedObjectContext:)
+    public static func add(observer: ZMConversationListObserver,
+                           for list: ZMConversationList,
+                           managedObjectContext: NSManagedObjectContext
+                           ) -> NSObjectProtocol {
         zmLog.debug("Registering observer \(observer) for list \(list.identifier)")
-        return NotificationCenterObserverToken(name: .ZMConversationListDidChange, object: list)
+        return NotificationCenterObserverToken(name: .ZMConversationListDidChange, managedObjectContext: managedObjectContext, object: list)
         { [weak observer] (note) in
             guard let `observer` = observer, let aList = note.object as? ZMConversationList
                 else { return }

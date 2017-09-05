@@ -25,7 +25,7 @@ class SearchUserSnapshotTests : ZMBaseManagedObjectTest {
         let searchUser = ZMSearchUser(name: "Bernd", handle: "dasBrot", accentColor: .brightOrange, remoteID: UUID(), user: nil, syncManagedObjectContext: syncMOC, uiManagedObjectContext: uiMOC)!
 
         // when
-        let sut = SearchUserSnapshot(searchUser: searchUser)
+        let sut = SearchUserSnapshot(searchUser: searchUser, managedObjectContext: self.uiMOC)
         
         // then
         XCTAssertEqual(searchUser.imageMediumData,              sut.snapshotValues[ #keyPath(ZMSearchUser.imageMediumData)] as? Data)
@@ -44,7 +44,7 @@ class SearchUserSnapshotTests : ZMBaseManagedObjectTest {
         let searchUser = ZMSearchUser(name: nil, handle: nil, accentColor: .undefined, remoteID: nil, user: user, syncManagedObjectContext: syncMOC, uiManagedObjectContext: uiMOC)!
         
         // when
-        let sut = SearchUserSnapshot(searchUser: searchUser)
+        let sut = SearchUserSnapshot(searchUser: searchUser, managedObjectContext: self.uiMOC)
         
         // then
         XCTAssertEqual(searchUser.imageMediumData,              sut.snapshotValues[ #keyPath(ZMSearchUser.imageMediumData)] as? Data)
@@ -61,11 +61,11 @@ class SearchUserSnapshotTests : ZMBaseManagedObjectTest {
         user.remoteIdentifier = UUID()
 
         let searchUser = ZMSearchUser(name: nil, handle: nil, accentColor: .undefined, remoteID: nil, user: user, syncManagedObjectContext: syncMOC, uiManagedObjectContext: uiMOC)!
-        let sut = SearchUserSnapshot(searchUser: searchUser)
+        let sut = SearchUserSnapshot(searchUser: searchUser, managedObjectContext: self.uiMOC)
         
         // expect
         expectation(forNotification: Notification.Name.SearchUserChange.rawValue, object: searchUser) { (note) -> Bool in
-            guard let userChange = note.userInfo?["changeInfo"] as? UserChangeInfo else { return false }
+            guard let userChange = note.changeInfo as? UserChangeInfo else { return false }
             return userChange.imageSmallProfileDataChanged
         }
         
@@ -87,11 +87,11 @@ class SearchUserSnapshotTests : ZMBaseManagedObjectTest {
         user.remoteIdentifier = UUID()
         
         let searchUser = ZMSearchUser(name: nil, handle: nil, accentColor: .undefined, remoteID: nil, user: user, syncManagedObjectContext: syncMOC, uiManagedObjectContext: uiMOC)!
-        let sut = SearchUserSnapshot(searchUser: searchUser)
+        let sut = SearchUserSnapshot(searchUser: searchUser, managedObjectContext: self.uiMOC)
         
         // expect
         expectation(forNotification: Notification.Name.SearchUserChange.rawValue, object: searchUser) { (note) -> Bool in
-            guard let userChange = note.userInfo?["changeInfo"] as? UserChangeInfo else { return false }
+            guard let userChange = note.changeInfo as? UserChangeInfo else { return false }
             return userChange.connectionStateChanged
         }
         
@@ -116,11 +116,11 @@ class SearchUserSnapshotTests : ZMBaseManagedObjectTest {
         connection.status = .pending
         
         let searchUser = ZMSearchUser(name: nil, handle: nil, accentColor: .undefined, remoteID: nil, user: user, syncManagedObjectContext: syncMOC, uiManagedObjectContext: uiMOC)!
-        let sut = SearchUserSnapshot(searchUser: searchUser)
+        let sut = SearchUserSnapshot(searchUser: searchUser, managedObjectContext: self.uiMOC)
         
         // expect
         expectation(forNotification: Notification.Name.SearchUserChange.rawValue, object: searchUser) { (note) -> Bool in
-            guard let userChange = note.userInfo?["changeInfo"] as? UserChangeInfo else { return false }
+            guard let userChange = note.changeInfo as? UserChangeInfo else { return false }
             return userChange.connectionStateChanged
         }
         
@@ -141,11 +141,11 @@ class SearchUserSnapshotTests : ZMBaseManagedObjectTest {
         user.remoteIdentifier = UUID()
         
         let searchUser = ZMSearchUser(name: "Bernd", handle: "dasBrot", accentColor: .brightOrange, remoteID: UUID(), user: nil, syncManagedObjectContext: syncMOC, uiManagedObjectContext: uiMOC)!
-        let sut = SearchUserSnapshot(searchUser: searchUser)
+        let sut = SearchUserSnapshot(searchUser: searchUser, managedObjectContext: self.uiMOC)
         
         // expect
         expectation(forNotification: Notification.Name.SearchUserChange.rawValue, object: searchUser) { (note) -> Bool in
-            return (note.userInfo?["changeInfo"] as? UserChangeInfo) != nil
+            return (note.changeInfo as? UserChangeInfo) != nil
         }
         
         // when
@@ -180,7 +180,7 @@ class SearchUserObserverCenterTests : ModelObjectsTests {
         user.remoteIdentifier = UUID()
         
         let searchUser = ZMSearchUser(name: nil, handle: nil, accentColor: .undefined, remoteID: nil, user: user, syncManagedObjectContext: syncMOC, uiManagedObjectContext: uiMOC)!
-        uiMOC.searchUserObserverCenter.addSearchUser(searchUser)
+        uiMOC.searchUserObserverCenter.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
         
         // when
         weak var observerCenter = uiMOC.searchUserObserverCenter
@@ -196,7 +196,7 @@ class SearchUserObserverCenterTests : ModelObjectsTests {
         XCTAssertEqual(sut.snapshots.count, 0)
 
         // when
-        sut.addSearchUser(searchUser)
+        sut.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
         
         // then
         XCTAssertEqual(sut.snapshots.count, 1)
@@ -205,7 +205,7 @@ class SearchUserObserverCenterTests : ModelObjectsTests {
     func testThatItRemovesAllSnapshotsOnReset(){
         // given
         let searchUser = ZMSearchUser(name: "Bernd", handle: "dasBrot", accentColor: .brightOrange, remoteID: UUID(), user: nil, syncManagedObjectContext: syncMOC, uiManagedObjectContext: uiMOC)!
-        sut.addSearchUser(searchUser)
+        sut.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
         XCTAssertEqual(sut.snapshots.count, 1)
         
         // when
@@ -222,7 +222,7 @@ class SearchUserObserverCenterTests : ModelObjectsTests {
         user.remoteIdentifier = UUID()
         
         let searchUser = ZMSearchUser(name: nil, handle: nil, accentColor: .undefined, remoteID: nil, user: user, syncManagedObjectContext: syncMOC, uiManagedObjectContext: uiMOC)!
-        sut.addSearchUser(searchUser)
+        sut.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
         
         // expect       
         expectation(forNotification: Notification.Name.SearchUserChange.rawValue, object: searchUser)
@@ -240,11 +240,11 @@ class SearchUserObserverCenterTests : ModelObjectsTests {
     func testThatItForwardCallsForUserUpdatesToTheSnapshot(){
         // given
         let searchUser = ZMSearchUser(name: "Bernd", handle: "dasBrot", accentColor: .brightOrange, remoteID: UUID(), user: nil, syncManagedObjectContext: syncMOC, uiManagedObjectContext: uiMOC)!
-        sut.addSearchUser(searchUser)
+        sut.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
         
         // expect
         expectation(forNotification: Notification.Name.SearchUserChange.rawValue, object: searchUser){ note in
-            guard let userChange = note.userInfo?["changeInfo"] as? UserChangeInfo else { return false }
+            guard let userChange = note.changeInfo as? UserChangeInfo else { return false }
             return userChange.imageMediumDataChanged
         }
         

@@ -175,7 +175,7 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         XCTAssertTrue(user.isFault)
         XCTAssertEqual(user.displayName, "foo")
         let observer = UserObserver()
-        let token = UserChangeInfo.add(observer: observer, for: user)
+        let token = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
         
         // when
         syncMOC.performGroupedBlockAndWait {
@@ -203,7 +203,7 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         uiMOC.refresh(user!, mergeChanges: true)
         XCTAssertTrue(user!.isFault)
         let observer = UserObserver()
-        let token = UserChangeInfo.add(observer: observer, for: user)
+        let token = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
         
         // when
         user = nil
@@ -229,7 +229,7 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         uiMOC.saveOrRollback()
         
         let observer = UserObserver()
-        let token = UserChangeInfo.add(observer: observer, for: user)
+        let token = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
         
         // when
         NotificationDispatcher.notifyNonCoreDataChanges(objectID: user.objectID, changedKeys: ["name"], uiContext: uiMOC)
@@ -250,7 +250,7 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         uiMOC.saveOrRollback()
         
         let observer = UserObserver()
-        let token = UserChangeInfo.add(observer: observer, for: user)
+        let token = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
         
         // when
         user.name = "bar"
@@ -276,7 +276,7 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         uiMOC.saveOrRollback()
         
         let observer = UserObserver()
-        let token = UserChangeInfo.add(observer: observer, for: user)
+        let token = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
         
         // when
         user.name = "bar"
@@ -304,7 +304,7 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         uiMOC.saveOrRollback()
         
         let observer = UserObserver()
-        let token = UserChangeInfo.add(observer: observer, for: user)
+        let token = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
         
         // when
         sut.applicationDidEnterBackground()
@@ -324,7 +324,7 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         uiMOC.saveOrRollback()
         
         let observer = UserObserver()
-        let token = UserChangeInfo.add(observer: observer, for: user)
+        let token = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
 
         // when
         sut.applicationDidEnterBackground()

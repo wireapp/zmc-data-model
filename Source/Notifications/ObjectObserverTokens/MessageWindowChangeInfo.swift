@@ -69,8 +69,8 @@ extension MessageWindowChangeInfo {
     /// Adds a ZMConversationMessageWindowObserver to the specified window
     /// You must hold on to the token and use it to unregister
     @objc(addObserver:forWindow:)
-    public static func add(observer: ZMConversationMessageWindowObserver,for window: ZMConversationMessageWindow) -> NSObjectProtocol {
-        return NotificationCenterObserverToken(name: .MessageWindowDidChange, object: window)
+    public static func add(observer: ZMConversationMessageWindowObserver, for window: ZMConversationMessageWindow) -> NSObjectProtocol {
+        return NotificationCenterObserverToken(name: .MessageWindowDidChange, managedObjectContext: window.conversation.managedObjectContext!, object: window)
         { [weak observer] (note) in
             guard let `observer` = observer, let window = note.object as? ZMConversationMessageWindow else { return }
             if let changeInfo = note.userInfo?[self.MessageWindowChangeUserInfoKey] as? MessageWindowChangeInfo {

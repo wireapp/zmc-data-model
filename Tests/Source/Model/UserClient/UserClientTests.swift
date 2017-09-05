@@ -297,7 +297,8 @@ class UserClientTests: ZMBaseManagedObjectTest {
         var (message, conversation): (ZMGenericMessage?, ZMConversation?)
 
         let noteExpectation = expectation(description: "GenericMessageScheduleNotification should be fired")
-        let token = NotificationCenterObserverToken(name: GenericMessageScheduleNotification.name) { note in
+        let token = NotificationCenterObserverToken(name: GenericMessageScheduleNotification.name,
+                                                    managedObjectContext: self.uiMOC) { note in
             guard let tuple = note.object as? (ZMGenericMessage, ZMConversation) else { return }
             message = tuple.0
             conversation = tuple.1
@@ -341,7 +342,8 @@ class UserClientTests: ZMBaseManagedObjectTest {
         var (message, conversation): (ZMGenericMessage?, ZMConversation?)
 
         let noteExpectation = expectation(description: "GenericMessageScheduleNotification should be fired")
-        let token = NotificationCenterObserverToken(name: GenericMessageScheduleNotification.name) { note in
+        let token = NotificationCenterObserverToken(name: GenericMessageScheduleNotification.name,
+                                                    managedObjectContext: self.uiMOC) { note in
             guard let tuple = note.object as? (ZMGenericMessage, ZMConversation) else { return }
             message = tuple.0
             conversation = tuple.1
