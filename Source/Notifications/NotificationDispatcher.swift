@@ -161,7 +161,7 @@ public class NotificationDispatcher : NSObject {
 
         NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcher.objectsDidChange(_:)), name:.NSManagedObjectContextObjectsDidChange, object: self.managedObjectContext)
         NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcher.contextDidSave(_:)), name:.NSManagedObjectContextDidSave, object: self.managedObjectContext)
-        NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcher.nonCoreDataChange(_:)), name:.NonCoreDataChangeInManagedObject, object: nil)
+        NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcher.nonCoreDataChange(_:)), name:.NonCoreDataChangeInManagedObject, object: self.managedObjectContext)
     }
     
     public func tearDown() {
@@ -213,8 +213,11 @@ public class NotificationDispatcher : NSObject {
     /// This will be called if a change to an object does not cause a change in Core Data, e.g. downloading the asset and adding it to the cache
     @objc func nonCoreDataChange(_ note: Notification){
         guard forwardChanges else { return }
-        guard let object = note.object as? ZMManagedObject,
-              let changedKeys = (note.userInfo as? [String : [String]])?["changedKeys"]
+        guard let userInfo = note.userInfo as? [String: Any],
+            let changedKeys = userInfo["changedKeys"] as? [String],
+            let object = userInfo["object"] as? ZMManagedObject,
+            let managedObjectContext = note.object as? NSManagedObjectContext,
+            managedObjectContext == self.managedObjectContext
         else { return }
         
         let change = Changes(changedKeys: Set(changedKeys))
@@ -415,12 +418,12 @@ public class NotificationDispatcher : NSObject {
             allChangeInfos[classIdentifier] = previousChanges
         }
         forwardNotificationToObserverCenters(changeInfos: allChangeInfos)
-        fireNewUnreadMessagesNotifications(unreadMessages: unreads)
+        self.fireNewUnreadMessagesNotifications(unreadMessages: unreads)
     }
     
     
     /// Fire all new unread notifications
-    func fireNewUnreadMessagesNotifications(unreadMessages: [Notification.Name : Set<ZMMessage>]){
+    private func fireNewUnreadMessagesNotifications(unreadMessages: [Notification.Name : Set<ZMMessage>]){
         unreadMessages.forEach{ (notificationName, messages) in
             guard messages.count > 0 else { return }
             guard let changeInfo = ObjectChangeInfo.changeInfoforNewMessageNotification(with: notificationName, changedMessages: messages) else {
@@ -446,8 +449,11 @@ extension NotificationDispatcher {
         uiContext.performGroupedBlock {
             guard let uiMessage = try? uiContext.existingObject(with: objectID) else { return }
             NotificationCenter.default.post(name: .NonCoreDataChangeInManagedObject,
-                                            object: uiMessage,
-                                            userInfo: ["changedKeys" : changedKeys])
+                                            object: uiContext,
+                                            userInfo: [
+                                                "object": uiMessage,
+                                                "changedKeys" : changedKeys
+                ])
         }
     }
 }
