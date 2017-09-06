@@ -243,8 +243,9 @@ class SearchUserObserverCenterTests : ModelObjectsTests {
         sut.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
         
         // expect
-        expectation(forNotification: Notification.Name.SearchUserChange.rawValue, object: searchUser){ note in
+        expectation(forNotification: Notification.Name.SearchUserChange.rawValue, object: uiMOC){ note in
             guard let userChange = note.changeInfo as? UserChangeInfo else { return false }
+            XCTAssertEqual(note.userInfoObject as? ZMSearchUser, searchUser)
             return userChange.imageMediumDataChanged
         }
         

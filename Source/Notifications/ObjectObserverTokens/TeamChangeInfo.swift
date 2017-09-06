@@ -84,17 +84,7 @@ extension TeamChangeInfo {
             
             observer.teamDidChange(changeInfo)
         }
-    }
-    
-    @objc(removeTeamObserver:forTeam:)
-    public static func remove(observer: NSObjectProtocol, for team: Team?) {
-        guard let token = (observer as? NotificationCenterObserverToken)?.token else {
-            NotificationCenter.default.removeObserver(observer, name: .TeamChange, object: team)
-            return
-        }
-        NotificationCenter.default.removeObserver(token, name: .TeamChange, object: team)
-    }
-    
+    }    
 }
 
 

@@ -156,16 +156,6 @@ extension UserChangeInfo {
         }
     }
     
-    @objc(removeUserObserver:forUser:)
-    static func remove(observer: NSObjectProtocol, for user: ZMUser?) {
-        guard let token = (observer as? NotificationCenterObserverToken)?.token else {
-            NotificationCenter.default.removeObserver(observer, name: .UserChange, object: user)
-            return
-        }
-        NotificationCenter.default.removeObserver(token, name: .UserChange, object: user)
-    }
-    
-    
     // MARK: Registering SearchUserObservers
     /// Adds an observer for the searchUser if one specified or to all ZMSearchUser is none is specified
     /// You must hold on to the token and use it to unregister
@@ -185,17 +175,6 @@ extension UserChangeInfo {
         }
     }
     
-    @objc(removeSearchUserObserver:forSearchUser:)
-    static func remove(searchUserObserver observer: NSObjectProtocol,
-                              for user: ZMSearchUser?)
-    {
-        guard let token = (observer as? NotificationCenterObserverToken)?.token else {
-            NotificationCenter.default.removeObserver(observer, name: .SearchUserChange, object: user)
-            return
-        }
-        NotificationCenter.default.removeObserver(token, name: .SearchUserChange, object: user)
-    }
-    
     // MARK: Registering ZMBareUser
     /// Adds an observer for the ZMUser or ZMSearchUser
     /// You must hold on to the token and use it to unregister
@@ -212,23 +191,6 @@ extension UserChangeInfo {
         }
         return nil
     }
-    
-    @objc(removeObserver:forBareUser:)
-    public static func remove(observer: NSObjectProtocol,
-                              forBareUser user: ZMBareUser?)
-    {
-        if let user = user as? ZMSearchUser {
-            UserChangeInfo.remove(searchUserObserver: observer, for: user)
-        }
-        else if let user = user as? ZMUser {
-            UserChangeInfo.remove(observer: observer, for: user)
-        }
-        else if user == nil {
-            UserChangeInfo.remove(searchUserObserver: observer, for: nil)
-            UserChangeInfo.remove(observer: observer, for: nil)
-        }
-    }
-
 }
 
 

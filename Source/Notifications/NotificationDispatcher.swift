@@ -52,7 +52,7 @@ extension Notification.Name {
 /// if no one has references to it anymore. This could happen with faulted NSManagedObject.
 public class NotificationCenterObserverToken : NSObject {
     
-    let token : AnyObject
+    let token : Any
     private let object: AnyObject?  // We keep strong reference to the `object` because the notifications would not get delivered
                                     // if no one has references to it anymore. This could happen with faulted NSManagedObject.
     
@@ -64,28 +64,15 @@ public class NotificationCenterObserverToken : NSObject {
                 managedObjectContext: NSManagedObjectContext,
                 object: AnyObject? = nil,
                 queue: OperationQueue? = nil,
-                block: @escaping (_ note: Notification) -> Void)
+                block: @escaping (NotificationInContext) -> Void)
     {
         self.object = object
-        // I have to manage the object that I want to listen forseparatedly
-        // from the `object` for which I register for the notification.
-        // This is because I might want to register for `nil` object, but this
-        // does not work in case of multiple instances of sync engine, it will
-        // fire even when the other instance is posting notification.
-        // So I always register for the managed object context as the notification
-        // object, and insert the real object in the user info.
-        self.token = NotificationCenter.default.addObserver(forName: name,
-                                                            object: managedObjectContext,
-                                                            queue: queue)
-        { note in
-            if let object = object, // was not for "any object"
-                let notificationObject = note.userInfoObject,
-                (notificationObject as AnyObject) !== object // the object does not match
-            {
-                return
-            }
-            block(note)
-        }
+        self.token = NotificationInContext.addObserver(name: name,
+                                                       context: managedObjectContext,
+                                                       object: object,
+                                                       queue: queue,
+                                                       using: block)
+        
     }
 }
 
@@ -136,7 +123,7 @@ extension ZMManagedObject {
 
 public class NotificationDispatcher : NSObject {
 
-    private unowned var managedObjectContext: NSManagedObjectContext
+    fileprivate unowned var managedObjectContext: NSManagedObjectContext
     
     private var tornDown = false
     private let affectingKeysStore : DependencyKeyStore
@@ -158,6 +145,9 @@ public class NotificationDispatcher : NSObject {
         consumers.append(conversationListObserverCenter)
         return consumers
     }
+    
+    /// NotificationCenter tokens
+    private var notificationTokens: [Any] = []
     
     private var allChanges : [ZMManagedObject : Changes] = [:]
     private var userChanges : [ZMManagedObject : Set<String>] = [:]
@@ -193,15 +183,20 @@ public class NotificationDispatcher : NSObject {
             selector: #selector(NotificationDispatcher.contextDidSave(_:)),
             name:.NSManagedObjectContextDidSave,
             object: self.managedObjectContext)
-        NotificationCenter.default.addObserver(
-            self,
-            selector: #selector(NotificationDispatcher.nonCoreDataChange(_:)),
-            name:.NonCoreDataChangeInManagedObject,
-            object: self.managedObjectContext)
+        self.notificationTokens.append(NotificationInContext.addObserver(
+            name: .NonCoreDataChangeInManagedObject,
+            context: self.managedObjectContext)
+        { [weak self] note in
+            self?.nonCoreDataChange(note)
+        })
     }
     
     public func tearDown() {
         NotificationCenter.default.removeObserver(self)
+        self.notificationTokens.forEach {
+            NotificationCenter.default.removeObserver($0)
+        }
+        self.notificationTokens = []
         self.conversationListObserverCenter.tearDown()
         self.tornDown = true
     }
@@ -247,13 +242,11 @@ public class NotificationDispatcher : NSObject {
     }
     
     /// This will be called if a change to an object does not cause a change in Core Data, e.g. downloading the asset and adding it to the cache
-    @objc func nonCoreDataChange(_ note: Notification){
+    func nonCoreDataChange(_ note: NotificationInContext){
         guard forwardChanges else { return }
         guard
             let changedKeys = note.changedKeys,
-            let object = note.userInfoObject as? ZMManagedObject,
-            let managedObjectContext = note.object as? NSManagedObjectContext,
-            managedObjectContext == self.managedObjectContext
+            let object = note.object as? ZMManagedObject
         else { return }
         
         let change = Changes(changedKeys: Set(changedKeys))
@@ -448,12 +441,12 @@ public class NotificationDispatcher : NSObject {
                 else { return }
             
             let classIdentifier = object.classIdentifier
-            let notification = Notification(name: notificationName,
-                                            managedObjectContext: self.managedObjectContext,
-                                            object: object,
-                                            changeInfo: changeInfo)
+            NotificationInContext(name: notificationName,
+                                  context: self.managedObjectContext,
+                                  object: object,
+                                  changeInfo: changeInfo)
+                .post()
             
-            NotificationCenter.default.post(notification)
             var previousChanges = allChangeInfos[classIdentifier] ?? []
             previousChanges.append(changeInfo)
             allChangeInfos[classIdentifier] = previousChanges
@@ -471,10 +464,10 @@ public class NotificationDispatcher : NSObject {
                 zmLog.warn("Did you forget to add the mapping for that?")
                 return
             }
-            let notification = Notification(name: notificationName,
-                                            managedObjectContext: self.managedObjectContext,
-                                            changeInfo: changeInfo)
-            NotificationCenter.default.post(notification)
+            NotificationInContext(name: notificationName,
+                                  context: self.managedObjectContext,
+                                  changeInfo: changeInfo)
+                .post()
         }
     }
     
@@ -491,56 +484,13 @@ extension NotificationDispatcher {
     public static func notifyNonCoreDataChanges(objectID: NSManagedObjectID, changedKeys: [String], uiContext: NSManagedObjectContext) {
         uiContext.performGroupedBlock {
             guard let uiMessage = try? uiContext.existingObject(with: objectID) else { return }
-            let notification = Notification(name: .NonCoreDataChangeInManagedObject,
-                                            managedObjectContext: uiContext,
-                                            object: uiMessage,
-                                            changedKeys: changedKeys)
-            NotificationCenter.default.post(notification)
+            
+            NotificationInContext(name: .NonCoreDataChangeInManagedObject,
+                                  context: uiContext,
+                                  object: uiMessage,
+                                  changedKeys: changedKeys)
+                .post()
         }
     }
 }
 
-
-extension Notification {
-    
-    private enum UserInfoKeys: String {
-        case changedKeys
-        case changeInfo
-        case object
-    }
-    
-    init(name: Notification.Name,
-         managedObjectContext: NSManagedObjectContext,
-         object: AnyObject? = nil,
-         changeInfo: ObjectChangeInfo? = nil,
-         changedKeys: [String]? = nil
-         )
-    {
-        var userInfo = [String: Any]()
-        if let object = object {
-            userInfo[UserInfoKeys.object.rawValue] = object
-        }
-        if let changeInfo = changeInfo {
-            userInfo[UserInfoKeys.changeInfo.rawValue] = changeInfo
-        }
-        if let changedKeys = changedKeys {
-            userInfo[UserInfoKeys.changedKeys.rawValue] = changedKeys
-        }
-        self.init(
-            name: name,
-            object: managedObjectContext,
-            userInfo: userInfo)
-    }
-    
-    var userInfoObject: AnyObject? {
-        return self.userInfo?[UserInfoKeys.object.rawValue] as AnyObject
-    }
-    
-    var changeInfo: ObjectChangeInfo? {
-        return self.userInfo?[UserInfoKeys.changeInfo.rawValue] as? ObjectChangeInfo
-    }
-    
-    var changedKeys: [String]? {
-        return self.userInfo?[UserInfoKeys.changedKeys.rawValue] as? [String]
-    }
-}

@@ -233,7 +233,7 @@ public class UserClient: ZMManagedObject, UserClientType {
                 // Send session reset message so other user can send us messages immediately
                 guard let user = self.user, let conversation = self.conversation(for: user, in: uiMOC) else { return }
                 let message = ZMGenericMessage.sessionReset(withNonce: UUID().transportString())
-                GenericMessageScheduleNotification(message: message, conversation: conversation).post()
+                GenericMessageScheduleNotification.post(message: message, conversation: conversation)
             }
         }
     }

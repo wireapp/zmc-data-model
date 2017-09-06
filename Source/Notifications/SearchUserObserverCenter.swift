@@ -93,11 +93,10 @@ public class SearchUserSnapshot  {
         
         let userChange = UserChangeInfo(object: searchUser)
         userChange.changedKeys = Set(changedKeys)
-        let notification = Notification(name: .SearchUserChange,
-                                        managedObjectContext: managedObjectContext,
-                                        object: searchUser,
-                                        changeInfo: userChange)
-        NotificationCenter.default.post(notification)
+        NotificationInContext(name: .SearchUserChange,
+                              context: managedObjectContext,
+                              object: searchUser,
+                              changeInfo: userChange).post()
     }
 }
 

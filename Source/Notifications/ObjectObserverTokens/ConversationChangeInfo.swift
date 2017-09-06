@@ -162,15 +162,6 @@ extension ConversationChangeInfo {
             observer.conversationDidChange(changeInfo)
         } 
     }
-    
-    @objc(removeObserver:forConversation:)
-    public static func remove(observer: NSObjectProtocol, for conversation: ZMConversation?) {
-        guard let token = (observer as? NotificationCenterObserverToken)?.token else {
-            NotificationCenter.default.removeObserver(observer, name: .ConversationChange, object: conversation)
-            return
-        }
-        NotificationCenter.default.removeObserver(token, name: .ConversationChange, object: conversation)
-    }
 }
 
 

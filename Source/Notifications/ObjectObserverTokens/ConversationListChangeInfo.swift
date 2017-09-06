@@ -77,24 +77,14 @@ extension ConversationListChangeInfo {
                 else { return }
             zmLog.debug("Notifying registered observer \(observer) about changes in list: \(aList.identifier)")
             
-            if let changeInfo = note.userInfo?["conversationListChangeInfo"] as? ConversationListChangeInfo{
+            if let changeInfo = note.userInfo["conversationListChangeInfo"] as? ConversationListChangeInfo{
                 observer.conversationListDidChange(changeInfo)
             }
-            if let changeInfos = note.userInfo?["conversationChangeInfos"] as? [ConversationChangeInfo] {
+            if let changeInfos = note.userInfo["conversationChangeInfos"] as? [ConversationChangeInfo] {
                 changeInfos.forEach{
                     observer.conversationInsideList?(aList, didChange: $0)
                 }
             }
         }
-    }
-    
-    @objc(removeObserver:forList:)
-    public static func remove(observer: NSObjectProtocol, for list: ZMConversationList?) {
-        zmLog.debug("Removing observer \(observer) for list \(String(describing: list?.identifier))")
-        guard let token = (observer as? NotificationCenterObserverToken)?.token else {
-            NotificationCenter.default.removeObserver(observer, name: .ZMConversationListDidChange, object: list)
-            return
-        }
-        NotificationCenter.default.removeObserver(token, name: .ZMConversationListDidChange, object: list)
     }
 }

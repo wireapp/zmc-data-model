@@ -56,15 +56,6 @@ extension NewUnreadMessagesChangeInfo {
             observer.didReceiveNewUnreadMessages(changeInfo)
         }
     }
-    
-    @objc(removeNewMessageObserver:)
-    public static func remove(observer: NSObjectProtocol) {
-        guard let token = (observer as? NotificationCenterObserverToken)?.token else {
-            NotificationCenter.default.removeObserver(observer, name: .NewUnreadMessage, object: nil)
-            return
-        }
-        NotificationCenter.default.removeObserver(token, name: .NewUnreadMessage, object: nil)
-    }
 }
 
 
@@ -106,15 +97,7 @@ extension NewUnreadKnockMessagesChangeInfo {
             observer.didReceiveNewUnreadKnockMessages(changeInfo)
         } 
     }
-    
-    @objc(removeNewKnockObserver:)
-    public static func remove(observer: NSObjectProtocol) {
-        guard let token = (observer as? NotificationCenterObserverToken)?.token else {
-            NotificationCenter.default.removeObserver(observer, name: .NewUnreadKnock, object: nil)
-            return
-        }
-        NotificationCenter.default.removeObserver(token, name: .NewUnreadKnock, object: nil)
-    }
+
 }
 
 
@@ -156,15 +139,6 @@ extension NewUnreadUnsentMessageChangeInfo {
                 else { return }
             observer.didReceiveNewUnreadUnsentMessages(changeInfo)
         }
-    }
-    
-    @objc(removeNewUnreadUnsentMessageObserver:)
-    public static func remove(observer: NSObjectProtocol) {
-        guard let token = (observer as? NotificationCenterObserverToken)?.token else {
-            NotificationCenter.default.removeObserver(observer, name: .NewUnreadUnsentMessage, object: nil)
-            return
-        }
-        NotificationCenter.default.removeObserver(token, name: .NewUnreadUnsentMessage, object: nil)
     }
 }
 
