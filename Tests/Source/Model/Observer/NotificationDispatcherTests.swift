@@ -123,7 +123,7 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
-        let token = ConversationChangeInfo.add(observer: conversationObserver, for: conversation)
+        _ = ConversationChangeInfo.add(observer: conversationObserver, for: conversation)
 
         // when
         conversation.userDefinedName = "foo"
@@ -136,7 +136,6 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
             return XCTFail()
         }
         XCTAssertTrue(changeInfo.nameChanged)
-        ConversationChangeInfo.remove(observer: token, for: conversation)
     }
     
     func testThatItNotifiesAboutChangesInOtherObjects(){
@@ -150,7 +149,7 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
-        let token = ConversationChangeInfo.add(observer: conversationObserver, for: conversation)
+        _ = ConversationChangeInfo.add(observer: conversationObserver, for: conversation)
         
         // when
         user.name = "Brett"
@@ -163,7 +162,6 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
             return XCTFail()
         }
         XCTAssertTrue(changeInfo.nameChanged)
-        ConversationChangeInfo.remove(observer: token, for: conversation)
     }
     
     func testThatItCanCalculateChangesWhenObjectIsFaulted(){
@@ -175,7 +173,7 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         XCTAssertTrue(user.isFault)
         XCTAssertEqual(user.displayName, "foo")
         let observer = UserObserver()
-        let token = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
+        _ = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
         
         // when
         syncMOC.performGroupedBlockAndWait {
@@ -191,7 +189,6 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         if let note = observer.notifications.first {
             XCTAssertTrue(note.nameChanged)
         }
-        UserChangeInfo.remove(observer: token, forBareUser: user)
     }
     
     func testThatItNotifiesAboutChangeWhenObjectIsFaultedAndDisappears(){
@@ -203,7 +200,7 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         uiMOC.refresh(user!, mergeChanges: true)
         XCTAssertTrue(user!.isFault)
         let observer = UserObserver()
-        let token = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
+        _ = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
         
         // when
         user = nil
@@ -219,7 +216,6 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         if let note = observer.notifications.first {
             XCTAssertTrue(note.nameChanged)
         }
-        UserChangeInfo.remove(observer: token, forBareUser: user)
     }
     
     func testThatItProcessesNonCoreDataChangeNotifications(){
@@ -229,7 +225,7 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         uiMOC.saveOrRollback()
         
         let observer = UserObserver()
-        let token = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
+        _ = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
         
         // when
         NotificationDispatcher.notifyNonCoreDataChanges(objectID: user.objectID, changedKeys: ["name"], uiContext: uiMOC)
@@ -240,7 +236,6 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         if let note = observer.notifications.first {
             XCTAssertTrue(note.nameChanged)
         }
-        UserChangeInfo.remove(observer: token, forBareUser: user)
     }
     
     func testThatItOnlySendsNotificationsWhenDidMergeIsCalled(){
@@ -250,7 +245,7 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         uiMOC.saveOrRollback()
         
         let observer = UserObserver()
-        let token = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
+        _ = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
         
         // when
         user.name = "bar"
@@ -266,7 +261,6 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         if let note = observer.notifications.first {
             XCTAssertTrue(note.nameChanged)
         }
-        UserChangeInfo.remove(observer: token, forBareUser: user)
     }
     
     func testThatItOnlySendsNotificationsWhenDidSaveIsCalled(){
@@ -276,7 +270,7 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         uiMOC.saveOrRollback()
         
         let observer = UserObserver()
-        let token = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
+        _ = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
         
         // when
         user.name = "bar"
@@ -293,7 +287,6 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         if let note = observer.notifications.first {
             XCTAssertTrue(note.nameChanged)
         }
-        UserChangeInfo.remove(observer: token, forBareUser: user)
     }
     
     // MARK: Background behaviour
@@ -304,7 +297,7 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         uiMOC.saveOrRollback()
         
         let observer = UserObserver()
-        let token = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
+        _ = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
         
         // when
         sut.applicationDidEnterBackground()
@@ -314,7 +307,6 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         
         // then
         XCTAssertEqual(observer.notifications.count, 0)
-        UserChangeInfo.remove(observer: token, forBareUser: user)
     }
     
     func testThatItProcessesChangesAfterAppEnteredBackgroundAndNowEntersForegroundAgain(){
@@ -324,7 +316,7 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         uiMOC.saveOrRollback()
         
         let observer = UserObserver()
-        let token = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
+        _ = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
 
         // when
         sut.applicationDidEnterBackground()
@@ -338,7 +330,6 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         if let note = observer.notifications.first {
             XCTAssertTrue(note.nameChanged)
         }
-        UserChangeInfo.remove(observer: token, forBareUser: user)
     }
     
     
@@ -417,7 +408,7 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         // given
         let conv = ZMConversation.insertNewObject(in: uiMOC)
         uiMOC.saveOrRollback()
-        let token = ConversationChangeInfo.add(observer: conversationObserver, for: conv)
+        _ = ConversationChangeInfo.add(observer: conversationObserver, for: conv)
 
         syncMOC.performGroupedBlockAndWait {
             let syncConv = try! self.syncMOC.existingObject(with: conv.objectID) as! ZMConversation
@@ -439,7 +430,6 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
             return XCTFail()
         }
         XCTAssertTrue(changeInfo.nameChanged)
-        ConversationChangeInfo.remove(observer: token, for: conv)
     }
     
 }

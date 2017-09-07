@@ -47,9 +47,6 @@ class TeamObserverTests: NotificationDispatcherTestBase {
         self.uiMOC.saveOrRollback()
         
         let token = TeamChangeInfo.add(observer: teamObserver, for: team, managedObjectContext: self.uiMOC)
-        defer {
-            TeamChangeInfo.remove(observer: token, for: team)
-        }
         
         // when
         modifier(team)

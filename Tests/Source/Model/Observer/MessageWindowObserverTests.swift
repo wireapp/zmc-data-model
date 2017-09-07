@@ -123,7 +123,7 @@ extension MessageWindowObserverTests {
         
         self.uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        let token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         self.syncMOC.performGroupedBlockAndWait{
             let syncConv = self.syncMOC.object(with: conversation.objectID) as! ZMConversation
@@ -141,7 +141,6 @@ extension MessageWindowObserverTests {
             XCTAssertEqual(note.deletedIndexes, IndexSet(integer: 1))
         }
         
-        MessageWindowChangeInfo.remove(observer: token, for: window)
     }
     
     func testThatItNotifiesForAMessageUpdate()
@@ -154,7 +153,7 @@ extension MessageWindowObserverTests {
         
         self.uiMOC.saveOrRollback()
         
-        let token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         // when
         message2.transferState = .uploaded
@@ -166,7 +165,6 @@ extension MessageWindowObserverTests {
             XCTAssertEqual(note.updatedIndexes, IndexSet(integer: 0))
         }
         
-        MessageWindowChangeInfo.remove(observer: token, for: window)
     }
     
     func testThatItNotifiesForASenderUpdate()
@@ -183,7 +181,7 @@ extension MessageWindowObserverTests {
         
         self.uiMOC.saveOrRollback()
         
-        let token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         // when
         user.name = "Bar"
@@ -196,7 +194,6 @@ extension MessageWindowObserverTests {
             XCTAssertTrue(note.usersChanged)
         }
         
-        MessageWindowChangeInfo.remove(observer: token, for: window)
     }
     
     func testThatItNotifiesForASystemMessageUserUpdate()
@@ -213,7 +210,7 @@ extension MessageWindowObserverTests {
         
         self.uiMOC.saveOrRollback()
         
-        let token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         // when
         user.name = "Bar"
@@ -226,7 +223,6 @@ extension MessageWindowObserverTests {
             XCTAssertTrue(note.usersChanged)
         }
         
-        MessageWindowChangeInfo.remove(observer: token, for: window)
     }
     
     func testThatItDoesNotNotifyIfThereAreNoConversationWindowChanges()
@@ -237,7 +233,7 @@ extension MessageWindowObserverTests {
         let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
         self.uiMOC.saveOrRollback()
         
-        let token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         // when
         window.conversation.userDefinedName = "Fooooo"
@@ -245,7 +241,6 @@ extension MessageWindowObserverTests {
         
         // then
         XCTAssertEqual(windowObserver.notifications.count, 0)
-        MessageWindowChangeInfo.remove(observer: token, for: window)
     }
     
     func testThatItSetsNeedReloadAfterComingToForegroundEvenWithNoChanges() {
@@ -255,7 +250,7 @@ extension MessageWindowObserverTests {
         let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
         self.uiMOC.saveOrRollback()
         let observerCenter = uiMOC.messageWindowObserverCenter
-        let token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         // when
         observerCenter.applicationDidEnterBackground()
@@ -274,7 +269,6 @@ extension MessageWindowObserverTests {
             XCTFail("New state is nil")
         }
 
-        MessageWindowChangeInfo.remove(observer: token, for: window)
     }
     
     func testThatItNotifiesIfThereAreConversationWindowChangesWithInsert()
@@ -287,7 +281,7 @@ extension MessageWindowObserverTests {
         
         self.uiMOC.saveOrRollback()
         
-        let token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         // when
         message3.visibleInConversation = window.conversation
@@ -304,7 +298,6 @@ extension MessageWindowObserverTests {
         else {
             XCTFail("New state is nil")
         }
-        MessageWindowChangeInfo.remove(observer: token, for: window)
     }
     
     func testThatItNotifiesIfThereAreConversationWindowChangesWithDeletes()
@@ -315,7 +308,7 @@ extension MessageWindowObserverTests {
         let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
         self.uiMOC.saveOrRollback()
         
-        let token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         // when
         window.conversation.mutableMessages.removeObject(at: 1)
@@ -332,7 +325,6 @@ extension MessageWindowObserverTests {
         else {
             XCTFail("New state is nil")
         }
-        MessageWindowChangeInfo.remove(observer: token, for: window)
         
     }
     
@@ -344,7 +336,7 @@ extension MessageWindowObserverTests {
         let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
         self.uiMOC.saveOrRollback()
         
-        let token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         // when
         window.conversation.mutableMessages.removeObject(at: 0)
@@ -362,7 +354,6 @@ extension MessageWindowObserverTests {
         else {
             XCTFail("New state is nil")
         }
-        MessageWindowChangeInfo.remove(observer: token, for: window)
     }
     
     func testThatItNotifiesAfterAWindowScrollNotification()
@@ -382,7 +373,7 @@ extension MessageWindowObserverTests {
         
         let window = conversation.conversationWindow(withSize: 2)
         
-        let token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         // when
         window.moveUp(byMessages: 10)
@@ -398,7 +389,6 @@ extension MessageWindowObserverTests {
         else {
             XCTFail("New state is nil")
         }
-        MessageWindowChangeInfo.remove(observer: token, for: window)
     }
     
     func testThatItStopsNotifyingAfterUnregisteringTheToken() {
@@ -411,8 +401,7 @@ extension MessageWindowObserverTests {
         
         self.uiMOC.saveOrRollback()
         
-        let token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
-        MessageWindowChangeInfo.remove(observer: token, for: window)
+        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         // when
         message3.visibleInConversation = window.conversation
@@ -441,7 +430,7 @@ extension MessageWindowObserverTests {
             let window = self.createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC, windowSize: 10)
             self.uiMOC.saveOrRollback()
 
-            let token = MessageWindowChangeInfo.add(observer: self.windowObserver, for: window)
+            _ = MessageWindowChangeInfo.add(observer: self.windowObserver, for: window)
             
             self.startMeasuring()
             for _ in 1...count {
@@ -450,13 +439,12 @@ extension MessageWindowObserverTests {
                 self.uiMOC.saveOrRollback()
             }
             self.stopMeasuring()
-            MessageWindowChangeInfo.remove(observer: token, for: window)
         }
     }
     
     
     func checkThatItNotifiesAboutUserChange(in window: ZMConversationMessageWindow, modifier: ((Void) -> Void), callBack: ((UserChangeInfo) -> Void)){
-        let token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         // when
         modifier()
@@ -476,7 +464,6 @@ extension MessageWindowObserverTests {
         else {
             XCTFail("There is no MessageChangeInfo")
         }
-        MessageWindowChangeInfo.remove(observer: token, for: window)
     }
     
     func testThatItNotifiesObserverWhenTheSenderNameChanges() {
@@ -592,8 +579,8 @@ extension MessageWindowObserverTests {
         let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
         self.uiMOC.saveOrRollback()
         
-        let token1 = MessageWindowChangeInfo.add(observer: windowObserver1, for: window)
-        let token2 = MessageWindowChangeInfo.add(observer: windowObserver2, for: window)
+        _ = MessageWindowChangeInfo.add(observer: windowObserver1, for: window)
+        _ = MessageWindowChangeInfo.add(observer: windowObserver2, for: window)
 
         // when
         window.conversation.mutableMessages.removeObject(at: 0)
@@ -622,7 +609,5 @@ extension MessageWindowObserverTests {
         else {
             XCTFail("New state is nil")
         }
-        MessageWindowChangeInfo.remove(observer: token1, for: window)
-        MessageWindowChangeInfo.remove(observer: token2, for: window)
     }
 }

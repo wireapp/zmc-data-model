@@ -66,9 +66,6 @@
 #import <WireDataModel/ZMChangedIndexes.h>
 #import <WireDataModel/ZMOrderedSetState.h>
 
-#import <WireDataModel/ZMNotifications.h>
-#import <WireDataModel/ZMNotifications+Internal.h>
-
 #import <WireDataModel/ZMUpdateEvent+WireDataModel.h>
 #import <WireDataModel/NSFetchRequest+ZMRelationshipKeyPaths.h>
 

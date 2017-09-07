@@ -45,10 +45,7 @@ class MessageObserverTests : NotificationDispatcherTestBase {
         ) {
         
         // given
-        var token = MessageChangeInfo.add(observer: self.messageObserver, for: message, managedObjectContext: self.uiMOC)
-        defer {
-            MessageChangeInfo.remove(observer: token, for: message)
-        }
+        _ = MessageChangeInfo.add(observer: self.messageObserver, for: message, managedObjectContext: self.uiMOC)
         
         self.uiMOC.saveOrRollback()
         
@@ -76,12 +73,6 @@ class MessageObserverTests : NotificationDispatcherTestBase {
             #keyPath(MessageChangeInfo.reactionsChanged),
             #keyPath(MessageChangeInfo.transferStateChanged)
         ]
-
-        defer {
-            performIgnoringZMLogError {
-                MessageChangeInfo.remove(observer: token, for: message)
-            }
-        }
 
         guard let changedField = expectedChangedField else { return }
         guard let changes = messageObserver.notifications.first else { return }
@@ -264,7 +255,6 @@ class MessageObserverTests : NotificationDispatcherTestBase {
         
         self.performIgnoringZMLogError{
             let token = MessageChangeInfo.add(observer: self.messageObserver, for: message, managedObjectContext: self.uiMOC)
-            MessageChangeInfo.remove(observer: token, for: message)
         }
         // when
         message.serverTimestamp = Date()

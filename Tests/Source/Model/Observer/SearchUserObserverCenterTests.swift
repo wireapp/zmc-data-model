@@ -64,9 +64,15 @@ class SearchUserSnapshotTests : ZMBaseManagedObjectTest {
         let sut = SearchUserSnapshot(searchUser: searchUser, managedObjectContext: self.uiMOC)
         
         // expect
-        expectation(forNotification: Notification.Name.SearchUserChange.rawValue, object: searchUser) { (note) -> Bool in
-            guard let userChange = note.changeInfo as? UserChangeInfo else { return false }
-            return userChange.imageSmallProfileDataChanged
+        let expectation = self.expectation(description: "notified")
+        _ = NotificationInContext.addObserver(
+            name: .SearchUserChange,
+            context: self.uiMOC,
+            object: searchUser
+        ) { note in
+            guard let changeInfo = note.changeInfo as? UserChangeInfo else { return }
+            XCTAssertTrue(changeInfo.imageSmallProfileDataChanged)
+            expectation.fulfill()
         }
         
         // when
@@ -90,9 +96,15 @@ class SearchUserSnapshotTests : ZMBaseManagedObjectTest {
         let sut = SearchUserSnapshot(searchUser: searchUser, managedObjectContext: self.uiMOC)
         
         // expect
-        expectation(forNotification: Notification.Name.SearchUserChange.rawValue, object: searchUser) { (note) -> Bool in
-            guard let userChange = note.changeInfo as? UserChangeInfo else { return false }
-            return userChange.connectionStateChanged
+        let expectation = self.expectation(description: "notified")
+        _ = NotificationInContext.addObserver(
+            name: .SearchUserChange,
+            context: self.uiMOC,
+            object: searchUser
+        ) { note in
+            guard let changeInfo = note.changeInfo as? UserChangeInfo else { return }
+            XCTAssertTrue(changeInfo.connectionStateChanged)
+            expectation.fulfill()
         }
         
         // when
@@ -119,9 +131,15 @@ class SearchUserSnapshotTests : ZMBaseManagedObjectTest {
         let sut = SearchUserSnapshot(searchUser: searchUser, managedObjectContext: self.uiMOC)
         
         // expect
-        expectation(forNotification: Notification.Name.SearchUserChange.rawValue, object: searchUser) { (note) -> Bool in
-            guard let userChange = note.changeInfo as? UserChangeInfo else { return false }
-            return userChange.connectionStateChanged
+        let expectation = self.expectation(description: "notified")
+        _ = NotificationInContext.addObserver(
+            name: .SearchUserChange,
+            context: self.uiMOC,
+            object: searchUser
+        ) { note in
+            guard let changeInfo = note.changeInfo as? UserChangeInfo else { return }
+            XCTAssertTrue(changeInfo.connectionStateChanged)
+            expectation.fulfill()
         }
         
         // when
@@ -144,10 +162,15 @@ class SearchUserSnapshotTests : ZMBaseManagedObjectTest {
         let sut = SearchUserSnapshot(searchUser: searchUser, managedObjectContext: self.uiMOC)
         
         // expect
-        expectation(forNotification: Notification.Name.SearchUserChange.rawValue, object: searchUser) { (note) -> Bool in
-            return (note.changeInfo as? UserChangeInfo) != nil
+        let expectation = self.expectation(description: "notified")
+        _ = NotificationInContext.addObserver(
+            name: .SearchUserChange,
+            context: self.uiMOC,
+            object: searchUser
+        ) { note in
+            expectation.fulfill()
         }
-        
+
         // when
         searchUser.setValue(user, forKey: "user") // this is done internally
         sut.updateAndNotify()
@@ -224,8 +247,15 @@ class SearchUserObserverCenterTests : ModelObjectsTests {
         let searchUser = ZMSearchUser(name: nil, handle: nil, accentColor: .undefined, remoteID: nil, user: user, syncManagedObjectContext: syncMOC, uiManagedObjectContext: uiMOC)!
         sut.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
         
-        // expect       
-        expectation(forNotification: Notification.Name.SearchUserChange.rawValue, object: searchUser)
+        // expect
+        let expectation = self.expectation(description: "notified")
+        _ = NotificationInContext.addObserver(
+            name: .SearchUserChange,
+            context: self.uiMOC,
+            object: searchUser
+        ) { note in
+            expectation.fulfill()
+        }
 
         // when
         user.name = "Horst"
@@ -243,10 +273,15 @@ class SearchUserObserverCenterTests : ModelObjectsTests {
         sut.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
         
         // expect
-        expectation(forNotification: Notification.Name.SearchUserChange.rawValue, object: uiMOC){ note in
-            guard let userChange = note.changeInfo as? UserChangeInfo else { return false }
-            XCTAssertEqual(note.userInfoObject as? ZMSearchUser, searchUser)
-            return userChange.imageMediumDataChanged
+        let expectation = self.expectation(description: "notified")
+        _ = NotificationInContext.addObserver(
+            name: .SearchUserChange,
+            context: self.uiMOC,
+            object: searchUser
+        ) { note in
+            guard let changeInfo = note.changeInfo as? UserChangeInfo else { return }
+            XCTAssertTrue(changeInfo.imageMediumDataChanged)
+            expectation.fulfill()
         }
         
         // when

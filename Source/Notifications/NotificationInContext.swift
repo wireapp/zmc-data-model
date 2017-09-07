@@ -28,7 +28,7 @@ import Foundation
 /// use the object as the implicit context because when registering for `nil`
 /// we would get all notifications, even from other contexts.
 
-public struct NotificationInContext {
+@objc public class NotificationInContext: NSObject {
     
     static let objectInNotificationKey = "objectInNotification"
     
@@ -54,7 +54,7 @@ public struct NotificationInContext {
     /// Internal notification
     private let notification: Notification
     
-    public init(name: Notification.Name,
+    @objc public init(name: Notification.Name,
                 context: Any,
                 object: AnyObject? = nil,
                 userInfo: [String: Any])
@@ -73,12 +73,12 @@ public struct NotificationInContext {
     }
     
     /// Post notification in default notification center
-    public func post() {
+    @objc public func post() {
         NotificationCenter.default.post(self.notification)
     }
     
     /// Register for observer
-    public static func addObserver(
+    @objc public static func addObserver(
         observer: Any,
         selector: Selector,
         name: Notification.Name,
@@ -88,7 +88,7 @@ public struct NotificationInContext {
     }
     
     /// Register for observer
-    public static func addObserver(
+    @objc public static func addObserver(
         name: Notification.Name,
         context: Any,
         object: AnyObject? = nil,
@@ -114,7 +114,7 @@ extension NotificationInContext {
         case changeInfo
     }
     
-    public init(name: Notification.Name,
+    convenience public init(name: Notification.Name,
                 context: Any,
                 object: AnyObject? = nil,
                 changeInfo: ObjectChangeInfo,
@@ -130,7 +130,7 @@ extension NotificationInContext {
             userInfo: userInfo)
     }
     
-    public init(name: Notification.Name,
+    convenience public init(name: Notification.Name,
                 context: Any,
                 object: AnyObject? = nil,
                 changedKeys: [String],

@@ -934,7 +934,13 @@ extension ZMAssetClientMessageTests {
             XCTAssertNotNil(sut.fileMessageData)
             XCTAssertTrue(self.syncMOC.saveOrRollback())
 
-            _ = self.expectation(forNotification: ZMAssetClientMessageDidCancelFileDownloadNotificationName, object:sut.objectID, handler: nil)
+            let expectation = self.expectation(description: "Notification fired")
+            _ = NotificationInContext.addObserver(
+                name: ZMAssetClientMessageDidCancelFileDownloadNotificationName,
+                context: self.syncMOC,
+                object: sut.objectID) { note in
+                    expectation.fulfill()
+            }
             
             sut.requestFileDownload()
             XCTAssertEqual(sut.transferState, ZMFileTransferState.downloading)
@@ -943,7 +949,9 @@ extension ZMAssetClientMessageTests {
             sut.fileMessageData?.cancelTransfer()
             
             // then
+            XCTAssertTrue(self.waitForCustomExpectations(withTimeout: 0.5))
             XCTAssertEqual(sut.transferState, ZMFileTransferState.uploaded)
+            
         }
     }
     
@@ -1766,7 +1774,7 @@ extension ZMAssetClientMessageTests {
         message.managedObjectContext?.saveOrRollback()
         
         // expect
-        let _ = self.expectation(forNotification: ZMAssetClientMessage.ImageDownloadNotificationName, object: message.objectID, handler: nil)
+        self.expectation(forNotification: ZMAssetClientMessage.ImageDownloadNotificationName, object: message.objectID, handler: nil)
         
         // when
         message.requestImageDownload()

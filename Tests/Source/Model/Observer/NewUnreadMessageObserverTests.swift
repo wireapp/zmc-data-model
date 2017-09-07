@@ -63,8 +63,6 @@ class NewUnreadMessageObserverTests : NotificationDispatcherTestBase {
     }
     
     override func tearDown() {
-        NewUnreadMessagesChangeInfo.remove(observer: self.newMessageToken)
-        NewUnreadKnockMessagesChangeInfo.remove(observer: self.newKnocksToken)
         self.newMessageToken = nil
         self.newKnocksToken = nil
         self.testObserver = nil

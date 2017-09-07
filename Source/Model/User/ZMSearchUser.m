@@ -27,7 +27,6 @@
 #import "ZMConnection+Internal.h"
 #import "ZMAddressBookContact.h"
 
-#import "ZMNotifications+Internal.h"
 #import <WireDataModel/WireDataModel-Swift.h>
 
 static NSCache *searchUserToSmallProfileImageCache;

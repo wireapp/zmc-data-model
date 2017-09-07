@@ -71,10 +71,7 @@ extension UserObserverTests {
         self.uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
-        let token = UserChangeInfo.add(observer: userObserver, for: user, managedObjectContext: self.uiMOC)
-        defer {
-            UserChangeInfo.remove(observer: token, for: user)
-        }
+        _ = UserChangeInfo.add(observer: userObserver, for: user, managedObjectContext: self.uiMOC)
         
         // when
         modifier(user)
@@ -119,7 +116,7 @@ extension UserObserverTests {
         let user = ZMUser.insertNewObject(in:self.uiMOC)
         self.uiMOC.saveOrRollback()
 
-        let token = UserChangeInfo.add(observer: userObserver, for: user, managedObjectContext: self.uiMOC)
+        _ = UserChangeInfo.add(observer: userObserver, for: user, managedObjectContext: self.uiMOC)
         
         // when
         user.name = "Foo"
@@ -137,8 +134,6 @@ extension UserObserverTests {
         
         // and when
         self.uiMOC.saveOrRollback()
-        UserChangeInfo.remove(observer: token, for: user)
-        
     }
     
     func testThatItNotifiesTheObserverOfAnAccentColorChange()
@@ -290,9 +285,7 @@ extension UserObserverTests {
         self.setEmailAddress("foo@example.com", on: user)
         self.uiMOC.saveOrRollback()
         
-        let token = UserChangeInfo.add(observer: userObserver, for: user, managedObjectContext: self.uiMOC)
-        UserChangeInfo.remove(observer: token, for: user)
-        
+        _ = UserChangeInfo.add(observer: userObserver, for: user, managedObjectContext: self.uiMOC)
         
         // when
         self.setEmailAddress("aaaaa@example.com", on: user)
@@ -355,7 +348,7 @@ extension UserObserverTests {
         let selfClient = UserClient.insertNewObject(in: self.uiMOC)
         selfUser.mutableSetValue(forKey: UserClientsKey).add(selfClient)
         self.uiMOC.saveOrRollback()
-        let token = UserChangeInfo.add(observer: userObserver, for: selfUser, managedObjectContext: self.uiMOC)
+        _ = UserChangeInfo.add(observer: userObserver, for: selfUser, managedObjectContext: self.uiMOC)
         
         // when
         let otherClient = UserClient.insertNewObject(in: self.uiMOC)
@@ -367,9 +360,6 @@ extension UserObserverTests {
         guard let changeInfo = userObserver.notifications.first else { return XCTFail("Should receive a changeInfo for the added client") }
         XCTAssertTrue(changeInfo.clientsChanged)
         XCTAssertTrue(changeInfo.changedKeys.contains(UserClientsKey))
-        
-        // after
-        UserChangeInfo.remove(observer: token, for: selfUser)
     }
     
     
@@ -384,7 +374,7 @@ extension UserObserverTests {
         self.uiMOC.saveOrRollback()
         XCTAssertEqual(selfUser.clients.count, 2)
         
-        let token = UserChangeInfo.add(observer: userObserver, for: selfUser, managedObjectContext: self.uiMOC)
+        _ = UserChangeInfo.add(observer: userObserver, for: selfUser, managedObjectContext: self.uiMOC)
         
         // when
         selfUser.mutableSetValue(forKey: UserClientsKey).remove(otherClient)
@@ -397,8 +387,6 @@ extension UserObserverTests {
         XCTAssertTrue(changeInfo.changedKeys.contains(UserClientsKey))
         XCTAssertEqual(selfUser.clients, Set(arrayLiteral: selfClient))
         XCTAssertEqual(selfUser.clients.count, 1)
-        
-        UserChangeInfo.remove(observer: token, for: selfUser)
     }
     
     func testThatItUpdatesClientObserversWhenClientsAreFaultedAndNewClientIsAdded() {
@@ -418,7 +406,7 @@ extension UserObserverTests {
             return XCTFail("Unable to get user with objectID in uiMOC")
         }
         
-        let token = UserChangeInfo.add(observer: userObserver, for: uiMOCUser, managedObjectContext: self.uiMOC)
+        _ = UserChangeInfo.add(observer: userObserver, for: uiMOCUser, managedObjectContext: self.uiMOC)
         
         // when adding a new client on the syncMOC
         syncMOC.performGroupedBlockAndWait {
@@ -435,8 +423,6 @@ extension UserObserverTests {
         XCTAssertEqual(userObserver.notifications.count, 1)
         XCTAssertEqual(changeInfo?.clientsChanged, true)
         XCTAssertEqual(uiMOCUser.clients.count, 1)
-        
-        UserChangeInfo.remove(observer: token, for: uiMOCUser)
     }
     
     func testThatItUpdatesClientObserversWhenClientsAreFaultedAndNewClientIsAddedSameContext() {
@@ -449,7 +435,7 @@ extension UserObserverTests {
         uiMOC.saveOrRollback()
         uiMOC.refresh(user, mergeChanges: true)
         XCTAssertTrue(user.isFault)
-        let token = UserChangeInfo.add(observer: userObserver, for: user, managedObjectContext: self.uiMOC)
+        _ = UserChangeInfo.add(observer: userObserver, for: user, managedObjectContext: self.uiMOC)
         
         // when
         let client = UserClient.insertNewObject(in: uiMOC)
@@ -466,8 +452,6 @@ extension UserObserverTests {
         let changeInfo = userObserver.notifications.first
         XCTAssertEqual(changeInfo?.clientsChanged, true)
         XCTAssertEqual(user.clients.count, 1)
-        
-        UserChangeInfo.remove(observer: token, for: user)
     }
     
     func testThatItNotifiesTrustChangeForClientsAddedAfterSubscribing() {
@@ -481,7 +465,7 @@ extension UserObserverTests {
         let otherClient = UserClient.insertNewObject(in: uiMOC)
         uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        let token = UserChangeInfo.add(observer: userObserver, for: observedUser, managedObjectContext: self.uiMOC)
+        _ = UserChangeInfo.add(observer: userObserver, for: observedUser, managedObjectContext: self.uiMOC)
         
         // when
         observedUser.mutableSetValue(forKey: UserClientsKey).add(otherClient)
@@ -506,8 +490,6 @@ extension UserObserverTests {
         XCTAssertEqual(userChangeInfos.count, 2)
         XCTAssertEqual(userChangeInfos.map { $0.trustLevelChanged }, [false, true])
         XCTAssertEqual(userChangeInfos.map { $0.clientsChanged }, [true, false])
-        
-        UserChangeInfo.remove(observer: token, for: observedUser)
     }
     
     func testThatItNotifiesAboutAnAddedTeam(){
