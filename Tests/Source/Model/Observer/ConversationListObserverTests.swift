@@ -936,7 +936,6 @@ class ConversationListObserverTests : NotificationDispatcherTestBase {
         
         // given
         var teamObjectID: NSManagedObjectID!
-        var conversationObjectID: NSManagedObjectID!
         
         syncMOC.performGroupedBlockAndWait {
             let team = Team.insertNewObject(in: self.syncMOC)
@@ -947,7 +946,6 @@ class ConversationListObserverTests : NotificationDispatcherTestBase {
             self.syncMOC.saveOrRollback()
             
             teamObjectID = team.objectID
-            conversationObjectID = conversation.objectID
         }
         
         let conversationList = ZMConversation.conversationsExcludingArchived(in: uiMOC)

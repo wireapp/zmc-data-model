@@ -46,7 +46,7 @@ extension ZMAssetClientMessage {
         
         self.dataSet = NSOrderedSet()
         self.cachedGenericAssetMessage = nil
-        self.assetID = nil
+        self.assetId = nil
         self.associatedTaskIdentifier = nil
         self.preprocessedSize = CGSize.zero
     }

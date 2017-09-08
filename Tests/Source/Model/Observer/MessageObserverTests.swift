@@ -254,7 +254,7 @@ class MessageObserverTests : NotificationDispatcherTestBase {
         self.uiMOC.saveOrRollback()
         
         self.performIgnoringZMLogError{
-            let token = MessageChangeInfo.add(observer: self.messageObserver, for: message, managedObjectContext: self.uiMOC)
+            _ = MessageChangeInfo.add(observer: self.messageObserver, for: message, managedObjectContext: self.uiMOC)
         }
         // when
         message.serverTimestamp = Date()

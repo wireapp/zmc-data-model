@@ -26,9 +26,9 @@ import Foundation
     var cachedGenericAssetMessage: ZMGenericMessage? = nil
     
     /// Remote asset ID
-    public var assetID: UUID? {
-        get { return self.transientUUID(forKey: #keyPath(ZMAssetClientMessage.assetID)) }
-        set { self.setTransientUUID(newValue, forKey: #keyPath(ZMAssetClientMessage.assetID)) }
+    public var assetId: UUID? {
+        get { return self.transientUUID(forKey: #keyPath(ZMAssetClientMessage.assetId)) }
+        set { self.setTransientUUID(newValue, forKey: #keyPath(ZMAssetClientMessage.assetId)) }
     }
     
     public static func keyPathsForValuesAffectingAssetID() -> Set<String> {

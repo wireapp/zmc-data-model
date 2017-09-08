@@ -124,10 +124,10 @@ extension ZMAssetClientMessageTests_Ephemeral {
             message.uploadState = .uploadingFullAsset
             
             // when
-            message.update(withPostPayload: [:], updatedKeys: Set(arrayLiteral: ZMAssetClientMessageUploadedStateKey))
+            message.update(withPostPayload: [:], updatedKeys: Set([#keyPath(ZMAssetClientMessage.uploadState)]))
             
             // then
-            XCTAssertEqual(message.uploadState, ZMAssetUploadState.uploadingFullAsset)
+            XCTAssertEqual(message.uploadState, AssetUploadState.uploadingFullAsset)
             XCTAssertEqual(self.obfuscationTimer.runningTimersCount, 1)
             XCTAssertTrue(self.obfuscationTimer.isTimerRunning(for: message))
         }
@@ -147,11 +147,11 @@ extension ZMAssetClientMessageTests_Ephemeral {
 
             message.update(
                 withPostPayload: payload,
-                updatedKeys: [ZMAssetClientMessageUploadedStateKey]
+                updatedKeys: [#keyPath(ZMAssetClientMessage.uploadState)]
             )
             
             // then
-            XCTAssertEqual(message.uploadState, ZMAssetUploadState.uploadingFullAsset)
+            XCTAssertEqual(message.uploadState, AssetUploadState.uploadingFullAsset)
             XCTAssertEqual(self.obfuscationTimer.runningTimersCount, 1)
             XCTAssertTrue(self.obfuscationTimer.isTimerRunning(for: message))
         }
@@ -168,7 +168,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
             message.update(withPostPayload: [:], updatedKeys: Set())
             
             // then
-            XCTAssertEqual(message.uploadState, ZMAssetUploadState.uploadingPlaceholder)
+            XCTAssertEqual(message.uploadState, AssetUploadState.uploadingPlaceholder)
             XCTAssertEqual(self.obfuscationTimer.runningTimersCount, 0)
         }
     }

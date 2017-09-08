@@ -55,7 +55,7 @@ extension ZMAssetClientMessage {
         return self.cachedGenericAssetMessage
     }
     
-    func add(_ genericMessage: ZMGenericMessage) {
+    public func add(_ genericMessage: ZMGenericMessage) {
         let messageData = self.mergeWithExistingData(data: genericMessage.data())
         if self.nonce == nil {
             self.nonce = UUID(uuidString: messageData.genericMessage.messageId)
@@ -169,7 +169,7 @@ extension ZMAssetClientMessage {
         
         if let imageAssetData = message.imageAssetData {
             if imageAssetData.tag == "medium", let uuid = eventData.string(forKey: "id") {
-                self.assetID = UUID(uuidString: uuid)
+                self.assetId = UUID(uuidString: uuid)
             }
             
             if let inlinedDataString = eventData.string(forKey: "data"),
@@ -187,7 +187,7 @@ extension ZMAssetClientMessage {
             if isVersion_3 { // V3, we directly access the protobuf for the assetId
                 self.version = 3
             } else { // V2
-                self.assetID = eventData.string(forKey: "id").flatMap { UUID(uuidString: $0) }
+                self.assetId = eventData.string(forKey: "id").flatMap { UUID(uuidString: $0) }
             }
             
             self.transferState = .uploaded

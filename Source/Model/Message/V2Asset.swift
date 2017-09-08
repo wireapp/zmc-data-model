@@ -64,7 +64,7 @@ extension String {
     public var imageDataIdentifier: String? {
         return imageDataIdentifier(for: assetStorage.mediumGenericMessage) ??
                imageDataIdentifier(for: assetStorage.previewGenericMessage) ??
-               assetClientMessage.assetID?.uuidString ??
+               assetClientMessage.assetId?.uuidString ??
                imageData.map { String(format: "orig-%p", $0 as NSData) }
     }
 
