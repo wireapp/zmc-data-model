@@ -266,8 +266,8 @@ extension ZMAssetClientMessageTests_Ephemeral {
         
         let message = appendPreviewImageMessage()
         message.sender = sender
-        XCTAssertNil(message.imageAssetStorage?.mediumGenericMessage)
-        XCTAssertNotNil(message.imageAssetStorage?.previewGenericMessage)
+        XCTAssertNil(message.imageAssetStorage.mediumGenericMessage)
+        XCTAssertNotNil(message.imageAssetStorage.previewGenericMessage)
 
         // when
         XCTAssertFalse(message.startSelfDestructionIfNeeded())

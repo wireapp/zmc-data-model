@@ -55,8 +55,6 @@
 #import <WireDataModel/ZMMessage+Internal.h>
 #import <WireDataModel/ZMOTRMessage.h>
 #import <WireDataModel/ZMClientMessage.h>
-#import <WireDataModel/ZMAssetClientMessage.h>
-#import <WireDataModel/ZMAssetClientMessage+Testing.h>
 #import <WireDataModel/ZMGenericMessage+External.h>
 #import <WireDataModel/ZMGenericMessage+UpdateEvent.h>
 #import <WireDataModel/ZMGenericMessageData.h>

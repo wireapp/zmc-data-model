@@ -28,7 +28,6 @@
 #import "ZMMessage+Internal.h"
 #import "ZMUser+Internal.h"
 #import "NSManagedObjectContext+zmessaging.h"
-#import "ZMAssetClientMessage.h"
 #import "ZMMessageTests.h"
 #import "MessagingTest+EventFactory.h"
 #import <OCMock/OCMock.h>

@@ -1233,10 +1233,11 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 {
     VerifyReturnNil(!self.destructionEnabled || self.canSendEphemeral);
 
-    ZMAssetClientMessage *message = [ZMAssetClientMessage assetClientMessageWithOriginalImageData:imageData
-                                                                                            nonce:nonce
-                                                                             managedObjectContext:self.managedObjectContext
-                                                                                     expiresAfter:self.messageDestructionTimeout];
+    ZMAssetClientMessage *message =
+    [ZMAssetClientMessage assetClientMessageWithOriginalImage:imageData
+                                                        nonce:nonce
+                                         managedObjectContext:self.managedObjectContext
+                                                 expiresAfter:self.messageDestructionTimeout];
     message.sender = [ZMUser selfUserInContext:self.managedObjectContext];
     [message updateCategoryCache];
     if(hidden) {
@@ -1253,10 +1254,10 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 {
     VerifyReturnNil(!self.destructionEnabled || self.canSendEphemeral);
 
-    ZMAssetClientMessage *message = [ZMAssetClientMessage assetClientMessageWithFileMetadata:fileMetadata
-                                                                                       nonce:nonce
-                                                                        managedObjectContext:self.managedObjectContext
-                                                                                expiresAfter:self.messageDestructionTimeout];
+    ZMAssetClientMessage *message = [ZMAssetClientMessage assetClientMessageWith:fileMetadata
+                                                                           nonce:nonce
+                                                            managedObjectContext:self.managedObjectContext
+                                                                    expiresAfter:self.messageDestructionTimeout];
     message.sender = [ZMUser selfUserInContext:self.managedObjectContext];
     message.isEncrypted = YES;
     [message updateCategoryCache];

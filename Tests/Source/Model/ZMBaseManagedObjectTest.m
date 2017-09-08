@@ -25,7 +25,6 @@
 #import "NSManagedObjectContext+zmessaging.h"
 #import "NSManagedObjectContext+zmessaging-Internal.h"
 #import "MockModelObjectContextFactory.h"
-#import "ZMAssetClientMessage.h"
 #import "ZMTestSession.h"
 
 #import "ZMUser+Internal.h"
