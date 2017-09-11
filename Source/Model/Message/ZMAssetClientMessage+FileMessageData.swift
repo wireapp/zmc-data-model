@@ -257,26 +257,22 @@ extension ZMAssetClientMessage {
         self.setAndSyncNotUploaded(.FAILED)
     }
     
-    /// Cancels the pending download or upload of the file.
-    /// Designed to be used in case the file transfer on sender side is
-    /// in `ZMFileMessageStateUploading` state, or in `ZMFileMessageStateDownloading`
-    /// state on receiver side.
     public func cancelTransfer() {
         
         switch self.transferState {
-        case .downloading:
+        case .uploading:
             self.setAndSyncNotUploaded(.CANCELLED)
             self.transferState = .cancelledUpload
             self.progress = 0
             self.expire()
-        case .uploading:
+        case .downloading:
             self.transferState = .uploaded
             self.progress = 0
             self.obtainPermanentObjectID()
             self.managedObjectContext?.saveOrRollback()
             NotificationInContext(
                 name: ZMAssetClientMessageDidCancelFileDownloadNotificationName,
-                context: self.managedObjectContext!, // XXX use sync or ui?
+                context: self.managedObjectContext!.zm_userInterface,
                 object: self.objectID,
                 userInfo: [:]
                 ).post()
@@ -284,11 +280,6 @@ extension ZMAssetClientMessage {
             return
         }
     }
-    
-    /*
-    
-    
-     */
 
     /// Turn temporary object ID into permanet
     private func obtainPermanentObjectID()

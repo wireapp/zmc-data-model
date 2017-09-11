@@ -72,9 +72,7 @@ extension ZMAssetClientMessage {
     func mergeWithExistingData(data: Data) -> ZMGenericMessageData {
         self.cachedGenericAssetMessage = nil
         
-        let builder = ZMGenericMessage.builder()!
-        builder.merge(from: data)
-        let genericMessage = builder.build()!
+        let genericMessage = ZMGenericMessageBuilder().merge(from: data).build()! as! ZMGenericMessage
         
         if let imageFormat = genericMessage.imageAssetData?.imageFormat(),
             let existingMessageData = self.genericMessageDataFromDataSet(for: imageFormat)
@@ -126,10 +124,13 @@ extension ZMAssetClientMessage {
             case .placeholder:
                 return self.genericMessageMergedFromDataSet(filter: { (message) -> Bool in
                     guard let assetData = message.assetData else { return false }
-                    return assetData.hasOriginal() || assetData.hasUploaded()
+                    return assetData.hasOriginal() || assetData.hasNotUploaded()
                 })
-            default:
-                return nil
+            case .thumbnail:
+                return self.genericMessageMergedFromDataSet(filter: { (message) -> Bool in
+                    guard let assetData = message.assetData else { return false }
+                    return assetData.hasPreview() && !assetData.hasUploaded()
+                })
             }
         }
         
