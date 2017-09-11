@@ -45,39 +45,40 @@ class MessageObserverTests : NotificationDispatcherTestBase {
         ) {
         
         // given
-        _ = MessageChangeInfo.add(observer: self.messageObserver, for: message, managedObjectContext: self.uiMOC)
-        
-        self.uiMOC.saveOrRollback()
-        
-        // when
-        modifier(message)
-        self.uiMOC.saveOrRollback()
-        self.spinMainQueue(withTimeout: 0.5)
-        
-        // then
-        XCTAssertEqual(messageObserver.notifications.count, expectedChangedField != nil ? 1 : 0)
-        
-        // and when
-        self.uiMOC.saveOrRollback()
-        
-        // then
-        XCTAssertTrue(messageObserver.notifications.count <= 1, "Should have changed only once")
-        
-        let messageInfoKeys = [
-            #keyPath(MessageChangeInfo.imageChanged),
-            #keyPath(MessageChangeInfo.deliveryStateChanged),
-            #keyPath(MessageChangeInfo.senderChanged),
-            #keyPath(MessageChangeInfo.linkPreviewChanged),
-            #keyPath(MessageChangeInfo.isObfuscatedChanged),
-            #keyPath(MessageChangeInfo.childMessagesChanged),
-            #keyPath(MessageChangeInfo.reactionsChanged),
-            #keyPath(MessageChangeInfo.transferStateChanged)
-        ]
+        withExtendedLifetime(MessageChangeInfo.add(observer: self.messageObserver, for: message, managedObjectContext: self.uiMOC)) { () -> () in
+            
+            self.uiMOC.saveOrRollback()
+            
+            // when
+            modifier(message)
+            self.uiMOC.saveOrRollback()
+            self.spinMainQueue(withTimeout: 0.5)
+            
+            // then
+            XCTAssertEqual(messageObserver.notifications.count, expectedChangedField != nil ? 1 : 0)
+            
+            // and when
+            self.uiMOC.saveOrRollback()
+            
+            // then
+            XCTAssertTrue(messageObserver.notifications.count <= 1, "Should have changed only once")
+            
+            let messageInfoKeys = [
+                #keyPath(MessageChangeInfo.imageChanged),
+                #keyPath(MessageChangeInfo.deliveryStateChanged),
+                #keyPath(MessageChangeInfo.senderChanged),
+                #keyPath(MessageChangeInfo.linkPreviewChanged),
+                #keyPath(MessageChangeInfo.isObfuscatedChanged),
+                #keyPath(MessageChangeInfo.childMessagesChanged),
+                #keyPath(MessageChangeInfo.reactionsChanged),
+                #keyPath(MessageChangeInfo.transferStateChanged)
+            ]
 
-        guard let changedField = expectedChangedField else { return }
-        guard let changes = messageObserver.notifications.first else { return }
-        changes.checkForExpectedChangeFields(userInfoKeys: messageInfoKeys,
-                                             expectedChangedFields: [changedField])
+            guard let changedField = expectedChangedField else { return }
+            guard let changes = messageObserver.notifications.first else { return }
+            changes.checkForExpectedChangeFields(userInfoKeys: messageInfoKeys,
+                                                 expectedChangedFields: [changedField])
+        }
     }
 
     func testThatItNotifiesObserverWhenTheFileTransferStateChanges() {

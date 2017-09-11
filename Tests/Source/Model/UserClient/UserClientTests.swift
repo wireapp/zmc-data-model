@@ -329,11 +329,12 @@ class UserClientTests: ZMBaseManagedObjectTest {
 
         // then
         self.syncMOC.performGroupedBlockAndWait {
-            XCTAssertNotNil(message)
-            XCTAssertNotNil(conversation)
-            XCTAssertEqual(message?.hasClientAction(), true)
-            XCTAssertEqual(message?.clientAction, .RESETSESSION)
-            _ = token // Silence warning
+            withExtendedLifetime(token) { () -> () in
+                XCTAssertNotNil(message)
+                XCTAssertNotNil(conversation)
+                XCTAssertEqual(message?.hasClientAction(), true)
+                XCTAssertEqual(message?.clientAction, .RESETSESSION)
+            }
         }
     }
 
@@ -385,7 +386,7 @@ class UserClientTests: ZMBaseManagedObjectTest {
         self.syncMOC.performGroupedBlockAndWait {
             XCTAssertNotNil(message)
             XCTAssertNotNil(conversation)
-            XCTAssertEqual(expectedConversation, conversation)
+            XCTAssertEqual(expectedConversation?.objectID, conversation?.objectID)
             XCTAssertEqual(message?.hasClientAction(), true)
             XCTAssertEqual(message?.clientAction, .RESETSESSION)
         }

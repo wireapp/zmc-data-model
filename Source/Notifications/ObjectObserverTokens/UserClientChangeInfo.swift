@@ -105,14 +105,5 @@ extension UserClientChangeInfo {
             observer.userClientDidChange(changeInfo)
         } 
     }
-    
-    @objc(removeObserver:forClient:)
-    public static func remove(observer: NSObjectProtocol, for client: UserClient?) {
-        guard let token = (observer as? NotificationCenterObserverToken)?.token else {
-            NotificationCenter.default.removeObserver(observer, name: .UserClientChange, object: client)
-            return
-        }
-        NotificationCenter.default.removeObserver(token, name: .UserClientChange, object: client)
-    }
 }
 

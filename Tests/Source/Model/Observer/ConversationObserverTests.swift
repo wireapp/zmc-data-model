@@ -63,7 +63,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         
         // given
         let observer = ConversationObserver()
-        _ = ConversationChangeInfo.add(observer: observer, for: conversation)
+        self.token = ConversationChangeInfo.add(observer: observer, for: conversation)
         
         // when
         modifier(conversation, observer)
@@ -90,6 +90,8 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         guard let changes = observer.notifications.first else { return }
         changes.checkForExpectedChangeFields(userInfoKeys: conversationInfoKeys, expectedChangedFields: expectedChangedFields)
         XCTAssertEqual(changes.changedKeys, Set(expectedChangedKeys), file: file, line: line)
+        
+        self.token = nil
     }
     
     func testThatItNotifiesTheObserverOfANameChange()
@@ -170,7 +172,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         let observer = ConversationObserver()
-        _ = ConversationChangeInfo.add(observer: observer, for: conversation)
+        self.token = ConversationChangeInfo.add(observer: observer, for: conversation)
         
         // when
         user.name = "Boo"
@@ -399,7 +401,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         mergeLastChanges()
         
         let observer = ConversationObserver()
-        _ = ConversationChangeInfo.add(observer: observer, for: uiConversation)
+        self.token = ConversationChangeInfo.add(observer: observer, for: uiConversation)
         
         // when
         self.syncMOC.performGroupedBlockAndWait {
@@ -529,7 +531,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         }
 
         let observer = ConversationObserver()
-        _ = ConversationChangeInfo.add(observer: observer, for: uiConversation)
+        self.token = ConversationChangeInfo.add(observer: observer, for: uiConversation)
         
         // when
         self.syncMOC.performGroupedBlockAndWait {
@@ -627,7 +629,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         self.uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         let observer = ConversationObserver()
-        _ = ConversationChangeInfo.add(observer: observer, for: conversation)
+        self.token = ConversationChangeInfo.add(observer: observer, for: conversation)
         
         // when
         conversation.appendMessage(withText: "Foo")
@@ -701,7 +703,7 @@ extension ConversationObserverTests {
             self.uiMOC.saveOrRollback()
             
             let observer = ConversationObserver()
-            _ = ConversationChangeInfo.add(observer: observer, for: conversation)
+            self.token = ConversationChangeInfo.add(observer: observer, for: conversation)
             
             var lastName = "bar"
             self.startMeasuring()
@@ -729,7 +731,7 @@ extension ConversationObserverTests {
             self.uiMOC.saveOrRollback()
             
             let observer = ConversationObserver()
-            _ = ConversationChangeInfo.add(observer: observer, for: conversation)
+            self.token = ConversationChangeInfo.add(observer: observer, for: conversation)
             
             self.startMeasuring()
             for _ in 1...count {
@@ -755,7 +757,7 @@ extension ConversationObserverTests {
             self.uiMOC.saveOrRollback()
             
             let observer = ConversationObserver()
-            _ = ConversationChangeInfo.add(observer: observer, for: conversation)
+            self.token = ConversationChangeInfo.add(observer: observer, for: conversation)
             
             self.startMeasuring()
             for _ in 1...count {

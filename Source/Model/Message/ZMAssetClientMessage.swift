@@ -75,7 +75,7 @@ import Foundation
         set {
             let key = #keyPath(ZMAssetClientMessage.uploadState)
             self.willChangeValue(forKey: key)
-            self.setPrimitiveValue(newValue, forKey: key)
+            self.setPrimitiveValue(newValue.rawValue, forKey: key)
             self.didChangeValue(forKey: key)
             self.setLocallyModifiedKeys(Set([key]))
         }

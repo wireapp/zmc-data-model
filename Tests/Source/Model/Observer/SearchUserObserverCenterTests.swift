@@ -20,6 +20,13 @@
 
 class SearchUserSnapshotTests : ZMBaseManagedObjectTest {
     
+    var token: Any? = nil
+    
+    override func tearDown() {
+        self.token = nil
+        super.tearDown()
+    }
+    
     func testThatItCreatesASnapshotOfAllValues_noUser(){
         // given
         let searchUser = ZMSearchUser(name: "Bernd", handle: "dasBrot", accentColor: .brightOrange, remoteID: UUID(), user: nil, syncManagedObjectContext: syncMOC, uiManagedObjectContext: uiMOC)!
@@ -65,7 +72,7 @@ class SearchUserSnapshotTests : ZMBaseManagedObjectTest {
         
         // expect
         let expectation = self.expectation(description: "notified")
-        _ = NotificationInContext.addObserver(
+        self.token = NotificationInContext.addObserver(
             name: .SearchUserChange,
             context: self.uiMOC,
             object: searchUser
@@ -97,7 +104,7 @@ class SearchUserSnapshotTests : ZMBaseManagedObjectTest {
         
         // expect
         let expectation = self.expectation(description: "notified")
-        _ = NotificationInContext.addObserver(
+        self.token = NotificationInContext.addObserver(
             name: .SearchUserChange,
             context: self.uiMOC,
             object: searchUser
@@ -132,7 +139,7 @@ class SearchUserSnapshotTests : ZMBaseManagedObjectTest {
         
         // expect
         let expectation = self.expectation(description: "notified")
-        _ = NotificationInContext.addObserver(
+        self.token = NotificationInContext.addObserver(
             name: .SearchUserChange,
             context: self.uiMOC,
             object: searchUser
@@ -163,7 +170,7 @@ class SearchUserSnapshotTests : ZMBaseManagedObjectTest {
         
         // expect
         let expectation = self.expectation(description: "notified")
-        _ = NotificationInContext.addObserver(
+        self.token = NotificationInContext.addObserver(
             name: .SearchUserChange,
             context: self.uiMOC,
             object: searchUser
@@ -188,7 +195,7 @@ class SearchUserObserverCenterTests : ModelObjectsTests {
     
     override func setUp() {
         super.setUp()
-        sut = SearchUserObserverCenter()
+        sut = SearchUserObserverCenter(managedObjectContext: self.uiMOC)
     }
     
     override func tearDown() {
@@ -203,7 +210,7 @@ class SearchUserObserverCenterTests : ModelObjectsTests {
         user.remoteIdentifier = UUID()
         
         let searchUser = ZMSearchUser(name: nil, handle: nil, accentColor: .undefined, remoteID: nil, user: user, syncManagedObjectContext: syncMOC, uiManagedObjectContext: uiMOC)!
-        uiMOC.searchUserObserverCenter.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
+        uiMOC.searchUserObserverCenter.addSearchUser(searchUser)
         
         // when
         weak var observerCenter = uiMOC.searchUserObserverCenter
@@ -219,7 +226,7 @@ class SearchUserObserverCenterTests : ModelObjectsTests {
         XCTAssertEqual(sut.snapshots.count, 0)
 
         // when
-        sut.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
+        sut.addSearchUser(searchUser)
         
         // then
         XCTAssertEqual(sut.snapshots.count, 1)
@@ -228,7 +235,7 @@ class SearchUserObserverCenterTests : ModelObjectsTests {
     func testThatItRemovesAllSnapshotsOnReset(){
         // given
         let searchUser = ZMSearchUser(name: "Bernd", handle: "dasBrot", accentColor: .brightOrange, remoteID: UUID(), user: nil, syncManagedObjectContext: syncMOC, uiManagedObjectContext: uiMOC)!
-        sut.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
+        sut.addSearchUser(searchUser)
         XCTAssertEqual(sut.snapshots.count, 1)
         
         // when
@@ -245,11 +252,11 @@ class SearchUserObserverCenterTests : ModelObjectsTests {
         user.remoteIdentifier = UUID()
         
         let searchUser = ZMSearchUser(name: nil, handle: nil, accentColor: .undefined, remoteID: nil, user: user, syncManagedObjectContext: syncMOC, uiManagedObjectContext: uiMOC)!
-        sut.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
+        sut.addSearchUser(searchUser)
         
         // expect
         let expectation = self.expectation(description: "notified")
-        _ = NotificationInContext.addObserver(
+        let token: Any? = NotificationInContext.addObserver(
             name: .SearchUserChange,
             context: self.uiMOC,
             object: searchUser
@@ -257,24 +264,26 @@ class SearchUserObserverCenterTests : ModelObjectsTests {
             expectation.fulfill()
         }
 
-        // when
-        user.name = "Horst"
-        let changeInfo = UserChangeInfo(object: user)
-        changeInfo.changedKeys = Set(["name"])
-        sut.objectsDidChange(changes: [ZMUser.classIdentifier: [changeInfo]])
-        
-        // then
-        XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
+        withExtendedLifetime(token) { () -> () in
+            // when
+            user.name = "Horst"
+            let changeInfo = UserChangeInfo(object: user)
+            changeInfo.changedKeys = Set(["name"])
+            sut.objectsDidChange(changes: [ZMUser.classIdentifier: [changeInfo]])
+            
+            // then
+            XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
+        }
     }
     
     func testThatItForwardCallsForUserUpdatesToTheSnapshot(){
         // given
         let searchUser = ZMSearchUser(name: "Bernd", handle: "dasBrot", accentColor: .brightOrange, remoteID: UUID(), user: nil, syncManagedObjectContext: syncMOC, uiManagedObjectContext: uiMOC)!
-        sut.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
+        sut.addSearchUser(searchUser)
         
         // expect
         let expectation = self.expectation(description: "notified")
-        _ = NotificationInContext.addObserver(
+        let token = NotificationInContext.addObserver(
             name: .SearchUserChange,
             context: self.uiMOC,
             object: searchUser
@@ -284,11 +293,13 @@ class SearchUserObserverCenterTests : ModelObjectsTests {
             expectation.fulfill()
         }
         
-        // when
-        searchUser.setAndNotifyNewMediumImageData(verySmallJPEGData(), searchUserObserverCenter: sut)
-        
-        // then
-        XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
+        withExtendedLifetime(token) { () -> () in
+            // when
+            searchUser.setAndNotifyNewMediumImageData(verySmallJPEGData(), searchUserObserverCenter: sut)
+            
+            // then
+            XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
+        }
     }
 }
 

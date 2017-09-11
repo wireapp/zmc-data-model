@@ -55,8 +55,8 @@ class SearchUserObserverTests : NotificationDispatcherTestBase {
                                       syncManagedObjectContext: self.syncMOC,
                                       uiManagedObjectContext:self.uiMOC)!
         
-        uiMOC.searchUserObserverCenter.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
-        _ = UserChangeInfo.add(observer: testObserver, forBareUser: searchUser, managedObjectContext: self.uiMOC)
+        uiMOC.searchUserObserverCenter.addSearchUser(searchUser)
+        self.token = UserChangeInfo.add(observer: testObserver, forBareUser: searchUser, managedObjectContext: self.uiMOC)
         
         // when
         searchUser.notifyNewSmallImageData(self.verySmallJPEGData(), searchUserObserverCenter: uiMOC.searchUserObserverCenter)
@@ -82,8 +82,8 @@ class SearchUserObserverTests : NotificationDispatcherTestBase {
                                       syncManagedObjectContext: self.syncMOC,
                                       uiManagedObjectContext:self.uiMOC)!
         
-        uiMOC.searchUserObserverCenter.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
-        _ = UserChangeInfo.add(observer: testObserver, forBareUser:searchUser, managedObjectContext: self.uiMOC)
+        uiMOC.searchUserObserverCenter.addSearchUser(searchUser)
+        self.token = UserChangeInfo.add(observer: testObserver, forBareUser:searchUser, managedObjectContext: self.uiMOC)
         
         // when
         user.smallProfileRemoteIdentifier = UUID.create()
@@ -109,10 +109,11 @@ class SearchUserObserverTests : NotificationDispatcherTestBase {
                                       syncManagedObjectContext: self.syncMOC,
                                       uiManagedObjectContext:self.uiMOC)!
         
-        uiMOC.searchUserObserverCenter.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
-        _ = UserChangeInfo.add(observer: testObserver, forBareUser: searchUser, managedObjectContext: self.uiMOC)
+        uiMOC.searchUserObserverCenter.addSearchUser(searchUser)
+        self.token = UserChangeInfo.add(observer: testObserver, forBareUser: searchUser, managedObjectContext: self.uiMOC)
         
         // when
+        self.token = nil
         searchUser.notifyNewSmallImageData(self.verySmallJPEGData(), searchUserObserverCenter: uiMOC.searchUserObserverCenter)
         
         // then
@@ -132,8 +133,8 @@ class SearchUserObserverTests : NotificationDispatcherTestBase {
                                       uiManagedObjectContext:self.uiMOC)!
         
         XCTAssertFalse(searchUser.isPendingApprovalByOtherUser)
-        uiMOC.searchUserObserverCenter.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
-        _ = UserChangeInfo.add(observer: testObserver, forBareUser: searchUser, managedObjectContext: self.uiMOC)
+        uiMOC.searchUserObserverCenter.addSearchUser(searchUser)
+        self.token = UserChangeInfo.add(observer: testObserver, forBareUser: searchUser, managedObjectContext: self.uiMOC)
 
         // expect
         let callbackCalled = expectation(description: "Connection callback was called")
@@ -167,10 +168,12 @@ class SearchUserObserverTests : NotificationDispatcherTestBase {
                                       uiManagedObjectContext:self.uiMOC)!
         
         let testObserver2 = TestSearchUserObserver()
-        _ = UserChangeInfo.add(observer: testObserver, forBareUser: user, managedObjectContext: self.uiMOC)
+        var tokens: [AnyObject] = []
+        self.token = tokens
+        tokens.append(UserChangeInfo.add(observer: testObserver, forBareUser: user, managedObjectContext: self.uiMOC)!)
         
-        uiMOC.searchUserObserverCenter.addSearchUser(searchUser, managedObjectContext: self.uiMOC)
-        _ = UserChangeInfo.add(observer: testObserver2, forBareUser: searchUser, managedObjectContext: self.uiMOC)
+        uiMOC.searchUserObserverCenter.addSearchUser(searchUser)
+        tokens.append(UserChangeInfo.add(observer: testObserver2, forBareUser: searchUser, managedObjectContext: self.uiMOC)!)
         
         // expect
         let callbackCalled = expectation(description: "Connection callback was called")

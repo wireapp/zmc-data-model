@@ -33,7 +33,7 @@ extension NSManagedObjectContext {
             return observer
         }
         
-        let newObserver = SearchUserObserverCenter()
+        let newObserver = SearchUserObserverCenter(managedObjectContext: self)
         self.userInfo[NSManagedObjectContext.SearchUserObserverCenterKey] = newObserver
         return newObserver
     }
@@ -54,7 +54,7 @@ public class SearchUserSnapshot  {
     public private (set) var snapshotValues : [String : NSObject?]
     
     /// The managed object context used for notifications
-    let managedObjectContext: NSManagedObjectContext
+    weak var managedObjectContext: NSManagedObjectContext?
     
     public init(searchUser: ZMSearchUser, managedObjectContext: NSManagedObjectContext) {
         self.searchUser = searchUser
@@ -84,17 +84,20 @@ public class SearchUserSnapshot  {
             }
         }
         snapshotValues = newSnapshotValues
-        postNotification(changedKeys: changedKeys, managedObjectContext: self.managedObjectContext)
+        postNotification(changedKeys: changedKeys)
     }
     
     /// Post a UserChangeInfo for the specified SearchUser
-    func postNotification(changedKeys: [String], managedObjectContext: NSManagedObjectContext) {
-        guard changedKeys.count > 0, let searchUser = searchUser else { return }
+    func postNotification(changedKeys: [String]) {
+        guard changedKeys.count > 0,
+            let searchUser = searchUser,
+            let moc = self.managedObjectContext
+            else { return }
         
         let userChange = UserChangeInfo(object: searchUser)
         userChange.changedKeys = Set(changedKeys)
         NotificationInContext(name: .SearchUserChange,
-                              context: managedObjectContext,
+                              context: moc,
                               object: searchUser,
                               changeInfo: userChange).post()
     }
@@ -105,13 +108,20 @@ public class SearchUserSnapshot  {
     /// Map of searchUser remoteID to snapshot
     internal var snapshots : [UUID : SearchUserSnapshot] = [:]
     
+    weak var managedObjectContext: NSManagedObjectContext?
+    
+    init(managedObjectContext: NSManagedObjectContext) {
+        self.managedObjectContext = managedObjectContext
+    }
+    
     /// Adds a snapshots for the specified searchUser if not already present
-    public func addSearchUser(_ searchUser: ZMSearchUser, managedObjectContext: NSManagedObjectContext) {
-        guard let remoteID = searchUser.remoteIdentifier else {
+    public func addSearchUser(_ searchUser: ZMSearchUser) {
+        guard let remoteID = searchUser.remoteIdentifier,
+            let moc = self.managedObjectContext else {
             zmLog.warn("SearchUserObserverCenter: SearchUser does not have a remoteIdentifier? \(searchUser)")
             return 
         }
-        snapshots[remoteID] = snapshots[remoteID] ?? SearchUserSnapshot(searchUser: searchUser, managedObjectContext: managedObjectContext)
+        snapshots[remoteID] = snapshots[remoteID] ?? SearchUserSnapshot(searchUser: searchUser, managedObjectContext: moc)
     }
     
     /// Removes all snapshots for searchUsers that are not contained in this set

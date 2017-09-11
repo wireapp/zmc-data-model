@@ -50,6 +50,10 @@ extension ObjectChangeInfo {
     var conversationObserver : ConversationObserver!
     var mergeNotifications = [Notification]()
     
+    /// Holds a reference to the observer token, so that we don't release it during the test
+    var token: Any? = nil
+
+    
     override public func setUp() {
         super.setUp()
         conversationObserver = ConversationObserver()
@@ -60,10 +64,11 @@ extension ObjectChangeInfo {
     
     override public func tearDown() {
         NotificationCenter.default.removeObserver(self)
-        sut.tearDown()
-        sut = nil
-        conversationObserver = nil
-        mergeNotifications = []
+        self.sut.tearDown()
+        self.sut = nil
+        self.conversationObserver = nil
+        self.mergeNotifications = []
+        self.token = nil
         super.tearDown()
     }
     
@@ -123,19 +128,20 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
-        _ = ConversationChangeInfo.add(observer: conversationObserver, for: conversation)
+        withExtendedLifetime(ConversationChangeInfo.add(observer: conversationObserver, for: conversation)) { () -> () in
 
-        // when
-        conversation.userDefinedName = "foo"
-        uiMOC.saveOrRollback()
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        
-        // then
-        XCTAssertEqual(conversationObserver.notifications.count, 1)
-        guard let changeInfo = conversationObserver.notifications.first else {
-            return XCTFail()
+            // when
+            conversation.userDefinedName = "foo"
+            uiMOC.saveOrRollback()
+            XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+            
+            // then
+            XCTAssertEqual(conversationObserver.notifications.count, 1)
+            guard let changeInfo = conversationObserver.notifications.first else {
+                return XCTFail()
+            }
+            XCTAssertTrue(changeInfo.nameChanged)
         }
-        XCTAssertTrue(changeInfo.nameChanged)
     }
     
     func testThatItNotifiesAboutChangesInOtherObjects(){
@@ -149,19 +155,20 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
-        _ = ConversationChangeInfo.add(observer: conversationObserver, for: conversation)
-        
-        // when
-        user.name = "Brett"
-        uiMOC.saveOrRollback()
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        
-        // then
-        XCTAssertEqual(conversationObserver.notifications.count, 1)
-        guard let changeInfo = conversationObserver.notifications.first else {
-            return XCTFail()
+        withExtendedLifetime(ConversationChangeInfo.add(observer: conversationObserver, for: conversation)) { () -> () in
+            // when
+            user.name = "Brett"
+            uiMOC.saveOrRollback()
+            XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+            
+            // then
+            XCTAssertEqual(conversationObserver.notifications.count, 1)
+            guard let changeInfo = conversationObserver.notifications.first else {
+                XCTFail()
+                return
+            }
+            XCTAssertTrue(changeInfo.nameChanged)
         }
-        XCTAssertTrue(changeInfo.nameChanged)
     }
     
     func testThatItCanCalculateChangesWhenObjectIsFaulted(){
@@ -173,21 +180,22 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         XCTAssertTrue(user.isFault)
         XCTAssertEqual(user.displayName, "foo")
         let observer = UserObserver()
-        _ = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
+        withExtendedLifetime(UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)) { () -> () in
         
-        // when
-        syncMOC.performGroupedBlockAndWait {
-            let syncUser = self.syncMOC.object(with: user.objectID) as! ZMUser
-            syncUser.name = "bar"
-            self.syncMOC.saveOrRollback()
-        }
-        mergeLastChanges()
-        
-        // then
-        XCTAssertEqual(user.displayName, "bar")
-        XCTAssertEqual(observer.notifications.count, 1)
-        if let note = observer.notifications.first {
-            XCTAssertTrue(note.nameChanged)
+            // when
+            syncMOC.performGroupedBlockAndWait {
+                let syncUser = self.syncMOC.object(with: user.objectID) as! ZMUser
+                syncUser.name = "bar"
+                self.syncMOC.saveOrRollback()
+            }
+            mergeLastChanges()
+            
+            // then
+            XCTAssertEqual(user.displayName, "bar")
+            XCTAssertEqual(observer.notifications.count, 1)
+            if let note = observer.notifications.first {
+                XCTAssertTrue(note.nameChanged)
+            }
         }
     }
     
@@ -200,21 +208,23 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         uiMOC.refresh(user!, mergeChanges: true)
         XCTAssertTrue(user!.isFault)
         let observer = UserObserver()
-        _ = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
         
-        // when
-        user = nil
-        syncMOC.performGroupedBlockAndWait {
-            let syncUser = self.syncMOC.object(with: objectID) as! ZMUser
-            syncUser.name = "bar"
-            self.syncMOC.saveOrRollback()
-        }
-        mergeLastChanges()
+        withExtendedLifetime(UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)) { () -> () in
         
-        // then
-        XCTAssertEqual(observer.notifications.count, 1)
-        if let note = observer.notifications.first {
-            XCTAssertTrue(note.nameChanged)
+            // when
+            user = nil
+            syncMOC.performGroupedBlockAndWait {
+                let syncUser = self.syncMOC.object(with: objectID) as! ZMUser
+                syncUser.name = "bar"
+                self.syncMOC.saveOrRollback()
+            }
+            mergeLastChanges()
+            
+            // then
+            XCTAssertEqual(observer.notifications.count, 1)
+            if let note = observer.notifications.first {
+                XCTAssertTrue(note.nameChanged)
+            }
         }
     }
     
@@ -225,16 +235,17 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         uiMOC.saveOrRollback()
         
         let observer = UserObserver()
-        _ = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
+        withExtendedLifetime(UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC))  { () -> () in
         
-        // when
-        NotificationDispatcher.notifyNonCoreDataChanges(objectID: user.objectID, changedKeys: ["name"], uiContext: uiMOC)
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        
-        // then
-        XCTAssertEqual(observer.notifications.count, 1)
-        if let note = observer.notifications.first {
-            XCTAssertTrue(note.nameChanged)
+            // when
+            NotificationDispatcher.notifyNonCoreDataChanges(objectID: user.objectID, changedKeys: ["name"], uiContext: uiMOC)
+            XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+            
+            // then
+            XCTAssertEqual(observer.notifications.count, 1)
+            if let note = observer.notifications.first {
+                XCTAssertTrue(note.nameChanged)
+            }
         }
     }
     
@@ -245,21 +256,22 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         uiMOC.saveOrRollback()
         
         let observer = UserObserver()
-        _ = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
+        withExtendedLifetime(UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)) { () -> () in
         
-        // when
-        user.name = "bar"
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        // then
-        XCTAssertEqual(observer.notifications.count, 0)
-        
-        // and when
-        sut.didMergeChanges(Set(arrayLiteral: user.objectID))
-        
-        // then
-        XCTAssertEqual(observer.notifications.count, 1)
-        if let note = observer.notifications.first {
-            XCTAssertTrue(note.nameChanged)
+            // when
+            user.name = "bar"
+            XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+            // then
+            XCTAssertEqual(observer.notifications.count, 0)
+            
+            // and when
+            sut.didMergeChanges(Set(arrayLiteral: user.objectID))
+            
+            // then
+            XCTAssertEqual(observer.notifications.count, 1)
+            if let note = observer.notifications.first {
+                XCTAssertTrue(note.nameChanged)
+            }
         }
     }
     
@@ -270,22 +282,23 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         uiMOC.saveOrRollback()
         
         let observer = UserObserver()
-        _ = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
+        withExtendedLifetime(UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)) { () -> () in
         
-        // when
-        user.name = "bar"
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        // then
-        XCTAssertEqual(observer.notifications.count, 0)
-        
-        // and when
-        uiMOC.saveOrRollback()
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+            // when
+            user.name = "bar"
+            XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+            // then
+            XCTAssertEqual(observer.notifications.count, 0)
+            
+            // and when
+            uiMOC.saveOrRollback()
+            XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
-        // then
-        XCTAssertEqual(observer.notifications.count, 1)
-        if let note = observer.notifications.first {
-            XCTAssertTrue(note.nameChanged)
+            // then
+            XCTAssertEqual(observer.notifications.count, 1)
+            if let note = observer.notifications.first {
+                XCTAssertTrue(note.nameChanged)
+            }
         }
     }
     
@@ -297,16 +310,17 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         uiMOC.saveOrRollback()
         
         let observer = UserObserver()
-        _ = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
+        withExtendedLifetime(UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)) { () -> () in
         
-        // when
-        sut.applicationDidEnterBackground()
-        user.name = "bar"
-        uiMOC.saveOrRollback()
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        
-        // then
-        XCTAssertEqual(observer.notifications.count, 0)
+            // when
+            sut.applicationDidEnterBackground()
+            user.name = "bar"
+            uiMOC.saveOrRollback()
+            XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+            
+            // then
+            XCTAssertEqual(observer.notifications.count, 0)
+        }
     }
     
     func testThatItProcessesChangesAfterAppEnteredBackgroundAndNowEntersForegroundAgain(){
@@ -316,19 +330,20 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         uiMOC.saveOrRollback()
         
         let observer = UserObserver()
-        _ = UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)
+        withExtendedLifetime(UserChangeInfo.add(observer: observer, for: user, managedObjectContext: self.uiMOC)) { () -> () in
 
-        // when
-        sut.applicationDidEnterBackground()
-        sut.applicationWillEnterForeground()
-        user.name = "bar"
-        uiMOC.saveOrRollback()
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        
-        // then
-        XCTAssertEqual(observer.notifications.count, 1)
-        if let note = observer.notifications.first {
-            XCTAssertTrue(note.nameChanged)
+            // when
+            sut.applicationDidEnterBackground()
+            sut.applicationWillEnterForeground()
+            user.name = "bar"
+            uiMOC.saveOrRollback()
+            XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+            
+            // then
+            XCTAssertEqual(observer.notifications.count, 1)
+            if let note = observer.notifications.first {
+                XCTAssertTrue(note.nameChanged)
+            }
         }
     }
     
@@ -408,28 +423,29 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         // given
         let conv = ZMConversation.insertNewObject(in: uiMOC)
         uiMOC.saveOrRollback()
-        _ = ConversationChangeInfo.add(observer: conversationObserver, for: conv)
+        withExtendedLifetime(ConversationChangeInfo.add(observer: conversationObserver, for: conv)) { () -> () in
 
-        syncMOC.performGroupedBlockAndWait {
-            let syncConv = try! self.syncMOC.existingObject(with: conv.objectID) as! ZMConversation
-            syncConv.userDefinedName = "foo"
-            self.syncMOC.saveOrRollback()
-        }
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        self.uiMOC.mergeChanges(fromContextDidSave: mergeNotifications.last!)
-        
-        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        XCTAssertEqual(conversationObserver.notifications.count, 0)
+            syncMOC.performGroupedBlockAndWait {
+                let syncConv = try! self.syncMOC.existingObject(with: conv.objectID) as! ZMConversation
+                syncConv.userDefinedName = "foo"
+                self.syncMOC.saveOrRollback()
+            }
+            XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+            self.uiMOC.mergeChanges(fromContextDidSave: mergeNotifications.last!)
+            
+            XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+            XCTAssertEqual(conversationObserver.notifications.count, 0)
 
-        // when
-        sut.didMergeChanges(Set(arrayLiteral: conv.objectID))
-        
-        // then
-        XCTAssertEqual(conversationObserver.notifications.count, 1)
-        guard let changeInfo = conversationObserver.notifications.first else {
-            return XCTFail()
+            // when
+            sut.didMergeChanges(Set(arrayLiteral: conv.objectID))
+            
+            // then
+            XCTAssertEqual(conversationObserver.notifications.count, 1)
+            guard let changeInfo = conversationObserver.notifications.first else {
+                return XCTFail()
+            }
+            XCTAssertTrue(changeInfo.nameChanged)
         }
-        XCTAssertTrue(changeInfo.nameChanged)
     }
     
 }

@@ -123,7 +123,7 @@ extension MessageWindowObserverTests {
         
         self.uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        self.token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         self.syncMOC.performGroupedBlockAndWait{
             let syncConv = self.syncMOC.object(with: conversation.objectID) as! ZMConversation
@@ -153,7 +153,7 @@ extension MessageWindowObserverTests {
         
         self.uiMOC.saveOrRollback()
         
-        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        self.token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         // when
         message2.transferState = .uploaded
@@ -181,7 +181,7 @@ extension MessageWindowObserverTests {
         
         self.uiMOC.saveOrRollback()
         
-        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        self.token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         // when
         user.name = "Bar"
@@ -210,7 +210,7 @@ extension MessageWindowObserverTests {
         
         self.uiMOC.saveOrRollback()
         
-        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        self.token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         // when
         user.name = "Bar"
@@ -233,7 +233,7 @@ extension MessageWindowObserverTests {
         let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
         self.uiMOC.saveOrRollback()
         
-        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        self.token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         // when
         window.conversation.userDefinedName = "Fooooo"
@@ -250,7 +250,7 @@ extension MessageWindowObserverTests {
         let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
         self.uiMOC.saveOrRollback()
         let observerCenter = uiMOC.messageWindowObserverCenter
-        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        self.token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         // when
         observerCenter.applicationDidEnterBackground()
@@ -281,7 +281,7 @@ extension MessageWindowObserverTests {
         
         self.uiMOC.saveOrRollback()
         
-        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        self.token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         // when
         message3.visibleInConversation = window.conversation
@@ -308,7 +308,7 @@ extension MessageWindowObserverTests {
         let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
         self.uiMOC.saveOrRollback()
         
-        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        self.token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         // when
         window.conversation.mutableMessages.removeObject(at: 1)
@@ -336,7 +336,7 @@ extension MessageWindowObserverTests {
         let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
         self.uiMOC.saveOrRollback()
         
-        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        self.token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         // when
         window.conversation.mutableMessages.removeObject(at: 0)
@@ -373,7 +373,7 @@ extension MessageWindowObserverTests {
         
         let window = conversation.conversationWindow(withSize: 2)
         
-        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        self.token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         // when
         window.moveUp(byMessages: 10)
@@ -401,9 +401,10 @@ extension MessageWindowObserverTests {
         
         self.uiMOC.saveOrRollback()
         
-        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        self.token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         // when
+        self.token = nil
         message3.visibleInConversation = window.conversation
         self.uiMOC.saveOrRollback()
         
@@ -430,7 +431,7 @@ extension MessageWindowObserverTests {
             let window = self.createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC, windowSize: 10)
             self.uiMOC.saveOrRollback()
 
-            _ = MessageWindowChangeInfo.add(observer: self.windowObserver, for: window)
+            self.token = MessageWindowChangeInfo.add(observer: self.windowObserver, for: window)
             
             self.startMeasuring()
             for _ in 1...count {
@@ -438,13 +439,14 @@ extension MessageWindowObserverTests {
                 message.visibleInConversation = window.conversation
                 self.uiMOC.saveOrRollback()
             }
+            self.token = nil
             self.stopMeasuring()
         }
     }
     
     
     func checkThatItNotifiesAboutUserChange(in window: ZMConversationMessageWindow, modifier: ((Void) -> Void), callBack: ((UserChangeInfo) -> Void)){
-        _ = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
+        self.token = MessageWindowChangeInfo.add(observer: windowObserver, for: window)
         
         // when
         modifier()
@@ -464,6 +466,7 @@ extension MessageWindowObserverTests {
         else {
             XCTFail("There is no MessageChangeInfo")
         }
+        self.token = nil
     }
     
     func testThatItNotifiesObserverWhenTheSenderNameChanges() {
@@ -579,9 +582,11 @@ extension MessageWindowObserverTests {
         let window = createConversationWindowWithMessages([message1, message2], uiMoc: self.uiMOC)
         self.uiMOC.saveOrRollback()
         
-        _ = MessageWindowChangeInfo.add(observer: windowObserver1, for: window)
-        _ = MessageWindowChangeInfo.add(observer: windowObserver2, for: window)
-
+        var tokens: [Any] = []
+        tokens.append(MessageWindowChangeInfo.add(observer: windowObserver1, for: window))
+        tokens.append(MessageWindowChangeInfo.add(observer: windowObserver2, for: window))
+        self.token = tokens
+        
         // when
         window.conversation.mutableMessages.removeObject(at: 0)
         window.conversation.mutableMessages.add(message1)

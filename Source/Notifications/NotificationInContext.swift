@@ -97,7 +97,7 @@ import Foundation
     {
         return NotificationCenter.default.addObserver(
             forName: name,
-            object: object,
+            object: context,
             queue: queue)
         { note in
             let notificationInContext = NotificationInContext(notification: note)
