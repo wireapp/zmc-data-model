@@ -1774,13 +1774,22 @@ extension ZMAssetClientMessageTests {
         message.managedObjectContext?.saveOrRollback()
         
         // expect
-        self.expectation(forNotification: ZMAssetClientMessage.ImageDownloadNotificationName, object: message.objectID, handler: nil)
+        let expectation = self.expectation(description: "Notified")
+        let token = NotificationInContext.addObserver(name: ZMAssetClientMessage.imageDownloadNotificationName,
+                                                      context: self.uiMOC,
+                                                      object: message.objectID,
+                                                      queue: nil)
+        { _ in
+            expectation.fulfill()
+        }
         
         // when
         message.requestImageDownload()
 
         // then
-        XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
+        withExtendedLifetime(token) { () -> () in
+            XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
+        }
     }
 }
 

@@ -158,11 +158,9 @@ extension V2Asset: AssetProxyType {
     }
 
     public func requestImageDownload() {
-        guard !assetClientMessage.objectID.isTemporaryID else { return }
-        NotificationCenter.default.post(
-            name: NSNotification.Name(rawValue: ZMAssetClientMessage.ImageDownloadNotificationName),
-            object: assetClientMessage.objectID
-        )
+        guard !assetClientMessage.objectID.isTemporaryID,
+            let moc = self.moc.zm_userInterface else { return }
+        NotificationInContext(name: ZMAssetClientMessage.imageDownloadNotificationName, context: moc, object: assetClientMessage.objectID).post()
     }
 
     public var requiredImageFormats: NSOrderedSet {

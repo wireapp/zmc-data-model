@@ -281,7 +281,7 @@ import Foundation
             self.conversation?.update(with: self, timeStamp: serverTimestamp)
         }
         
-        self.startDestructionIfNeeded()
+        _ = self.startDestructionIfNeeded()
     }
     
     // Private implementation
