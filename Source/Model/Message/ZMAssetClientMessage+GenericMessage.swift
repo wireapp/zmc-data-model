@@ -165,15 +165,14 @@ extension ZMAssetClientMessage {
             self.nonce = UUID(uuidString: message.messageId)
         }
         
-        let eventData =
-            ((updateEvent.payload as NSDictionary).dictionary(forKey: "data") ?? [:]) as NSDictionary
+        let eventData = ((updateEvent.payload["data"]) as? [String: Any]) ?? [:]
         
         if let imageAssetData = message.imageAssetData {
-            if imageAssetData.tag == "medium", let uuid = eventData.string(forKey: "id") {
+            if imageAssetData.tag == "medium", let uuid = eventData["id"] as? String {
                 self.assetId = UUID(uuidString: uuid)
             }
             
-            if let inlinedDataString = eventData.string(forKey: "data"),
+            if let inlinedDataString = eventData["data"] as? String,
                 let inlinedData = Data(base64Encoded: inlinedDataString)
             {
                 _ = self.updateMessage(imageData: inlinedData, for: .preview)
@@ -188,7 +187,7 @@ extension ZMAssetClientMessage {
             if isVersion_3 { // V3, we directly access the protobuf for the assetId
                 self.version = 3
             } else { // V2
-                self.assetId = eventData.string(forKey: "id").flatMap { UUID(uuidString: $0) }
+                self.assetId = (eventData["id"] as? String).flatMap { UUID(uuidString: $0) }
             }
             
             self.transferState = .uploaded
@@ -210,8 +209,8 @@ extension ZMAssetClientMessage {
         if let assetData = message.assetData,
             assetData.preview.hasRemote() && !assetData.hasUploaded() {
             
-            if assetData.preview.remote.hasAssetId() {
-                if let thumbnailId = eventData.string(forKey: "id") {
+            if !assetData.preview.remote.hasAssetId() {
+                if let thumbnailId = eventData["id"] as? String {
                     self.fileMessageData?.thumbnailAssetID = thumbnailId
                 }
             } else {

@@ -937,7 +937,7 @@ extension ZMAssetClientMessageTests {
             let expectation = self.expectation(description: "Notification fired")
             _ = NotificationInContext.addObserver(
                 name: ZMAssetClientMessageDidCancelFileDownloadNotificationName,
-                context: self.syncMOC,
+                context: self.uiMOC,
                 object: sut.objectID) { note in
                     expectation.fulfill()
             }
@@ -1576,7 +1576,7 @@ extension ZMAssetClientMessageTests {
             
             // given
             let message = self.createAssetClientMessageWithSampleImageAndEncryptionKeys(true, storeEncrypted: false, storeProcessed: false)
-            let testData = "foobar".data(using: String.Encoding.utf8, allowLossyConversion: false)
+            let testData = "foobar".data(using: String.Encoding.utf8, allowLossyConversion: false)!
             let testProperties = ZMIImageProperties(size: CGSize(width: 33, height: 55), length: UInt(10), mimeType: "image/tiff")
             
             // when
@@ -1593,8 +1593,8 @@ extension ZMAssetClientMessageTests {
     func testThatItStoresTheRightEncryptionKeysNoMatterInWhichOrderTheDataIsSet() {
         
         // given
-        let dataPreview = "FOOOOOO".data(using: String.Encoding.utf8)
-        let dataMedium = "xxxxxxxxx".data(using: String.Encoding.utf8)
+        let dataPreview = "FOOOOOO".data(using: String.Encoding.utf8)!
+        let dataMedium = "xxxxxxxxx".data(using: String.Encoding.utf8)!
         let message = self.createAssetClientMessageWithSampleImageAndEncryptionKeys(true, storeEncrypted: false, storeProcessed: false)
         message.isEncrypted = true
         let testProperties = ZMIImageProperties(size: CGSize(width: 33, height: 55), length: UInt(10), mimeType: "image/tiff")
@@ -1617,7 +1617,7 @@ extension ZMAssetClientMessageTests {
         
         // given
         let message = self.createAssetClientMessageWithSampleImageAndEncryptionKeys(true, storeEncrypted: false, storeProcessed: false)
-        let testData = "foobar".data(using: String.Encoding.utf8, allowLossyConversion: false)
+        let testData = "foobar".data(using: String.Encoding.utf8, allowLossyConversion: false)!
         let testMediumProperties = ZMIImageProperties(size: CGSize(width: 111, height: 100), length: UInt(1000), mimeType: "image/tiff")
         let testPreviewProperties = ZMIImageProperties(size: CGSize(width: 80, height: 55), length: UInt(10), mimeType: "image/tiff")
         
@@ -1644,7 +1644,7 @@ extension ZMAssetClientMessageTests {
         
         // given
         let message = self.createAssetClientMessageWithSampleImageAndEncryptionKeys(true, storeEncrypted: false, storeProcessed: false)
-        let testData = "foobar".data(using: String.Encoding.utf8, allowLossyConversion: false)
+        let testData = "foobar".data(using: String.Encoding.utf8, allowLossyConversion: false)!
         let testMediumProperties = ZMIImageProperties(size: CGSize(width: 111, height: 100), length: UInt(1000), mimeType: "image/tiff")
         let testPreviewProperties = ZMIImageProperties(size: CGSize(width: 80, height: 55), length: UInt(10), mimeType: "image/tiff")
         
@@ -1976,7 +1976,7 @@ extension ZMAssetClientMessageTests {
         // when
         message.update(withPostPayload: ["time": updatedDate.transportString()] , updatedKeys: updatedKeys)
         // then
-        XCTAssertEqual(message.serverTimestamp, updatedDate)
+        XCTAssertEqual(message.serverTimestamp, referenceDate)
     }
 }
 

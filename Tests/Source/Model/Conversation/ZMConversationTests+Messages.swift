@@ -150,7 +150,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         conversation.remoteIdentifier = UUID()
     
         // when
-        let message = conversation.appendMessageWithImage(at: imageFileURL)! as! ZMImageMessage
+        let message = conversation.appendMessageWithImage(at: imageFileURL)! as! ZMAssetClientMessage
     
         // then
         XCTAssertNotNil(message)
@@ -162,7 +162,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         
         let expectedData = try! (try! Data(contentsOf: imageFileURL)).wr_removingImageMetadata()
         XCTAssertNotNil(expectedData)
-        XCTAssertEqual(message.originalImageData, expectedData)
+        XCTAssertEqual(message.originalImageData(), expectedData)
         XCTAssertEqual(selfUser, message.sender)
     }
     
@@ -174,7 +174,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         conversation.remoteIdentifier = UUID()
     
         // when
-        let message = conversation.appendMessageWithImage(at: imageFileURL)! as! ZMImageMessage
+        let message = conversation.appendMessageWithImage(at: imageFileURL)! as! ZMAssetClientMessage
     
         // then
         XCTAssertNotNil(message)
@@ -186,7 +186,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         
         let expectedData = try! (try! Data(contentsOf: imageFileURL)).wr_removingImageMetadata()
         XCTAssertNotNil(expectedData)
-        XCTAssertEqual(message.originalImageData, expectedData)
+        XCTAssertEqual(message.originalImageData(), expectedData)
     }
 
     func testThatNoMessageIsInsertedWhenTheImageFileURLIsNotAFileURL()
@@ -200,7 +200,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         // when
         var message: Any? = nil
         self.performIgnoringZMLogError {
-            message = conversation.appendMessageWithImage(at: imageURL)!
+            message = conversation.appendMessageWithImage(at: imageURL)
         }
     
         // then
@@ -219,7 +219,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         // when
         var message: Any? = nil
         self.performIgnoringZMLogError {
-            message = conversation.appendMessageWithImage(at: textFileURL)!
+            message = conversation.appendMessageWithImage(at: textFileURL)
         }
     
         // then
@@ -248,7 +248,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         XCTAssertEqual(message.conversation, conversation)
         XCTAssertTrue(conversation.messages.contains(message))
         XCTAssertNotNil(message.nonce)
-        XCTAssertEqual(message.originalImageData().count, imageData.count)
+        XCTAssertEqual(message.originalImageData()!.count, imageData.count)
     }
 
     func testThatItIsSafeToPassInMutableDataWhenCreatingAnImageMessage()
@@ -267,7 +267,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         
         // then
         imageData.append(contentsOf: [1,2])
-        XCTAssertEqual(message.originalImageData().count, originalImageData.count)
+        XCTAssertEqual(message.originalImageData()!.count, originalImageData.count)
     }
     
     func testThatNoMessageIsInsertedWhenTheImageDataIsNotAnImage()
@@ -279,7 +279,10 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         let start = self.uiMOC.insertedObjects
     
         // when
-        let message = conversation.appendMessage(withImageData: textData)
+        var message: ZMConversationMessage? = nil
+        self.performIgnoringZMLogError {
+            message = conversation.appendMessage(withImageData: textData)
+        }
 
         // then
         XCTAssertNil(message)
@@ -312,7 +315,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
             // given
             let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
             conversation.remoteIdentifier = UUID()
-            conversation.lastReadServerTimeStamp = Date()
+            conversation.clearedTimeStamp = Date()
             
             // when
             guard let message = ZMConversation.appendSelfConversation(withClearedOf: conversation) else {

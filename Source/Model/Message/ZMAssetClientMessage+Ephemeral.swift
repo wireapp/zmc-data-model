@@ -55,29 +55,25 @@ extension ZMAssetClientMessage {
             _ = self.createNewGenericMessage(with: obfuscatedMessage.data())
         }
     }
+    
+    public override func startDestructionIfNeeded() -> Bool {
+        let isSelfUser = self.sender?.isSelfUser ?? false
+        
+        if !isSelfUser {
+            if self.imageMessageData != nil && !self.hasDownloadedImage {
+                return false
+            } else if self.fileMessageData != nil {
+                if !(self.genericAssetMessage?.assetData?.hasUploaded() ?? false)
+                    && !(self.genericAssetMessage?.assetData?.hasNotUploaded() ?? false) {
+                    return false
+                }
+            }
+        }
+        // This method is called after receiving the response but before updating the
+        // uploadState, which means a state of fullAsset corresponds to the asset upload being done.
+        if isSelfUser && self.uploadState != .uploadingFullAsset {
+            return false
+        }
+        return super.startDestructionIfNeeded()
+    }
 }
-//
-//- (BOOL)startDestructionIfNeeded
-//{
-//    BOOL isSelfUser = self.sender.isSelfUser;
-//
-//    if (!isSelfUser) {
-//        if (nil != self.imageMessageData && !self.hasDownloadedImage) {
-//            return NO;
-//        } else if (nil != self.fileMessageData) {
-//            if (!self.genericAssetMessage.assetData.hasUploaded &&
-//                !self.genericAssetMessage.assetData.hasNotUploaded)
-//            {
-//                return NO;
-//            }
-//        }
-//    }
-//    // This method is called after receiving the response but before updating the
-//    // uploadState, which means a state of fullAsset corresponds to the asset upload being done.
-//    if (isSelfUser && self.uploadState != ZMAssetUploadStateUploadingFullAsset) {
-//        return NO;
-//    }
-//    return [super startDestructionIfNeeded];
-//}
-//
-//@end

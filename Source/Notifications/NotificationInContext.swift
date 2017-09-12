@@ -57,7 +57,7 @@ import Foundation
     @objc public init(name: Notification.Name,
                 context: Any,
                 object: AnyObject? = nil,
-                userInfo: [String: Any])
+                userInfo: [String: Any] = [:])
     {
         var userInfo = userInfo
         if let object = object {

@@ -163,7 +163,7 @@ extension ZMAssetClientMessage: ZMFileMessageData {
             }
             messageBuilder.merge(from: thumbnailMessage)
             
-            remoteBuilder.setAssetId(self.thumbnailAssetID)
+            remoteBuilder.setAssetId(newValue)
             previewBuilder.setRemote(remoteBuilder.build())
             assetBuilder.setPreview(previewBuilder.build())
             let asset = assetBuilder.build()!

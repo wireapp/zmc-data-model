@@ -42,17 +42,17 @@ extension ZMAssetClientMessage: ImageAssetStorage {
         return encryptedImageData == nil && originalImageData != nil
     }
 
-    public func originalImageData() -> Data! {
+    public func originalImageData() -> Data? {
         return self.managedObjectContext?.zm_imageAssetCache.assetData(self.nonce,
                                                                        format: .original,
-                                                                       encrypted: false) ?? Data()
+                                                                       encrypted: false)
     }
 
     public func isPublic(for format: ZMImageFormat) -> Bool {
         return false
     }
 
-    public func setImageData(_ imageData: Data!, for format: ZMImageFormat, properties: ZMIImageProperties!) {
+    public func setImageData(_ imageData: Data, for format: ZMImageFormat, properties: ZMIImageProperties?) {
         guard let moc = self.managedObjectContext else { return }
         moc.zm_imageAssetCache.storeAssetData(self.nonce, format: format, encrypted: false, data: imageData)
         guard let keys = moc.zm_imageAssetCache.encryptFileAndComputeSHA256Digest(self.nonce, format: format) else { return }
@@ -73,24 +73,24 @@ extension ZMAssetClientMessage: ImageAssetStorage {
     }
     
     private func processAddedImage(with format: ZMImageFormat,
-                                   properties: ZMIImageProperties,
+                                   properties: ZMIImageProperties?,
                                    encryptionKeys: ZMImageAssetEncryptionKeys)
     {
-        self.asset?.processAddedImage(format: format, properties: properties, keys: encryptionKeys)
+        self.asset?.processAddedImage(format: format, properties: properties!, keys: encryptionKeys)
     }
     
     private func processAddedFilePreview(with format: ZMImageFormat,
-                                         properties: ZMIImageProperties,
+                                         properties: ZMIImageProperties?,
                                          encryptionKeys: ZMImageAssetEncryptionKeys,
                                          imageData: Data)
     {
         require(format == .medium, "File message preview should only be in format 'medium'")
         
-        let imageMetadata = ZMAssetImageMetaData.imageMetaData(withWidth: Int32(properties.size.width),
-                                                               height: Int32(properties.size.height))
+        let imageMetadata = ZMAssetImageMetaData.imageMetaData(withWidth: Int32(properties?.size.width ?? 0),
+                                                               height: Int32(properties?.size.height ?? 0))
         let remoteData = ZMAssetRemoteData.remoteData(withOTRKey: encryptionKeys.otrKey, sha256: encryptionKeys.sha256!)
         let preview = ZMAssetPreview.preview(withSize: UInt64(imageData.count),
-                                             mimeType: properties.mimeType,
+                                             mimeType: properties?.mimeType ?? "",
                                              remoteData: remoteData,
                                              imageMetaData: imageMetadata)
         let builder = ZMAsset.builder()!
@@ -103,7 +103,7 @@ extension ZMAssetClientMessage: ImageAssetStorage {
         self.add(filePreviewMessage)
     }
     
-    public func imageData(for format: ZMImageFormat) -> Data! {
+    public func imageData(for format: ZMImageFormat) -> Data? {
         return self.imageData(for: format, encrypted: false)
     }
     
@@ -154,7 +154,7 @@ extension ZMAssetClientMessage: ImageAssetStorage {
         return self.imageMessageData?.originalSize ?? CGSize.zero
     }
     
-    public func requiredImageFormats() -> NSOrderedSet! {
+    public func requiredImageFormats() -> NSOrderedSet {
         return self.asset?.requiredImageFormats ?? NSOrderedSet()
     }
     

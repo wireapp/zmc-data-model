@@ -108,8 +108,9 @@ import Foundation
         get {
             let key = #keyPath(ZMAssetClientMessage.associatedTaskIdentifier_data)
             self.willAccessValue(forKey: key)
-            let value = self.primitiveValue(forKey: key) as? ZMTaskIdentifier
+            let data = self.primitiveValue(forKey: key) as? Data
             self.didAccessValue(forKey: key)
+            let value = data.flatMap { ZMTaskIdentifier(from: $0) }
             return value
         }
         set {

@@ -272,7 +272,7 @@ extension ZMUserTests {
         let noteExpectation = expectation(description: "PreviewAssetFetchNotification should be fired")
         var userObjectId: NSManagedObjectID? = nil
         
-        let note = NotificationCenterObserverToken(name: ZMUser.previewAssetFetchNotification,
+        let token = NotificationCenterObserverToken(name: ZMUser.previewAssetFetchNotification,
                                                    managedObjectContext: self.uiMOC) { note in
             let objectId = note.object as? NSManagedObjectID
             XCTAssertNotNil(objectId)
@@ -286,16 +286,17 @@ extension ZMUserTests {
             user?.requestPreviewAsset()
         }
         
-        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
-        _ = note // Silence warning
+        withExtendedLifetime(token) { () -> () in
+            XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+            XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
+        }
     }
     
     func testThatItPostsCompleteRequestNotifications() {
         let noteExpectation = expectation(description: "CompleteAssetFetchNotification should be fired")
         var userObjectId: NSManagedObjectID? = nil
         
-        let note = NotificationCenterObserverToken(name: ZMUser.completeAssetFetchNotification,
+        let token = NotificationCenterObserverToken(name: ZMUser.completeAssetFetchNotification,
                                                    managedObjectContext: self.uiMOC) { note in
             let objectId = note.object as? NSManagedObjectID
             XCTAssertNotNil(objectId)
@@ -309,9 +310,10 @@ extension ZMUserTests {
             user?.requestCompleteAsset()
         }
         
-        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
-        _ = note // Silence warning
+        withExtendedLifetime(token) { () -> () in
+            XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+            XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
+        }
     }
 }
 
