@@ -188,6 +188,30 @@ extension ZMAssetClientMessageTests_Ephemeral {
         }
     }
     
+    func testThatTheEphemeralMessageHasImageProperties() {
+        
+        self.syncMOC.performGroupedBlockAndWait {
+            // GIVEN
+            self.conversation.messageDestructionTimeout = 10
+            let data = self.verySmallJPEGData()
+            let message = self.conversation.appendMessage(withImageData: data) as! ZMAssetClientMessage
+            
+            self.syncMOC.saveOrRollback()
+            
+            // WHEN
+            let size = CGSize(width: 368, height: 520)
+            let properties = ZMIImageProperties(size: size, length: 1024, mimeType: "image/jpg")
+            message.imageAssetStorage.setImageData(data, for: .medium, properties: properties)
+            self.syncMOC.saveOrRollback()
+            
+            // THEN
+            XCTAssertEqual(message.mimeType, "image/jpg")
+            XCTAssertEqual(message.size, 1024)
+            XCTAssertEqual(message.imageMessageData?.originalSize, size)
+        }
+        
+    }
+    
 }
 
 

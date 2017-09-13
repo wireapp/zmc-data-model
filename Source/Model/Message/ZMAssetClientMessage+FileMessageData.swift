@@ -90,8 +90,7 @@ extension ZMAssetClientMessage: ZMFileMessageData {
     // MIME type of the file being transfered (implied from file extension)
     public var mimeType: String? {
         
-        guard let asset = self.genericAssetMessage?.asset else { return nil }
-        
+        guard let asset = self.genericAssetMessage?.assetData else { return nil }
         if asset.original.hasMimeType() {
             return asset.original.mimeType
         }
