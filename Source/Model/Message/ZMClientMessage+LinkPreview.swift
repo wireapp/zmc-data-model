@@ -23,7 +23,7 @@ extension ZMClientMessage {
     
     public static let linkPreviewImageDownloadNotification = NSNotification.Name(rawValue: "ZMClientMessageLinkPreviewImageDownloadNotificationName")
     
-    var linkPreviewState: ZMLinkPreviewState {
+    public var linkPreviewState: ZMLinkPreviewState {
         set {
             let key = #keyPath(ZMClientMessage.linkPreviewState)
             self.willChangeValue(forKey: key)
@@ -43,7 +43,7 @@ extension ZMClientMessage {
         }
     }
     
-    var linkPreview: LinkPreview? {
+    public var linkPreview: LinkPreview? {
         
         guard let linkPreview = self.self.firstZMLinkPreview else { return nil }
         if linkPreview.hasTweet() {

@@ -64,7 +64,7 @@ import Foundation
     @NSManaged public var transferState: ZMFileTransferState
 
     /// Upload state
-    var uploadState: AssetUploadState {
+    public var uploadState: AssetUploadState {
         get {
             let key = #keyPath(ZMAssetClientMessage.uploadState)
             self.willAccessValue(forKey: key)
@@ -82,29 +82,29 @@ import Foundation
     }
     
     /// Whether the image was downloaded
-    var hasDownloadedImage: Bool {
+    public var hasDownloadedImage: Bool {
         return self.asset?.hasDownloadedImage ?? false
     }
     
     /// Whether the file was downloaded
-    var hasDownloadedFile: Bool {
+    public var hasDownloadedFile: Bool {
         return self.asset?.hasDownloadedFile ?? false
     }
     
     /// The asset endpoint version used to generate this message
     /// values lower than 3 represent an enpoint version of 2
-    @NSManaged var version: Int16
+    @NSManaged public var version: Int16
 
     // The image metaData if if this `ZMAssetClientMessage` represents an image
     // or `nil` otherwise
-    var imageAssetStorage: ImageAssetStorage {
+    public var imageAssetStorage: ImageAssetStorage {
         return self
     }
     
     /// Used to associate and persist the task identifier of the `NSURLSessionTask`
     /// with the upload or download of the file data. Can be used to verify that the
     /// data of a `FileMessage` is being down- or uploaded after a termination event
-    var associatedTaskIdentifier: ZMTaskIdentifier? {
+    public var associatedTaskIdentifier: ZMTaskIdentifier? {
         get {
             let key = #keyPath(ZMAssetClientMessage.associatedTaskIdentifier_data)
             self.willAccessValue(forKey: key)

@@ -80,10 +80,12 @@ import Foundation
     
 }
 
-/// Notification name for canceled file upload
-public let ZMAssetClientMessageDidCancelFileDownloadNotificationName = Notification.Name(rawValue: "ZMAssetClientMessageDidCancelFileDownloadNotification")
 
 extension ZMAssetClientMessage: ZMFileMessageData {
+    
+    /// Notification name for canceled file upload
+    public static let didCancelFileDownloadNotificationName = Notification.Name(rawValue: "ZMAssetClientMessageDidCancelFileDownloadNotification")
+
     
     // MIME type of the file being transfered (implied from file extension)
     public var mimeType: String? {
@@ -271,7 +273,7 @@ extension ZMAssetClientMessage {
             self.obtainPermanentObjectID()
             self.managedObjectContext?.saveOrRollback()
             NotificationInContext(
-                name: ZMAssetClientMessageDidCancelFileDownloadNotificationName,
+                name: ZMAssetClientMessage.didCancelFileDownloadNotificationName,
                 context: self.managedObjectContext!.zm_userInterface,
                 object: self.objectID,
                 userInfo: [:]

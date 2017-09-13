@@ -27,7 +27,7 @@ extension ZMAssetClientMessage {
             .first
     }
     
-    var mediumGenericMessage: ZMGenericMessage? {
+    public var mediumGenericMessage: ZMGenericMessage? {
         return self.genericMessageDataFromDataSet(for: .medium)?.genericMessage
     }
     
@@ -35,7 +35,7 @@ extension ZMAssetClientMessage {
         return Set([#keyPath(ZMOTRMessage.dataSet), #keyPath(ZMOTRMessage.dataSet)+".data"])
     }
     
-    var previewGenericMessage: ZMGenericMessage? {
+    public var previewGenericMessage: ZMGenericMessage? {
         return self.genericMessageDataFromDataSet(for: .preview)?.genericMessage
     }
     
@@ -45,7 +45,7 @@ extension ZMAssetClientMessage {
     
     /// The generic asset message that is constructed by merging
     /// all generic messages from the dataset that contain an asset
-    var genericAssetMessage: ZMGenericMessage? {
+    public var genericAssetMessage: ZMGenericMessage? {
         
         if self.cachedGenericAssetMessage == nil {
             self.cachedGenericAssetMessage = self.genericMessageMergedFromDataSet(filter: {

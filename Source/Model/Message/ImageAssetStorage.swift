@@ -19,7 +19,7 @@
 import Foundation
 
 /// This protocol is used to encapsulate the information and data about an image asset
-protocol ImageAssetStorage: ZMImageOwner {
+public protocol ImageAssetStorage: ZMImageOwner {
     
     /// Metadata of the medium representation of the image
     var previewGenericMessage: ZMGenericMessage? { get }

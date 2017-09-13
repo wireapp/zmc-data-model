@@ -31,7 +31,7 @@ extension ZMAssetClientMessage: ImageAssetStorage {
         }
     }
     
-    func shouldReprocess(for format: ZMImageFormat) -> Bool {
+    public func shouldReprocess(for format: ZMImageFormat) -> Bool {
         guard let moc = self.managedObjectContext else { return false }
         let originalImageData = moc.zm_imageAssetCache.assetData(self.nonce,
                                                                  format: format,
@@ -107,11 +107,11 @@ extension ZMAssetClientMessage: ImageAssetStorage {
         return self.imageData(for: format, encrypted: false)
     }
     
-    func imageData(for format: ZMImageFormat, encrypted: Bool) -> Data? {
+    public func imageData(for format: ZMImageFormat, encrypted: Bool) -> Data? {
         return self.asset?.imageData(for: format, encrypted: encrypted)
     }
 
-    func updateMessage(imageData: Data, for format: ZMImageFormat) -> Self? {
+    public func updateMessage(imageData: Data, for format: ZMImageFormat) -> Self? {
         guard let moc = self.managedObjectContext else { return nil }
         moc.zm_imageAssetCache.storeAssetData(self.nonce,
                                               format: format,

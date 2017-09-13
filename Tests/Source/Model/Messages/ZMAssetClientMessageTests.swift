@@ -935,8 +935,8 @@ extension ZMAssetClientMessageTests {
             XCTAssertTrue(self.syncMOC.saveOrRollback())
 
             let expectation = self.expectation(description: "Notification fired")
-            _ = NotificationInContext.addObserver(
-                name: ZMAssetClientMessageDidCancelFileDownloadNotificationName,
+            let token = NotificationInContext.addObserver(
+                name: ZMAssetClientMessage.didCancelFileDownloadNotificationName,
                 context: self.uiMOC,
                 object: sut.objectID) { note in
                     expectation.fulfill()
@@ -949,9 +949,10 @@ extension ZMAssetClientMessageTests {
             sut.fileMessageData?.cancelTransfer()
             
             // then
-            XCTAssertTrue(self.waitForCustomExpectations(withTimeout: 0.5))
-            XCTAssertEqual(sut.transferState, ZMFileTransferState.uploaded)
-            
+            withExtendedLifetime(token) { () -> () in
+                XCTAssertTrue(self.waitForCustomExpectations(withTimeout: 0.5))
+                XCTAssertEqual(sut.transferState, ZMFileTransferState.uploaded)
+            }
         }
     }
     
