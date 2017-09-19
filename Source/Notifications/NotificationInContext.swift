@@ -152,7 +152,7 @@ public class SelfUnregisteringNotificationCenterToken : NSObject {
         NotificationCenter.default.removeObserver(token)
     }
     
-    init(_ token : Any) {
+    public init(_ token : Any) {
         self.token = token
     }
     
