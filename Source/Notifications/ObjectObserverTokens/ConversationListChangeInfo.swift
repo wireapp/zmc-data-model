@@ -71,7 +71,7 @@ extension ConversationListChangeInfo {
                            managedObjectContext: NSManagedObjectContext
                            ) -> NSObjectProtocol {
         zmLog.debug("Registering observer \(observer) for list \(list.identifier)")
-        return NotificationCenterObserverToken(name: .ZMConversationListDidChange, managedObjectContext: managedObjectContext, object: list)
+        return ManagedObjectObserverToken(name: .ZMConversationListDidChange, managedObjectContext: managedObjectContext, object: list)
         { [weak observer] (note) in
             guard let `observer` = observer, let aList = note.object as? ZMConversationList
                 else { return }

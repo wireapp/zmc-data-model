@@ -79,31 +79,20 @@ import Foundation
     
     /// Register for observer
     @objc public static func addObserver(
-        observer: Any,
-        selector: Selector,
-        name: Notification.Name,
-        context: Any)
-    {
-        NotificationCenter.default.addObserver(observer, selector: selector, name: name, object: context)
-    }
-    
-    /// Register for observer
-    @objc public static func addObserver(
         name: Notification.Name,
         context: Any,
         object: AnyObject? = nil,
         queue: OperationQueue? = nil,
         using: @escaping (NotificationInContext) -> Void) -> Any
     {
-        return NotificationCenter.default.addObserver(
-            forName: name,
-            object: context,
-            queue: queue)
+        return SelfUnregisteringNotificationCenterToken(NotificationCenter.default.addObserver(forName: name,
+                                                                                               object: context,
+                                                                                               queue: queue)
         { note in
             let notificationInContext = NotificationInContext(notification: note)
             guard object == nil || object! === notificationInContext.object else { return }
             using(notificationInContext)
-        }
+        })
     }
 }
 
@@ -153,5 +142,19 @@ extension NotificationInContext {
     public var changedKeys: [String]? {
         return self.userInfo[UserInfoKeys.changedKeys.rawValue] as? [String]
     }
+}
+
+public class SelfUnregisteringNotificationCenterToken : NSObject {
+    
+    private let token : Any
+    
+    deinit {
+        NotificationCenter.default.removeObserver(token)
+    }
+    
+    init(_ token : Any) {
+        self.token = token
+    }
+    
 }
 

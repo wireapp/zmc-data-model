@@ -50,15 +50,11 @@ extension Notification.Name {
 /// To receive notifications, make sure to hold a strong reference to this object
 /// Note: We keep strong reference to the `object` because the notifications would not get delivered
 /// if no one has references to it anymore. This could happen with faulted NSManagedObject.
-public class NotificationCenterObserverToken : NSObject {
+public class ManagedObjectObserverToken : NSObject {
     
     let token : Any
     private let object: AnyObject?  // We keep strong reference to the `object` because the notifications would not get delivered
                                     // if no one has references to it anymore. This could happen with faulted NSManagedObject.
-    
-    deinit {
-        NotificationCenter.default.removeObserver(token)
-    }
     
     public init(name: NSNotification.Name,
                 managedObjectContext: NSManagedObjectContext,
@@ -67,16 +63,13 @@ public class NotificationCenterObserverToken : NSObject {
                 block: @escaping (NotificationInContext) -> Void)
     {
         self.object = object
-        self.token = NotificationInContext.addObserver(name: name,
+        self.token =  NotificationInContext.addObserver(name: name,
                                                        context: managedObjectContext,
                                                        object: object,
                                                        queue: queue,
                                                        using: block)
-        
     }
 }
-
-
 
 struct Changes : Mergeable {
     let changedKeys : Set<String>

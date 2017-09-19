@@ -198,9 +198,9 @@ extension MessageChangeInfo {
     public static func add(observer: ZMMessageObserver,
                            for message: ZMConversationMessage,
                            managedObjectContext: NSManagedObjectContext) -> NSObjectProtocol {
-        return NotificationCenterObserverToken(name: .MessageChange,
-                                               managedObjectContext: managedObjectContext,
-                                               object: message)
+        return ManagedObjectObserverToken(name: .MessageChange,
+                                          managedObjectContext: managedObjectContext,
+                                          object: message)
         { [weak observer] (note) in
             guard let `observer` = observer,
                 let changeInfo = note.changeInfo as? MessageChangeInfo

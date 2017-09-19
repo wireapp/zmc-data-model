@@ -48,7 +48,7 @@ extension NewUnreadMessagesChangeInfo {
     /// You must hold on to the token and use it to unregister
     @objc(addNewMessageObserver:forManagedObjectContext:)
     public static func add(observer: ZMNewUnreadMessagesObserver, managedObjectContext: NSManagedObjectContext) -> NSObjectProtocol {
-        return NotificationCenterObserverToken(name: .NewUnreadMessage, managedObjectContext: managedObjectContext)
+        return ManagedObjectObserverToken(name: .NewUnreadMessage, managedObjectContext: managedObjectContext)
         { [weak observer] (note) in
             guard let `observer` = observer,
                 let changeInfo = note.changeInfo as? NewUnreadMessagesChangeInfo
@@ -89,7 +89,7 @@ extension NewUnreadKnockMessagesChangeInfo {
     /// You must hold on to the token and use it to unregister
     @objc(addNewKnockObserver:forManagedObjectContext:)
     public static func add(observer: ZMNewUnreadKnocksObserver, managedObjectContext: NSManagedObjectContext) -> NSObjectProtocol {
-        return NotificationCenterObserverToken(name: .NewUnreadKnock, managedObjectContext: managedObjectContext)
+        return ManagedObjectObserverToken(name: .NewUnreadKnock, managedObjectContext: managedObjectContext)
         { [weak observer] (note) in
             guard let `observer` = observer,
                 let changeInfo = note.changeInfo as? NewUnreadKnockMessagesChangeInfo
@@ -132,7 +132,7 @@ extension NewUnreadUnsentMessageChangeInfo {
     /// You must hold on to the token and use it to unregister
     @objc(addNewUnreadUnsentMessageObserver:forManagedObjectContext:)
     public static func add(observer: ZMNewUnreadUnsentMessageObserver, managedObjectContext: NSManagedObjectContext) -> NSObjectProtocol {
-        return NotificationCenterObserverToken(name: .NewUnreadUnsentMessage, managedObjectContext: managedObjectContext)
+        return ManagedObjectObserverToken(name: .NewUnreadUnsentMessage, managedObjectContext: managedObjectContext)
         { [weak observer] (note) in
             guard let `observer` = observer,
                 let changeInfo = note.changeInfo as? NewUnreadUnsentMessageChangeInfo

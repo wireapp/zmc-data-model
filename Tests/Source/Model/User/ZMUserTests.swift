@@ -272,8 +272,9 @@ extension ZMUserTests {
         let noteExpectation = expectation(description: "PreviewAssetFetchNotification should be fired")
         var userObjectId: NSManagedObjectID? = nil
         
-        let token = NotificationCenterObserverToken(name: ZMUser.previewAssetFetchNotification,
-                                                   managedObjectContext: self.uiMOC) { note in
+        let token = ManagedObjectObserverToken(name: ZMUser.previewAssetFetchNotification,
+                                               managedObjectContext: self.uiMOC)
+        { note in
             let objectId = note.object as? NSManagedObjectID
             XCTAssertNotNil(objectId)
             XCTAssertEqual(objectId, userObjectId)
@@ -296,8 +297,9 @@ extension ZMUserTests {
         let noteExpectation = expectation(description: "CompleteAssetFetchNotification should be fired")
         var userObjectId: NSManagedObjectID? = nil
         
-        let token = NotificationCenterObserverToken(name: ZMUser.completeAssetFetchNotification,
-                                                   managedObjectContext: self.uiMOC) { note in
+        let token = ManagedObjectObserverToken(name: ZMUser.completeAssetFetchNotification,
+                                               managedObjectContext: self.uiMOC)
+        { note in
             let objectId = note.object as? NSManagedObjectID
             XCTAssertNotNil(objectId)
             XCTAssertEqual(objectId, userObjectId)

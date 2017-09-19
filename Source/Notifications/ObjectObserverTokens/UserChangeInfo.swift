@@ -146,7 +146,7 @@ extension UserChangeInfo {
     /// You must hold on to the token and use it to unregister
     @objc(addUserObserver:forUser:managedObjectContext:)
     static func add(observer: ZMUserObserver, for user: ZMUser?, managedObjectContext: NSManagedObjectContext) -> NSObjectProtocol {
-        return NotificationCenterObserverToken(name: .UserChange, managedObjectContext: managedObjectContext, object: user)
+        return ManagedObjectObserverToken(name: .UserChange, managedObjectContext: managedObjectContext, object: user)
         { [weak observer] (note) in
             guard let `observer` = observer,
                 let changeInfo = note.changeInfo as? UserChangeInfo
@@ -165,7 +165,7 @@ extension UserChangeInfo {
                            managedObjectContext: NSManagedObjectContext
                            ) -> NSObjectProtocol
     {
-        return NotificationCenterObserverToken(name: .SearchUserChange, managedObjectContext: managedObjectContext, object: user)
+        return ManagedObjectObserverToken(name: .SearchUserChange, managedObjectContext: managedObjectContext, object: user)
         { [weak observer] (note) in
             guard let `observer` = observer,
                 let changeInfo = note.changeInfo as? UserChangeInfo
