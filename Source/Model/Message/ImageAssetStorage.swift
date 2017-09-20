@@ -19,6 +19,7 @@
 import Foundation
 
 /// This protocol is used to encapsulate the information and data about an image asset
+@objc
 public protocol ImageAssetStorage: ZMImageOwner {
     
     /// Metadata of the medium representation of the image
@@ -27,7 +28,7 @@ public protocol ImageAssetStorage: ZMImageOwner {
     /// Metadata of the preview representation of the image
     var mediumGenericMessage: ZMGenericMessage? { get }
     
-    func updateMessage(imageData: Data, for: ZMImageFormat) -> Self?
+    func updateMessage(imageData: Data, for: ZMImageFormat) -> AnyObject?
     
     func imageData(for: ZMImageFormat, encrypted: Bool) -> Data?
     
