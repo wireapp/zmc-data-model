@@ -16,6 +16,11 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
+/// - seealso: https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
+fileprivate func pair<I: Integer>(_ a: I, _ b: I) -> I {
+    return ((a + b) * (a + b + 1) / 2) + b
+}
+
 @objc public class ZMMovedIndex: NSObject {
     
     public let from: UInt
@@ -33,6 +38,6 @@
     }
     
     public override var hash: Int {
-        return self.from.hashValue ^ self.to.hashValue
+        return Int(pair(from, to))
     }
 }
