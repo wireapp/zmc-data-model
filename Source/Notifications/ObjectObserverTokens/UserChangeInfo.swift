@@ -145,7 +145,7 @@ extension UserChangeInfo {
     /// Adds an observer for the user if one specified or to all ZMUsers is none is specified
     /// You must hold on to the token and use it to unregister
     @objc(addUserObserver:forUser:managedObjectContext:)
-    static func add(observer: ZMUserObserver, for user: ZMUser?, managedObjectContext: NSManagedObjectContext) -> NSObjectProtocol {
+    public static func add(observer: ZMUserObserver, for user: ZMUser?, managedObjectContext: NSManagedObjectContext) -> NSObjectProtocol {
         return ManagedObjectObserverToken(name: .UserChange, managedObjectContext: managedObjectContext, object: user)
         { [weak observer] (note) in
             guard let `observer` = observer,
