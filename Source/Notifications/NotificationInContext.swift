@@ -77,6 +77,10 @@ import Foundation
         NotificationCenter.default.post(self.notification)
     }
     
+    @objc public func post(on notificationQueue: NotificationQueue) {
+        notificationQueue.enqueue(self.notification, postingStyle: .whenIdle, coalesceMask: [.onName, .onSender], forModes: nil)
+    }
+    
     /// Register for observer
     @objc public static func addObserver(
         name: Notification.Name,
