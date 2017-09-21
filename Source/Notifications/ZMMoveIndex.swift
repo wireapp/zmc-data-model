@@ -16,11 +16,6 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-/// - seealso: https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
-fileprivate func pair<I: Integer>(_ a: I, _ b: I) -> I {
-    return ((a + b) * (a + b + 1) / 2) + b
-}
-
 @objc public class ZMMovedIndex: NSObject {
     
     public let from: UInt
@@ -36,8 +31,9 @@ fileprivate func pair<I: Integer>(_ a: I, _ b: I) -> I {
         guard let other = object as? ZMMovedIndex else { return false }
         return other.from == self.from && other.to == self.to
     }
-    
+
+    /// - seealso: https://en.wikipedia.org/wiki/Pairing_function#Cantor_pairing_function
     public override var hash: Int {
-        return Int(pair(from, to))
+        return Int(((from + to) * (from + to + 1) / 2) + to)
     }
 }
