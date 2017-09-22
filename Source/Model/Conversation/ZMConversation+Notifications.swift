@@ -1,6 +1,6 @@
 //
 // Wire
-// Copyright (C) 2017 Wire Swiss GmbH
+// Copyright (C) 2016 Wire Swiss GmbH
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,15 +19,17 @@
 import Foundation
 
 extension ZMConversation {
-
+    public static let lastReadDidChangeNotificationName = Notification.Name(rawValue: "ZMConversationLastReadDidChangeNotificationName")
+    public static let clearTypingNotificationName = Notification.Name(rawValue: "ZMConversationClearTypingNotificationName")
+    public static let isVerifiedNotificationName = Notification.Name(rawValue: "ZMConversationIsVerifiedNotificationName")
+    
     /// Sends a notification with the given name on the UI context
-    func notifyOnUI(notification: String) {
+    func notifyOnUI(name: Notification.Name) {
         guard let userInterfaceContext = self.managedObjectContext?.zm_userInterface else {
             return
         }
         userInterfaceContext.performGroupedBlock {
-            NotificationCenter.default.post(name: NSNotification.Name(rawValue: notification), object: self)
+            NotificationInContext(name: name, context: userInterfaceContext, object: self).post()
         }
     }
-    
 }
