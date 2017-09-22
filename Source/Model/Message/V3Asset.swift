@@ -156,7 +156,7 @@ extension V3Asset: AssetProxyType {
         } else if assetClientMessage.genericAssetMessage?.assetData?.hasPreview() == true {
             guard !assetClientMessage.objectID.isTemporaryID else { return }
             NotificationInContext(name: ZMAssetClientMessage.imageDownloadNotificationName,
-                                  context: self.moc.zm_userInterface,
+                                  context: self.moc.notificationContext,
                                   object: assetClientMessage.objectID
                                 ).post()
         } else {

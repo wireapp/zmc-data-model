@@ -690,7 +690,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     id <ZMConversationMessage> message = [self appendOTRMessageWithText:text nonce:nonce fetchLinkPreview:fetchPreview];
 
     [[[NotificationInContext alloc] initWithName:ZMConversation.clearTypingNotificationName
-                                        context:self.managedObjectContext.zm_userInterfaceContext
+                                        context:self.managedObjectContext.notificationContext
                                          object:self
                                        userInfo:nil
      ] post];

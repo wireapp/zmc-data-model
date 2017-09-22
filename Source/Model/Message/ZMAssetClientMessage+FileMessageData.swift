@@ -273,7 +273,7 @@ extension ZMAssetClientMessage {
             self.managedObjectContext?.saveOrRollback()
             NotificationInContext(
                 name: ZMAssetClientMessage.didCancelFileDownloadNotificationName,
-                context: self.managedObjectContext!.zm_userInterface,
+                context: self.managedObjectContext!.notificationContext,
                 object: self.objectID,
                 userInfo: [:]
                 ).post()

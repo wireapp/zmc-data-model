@@ -43,8 +43,8 @@ import Foundation
     }
     
     /// The context in which the notification is valid
-    public var context: Any {
-        return notification.object!
+    public var context: NotificationContext {
+        return notification.object! as! NotificationContext
     }
     
     public var userInfo: [AnyHashable: Any] {
@@ -55,7 +55,7 @@ import Foundation
     private let notification: Notification
     
     @objc public init(name: Notification.Name,
-                context: Any,
+                context: NotificationContext,
                 object: AnyObject? = nil,
                 userInfo: [String: Any]? = nil)
     {
@@ -84,7 +84,7 @@ import Foundation
     /// Register for observer
     @objc public static func addObserver(
         name: Notification.Name,
-        context: Any,
+        context: NotificationContext,
         object: AnyObject? = nil,
         queue: OperationQueue? = nil,
         using: @escaping (NotificationInContext) -> Void) -> Any
@@ -108,7 +108,7 @@ extension NotificationInContext {
     }
     
     convenience public init(name: Notification.Name,
-                context: Any,
+                context: NotificationContext,
                 object: AnyObject? = nil,
                 changeInfo: ObjectChangeInfo,
                 userInfo: [String: Any]? = nil)
@@ -124,7 +124,7 @@ extension NotificationInContext {
     }
     
     convenience public init(name: Notification.Name,
-                context: Any,
+                context: NotificationContext,
                 object: AnyObject? = nil,
                 changedKeys: [String],
                 userInfo: [String: Any]? = nil)

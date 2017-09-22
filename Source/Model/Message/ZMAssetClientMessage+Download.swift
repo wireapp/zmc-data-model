@@ -34,6 +34,6 @@ extension ZMImageMessage {
         // objects with temp ID on the UI must just have been inserted so no need to download
         guard !self.objectID.isTemporaryID,
             let moc = self.managedObjectContext?.zm_userInterface else { return }
-        NotificationInContext(name: ZMAssetClientMessage.imageDownloadNotificationName, context: moc, object: self.objectID).post()
+        NotificationInContext(name: ZMAssetClientMessage.imageDownloadNotificationName, context: moc.notificationContext, object: self.objectID).post()
     }
 }

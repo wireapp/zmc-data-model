@@ -270,7 +270,7 @@ class ConversationListSnapshot: NSObject {
         }
         
         let notification = NotificationInContext(name: .ZMConversationListDidChange,
-                                                 context: self.managedObjectContext,
+                                                 context: self.managedObjectContext.notificationContext,
                                                  object: self.conversationList,
                                                  userInfo: userInfo)
             

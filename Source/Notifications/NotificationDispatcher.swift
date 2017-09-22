@@ -64,7 +64,7 @@ public class ManagedObjectObserverToken : NSObject {
     {
         self.object = object
         self.token =  NotificationInContext.addObserver(name: name,
-                                                       context: managedObjectContext,
+                                                       context: managedObjectContext.notificationContext,
                                                        object: object,
                                                        queue: queue,
                                                        using: block)
@@ -178,7 +178,7 @@ public class NotificationDispatcher : NSObject {
             object: self.managedObjectContext)
         self.notificationTokens.append(NotificationInContext.addObserver(
             name: .NonCoreDataChangeInManagedObject,
-            context: self.managedObjectContext)
+            context: self.managedObjectContext.notificationContext)
         { [weak self] note in
             self?.nonCoreDataChange(note)
         })
@@ -435,7 +435,7 @@ public class NotificationDispatcher : NSObject {
             
             let classIdentifier = object.classIdentifier
             NotificationInContext(name: notificationName,
-                                  context: self.managedObjectContext,
+                                  context: self.managedObjectContext.notificationContext,
                                   object: object,
                                   changeInfo: changeInfo)
                 .post()
@@ -458,7 +458,7 @@ public class NotificationDispatcher : NSObject {
                 return
             }
             NotificationInContext(name: notificationName,
-                                  context: self.managedObjectContext,
+                                  context: self.managedObjectContext.notificationContext,
                                   changeInfo: changeInfo)
                 .post()
         }
@@ -479,7 +479,7 @@ extension NotificationDispatcher {
             guard let uiMessage = try? uiContext.existingObject(with: objectID) else { return }
             
             NotificationInContext(name: .NonCoreDataChangeInManagedObject,
-                                  context: uiContext,
+                                  context: uiContext.notificationContext,
                                   object: uiMessage,
                                   changedKeys: changedKeys)
                 .post()

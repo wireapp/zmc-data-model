@@ -283,14 +283,14 @@ extension ZMUser {
     @objc public func requestPreviewAsset() {
         guard let moc = self.managedObjectContext?.zm_userInterface else { return }
         NotificationInContext(name: ZMUser.previewAssetFetchNotification,
-                              context: moc,
+                              context: moc.notificationContext,
                               object: self.objectID).post()
     }
     
     @objc public func requestCompleteAsset() {
         guard let moc = self.managedObjectContext?.zm_userInterface else { return }
         NotificationInContext(name: ZMUser.completeAssetFetchNotification,
-                              context: moc,
+                              context: moc.notificationContext,
                               object: self.objectID).post()
     }
 }

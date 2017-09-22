@@ -97,7 +97,7 @@ public class SearchUserSnapshot  {
         let userChange = UserChangeInfo(object: searchUser)
         userChange.changedKeys = Set(changedKeys)
         NotificationInContext(name: .SearchUserChange,
-                              context: moc,
+                              context: moc.notificationContext,
                               object: searchUser,
                               changeInfo: userChange).post()
     }
