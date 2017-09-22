@@ -25,7 +25,7 @@ extension ZMConnection {
     @objc public func invalidateTopConversationCache() {
         guard let moc = self.managedObjectContext else { return }
         NotificationInContext(name: type(of: self).invalidateTopConversationCacheNotificationName,
-                              context: moc.zm_isUserInterfaceContext).post()
+                              context: moc.zm_userInterface).post()
     }
     
 }
