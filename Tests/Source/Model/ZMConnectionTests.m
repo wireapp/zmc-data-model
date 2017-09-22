@@ -781,7 +781,7 @@
     // expect
     XCTestExpectation *expectation = [self expectationWithDescription:@"Notified"];
     id token = [NotificationInContext addObserverWithName:ZMConnection.invalidateTopConversationCacheNotificationName
-                                       context:self.uiMOC
+                                       context:self.uiMOC.notificationContext
                                         object:nil
                                          queue:nil using:^(NotificationInContext * note __unused) {
                                              [expectation fulfill];

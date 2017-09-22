@@ -56,7 +56,7 @@
             [self setLocallyModifiedKeys:[NSSet setWithObject:ZMConversationLastReadServerTimeStampKey]];
         }
         [[[NotificationInContext alloc] initWithName:ZMConversation.lastReadDidChangeNotificationName
-                                             context:self.managedObjectContext.zm_userInterfaceContext
+                                             context:self.managedObjectContext.notificationContext
                                               object:self
                                             userInfo:nil
           ] post];

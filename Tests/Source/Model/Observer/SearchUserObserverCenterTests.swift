@@ -74,7 +74,7 @@ class SearchUserSnapshotTests : ZMBaseManagedObjectTest {
         let expectation = self.expectation(description: "notified")
         self.token = NotificationInContext.addObserver(
             name: .SearchUserChange,
-            context: self.uiMOC,
+            context: self.uiMOC.notificationContext,
             object: searchUser
         ) { note in
             guard let changeInfo = note.changeInfo as? UserChangeInfo else { return }
@@ -106,7 +106,7 @@ class SearchUserSnapshotTests : ZMBaseManagedObjectTest {
         let expectation = self.expectation(description: "notified")
         self.token = NotificationInContext.addObserver(
             name: .SearchUserChange,
-            context: self.uiMOC,
+            context: self.uiMOC.notificationContext,
             object: searchUser
         ) { note in
             guard let changeInfo = note.changeInfo as? UserChangeInfo else { return }
@@ -141,7 +141,7 @@ class SearchUserSnapshotTests : ZMBaseManagedObjectTest {
         let expectation = self.expectation(description: "notified")
         self.token = NotificationInContext.addObserver(
             name: .SearchUserChange,
-            context: self.uiMOC,
+            context: self.uiMOC.notificationContext,
             object: searchUser
         ) { note in
             guard let changeInfo = note.changeInfo as? UserChangeInfo else { return }
@@ -172,7 +172,7 @@ class SearchUserSnapshotTests : ZMBaseManagedObjectTest {
         let expectation = self.expectation(description: "notified")
         self.token = NotificationInContext.addObserver(
             name: .SearchUserChange,
-            context: self.uiMOC,
+            context: self.uiMOC.notificationContext,
             object: searchUser
         ) { note in
             expectation.fulfill()
@@ -258,7 +258,7 @@ class SearchUserObserverCenterTests : ModelObjectsTests {
         let expectation = self.expectation(description: "notified")
         let token: Any? = NotificationInContext.addObserver(
             name: .SearchUserChange,
-            context: self.uiMOC,
+            context: self.uiMOC.notificationContext,
             object: searchUser
         ) { note in
             expectation.fulfill()
@@ -285,7 +285,7 @@ class SearchUserObserverCenterTests : ModelObjectsTests {
         let expectation = self.expectation(description: "notified")
         let token = NotificationInContext.addObserver(
             name: .SearchUserChange,
-            context: self.uiMOC,
+            context: self.uiMOC.notificationContext,
             object: searchUser
         ) { note in
             guard let changeInfo = note.changeInfo as? UserChangeInfo else { return }

@@ -289,7 +289,7 @@
         // expect
         XCTestExpectation *expectation = [self expectationWithDescription:@"Notified"];
         token = [NotificationInContext addObserverWithName:ZMConversation.isVerifiedNotificationName
-                                                      context:self.uiMOC
+                                                      context:self.uiMOC.notificationContext
                                                        object:nil
                                                         queue:nil
                                                         using:^(NotificationInContext * notification) {

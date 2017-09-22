@@ -18,14 +18,16 @@
 
 import Foundation
 
-extension ZMConnection {
+@objc
+public protocol NotificationContext : NSObjectProtocol { }
+
+extension NSPersistentStoreCoordinator : NotificationContext {}
+
+public extension NSManagedObjectContext {
     
-    public static let invalidateTopConversationCacheNotificationName = Notification.Name("ZMInvalidateTopConversationCacheNotificationName")
-    
-    @objc public func invalidateTopConversationCache() {
-        guard let moc = self.managedObjectContext else { return }
-        NotificationInContext(name: type(of: self).invalidateTopConversationCacheNotificationName,
-                              context: moc.notificationContext).post()
+    @objc
+    var notificationContext : NotificationContext {
+        return persistentStoreCoordinator!
     }
     
 }

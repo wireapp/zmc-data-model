@@ -269,7 +269,7 @@ class MessageWindowSnapshot : NSObject, ZMConversationObserver, ZMMessageObserve
         }
         
         NotificationInContext(name: .MessageWindowDidChange,
-                              context: window.conversation.managedObjectContext!,
+                              context: window.conversation.managedObjectContext!.notificationContext,
                               object: window,
                               userInfo: userInfo)
             .post()        

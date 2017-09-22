@@ -74,7 +74,7 @@ extension ZMClientMessage {
         guard linkPreview.article.image.uploaded.hasAssetId() || linkPreview.image.uploaded.hasAssetId(),
             self.imageData == nil else { return }
         
-        NotificationInContext(name: ZMClientMessage.linkPreviewImageDownloadNotification, context: moc.zm_userInterface, object: self.objectID).post()
+        NotificationInContext(name: ZMClientMessage.linkPreviewImageDownloadNotification, context: moc.notificationContext, object: self.objectID).post()
     }
     
 }

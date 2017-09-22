@@ -34,7 +34,7 @@ public struct GenericMessageScheduleNotification {
             UserInfoKey.conversation.rawValue: conversation
         ]
         NotificationInContext(name: self.name,
-                              context: conversation.managedObjectContext!,
+                              context: conversation.managedObjectContext!.notificationContext,
                               userInfo: userInfo
         ).post()
     }
@@ -43,7 +43,7 @@ public struct GenericMessageScheduleNotification {
                                 using block: @escaping (ZMGenericMessage, ZMConversation)->()) -> Any
     {
         return NotificationInContext.addObserver(name: self.name,
-                                          context: managedObjectContext)
+                                                 context: managedObjectContext.notificationContext)
         { note in
             guard let message = note.userInfo[UserInfoKey.message.rawValue] as? ZMGenericMessage,
                 let conversation = note.userInfo[UserInfoKey.conversation.rawValue] as? ZMConversation

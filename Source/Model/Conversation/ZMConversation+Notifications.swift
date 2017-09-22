@@ -28,8 +28,9 @@ extension ZMConversation {
         guard let userInterfaceContext = self.managedObjectContext?.zm_userInterface else {
             return
         }
+        
         userInterfaceContext.performGroupedBlock {
-            NotificationInContext(name: name, context: userInterfaceContext, object: self).post()
+            NotificationInContext(name: name, context: userInterfaceContext.notificationContext, object: self).post()
         }
     }
 }

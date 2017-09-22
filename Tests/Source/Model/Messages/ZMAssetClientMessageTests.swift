@@ -937,7 +937,7 @@ extension ZMAssetClientMessageTests {
             let expectation = self.expectation(description: "Notification fired")
             let token = NotificationInContext.addObserver(
                 name: ZMAssetClientMessage.didCancelFileDownloadNotificationName,
-                context: self.uiMOC,
+                context: self.uiMOC.notificationContext,
                 object: sut.objectID) { note in
                     expectation.fulfill()
             }
@@ -1777,7 +1777,7 @@ extension ZMAssetClientMessageTests {
         // expect
         let expectation = self.expectation(description: "Notified")
         let token = NotificationInContext.addObserver(name: ZMAssetClientMessage.imageDownloadNotificationName,
-                                                      context: self.uiMOC,
+                                                      context: self.uiMOC.notificationContext,
                                                       object: message.objectID,
                                                       queue: nil)
         { _ in
