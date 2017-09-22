@@ -74,10 +74,8 @@ NSString *const ZMNotificationConversationKey = @"ZMNotificationConversationKey"
 NSString *const ZMConversationEstimatedUnreadCountKey = @"estimatedUnreadCount";
 NSString *const ZMConversationRemoteIdentifierDataKey = @"remoteIdentifier_data";
 
-NSString *const ZMConversationClearTypingNotificationName = @"ZMConversationClearTypingNotification";
 NSString *const ZMConversationIsVerifiedNotificationName = @"ZMConversationIsVerifiedNotificationName";
 NSString *const ZMConversationFailedToDecryptMessageNotificationName = @"ZMConversationFailedToDecryptMessageNotificationName";
-NSString *const ZMConversationLastReadDidChangeNotificationName = @"ZMConversationLastReadDidChangeNotification";
 NSString *const SecurityLevelKey = @"securityLevel";
 
 static NSString *const ConnectedUserKey = @"connectedUser";
@@ -693,7 +691,11 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     NSUUID *nonce = NSUUID.UUID;
     id <ZMConversationMessage> message = [self appendOTRMessageWithText:text nonce:nonce fetchLinkPreview:fetchPreview];
 
-    [[NSNotificationCenter defaultCenter] postNotificationName:ZMConversationClearTypingNotificationName object:self];
+    [[[NotificationInContext alloc] initWithName:ZMConversation.clearTypingNotificationName
+                                        context:self.managedObjectContext.zm_userInterfaceContext
+                                         object:self
+                                       userInfo:nil
+     ] post];
     return message;
 }
 

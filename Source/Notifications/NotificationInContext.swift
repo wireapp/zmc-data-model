@@ -57,9 +57,9 @@ import Foundation
     @objc public init(name: Notification.Name,
                 context: Any,
                 object: AnyObject? = nil,
-                userInfo: [String: Any] = [:])
+                userInfo: [String: Any]? = nil)
     {
-        var userInfo = userInfo
+        var userInfo = userInfo ?? [:]
         if let object = object {
             userInfo[NotificationInContext.objectInNotificationKey] = object
         }
@@ -111,9 +111,9 @@ extension NotificationInContext {
                 context: Any,
                 object: AnyObject? = nil,
                 changeInfo: ObjectChangeInfo,
-                userInfo: [String: Any] = [:])
+                userInfo: [String: Any]? = nil)
     {
-        var userInfo = userInfo
+        var userInfo = userInfo ?? [:]
         userInfo[UserInfoKeys.changeInfo.rawValue] = changeInfo
         
         self.init(
@@ -127,9 +127,9 @@ extension NotificationInContext {
                 context: Any,
                 object: AnyObject? = nil,
                 changedKeys: [String],
-                userInfo: [String: Any] = [:])
+                userInfo: [String: Any]? = nil)
     {
-        var userInfo = userInfo
+        var userInfo = userInfo ?? [:]
         userInfo[UserInfoKeys.changedKeys.rawValue] = changedKeys
         
         self.init(
