@@ -74,8 +74,6 @@ NSString *const ZMNotificationConversationKey = @"ZMNotificationConversationKey"
 NSString *const ZMConversationEstimatedUnreadCountKey = @"estimatedUnreadCount";
 NSString *const ZMConversationRemoteIdentifierDataKey = @"remoteIdentifier_data";
 
-NSString *const ZMConversationIsVerifiedNotificationName = @"ZMConversationIsVerifiedNotificationName";
-NSString *const ZMConversationFailedToDecryptMessageNotificationName = @"ZMConversationFailedToDecryptMessageNotificationName";
 NSString *const SecurityLevelKey = @"securityLevel";
 
 static NSString *const ConnectedUserKey = @"connectedUser";

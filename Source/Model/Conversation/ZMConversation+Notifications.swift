@@ -19,8 +19,17 @@
 import Foundation
 
 extension ZMConversation {
-    
     public static let lastReadDidChangeNotificationName = Notification.Name(rawValue: "ZMConversationLastReadDidChangeNotificationName")
     public static let clearTypingNotificationName = Notification.Name(rawValue: "ZMConversationClearTypingNotificationName")
+    public static let isVerifiedNotificationName = Notification.Name(rawValue: "ZMConversationIsVerifiedNotificationName")
     
+    /// Sends a notification with the given name on the UI context
+    func notifyOnUI(name: Notification.Name) {
+        guard let userInterfaceContext = self.managedObjectContext?.zm_userInterface else {
+            return
+        }
+        userInterfaceContext.performGroupedBlock {
+            NotificationInContext(name: name, context: userInterfaceContext, object: self).post()
+        }
+    }
 }
