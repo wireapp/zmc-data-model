@@ -89,6 +89,16 @@ import Foundation
         queue: OperationQueue? = nil,
         using: @escaping (NotificationInContext) -> Void) -> Any
     {
+        return addUnboundedObserver(name: name, context: context, object: object, queue: queue, using: using)
+    }
+    
+    @objc public static func addUnboundedObserver(
+        name: Notification.Name,
+        context: NotificationContext?,
+        object: AnyObject? = nil,
+        queue: OperationQueue? = nil,
+        using: @escaping (NotificationInContext) -> Void) -> Any
+    {
         return SelfUnregisteringNotificationCenterToken(NotificationCenter.default.addObserver(forName: name,
                                                                                                object: context,
                                                                                                queue: queue)
