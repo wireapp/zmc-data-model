@@ -34,16 +34,16 @@ public final class Account: NSObject {
     public var teamName: String?
     public let userIdentifier: UUID
     public var imageData: Data?
-    public var url: URL
     
     public var unreadConversationCount: Int = 0 {
         didSet {
-            NotificationInContext(name: .AccountUnreadCountDidChangeNotification, context: self).post()
+            if oldValue != self.unreadConversationCount {
+                NotificationInContext(name: .AccountUnreadCountDidChangeNotification, context: self).post()
+            }
         }
     }
 
-    public required init(url: URL,
-                         userName: String,
+    public required init(userName: String,
                          userIdentifier: UUID,
                          teamName: String? = nil,
                          imageData: Data? = nil,
@@ -53,7 +53,6 @@ public final class Account: NSObject {
         self.teamName = teamName
         self.imageData = imageData
         self.unreadConversationCount = unreadConversationCount
-        self.url = url
         super.init()
     }
     
@@ -95,11 +94,10 @@ extension Account {
         case name, identifier, team, image, unreadConversationCount
     }
 
-    public convenience init?(json: [String: Any], url: URL) {
+    public convenience init?(json: [String: Any]) {
         guard let id = (json[Key.identifier.rawValue] as? String).flatMap(UUID.init),
             let name = json[Key.name.rawValue] as? String else { return nil }
         self.init(
-            url: url,
             userName: name,
             userIdentifier: id,
             teamName: json[Key.team.rawValue] as? String,
@@ -129,16 +127,16 @@ extension Account {
 
 extension Account {
 
-    func write() throws {
+    func write(to url: URL) throws {
         let data = try JSONSerialization.data(withJSONObject: jsonRepresentation())
-        try data.write(to: self.url, options: [.atomic])
+        try data.write(to: url, options: [.atomic])
     }
 
     static func load(from url: URL) -> Account? {
         let data = try? Data(contentsOf: url)
         return data.flatMap {
             (try? JSONSerialization.jsonObject(with: $0, options: [])) as? [String: Any]
-            }.flatMap { Account(json: $0, url: url) }
+            }.flatMap(Account.init)
     }
 
 }
