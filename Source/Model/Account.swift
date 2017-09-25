@@ -136,7 +136,7 @@ extension Account {
         let data = try? Data(contentsOf: url)
         return data.flatMap {
             (try? JSONSerialization.jsonObject(with: $0, options: [])) as? [String: Any]
-            }.flatMap(Account.init)
+        }.flatMap(Account.init)
     }
 
 }
