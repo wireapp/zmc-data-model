@@ -34,18 +34,29 @@ public final class Account: NSObject {
     public var teamName: String?
     public let userIdentifier: UUID
     public var imageData: Data?
+    public var url: URL
     
     public var unreadConversationCount: Int = 0 {
         didSet {
             NotificationInContext(name: .AccountUnreadCountDidChangeNotification, context: self).post()
+            if oldValue != self.unreadConversationCount { // if changed, save
+                try! self.write(to: self.url)
+            }
         }
     }
 
-    public required init(userName: String, userIdentifier: UUID, teamName: String? = nil, imageData: Data? = nil) {
+    public required init(url: URL,
+                         userName: String,
+                         userIdentifier: UUID,
+                         teamName: String? = nil,
+                         imageData: Data? = nil,
+                         unreadConversationCount: Int = 0) {
         self.userName = userName
         self.userIdentifier = userIdentifier
         self.teamName = teamName
         self.imageData = imageData
+        self.unreadConversationCount = unreadConversationCount
+        self.url = url
         super.init()
     }
     
@@ -84,17 +95,19 @@ extension Account {
     /// The use of a separate enum, instead of using #keyPath
     /// is intentional here to allow easy renaming of properties.
     private enum Key: String {
-        case name, identifier, team, image
+        case name, identifier, team, image, unreadConversationCount
     }
 
-    public convenience init?(json: [String: Any]) {
+    public convenience init?(json: [String: Any], url: URL) {
         guard let id = (json[Key.identifier.rawValue] as? String).flatMap(UUID.init),
             let name = json[Key.name.rawValue] as? String else { return nil }
         self.init(
+            url: url,
             userName: name,
             userIdentifier: id,
             teamName: json[Key.team.rawValue] as? String,
-            imageData: (json[Key.image.rawValue] as? String).flatMap { Data(base64Encoded: $0) }
+            imageData: (json[Key.image.rawValue] as? String).flatMap { Data(base64Encoded: $0) },
+            unreadConversationCount: (json[Key.unreadConversationCount.rawValue] as? Int) ?? 0
         )
     }
 
@@ -109,6 +122,7 @@ extension Account {
         if let imageData = imageData {
             json[Key.image.rawValue] = imageData.base64EncodedString()
         }
+        json[Key.unreadConversationCount.rawValue] = self.unreadConversationCount
         return json
     }
 
@@ -127,7 +141,7 @@ extension Account {
         let data = try? Data(contentsOf: url)
         return data.flatMap {
             (try? JSONSerialization.jsonObject(with: $0, options: [])) as? [String: Any]
-        }.flatMap(Account.init)
+            }.flatMap { Account(json: $0, url: url) }
     }
 
 }
