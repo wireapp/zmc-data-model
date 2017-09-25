@@ -40,7 +40,7 @@ public final class Account: NSObject {
         didSet {
             NotificationInContext(name: .AccountUnreadCountDidChangeNotification, context: self).post()
             if oldValue != self.unreadConversationCount { // if changed, save
-                try! self.write(to: self.url)
+                try! self.write()
             }
         }
     }
@@ -132,9 +132,9 @@ extension Account {
 
 extension Account {
 
-    func write(to url: URL) throws {
+    func write() throws {
         let data = try JSONSerialization.data(withJSONObject: jsonRepresentation())
-        try data.write(to: url, options: [.atomic])
+        try data.write(to: self.url, options: [.atomic])
     }
 
     static func load(from url: URL) -> Account? {

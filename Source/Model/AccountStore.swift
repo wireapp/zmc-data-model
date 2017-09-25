@@ -67,7 +67,7 @@ public final class AccountStore: NSObject {
     /// - returns: Whether or not the operation was successful.
     @discardableResult func add(_ account: Account) -> Bool {
         do {
-            try account.write(to: url(for: account))
+            try account.write()
             return true
         } catch {
             log.error("Unable to store account \(account), error: \(error)")
