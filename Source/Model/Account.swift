@@ -39,9 +39,6 @@ public final class Account: NSObject {
     public var unreadConversationCount: Int = 0 {
         didSet {
             NotificationInContext(name: .AccountUnreadCountDidChangeNotification, context: self).post()
-            if oldValue != self.unreadConversationCount { // if changed, save
-                try! self.write()
-            }
         }
     }
 
