@@ -19,7 +19,7 @@
 
 import Foundation
 
-extension String {
+public extension String {
     
     static func randomChar() -> UnicodeScalar {
         let string = "abcdefghijklmnopqrstuvxyz"
