@@ -44,6 +44,11 @@ public final class AccountManager: NSObject {
     private(set) public var selectedAccount: Account? // The currently selected account or `nil` in case there is none
 
     private var store: AccountStore
+    
+    /// Returns the sum of unread conversations in all accounts.
+    public var totalUnreadCount: Int {
+        return accounts.reduce(0) { return $0 + $1.unreadConversationCount }
+    }
 
     /// Creates a new `AccountManager`.
     /// - parameter sharedDirectory: The directory of the shared container.
@@ -61,7 +66,7 @@ public final class AccountManager: NSObject {
 
     /// Adds an account to the manager and persists it.
     /// - parameter account: The account to add.
-    @objc(addAccount:) public func add(_ account: Account) {
+    @objc(addOrUpdateAccount:) public func addOrUpdate(_ account: Account) {
         store.add(account)
         updateAccounts()
     }
@@ -69,7 +74,7 @@ public final class AccountManager: NSObject {
     /// Adds an account to the mananger and immediately and selects it.
     /// - parameter account: The account to add and select.
     @objc(addAndSelectAccount:) public func addAndSelect(_ account: Account) {
-        add(account)
+        addOrUpdate(account)
         select(account)
     }
 
@@ -98,8 +103,36 @@ public final class AccountManager: NSObject {
     /// This method should be called each time accounts are added or
     /// removed, or when the selectedAccountIdentifier has been changed.
     private func updateAccounts() {
-        accounts = computeSortedAccounts()
-        selectedAccount = computeSelectedAccount()
+        
+        // since some objects (eg. AccountView) observe changes in the account, we must
+        // make sure their object addresses are maintained after updating, i.e if
+        // exisiting objects need to be updated from the account store, we just update
+        // their properties and not replace the whole object.
+        //
+        var updatedAccounts = [Account]()
+        
+        for account in computeSortedAccounts() {
+            if let existingAccount = self.account(with: account.userIdentifier) {
+                existingAccount.updateWith(account)
+                updatedAccounts.append(existingAccount)
+            } else {
+                updatedAccounts.append(account)
+            }
+        }
+        
+        accounts = updatedAccounts
+        
+        let computedAccount = computeSelectedAccount()
+        if let account = computedAccount, let exisitingAccount = self.account(with: account.userIdentifier) {
+            exisitingAccount.updateWith(account)
+            selectedAccount = exisitingAccount
+        } else {
+            selectedAccount = computedAccount
+        }
+    }
+    
+    public func account(with id: UUID) -> Account? {
+        return accounts.first(where: { return $0.userIdentifier == id })
     }
 
     /// Loads and computes the locally selected account if any

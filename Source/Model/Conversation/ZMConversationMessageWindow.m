@@ -19,7 +19,6 @@
 
 #import "ZMConversation+Internal.h"
 #import "ZMConversationMessageWindow.h"
-#import "ZMNotifications+Internal.h"
 #import "ZMChangedIndexes.h"
 #import "ZMOrderedSetState.h"
 #import "ZMMessage+Internal.h"
@@ -67,7 +66,9 @@
 
 - (void)dealloc
 {
-    [self.conversation.managedObjectContext.messageWindowObserverCenter removeMessageWindow: self];
+    if (self.conversation.managedObjectContext.zm_isValidContext) {
+        [self.conversation.managedObjectContext.messageWindowObserverCenter removeMessageWindow: self];
+    }
 }
 
 

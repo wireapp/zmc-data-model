@@ -19,6 +19,11 @@
 
 import Foundation
 
+extension Account : NotificationContext { }
+
+extension Notification.Name {
+    public static let AccountUnreadCountDidChangeNotification = Notification.Name("AccountUnreadCountDidChangeNotification")
+}
 
 /// An `Account` holds information related to a single account,
 /// such as the accounts users name,
@@ -29,13 +34,37 @@ public final class Account: NSObject {
     public var teamName: String?
     public let userIdentifier: UUID
     public var imageData: Data?
+    
+    public var unreadConversationCount: Int = 0 {
+        didSet {
+            if oldValue != self.unreadConversationCount {
+                NotificationInContext(name: .AccountUnreadCountDidChangeNotification, context: self).post()
+            }
+        }
+    }
 
-    public required init(userName: String, userIdentifier: UUID, teamName: String? = nil, imageData: Data? = nil) {
+    public required init(userName: String,
+                         userIdentifier: UUID,
+                         teamName: String? = nil,
+                         imageData: Data? = nil,
+                         unreadConversationCount: Int = 0) {
         self.userName = userName
         self.userIdentifier = userIdentifier
         self.teamName = teamName
         self.imageData = imageData
+        self.unreadConversationCount = unreadConversationCount
         super.init()
+    }
+    
+    /// Updates the properties of the receiver with the given account. Use this method
+    /// when you wish to update an exisiting account object with newly fetched properties
+    /// from the account store.
+    ///
+    public func updateWith(_ account: Account) {
+        guard self.userIdentifier == account.userIdentifier else { return }
+        self.userName = account.userName
+        self.teamName = account.teamName
+        self.imageData = account.imageData
     }
 
     public override func isEqual(_ object: Any?) -> Bool {
@@ -62,7 +91,7 @@ extension Account {
     /// The use of a separate enum, instead of using #keyPath
     /// is intentional here to allow easy renaming of properties.
     private enum Key: String {
-        case name, identifier, team, image
+        case name, identifier, team, image, unreadConversationCount
     }
 
     public convenience init?(json: [String: Any]) {
@@ -72,7 +101,8 @@ extension Account {
             userName: name,
             userIdentifier: id,
             teamName: json[Key.team.rawValue] as? String,
-            imageData: (json[Key.image.rawValue] as? String).flatMap { Data(base64Encoded: $0) }
+            imageData: (json[Key.image.rawValue] as? String).flatMap { Data(base64Encoded: $0) },
+            unreadConversationCount: (json[Key.unreadConversationCount.rawValue] as? Int) ?? 0
         )
     }
 
@@ -87,6 +117,7 @@ extension Account {
         if let imageData = imageData {
             json[Key.image.rawValue] = imageData.base64EncodedString()
         }
+        json[Key.unreadConversationCount.rawValue] = self.unreadConversationCount
         return json
     }
 
