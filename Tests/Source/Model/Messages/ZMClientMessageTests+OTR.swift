@@ -78,7 +78,7 @@ extension ClientMessageTests_OTR {
         self.syncMOC.performGroupedBlockAndWait {
             
             //given
-            let message = self.syncConversation.appendOTRMessage(withText: self.name, nonce: UUID.create(), fetchLinkPreview: true)
+            let message = self.syncConversation.appendOTRMessage(withText: self.name!, nonce: UUID.create(), fetchLinkPreview: true)
             
             //when
             guard let payloadAndStrategy = message?.encryptedMessagePayloadData() else {
@@ -102,7 +102,7 @@ extension ClientMessageTests_OTR {
             
             //given
             self.syncConversation.messageDestructionTimeout = 10
-            guard let message = self.syncConversation.appendOTRMessage(withText: self.name, nonce: UUID.create(), fetchLinkPreview: true) else { XCTFail(); return }
+            guard let message = self.syncConversation.appendOTRMessage(withText: self.name!, nonce: UUID.create(), fetchLinkPreview: true) else { XCTFail(); return }
             XCTAssertTrue(message.isEphemeral)
             
             //when
@@ -124,7 +124,7 @@ extension ClientMessageTests_OTR {
         self.syncMOC.performGroupedBlockAndWait {
             //given
             self.syncConversation.messageDestructionTimeout = 10
-            syncMessage = self.syncConversation.appendOTRMessage(withText: self.name, nonce: UUID.create(), fetchLinkPreview: true)
+            syncMessage = self.syncConversation.appendOTRMessage(withText: self.name!, nonce: UUID.create(), fetchLinkPreview: true)
             syncMessage.sender = self.syncUser1
             XCTAssertTrue(syncMessage.isEphemeral)
             self.syncMOC.saveOrRollback()
@@ -161,7 +161,7 @@ extension ClientMessageTests_OTR {
         self.syncMOC.performGroupedBlockAndWait {
             //given
             self.syncConversation.messageDestructionTimeout = 10
-            syncMessage = self.syncConversation.appendOTRMessage(withText: self.name, nonce: UUID.create(), fetchLinkPreview: true)
+            syncMessage = self.syncConversation.appendOTRMessage(withText: self.name!, nonce: UUID.create(), fetchLinkPreview: true)
             syncMessage.sender = self.syncUser1
             XCTAssertTrue(syncMessage.isEphemeral)
             self.syncMOC.saveOrRollback()
@@ -248,7 +248,7 @@ extension ClientMessageTests_OTR {
         
         syncMOC.performGroupedBlockAndWait {
             // given
-            let message = self.syncConversation.appendOTRMessage(withText: self.name, nonce: UUID.create(), fetchLinkPreview: true)
+            let message = self.syncConversation.appendOTRMessage(withText: self.name!, nonce: UUID.create(), fetchLinkPreview: true)
             
             //when
             // when
