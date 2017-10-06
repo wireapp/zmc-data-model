@@ -860,36 +860,6 @@ extension ZMAssetClientMessageTests {
             XCTAssertEqual(sut.progress, 0.0)
         }
     }
-
-    // TODO: This logic does not work with the assets v3 implementation at the moment.
-    // If we set the transfer state to downloaded the strategies responsible for uploading the message will no longer
-    // pick it up. The logic in `requestFileDownload` has to be adjusted to take this into account and perform
-    // additional checks whether the file has alreday been succesfully uploaded if the sender was self.
-    func DISABLED_testThatItSetsTheTransferStateToDonwloadedWhen_RequestFileDownload_IsCalledButFileIsAlreadyOnDisk() {
-        self.syncMOC.performAndWait {
-            
-            // given
-            let fileMetadata = self.addFile()
-            
-            let sut = ZMAssetClientMessage.assetClientMessage(
-                with: fileMetadata,
-                nonce: UUID.create(),
-                managedObjectContext: self.syncMOC,
-                expiresAfter: 0
-            )!
-            
-            sut.transferState = .uploaded
-            sut.delivered = true
-            XCTAssertNotNil(sut.fileMessageData)
-            XCTAssertTrue(self.syncMOC.saveOrRollback())
-            
-            // when
-            sut.fileMessageData?.requestFileDownload()
-            
-            // then
-            XCTAssertEqual(sut.transferState, ZMFileTransferState.downloaded)
-        }
-    }
     
     func testThatItItReturnsTheGenericMessageDataAndInculdesTheNotUploadedWhenItIsPresent_Placeholder() {
         self.syncMOC.performAndWait {
