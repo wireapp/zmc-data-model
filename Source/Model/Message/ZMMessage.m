@@ -1023,8 +1023,7 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
              @(ZMUpdateEventConversationMemberJoin) : @(ZMSystemMessageTypeParticipantsAdded),
              @(ZMUpdateEventConversationMemberLeave) : @(ZMSystemMessageTypeParticipantsRemoved),
              @(ZMUpdateEventConversationRename) : @(ZMSystemMessageTypeConversationNameChanged),
-             @(ZMUpdateEventConversationConnectRequest) : @(ZMSystemMessageTypeConnectionRequest),
-             @(ZMUpdateEventConversationVoiceChannelDeactivate) : @(ZMSystemMessageTypeMissedCall)
+             @(ZMUpdateEventConversationConnectRequest) : @(ZMSystemMessageTypeConnectionRequest)
              };
 }
 
