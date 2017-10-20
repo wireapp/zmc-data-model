@@ -2591,6 +2591,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F9C9A67D1CAD7A790039E10C /* ios-test-target.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";
@@ -2618,6 +2619,7 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F9C9A67D1CAD7A790039E10C /* ios-test-target.xcconfig */;
 			buildSettings = {
+				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CLANG_ALLOW_NON_MODULAR_INCLUDES_IN_FRAMEWORK_MODULES = YES;
 				CODE_SIGN_IDENTITY = "";

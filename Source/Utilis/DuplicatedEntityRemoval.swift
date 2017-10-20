@@ -149,13 +149,14 @@ extension ZMConversation {
         // NOTE:
         // connection will be fixed when merging the users
         // creator will be fixed when merging the users
-        // lastServerSyncedActiveParticipants will be fixed when merging the users
-        // otherActiveParticipants will be fixed when merging the users
         let mutableHiddenMessages = self.mutableOrderedSetValue(forKey: ZMConversationHiddenMessagesKey)
         mutableHiddenMessages.union(conversation.hiddenMessages)
         self.mutableMessages.union(conversation.messages)
         self.team = self.team ?? conversation.team // I don't want to delete a team just in case it's needed
         self.connection = ZMManagedObject.firstNonNullAndDeleteSecond(self.connection, conversation.connection)
+        self.mutableLastServerSyncedActiveParticipants?.union(conversation.mutableLastServerSyncedActiveParticipants ?? NSOrderedSet())
+        self.mutableOtherActiveParticipants.removeAllObjects()
+        self.mutableOtherActiveParticipants.union(self.mutableLastServerSyncedActiveParticipants ?? NSOrderedSet())
     }
 }
 

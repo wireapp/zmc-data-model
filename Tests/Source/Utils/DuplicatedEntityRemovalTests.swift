@@ -987,7 +987,8 @@ extension DuplicatedEntityRemovalTests {
         XCTAssertEqual(convoA.otherActiveParticipants.set, Set([userA]))
         XCTAssertEqual(convoA.mutableLastServerSyncedActiveParticipants!.set, Set([userA]))
         XCTAssertEqual(convoB.otherActiveParticipants.set, Set([userA, userB, userC]))
-        XCTAssertEqual(convoC.otherActiveParticipants.set, Set([userA, userB, userC]))
+        XCTAssertEqual(convoC.mutableLastServerSyncedActiveParticipants!.set, Set([userA, userC]))
+        XCTAssertEqual(convoC.otherActiveParticipants.set, Set([userA]))
         
         XCTAssertTrue(convoA.needsToBeUpdatedFromBackend)
         XCTAssertTrue(convoB.needsToBeUpdatedFromBackend)
