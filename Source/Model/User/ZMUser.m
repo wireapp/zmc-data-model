@@ -147,6 +147,10 @@ static NSString *const CreatedTeamsKey = @"createdTeams";
 
 - (BOOL)isSelfUser
 {
+    if ([self isZombieObject]) {
+        return false;
+    }
+    
     return self == [self.class selfUserInContext:self.managedObjectContext];
 }
 
@@ -180,7 +184,6 @@ static NSString *const CreatedTeamsKey = @"createdTeams";
 @dynamic clients;
 @dynamic handle;
 @dynamic addressBookEntry;
-@dynamic membership;
 
 - (UserClient *)selfClient
 {
