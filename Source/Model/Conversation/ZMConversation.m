@@ -437,6 +437,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 - (void)setRemoteIdentifier:(NSUUID *)remoteIdentifier;
 {
     [self setTransientUUID:remoteIdentifier forKey:RemoteIdentifierKey];
+    self.uniqueIdentifier = remoteIdentifier.UUIDString;
 }
 
 - (NSUUID *)teamRemoteIdentifier;
