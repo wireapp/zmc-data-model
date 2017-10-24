@@ -18,7 +18,7 @@
 
 import Foundation
 
-struct DuplicatedEntityRemoval {
+enum DuplicatedEntityRemoval {
     
     static func removeDuplicated(in moc: NSManagedObjectContext) {
         // will skip this during test unless on disk
@@ -26,8 +26,10 @@ struct DuplicatedEntityRemoval {
         self.deleteDuplicatedClients(in: moc)
         moc.saveOrRollback()
         self.deleteDuplicatedUsers(in: moc)
+        ZMUser.addUniqueIdentifiers(in: moc)
         moc.saveOrRollback()
         self.deleteDuplicatedConversations(in: moc)
+        ZMConversation.addUniqueIdentifiers(in: moc)
         moc.saveOrRollback()
     }
     

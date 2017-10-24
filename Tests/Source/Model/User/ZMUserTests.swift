@@ -39,6 +39,8 @@ extension ZMUserTests {
         let uuid = UUID()
         let user = ZMUser.insertNewObject(in: self.uiMOC)
         user.remoteIdentifier = uuid
+        self.uiMOC.saveOrRollback()
+        XCTAssert(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
 
         // WHEN
         let other = ZMUser.insertNewObject(in: self.uiMOC)
