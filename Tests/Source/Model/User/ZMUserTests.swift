@@ -34,6 +34,27 @@ extension ZMUserTests {
         XCTAssertFalse(user.hasLocalModifications(forKey: #keyPath(ZMUser.completeProfileAssetIdentifier)))
     }
 
+    func testThatItKeepsOnlySingleUserWithSameRemoteIdentifier() {
+        // GIVEN
+        let uuid = UUID()
+        let user = ZMUser.insertNewObject(in: self.uiMOC)
+        user.remoteIdentifier = uuid
+
+        // WHEN
+        let other = ZMUser.insertNewObject(in: self.uiMOC)
+        other.remoteIdentifier = uuid
+        self.uiMOC.saveOrRollback()
+        XCTAssert(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+
+        // THEN
+        let fetch = NSFetchRequest<ZMUser>(entityName: ZMUser.entityName())
+        let uuidData = (uuid as NSUUID).data() as NSData
+        fetch.predicate = NSPredicate(format: "%K == %@", ZMUser.remoteIdentifierDataKey()!, uuidData)
+        let found = self.uiMOC.fetchOrAssert(request: fetch)
+
+        XCTAssertEqual(found.count, 1)
+        XCTAssertEqual(found.first?.remoteIdentifier, uuid)
+    }
     
     func testThatSettingUserProfileAssetIdentifiersMarksKeysAsModified() {
         // GIVEN

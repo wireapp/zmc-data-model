@@ -499,14 +499,15 @@ static NSString *const CreatedTeamsKey = @"createdTeams";
     return [self fetchObjectsWithRemoteIdentifiers:UUIDs inManagedObjectContext:moc];
 }
 
-- (NSUUID *)remoteIdentifier;
+- (NSUUID *)remoteIdentifier
 {
     return [self transientUUIDForKey:@"remoteIdentifier"];
 }
 
-- (void)setRemoteIdentifier:(NSUUID *)remoteIdentifier;
+- (void)setRemoteIdentifier:(NSUUID *)remoteIdentifier
 {
     [self setTransientUUID:remoteIdentifier forKey:@"remoteIdentifier"];
+    self.uniqueIdentifier = [remoteIdentifier UUIDString];
 }
 
 + (ZMAccentColor)accentColorFromPayloadValue:(NSNumber *)payloadValue
