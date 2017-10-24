@@ -50,6 +50,26 @@ class UserClientTests: ZMBaseManagedObjectTest {
         return client
     }
 
+    func testThatItStoresOnlyOneClientWithSameRemoteIdentifier() throws {
+        // Given
+        let remoteId = "some"
+
+        // When
+        let firstClient = UserClient.insertNewObject(in: self.uiMOC)
+        firstClient.remoteIdentifier = remoteId
+        let secondClient = UserClient.insertNewObject(in: self.uiMOC)
+        secondClient.remoteIdentifier = remoteId
+        try self.uiMOC.save()
+
+        // Then
+        let request = UserClient.sortedFetchRequest()!
+        request.predicate = NSPredicate(format: "remoteIdentifier = %@", remoteId)
+        let clients = try uiMOC.fetch(request) as? [UserClient]
+
+        XCTAssertEqual(clients?.count, 1)
+        XCTAssertEqual(clients?.first?.remoteIdentifier, remoteId)
+    }
+
     func testThatItCanInitializeClient() {
         let client = UserClient.insertNewObject(in: self.uiMOC)
         XCTAssertEqual(client.type, ZMUserClientTypePermanent, "Client type should be 'permanent'")
@@ -792,3 +812,4 @@ extension UserClientTests {
     }
 }
 
+    

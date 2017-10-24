@@ -262,6 +262,11 @@
         <relationship name="trustedByClients" toMany="YES" deletionRule="Nullify" destinationEntity="UserClient" inverseName="trustedClients" inverseEntity="UserClient" syncable="YES"/>
         <relationship name="trustedClients" toMany="YES" deletionRule="Nullify" destinationEntity="UserClient" inverseName="trustedByClients" inverseEntity="UserClient" syncable="YES"/>
         <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="clients" inverseEntity="User" syncable="YES"/>
+        <uniquenessConstraints>
+            <uniquenessConstraint>
+                <constraint value="remoteIdentifier"/>
+            </uniquenessConstraint>
+        </uniquenessConstraints>
     </entity>
     <elements>
         <element name="AddressBookEntry" positionX="9" positionY="153" width="128" height="90"/>
