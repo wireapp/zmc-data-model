@@ -192,6 +192,9 @@ extension ZMUser {
 
     @NSManaged public var previewProfileAssetIdentifier: String?
     @NSManaged public var completeProfileAssetIdentifier: String?
+
+    /// String identifier used by CoreData to ensure uniqueness because we cannot use custom types such as UUID
+    @NSManaged var uniqueIdentifier: String?
     
     /// Conversation in which the user is active, according to the server
     @NSManaged var lastServerSyncedActiveConversations: NSOrderedSet

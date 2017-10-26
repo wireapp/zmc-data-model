@@ -64,9 +64,15 @@ static NSString * const MessageKeyForDebugging = @"nonce";
 
 - (void)prepareMergeWithConflicts:(NSArray *)list
 {
-    [self prepareMessagesInConversationForMergeWithConflicts:list];
-}
+    NSMutableArray *mergeConflicts = [NSMutableArray array];
+    for (id conflict in list) {
+        if([conflict isKindOfClass: NSMergeConflict.class]) {
+            [mergeConflicts addObject:conflict];
+        }
+    }
 
+    [self prepareMessagesInConversationForMergeWithConflicts:mergeConflicts];
+}
 
 - (void)prepareMessagesInConversationForMergeWithConflicts:(NSArray *)list
 {
