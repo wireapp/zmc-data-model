@@ -1,0 +1,59 @@
+//
+// Wire
+// Copyright (C) 2017 Wire Swiss GmbH
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see http://www.gnu.org/licenses/.
+//
+
+import XCTest
+import WireTesting
+@testable import WireDataModel
+
+class InvalidClientsRemovalTests: DiskDatabaseTest {
+
+    func testThatItDoesNotRemoveValidClients() throws {
+        // Given
+        let user = ZMUser.insertNewObject(in: self.moc)
+        let client = UserClient.insertNewObject(in: self.moc)
+        client.user = user
+        try self.moc.save()
+
+        // When
+        WireDataModel.InvalidClientsRemoval.removeInvalid(in: self.moc)
+
+        // Then
+        XCTAssertFalse(client.isDeleted)
+        XCTAssertFalse(client.isZombieObject)
+    }
+
+    func testThatItDoesRemoveInvalidClient() throws {
+        // Given
+        let user = ZMUser.insertNewObject(in: self.moc)
+        let client = UserClient.insertNewObject(in: self.moc)
+        client.user = user
+        let otherClient = UserClient.insertNewObject(in: self.moc)
+        try self.moc.save()
+
+        // When
+        WireDataModel.InvalidClientsRemoval.removeInvalid(in: self.moc)
+
+        // Then
+        XCTAssertFalse(client.isDeleted)
+        XCTAssertFalse(client.isZombieObject)
+        XCTAssertTrue(otherClient.isDeleted)
+        XCTAssertTrue(otherClient.isZombieObject)
+    }
+
+    
+}
