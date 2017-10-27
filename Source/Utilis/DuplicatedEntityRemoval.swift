@@ -18,7 +18,7 @@
 
 import Foundation
 
-struct DuplicatedEntityRemoval {
+enum DuplicatedEntityRemoval {
     
     static func removeDuplicated(in moc: NSManagedObjectContext) {
         // will skip this during test unless on disk
