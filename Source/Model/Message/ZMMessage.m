@@ -865,20 +865,7 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
     
     ZMConversation *conversation = [self conversationForUpdateEvent:updateEvent inContext:moc prefetchResult:prefetchResult];
     VerifyReturnNil(conversation != nil);
-    
-    if ((conversation.conversationType != ZMConversationTypeGroup) &&
-        ((updateEvent.type == ZMUpdateEventConversationMemberJoin) ||
-         (updateEvent.type == ZMUpdateEventConversationMemberLeave) ||
-         (updateEvent.type == ZMUpdateEventConversationMemberUpdate) ||
-         (updateEvent.type == ZMUpdateEventConversationMessageAdd) ||
-         (updateEvent.type == ZMUpdateEventConversationClientMessageAdd) ||
-         (updateEvent.type == ZMUpdateEventConversationOtrMessageAdd) ||
-         (updateEvent.type == ZMUpdateEventConversationOtrAssetAdd)
-         ))
-    {
-        return nil;
-    }
-    
+        
     NSString *messageText = [[[updateEvent.payload dictionaryForKey:@"data"] optionalStringForKey:@"message"] stringByRemovingExtremeCombiningCharacters];
     NSString *name = [[[updateEvent.payload dictionaryForKey:@"data"] optionalStringForKey:@"name"] stringByRemovingExtremeCombiningCharacters];
     
