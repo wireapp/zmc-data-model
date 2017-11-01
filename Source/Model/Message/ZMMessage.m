@@ -865,7 +865,16 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
     
     ZMConversation *conversation = [self conversationForUpdateEvent:updateEvent inContext:moc prefetchResult:prefetchResult];
     VerifyReturnNil(conversation != nil);
-        
+    
+    // Only create connection request system message if conversation type is valid.
+    // Note: if type is not connection request, then it relates to group conversations (see first line of this method).
+    // We don't explicitly check for group conversation type b/c if this is the first time we were added to the conversation,
+    // then the default conversation type is `invalid` (b/c we haven't fetched from BE yet), so we assume BE sent the
+    // update event for a group conversation.
+    if (type == ZMSystemMessageTypeConnectionRequest && conversation.conversationType != ZMConversationTypeConnection) {
+        return nil;
+    }
+    
     NSString *messageText = [[[updateEvent.payload dictionaryForKey:@"data"] optionalStringForKey:@"message"] stringByRemovingExtremeCombiningCharacters];
     NSString *name = [[[updateEvent.payload dictionaryForKey:@"data"] optionalStringForKey:@"name"] stringByRemovingExtremeCombiningCharacters];
     
