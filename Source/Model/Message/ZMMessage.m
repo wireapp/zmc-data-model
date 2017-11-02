@@ -871,7 +871,7 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
     // We don't explicitly check for group conversation type b/c if this is the first time we were added to the conversation,
     // then the default conversation type is `invalid` (b/c we haven't fetched from BE yet), so we assume BE sent the
     // update event for a group conversation.
-    if (type == ZMSystemMessageTypeConnectionRequest && conversation.conversationType != ZMConversationTypeConnection) {
+    if (conversation.conversationType == ZMConversationTypeConnection && type != ZMSystemMessageTypeConnectionRequest) {
         return nil;
     }
     
