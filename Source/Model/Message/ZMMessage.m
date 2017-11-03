@@ -859,29 +859,27 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
                                       prefetchResult:(ZMFetchRequestBatchResult *)prefetchResult
 {
     ZMSystemMessageType type = [self.class systemMessageTypeFromEventType:updateEvent.type];
-    if(type == ZMSystemMessageTypeInvalid) {
+    if (type == ZMSystemMessageTypeInvalid) {
         return nil;
     }
     
     ZMConversation *conversation = [self conversationForUpdateEvent:updateEvent inContext:moc prefetchResult:prefetchResult];
     VerifyReturnNil(conversation != nil);
     
-    if ((conversation.conversationType != ZMConversationTypeGroup) &&
-        ((updateEvent.type == ZMUpdateEventConversationMemberJoin) ||
-         (updateEvent.type == ZMUpdateEventConversationMemberLeave) ||
-         (updateEvent.type == ZMUpdateEventConversationMemberUpdate) ||
-         (updateEvent.type == ZMUpdateEventConversationMessageAdd) ||
-         (updateEvent.type == ZMUpdateEventConversationClientMessageAdd) ||
-         (updateEvent.type == ZMUpdateEventConversationOtrMessageAdd) ||
-         (updateEvent.type == ZMUpdateEventConversationOtrAssetAdd)
-         ))
-    {
+    // Only create connection request system message if conversation type is valid.
+    // Note: if type is not connection request, then it relates to group conversations (see first line of this method).
+    // We don't explicitly check for group conversation type b/c if this is the first time we were added to the conversation,
+    // then the default conversation type is `invalid` (b/c we haven't fetched from BE yet), so we assume BE sent the
+    // update event for a group conversation.
+    if (conversation.conversationType == ZMConversationTypeConnection && type != ZMSystemMessageTypeConnectionRequest) {
         return nil;
     }
     
+    NSString *messageText = [[[updateEvent.payload dictionaryForKey:@"data"] optionalStringForKey:@"message"] stringByRemovingExtremeCombiningCharacters];
+    NSString *name = [[[updateEvent.payload dictionaryForKey:@"data"] optionalStringForKey:@"name"] stringByRemovingExtremeCombiningCharacters];
+    
     NSMutableSet *usersSet = [NSMutableSet set];
-    for(NSString *userId in [[updateEvent.payload dictionaryForKey:@"data"] optionalArrayForKey:@"user_ids"])
-    {
+    for(NSString *userId in [[updateEvent.payload dictionaryForKey:@"data"] optionalArrayForKey:@"user_ids"]) {
         ZMUser *user = [ZMUser userWithRemoteID:[NSUUID uuidWithTransportString:userId] createIfNeeded:YES inContext:moc];
         [usersSet addObject:user];
     }
@@ -895,17 +893,9 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
     if (![usersSet isEqual:[NSSet setWithObject:message.sender]]) {
         [usersSet removeObject:message.sender];
     }
+    
     message.users = usersSet;
-
-    NSString *messageText = [[updateEvent.payload dictionaryForKey:@"data"] optionalStringForKey:@"message"];
-    NSString *name = [[updateEvent.payload dictionaryForKey:@"data"] optionalStringForKey:@"name"];
-    if (messageText != nil) {
-        message.text = messageText.stringByRemovingExtremeCombiningCharacters;
-    }
-    else if (name != nil) {
-        message.text = name.stringByRemovingExtremeCombiningCharacters;
-    }
-
+    message.text = messageText != nil ? messageText : name;
     message.isEncrypted = NO;
     message.isPlainText = YES;
     
