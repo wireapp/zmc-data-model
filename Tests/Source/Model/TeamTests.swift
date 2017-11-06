@@ -175,10 +175,7 @@ class TeamTests: BaseTeamTests {
             XCTAssertEqual(team.pictureAssetId, assetId)
             XCTAssertEqual(team.pictureAssetKey, assetKey)
 
-            let fetchRequest = NSFetchRequest<ZMUser>(entityName: ZMUser.entityName())
-            let data = (userId as NSUUID).data() as NSData
-            fetchRequest.predicate = NSPredicate(format: "%K = %@", ZMUser.remoteIdentifierDataKey()!, data)
-            let afterMerge = self.syncMOC.fetchOrAssert(request: fetchRequest)
+            let afterMerge = ZMUser.fetchAll(with: userId, in: self.syncMOC)
             XCTAssertEqual(afterMerge.count, 1)
         }
     }

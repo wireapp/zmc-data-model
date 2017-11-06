@@ -25,17 +25,13 @@ class ZMUserFetchAndMergeTests: ModelObjectsTests {
             // Given
             let remoteIdentifier = UUID()
 
-            let fetchRequest = NSFetchRequest<ZMUser>(entityName: ZMUser.entityName())
-            let data = (remoteIdentifier as NSUUID).data() as NSData
-            fetchRequest.predicate = NSPredicate(format: "%K = %@", ZMUser.remoteIdentifierDataKey()!, data)
-
             let user1 = ZMUser.insert(in: self.syncMOC, name: "one")
             user1.remoteIdentifier = remoteIdentifier
             let user2 = ZMUser.insert(in: self.syncMOC, name: "two")
             user2.remoteIdentifier = remoteIdentifier
             self.syncMOC.saveOrRollback()
 
-            let beforeMerge = self.syncMOC.fetchOrAssert(request: fetchRequest)
+            let beforeMerge = ZMUser.fetchAll(with: remoteIdentifier, in: self.syncMOC)
             XCTAssertEqual(beforeMerge.count, 2)
 
             // when
@@ -45,7 +41,7 @@ class ZMUserFetchAndMergeTests: ModelObjectsTests {
             XCTAssertNotNil(user)
             XCTAssertEqual(user?.remoteIdentifier, remoteIdentifier)
 
-            let afterMerge = self.syncMOC.fetchOrAssert(request: fetchRequest)
+            let afterMerge = ZMUser.fetchAll(with: remoteIdentifier, in: self.syncMOC)
             XCTAssertEqual(afterMerge.count, 1)
             XCTAssertEqual(user, afterMerge.first)
         }

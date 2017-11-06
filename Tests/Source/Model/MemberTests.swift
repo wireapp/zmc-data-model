@@ -208,10 +208,7 @@ extension MemberTests {
             XCTAssertEqual(member.user?.remoteIdentifier, userId)
             XCTAssertEqual(member.permissions, .admin)
             XCTAssertEqual(member.team, team)
-            let fetchRequest = NSFetchRequest<ZMUser>(entityName: ZMUser.entityName())
-            let data = (userId as NSUUID).data() as NSData
-            fetchRequest.predicate = NSPredicate(format: "%K = %@", ZMUser.remoteIdentifierDataKey()!, data)
-            let afterMerge = self.syncMOC.fetchOrAssert(request: fetchRequest)
+            let afterMerge = ZMUser.fetchAll(with: userId, in: self.syncMOC)
             XCTAssertEqual(afterMerge.count, 1)
         }
     }
