@@ -508,6 +508,11 @@ extension ZMUserTests {
 // MARK: - Filename
 extension ZMUserTests {
     
+    /// check the generated filename matches several critirias and a regex pattern
+    ///
+    /// - Parameters:
+    ///   - pattern: pattern string for regex
+    ///   - filename: filename to check
     func checkFilenameIsValid(pattern: String, filename: String) {
         XCTAssertEqual(filename.count, 214)
         XCTAssertTrue(filename.hasPrefix("Some"))
