@@ -513,17 +513,13 @@ extension ZMUserTests {
         XCTAssertTrue(filename.hasPrefix("Some"))
         XCTAssertTrue(filename.contains("body"))
 
-        do {
-            let regexp = try NSRegularExpression(pattern: pattern, options: [])
-            let matches = regexp.matches(in: filename as String, options: [], range: NSMakeRange(0, filename.count))
-            
-            XCTAssertTrue(matches.count > 0)
-        } catch {
-            XCTFail("failed to create a NSRegularExpression")
-        }
+        let regexp = try! NSRegularExpression(pattern: pattern, options: [])
+        let matches = regexp.matches(in: filename as String, options: [], range: NSMakeRange(0, filename.count))
+        
+        XCTAssertTrue(matches.count > 0)
     }
     
-    func testFilenameForUser() {
+    func testFilenameForUser() throws {
         // Given
         let user = ZMUser.insert(in: self.uiMOC, name: "Some body with a very long name and a emoji 🇭🇰 and some Chinese 中文 and some German Fußgängerübergänge")
         
@@ -536,7 +532,7 @@ extension ZMUserTests {
         checkFilenameIsValid(pattern: pattern, filename: filename)
     }
 
-    func testFilenameWithSuffixForUser() {
+    func testFilenameWithSuffixForUser() throws {
         // Given
         let user = ZMUser.insert(in: self.uiMOC, name: "Some body with a very long name and a emoji 🇭🇰 and some Chinese 中文 and some German Fußgängerübergänge")
         
