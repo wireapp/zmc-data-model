@@ -96,10 +96,9 @@ extension UserClient {
 
 extension ZMUser {
 
-    static func merge(_ users: [ZMUser], in context: NSManagedObjectContext) {
-        // Group users having the same remote identifiers
+    @discardableResult static func merge(_ users: [ZMUser], in context: NSManagedObjectContext) -> ZMUser? {
         guard let firstUser = users.first, users.count > 1 else {
-            return
+            return users.first
         }
 
         let tail = users.dropFirst()
@@ -111,6 +110,7 @@ extension ZMUser {
         }
         firstUser.needsToBeUpdatedFromBackend = true
         firstUser.activeConversations.forEach { ($0 as? ZMConversation)?.needsToBeUpdatedFromBackend = true }
+        return firstUser
     }
 
     // Migration method for merging two duplicated @c ZMUser entities
