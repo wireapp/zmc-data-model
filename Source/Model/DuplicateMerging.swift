@@ -21,13 +21,13 @@ import Foundation
 protocol DuplicateMerging {
     associatedtype T: ZMManagedObject
     static func remoteIdentifierDataKey() -> String?
-    static func merge(_ items: [T], in context: NSManagedObjectContext) -> T?
+    static func merge(_ items: [T]) -> T?
 }
 
 extension DuplicateMerging {
     static func fetchAndMergeDuplicates(with remoteIdentifier: UUID, in moc: NSManagedObjectContext) -> T? {
         let result = fetchAll(with: remoteIdentifier, in: moc)
-        let merged = merge(result, in: moc)
+        let merged = merge(result)
         return merged
     }
 

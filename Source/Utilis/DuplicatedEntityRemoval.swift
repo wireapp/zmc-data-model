@@ -36,7 +36,7 @@ enum DuplicatedEntityRemoval {
         context.findDuplicated(by: #keyPath(UserClient.remoteIdentifier)).forEach { (remoteId: String?, clients: [UserClient]) in
             // Group clients having the same remote identifiers by user
             clients.filter { !($0.user?.isSelfUser ?? true) }.group(by: ZMUserClientUserKey).forEach { (user: ZMUser, clients: [UserClient]) in
-                UserClient.merge(clients, in: context)
+                UserClient.merge(clients)
             }
         }
     }
@@ -44,14 +44,14 @@ enum DuplicatedEntityRemoval {
     static func deleteDuplicatedUsers(in context: NSManagedObjectContext) {
         // Fetch users having the same remote identifiers
         context.findDuplicated(by: "remoteIdentifier_data").forEach { (remoteId: Data, users: [ZMUser]) in
-            ZMUser.merge(users, in: context)
+            ZMUser.merge(users)
         }
     }
     
     static func deleteDuplicatedConversations(in context: NSManagedObjectContext) {
         // Fetch conversations having the same remote identifiers
         context.findDuplicated(by: "remoteIdentifier_data").forEach { (remoteId: Data, conversations: [ZMConversation]) in
-            ZMConversation.merge(conversations, in: context)
+            ZMConversation.merge(conversations)
         }
     }
     
@@ -59,8 +59,8 @@ enum DuplicatedEntityRemoval {
 
 extension UserClient {
 
-    static func merge(_ clients: [UserClient], in context: NSManagedObjectContext) {
-        guard let firstClient = clients.first, clients.count > 1 else {
+    static func merge(_ clients: [UserClient]) {
+        guard let firstClient = clients.first, let context = firstClient.managedObjectContext, clients.count > 1 else {
             return
         }
         let tail = clients.dropFirst()
@@ -96,8 +96,8 @@ extension UserClient {
 
 extension ZMUser {
 
-    @discardableResult static func merge(_ users: [ZMUser], in context: NSManagedObjectContext) -> ZMUser? {
-        guard let firstUser = users.first, users.count > 1 else {
+    @discardableResult static func merge(_ users: [ZMUser]) -> ZMUser? {
+        guard let firstUser = users.first, let context = firstUser.managedObjectContext, users.count > 1 else {
             return users.first
         }
 
@@ -138,9 +138,9 @@ extension ZMUser {
 }
 
 extension ZMConversation {
-    static func merge(_ conversations: [ZMConversation], in context: NSManagedObjectContext) {
+    static func merge(_ conversations: [ZMConversation]) {
         // Group conversations having the same remote identifiers
-        guard let firstConversation = conversations.first, conversations.count > 1 else {
+        guard let firstConversation = conversations.first, let context = firstConversation.managedObjectContext, conversations.count > 1 else {
             return
         }
 
