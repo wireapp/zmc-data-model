@@ -34,11 +34,8 @@
         NSUUID *uuid = NSUUID.createUUID;
         conversation.remoteIdentifier = uuid;
         
-        
         NSUUID *user1UUID = [NSUUID createUUID];
         NSUUID *user2UUID = [NSUUID createUUID];
-        NSUUID *user3UUID = [NSUUID createUUID];
-        
         
         ZMUser *user4 = [self createUserOnMoc:self.syncMOC];
         ZMUser *user5 = [self createUserOnMoc:self.syncMOC];
@@ -67,11 +64,7 @@
                                                       },
                                                   @{
                                                       @"id": [user2UUID transportString]
-                                                      },
-                                                  @{
-                                                      @"id": [user3UUID transportString]
-                                                      },
-                                                  
+                                                      }
                                                   ]
                                           },
                                   @"type" : @0,
@@ -83,7 +76,7 @@
         
         // then
         XCTAssertEqualObjects(conversation.unsyncedActiveParticipants, ([NSMutableOrderedSet orderedSetWithObjects:user4, user5, nil]));
-        XCTAssertEqualObjects(conversation.unsyncedInactiveParticipants, ([NSMutableOrderedSet orderedSetWithObjects:user6, nil]));
+        XCTAssertEqualObjects(conversation.unsyncedInactiveParticipants, [NSMutableOrderedSet orderedSet]);
     }];
 }
 
@@ -170,7 +163,7 @@
 }
 
 
-- (void)testThatWhenAParticipantHasBeenAddedOnTheClientAndTheServerWeDoSyncItAnymore
+- (void)testThatWhenAParticipantHasBeenAddedOnTheClientAndTheServerWeDoNotSyncItAnymore
 {
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
@@ -181,11 +174,9 @@
     
     NSUUID *user1UUID = [NSUUID createUUID];
     NSUUID *user2UUID = [NSUUID createUUID];
-    NSUUID *user3UUID = [NSUUID createUUID];
-    
     
     ZMUser *user4 = [self createUser];
-    ZMUser *user5 = [self createUser];
+    ZMUser *user5 = [self createUser]; // will also added by the server
     ZMUser *user6 = [self createUser];
     
     [conversation addParticipant:user4];
@@ -211,9 +202,6 @@
                                                   },
                                               @{
                                                   @"id": [user2UUID transportString]
-                                                  },
-                                              @{
-                                                  @"id": [user3UUID transportString]
                                                   },
                                               @{
                                                   @"id": [user5.remoteIdentifier transportString]
@@ -237,7 +225,7 @@
     
     // then
     XCTAssertEqualObjects(conversation.unsyncedActiveParticipants, ([NSMutableOrderedSet orderedSetWithObjects:user4, nil]));
-    XCTAssertEqualObjects(conversation.unsyncedInactiveParticipants, ([NSMutableOrderedSet orderedSetWithObjects:user6, nil]));
+    XCTAssertEqualObjects(conversation.unsyncedInactiveParticipants, [NSMutableOrderedSet orderedSet]);
 }
 
 
@@ -253,7 +241,6 @@
     
     NSUUID *user1UUID = [NSUUID createUUID];
     NSUUID *user2UUID = [NSUUID createUUID];
-    NSUUID *user3UUID = [NSUUID createUUID];
     
     
     ZMUser *user4 = [self createUser];
@@ -265,7 +252,7 @@
     [conversation addParticipant:user6];
     
     [conversation synchronizeAddedUser:user6];
-    [conversation removeParticipant:user6];
+    [conversation removeParticipant:user6]; // // will also removed by the server
     
     XCTAssertEqualObjects(conversation.unsyncedActiveParticipants, ([NSMutableOrderedSet orderedSetWithObjects:user4, user5, nil]));
     XCTAssertEqualObjects(conversation.unsyncedInactiveParticipants, ([NSMutableOrderedSet orderedSetWithObjects:user6, nil]));
@@ -283,14 +270,7 @@
                                                   },
                                               @{
                                                   @"id": [user2UUID transportString]
-                                                  },
-                                              @{
-                                                  @"id": [user3UUID transportString]
-                                                  },
-                                              @{
-                                                  @"id": [user6.remoteIdentifier transportString]
-                                                  },
-                                              
+                                                  }
                                               ]
                                       },
                               @"type" : @0,
@@ -309,7 +289,7 @@
     
     // then
     XCTAssertEqualObjects(conversation.unsyncedActiveParticipants, ([NSMutableOrderedSet orderedSetWithObjects:user4, user5, nil]));
-    XCTAssertEqualObjects(conversation.unsyncedInactiveParticipants, ([NSMutableOrderedSet orderedSet]));
+    XCTAssertEqualObjects(conversation.unsyncedInactiveParticipants, [NSMutableOrderedSet orderedSet]);
 }
 
 - (void)testThatWhenMovingAParticipantFromInactiveToActiveWeDoNotRemoveItAgain
