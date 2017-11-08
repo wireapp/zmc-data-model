@@ -134,8 +134,7 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
     }
     
     for (ZMUser *user in removedUsers) {
-        [self.mutableOtherActiveParticipants removeObject:user];
-        [self.mutableLastServerSyncedActiveParticipants removeObject:user];
+        [self internalRemoveParticipants:[NSSet setWithObject:user] sender:[ZMUser selfUserInContext:self.managedObjectContext] isAuthoritative:YES];
     }
 }
 

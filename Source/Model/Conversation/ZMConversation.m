@@ -1549,6 +1549,11 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (void)internalRemoveParticipants:(NSSet<ZMUser *> *)participants sender:(ZMUser *)sender
 {
+    [self internalRemoveParticipants:participants sender:sender isAuthoritative:NO];
+}
+
+- (void)internalRemoveParticipants:(NSSet<ZMUser *> *)participants sender:(ZMUser *)sender isAuthoritative:(BOOL)isAuthoritative
+{
     VerifyReturn(participants != nil);
     
     [participants enumerateObjectsUsingBlock:^(ZMUser * _Nonnull participant, BOOL * _Nonnull stop __unused) {
@@ -1565,8 +1570,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         self.isArchived = sender.isSelfUser;
     }
     
-    if (! [self.otherActiveParticipants intersectsSet:otherUsers]) {
-        return;
+    if (isAuthoritative) {
+        [self.mutableLastServerSyncedActiveParticipants removeObjectsInArray:otherUsers.allObjects];
     }
     
     [self.mutableOtherActiveParticipants removeObjectsInArray:otherUsers.allObjects];
