@@ -129,8 +129,8 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
     NSMutableOrderedSet<ZMUser *> *removedUsers = [lastSyncedUsers mutableCopy];
     [removedUsers minusOrderedSet:users];
     
-    [self internalAddParticipants:addedUsers isAuthoritative:YES];
-    [self internalRemoveParticipants:removedUsers sender:[ZMUser selfUserInContext:self.managedObjectContext] isAuthoritative:YES];
+    [self internalAddParticipants:addedUsers.set isAuthoritative:YES];
+    [self internalRemoveParticipants:removedUsers.set sender:[ZMUser selfUserInContext:self.managedObjectContext] isAuthoritative:YES];
 }
 
 - (void)updateTeamWithIdentifier:(NSUUID *)teamId
