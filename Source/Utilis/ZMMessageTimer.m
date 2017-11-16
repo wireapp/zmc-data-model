@@ -83,7 +83,7 @@ ZM_EMPTY_ASSERTING_INIT()
 
 - (BOOL)isTimerRunningForMessage:(ZMMessage *)message
 {
-    return [self.objectToTimerMap objectForKey:message] != nil;
+    return [self timerForMessage:message] != nil;
 }
 
 - (void)timerDidFire:(ZMTimer *)timer
@@ -112,7 +112,7 @@ ZM_EMPTY_ASSERTING_INIT()
 
 - (void)stopTimerForMessage:(ZMMessage *)message;
 {
-    ZMTimer *timer = [self.objectToTimerMap objectForKey:message];
+    ZMTimer *timer = [self timerForMessage:message];
     if(timer == nil) {
         return;
     }
@@ -123,11 +123,21 @@ ZM_EMPTY_ASSERTING_INIT()
 
 
 - (void)removeTimerForMessage:(ZMMessage *)message {
-    ZMTimer *timer = [self.objectToTimerMap objectForKey:message];
+    ZMTimer *timer = [self timerForMessage:message];
     [self endBackgroundActivityForTimer:timer];
     [self.objectToTimerMap removeObjectForKey:message];
 }
 
+- (ZMTimer *)timerForMessage:(ZMMessage *)message
+{
+    return [self.objectToTimerMap objectForKey:message];
+}
+
+- (void)endBackgroundActivityForTimer:(ZMTimer *)timer
+{
+    ZMBackgroundActivity *bgActivity = timer.userInfo[@"bgActivity"];
+    [bgActivity endActivity];
+}
 
 - (void)tearDown;
 {
@@ -137,12 +147,6 @@ ZM_EMPTY_ASSERTING_INIT()
     }
     
     self.tearDownCalled = YES;
-}
-
-- (void)endBackgroundActivityForTimer:(ZMTimer *)timer
-{
-    ZMBackgroundActivity *bgActivity = timer.userInfo[@"bgActivity"];
-    [bgActivity endActivity];
 }
 
 @end
