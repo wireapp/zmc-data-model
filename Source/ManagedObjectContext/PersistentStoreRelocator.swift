@@ -36,7 +36,7 @@ public struct MainPersistentStoreRelocator {
     /// Returns the list of possible locations for legacy stores. If accountIdentifier is supplied it also 
     /// includes account directories used after multiple account support was added.
     
-    private static var hostBundleIdentifier = Bundle.main.infoDictionary?["HostBundleIdentifier"] as? String
+    public static var hostBundleIdentifier = Bundle.main.infoDictionary?["HostBundleIdentifier"] as? String
     
     static func possiblePreviousStoreFiles(applicationContainer: URL, accountIdentifier: UUID?) -> [URL] {
         let locations = possibleLegacyAccountFolders(applicationContainer: applicationContainer, accountIdentifier: accountIdentifier)
