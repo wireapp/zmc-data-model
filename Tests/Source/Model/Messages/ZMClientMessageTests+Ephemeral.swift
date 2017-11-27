@@ -148,7 +148,7 @@ extension ZMClientMessageTests_Ephemeral {
             
             let article = Article(
                 originalURLString: "www.example.com/article/original",
-                permamentURLString: "http://www.example.com/article/1",
+                permanentURLString: "http://www.example.com/article/1",
                 offset: 12
             )
             article.title = "title"

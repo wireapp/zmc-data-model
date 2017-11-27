@@ -24,7 +24,7 @@ extension LinkPreview {
     
     public convenience init(protocolBuffer: ZMLinkPreview) {
         self.init(originalURLString: protocolBuffer.url,
-                  permamentURLString: protocolBuffer.permanentURLString,
+                  permanentURLString: protocolBuffer.permanentURLString,
                   resolvedURLString: protocolBuffer.permanentURLString,
                   offset: Int(protocolBuffer.urlOffset))
     }
@@ -56,7 +56,7 @@ extension Article {
     
     public convenience init(protocolBuffer: ZMLinkPreview) {
         self.init(originalURLString: protocolBuffer.url,
-                  permamentURLString: protocolBuffer.permanentURLString,
+                  permanentURLString: protocolBuffer.permanentURLString,
                   resolvedURLString: protocolBuffer.permanentURLString,
                   offset: Int(protocolBuffer.urlOffset))
         let newTitle = protocolBuffer.hasArticle() ? protocolBuffer.article.title : protocolBuffer.title
@@ -81,7 +81,7 @@ extension TwitterStatus {
     
     public convenience init(protocolBuffer: ZMLinkPreview) {
         self.init(originalURLString: protocolBuffer.url,
-                  permamentURLString: protocolBuffer.permanentURLString,
+                  permanentURLString: protocolBuffer.permanentURLString,
                   resolvedURLString: protocolBuffer.permanentURLString,
                   offset: Int(protocolBuffer.urlOffset))
         let newMessage = protocolBuffer.hasTweet() ? protocolBuffer.title : protocolBuffer.article.title
