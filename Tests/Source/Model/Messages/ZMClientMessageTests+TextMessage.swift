@@ -37,6 +37,7 @@ class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
         let article = Article(
             originalURLString: "www.example.com/article/original",
             permanentURLString: "http://www.example.com/article/1",
+            resolvedURLString: "http://www.example.com/article/1",
             offset: 12
         )
         article.title = "title"
@@ -60,6 +61,7 @@ class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
         let article = Article(
             originalURLString: "example.com/article/original",
             permanentURLString: "http://www.example.com/article/1",
+            resolvedURLString: "http://www.example.com/article/1",
             offset: 12
         )
         article.title = "title"
@@ -82,6 +84,7 @@ class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
         let preview = TwitterStatus(
             originalURLString: "example.com/article/original",
             permanentURLString: "http://www.example.com/article/1",
+            resolvedURLString: "http://www.example.com/article/1",
             offset: 42
         )
         
@@ -107,6 +110,7 @@ class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
         let preview = TwitterStatus(
             originalURLString: "example.com/article/original",
             permanentURLString: "http://www.example.com/article/1",
+            resolvedURLString: "http://www.example.com/article/1",
             offset: 42
         )
         
@@ -130,6 +134,7 @@ class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
         let preview = TwitterStatus(
             originalURLString: "example.com/article/original",
             permanentURLString: "http://www.example.com/article/1",
+            resolvedURLString: "http://www.example.com/article/1",
             offset: 42
         )
         
@@ -155,6 +160,7 @@ class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
         let article = Article(
             originalURLString: "example.com/article/original",
             permanentURLString: "http://www.example.com/article/1",
+            resolvedURLString: "http://www.example.com/article/1",
             offset: 12
         )
 
@@ -179,7 +185,11 @@ class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
         let clientMessage = ZMClientMessage.insertNewObject(in: uiMOC)
         let nonce = UUID()
 
-        let article = Article(originalURLString: "example.com/article/original", permanentURLString: "http://www.example.com/article/1", offset: 12)
+        let article = Article(originalURLString: "example.com/article/original",
+                              permanentURLString: "http://www.example.com/article/1",
+                              resolvedURLString: "http://www.example.com/article/1",
+                              offset: 12)
+        
         article.title = "title"
         article.summary = "summary"
         clientMessage.add(ZMGenericMessage.message(text: "sample text", linkPreview: article.protocolBuffer, nonce: nonce.transportString()).data())
@@ -201,6 +211,7 @@ class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
         let twitterStatus = TwitterStatus(
             originalURLString: "example.com/tweet",
             permanentURLString: "http://www.example.com/tweet/1",
+            resolvedURLString: "http://www.example.com/tweet/1",
             offset: 42
         )
         
@@ -226,6 +237,7 @@ class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
         let preview = TwitterStatus(
             originalURLString: "example.com/tweet",
             permanentURLString: "http://www.example.com/tweet/1",
+            resolvedURLString: "http://www.example.com/tweet/1",
             offset: 42
         )
         
@@ -248,6 +260,7 @@ class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
         let preview = TwitterStatus(
             originalURLString: "example.com/article/original",
             permanentURLString: "http://www.example.com/article/1",
+            resolvedURLString: "http://www.example.com/article/1",
             offset: 42
         )
         
@@ -263,6 +276,7 @@ class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
         let preview = Article(
             originalURLString: "example.com/article/original",
             permanentURLString: "http://www.example.com/article/1",
+            resolvedURLString: "http://www.example.com/article/1",
             offset: 42
         )
         

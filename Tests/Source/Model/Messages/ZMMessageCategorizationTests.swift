@@ -84,6 +84,7 @@ class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
         let article = Article(
             originalURLString: "www.example.com/article/original",
             permanentURLString: "http://www.example.com/article/1",
+            resolvedURLString: "http://www.example.com/article/1",
             offset: 12
         )
         article.title = "title"

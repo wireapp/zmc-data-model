@@ -34,6 +34,7 @@ class ClientMessageTests_ZMImageOwner: BaseZMClientMessageTests {
         let article = Article(
             originalURLString: "example.com/article/original",
             permanentURLString: "http://www.example.com/article/1",
+            resolvedURLString: "http://www.example.com/article/1",
             offset: 12
         )
         article.title = "title"
