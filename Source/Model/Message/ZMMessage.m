@@ -437,8 +437,8 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
     
     NSArray *confirmationReceipts = [possibleMatches filterWithBlock:^BOOL(ZMClientMessage *candidateConfirmationReceipt) {
         if (candidateConfirmationReceipt.genericMessage.hasConfirmation &&
-            candidateConfirmationReceipt.genericMessage.confirmation.hasMessageId &&
-            [candidateConfirmationReceipt.genericMessage.confirmation.messageId isEqual:self.nonce.transportString]) {
+            candidateConfirmationReceipt.genericMessage.confirmation.hasFirstMessageId &&
+            [candidateConfirmationReceipt.genericMessage.confirmation.firstMessageId isEqual:self.nonce.transportString]) {
             return YES;
         }
         return NO;
