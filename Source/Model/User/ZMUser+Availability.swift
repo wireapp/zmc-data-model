@@ -21,7 +21,7 @@ import Foundation
 
 
 public enum Availability : Int {
-    case none, vacation, sick, workFromHome
+    case none, available, away, busy
 }
 
 extension ZMUser {

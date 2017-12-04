@@ -554,4 +554,25 @@ public extension ZMTweet {
     }
 }
 
+public extension ZMAvailability {
+    
+    public static func availability(_ availability : Availability) -> ZMAvailability {
+        let builder = ZMAvailability.builder()!
+        
+        switch availability {
+        case .none:
+            builder.setType(.NONE)
+        case .available:
+            builder.setType(.AVAILABLE)
+        case .away:
+            builder.setType(.AWAY)
+        case .busy:
+            builder.setType(.BUSY)
+        }
+        
+        return builder.build()
+    }
+    
+}
+
 
