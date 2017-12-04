@@ -1855,6 +1855,127 @@
 
 @end
 
+@implementation ZMConversationTests (LastEditableMessage)
+
+- (void)testThatItReturnsNilIfConversationHasNoMessages;
+{
+    // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    
+    // when
+    // No messages
+    
+    // then
+    XCTAssertNil(conversation.lastEditableMessage);
+}
+
+- (void)testThatItReturnsNilIfLastMessageIsNotTextAndSentBySelfUser;
+{
+    // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    
+    // when
+    [conversation appendKnock];
+
+    WaitForAllGroupsToBeEmpty(0.5);
+
+    // then
+    XCTAssertNil(conversation.lastEditableMessage);
+}
+
+- (void)testThatItReturnsNilIfLastMessageIsTextAndNotSentBySelfUser;
+{
+    // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    conversation.remoteIdentifier = [NSUUID createUUID];
+    ZMUser *sender = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
+    sender.remoteIdentifier = [NSUUID createUUID];
+
+    // when
+    ZMMessage *message = (id)[conversation appendMessageWithText:@"Test Message"];
+    message.sender = sender;
+    [message markAsSent];
+
+    WaitForAllGroupsToBeEmpty(0.5);
+
+    // then
+    XCTAssertNil(conversation.lastEditableMessage);
+}
+
+- (void)testThatItReturnsMessageIfLastMessageIsTextAndSentBySelfUser;
+{
+    // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+
+    // when
+    ZMMessage *message = (id)[conversation appendMessageWithText:@"Test Message"];
+    message.sender = self.selfUser;
+    [message markAsSent];
+
+    WaitForAllGroupsToBeEmpty(0.5);
+    
+    // then
+    XCTAssertEqualObjects(conversation.lastEditableMessage, message);
+}
+
+- (void)testThatItReturnsMessageIfLastMessagesAreTextWithPingAndSentBySelfUser;
+{
+    // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+
+    // when
+    ZMMessage *message = (id)[conversation appendMessageWithText:@"Test Message"];
+    message.sender = self.selfUser;
+    [message markAsSent];
+    [conversation appendKnock];
+
+    WaitForAllGroupsToBeEmpty(0.5);
+
+    // then
+    XCTAssertEqualObjects(conversation.lastEditableMessage, message);
+}
+
+- (void)testThatItReturnsLastMessageIfLastMessagesAreTextsAndSentBySelfUser;
+{
+    // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    
+    // when
+    ZMMessage *message = (id)[conversation appendMessageWithText:@"Test Message"];
+    message.sender = self.selfUser;
+    [message markAsSent];
+    ZMMessage *nextMessage = (id)[conversation appendMessageWithText:@"Next Test Message"];
+    nextMessage.sender = self.selfUser;
+    [nextMessage markAsSent];
+
+    WaitForAllGroupsToBeEmpty(0.5);
+
+    // then
+    XCTAssertEqualObjects(conversation.lastEditableMessage, nextMessage);
+}
+
+- (void)testThatItReturnsMessageIfLastMessagesAreTextAndEphemeral;
+{
+    // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+
+    // when
+    ZMMessage *message = (id)[conversation appendMessageWithText:@"Test Message"];
+    message.sender = self.selfUser;
+    [message markAsSent];
+    conversation.messageDestructionTimeout = 10;
+    ZMMessage *ephemeralMessage = (id)[conversation appendMessageWithText:@"Ephemeral Test Message"];
+    ephemeralMessage.sender = self.selfUser;
+    [ephemeralMessage markAsSent];
+
+    WaitForAllGroupsToBeEmpty(0.5);
+
+    // then
+    XCTAssertEqualObjects(conversation.lastEditableMessage, message);
+}
+
+@end
+
 @implementation ZMConversationTests (Participants)
 
 - (void)testThatAddingParticipantsSetsTheModifiedKeys
