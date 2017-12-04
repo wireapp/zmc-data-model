@@ -20,7 +20,7 @@
 import Foundation
 
 
-public enum WorkStatus : Int {
+public enum Availability : Int {
     case none, vacation, sick, workFromHome
 }
 
@@ -43,19 +43,19 @@ extension ZMUser {
         return connectionsAndTeamMembers
     }
     
-    public var workStatus : WorkStatus {
+    public var availability : Availability {
         get {
-            self.willAccessValue(forKey: WorkStatusKey)
-            let value = (self.primitiveValue(forKey: WorkStatusKey) as? NSNumber) ?? NSNumber(value: 0)
-            self.didAccessValue(forKey: WorkStatusKey)
+            self.willAccessValue(forKey: AvailabilityKey)
+            let value = (self.primitiveValue(forKey: AvailabilityKey) as? NSNumber) ?? NSNumber(value: 0)
+            self.didAccessValue(forKey: AvailabilityKey)
             
-            return WorkStatus(rawValue: value.intValue) ?? .none
+            return Availability(rawValue: value.intValue) ?? .none
         }
         
         set {
-            self.willChangeValue(forKey: WorkStatusKey)
-            self.setPrimitiveValue(NSNumber(value: newValue.rawValue), forKey: WorkStatusKey)
-            self.didChangeValue(forKey: WorkStatusKey)
+            self.willChangeValue(forKey: AvailabilityKey)
+            self.setPrimitiveValue(NSNumber(value: newValue.rawValue), forKey: AvailabilityKey)
+            self.didChangeValue(forKey: AvailabilityKey)
         }
     }
     

@@ -30,7 +30,7 @@
 extern NSString * __nonnull const SessionObjectIDKey;
 extern NSString * __nonnull const ZMUserActiveConversationsKey;
 extern NSString * __nonnull const UserClientsKey;
-extern NSString * __nonnull const WorkStatusKey;
+extern NSString * __nonnull const AvailabilityKey;
 
 @interface ZMUser (Internal)
 
