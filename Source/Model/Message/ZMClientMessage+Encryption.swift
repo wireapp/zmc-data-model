@@ -136,7 +136,7 @@ extension ZMGenericMessage {
                 // The payload is too big, we therefore rollback the session since we won't use the message we just encrypted.
                 // This will prevent us advancing sender chain multiple time before sending a message, and reduce the risk of TooDistantFuture.
                 sessionsDirectory.discardCache()
-                messageData = self.encryptedMessagePayloadData(for: recipients, externalData: externalData, context: context)
+                messageData = self.encryptedMessageDataWithExternalDataBlob(recipients, context: context)
             }
         }
         return messageData
@@ -192,6 +192,7 @@ extension ZMGenericMessage {
         
         return (recipientUsers, strategy)
     }
+    
     
     /// Returns a message with recipients and a strategy to handle missing clients
     fileprivate func otrMessage(_ selfClient: UserClient,
@@ -280,6 +281,15 @@ extension ZMGenericMessage {
         
         let externalGenericMessage = ZMGenericMessage.genericMessage(withKeyWithChecksum: encryptedDataWithKeys.keys, messageID: NSUUID().transportString())
         return externalGenericMessage.encryptedMessagePayloadData(conversation, externalData: encryptedDataWithKeys.data)
+    }
+    
+    fileprivate func encryptedMessageDataWithExternalDataBlob(_ recipients: Set<ZMUser>, context: NSManagedObjectContext) -> Data? {
+        
+        guard let encryptedDataWithKeys = ZMGenericMessage.encryptedDataWithKeys(from: self)
+            else {return nil}
+        
+        let externalGenericMessage = ZMGenericMessage.genericMessage(withKeyWithChecksum: encryptedDataWithKeys.keys, messageID: NSUUID().transportString())
+        return externalGenericMessage.encryptedMessagePayloadData(for: recipients, externalData: encryptedDataWithKeys.data, context: context)
     }
 }
 
