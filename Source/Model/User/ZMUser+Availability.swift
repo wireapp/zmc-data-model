@@ -19,7 +19,7 @@
 
 import Foundation
 
-
+@objc
 public enum Availability : Int {
     case none, available, away, busy
 }

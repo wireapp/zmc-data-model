@@ -159,6 +159,13 @@ public extension ZMGenericMessage {
         let asset = ZMAsset.asset(withOriginal: original, preview: nil)
         return ZMGenericMessage.genericMessage(asset: asset, messageID: nonce, expiresAfter: timeout)
     }
+        
+    public static func genericMessage(withAvailability availability : Availability) -> ZMGenericMessage {
+        let messageBuilder = ZMGenericMessage.builder()!
+        _ = messageBuilder.setAvailability(ZMAvailability.availability(availability))
+        _ = messageBuilder.setMessageId(UUID().transportString())
+        return messageBuilder.build()
+    }
     
     // MARK: Text
 

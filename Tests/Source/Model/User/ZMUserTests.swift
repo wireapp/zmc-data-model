@@ -558,14 +558,9 @@ extension ZMUserTests {
     func testThatWeCanUpdateAvailabilityFromGenericMessage() {
         let user = ZMUser.insert(in: self.uiMOC, name: "Foo")
         XCTAssertEqual(user.availability, .none)
-        
-        let messageBuilder = ZMGenericMessage.builder()
-        _ = messageBuilder?.setAvailability(ZMAvailability.availability(.away))
-        _ = messageBuilder?.setMessageId(UUID().transportString())
-        let message = messageBuilder?.build()
-        
+                
         // when
-        user.updateAvailability(from: message!)
+        user.updateAvailability(from: ZMGenericMessage.genericMessage(withAvailability: .away))
         
         // then
         XCTAssertEqual(user.availability, .away)
