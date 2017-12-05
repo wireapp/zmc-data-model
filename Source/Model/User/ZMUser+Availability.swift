@@ -24,6 +24,23 @@ public enum Availability : Int {
     case none, available, away, busy
 }
 
+extension Availability {
+    
+    public init(_ proto : ZMAvailability) {
+        switch proto.type {
+        case .NONE:
+            self = .none
+        case .AVAILABLE:
+            self = .available
+        case .AWAY:
+            self = .away
+        case .BUSY:
+            self = .busy
+        }
+    }
+    
+}
+
 extension ZMUser {
     
     public static func connectionsAndTeamMembers(in context: NSManagedObjectContext) -> Set<ZMUser> {
@@ -53,10 +70,22 @@ extension ZMUser {
         }
         
         set {
-            self.willChangeValue(forKey: AvailabilityKey)
-            self.setPrimitiveValue(NSNumber(value: newValue.rawValue), forKey: AvailabilityKey)
-            self.didChangeValue(forKey: AvailabilityKey)
+            guard isSelfUser else { return } // TODO move this setter to ZMEditableUser
+            
+            updateAvailability(newValue)
         }
+    }
+    
+    fileprivate func updateAvailability(_ newValue : Availability) {
+        self.willChangeValue(forKey: AvailabilityKey)
+        self.setPrimitiveValue(NSNumber(value: newValue.rawValue), forKey: AvailabilityKey)
+        self.didChangeValue(forKey: AvailabilityKey)
+    }
+    
+    public func updateAvailability(from genericMessage : ZMGenericMessage) {
+        guard let availabilityProtobuffer = genericMessage.availability else { return }
+        
+        updateAvailability(Availability(availabilityProtobuffer))
     }
     
 }
