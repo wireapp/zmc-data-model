@@ -159,16 +159,16 @@ NSString * const DeliveredKey = @"delivered";
     
     ZMConversation *conversation = [self.class conversationForUpdateEvent:updateEvent inContext:moc prefetchResult:prefetchResult];
     VerifyReturnNil(conversation != nil);
+    ZMUser *selfUser = [ZMUser selfUserInContext:moc];
     
-    if (message.hasLastRead && conversation.conversationType == ZMConversationTypeSelf) {
+    if (message.hasLastRead && conversation.conversationType == ZMConversationTypeSelf && updateEvent.senderUUID == selfUser.remoteIdentifier) {
         [ZMConversation updateConversationWithZMLastReadFromSelfConversation:message.lastRead inContext:moc];
     }
-    if (message.hasCleared && conversation.conversationType == ZMConversationTypeSelf) {
+    if (message.hasCleared && conversation.conversationType == ZMConversationTypeSelf  && updateEvent.senderUUID == selfUser.remoteIdentifier) {
         [ZMConversation updateConversationWithZMClearedFromSelfConversation:message.cleared inContext:moc];
     }
-    if (message.hasHidden && conversation.conversationType == ZMConversationTypeSelf) {
-        ZMUser *user = [ZMUser fetchObjectWithRemoteIdentifier:updateEvent.senderUUID inManagedObjectContext:moc];
-        [ZMMessage removeMessageWithRemotelyHiddenMessage:message.hidden fromUser:user inManagedObjectContext:moc];
+    if (message.hasHidden && conversation.conversationType == ZMConversationTypeSelf && updateEvent.senderUUID == selfUser.remoteIdentifier) {
+        [ZMMessage removeMessageWithRemotelyHiddenMessage:message.hidden inManagedObjectContext:moc];
         return nil;
     }
     if (message.hasDeleted) {
