@@ -351,13 +351,8 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
     }
 }
 
-+ (void)removeMessageWithRemotelyHiddenMessage:(ZMMessageHide *)hiddenMessage fromUser:(ZMUser *)user inManagedObjectContext:(NSManagedObjectContext *)moc;
++ (void)removeMessageWithRemotelyHiddenMessage:(ZMMessageHide *)hiddenMessage inManagedObjectContext:(NSManagedObjectContext *)moc;
 {
-    ZMUser *selfUser = [ZMUser selfUserInContext:moc];
-    if(user != selfUser) {
-        return;
-    }
-    
     NSUUID *conversationID = [NSUUID uuidWithTransportString:hiddenMessage.conversationId];
     ZMConversation *conversation = [ZMConversation conversationWithRemoteID:conversationID createIfNeeded:NO inContext:moc];
     

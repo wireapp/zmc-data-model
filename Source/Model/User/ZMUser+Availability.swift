@@ -76,7 +76,7 @@ extension ZMUser {
         }
     }
     
-    fileprivate func updateAvailability(_ newValue : Availability) {
+    internal func updateAvailability(_ newValue : Availability) {
         self.willChangeValue(forKey: AvailabilityKey)
         self.setPrimitiveValue(NSNumber(value: newValue.rawValue), forKey: AvailabilityKey)
         self.didChangeValue(forKey: AvailabilityKey)

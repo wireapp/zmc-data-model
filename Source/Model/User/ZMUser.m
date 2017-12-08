@@ -79,7 +79,7 @@ static NSString *const ReactionsKey = @"reactions";
 static NSString *const AddressBookEntryKey = @"addressBookEntry";
 static NSString *const MembershipKey = @"membership";
 static NSString *const CreatedTeamsKey = @"createdTeams";
-NSString *const AvailabilityKey = @"availabilityValue";
+NSString *const AvailabilityKey = @"availability";
 
 @interface ZMBoxedSelfUser : NSObject
 

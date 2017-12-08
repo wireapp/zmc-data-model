@@ -1021,7 +1021,7 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
                                             @"mediumRemoteIdentifier_data",
                                             @"name",
                                             @"phoneNumber",
-                                            @"availabilityValue"]];
+                                            @"availability"]];
     
     // when
     ZMUser *user = [ZMUser selfUserInContext:self.uiMOC];
