@@ -161,13 +161,17 @@ NSString * const DeliveredKey = @"delivered";
     VerifyReturnNil(conversation != nil);
     ZMUser *selfUser = [ZMUser selfUserInContext:moc];
     
-    if (message.hasLastRead && conversation.conversationType == ZMConversationTypeSelf && updateEvent.senderUUID == selfUser.remoteIdentifier) {
+    if (conversation.conversationType == ZMConversationTypeSelf && ![updateEvent.senderUUID isEqual:selfUser.remoteIdentifier]) {
+        return nil; // don't process messages in the self conversation not sent from the self user
+    }
+    
+    if (message.hasLastRead && conversation.conversationType == ZMConversationTypeSelf) {
         [ZMConversation updateConversationWithZMLastReadFromSelfConversation:message.lastRead inContext:moc];
     }
-    if (message.hasCleared && conversation.conversationType == ZMConversationTypeSelf  && updateEvent.senderUUID == selfUser.remoteIdentifier) {
+    if (message.hasCleared && conversation.conversationType == ZMConversationTypeSelf) {
         [ZMConversation updateConversationWithZMClearedFromSelfConversation:message.cleared inContext:moc];
     }
-    if (message.hasHidden && conversation.conversationType == ZMConversationTypeSelf && updateEvent.senderUUID == selfUser.remoteIdentifier) {
+    if (message.hasHidden && conversation.conversationType == ZMConversationTypeSelf) {
         [ZMMessage removeMessageWithRemotelyHiddenMessage:message.hidden inManagedObjectContext:moc];
         return nil;
     }
