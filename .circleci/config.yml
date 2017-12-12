@@ -24,7 +24,7 @@ buildfiles_cache: &buildfiles_cache
   paths: DerivedData
 
 # ------------Environment-----------------
-setup-environment: &setup-environment
+setup_environment: &setup_environment
   name: "Setup environment"
   command: |
     curl -O "${DEPENDENCIES_BASE_URL}/environment.sh"
@@ -37,7 +37,7 @@ jobs:
     <<: *defaults
     steps:
     - checkout
-    - run: *setup-environment
+    - run: *setup_environment
     - restore_cache: *gems_cache
     - restore_cache: *carthage_cache
     - run: 
@@ -49,28 +49,25 @@ jobs:
     - save_cache: *gems_cache
     - save_cache: *carthage_cache
     - persist_to_workspace:
-        root: DerivedData
-        paths: Build/Products/*
-    - store_artifacts:
-        path: xcode_build.log
+        root: .
+        paths: 
+          - DerivedData/Build/Products/*
 
   test:
     <<: *defaults
     steps:
     - checkout
-    - run: *setup-environment
+    - attach_workspace:
+        at: .
+    - run: *setup_environment
     - restore_cache: *gems_cache
     - restore_cache: *carthage_cache
-    - attach_workspace:
-        at: DerivedData
     - run: 
         name: "Test"
         command: bash test.sh
     - run: 
         name: "Post test"
         command: bash post_test.sh
-    - store_artifacts:
-        path: xcode_build.log
     - store_artifacts:
         path: SnapshotResults
     - store_test_results:
