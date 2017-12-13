@@ -96,6 +96,7 @@ extern NSString * __nonnull const AvailabilityKey;
 
 + (nonnull NSPredicate *)predicateForMediumImageNeedingToBeUpdatedFromBackend;
 + (nonnull NSPredicate *)predicateForSmallImageNeedingToBeUpdatedFromBackend;
++ (nonnull NSPredicate *)predicateForSelfUser;
 + (nonnull NSPredicate *)predicateForUsersOtherThanSelf;
 + (nonnull NSPredicate *)predicateForMediumImageDownloadFilter;
 + (nonnull NSPredicate *)predicateForSmallImageDownloadFilter;
