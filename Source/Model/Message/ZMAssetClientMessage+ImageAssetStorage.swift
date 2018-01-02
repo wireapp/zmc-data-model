@@ -113,40 +113,40 @@ extension ZMAssetClientMessage: ImageAssetStorage {
 
     public func updateMessage(imageData: Data, for format: ZMImageFormat) -> AnyObject? {
         guard let moc = self.managedObjectContext else { return nil }
+        
         moc.zm_imageAssetCache.storeAssetData(self.nonce,
                                               format: format,
-                                              encrypted: self.isEncrypted,
+                                              encrypted: true,
                                               data: imageData)
-        if self.isEncrypted {
-            let otrKey: Data?
-            let sha256: Data?
-            
-            if self.fileMessageData != nil {
-                let remote = self.genericAssetMessage?.assetData?.preview.remote
-                otrKey = remote?.otrKey
-                sha256 = remote?.sha256
-            } else if self.imageMessageData != nil {
-                let imageAsset = self.genericMessage(for: format)?.imageAssetData
-                otrKey = imageAsset?.otrKey
-                sha256 = imageAsset?.sha256
-            } else {
-                otrKey = nil
-                sha256 = nil
-            }
-            
-            var decrypted = false
-            if let otrKey = otrKey, let sha256 = sha256 {
-                decrypted = moc.zm_imageAssetCache.decryptFileIfItMatchesDigest(self.nonce,
-                                                                                format: format,
-                                                                                encryptionKey: otrKey,
-                                                                                sha256Digest: sha256)
-            }
-            
-            if !decrypted && self.imageMessageData != nil {
-                moc.delete(self)
-                return nil
-            }
+        let otrKey: Data?
+        let sha256: Data?
+        
+        if self.fileMessageData != nil {
+            let remote = self.genericAssetMessage?.assetData?.preview.remote
+            otrKey = remote?.otrKey
+            sha256 = remote?.sha256
+        } else if self.imageMessageData != nil {
+            let imageAsset = self.genericMessage(for: format)?.imageAssetData
+            otrKey = imageAsset?.otrKey
+            sha256 = imageAsset?.sha256
+        } else {
+            otrKey = nil
+            sha256 = nil
         }
+        
+        var decrypted = false
+        if let otrKey = otrKey, let sha256 = sha256 {
+            decrypted = moc.zm_imageAssetCache.decryptFileIfItMatchesDigest(self.nonce,
+                                                                            format: format,
+                                                                            encryptionKey: otrKey,
+                                                                            sha256Digest: sha256)
+        }
+        
+        if !decrypted && self.imageMessageData != nil {
+            moc.delete(self)
+            return nil
+        }
+        
         return self
     }
     

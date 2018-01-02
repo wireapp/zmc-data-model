@@ -85,8 +85,7 @@
     NSMutableOrderedSet *newMessages = [NSMutableOrderedSet orderedSetWithOrderedSet:messages range:range copyItems:NO];
     if (self.conversation.clearedTimeStamp != nil) {
         [newMessages filterUsingPredicate:[NSPredicate predicateWithFormat:@"(%K == TRUE AND %K == FALSE) OR %K > conversation.%K",
-                                           ZMMessageIsEncryptedKey, DeliveredKey,
-                                           ZMMessageServerTimestampKey, ZMConversationClearedTimeStampKey]];
+                                           DeliveredKey, ZMMessageServerTimestampKey, ZMConversationClearedTimeStampKey]];
         
         [newMessages filterUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(ZMManagedObject *  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable __unused bindings) {
             return !evaluatedObject.isZombieObject;
