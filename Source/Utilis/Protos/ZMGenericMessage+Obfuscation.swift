@@ -24,9 +24,16 @@ public extension String {
     static func randomChar() -> UnicodeScalar {
         let string = "abcdefghijklmnopqrstuvxyz"
         let chars = Array(string.unicodeScalars)
-        var data = Data.secureRandomData(length: 1)
-        let randomByte = Int(data.removeFirst())
-        return chars[randomByte % chars.count]
+        
+        // get enough random bytes to fill Int
+        let data = Data.secureRandomData(length: UInt(MemoryLayout<Int>.size))
+        
+        // extract the Int
+        let random = data.withUnsafeBytes { (pointer: UnsafePointer<Int>) -> Int in
+            return pointer.pointee
+        }
+        
+        return chars[abs(random) % chars.count]
     }
     
     public func obfuscated() -> String {
