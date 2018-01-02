@@ -24,8 +24,9 @@ public extension String {
     static func randomChar() -> UnicodeScalar {
         let string = "abcdefghijklmnopqrstuvxyz"
         let chars = Array(string.unicodeScalars)
-        let random = Int(arc4random_uniform(UInt32(chars.count)))
-        return chars[random]
+        var data = Data.secureRandomData(length: 1)
+        let randomByte = Int(data.removeFirst())
+        return chars[randomByte % chars.count]
     }
     
     public func obfuscated() -> String {
