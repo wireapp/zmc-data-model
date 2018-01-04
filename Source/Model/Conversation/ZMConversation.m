@@ -984,28 +984,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         ZMLogError(@"Cannot mark as read: no message to mark in %@", self);
         return;
     }
-    NSDate *serverTimestamp = lastMessageCanBeConsideredUnread.serverTimestamp;
-    NSManagedObjectID *conversationID = self.objectID;
     
-    NSManagedObjectContext *syncContext = self.managedObjectContext.zm_syncContext;
-    [syncContext performGroupedBlock:^{
-        NSError *error = nil;
-        ZMConversation *syncConversation = [syncContext existingObjectWithID:conversationID error:&error];
-
-        if (syncConversation == nil || error != nil) {
-            ZMLogError(@"Cannot fetch the sync converastion: %@", error);
-            return;
-        }
-        syncConversation.lastReadServerTimeStamp = [NSDate dateWithTimeInterval:-0.01 sinceDate:serverTimestamp];
-        [syncConversation setLocallyModifiedKeys:[NSSet setWithObject:ZMConversationLastReadServerTimeStampKey]];
-        [syncConversation updateUnreadCount];
-        [syncContext saveOrRollback];
-        [[[NotificationInContext alloc] initWithName:ZMConversation.lastReadDidChangeNotificationName
-                                             context:syncConversation.managedObjectContext.notificationContext
-                                              object:syncConversation
-                                            userInfo:nil
-          ] post];
-     }];
+    [lastMessageCanBeConsideredUnread markAsUnread];
 }
 
 @end

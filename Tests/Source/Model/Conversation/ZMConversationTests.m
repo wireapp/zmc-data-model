@@ -1853,7 +1853,7 @@
     XCTAssertEqualObjects(conversation.lastReadServerTimeStamp, serverTimeStamp);
 }
 
-- (void)testThatItMakrsTheMessagesAsRead;
+- (void)testThatItMarksTheMessagesAsRead;
 {
     // GIVEN
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
@@ -1893,12 +1893,14 @@
     XCTAssertTrue([conversation canMarkAsUnread]);
 }
 
-- (void)testThatItMakrsTheMessagesAsUnread;
+- (void)testThatItMakrksTheMessagesAsUnread;
 {
     // GIVEN
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.conversationType = ZMConversationTypeConnection;
     conversation.remoteIdentifier = NSUUID.createUUID;
+    
+    [self.uiMOC saveOrRollback];
     
     ZMMessage* unreadMessage = [self insertDownloadedMessageAfterMessageIntoConversation:conversation];
 
@@ -1909,7 +1911,6 @@
     [conversation markAsUnread];
     
     XCTAssertTrue([self waitForAllGroupsToBeEmptyWithTimeout:0.5]);
-    
     // THEN
     XCTAssertEqual(conversation.lastReadMessage, nil);
 }
