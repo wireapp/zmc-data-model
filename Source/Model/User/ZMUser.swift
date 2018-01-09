@@ -92,8 +92,26 @@ extension ProfileImageSize: CustomDebugStringConvertible {
 }
 
 @objc public protocol ServiceUser: ZMBareUser {
-    var providerIdentifier: String { get }
-    var serviceIdentifier: String { get }
+    var providerIdentifier: String? { get }
+    var serviceIdentifier: String? { get }
+
+    var serviceUser: ServiceUser? { get }
+}
+
+
+extension ZMUser: ServiceUser {
+    public var serviceUser: ServiceUser? {
+        return nil
+    }
+
+    public var providerIdentifier: String? {
+        return nil
+    }
+
+    public var serviceIdentifier: String? {
+        return nil
+    }
+
 }
 
 extension ZMUser {
