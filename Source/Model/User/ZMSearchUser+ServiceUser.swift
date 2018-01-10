@@ -20,19 +20,25 @@ import Foundation
 
 extension ZMSearchUser: ServiceUser {
     public var providerIdentifier: String? {
-        get{
+        get {
             return _providerIdentifier
         }
-        set{
+        set {
             _providerIdentifier = newValue
         }
     }
-    
+
     public var serviceIdentifier: String? {
         return self.remoteIdentifier.transportString()
     }
-    
+}
+
+extension ZMSearchUser: ServiceUserChecker {
     public var serviceUser: ServiceUser? {
-        return self.serviceUserChecker
+        guard let _ = serviceIdentifier , let _ = providerIdentifier else {
+            return nil
+        }
+
+        return self
     }
 }

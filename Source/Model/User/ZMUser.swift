@@ -101,10 +101,6 @@ extension ZMUser: ServiceUser {
         ///FIXME:
         return nil
     }
-
-    public var serviceUser: ServiceUser? {
-        return self.serviceUserChecker
-    }
 }
 
 extension ZMUser {

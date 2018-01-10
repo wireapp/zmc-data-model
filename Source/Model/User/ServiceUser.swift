@@ -21,16 +21,18 @@ import Foundation
 @objc public protocol ServiceUser: class, ZMBareUser {
     var providerIdentifier: String? { get }
     var serviceIdentifier: String? { get }
+}
 
+@objc public protocol ServiceUserChecker: ServiceUser {
     var serviceUser: ServiceUser? { get }
 }
 
-public extension ServiceUser {
-    public var serviceUserChecker: ServiceUser? {
-        guard let _ = serviceIdentifier , let _ = providerIdentifier else {
-            return nil
-        }
-
-        return self
-    }
+public extension ServiceUserChecker {
+//    public var serviceUser: ServiceUser? {
+//        guard let _ = serviceIdentifier , let _ = providerIdentifier else {
+//            return nil
+//        }
+//
+//        return self
+//    }
 }
