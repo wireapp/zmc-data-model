@@ -308,9 +308,9 @@ class DatabaseMigrationTests: DatabaseBaseTest {
         }
     }
     
-    func testThatItPerformsMigrationFrom_Between_2_24_1_and_2_39_0_ToCurrentModelVersion() {
+    func testThatItPerformsMigrationFrom_Between_2_24_1_and_2_40_0_ToCurrentModelVersion() {
         
-        ["2-24-1", "2-25-0", "2-26-0", "2-27-0", "2-28-0", "2-29-0", "2-30-0", "2-31-0", "2-39-0"].forEach { storeFile in
+        ["2-24-1", "2-25-0", "2-26-0", "2-27-0", "2-28-0", "2-29-0", "2-30-0", "2-31-0", "2-39-0", "2-40-0"].forEach { storeFile in
             // GIVEN
             self.createDatabaseWithOlderModelVersion(versionName: storeFile)
             
@@ -347,51 +347,6 @@ class DatabaseMigrationTests: DatabaseBaseTest {
                 XCTAssertNil($0.normalizedText)
             }
             
-            directory = nil // need to release
-            StorageStack.reset()
-            self.clearStorageFolder()
-        }
-    }
-
-    func testThatItPerformsMigrationFrom_2_40_0_ToCurrentModelVersion() {
-
-        ["2-40-0"].forEach { storeFile in
-            // GIVEN
-            self.createDatabaseWithOlderModelVersion(versionName: storeFile)
-
-            // WHEN
-            var directory: ManagedObjectContextDirectory! = self.createStorageStackAndWaitForCompletion(userID: DatabaseMigrationTests.testUUID)
-
-            // THEN
-            let conversationCount = try! directory.uiContext.count(for: ZMConversation.sortedFetchRequest()!)
-            let messageCount = try! directory.uiContext.count(for: ZMClientMessage.sortedFetchRequest()!)
-            let systemMessageCount = try! directory.uiContext.count(for: ZMSystemMessage.sortedFetchRequest()!)
-            let connectionCount = try! directory.uiContext.count(for: ZMConnection.sortedFetchRequest()!)
-            let userClientCount = try! directory.uiContext.count(for: UserClient.sortedFetchRequest()!)
-            let assetClientMessagesCount = try! directory.uiContext.count(for: ZMAssetClientMessage.sortedFetchRequest()!)
-            let messages = directory.uiContext.executeFetchRequestOrAssert(ZMMessage.sortedFetchRequest()!)! as! [ZMMessage]
-
-            let userFetchRequest = ZMUser.sortedFetchRequest()!
-            userFetchRequest.resultType = .dictionaryResultType
-            userFetchRequest.propertiesToFetch = self.userPropertiesToFetch
-            let userDictionaries = directory.uiContext.executeFetchRequestOrAssert(userFetchRequest)!
-
-            // THEN
-            XCTAssertEqual(assetClientMessagesCount, 0)
-            XCTAssertEqual(conversationCount, 20)
-            XCTAssertEqual(messageCount, 3)
-            XCTAssertEqual(systemMessageCount, 21)
-            XCTAssertEqual(connectionCount, 16)
-            XCTAssertEqual(userClientCount, 12)
-
-            XCTAssertNotNil(userDictionaries)
-            XCTAssertEqual(userDictionaries.count, 22)
-            XCTAssertEqual(Array(userDictionaries[0..<3]) as NSArray, DatabaseMigrationTests.userDictionaryFixture2_25_1 as NSArray)
-            XCTAssertGreaterThan(messages.count, 0)
-            messages.forEach {
-                XCTAssertNil($0.normalizedText)
-            }
-
             directory = nil // need to release
             StorageStack.reset()
             self.clearStorageFolder()
