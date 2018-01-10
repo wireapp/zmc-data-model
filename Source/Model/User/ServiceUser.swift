@@ -24,3 +24,13 @@ import Foundation
 
     var serviceUser: ServiceUser? { get }
 }
+
+public extension ServiceUser {
+    public var serviceUserChecker: ServiceUser? {
+        guard let _ = serviceIdentifier , let _ = providerIdentifier else {
+            return nil
+        }
+
+        return self
+    }
+}

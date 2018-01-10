@@ -92,14 +92,6 @@ extension ProfileImageSize: CustomDebugStringConvertible {
 }
 
 extension ZMUser: ServiceUser {
-    public var serviceUser: ServiceUser? {
-        guard let _ = serviceIdentifier , let _ = providerIdentifier else {
-            return nil
-        }
-
-        return self
-    }
-
     public var providerIdentifier: String? {
         ///FIXME:
         return nil
@@ -110,6 +102,9 @@ extension ZMUser: ServiceUser {
         return nil
     }
 
+    public var serviceUser: ServiceUser? {
+        return self.serviceUserChecker
+    }
 }
 
 extension ZMUser {

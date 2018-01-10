@@ -33,10 +33,6 @@ extension ZMSearchUser: ServiceUser {
     }
     
     public var serviceUser: ServiceUser? {
-        guard let _ = serviceIdentifier , let _ = providerIdentifier else {
-            return nil
-        }
-
-        return self
+        return self.serviceUserChecker
     }
 }
