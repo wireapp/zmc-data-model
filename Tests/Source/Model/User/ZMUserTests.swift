@@ -572,15 +572,13 @@ extension ZMUserTests {
     
 }
 
-// MARK: - ServiceUser
+// MARK: - Bot support
 extension ZMUserTests {
-    func testThatZMUser_serviceIdentifierAndProviderIdentifier() {
+    func testThatServiceIdentifierAndProviderIdentifierAreNilByDefault() {
         // GIVEN
         let sut = ZMUser.insertNewObject(in: self.uiMOC)
 
-        // WHEN
-
-        // THEN
+        // WHEN & THEN
         XCTAssertNil(sut.providerIdentifier)
         XCTAssertNil(sut.serviceIdentifier)
     }
