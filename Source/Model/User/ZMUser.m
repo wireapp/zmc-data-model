@@ -79,6 +79,8 @@ static NSString *const ReactionsKey = @"reactions";
 static NSString *const AddressBookEntryKey = @"addressBookEntry";
 static NSString *const MembershipKey = @"membership";
 static NSString *const CreatedTeamsKey = @"createdTeams";
+static NSString *const ServiceIdentifierKey = @"serviceIdentifier";
+static NSString *const ProviderIdentifierKey = @"providerIdentifier";
 NSString *const AvailabilityKey = @"availability";
 
 @interface ZMBoxedSelfUser : NSObject
@@ -419,7 +421,9 @@ NSString *const AvailabilityKey = @"availability";
                                            AddressBookEntryKey,
                                            HandleKey, // this is not set on the user directly
                                            MembershipKey,
-                                           CreatedTeamsKey
+                                           CreatedTeamsKey,
+                                           ServiceIdentifierKey,
+                                           ProviderIdentifierKey
                                            ]];
         keys = [ignoredKeys copy];
     });
