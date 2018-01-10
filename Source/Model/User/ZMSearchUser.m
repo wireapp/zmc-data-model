@@ -378,16 +378,6 @@ NSString *const ZMSearchUserTotalMutualFriendsKey = @"total_mutual_friends";
             self.user.canBeConnected);
 }
 
-//- (id<ServiceUser>)serviceUser
-//{
-//    if (self.serviceIdentifier != nil && self.providerIdentifier != nil) {
-//        return self;
-//    }
-//    else {
-//        return nil;
-//    }
-//}
-
 - (NSString *)description
 {
     NSMutableString *description = [NSMutableString stringWithFormat:@"<%@: %p> (ID: %@, name: %@, accent: %d, connected: %@), user: ",
