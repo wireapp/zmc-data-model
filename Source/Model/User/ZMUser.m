@@ -520,6 +520,16 @@ NSString *const AvailabilityKey = @"availability";
 
 - (void)updateWithTransportData:(NSDictionary *)transportData authoritative:(BOOL)authoritative
 {
+    NSString *serviceIdentifier = [transportData optionalStringForKey:@"serviceIdentifier"];
+    if (serviceIdentifier != nil) {
+        self.serviceIdentifier = serviceIdentifier;
+    }
+
+    NSString *providerIdentifier = [transportData optionalStringForKey:@"providerIdentifier"];
+    if (providerIdentifier != nil) {
+        self.providerIdentifier = providerIdentifier;
+    }
+
     NSUUID *remoteID = [transportData[@"id"] UUID];
     if (self.remoteIdentifier == nil) {
         self.remoteIdentifier = remoteID;

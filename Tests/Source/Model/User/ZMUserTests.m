@@ -238,6 +238,30 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     XCTAssertNil(found);
 }
 
+- (void)testThatItUpdatesServiceDataOnAnExistingUser
+{
+    // given
+    NSUUID *uuid = [NSUUID createUUID];
+    ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
+    NSString * mockServiceIdentifier = @"mock serviceIdentifier";
+    NSString * mockProviderIdentifier = @"mock providerIdentifier";
+
+    user.serviceIdentifier = mockServiceIdentifier;
+    user.providerIdentifier = @"mock providerIdentifier";
+
+    NSMutableDictionary *payload = [self samplePayloadForUserID:uuid];
+    payload[@"serviceIdentifier"] = mockServiceIdentifier;
+    payload[@"providerIdentifier"] = mockProviderIdentifier;
+
+    // when
+    [user updateWithTransportData:payload authoritative:NO];
+
+    // then
+    XCTAssertEqualObjects(user.serviceIdentifier, payload[@"serviceIdentifier"]);
+    XCTAssertEqualObjects(user.providerIdentifier, payload[@"providerIdentifier"]);
+}
+
+
 - (void)testThatItUpdatesBasicDataOnAnExistingUser
 {
     // given
