@@ -246,19 +246,16 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     NSString * mockServiceIdentifier = @"mock serviceIdentifier";
     NSString * mockProviderIdentifier = @"mock providerIdentifier";
 
-    user.serviceIdentifier = mockServiceIdentifier;
-    user.providerIdentifier = @"mock providerIdentifier";
-
     NSMutableDictionary *payload = [self samplePayloadForUserID:uuid];
-    payload[@"serviceIdentifier"] = mockServiceIdentifier;
-    payload[@"providerIdentifier"] = mockProviderIdentifier;
+    payload[@"service"][@"id"] = mockServiceIdentifier;
+    payload[@"service"][@"provider"] = mockProviderIdentifier;
 
     // when
     [user updateWithTransportData:payload authoritative:NO];
 
     // then
-    XCTAssertEqualObjects(user.serviceIdentifier, payload[@"serviceIdentifier"]);
-    XCTAssertEqualObjects(user.providerIdentifier, payload[@"providerIdentifier"]);
+    XCTAssertEqualObjects(user.serviceIdentifier, payload[@"service"][@"id"]);
+    XCTAssertEqualObjects(user.providerIdentifier, payload[@"service"][@"provider"]);
 }
 
 
