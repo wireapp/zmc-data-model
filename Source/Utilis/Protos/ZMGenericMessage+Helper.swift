@@ -70,7 +70,11 @@ public extension ZMGenericMessage {
 public extension ZMGenericMessage {
 
     var v3_isImage: Bool {
-        return assetData?.original.hasImage() == true
+        return assetData?.original.hasImage() == true && !v3_isSvg
+    }
+    
+    var v3_isSvg: Bool {
+        return assetData?.original.mimeType == "image/svg+xml"
     }
 
     private var v3_uploadedAssetId: String? {
