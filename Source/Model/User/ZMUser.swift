@@ -94,11 +94,6 @@ extension ProfileImageSize: CustomDebugStringConvertible {
 extension ZMUser: ServiceUser {
     @NSManaged public var providerIdentifier: String?
     @NSManaged public var serviceIdentifier: String?
-
-    public var isServiceUser: Bool {
-        return self.serviceIdentifier != nil &&
-            self.providerIdentifier != nil
-    }
 }
 
 extension ZMUser {
