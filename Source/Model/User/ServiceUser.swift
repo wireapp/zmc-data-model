@@ -21,6 +21,7 @@ import Foundation
 @objc public protocol ServiceUser: class, ZMBareUser {
     var providerIdentifier: String? { get }
     var serviceIdentifier: String? { get }
+    var isServiceUser: Bool { get }
 }
 
 @objc public protocol ServiceUserChecker: ServiceUser {

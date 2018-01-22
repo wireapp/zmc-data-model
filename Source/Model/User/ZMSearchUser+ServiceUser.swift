@@ -19,6 +19,10 @@
 import Foundation
 
 extension ZMSearchUser: ServiceUser {
+    public var isServiceUser: Bool {
+        return serviceUserChecker != nil
+    }
+
     public var providerIdentifier: String? {
         get {
             return _providerIdentifier
