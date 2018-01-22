@@ -268,7 +268,7 @@ extension ZMGenericMessage {
     
     // Accessor helpers for ephemeral images
     public var imageAssetData : ZMImageAsset? {
-        if hasImage() {
+        if hasImage() && !v3_isSvg {
             return image
         }
         if hasEphemeral() && ephemeral.hasImage() {

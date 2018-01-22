@@ -218,7 +218,7 @@ extension ZMAssetClientMessage {
         }
         
         if let assetData = message.assetData,
-            assetData.original.hasImage() {
+            assetData.original.hasImage(), assetData.original.mimeType != "image/svg+xml" {
             self.version = 3
         }
     }
