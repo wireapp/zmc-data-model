@@ -70,11 +70,7 @@ public extension ZMGenericMessage {
 public extension ZMGenericMessage {
 
     var v3_isImage: Bool {
-        return assetData?.original.hasImage() == true && !v3_isSvg
-    }
-    
-    var v3_isSvg: Bool {
-        return assetData?.original.mimeType == "image/svg+xml"
+        return assetData?.hasRasterImage ?? false
     }
 
     private var v3_uploadedAssetId: String? {
@@ -268,10 +264,10 @@ extension ZMGenericMessage {
     
     // Accessor helpers for ephemeral images
     public var imageAssetData : ZMImageAsset? {
-        if hasImage() && !v3_isSvg {
+        if asset.hasRasterImage {
             return image
         }
-        if hasEphemeral() && ephemeral.hasImage() {
+        if hasEphemeral() && ephemeral.asset.hasRasterImage {
             return ephemeral.image
         }
         return nil
@@ -319,8 +315,16 @@ extension ZMGenericMessage {
         }
         return nil
     }
+
 }
 
+public extension ZMAsset {
+    
+    var hasRasterImage: Bool {
+        return original.hasImage() && original.mimeType != "image/svg+xml"
+    }
+    
+}
 
 public extension ZMEphemeral {
     

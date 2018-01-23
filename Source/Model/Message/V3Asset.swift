@@ -110,7 +110,7 @@ private let zmLog = ZMSLog(tag: "AssetV3")
     public var originalSize: CGSize {
         guard nil != assetClientMessage.fileMessageData, isImage else { return .zero }
         guard let asset = assetClientMessage.genericAssetMessage?.assetData else { return .zero }
-        guard asset.original.hasImage(), asset.original.mimeType != "image/svg+xml", asset.original.image.width > 0 else { return assetClientMessage.preprocessedSize }
+        guard asset.hasRasterImage, asset.original.image.width > 0 else { return assetClientMessage.preprocessedSize }
         let size = CGSize(width: Int(asset.original.image.width), height: Int(asset.original.image.height))
         if size != .zero {
             return size
@@ -154,7 +154,7 @@ extension V3Asset: AssetProxyType {
         if isImage {
             requestFileDownload()
         } else if let assetMessage = assetClientMessage.genericAssetMessage,
-            let data = assetMessage.assetData, data.hasPreview(), !assetMessage.v3_isSvg {
+            let data = assetMessage.assetData, data.hasPreview(), data.hasRasterImage {
             guard !assetClientMessage.objectID.isTemporaryID else { return }
             NotificationInContext(name: ZMAssetClientMessage.imageDownloadNotificationName,
                                   context: self.moc.notificationContext,
