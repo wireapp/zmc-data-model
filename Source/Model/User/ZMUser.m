@@ -79,6 +79,8 @@ static NSString *const ReactionsKey = @"reactions";
 static NSString *const AddressBookEntryKey = @"addressBookEntry";
 static NSString *const MembershipKey = @"membership";
 static NSString *const CreatedTeamsKey = @"createdTeams";
+static NSString *const ServiceIdentifierKey = @"serviceIdentifier";
+static NSString *const ProviderIdentifierKey = @"providerIdentifier";
 NSString *const AvailabilityKey = @"availability";
 
 @interface ZMBoxedSelfUser : NSObject
@@ -270,11 +272,6 @@ NSString *const AvailabilityKey = @"availability";
     }
 }
 
-- (BOOL)isBot
-{
-    return [self.handle isEqualToString:ZMUser.annaBotHandle] || [self.handle isEqualToString:ZMUser.ottoBotHandle];
-}
-
 - (BOOL)canBeConnected;
 {
     return ! self.isConnected && ! self.isPendingApprovalByOtherUser;
@@ -371,7 +368,8 @@ NSString *const AvailabilityKey = @"availability";
     return clientsRequiringUserAttention;
 }
 
-- (void)refreshData {
+- (void)refreshData
+{
     self.needsToBeUpdatedFromBackend = true;
 }
 
@@ -423,14 +421,16 @@ NSString *const AvailabilityKey = @"availability";
                                            AddressBookEntryKey,
                                            HandleKey, // this is not set on the user directly
                                            MembershipKey,
-                                           CreatedTeamsKey
+                                           CreatedTeamsKey,
+                                           ServiceIdentifierKey,
+                                           ProviderIdentifierKey
                                            ]];
         keys = [ignoredKeys copy];
     });
     return keys;
 }
 
-+ (instancetype)userWithRemoteID:(NSUUID *)UUID createIfNeeded:(BOOL)create inContext:(NSManagedObjectContext *)moc;
++ (instancetype)userWithRemoteID:(NSUUID *)UUID createIfNeeded:(BOOL)create inContext:(nonnull NSManagedObjectContext *)moc;
 {
     // We must only ever call this on the sync context. Otherwise, there's a race condition
     // where the UI and sync contexts could both insert the same user (same UUID) and we'd end up
@@ -520,6 +520,19 @@ NSString *const AvailabilityKey = @"availability";
 
 - (void)updateWithTransportData:(NSDictionary *)transportData authoritative:(BOOL)authoritative
 {
+    NSDictionary *serviceData = transportData[@"service"];
+    if (serviceData != nil) {
+        NSString *serviceIdentifier = [serviceData optionalStringForKey:@"id"];
+        if (serviceIdentifier != nil) {
+            self.serviceIdentifier = serviceIdentifier;
+        }
+
+        NSString *providerIdentifier = [serviceData optionalStringForKey:@"provider"];
+        if (providerIdentifier != nil) {
+            self.providerIdentifier = providerIdentifier;
+        }
+    }
+
     NSUUID *remoteID = [transportData[@"id"] UUID];
     if (self.remoteIdentifier == nil) {
         self.remoteIdentifier = remoteID;

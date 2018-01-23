@@ -238,6 +238,27 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     XCTAssertNil(found);
 }
 
+- (void)testThatItUpdatesServiceDataOnAnExistingUser
+{
+    // given
+    NSUUID *uuid = [NSUUID createUUID];
+    ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
+    NSString * mockServiceIdentifier = @"mock serviceIdentifier";
+    NSString * mockProviderIdentifier = @"mock providerIdentifier";
+
+    NSMutableDictionary *payload = [self samplePayloadForUserID:uuid];
+    payload[@"service"][@"id"] = mockServiceIdentifier;
+    payload[@"service"][@"provider"] = mockProviderIdentifier;
+
+    // when
+    [user updateWithTransportData:payload authoritative:NO];
+
+    // then
+    XCTAssertEqualObjects(user.serviceIdentifier, payload[@"service"][@"id"]);
+    XCTAssertEqualObjects(user.providerIdentifier, payload[@"service"][@"provider"]);
+}
+
+
 - (void)testThatItUpdatesBasicDataOnAnExistingUser
 {
     // given
@@ -1612,52 +1633,6 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     // then
     XCTAssertFalse([connection hasLocalModificationsForKey:@"status"]);
     XCTAssertEqual(connection.status, ZMConnectionStatusIgnored);
-}
-
-- (void)testThatItDetectsAnnaAsBot
-{
-    // given
-    ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    
-    // when
-    user.handle = @"annathebot";
-    
-    // then
-    XCTAssertTrue(user.isBot);
-}
-
-
-- (void)testThatItDetectsOttoAsBot
-{
-    // given
-    ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    
-    // when
-    user.handle = @"ottothebot";
-    
-    // then
-    XCTAssertTrue(user.isBot);
-}
-
-- (void)testThatItDoesNotDetectUserAsBot
-{
-    // given
-    ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    
-    // when
-    user.handle = @"florence";
-    
-    // then
-    XCTAssertFalse(user.isBot);
-}
-
-- (void)testThatItDoesNotDetectUserWithoutHandleAsBot
-{
-    // given
-    ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    
-    // then
-    XCTAssertFalse(user.isBot);
 }
 
 @end
