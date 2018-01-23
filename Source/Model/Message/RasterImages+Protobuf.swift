@@ -23,7 +23,7 @@ public extension ZMAssetOriginal {
     }
 }
 
-public extension ZMImageAsset {
+fileprivate extension ZMImageAsset {
     var isRaster: Bool {
         return mimeType != "image/svg+xml"
     }

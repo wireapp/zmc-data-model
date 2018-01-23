@@ -153,8 +153,7 @@ extension V3Asset: AssetProxyType {
     public func requestImageDownload() {
         if isImage {
             requestFileDownload()
-        } else if let assetMessage = assetClientMessage.genericAssetMessage,
-            let data = assetMessage.assetData, data.hasPreview(), data.original.hasRasterImage {
+        } else if assetClientMessage.genericAssetMessage?.assetData?.hasPreview() == true {
             guard !assetClientMessage.objectID.isTemporaryID else { return }
             NotificationInContext(name: ZMAssetClientMessage.imageDownloadNotificationName,
                                   context: self.moc.notificationContext,
