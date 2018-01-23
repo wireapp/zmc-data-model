@@ -120,7 +120,7 @@ class ZMAssetClientMessageTests : BaseZMAssetClientMessageTests {
         let imageData = self.verySmallJPEGData()
         XCTAssertNotNil(message.imageAssetStorage.updateMessage(imageData: imageData, for: ZMImageFormat.preview))
         
-        let storedData = self.uiMOC.zm_imageAssetCache.assetData(message.nonce, format: ZMImageFormat.preview, encrypted: true)
+        let storedData = self.uiMOC.zm_imageAssetCache.assetData(message.nonce, format: ZMImageFormat.preview, encrypted: false)
         AssertOptionalNotNil(storedData) { storedData in
             XCTAssertEqual(storedData, imageData)
         }
@@ -133,7 +133,7 @@ class ZMAssetClientMessageTests : BaseZMAssetClientMessageTests {
         let imageData = self.verySmallJPEGData()
         XCTAssertNotNil(message.imageAssetStorage.updateMessage(imageData: imageData, for: ZMImageFormat.medium))
         
-        let storedData = self.uiMOC.zm_imageAssetCache.assetData(message.nonce, format: ZMImageFormat.medium, encrypted: true)
+        let storedData = self.uiMOC.zm_imageAssetCache.assetData(message.nonce, format: ZMImageFormat.medium, encrypted: false)
         AssertOptionalNotNil(storedData) { storedData in
             XCTAssertEqual(storedData, imageData)
         }
