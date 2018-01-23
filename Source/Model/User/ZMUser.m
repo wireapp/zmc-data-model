@@ -152,6 +152,11 @@ NSString *const AvailabilityKey = @"availability";
     return self.serviceIdentifier != nil && self.providerIdentifier != nil;
 }
 
+- (BOOL)isServiceUser
+{
+    return self.serviceIdentifier != nil && self.providerIdentifier != nil;
+}
+
 - (BOOL)isSelfUser
 {
     if ([self isZombieObject]) {
