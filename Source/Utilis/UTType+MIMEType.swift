@@ -16,28 +16,29 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
+// Kudos to @daehn!
 
-public extension ZMAssetOriginal {
-    var hasRasterImage: Bool {
-        return hasImage() && UTType(mimeType: mimeType)?.isSVG == false
+import Foundation
+import MobileCoreServices
+
+struct UTType: CustomStringConvertible {
+    let value: CFString
+    init?(mimeType: String) {
+        guard let UTI = UTTypeCreatePreferredIdentifierForTag(kUTTagClassMIMEType, mimeType as CFString, nil)?.takeUnretainedValue() else { return nil }
+        value = UTI
+    }
+    
+    var description: String {
+        return value as String
     }
 }
 
-fileprivate extension ZMImageAsset {
-    var isRaster: Bool {
-        return UTType(mimeType: mimeType)?.isSVG == false
+extension UTType {
+    var isImage: Bool {
+        return UTTypeConformsTo(value, kUTTypeImage)
+    }
+    
+    var isSVG: Bool {
+        return UTTypeConformsTo(value, kUTTypeScalableVectorGraphics)
     }
 }
-
-public extension ZMGenericMessage {
-    var hasRasterImage: Bool {
-        return hasImage() && image.isRaster
-    }
-}
-
-public extension ZMEphemeral {
-    var hasRasterImage: Bool {
-        return hasImage() && image.isRaster
-    }
-}
-
