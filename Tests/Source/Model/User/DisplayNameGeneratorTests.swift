@@ -104,7 +104,7 @@ class DisplayNameGeneratorTests : ZMBaseManagedObjectTest {
         // when
         user1.name = "\u{00C5}ron Meister"
         user2.name = "A\u{030A}ron Hans"
-        user3.name = "A\u{030A}ron WhatTheFuck"
+        user3.name = "A\u{030A}ron Müller"
         
         // then
         XCTAssertEqual(generator.givenName(for: user1), "\u{00C5}ron")
