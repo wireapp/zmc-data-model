@@ -55,7 +55,9 @@ public extension ZMConversation {
             nameMessage.visibleInConversation = self
         }
 
-        if self.activeParticipants.count > 0 {
+        // If the conversation contains more people than just selfUser
+        // append a message with participants
+        if self.activeParticipants.count > 1 {
             let participants = self.activeParticipants.flatMap { $0 as? ZMUser }
             let participantsMessage = groupParticipantsMessage(in: moc, with: Set(participants), name: name)
             sortedAppendMessage(participantsMessage)
