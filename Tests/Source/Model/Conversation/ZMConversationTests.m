@@ -847,20 +847,6 @@
     XCTAssertEqualObjects(firstMessage.serverTimestamp, serverDate);
 }
 
-- (void)testThatAppendingNewConversationSystemMessageTwiceDoesNotCreateTwoSystemMessage;
-{
-    //given
-    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    [conversation appendNewConversationSystemMessageIfNeeded];
-    XCTAssertEqual(conversation.messages.count, 1u);
-    
-    //when
-    [conversation appendNewConversationSystemMessageIfNeeded];
-    
-    //then
-    XCTAssertEqual(conversation.messages.count, 1u);
-}
-
 @end // general
 
 

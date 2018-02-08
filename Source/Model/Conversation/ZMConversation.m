@@ -400,8 +400,17 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
                                               withParticipants:(nonnull NSArray<ZMUser *> *)participants
                                                         inTeam:(nullable Team *)team;
 {
+
+    return [self insertGroupConversationIntoUserSession:session withParticipants:participants name:nil inTeam:team];
+}
+
++ (nonnull instancetype)insertGroupConversationIntoUserSession:(nonnull id<ZMManagedObjectContextProvider> )session
+                                              withParticipants:(nonnull NSArray<ZMUser *> *)participants
+                                                          name:(nullable NSString*)name
+                                                        inTeam:(nullable Team *)team
+{
     VerifyReturnNil(session != nil);
-    return [self insertGroupConversationIntoManagedObjectContext:session.managedObjectContext withParticipants:participants inTeam:team];
+    return [self insertGroupConversationIntoManagedObjectContext:session.managedObjectContext withParticipants:participants name:name inTeam:team];
 }
 
 + (instancetype)existingOneOnOneConversationWithUser:(ZMUser *)otherUser inUserSession:(id<ZMManagedObjectContextProvider>)session;
@@ -1190,7 +1199,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
     // We need to check if we should add a 'secure' system message in case all participants are trusted
     [conversation increaseSecurityLevelIfNeededAfterTrustingClients:participant.clients];
-    [conversation appendNewConversationSystemMessageIfNeeded];
+    [conversation appendNewConversationSystemMessageWithName:nil];
     return conversation;
 }
 
@@ -1215,7 +1224,12 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return [self insertGroupConversationIntoManagedObjectContext:moc withParticipants:participants inTeam:nil];
 }
 
-+ (instancetype)insertGroupConversationIntoManagedObjectContext:(NSManagedObjectContext *)moc withParticipants:(NSArray *)participants inTeam:(nullable Team *)team;
++ (instancetype)insertGroupConversationIntoManagedObjectContext:(NSManagedObjectContext *)moc withParticipants:(NSArray *)participants inTeam:(nullable Team *)team
+{
+    return [self insertGroupConversationIntoManagedObjectContext:moc withParticipants:participants name:nil inTeam:team];
+}
+
++ (instancetype)insertGroupConversationIntoManagedObjectContext:(NSManagedObjectContext *)moc withParticipants:(NSArray *)participants name:(NSString *)name inTeam:(nullable Team *)team
 {
     ZMUser *selfUser = [ZMUser selfUserInContext:moc];
 
@@ -1223,13 +1237,12 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         return nil;
     }
 
-    RequireString((participants.count >= 2u), "Not enough users to create group conversations");
-
     ZMConversation *conversation = (ZMConversation *)[super insertNewObjectInManagedObjectContext:moc];
     conversation.lastModifiedDate = [NSDate date];
     conversation.conversationType = ZMConversationTypeGroup;
     conversation.creator = selfUser;
     conversation.team = team;
+    conversation.userDefinedName = name;
 
     for (ZMUser *participant in participants) {
         Require([participant isKindOfClass:[ZMUser class]]);
@@ -1247,7 +1260,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     
     // We need to check if we should add a 'secure' system message in case all participants are trusted
     [conversation increaseSecurityLevelIfNeededAfterTrustingClients:allClients];
-    [conversation appendNewConversationSystemMessageIfNeeded];
+    [conversation appendNewConversationSystemMessageWithName:name];
     return conversation;
 }
 
@@ -1418,31 +1431,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     
     ZMAssetClientMessage *message = [self appendAssetClientMessageWithNonce:nonce hidden:false imageData:imageDataWithoutMetadata];
     return message;
-}
-
-- (void)appendNewConversationSystemMessageIfNeeded;
-{
-    ZMMessage *firstMessage = self.messages.firstObject;
-    if ([firstMessage isKindOfClass:[ZMSystemMessage class]]) {
-        ZMSystemMessage *systemMessage = (ZMSystemMessage *)firstMessage;
-        if (systemMessage.systemMessageType == ZMSystemMessageTypeNewConversation) {
-            return;
-        }
-    }
-    
-    ZMSystemMessage *systemMessage = [ZMSystemMessage insertNewObjectInManagedObjectContext:self.managedObjectContext];
-    systemMessage.systemMessageType = ZMSystemMessageTypeNewConversation;
-    systemMessage.sender = [ZMUser selfUserInContext:self.managedObjectContext];
-    systemMessage.nonce = [NSUUID new];
-    systemMessage.sender = self.creator;
-    systemMessage.users = self.activeParticipants.set;
-    // the new conversation message should be displayed first,
-    // additionally the use of reference date is to ensure proper transition for older clients so the message is the very
-    // first message in conversation
-    systemMessage.serverTimestamp = [NSDate dateWithTimeIntervalSinceReferenceDate:0];
-    
-    [self sortedAppendMessage:systemMessage];
-    systemMessage.visibleInConversation = self;
 }
 
 - (NSUInteger)sortedAppendMessage:(ZMMessage *)message;
