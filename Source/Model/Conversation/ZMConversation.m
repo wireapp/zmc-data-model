@@ -1448,6 +1448,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     systemMessage.sender = [ZMUser selfUserInContext:self.managedObjectContext];
     systemMessage.nonce = [NSUUID new];
     systemMessage.sender = self.creator;
+    systemMessage.text = self.userDefinedName;
     systemMessage.users = self.activeParticipants.set;
     // the new conversation message should be displayed first,
     // additionally the use of reference date is to ensure proper transition for older clients so the message is the very
