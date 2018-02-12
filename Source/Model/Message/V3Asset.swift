@@ -130,17 +130,16 @@ extension V3Asset: AssetProxyType {
 
     public var hasDownloadedFile: Bool {
         guard !isImage else { return false }
-        return hasFile(for: assetClientMessage.genericAssetMessage?.v3_fileCacheKey)
+        return moc.zm_fileAssetCache.hasDataOnDisk(assetClientMessage, encrypted: false)
     }
 
     public var fileURL: URL? {
-        guard let key = assetClientMessage.genericAssetMessage?.v3_fileCacheKey else { return nil }
-        return moc.zm_fileAssetCache.accessAssetURL(assetClientMessage.nonce, fileName: key)
+        return moc.zm_fileAssetCache.accessAssetURL(assetClientMessage)
     }
 
     public func imageData(for format: ZMImageFormat, encrypted: Bool) -> Data? {
         guard assetClientMessage.fileMessageData != nil else { return nil }
-        return moc.zm_imageAssetCache.assetData(assetClientMessage.nonce, format: format, encrypted: encrypted)
+        return moc.zm_fileAssetCache.assetData(assetClientMessage, format: format, encrypted: encrypted)
     }
 
     public func requestFileDownload() {
@@ -189,11 +188,5 @@ extension V3Asset: AssetProxyType {
         assetClientMessage.add(original)
         assetClientMessage.add(uploaded)
     }
-
-    // MARK: - Helper
-
-    private func hasFile(for key: String?) -> Bool {
-        guard let cacheKey = key else { return false }
-        return moc.zm_fileAssetCache.hasDataOnDisk(assetClientMessage.nonce, fileName: cacheKey, encrypted: false)
-    }
+    
 }

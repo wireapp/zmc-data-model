@@ -67,12 +67,12 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
         let sut = conversation.appendOTRMessage(withImageData: mediumJPEGData(), nonce: .create())!
         
-        let cache = uiMOC.zm_imageAssetCache!
-        cache.storeAssetData(sut.nonce, format: .preview, encrypted: false, data: verySmallJPEGData())
-        cache.storeAssetData(sut.nonce, format: .medium, encrypted: false, data: mediumJPEGData())
-        cache.storeAssetData(sut.nonce, format: .original, encrypted: false, data: mediumJPEGData())
-        cache.storeAssetData(sut.nonce, format: .preview, encrypted: true, data: verySmallJPEGData())
-        cache.storeAssetData(sut.nonce, format: .medium, encrypted: true, data: mediumJPEGData())
+        let cache = uiMOC.zm_fileAssetCache
+        cache.storeAssetData(sut, format: .preview, encrypted: false, data: verySmallJPEGData())
+        cache.storeAssetData(sut, format: .medium, encrypted: false, data: mediumJPEGData())
+        cache.storeAssetData(sut, format: .original, encrypted: false, data: mediumJPEGData())
+        cache.storeAssetData(sut, format: .preview, encrypted: true, data: verySmallJPEGData())
+        cache.storeAssetData(sut, format: .medium, encrypted: true, data: mediumJPEGData())
         
         // when
         performPretendingUiMocIsSyncMoc {
@@ -90,7 +90,6 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
     
     func testThatItDeletesAnAssetMessage_File() {
         // given
-        let conversation = ZMConversation.insertNewObject(in:uiMOC)
         let data = "Hello World".data(using: String.Encoding.utf8)!
         let documents = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
         let url = URL(fileURLWithPath: documents).appendingPathComponent("file.dat")
@@ -101,14 +100,13 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
         let fileMetaData = ZMFileMetadata(fileURL: url, thumbnail: verySmallJPEGData())
         let sut = conversation.appendOTRMessage(with: fileMetaData, nonce: .create())!
 
-        let cache = uiMOC.zm_imageAssetCache!
-        let fileCache = uiMOC.zm_fileAssetCache
+        let cache = uiMOC.zm_fileAssetCache
         
-        cache.storeAssetData(sut.nonce, format: .original, encrypted: true, data: verySmallJPEGData())
-        fileCache.storeAssetData(sut.nonce, fileName: "file.dat", encrypted: true, data: mediumJPEGData())
+        cache.storeAssetData(sut, format: .original, encrypted: true, data: verySmallJPEGData())
+        cache.storeAssetData(sut, encrypted: true, data: mediumJPEGData())
         
-        XCTAssertNotNil(cache.assetData(sut.nonce, format: .original, encrypted: false))
-        XCTAssertNotNil(fileCache.assetData(sut.nonce, fileName: "file.dat", encrypted: false))
+        XCTAssertNotNil(cache.assetData(sut, format: .original, encrypted: false))
+        XCTAssertNotNil(cache.assetData(sut, encrypted: false))
         
         // when
         performPretendingUiMocIsSyncMoc {
@@ -187,10 +185,10 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
         sut.nonce = .create()
         sut.sender = selfUser
         
-        let cache = uiMOC.zm_imageAssetCache!
-        cache.storeAssetData(sut.nonce, format: .preview, encrypted: false, data: verySmallJPEGData())
-        cache.storeAssetData(sut.nonce, format: .medium, encrypted: false, data: mediumJPEGData())
-        cache.storeAssetData(sut.nonce, format: .original, encrypted: false, data: mediumJPEGData())
+        let cache = uiMOC.zm_fileAssetCache
+        cache.storeAssetData(sut, format: .preview, encrypted: false, data: verySmallJPEGData())
+        cache.storeAssetData(sut, format: .medium, encrypted: false, data: mediumJPEGData())
+        cache.storeAssetData(sut, format: .original, encrypted: false, data: mediumJPEGData())
         
         // when
         performPretendingUiMocIsSyncMoc {
@@ -210,9 +208,9 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
         XCTAssertNil(sut.sender)
         XCTAssertNil(sut.senderClientID)
         
-        XCTAssertNil(cache.assetData(sut.nonce, format: .original, encrypted: false))
-        XCTAssertNil(cache.assetData(sut.nonce, format: .medium, encrypted: false))
-        XCTAssertNil(cache.assetData(sut.nonce, format: .preview, encrypted: false))
+        XCTAssertNil(cache.assetData(sut, format: .original, encrypted: false))
+        XCTAssertNil(cache.assetData(sut, format: .medium, encrypted: false))
+        XCTAssertNil(cache.assetData(sut, format: .preview, encrypted: false))
         wipeCaches()
     }
     
@@ -505,17 +503,15 @@ extension ZMClientMessageTests_Deletion {
             XCTAssertNil(assetMessage.genericAssetMessage, line: line)
             XCTAssertEqual(assetMessage.size, 0, line: line)
 
-            let cache = uiMOC.zm_imageAssetCache!
-            XCTAssertNil(cache.assetData(message.nonce, format: .original, encrypted: false))
-            XCTAssertNil(cache.assetData(message.nonce, format: .medium, encrypted: false))
-            XCTAssertNil(cache.assetData(message.nonce, format: .preview, encrypted: false))
-            XCTAssertNil(cache.assetData(message.nonce, format: .medium, encrypted: true))
-            XCTAssertNil(cache.assetData(message.nonce, format: .preview, encrypted: true))
+            let cache = uiMOC.zm_fileAssetCache
+            XCTAssertNil(cache.assetData(message, format: .original, encrypted: false))
+            XCTAssertNil(cache.assetData(message, format: .medium, encrypted: false))
+            XCTAssertNil(cache.assetData(message, format: .preview, encrypted: false))
+            XCTAssertNil(cache.assetData(message, format: .medium, encrypted: true))
+            XCTAssertNil(cache.assetData(message, format: .preview, encrypted: true))
 
-            guard let fileName = fileName else { return }
-            let fileCache = uiMOC.zm_fileAssetCache
-            XCTAssertNil(fileCache.assetData(message.nonce, fileName: fileName, encrypted: true))
-            XCTAssertNil(fileCache.assetData(message.nonce, fileName: fileName, encrypted: false))
+            XCTAssertNil(cache.assetData(message, encrypted: true))
+            XCTAssertNil(cache.assetData(message, encrypted: false))
             
         } else if let clientMessage = message as? ZMClientMessage {
             XCTAssertNil(clientMessage.genericMessage, line: line)

@@ -113,7 +113,7 @@ extension String {
     }
 
     private func imageData(for format: ZMImageFormat) -> Data? {
-        return moc.zm_imageAssetCache.assetData(assetClientMessage.nonce, format: format, encrypted: false)
+        return moc.zm_fileAssetCache.assetData(assetClientMessage, format: format, encrypted: false)
     }
 
     fileprivate func hasImageData(for format: ZMImageFormat) -> Bool {
@@ -131,13 +131,12 @@ extension V2Asset: AssetProxyType {
     }
 
     public var hasDownloadedFile: Bool {
-        guard assetClientMessage.fileMessageData != nil, let name = assetClientMessage.filename else { return false }
-        return moc.zm_fileAssetCache.hasDataOnDisk(assetClientMessage.nonce, fileName: name, encrypted: false)
+        guard assetClientMessage.fileMessageData != nil else { return false }
+        return moc.zm_fileAssetCache.hasDataOnDisk(assetClientMessage, encrypted: false)
     }
 
     public var fileURL: URL? {
-        guard let name = assetClientMessage.filename else { return nil }
-        return moc.zm_fileAssetCache.accessAssetURL(assetClientMessage.nonce, fileName: name)
+        return moc.zm_fileAssetCache.accessAssetURL(assetClientMessage)
     }
 
     public func imageData(for format: ZMImageFormat, encrypted: Bool) -> Data? {
@@ -149,7 +148,7 @@ extension V2Asset: AssetProxyType {
             }
         }
 
-        return moc.zm_imageAssetCache.assetData(assetClientMessage.nonce, format: format, encrypted: encrypted)
+        return moc.zm_fileAssetCache.assetData(assetClientMessage, format: format, encrypted: encrypted)
     }
 
     public func requestFileDownload() {

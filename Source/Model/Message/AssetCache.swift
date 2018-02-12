@@ -21,20 +21,20 @@ import WireSystem
 import WireImages
 import PINCache
 
-private let NSManagedObjectContextImageAssetCacheKey = "zm_imageAssetCache"
-
-extension NSManagedObjectContext
-{
-    public var zm_imageAssetCache : ImageAssetCache! {
-        get {
-            return self.userInfo[NSManagedObjectContextImageAssetCacheKey] as? ImageAssetCache
-        }
-        
-        set {
-            self.userInfo[NSManagedObjectContextImageAssetCacheKey] = newValue
-        }
-    }
-}
+//private let NSManagedObjectContextImageAssetCacheKey = "zm_imageAssetCache"
+//
+//extension NSManagedObjectContext
+//{
+//    public var zm_imageAssetCache : ImageAssetCache! {
+//        get {
+//            return self.userInfo[NSManagedObjectContextImageAssetCacheKey] as? ImageAssetCache
+//        }
+//        
+//        set {
+//            self.userInfo[NSManagedObjectContextImageAssetCacheKey] = newValue
+//        }
+//    }
+//}
 
 protocol Cache {
     
@@ -108,52 +108,53 @@ struct PINAssetCache : Cache {
     }
 }
 
-// MARK: - Image assets
-public class ImageAssetCache : NSObject {
+//// MARK: - Image assets
+//public class ImageAssetCache : NSObject { // TODO jacob removed from target
+//
+//    let cache : PINAssetCache
+//
+//    /// Creates an asset cache for images
+//    /// - parameter MBLimit: maximum size of the cache on disk in MB
+//    public init(MBLimit: UInt, location: URL? = nil) {
+//        self.cache = PINAssetCache(name: "images", MBLimit: MBLimit, location: location)
+//    }
+//
+//    /// Returns true if the asset data for the given message and format exist, else false
+//    open func hasAssetData(_ messageID: UUID, format: ZMImageFormat, encrypted: Bool) -> Bool {
+//        return self.cache.hasDataForKey(ImageAssetCache.cacheKeyForAsset(messageID, format: format, encrypted: encrypted))
+//    }
+//
+//    /// Returns the asset data for a given message and format tag. This will probably cause I/O
+//    open func assetData(_ messageID: UUID, format: ZMImageFormat, encrypted: Bool) -> Data? {
+//        return self.cache.assetData(ImageAssetCache.cacheKeyForAsset(messageID, format: format, encrypted: encrypted))
+//    }
+//
+//    /// Sets the asset data for a given message and format tag. This will cause I/O
+//    open func storeAssetData(_ messageID: UUID, format: ZMImageFormat, encrypted: Bool, data: Data) {
+//        self.cache.storeAssetData(data, key: ImageAssetCache.cacheKeyForAsset(messageID, format: format, encrypted: encrypted))
+//    }
+//
+//    /// Deletes the data for a given message and format tag. This will cause I/O
+//    open func deleteAssetData(_ messageID: UUID, format: ZMImageFormat, encrypted: Bool) {
+//        self.cache.deleteAssetData(ImageAssetCache.cacheKeyForAsset(messageID, format: format, encrypted: encrypted))
+//    }
+//
+//    /// Returns the cache key for an asset
+//    static func cacheKeyForAsset(_ messageID: UUID, format: ZMImageFormat) -> String {
+//        return self.cacheKeyForAsset(messageID, format: format, encrypted: false);
+//    }
+//
+//    /// Returns the cache key for an asset
+//    static func cacheKeyForAsset(_ messageID: UUID, format: ZMImageFormat, encrypted: Bool) -> String {
+//        let tagComponent = StringFromImageFormat(format)
+//        let encryptedComponent = encrypted ? "_encrypted" : ""
+//        return "\(messageID.transportString())_\(String(describing: tagComponent))\(encryptedComponent)"
+//    }
+//}
+//
+//public extension ImageAssetCache {
+//    func wipeCache() {
+//        cache.wipeCache()
+//    }
+//}
 
-    let cache : PINAssetCache
-    
-    /// Creates an asset cache for images
-    /// - parameter MBLimit: maximum size of the cache on disk in MB
-    public init(MBLimit: UInt, location: URL? = nil) {
-        self.cache = PINAssetCache(name: "images", MBLimit: MBLimit, location: location)
-    }
-    
-    /// Returns true if the asset data for the given message and format exist, else false
-    open func hasAssetData(_ messageID: UUID, format: ZMImageFormat, encrypted: Bool) -> Bool {
-        return self.cache.hasDataForKey(ImageAssetCache.cacheKeyForAsset(messageID, format: format, encrypted: encrypted))
-    }
-    
-    /// Returns the asset data for a given message and format tag. This will probably cause I/O
-    open func assetData(_ messageID: UUID, format: ZMImageFormat, encrypted: Bool) -> Data? {
-        return self.cache.assetData(ImageAssetCache.cacheKeyForAsset(messageID, format: format, encrypted: encrypted))
-    }
-    
-    /// Sets the asset data for a given message and format tag. This will cause I/O
-    open func storeAssetData(_ messageID: UUID, format: ZMImageFormat, encrypted: Bool, data: Data) {
-        self.cache.storeAssetData(data, key: ImageAssetCache.cacheKeyForAsset(messageID, format: format, encrypted: encrypted))
-    }
-    
-    /// Deletes the data for a given message and format tag. This will cause I/O
-    open func deleteAssetData(_ messageID: UUID, format: ZMImageFormat, encrypted: Bool) {
-        self.cache.deleteAssetData(ImageAssetCache.cacheKeyForAsset(messageID, format: format, encrypted: encrypted))
-    }
-    
-    /// Returns the cache key for an asset
-    static func cacheKeyForAsset(_ messageID: UUID, format: ZMImageFormat) -> String {
-        return self.cacheKeyForAsset(messageID, format: format, encrypted: false);
-    }
-    
-    /// Returns the cache key for an asset
-    static func cacheKeyForAsset(_ messageID: UUID, format: ZMImageFormat, encrypted: Bool) -> String {
-        let tagComponent = StringFromImageFormat(format)
-        let encryptedComponent = encrypted ? "_encrypted" : ""
-        return "\(messageID.transportString())_\(String(describing: tagComponent))\(encryptedComponent)"
-    }
-}
-
-public extension ImageAssetCache {
-    func wipeCache() {
-        cache.wipeCache()
-    }
-}

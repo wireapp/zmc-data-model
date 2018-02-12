@@ -1311,6 +1311,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
     else {
         [self sortedAppendMessage:message];
+        [message prepareToSend];
     }
     return message;
 }
@@ -1327,43 +1328,61 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     [message updateCategoryCache];
     [self sortedAppendMessage:message];
     [self unarchiveIfNeeded];
+    [message prepareToSend];
     
     return message;
 }
 
-- (ZMAssetClientMessage *)appendAssetClientMessageWithNonce:(NSUUID *)nonce hidden:(BOOL)hidden imageData:(NSData *)imageData
+- (ZMAssetClientMessage *)appendAssetClientMessageWithNonce:(NSUUID *)nonce imageData:(NSData *)imageData
 {
     VerifyReturnNil(!self.destructionEnabled || self.canSendEphemeral);
-
+    
+    
     ZMAssetClientMessage *message =
-    [ZMAssetClientMessage assetClientMessageWithOriginalImage:imageData
-                                                        nonce:nonce
-                                         managedObjectContext:self.managedObjectContext
-                                                 expiresAfter:self.messageDestructionTimeout];
+    [[ZMAssetClientMessage alloc] initWithOriginalImage:imageData
+                                                  nonce:nonce
+                                   managedObjectContext:self.managedObjectContext
+                                           expiresAfter:self.messageDestructionTimeout];
+
     message.sender = [ZMUser selfUserInContext:self.managedObjectContext];
+    
+    [self sortedAppendMessage:message];
+    [self unarchiveIfNeeded];
+    [self.managedObjectContext.zm_fileAssetCache storeAssetData:message format:ZMImageFormatOriginal encrypted:NO data:imageData];
     [message updateCategoryCache];
-    if(hidden) {
-        message.hiddenInConversation = self;
-    }
-    else {
-        [self sortedAppendMessage:message];
-        [self unarchiveIfNeeded];
-    }
+    [message prepareToSend];
+    
     return message;
 }
 
 - (ZMAssetClientMessage *)appendOTRMessageWithFileMetadata:(ZMFileMetadata *)fileMetadata nonce:(NSUUID *)nonce
 {
     VerifyReturnNil(!self.destructionEnabled || self.canSendEphemeral);
+    
+    NSData *data = [NSData dataWithContentsOfURL:fileMetadata.fileURL options:NSDataReadingMappedIfSafe error:nil];
+    if (data == nil) {
+        return nil;
+    }
+    
+    ZMAssetClientMessage *message =
+    [[ZMAssetClientMessage alloc] initWith:fileMetadata
+                                     nonce:nonce
+                      managedObjectContext:self.managedObjectContext
+                              expiresAfter:self.messageDestructionTimeout];
 
-    ZMAssetClientMessage *message = [ZMAssetClientMessage assetClientMessageWith:fileMetadata
-                                                                           nonce:nonce
-                                                            managedObjectContext:self.managedObjectContext
-                                                                    expiresAfter:self.messageDestructionTimeout];
     message.sender = [ZMUser selfUserInContext:self.managedObjectContext];
-    [message updateCategoryCache];
     [self sortedAppendMessage:message];
     [self unarchiveIfNeeded];
+    
+    [self.managedObjectContext.zm_fileAssetCache storeAssetData:message encrypted:NO data:data];
+
+    if (fileMetadata.thumbnail != nil) {
+        [self.managedObjectContext.zm_fileAssetCache storeAssetData:message format:ZMImageFormatOriginal encrypted:NO data:fileMetadata.thumbnail];
+    }
+    
+    [message updateCategoryCache];
+    [message prepareToSend];
+    
     return message;
 }
 
@@ -1416,7 +1435,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         imageDataWithoutMetadata = imageData;
     }
     
-    ZMAssetClientMessage *message = [self appendAssetClientMessageWithNonce:nonce hidden:false imageData:imageDataWithoutMetadata];
+    ZMAssetClientMessage *message = [self appendAssetClientMessageWithNonce:nonce imageData:imageDataWithoutMetadata];
     return message;
 }
 
@@ -1442,7 +1461,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     systemMessage.serverTimestamp = [NSDate dateWithTimeIntervalSinceReferenceDate:0];
     
     [self sortedAppendMessage:systemMessage];
-    systemMessage.visibleInConversation = self;
 }
 
 - (NSUInteger)sortedAppendMessage:(ZMMessage *)message;
@@ -1474,7 +1492,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         self.lastModifiedDate = message.serverTimestamp;
     }
     
-    [message prepareToSend];
+//    [message prepareToSend];
     
     return index;
 }

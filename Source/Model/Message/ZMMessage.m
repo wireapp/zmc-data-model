@@ -258,7 +258,6 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
 - (void)awakeFromInsert;
 {
     [super awakeFromInsert];
-    self.nonce = [[NSUUID alloc] init];
     self.serverTimestamp = [self dateIgnoringNanoSeconds];
 }
 

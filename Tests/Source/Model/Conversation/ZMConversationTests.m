@@ -3783,18 +3783,18 @@
         
         ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
         conversation.remoteIdentifier = [NSUUID createUUID];
-        [conversation appendOTRMessageWithImageData:self.verySmallJPEGData nonce:messageID];
+        id<ZMConversationMessage> message = [conversation appendOTRMessageWithImageData:self.verySmallJPEGData nonce:messageID];
         
         // store asset data
-        [self.syncMOC.zm_imageAssetCache storeAssetData:messageID format:ZMImageFormatOriginal encrypted:NO data:imageData];
-        [self.syncMOC.zm_imageAssetCache storeAssetData:messageID format:ZMImageFormatPreview encrypted:NO data:imageData];
-        [self.syncMOC.zm_imageAssetCache storeAssetData:messageID format:ZMImageFormatMedium encrypted:NO data:imageData];
-        [self.syncMOC.zm_imageAssetCache storeAssetData:messageID format:ZMImageFormatPreview encrypted:YES data:imageData];
-        [self.syncMOC.zm_imageAssetCache storeAssetData:messageID format:ZMImageFormatMedium encrypted:YES data:imageData];
+        [self.syncMOC.zm_fileAssetCache storeAssetData:message format:ZMImageFormatOriginal encrypted:NO data:imageData];
+        [self.syncMOC.zm_fileAssetCache storeAssetData:message format:ZMImageFormatPreview encrypted:NO data:imageData];
+        [self.syncMOC.zm_fileAssetCache storeAssetData:message format:ZMImageFormatMedium encrypted:NO data:imageData];
+        [self.syncMOC.zm_fileAssetCache storeAssetData:message format:ZMImageFormatPreview encrypted:YES data:imageData];
+        [self.syncMOC.zm_fileAssetCache storeAssetData:message format:ZMImageFormatMedium encrypted:YES data:imageData];
         
         // delete
-        ZMGenericMessage *message = [ZMGenericMessage messageWithHideMessage:messageID.transportString inConversation:conversation.remoteIdentifier.transportString nonce:[NSUUID createUUID].transportString];
-        NSData *contentData = message.data;
+        ZMGenericMessage *deleteMessage = [ZMGenericMessage messageWithHideMessage:messageID.transportString inConversation:conversation.remoteIdentifier.transportString nonce:[NSUUID createUUID].transportString];
+        NSData *contentData = deleteMessage.data;
         NSString *data = [contentData base64EncodedStringWithOptions:0];
         
         NSDictionary *payload = @{@"conversation" : selfUserID.transportString,
@@ -3810,11 +3810,11 @@
         [self.syncMOC saveOrRollback];
         
         // then
-        XCTAssertNil([self.syncMOC.zm_imageAssetCache assetData:messageID format:ZMImageFormatOriginal encrypted:NO]);
-        XCTAssertNil([self.syncMOC.zm_imageAssetCache assetData:messageID format:ZMImageFormatPreview encrypted:NO]);
-        XCTAssertNil([self.syncMOC.zm_imageAssetCache assetData:messageID format:ZMImageFormatMedium encrypted:NO]);
-        XCTAssertNil([self.syncMOC.zm_imageAssetCache assetData:messageID format:ZMImageFormatPreview encrypted:YES]);
-        XCTAssertNil([self.syncMOC.zm_imageAssetCache assetData:messageID format:ZMImageFormatMedium encrypted:YES]);
+        XCTAssertNil([self.syncMOC.zm_fileAssetCache assetData:message format:ZMImageFormatOriginal encrypted:NO]);
+        XCTAssertNil([self.syncMOC.zm_fileAssetCache assetData:message format:ZMImageFormatPreview encrypted:NO]);
+        XCTAssertNil([self.syncMOC.zm_fileAssetCache assetData:message format:ZMImageFormatMedium encrypted:NO]);
+        XCTAssertNil([self.syncMOC.zm_fileAssetCache assetData:message format:ZMImageFormatPreview encrypted:YES]);
+        XCTAssertNil([self.syncMOC.zm_fileAssetCache assetData:message format:ZMImageFormatMedium encrypted:YES]);
     }];
 }
 
@@ -3838,15 +3838,15 @@
         ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
         conversation.remoteIdentifier = [NSUUID createUUID];
         ZMFileMetadata *fileMetadata = [[ZMFileMetadata alloc] initWithFileURL:fileURL thumbnail:nil];
-        [conversation appendOTRMessageWithFileMetadata:fileMetadata nonce:messageID];
+        id<ZMConversationMessage> message = [conversation appendOTRMessageWithFileMetadata:fileMetadata nonce:messageID];
         
         // store asset data
-        [self.syncMOC.zm_fileAssetCache storeAssetData:messageID fileName:fileName encrypted:NO data:fileData];
-        [self.syncMOC.zm_fileAssetCache storeAssetData:messageID fileName:fileName encrypted:YES data:fileData];
+        [self.syncMOC.zm_fileAssetCache storeAssetData:message encrypted:NO data:fileData];
+        [self.syncMOC.zm_fileAssetCache storeAssetData:message encrypted:YES data:fileData];
         
         // delete
-        ZMGenericMessage *message = [ZMGenericMessage messageWithHideMessage:messageID.transportString inConversation:conversation.remoteIdentifier.transportString nonce:[NSUUID createUUID].transportString];
-        NSData *contentData = message.data;
+        ZMGenericMessage *deleteMessage = [ZMGenericMessage messageWithHideMessage:messageID.transportString inConversation:conversation.remoteIdentifier.transportString nonce:[NSUUID createUUID].transportString];
+        NSData *contentData = deleteMessage.data;
         NSString *data = [contentData base64EncodedStringWithOptions:0];
         
         NSDictionary *payload = @{@"conversation" : selfUserID.transportString,
@@ -3862,8 +3862,8 @@
         [self.syncMOC saveOrRollback];
         
         // then
-        XCTAssertNil([self.syncMOC.zm_fileAssetCache assetData:messageID fileName:fileName encrypted:NO]);
-        XCTAssertNil([self.syncMOC.zm_fileAssetCache assetData:messageID fileName:fileName encrypted:YES]);
+        XCTAssertNil([self.syncMOC.zm_fileAssetCache assetData:message encrypted:NO]); // TODO jacob message is probably deleted here
+        XCTAssertNil([self.syncMOC.zm_fileAssetCache assetData:message encrypted:YES]);
     }];
 }
 

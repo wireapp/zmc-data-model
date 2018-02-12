@@ -76,7 +76,7 @@ NSString * const ReactionsKey = @"reactions";
     [self checkBaseMessageAttributeForClass:aClass];
 }
 
-- (void)testThatWeCanSetAttributesOnImageMessage
+- (void)testThatWeCanSetAttributesOnImageMessage // TODO jacob disabled test
 {
     Class aClass = [ZMImageMessage class];
     [self checkBaseMessageAttributeForClass:aClass];
@@ -589,7 +589,11 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatAMediumJPEGIsNotAnAnimatedGIF
 {
     // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    conversation.remoteIdentifier = [NSUUID createUUID];
     ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    message.sender = self.selfUser;
+    message.visibleInConversation = conversation;
     message.mediumData = [self dataForResource:@"tiny" extension:@"jpg"];
     XCTAssertNotNil(message.mediumData);
     
@@ -600,7 +604,11 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatAGIFWithOnlyOneFrameIsNotAnAnimatedGIF
 {
     // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    conversation.remoteIdentifier = [NSUUID createUUID];
     ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    message.sender = self.selfUser;
+    message.visibleInConversation = conversation;
     message.mediumData = [self dataForResource:@"not_animated" extension:@"gif"];
     XCTAssertNotNil(message.mediumData);
     
@@ -612,7 +620,11 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatAGIFWithMoreThanOneFrameIsRecognizedAsAnimatedGIF
 {
     // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    conversation.remoteIdentifier = [NSUUID createUUID];
     ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    message.sender = self.selfUser;
+    message.visibleInConversation = conversation;
     message.mediumData = [self dataForResource:@"animated" extension:@"gif"];
     XCTAssertNotNil(message.mediumData);
     
@@ -632,7 +644,11 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatAMediumJPEGIsHasJPGType
 {
     // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    conversation.remoteIdentifier = [NSUUID createUUID];
     ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    message.sender = self.selfUser;
+    message.visibleInConversation = conversation;
     message.mediumData = [self dataForResource:@"tiny" extension:@"jpg"];
     XCTAssertNotNil(message.mediumData);
     
@@ -644,7 +660,11 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatAOneFrameMediumGIFHasGIFType
 {
     // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    conversation.remoteIdentifier = [NSUUID createUUID];
     ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    message.sender = self.selfUser;
+    message.visibleInConversation = conversation;
     message.mediumData = [self dataForResource:@"not_animated" extension:@"gif"];
     XCTAssertNotNil(message.mediumData);
     
@@ -656,7 +676,11 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatAnAnimatedMediumGIFHasGIFType
 {
     // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    conversation.remoteIdentifier = [NSUUID createUUID];
     ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    message.sender = self.selfUser;
+    message.visibleInConversation = conversation;
     message.mediumData = [self dataForResource:@"animated" extension:@"gif"];
     XCTAssertNotNil(message.mediumData);
     
@@ -701,7 +725,11 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatItReturnsATemporaryIdentifierForTheOriginalImageData;
 {
     // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    conversation.remoteIdentifier = [NSUUID createUUID];
     ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    message.sender = self.selfUser;
+    message.visibleInConversation = conversation;
     message.originalImageData = self.verySmallJPEGData;
     
     // when
@@ -735,7 +763,11 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatItReturnsAnIdentifierForTheImagePreviewData;
 {
     // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    conversation.remoteIdentifier = [NSUUID createUUID];
     ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    message.sender = self.selfUser;
+    message.visibleInConversation = conversation;
     message.previewData = self.verySmallJPEGData;
     
     // when
@@ -1215,6 +1247,7 @@ NSString * const ReactionsKey = @"reactions";
 {
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    conversation.remoteIdentifier = [NSUUID createUUID];
     NSData *jpegData = [self.verySmallJPEGData wr_imageDataWithoutMetadataAndReturnError:nil];
     id<ZMConversationMessage> temporaryMessage = [conversation appendMessageWithImageData:jpegData];
     

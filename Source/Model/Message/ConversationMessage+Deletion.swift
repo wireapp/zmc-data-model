@@ -57,7 +57,7 @@ extension ZMMessage {
     
     @discardableResult func deleteForEveryone() -> ZMClientMessage? {
         guard !isZombieObject, let sender = sender , (sender.isSelfUser || isEphemeral) else { return nil }
-        guard let conversation = conversation else { return nil}
+        guard let conversation = conversation, let nonce = nonce else { return nil}
         
         // We insert a message of type `ZMMessageDelete` containing the nonce of the message that should be deleted
         let deletedMessage = ZMGenericMessage(deleteMessage: nonce.transportString(), nonce: NSUUID().transportString())
@@ -83,7 +83,7 @@ extension ZMMessage {
     func edit(_ newText: String, fetchLinkPreview: Bool) -> ZMMessage? {
         guard isEditableMessage else { return nil }
         guard !isZombieObject, let sender = sender , sender.isSelfUser else { return nil }
-        guard let conversation = conversation else { return nil }
+        guard let conversation = conversation, let nonce = nonce else { return nil }
         
         let edited = ZMGenericMessage(editMessage: nonce.transportString(), newText: newText, nonce: NSUUID().transportString())
         

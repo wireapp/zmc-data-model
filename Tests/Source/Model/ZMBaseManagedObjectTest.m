@@ -208,36 +208,6 @@
     return message;
 }
 
-- (ZMAssetClientMessage *)createImageMessageWithImageData:(NSData *)imageData format:(ZMImageFormat)format processed:(BOOL)processed stored:(BOOL)stored moc:(NSManagedObjectContext *)moc
-{
-    NSUUID *nonce = [NSUUID createUUID];
-    ZMAssetClientMessage *imageMessage = [ZMAssetClientMessage assetClientMessageWithOriginalImage:imageData nonce:nonce managedObjectContext:moc expiresAfter:0];
-    
-    if(processed) {
-        
-        CGSize imageSize = [ZMImagePreprocessor sizeOfPrerotatedImageWithData:imageData];
-        ZMIImageProperties *properties = [ZMIImageProperties imagePropertiesWithSize:imageSize
-                                                                              length:imageData.length
-                                                                            mimeType:@"image/jpeg"];
-        ZMImageAssetEncryptionKeys *keys = [[ZMImageAssetEncryptionKeys alloc] initWithOtrKey:[NSData zmRandomSHA256Key]
-                                                                                       macKey:[NSData zmRandomSHA256Key]
-                                                                                          mac:[NSData zmRandomSHA256Key]];
-        
-        ZMGenericMessage *message = [ZMGenericMessage genericMessageWithMediumImageProperties:properties processedImageProperties:properties encryptionKeys:keys nonce:nonce.transportString format:format expiresAfter:nil];
-        [imageMessage add:message];
-        
-        [self.uiMOC.zm_imageAssetCache storeAssetData:nonce format:format encrypted:YES data:imageData];
-        
-        if (stored) {
-            [self.uiMOC.zm_imageAssetCache storeAssetData:nonce format:ZMImageFormatOriginal encrypted:NO data:imageData];
-        }
-        if (processed) {
-            [self.uiMOC.zm_imageAssetCache storeAssetData:nonce format:format encrypted:NO data:imageData];
-        }
-    }
-    return imageMessage;
-}
-
 @end
 
 

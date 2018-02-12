@@ -248,10 +248,19 @@ extension ZMAssetClientMessageTests_Ephemeral {
         let sender = ZMUser.insertNewObject(in: uiMOC)
         sender.remoteIdentifier = UUID.create()
         
-        let message = conversation.appendMessage(withImageData: verySmallJPEGData()) as! ZMAssetClientMessage
+        let nonce = UUID()
+        let message = ZMAssetClientMessage.insertNewObject(in: uiMOC)
+        message.sender = sender
+        message.visibleInConversation = conversation
+        message.nonce = nonce
+        
+        let imageData = verySmallJPEGData()
+        let assetMessage = ZMGenericMessage.genericMessage(withImageSize: CGSize.zero, mimeType: "", size: UInt64(imageData.count), nonce: nonce.transportString(), expiresAfter: 10)
+        message.add(assetMessage)
+        
         let uploaded = ZMGenericMessage.genericMessage(withUploadedOTRKey: .randomEncryptionKey(), sha256: .zmRandomSHA256Key(), messageID: message.nonce.transportString(), expiresAfter: NSNumber(value: conversation.messageDestructionTimeout))
         message.add(uploaded)
-        message.sender = sender
+        message.setImageData(imageData, for: .medium, properties: nil)
         
         // when
         XCTAssertTrue(message.startSelfDestructionIfNeeded())

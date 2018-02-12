@@ -41,7 +41,7 @@ class FileAssetCacheTests: CacheTests {}
 
 
 // MARK: - Storing and retrieving image assets
-extension ImageAssetCacheTests {
+extension ImageAssetCacheTests { // TODO jacob removed from target
     
     func testThatStoringAndRetrievingAssetsWithDifferentOptionsRetrievesTheRightData() {
         

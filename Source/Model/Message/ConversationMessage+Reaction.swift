@@ -31,14 +31,14 @@ import Foundation
 extension ZMMessage {
     
     static func appendReaction(_ unicodeValue: String?, toMessage message: ZMConversationMessage) -> ZMClientMessage? {
-        guard let message = message as? ZMMessage, let context = message.managedObjectContext else { return nil }
+        guard let message = message as? ZMMessage, let context = message.managedObjectContext, let messageID = message.nonce else { return nil }
         guard message.deliveryState == ZMDeliveryState.sent || message.deliveryState == ZMDeliveryState.delivered else { return nil }
         
         let emoji = unicodeValue ?? ""
         
         let genericMessage = ZMGenericMessage(
             emojiString: emoji,
-            messageID: message.nonce.transportString(),
+            messageID: messageID.transportString(),
             nonce: NSUUID().transportString()
         )
     

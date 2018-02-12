@@ -36,9 +36,14 @@ class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
     
     override func setUp() {
         super.setUp()
-        self.conversation = ZMConversation.insertNewObject(in: self.uiMOC)
+        self.conversation = ZMConversation.insertNewObject(in: uiMOC)
         self.conversation.conversationType = .group
         self.conversation.remoteIdentifier = UUID.create()
+        
+        let selfUser = ZMUser.selfUser(in: uiMOC)
+        selfUser.remoteIdentifier = UUID()
+        
+        uiMOC.saveOrRollback()
     }
     
     override func tearDown() {
@@ -148,7 +153,7 @@ class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
         
         // GIVEN
         let data = self.data(forResource: "animated", extension: "gif")!
-        let message = ZMAssetClientMessage.assetClientMessage(originalImage: data, nonce: .create(), managedObjectContext: uiMOC, expiresAfter: 0)
+        let message = conversation.appendMessage(withImageData: data) as! ZMAssetClientMessage
         let testProperties = ZMIImageProperties(size: CGSize(width: 33, height: 55), length: UInt(10), mimeType: "image/gif")
         message.imageAssetStorage.setImageData(data, for: .medium, properties: testProperties)
         
