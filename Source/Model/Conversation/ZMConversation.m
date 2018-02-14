@@ -905,10 +905,9 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return [NSSet setWithObjects:ZMConversationMessagesKey, ZMConversationLastReadServerTimeStampKey, nil];
 }
 
-- (void)updateKeysThatHaveLocalModifications;
+- (NSSet<NSString *> *)filterUpdatedLocallyModifiedKeys:(NSSet<NSString *> *)updatedKeys
 {
-    [super updateKeysThatHaveLocalModifications];
-    NSMutableSet *newKeys = [self.keysThatHaveLocalModifications mutableCopy];
+    NSMutableSet *newKeys = [super filterUpdatedLocallyModifiedKeys:updatedKeys].mutableCopy;
     if (self.unsyncedInactiveParticipants.count > 0) {
         ZMLogDebug(@"adding ZMConversationUnsyncedInactiveParticipantsKey to modified keys for %@", self.remoteIdentifier.transportString);
         [newKeys addObject:ZMConversationUnsyncedInactiveParticipantsKey];
@@ -917,9 +916,13 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         [newKeys addObject:ZMConversationUnsyncedActiveParticipantsKey];
     }
     
-    if( ![newKeys isEqual:self.keysThatHaveLocalModifications]) {
-        [self setLocallyModifiedKeys:newKeys];
+    // Don't sync the conversation name if it was set before inserting the conversation
+    // as it will already get synced when inserting the conversation on the backend.
+    if (self.isInserted && nil != self.userDefinedName && [newKeys containsObject:ZMConversationUserDefinedNameKey]) {
+        [newKeys removeObject:ZMConversationUserDefinedNameKey];
     }
+    
+    return newKeys;
 }
 
 - (void)willSave
@@ -1431,6 +1434,32 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     
     ZMAssetClientMessage *message = [self appendAssetClientMessageWithNonce:nonce hidden:false imageData:imageDataWithoutMetadata];
     return message;
+}
+
+- (void)appendNewConversationSystemMessageIfNeeded;
+{
+    ZMMessage *firstMessage = self.messages.firstObject;
+    if ([firstMessage isKindOfClass:[ZMSystemMessage class]]) {
+        ZMSystemMessage *systemMessage = (ZMSystemMessage *)firstMessage;
+        if (systemMessage.systemMessageType == ZMSystemMessageTypeNewConversation) {
+            return;
+        }
+    }
+    
+    ZMSystemMessage *systemMessage = [ZMSystemMessage insertNewObjectInManagedObjectContext:self.managedObjectContext];
+    systemMessage.systemMessageType = ZMSystemMessageTypeNewConversation;
+    systemMessage.sender = [ZMUser selfUserInContext:self.managedObjectContext];
+    systemMessage.nonce = [NSUUID new];
+    systemMessage.sender = self.creator;
+    systemMessage.text = self.userDefinedName;
+    systemMessage.users = self.activeParticipants.set;
+    // the new conversation message should be displayed first,
+    // additionally the use of reference date is to ensure proper transition for older clients so the message is the very
+    // first message in conversation
+    systemMessage.serverTimestamp = [NSDate dateWithTimeIntervalSinceReferenceDate:0];
+    
+    [self sortedAppendMessage:systemMessage];
+    systemMessage.visibleInConversation = self;
 }
 
 - (NSUInteger)sortedAppendMessage:(ZMMessage *)message;
