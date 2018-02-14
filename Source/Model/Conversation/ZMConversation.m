@@ -1202,7 +1202,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
     // We need to check if we should add a 'secure' system message in case all participants are trusted
     [conversation increaseSecurityLevelIfNeededAfterTrustingClients:participant.clients];
-    [conversation appendNewConversationSystemMessageIfNeeded];
+    [conversation appendNewConversationSystemMessageWithName:nil];
     return conversation;
 }
 
@@ -1263,7 +1263,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     
     // We need to check if we should add a 'secure' system message in case all participants are trusted
     [conversation increaseSecurityLevelIfNeededAfterTrustingClients:allClients];
-    [conversation appendNewConversationSystemMessageIfNeeded];
+    [conversation appendNewConversationSystemMessageWithName:name];
     return conversation;
 }
 

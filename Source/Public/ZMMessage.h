@@ -72,7 +72,8 @@ typedef NS_ENUM(int16_t, ZMSystemMessageType) {
     ZMSystemMessageTypeUsingNewDevice,
     ZMSystemMessageTypeMessageDeletedForEveryone,
     ZMSystemMessageTypePerformedCall,
-    ZMSystemMessageTypeTeamMemberLeave
+    ZMSystemMessageTypeTeamMemberLeave,
+    ZMSystemMessageTypeNewConversationWithName,
 };
 
 

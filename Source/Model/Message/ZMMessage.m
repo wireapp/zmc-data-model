@@ -922,6 +922,7 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
             case ZMSystemMessageTypeConnectionRequest:
             case ZMSystemMessageTypeConnectionUpdate:
             case ZMSystemMessageTypeNewConversation:
+            case ZMSystemMessageTypeNewConversationWithName:
             case ZMSystemMessageTypeParticipantsAdded:
             case ZMSystemMessageTypeParticipantsRemoved:
                 return NO;

@@ -168,8 +168,6 @@ NS_ASSUME_NONNULL_END
 /// @param hidden wether the message should be hidden in the conversation or not
 - (nullable ZMClientMessage *)appendGenericMessage:(nonnull ZMGenericMessage *)genericMessage expires:(BOOL)expires hidden:(BOOL)hidden;
 
-- (void)appendNewConversationSystemMessageIfNeeded;
-
 - (void)deleteOlderMessages;
 
 @end

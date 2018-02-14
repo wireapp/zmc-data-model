@@ -22,13 +22,8 @@ import Foundation
 
 class ZMConversationCreationSystemMessageTests: ZMConversationTestsBase {
 
-    override func setUp() {
-        super.setUp()
-    }
-
     func testSystemMessageWhenCreatingConversationWithNoName() {
         syncMOC.performGroupedBlock {
-            let selfUser = ZMUser.selfUser(in: self.syncMOC)
             let alice = self.createUser(onMoc: self.syncMOC)!
             alice.name = "alice"
             let bob = self.createUser(onMoc: self.syncMOC)!
@@ -42,7 +37,8 @@ class ZMConversationCreationSystemMessageTests: ZMConversationTestsBase {
             XCTAssertNotNil(systemMessage)
             XCTAssertEqual(systemMessage?.systemMessageType, .newConversation)
             XCTAssertNil(systemMessage?.text)
-            XCTAssertEqual(systemMessage?.users, [selfUser, alice, bob])
+            XCTAssertEqual(systemMessage?.users.contains(alice), true)
+            XCTAssertEqual(systemMessage?.users.contains(bob), true)
         }
 
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
@@ -50,7 +46,6 @@ class ZMConversationCreationSystemMessageTests: ZMConversationTestsBase {
 
     func testSystemMessageWhenCreatingConversationWithName() {
         syncMOC.performGroupedBlock {
-            let selfUser = ZMUser.selfUser(in: self.syncMOC)
             let alice = self.createUser(onMoc: self.syncMOC)!
             alice.name = "alice"
             let bob = self.createUser(onMoc: self.syncMOC)!
@@ -60,14 +55,21 @@ class ZMConversationCreationSystemMessageTests: ZMConversationTestsBase {
 
             let conversation = ZMConversation.insertGroupConversation(into: self.syncMOC, withParticipants: [alice, bob], name: name, in: nil)
 
-            XCTAssertEqual(conversation?.messages.count, 1)
+            XCTAssertEqual(conversation?.messages.count, 2)
 
-            let systemMessage = conversation?.messages.lastObject as? ZMSystemMessage
+            let nameMessage = conversation?.messages.firstObject as? ZMSystemMessage
+            XCTAssertNotNil(nameMessage)
+            XCTAssertEqual(nameMessage?.systemMessageType, .newConversationWithName)
+            XCTAssertEqual(nameMessage?.text, name)
+            XCTAssertEqual(nameMessage?.users, [])
 
-            XCTAssertNotNil(systemMessage)
-            XCTAssertEqual(systemMessage?.systemMessageType, .newConversation)
-            XCTAssertEqual(systemMessage?.text, name)
-            XCTAssertEqual(systemMessage?.users, [selfUser, alice, bob])
+            let membersMessage = conversation?.messages.lastObject as? ZMSystemMessage
+
+            XCTAssertNotNil(membersMessage)
+            XCTAssertEqual(membersMessage?.systemMessageType, .newConversation)
+            XCTAssertEqual(membersMessage?.text, name)
+            XCTAssertEqual(membersMessage?.users.contains(alice), true)
+            XCTAssertEqual(membersMessage?.users.contains(bob), true)
         }
 
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
@@ -76,7 +78,6 @@ class ZMConversationCreationSystemMessageTests: ZMConversationTestsBase {
     func testSystemMessageWhenCreatingEmptyConversationWithName() {
         syncMOC.performGroupedBlock {
             let name = "Crypto"
-            let selfUser = ZMUser.selfUser(in: self.syncMOC)
 
             let conversation = ZMConversation.insertGroupConversation(into: self.syncMOC, withParticipants: [], name: name, in: nil)
 
@@ -84,9 +85,9 @@ class ZMConversationCreationSystemMessageTests: ZMConversationTestsBase {
 
             let nameMessage = conversation?.messages.firstObject as? ZMSystemMessage
             XCTAssertNotNil(nameMessage)
-            XCTAssertEqual(nameMessage?.systemMessageType, .newConversation)
+            XCTAssertEqual(nameMessage?.systemMessageType, .newConversationWithName)
             XCTAssertEqual(nameMessage?.text, name)
-            XCTAssertEqual(nameMessage?.users, [selfUser])
+            XCTAssertEqual(nameMessage?.users, [])
         }
 
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.2))
