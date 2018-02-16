@@ -249,10 +249,9 @@ extension ZMAssetClientMessageTests_Ephemeral {
         sender.remoteIdentifier = UUID.create()
         
         let nonce = UUID()
-        let message = ZMAssetClientMessage.insertNewObject(in: uiMOC)
+        let message = ZMAssetClientMessage(nonce: nonce, managedObjectContext: uiMOC)
         message.sender = sender
         message.visibleInConversation = conversation
-        message.nonce = nonce
         
         let imageData = verySmallJPEGData()
         let assetMessage = ZMGenericMessage.genericMessage(withImageSize: CGSize.zero, mimeType: "", size: UInt64(imageData.count), nonce: nonce.transportString(), expiresAfter: 10)
@@ -272,7 +271,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
     
     func appendPreviewImageMessage() -> ZMAssetClientMessage {
         let imageData = verySmallJPEGData()
-        let message = ZMAssetClientMessage.insertNewObject(in: uiMOC)
+        let message = ZMAssetClientMessage(nonce: UUID(), managedObjectContext: uiMOC)
         conversation.sortedAppendMessage(message)
         
         let imageSize = ZMImagePreprocessor.sizeOfPrerotatedImage(with: imageData)

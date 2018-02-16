@@ -201,9 +201,10 @@
 
 - (ZMClientMessage *)createClientTextMessageWithText:(NSString *)text
 {
-    ZMClientMessage *message = [ZMClientMessage insertNewObjectInManagedObjectContext:self.uiMOC];
-    NSUUID *messageNonce = [NSUUID createUUID];
-    ZMGenericMessage *textMessage = [ZMGenericMessage messageWithText:text nonce:messageNonce.transportString expiresAfter:nil];
+    NSUUID *nonce = [NSUUID createUUID];
+    ZMClientMessage *message = [[ZMClientMessage alloc] initWithNonce:nonce managedObjectContext:self.uiMOC];
+    
+    ZMGenericMessage *textMessage = [ZMGenericMessage messageWithText:text nonce:nonce.transportString expiresAfter:nil];
     [message addData:textMessage.data];
     return message;
 }

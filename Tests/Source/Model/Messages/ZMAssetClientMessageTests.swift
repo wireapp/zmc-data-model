@@ -121,8 +121,7 @@ class BaseZMAssetClientMessageTests : BaseZMClientMessageTests {
 class ZMAssetClientMessageTests : BaseZMAssetClientMessageTests {
     
     func testThatItStoresPlainImageMessageDataForPreview() {
-        let message = ZMAssetClientMessage.insertNewObject(in: self.uiMOC);
-        message.nonce = UUID.create()
+        let message = ZMAssetClientMessage(nonce: UUID.create(), managedObjectContext: uiMOC)
         message.sender = selfUser
         message.visibleInConversation = conversation
         
@@ -136,8 +135,7 @@ class ZMAssetClientMessageTests : BaseZMAssetClientMessageTests {
     }
     
     func testThatItStoresPlainImageMessageDataForMedium() {
-        let message = ZMAssetClientMessage.insertNewObject(in: self.uiMOC);
-        message.nonce = UUID.create()
+        let message = ZMAssetClientMessage(nonce: UUID.create(), managedObjectContext: uiMOC)
         message.sender = selfUser
         message.visibleInConversation = conversation
         
@@ -152,8 +150,7 @@ class ZMAssetClientMessageTests : BaseZMAssetClientMessageTests {
     
     func testThatItDecryptsEncryptedImageMessageData() {
         //given
-        let message = ZMAssetClientMessage.insertNewObject(in: self.uiMOC);
-        message.nonce = UUID.create()
+        let message = ZMAssetClientMessage(nonce: UUID.create(), managedObjectContext: uiMOC)
         message.sender = selfUser
         message.visibleInConversation = conversation
         let imageData = self.verySmallJPEGData()
@@ -178,8 +175,7 @@ class ZMAssetClientMessageTests : BaseZMAssetClientMessageTests {
     
     func testThatItDeletesMessageIfImageMessageDataCanNotBeDecrypted() {
         //given
-        let message = ZMAssetClientMessage.insertNewObject(in: self.uiMOC);
-        message.nonce = UUID.create()
+        let message = ZMAssetClientMessage(nonce: UUID.create(), managedObjectContext: uiMOC)
         message.sender = selfUser
         message.visibleInConversation = conversation
         let imageData = self.verySmallJPEGData()
@@ -208,8 +204,7 @@ class ZMAssetClientMessageTests : BaseZMAssetClientMessageTests {
     
     func testThatItMarksMediumNeededToBeDownloadedIfNoEncryptedNoDecryptedDataStored() {
         
-        let message = ZMAssetClientMessage.insertNewObject(in: self.uiMOC);
-        message.nonce = UUID.create()
+        let message = ZMAssetClientMessage(nonce: UUID.create(), managedObjectContext: uiMOC)
         message.sender = selfUser
         message.visibleInConversation = conversation
         let imageData = self.verySmallJPEGData()
@@ -449,8 +444,7 @@ extension ZMAssetClientMessageTests {
     {
         // given
         let nonce = UUID.create()
-        let sut = ZMAssetClientMessage.insertNewObject(in: uiMOC)
-        sut.nonce = nonce
+        let sut = ZMAssetClientMessage(nonce: UUID.create(), managedObjectContext: uiMOC)
         sut.sender = selfUser
         let mimeType = "text/plain"
         XCTAssertTrue(uiMOC.saveOrRollback())
@@ -474,9 +468,8 @@ extension ZMAssetClientMessageTests {
     {
         // given
         let nonce = UUID.create()
-        let sut = ZMAssetClientMessage.insertNewObject(in: uiMOC)
+        let sut = ZMAssetClientMessage(nonce: nonce, managedObjectContext: uiMOC)
         sut.sender = selfUser
-        sut.nonce = nonce
         XCTAssertTrue(uiMOC.saveOrRollback())
         XCTAssertNotNil(sut)
         
@@ -493,8 +486,7 @@ extension ZMAssetClientMessageTests {
     {
         // given
         let nonce = UUID.create()
-        let sut = ZMAssetClientMessage.insertNewObject(in: uiMOC)
-        sut.nonce = nonce
+        let sut = ZMAssetClientMessage(nonce: nonce, managedObjectContext: uiMOC)
         sut.sender = selfUser
         XCTAssertTrue(uiMOC.saveOrRollback())
         XCTAssertNotNil(sut)
@@ -511,8 +503,7 @@ extension ZMAssetClientMessageTests {
     {
         // given
         let nonce = UUID.create()
-        let sut = ZMAssetClientMessage.insertNewObject(in: uiMOC)
-        sut.nonce = nonce
+        let sut = ZMAssetClientMessage(nonce: nonce, managedObjectContext: uiMOC)
         sut.sender = selfUser
         XCTAssertTrue(uiMOC.saveOrRollback())
         XCTAssertNotNil(sut)
@@ -530,8 +521,7 @@ extension ZMAssetClientMessageTests {
     {
         // given
         let nonce = UUID.create()
-        let sut = ZMAssetClientMessage.insertNewObject(in: uiMOC)
-        sut.nonce = nonce
+        let sut = ZMAssetClientMessage(nonce: nonce, managedObjectContext: uiMOC)
         sut.sender = selfUser
         XCTAssertTrue(uiMOC.saveOrRollback())
         XCTAssertNotNil(sut)
@@ -551,8 +541,7 @@ extension ZMAssetClientMessageTests {
     {
         // given
         let nonce = UUID.create()
-        let sut = ZMAssetClientMessage.insertNewObject(in: uiMOC)
-        sut.nonce = nonce
+        let sut = ZMAssetClientMessage(nonce: nonce, managedObjectContext: uiMOC)
         sut.sender = selfUser
         XCTAssertTrue(uiMOC.saveOrRollback())
         XCTAssertNotNil(sut)
@@ -572,8 +561,7 @@ extension ZMAssetClientMessageTests {
         conversation.remoteIdentifier = UUID.create()
         let assetId = UUID.create()
         let nonce = UUID.create()
-        let sut = ZMAssetClientMessage.insertNewObject(in: uiMOC)
-        sut.nonce = nonce
+        let sut = ZMAssetClientMessage(nonce: nonce, managedObjectContext: uiMOC)
         sut.sender = selfUser
         XCTAssertTrue(uiMOC.saveOrRollback())
         XCTAssertNotNil(sut)
@@ -628,9 +616,6 @@ extension ZMAssetClientMessageTests {
     func testThatItAddsAnUploadedGenericMessageToTheDataSet() {
         self.syncMOC.performAndWait {
             // given
-//            let nonce = UUID.create()
-//            let fileMetadata = self.addFile()
-            
             let selfClient = UserClient.insertNewObject(in: self.syncMOC)
             selfClient.remoteIdentifier = self.name
             selfClient.user = .selfUser(in: self.syncMOC)
@@ -646,13 +631,6 @@ extension ZMAssetClientMessageTests {
             conversation.conversationType = .group
             conversation.addParticipant(user2)
             
-//            let sut = ZMAssetClientMessage.assetClientMessage(
-//                with: fileMetadata,
-//                nonce: nonce,
-//                managedObjectContext: self.syncMOC,
-//                expiresAfter: 0
-//            )!
-//            sut.visibleInConversation = conversation
             let sut = appendFileMessage(to: syncConversation)!
             
             // when
@@ -674,8 +652,7 @@ extension ZMAssetClientMessageTests {
     
     func testThatItSetsTheCorrectStateWhen_RequestFileDownload_IsBeingCalled() {
         // given
-        let sut = ZMAssetClientMessage.insertNewObject(in: uiMOC)
-        sut.nonce = .create()
+        let sut = ZMAssetClientMessage(nonce: .create(), managedObjectContext: uiMOC)
         sut.sender = selfUser
         let original = ZMGenericMessage.genericMessage(asset: .asset(withOriginal: .original(withSize: 256, mimeType: "text/plain", name: name)), messageID: sut.nonce.transportString())
         sut.add(original)
@@ -809,8 +786,7 @@ extension ZMAssetClientMessageTests {
         self.syncMOC.performAndWait {
             
             // given
-            let sut = ZMAssetClientMessage.insertNewObject(in: self.syncMOC)
-            sut.nonce = .create()
+            let sut = ZMAssetClientMessage(nonce: .create(), managedObjectContext: syncMOC)
             sut.sender = ZMUser.selfUser(in: syncMOC)
             sut.visibleInConversation = syncConversation
             let original = ZMGenericMessage.genericMessage(asset: .asset(withOriginal: .original(withSize: 256, mimeType: "text/plain", name: self.name)), messageID: sut.nonce.transportString())
@@ -1113,7 +1089,7 @@ extension ZMAssetClientMessageTests {
     
     func testThatItStoresTheAssociatedTaskIdentifier() {
         // given
-        let sut = ZMAssetClientMessage.insertNewObject(in: self.uiMOC)
+        let sut = ZMAssetClientMessage(nonce: .create(), managedObjectContext: uiMOC)
         
         // when
         let identifier = ZMTaskIdentifier(identifier: 42, sessionIdentifier: "foo")
@@ -1198,8 +1174,7 @@ extension ZMAssetClientMessageTests {
         let nonce = UUID.create()
         let imageData = imageData ?? sampleImageData()
         var genericMessage : [ZMImageFormat : ZMGenericMessage] = [:]
-        let assetMessage = ZMAssetClientMessage.insertNewObject(in: self.uiMOC)
-        assetMessage.nonce = nonce
+        let assetMessage = ZMAssetClientMessage(nonce: nonce, managedObjectContext: uiMOC)
         assetMessage.sender = selfUser
         assetMessage.visibleInConversation = conversation
         
@@ -1781,7 +1756,7 @@ extension ZMAssetClientMessageTests {
         let referenceDate = Date(timeIntervalSince1970: 123456)
         let updatedDate = Date(timeIntervalSince1970:127476)
         
-        let message = ZMAssetClientMessage.insertNewObject(in: self.uiMOC)
+        let message = ZMAssetClientMessage(nonce: UUID(), managedObjectContext: self.uiMOC)
         message.serverTimestamp = referenceDate
         message.uploadState = .uploadingPlaceholder
         
@@ -1800,7 +1775,7 @@ extension ZMAssetClientMessageTests {
         let referenceDate = Date(timeIntervalSince1970: 123456)
         let updatedDate = Date(timeIntervalSince1970:127476)
         
-        let message = ZMAssetClientMessage.insertNewObject(in: self.uiMOC)
+        let message = ZMAssetClientMessage(nonce: UUID(), managedObjectContext: self.uiMOC)
         message.serverTimestamp = referenceDate
         message.uploadState = .uploadingFullAsset
         
@@ -1959,8 +1934,7 @@ extension ZMAssetClientMessageTests {
 
     func createMessageWithNonce() -> (ZMAssetClientMessage, UUID) {
         let nonce = UUID.create()
-        let sut = ZMAssetClientMessage.insertNewObject(in: uiMOC)
-        sut.nonce = nonce
+        let sut = ZMAssetClientMessage(nonce: nonce, managedObjectContext: self.uiMOC)
         sut.sender = selfUser
         sut.visibleInConversation = conversation
         XCTAssertTrue(uiMOC.saveOrRollback())

@@ -96,7 +96,7 @@ class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
         article.summary = "summary"
         let linkPreview = article.protocolBuffer.update(withOtrKey: Data(), sha256: Data())
         let genericMessage = ZMGenericMessage.message(text: "foo", linkPreview: linkPreview, nonce: UUID.create().transportString())
-        let message = self.conversation.appendClientMessage(with: genericMessage.data())
+        let message = self.conversation.appendClientMessage(with: genericMessage)
         message?.linkPreviewState = .processed
         
         // THEN
@@ -117,7 +117,7 @@ class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
         // GIVEN
         let imageData = verySmallJPEGData()
         let messageNonce = UUID.create()
-        let message = ZMAssetClientMessage.insertNewObject(in: uiMOC)
+        let message = ZMAssetClientMessage(nonce: UUID(), managedObjectContext: uiMOC)
         let imageSize = ZMImagePreprocessor.sizeOfPrerotatedImage(with: imageData)
         let properties = ZMIImageProperties(size:imageSize, length:UInt(imageData.count), mimeType:"image/jpeg")
         let keys = ZMImageAssetEncryptionKeys(otrKey: Data.randomEncryptionKey(), macKey: Data.zmRandomSHA256Key(), mac: Data.zmRandomSHA256Key())
@@ -241,7 +241,7 @@ class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
     func testThatItCategorizesSystemMessage() {
         
         // GIVEN
-        let message = ZMSystemMessage.insertNewObject(in: self.conversation.managedObjectContext!)
+        let message = ZMSystemMessage(nonce: UUID(), managedObjectContext: conversation.managedObjectContext!)
         message.systemMessageType = .conversationNameChanged
         
         // THEN

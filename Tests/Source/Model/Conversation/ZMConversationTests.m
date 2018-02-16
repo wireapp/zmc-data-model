@@ -105,7 +105,7 @@
     if (conversation.lastServerTimeStamp == nil) {
         conversation.lastServerTimeStamp = [NSDate date];
     }
-    ZMMessage *message = [ZMMessage insertNewObjectInManagedObjectContext:conversation.managedObjectContext];
+    ZMMessage *message = [[ZMMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:conversation.managedObjectContext];
     message.serverTimestamp = [conversation.lastServerTimeStamp dateByAddingTimeInterval:5];
     message.visibleInConversation = conversation;
     [conversation resortMessagesWithUpdatedMessage:message];
@@ -118,7 +118,7 @@
 {
     NSDate *newTime = conversation.lastServerTimeStamp ? [conversation.lastServerTimeStamp dateByAddingTimeInterval:5] : [NSDate date];
     
-    ZMTextMessage *message = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMTextMessage *message = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message.serverTimestamp = newTime;
     conversation.lastServerTimeStamp = message.serverTimestamp;
     [conversation.mutableMessages addObject:message];
@@ -129,7 +129,7 @@
 {
     NSDate *newTime = conversation.lastServerTimeStamp ? [conversation.lastServerTimeStamp dateByAddingTimeInterval:5] : [NSDate date];
     
-    ZMTextMessage *message = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMTextMessage *message = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];;
     message.serverTimestamp = newTime;
     conversation.lastServerTimeStamp = message.serverTimestamp;
     [conversation.mutableMessages addObject:message];
@@ -140,7 +140,7 @@
 {
     NSDate *newTime = conversation.lastServerTimeStamp ? [conversation.lastServerTimeStamp dateByAddingTimeInterval:5] : [NSDate date];
     
-    ZMSystemMessage *systemMessage = [ZMSystemMessage insertNewObjectInManagedObjectContext:conversation.managedObjectContext];
+    ZMSystemMessage *systemMessage = [[ZMSystemMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:conversation.managedObjectContext];
     systemMessage.serverTimestamp = newTime;
     systemMessage.systemMessageType = ZMSystemMessageTypeNewClient;
     [conversation.mutableMessages addObject:systemMessage];
@@ -440,7 +440,7 @@
         
         for(NSUInteger i = 0; i < numberOfMessages; ++i) {
             NSString *text = [NSString stringWithFormat:@"Conversation test message %lu", (unsigned long)i];
-            ZMTextMessage *message = [ZMTextMessage insertNewObjectInManagedObjectContext:self.syncMOC];
+            ZMTextMessage *message = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.syncMOC];
             message.text = text;
             message.visibleInConversation = conversation;
             message.sender = creator;
@@ -478,7 +478,7 @@
         
         for(NSUInteger i = 0; i < numberOfMessages; ++i) {
             NSString *text = [NSString stringWithFormat:@"Conversation test message %lu", (unsigned long)i];
-            ZMTextMessage *message = [ZMTextMessage insertNewObjectInManagedObjectContext:self.syncMOC];
+            ZMTextMessage *message = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.syncMOC];
             message.text = text;
             message.visibleInConversation = conversation;
             message.sender = creator;
@@ -1540,7 +1540,7 @@
     
     // when
     conversation.lastReadServerTimeStamp = serverTimeStamp;
-    ZMTextMessage *message = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMTextMessage *message = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message.serverTimestamp = serverTimeStamp;
     [conversation.mutableMessages addObject:message];
     
@@ -1662,7 +1662,7 @@
 
 - (ZMMessage *)insertMessageIntoConversation:(ZMConversation *)conversation
 {
-    ZMTextMessage *message = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMTextMessage *message = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message.serverTimestamp = [[NSDate date] dateByAddingTimeInterval:2];
     message.text = [NSString stringWithFormat:@"Text %@", message.serverTimestamp];
     [conversation.mutableMessages addObject:message];
@@ -2373,13 +2373,13 @@
 - (void)testThatItRecalculatesLastReadMessageWhenLastReadServerTimeStampChanges
 {
     // given
-    ZMTextMessage *message1 = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMTextMessage *message1 = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message1.serverTimestamp = [NSDate date];
     
-    ZMTextMessage *message2 = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMTextMessage *message2 = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message2.serverTimestamp = [NSDate date];
     
-    ZMTextMessage *message3 = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMTextMessage *message3 = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message3.serverTimestamp = [NSDate date];
     
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
@@ -2406,10 +2406,10 @@
 - (void)testThatItRecalculatesLastReadMessageWhenMessagesChanges
 {
     // given
-    ZMTextMessage *message1 = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMTextMessage *message1 = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message1.serverTimestamp = [NSDate date];
     
-    ZMTextMessage *message2 = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMTextMessage *message2 = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message2.serverTimestamp = [NSDate date];
     
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
@@ -2863,7 +2863,7 @@
     conversation.conversationType = ZMConversationTypeOneOnOne;
     conversation.lastServerTimeStamp = messageDate;
     if(hasUnread) {
-        ZMClientMessage *message = [ZMClientMessage insertNewObjectInManagedObjectContext:self.syncMOC];
+        ZMClientMessage *message = [[ZMClientMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.syncMOC];
         message.serverTimestamp = messageDate;
         conversation.lastReadServerTimeStamp = [messageDate dateByAddingTimeInterval:-1000];
         [conversation sortedAppendMessage:message];

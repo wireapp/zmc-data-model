@@ -31,7 +31,7 @@ import Foundation
                               managedObjectContext: NSManagedObjectContext,
                               expiresAfter timeout: TimeInterval = 0)
     {
-        self.init(entity: NSEntityDescription.entity(forEntityName: type(of: self).entityName(), in: managedObjectContext)!, insertInto: managedObjectContext)
+        self.init(nonce: nonce, managedObjectContext: managedObjectContext)
         
         // We update the size and mimeType once the preprocesing is done
         let assetMessage = ZMGenericMessage.genericMessage(withImageSize: CGSize.zero,
@@ -54,7 +54,7 @@ import Foundation
                               expiresAfter timeout: TimeInterval = 0) {
         guard metadata.fileURL.isFileURL else { return nil } // just in case it tries to load from network!
         
-        self.init(entity: NSEntityDescription.entity(forEntityName: type(of: self).entityName(), in: managedObjectContext)!, insertInto: managedObjectContext)
+        self.init(nonce: nonce, managedObjectContext: managedObjectContext)
         
         transferState = .uploading
         uploadState = .uploadingPlaceholder

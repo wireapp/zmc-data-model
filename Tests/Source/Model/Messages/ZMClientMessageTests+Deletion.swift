@@ -125,10 +125,9 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
     func testThatItDeletesAPreEndtoEndPlainTextMessage() {
         // given
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
-        let sut = ZMTextMessage.insertNewObject(in: uiMOC) // Pre e2ee plain text message
+        let sut = ZMTextMessage(nonce: .create(), managedObjectContext: uiMOC) // Pre e2ee plain text message
         
         sut.visibleInConversation = conversation
-        sut.nonce = .create()
         sut.sender = selfUser
 
         // when
@@ -153,10 +152,9 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
     func testThatItDeletesAPreEndtoEndKnockMessage() {
         // given
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
-        let sut = ZMKnockMessage.insertNewObject(in: uiMOC) // Pre e2ee knock message
+        let sut = ZMKnockMessage(nonce: .create(), managedObjectContext: uiMOC) // Pre e2ee knock message
         
         sut.visibleInConversation = conversation
-        sut.nonce = .create()
         sut.sender = selfUser
         
         // when
@@ -179,10 +177,9 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
     func testThatItDeletesAPreEndToEndImageMessage() {
         // given
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
-        let sut = ZMImageMessage.insertNewObject(in: uiMOC) // Pre e2ee image message
+        let sut = ZMImageMessage(nonce: .create(), managedObjectContext: uiMOC) // Pre e2ee image message
         
         sut.visibleInConversation = conversation
-        sut.nonce = .create()
         sut.sender = selfUser
         
         let cache = uiMOC.zm_fileAssetCache
@@ -241,7 +238,7 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
         let deletedMessage = ZMGenericMessage(deleteMessage: nonce.transportString(), nonce: UUID().transportString())
         
         // when
-        let sut = conversation.append(deletedMessage, expires: false, hidden: true)!
+        let sut = conversation.appendClientMessage(with: deletedMessage, expires: false, hidden: true)!
         
         // then
         XCTAssertNil(sut.expirationDate)
@@ -369,10 +366,9 @@ extension ZMClientMessageTests_Deletion {
         conversation.remoteIdentifier = .create()
         let otherUser = ZMUser.insertNewObject(in:uiMOC)
         otherUser.remoteIdentifier = .create()
-        let message = ZMClientMessage.insertNewObject(in: uiMOC)
+        let message = ZMClientMessage(nonce: .create(), managedObjectContext: uiMOC)
         message.sender = otherUser
         message.visibleInConversation = conversation
-        message.nonce = .create()
         let timestamp = Date(timeIntervalSince1970: 123456789)
         message.serverTimestamp = timestamp
         
@@ -411,7 +407,7 @@ extension ZMClientMessageTests_Deletion {
         guard let sut = conversation.appendMessage(withText: name) as? ZMMessage else { return XCTFail() }
         let lastModified = Date(timeIntervalSince1970: 1234567890)
         conversation.lastModifiedDate = lastModified
-        let nonce = sut.nonce!
+        let nonce = sut.nonce
         
         // when
         let updateEvent = createMessageDeletedUpdateEvent(nonce, conversationID: conversation.remoteIdentifier!, senderID: sut.sender!.remoteIdentifier!)

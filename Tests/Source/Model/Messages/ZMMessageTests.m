@@ -49,7 +49,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatItIgnoresNanosecondSettingServerTimestampOnInsert
 {
     // given
-    ZMMessage *message = [ZMMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMMessage *message = [[ZMMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     double millisecondsSince1970 = [message.serverTimestamp timeIntervalSince1970]*1000;
     
     // then
@@ -76,7 +76,7 @@ NSString * const ReactionsKey = @"reactions";
     [self checkBaseMessageAttributeForClass:aClass];
 }
 
-- (void)testThatWeCanSetAttributesOnImageMessage // TODO jacob disabled test
+- (void)testThatWeCanSetAttributesOnImageMessage // TODO jacob disabled test, we cant set image on message not in conversation
 {
     Class aClass = [ZMImageMessage class];
     [self checkBaseMessageAttributeForClass:aClass];
@@ -98,7 +98,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatItCanSetData;
 {
     // given
-    ZMImageMessage *sut = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMImageMessage *sut = [[ZMImageMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     
     // when
     sut.originalSize = CGSizeMake(123.45f,125);
@@ -133,7 +133,7 @@ NSString * const ReactionsKey = @"reactions";
     }
     
     // load a message from the second context and check that the objectIDs for users are as expected
-    ZMSystemMessage *message = [ZMSystemMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMSystemMessage *message = [[ZMSystemMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     XCTAssertNotNil(message);
     message.users = users;
     XCTAssertEqualObjects([message users], users);
@@ -164,7 +164,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatTheServerTimeStampIsNilWhenTheServerTimestampIsNil;
 {
     // given
-    ZMTextMessage *message = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMTextMessage *message = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     
     // when
     message.serverTimestamp = nil;
@@ -176,7 +176,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatTheServerTimeStampIsUpdatedWhenTheServerTimestampIsUpdated;
 {
     // given
-    ZMTextMessage *message = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMTextMessage *message = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     
     // when
     message.serverTimestamp = [NSDate dateWithTimeIntervalSince1970:12346789];
@@ -191,7 +191,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatTheServerTimeStampIsOffsetFromServerTimestampByTheLocalTimeZone
 {
     // given
-    ZMTextMessage *message = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMTextMessage *message = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     
     // when
     NSDate *gmtTimestamp = [NSDate date];
@@ -215,13 +215,13 @@ NSString * const ReactionsKey = @"reactions";
         ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
         conversation.remoteIdentifier = [NSUUID createUUID];
         
-        ZMClientMessage *msg = [ZMClientMessage insertNewObjectInManagedObjectContext:self.syncMOC];
+        
         NSUUID *nonce = [NSUUID createUUID];
         ZMGenericMessage *textMessage = [ZMGenericMessage messageWithText:self.name nonce:nonce.transportString expiresAfter:nil];
+        ZMClientMessage *msg = [[ZMClientMessage alloc] initWithNonce:nonce managedObjectContext:self.syncMOC];
         [msg addData:textMessage.data];
         
         msg.visibleInConversation = conversation;
-        msg.nonce = NSUUID.createUUID;
         msg.serverTimestamp = oldTimeStamp;
         
         NSDictionary *data = @{@"content" : self.name,
@@ -245,13 +245,14 @@ NSString * const ReactionsKey = @"reactions";
         ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
         conversation.remoteIdentifier = [NSUUID createUUID];
 
-        ZMClientMessage *msg = [ZMClientMessage insertNewObjectInManagedObjectContext:self.syncMOC];
+        
+        
         NSUUID *nonce = [NSUUID createUUID];
         ZMGenericMessage *textMessage = [ZMGenericMessage messageWithText:self.name nonce:nonce.transportString expiresAfter:nil];
+        ZMClientMessage *msg = [[ZMClientMessage alloc] initWithNonce:nonce managedObjectContext:self.syncMOC];
         [msg addData:textMessage.data];
         
         msg.visibleInConversation = conversation;
-        msg.nonce = NSUUID.createUUID;
         msg.serverTimestamp = [NSDate dateWithTimeIntervalSinceReferenceDate:400000000];
         NSDictionary *data = @{@"content" : self.name,
                                @"nonce" : msg.nonce.transportString};
@@ -270,7 +271,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatItAlwaysReturnsZMDeliveryStateDeliveredForNonOTRMessages
 {
     // given
-    ZMTextMessage *message = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMTextMessage *message = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     
     // then
     XCTAssertEqual(message.deliveryState, ZMDeliveryStateDelivered);
@@ -279,7 +280,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatItResetsTheExpirationDateWhenResending
 {
     // given
-    ZMTextMessage *message = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMTextMessage *message = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     [message expire];
     
     NSDate *expectedDate = [NSDate dateWithTimeIntervalSinceNow:ZMTransportRequestDefaultExpirationInterval];
@@ -296,7 +297,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatItResetsTheExpiredStateWhenResending
 {
     // given
-    ZMTextMessage *message = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMTextMessage *message = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     [message expire];
     
     // when
@@ -342,7 +343,7 @@ NSString * const ReactionsKey = @"reactions";
 {
     // given
     ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    ZMMessage *message = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMMessage *message = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message.sender = user;
     
     // when
@@ -357,7 +358,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatExpiringAMessageSetsTheExpirationDateToNil
 {
     // given
-    ZMMessage *message = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMMessage *message = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     [ZMMessage setDefaultExpirationTime:12345];
     [message setExpirationDate];
     XCTAssertFalse(message.isExpired);
@@ -379,7 +380,7 @@ NSString * const ReactionsKey = @"reactions";
     NSSet *expected = [NSSet setWithObject:IsExpiredKey];
 
     // when
-    ZMTextMessage *message = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMTextMessage *message = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     
     // then
     XCTAssertEqualObjects(message.keysTrackedForLocalModifications, expected);
@@ -391,7 +392,7 @@ NSString * const ReactionsKey = @"reactions";
     NSSet *expected = [NSSet setWithObject:IsExpiredKey];
     
     // when
-    ZMSystemMessage *message = [ZMSystemMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMSystemMessage *message = [[ZMSystemMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     
     // then
     XCTAssertEqualObjects(message.keysTrackedForLocalModifications, expected);
@@ -404,7 +405,7 @@ NSString * const ReactionsKey = @"reactions";
     NSSet *expected = [NSSet setWithObject:IsExpiredKey];
     
     // when
-    ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMImageMessage *message = [[ZMImageMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     
     // then
     XCTAssertEqualObjects(message.keysTrackedForLocalModifications, expected);
@@ -413,7 +414,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatSpecialKeysAreNotPartOfTheLocallyModifiedKeysForClientMessages
 {
     // when
-    ZMClientMessage *message = [ZMClientMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMClientMessage *message = [[ZMClientMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     
     // then
     NSSet *keysThatShouldBeTracked = [NSSet setWithArray:@[@"dataSet", @"linkPreviewState"]];
@@ -444,7 +445,7 @@ NSString * const ReactionsKey = @"reactions";
     // given
     NSString *originalValue = @"will@foo.co";
     NSMutableString *mutableValue = [originalValue mutableCopy];
-    ZMTextMessage *msg = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMTextMessage *msg = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     
     // when
     msg.text = mutableValue;
@@ -541,7 +542,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatATextMessageHasTextMessageData
 {
     // given
-    ZMTextMessage *message = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMTextMessage *message = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message.text = @"Foo";
     // then
     XCTAssertEqualObjects(message.text, @"Foo");
@@ -559,7 +560,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatSettingTheOriginalDataRecognizesAGif
 {
     // given
-    ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMImageMessage *message = [[ZMImageMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message.originalImageData = [self dataForResource:@"animated" extension:@"gif"];
     
     // then
@@ -570,7 +571,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatSettingTheOriginalDataRecognizesAStaticImageAsNotGif
 {
     // given
-    ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMImageMessage *message = [[ZMImageMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message.originalImageData = [self dataForResource:@"tiny" extension:@"jpg"];
     
     // then
@@ -580,7 +581,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatAnEmptyImageMessageIsNotAnAnimatedGIF
 {
     // given
-    ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMImageMessage *message = [[ZMImageMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     
     // then
     XCTAssertFalse(message.isAnimatedGIF);
@@ -591,7 +592,7 @@ NSString * const ReactionsKey = @"reactions";
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.remoteIdentifier = [NSUUID createUUID];
-    ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMImageMessage *message = [[ZMImageMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message.sender = self.selfUser;
     message.visibleInConversation = conversation;
     message.mediumData = [self dataForResource:@"tiny" extension:@"jpg"];
@@ -606,7 +607,7 @@ NSString * const ReactionsKey = @"reactions";
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.remoteIdentifier = [NSUUID createUUID];
-    ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMImageMessage *message = [[ZMImageMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message.sender = self.selfUser;
     message.visibleInConversation = conversation;
     message.mediumData = [self dataForResource:@"not_animated" extension:@"gif"];
@@ -622,7 +623,7 @@ NSString * const ReactionsKey = @"reactions";
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.remoteIdentifier = [NSUUID createUUID];
-    ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMImageMessage *message = [[ZMImageMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message.sender = self.selfUser;
     message.visibleInConversation = conversation;
     message.mediumData = [self dataForResource:@"animated" extension:@"gif"];
@@ -635,7 +636,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatAnEmptyImageMessageHasNoType
 {
     // given
-    ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMImageMessage *message = [[ZMImageMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     
     // then
     XCTAssertNil(message.imageType);
@@ -646,7 +647,7 @@ NSString * const ReactionsKey = @"reactions";
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.remoteIdentifier = [NSUUID createUUID];
-    ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMImageMessage *message = [[ZMImageMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message.sender = self.selfUser;
     message.visibleInConversation = conversation;
     message.mediumData = [self dataForResource:@"tiny" extension:@"jpg"];
@@ -662,7 +663,7 @@ NSString * const ReactionsKey = @"reactions";
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.remoteIdentifier = [NSUUID createUUID];
-    ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMImageMessage *message = [[ZMImageMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message.sender = self.selfUser;
     message.visibleInConversation = conversation;
     message.mediumData = [self dataForResource:@"not_animated" extension:@"gif"];
@@ -678,7 +679,7 @@ NSString * const ReactionsKey = @"reactions";
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.remoteIdentifier = [NSUUID createUUID];
-    ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMImageMessage *message = [[ZMImageMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message.sender = self.selfUser;
     message.visibleInConversation = conversation;
     message.mediumData = [self dataForResource:@"animated" extension:@"gif"];
@@ -692,7 +693,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatAnImageMessageHasImageMessageData
 {
     // given
-    ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMImageMessage *message = [[ZMImageMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     
     // then
     XCTAssertNil(message.textMessageData.messageText);
@@ -710,7 +711,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatItDoesNotReturnAnIdentifierWhenTheImageDataIsNil
 {
     // given
-    ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMImageMessage *message = [[ZMImageMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message.originalImageData = nil;
     message.mediumData = nil;
     message.mediumRemoteIdentifier = nil;
@@ -727,7 +728,7 @@ NSString * const ReactionsKey = @"reactions";
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.remoteIdentifier = [NSUUID createUUID];
-    ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMImageMessage *message = [[ZMImageMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message.sender = self.selfUser;
     message.visibleInConversation = conversation;
     message.originalImageData = self.verySmallJPEGData;
@@ -746,7 +747,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatItReturnsAnIdentifierForTheImageData;
 {
     // given
-    ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMImageMessage *message = [[ZMImageMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message.mediumRemoteIdentifier = NSUUID.createUUID;
     
     // when
@@ -765,7 +766,7 @@ NSString * const ReactionsKey = @"reactions";
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.remoteIdentifier = [NSUUID createUUID];
-    ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMImageMessage *message = [[ZMImageMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message.sender = self.selfUser;
     message.visibleInConversation = conversation;
     message.previewData = self.verySmallJPEGData;
@@ -781,7 +782,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatItDoesNotReturnAnIdentifierWhenTheImagePreviewDataIsNil
 {
     // given
-    ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMImageMessage *message = [[ZMImageMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     message.previewData = nil;
     
     // when
@@ -800,7 +801,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatItRequiresPreviewAndMediumData
 {
     // given
-    ZMImageMessage *message = [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMImageMessage *message = [[ZMImageMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     NSOrderedSet *expectedFormats = [NSOrderedSet orderedSetWithObjects:@(ZMImageFormatPreview), @(ZMImageFormatMedium), nil];
     
     //then
@@ -966,7 +967,7 @@ NSString * const ReactionsKey = @"reactions";
         ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.syncMOC];
         ZMUser *user2 = [ZMUser insertNewObjectInManagedObjectContext:self.syncMOC];
         
-        ZMSystemMessage *message = [ZMSystemMessage insertNewObjectInManagedObjectContext:self.syncMOC];
+        ZMSystemMessage *message = [[ZMSystemMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.syncMOC];
         message.users = [NSSet setWithObjects:user1, user2, nil];
         [self.syncMOC saveOrRollback];
     }];
@@ -1234,7 +1235,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatASystemMessageHasSystemMessageData
 {
     // given
-    ZMSystemMessage *message = [ZMSystemMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMSystemMessage *message = [[ZMSystemMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     
     // then
     XCTAssertNil(message.textMessageData.messageText);
@@ -1365,17 +1366,17 @@ NSString * const ReactionsKey = @"reactions";
     ZMMessage *pendingMessage1 = (id)[conversation appendMessageWithText:@"P1"];
     pendingMessage1.visibleInConversation = conversation;
     
-    ZMTextMessage *lastServerMessage = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMTextMessage *lastServerMessage = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     lastServerMessage.text = @"A3";
     lastServerMessage.visibleInConversation = conversation;
     lastServerMessage.serverTimestamp = [NSDate dateWithTimeIntervalSince1970:10*1000];
     
-    ZMTextMessage *firstServerMessage = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMTextMessage *firstServerMessage = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     firstServerMessage.text = @"A1";
     firstServerMessage.visibleInConversation = conversation;
     firstServerMessage.serverTimestamp = [NSDate dateWithTimeIntervalSince1970:1*1000];
     
-    ZMTextMessage *middleServerMessage = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMTextMessage *middleServerMessage = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     middleServerMessage.text = @"A2";
     middleServerMessage.visibleInConversation = conversation;
     middleServerMessage.serverTimestamp = [NSDate dateWithTimeIntervalSince1970:5*1000];
@@ -1400,7 +1401,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatTheServerTimestampIsSetByDefault
 {
     // given
-    ZMTextMessage *msg = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMTextMessage *msg = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     
     // then
     XCTAssertNotNil(msg.serverTimestamp);
@@ -1467,7 +1468,7 @@ NSString * const ReactionsKey = @"reactions";
 - (void)testThatAKnockMessageHasKnockMessageData
 {
     // given
-    ZMKnockMessage *message = [ZMKnockMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMKnockMessage *message = [[ZMKnockMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     
     // then
     XCTAssertNil(message.textMessageData.messageText);
@@ -1480,7 +1481,7 @@ NSString * const ReactionsKey = @"reactions";
 {
     // given
     ZMGenericMessage *knock = [ZMGenericMessage knockWithNonce:[NSUUID createUUID].transportString expiresAfter:nil];
-    ZMClientMessage *message = [ZMClientMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMClientMessage *message = [[ZMClientMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     [message addData:knock.data];
     
     // then
@@ -1500,9 +1501,7 @@ NSString * const ReactionsKey = @"reactions";
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.remoteIdentifier = [NSUUID createUUID];
     
-    NSUUID *nonce = [NSUUID createUUID];
     ZMMessage *testMessage = messageCreationBlock();
-    testMessage.nonce = nonce;
     testMessage.visibleInConversation = conversation;
     
     //sanity check
@@ -1517,7 +1516,7 @@ NSString * const ReactionsKey = @"reactions";
     [self.uiMOC saveOrRollback];
     
     //then
-    ZMMessage *fetchedMessage = [ZMMessage fetchMessageWithNonce:nonce forConversation:conversation inManagedObjectContext:self.uiMOC];
+    ZMMessage *fetchedMessage = [ZMMessage fetchMessageWithNonce:testMessage.nonce forConversation:conversation inManagedObjectContext:self.uiMOC];
     BOOL removed = fetchedMessage.visibleInConversation == nil &&
                   [fetchedMessage.hiddenInConversation isEqual:conversation] &&
                    fetchedMessage.sender == nil;
@@ -1534,7 +1533,7 @@ NSString * const ReactionsKey = @"reactions";
 {
     // when
     BOOL removed = [self checkThatAMessageIsRemoved:^ZMMessage *{
-        return [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+        return [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     }];
     
     // then
@@ -1545,7 +1544,7 @@ NSString * const ReactionsKey = @"reactions";
 {
     // when
     BOOL removed = [self checkThatAMessageIsRemoved:^ZMMessage *{
-        return [ZMClientMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+        return [[ZMClientMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     }];
     
     // then
@@ -1556,7 +1555,7 @@ NSString * const ReactionsKey = @"reactions";
 {
     // when
     BOOL removed = [self checkThatAMessageIsRemoved:^ZMMessage *{
-        return [ZMAssetClientMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+        return [[ZMAssetClientMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     }];
     
     // then
@@ -1567,7 +1566,7 @@ NSString * const ReactionsKey = @"reactions";
 {
     // when
     BOOL removed = [self checkThatAMessageIsRemoved:^ZMMessage *{
-        return [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+        return [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     }];
     
     // then
@@ -1578,7 +1577,7 @@ NSString * const ReactionsKey = @"reactions";
 {
     // when
     BOOL removed = [self checkThatAMessageIsRemoved:^ZMMessage *{
-        return [ZMImageMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+        return [[ZMImageMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     }];
     
     // then
@@ -1589,7 +1588,7 @@ NSString * const ReactionsKey = @"reactions";
 {
     // when
     BOOL removed = [self checkThatAMessageIsRemoved:^ZMMessage *{
-        return [ZMKnockMessage insertNewObjectInManagedObjectContext:self.uiMOC];
+        return [[ZMKnockMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
     }];
     
     // then
@@ -1603,8 +1602,7 @@ NSString * const ReactionsKey = @"reactions";
     conversation.remoteIdentifier = [NSUUID createUUID];
     
     NSUUID *nonce = [NSUUID createUUID];
-    ZMTextMessage *textMessage = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
-    textMessage.nonce = nonce;
+    ZMTextMessage *textMessage = [[ZMTextMessage alloc] initWithNonce:nonce managedObjectContext:self.uiMOC];
     textMessage.visibleInConversation = conversation;
     
     ZMMessageHideBuilder *builder = [ZMMessageHide builder];
@@ -1684,8 +1682,7 @@ NSString * const ReactionsKey = @"reactions";
     conversation.remoteIdentifier = [NSUUID createUUID];
     
     NSUUID *nonce = [NSUUID createUUID];
-    ZMTextMessage *textMessage = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
-    textMessage.nonce = nonce;
+    ZMTextMessage *textMessage = [[ZMTextMessage alloc] initWithNonce:nonce managedObjectContext:self.uiMOC];
     textMessage.visibleInConversation = conversation;
     [self.uiMOC saveOrRollback];
     
@@ -1714,8 +1711,7 @@ NSString * const ReactionsKey = @"reactions";
     conversation.remoteIdentifier = [NSUUID createUUID];
     
     NSUUID *nonce = [NSUUID createUUID];
-    ZMTextMessage *textMessage = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
-    textMessage.nonce = nonce;
+    ZMTextMessage *textMessage = [[ZMTextMessage alloc] initWithNonce:nonce managedObjectContext:self.uiMOC];
     textMessage.visibleInConversation = conversation;
     [self.uiMOC saveOrRollback];
     
@@ -1755,8 +1751,7 @@ NSString * const ReactionsKey = @"reactions";
     conversation.remoteIdentifier = [NSUUID createUUID];
     
     NSUUID *nonce = [NSUUID createUUID];
-    ZMTextMessage *textMessage = [ZMTextMessage insertNewObjectInManagedObjectContext:self.uiMOC];
-    textMessage.nonce = nonce;
+    ZMTextMessage *textMessage = [[ZMTextMessage alloc] initWithNonce:nonce managedObjectContext:self.uiMOC];
     textMessage.visibleInConversation = conversation;
     [self.uiMOC saveOrRollback];
     

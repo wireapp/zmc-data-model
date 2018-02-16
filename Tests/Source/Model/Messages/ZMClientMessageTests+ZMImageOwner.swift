@@ -29,8 +29,8 @@ enum ContentType {
 class ClientMessageTests_ZMImageOwner: BaseZMClientMessageTests {
         
     func insertMessageWithLinkPreview(contentType: ContentType) -> ZMClientMessage {
-        let clientMessage = ZMClientMessage.insertNewObject(in: uiMOC)
         let nonce = UUID()
+        let clientMessage = ZMClientMessage(nonce: nonce, managedObjectContext: uiMOC)
         let article = Article(
             originalURLString: "example.com/article/original",
             permanentURLString: "http://www.example.com/article/1",
@@ -48,7 +48,6 @@ class ClientMessageTests_ZMImageOwner: BaseZMClientMessageTests {
             genericMessage = ZMGenericMessage(editMessage: UUID.create().transportString(), newText: text, linkPreview: article.protocolBuffer, nonce: nonce.transportString())
         }
         clientMessage.add(genericMessage.data())
-        clientMessage.nonce = nonce
         clientMessage.visibleInConversation = conversation
         clientMessage.sender = selfUser
         return clientMessage
@@ -107,8 +106,7 @@ class ClientMessageTests_ZMImageOwner: BaseZMClientMessageTests {
     func testThatUpdatesLinkPreviewStateAndDeleteOriginalDataAfterProcessingFinishes() {
         // given
         let nonce = UUID()
-        let clientMessage = ZMClientMessage.insertNewObject(in: uiMOC)
-        clientMessage.nonce = nonce
+        let clientMessage = ZMClientMessage(nonce: nonce, managedObjectContext: uiMOC)
         clientMessage.sender = selfUser
         clientMessage.visibleInConversation = conversation
         self.uiMOC.zm_fileAssetCache.storeAssetData(clientMessage, format: .original, encrypted: false, data: mediumJPEGData())
@@ -124,8 +122,7 @@ class ClientMessageTests_ZMImageOwner: BaseZMClientMessageTests {
     func testThatItReturnsCorrectOriginalImageSize() {
         // given
         let nonce = UUID()
-        let clientMessage = ZMClientMessage.insertNewObject(in: uiMOC)
-        clientMessage.nonce = nonce
+        let clientMessage = ZMClientMessage(nonce: nonce, managedObjectContext: uiMOC)
         clientMessage.sender = selfUser
         clientMessage.visibleInConversation = conversation
         self.uiMOC.zm_fileAssetCache.storeAssetData(clientMessage, format: .original, encrypted: false, data: mediumJPEGData())
