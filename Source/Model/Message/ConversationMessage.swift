@@ -34,7 +34,7 @@ public enum ZMDeliveryState : UInt {
 public protocol ZMConversationMessage : NSObjectProtocol {
     
     /// Unique identifier for the message
-    var nonce: UUID { get }
+    var nonce: UUID? { get }
         
     /// The user who sent the message
     var sender: ZMUser? { get }

@@ -242,12 +242,14 @@ extension ZMAssetClientMessage: ZMFileMessageData {
 extension ZMAssetClientMessage {
     
     private func setAndSyncNotUploaded(_ notUploaded: ZMAssetNotUploaded) {
-        guard genericAssetMessage?.assetData?.hasNotUploaded() == false else {
+        guard genericAssetMessage?.assetData?.hasNotUploaded() == false,
+              let messageID = nonce?.transportString()
+        else {
             return // already canceled or not yet sent
         }
                 
         let notUploadedMessage = ZMGenericMessage.genericMessage(notUploaded: notUploaded,
-                                                                 messageID: nonce.transportString(),
+                                                                 messageID: messageID,
                                                                  expiresAfter: self.deletionTimeout as NSNumber)
         self.add(notUploadedMessage)
         self.uploadState = .uploadingFailed

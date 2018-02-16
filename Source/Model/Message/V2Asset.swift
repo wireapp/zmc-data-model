@@ -69,7 +69,11 @@ extension String {
     }
 
     public var imagePreviewDataIdentifier: String? {
-        return previewData != nil ? assetClientMessage.nonce.uuidString : nil
+        guard previewData != nil, let nonce = assetClientMessage.nonce else {
+            return nil
+        }
+        
+        return nonce.uuidString
     }
 
     public var previewData: Data? {
@@ -107,8 +111,8 @@ extension String {
     // MARK: - Helper
 
     private func imageDataIdentifier(for message: ZMGenericMessage?) -> String? {
-        guard let assetData = message?.imageAssetData else { return nil }
-        return String(format: "%@-w%d-%@", assetClientMessage.nonce.transportString(), Int(assetData.width), NSNumber(value: assetClientMessage.hasDownloadedImage))
+        guard let assetData = message?.imageAssetData, let nonce = assetClientMessage.nonce else { return nil }
+        return String(format: "%@-w%d-%@", nonce.transportString(), Int(assetData.width), NSNumber(value: assetClientMessage.hasDownloadedImage))
 
     }
 
@@ -180,7 +184,7 @@ extension V2Asset: AssetProxyType {
     }
 
     func processAddedMediumImage(properties: ZMIImageProperties, keys: ZMImageAssetEncryptionKeys) {
-        let messageID = assetClientMessage.nonce.transportString()
+        let messageID = assetClientMessage.nonce!.transportString()
 
         let mediumMessage = ZMGenericMessage.genericMessage(
             mediumImageProperties: properties,
@@ -212,7 +216,7 @@ extension V2Asset: AssetProxyType {
             mediumImageProperties: medium.map(imageProperties),
             processedImageProperties: properties,
             encryptionKeys: keys,
-            nonce: assetClientMessage.nonce.transportString(),
+            nonce: assetClientMessage.nonce!.transportString(),
             format: .preview,
             expiresAfter: NSNumber(value: assetClientMessage.deletionTimeout)
         )

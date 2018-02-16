@@ -298,7 +298,7 @@ extension ZMClientMessageTests_Deletion {
         guard let sut = conversation.appendMessage(withText: name) as? ZMMessage else { return XCTFail() }
 
         // when
-        let updateEvent = createMessageDeletedUpdateEvent(sut.nonce, conversationID: conversation.remoteIdentifier!)
+        let updateEvent = createMessageDeletedUpdateEvent(sut.nonce!, conversationID: conversation.remoteIdentifier!)
         performPretendingUiMocIsSyncMoc { 
             ZMOTRMessage.messageUpdateResult(from: updateEvent, in: self.uiMOC, prefetchResult: nil)
         }
@@ -321,7 +321,7 @@ extension ZMClientMessageTests_Deletion {
         conversation.lastModifiedDate = lastModified
 
         // when
-        let updateEvent = createMessageDeletedUpdateEvent(sut.nonce, conversationID: conversation.remoteIdentifier!, senderID: sut.sender!.remoteIdentifier!)
+        let updateEvent = createMessageDeletedUpdateEvent(sut.nonce!, conversationID: conversation.remoteIdentifier!, senderID: sut.sender!.remoteIdentifier!)
 
         performPretendingUiMocIsSyncMoc {
             ZMOTRMessage.messageUpdateResult(from: updateEvent, in: self.uiMOC, prefetchResult: nil)
@@ -348,7 +348,7 @@ extension ZMClientMessageTests_Deletion {
         XCTAssertEqual(sut.cachedCategory, .text)
 
         // when
-        let updateEvent = createMessageDeletedUpdateEvent(sut.nonce, conversationID: conversation.remoteIdentifier!, senderID: sut.sender!.remoteIdentifier!)
+        let updateEvent = createMessageDeletedUpdateEvent(sut.nonce!, conversationID: conversation.remoteIdentifier!, senderID: sut.sender!.remoteIdentifier!)
         
         performPretendingUiMocIsSyncMoc {
             ZMOTRMessage.messageUpdateResult(from: updateEvent, in: self.uiMOC, prefetchResult: nil)
@@ -376,7 +376,7 @@ extension ZMClientMessageTests_Deletion {
         conversation.lastModifiedDate = lastModified
 
         // when
-        let updateEvent = createMessageDeletedUpdateEvent(message.nonce, conversationID: conversation.remoteIdentifier!, senderID: otherUser.remoteIdentifier!)
+        let updateEvent = createMessageDeletedUpdateEvent(message.nonce!, conversationID: conversation.remoteIdentifier!, senderID: otherUser.remoteIdentifier!)
         
         performPretendingUiMocIsSyncMoc {
             ZMOTRMessage.messageUpdateResult(from: updateEvent, in: self.uiMOC, prefetchResult: nil)
@@ -407,7 +407,7 @@ extension ZMClientMessageTests_Deletion {
         guard let sut = conversation.appendMessage(withText: name) as? ZMMessage else { return XCTFail() }
         let lastModified = Date(timeIntervalSince1970: 1234567890)
         conversation.lastModifiedDate = lastModified
-        let nonce = sut.nonce
+        let nonce = sut.nonce!
         
         // when
         let updateEvent = createMessageDeletedUpdateEvent(nonce, conversationID: conversation.remoteIdentifier!, senderID: sut.sender!.remoteIdentifier!)
@@ -457,7 +457,7 @@ extension ZMClientMessageTests_Deletion {
         // when
         self.syncMOC.performGroupedBlockAndWait {
             self.syncMOC.refresh(self.syncConversation, mergeChanges: false)
-            let updateEvent = self.createMessageDeletedUpdateEvent(sut.nonce, conversationID: self.conversation.remoteIdentifier!, senderID: self.user2.remoteIdentifier!)
+            let updateEvent = self.createMessageDeletedUpdateEvent(sut.nonce!, conversationID: self.conversation.remoteIdentifier!, senderID: self.user2.remoteIdentifier!)
             ZMOTRMessage.messageUpdateResult(from: updateEvent, in: self.syncMOC, prefetchResult: nil)
             XCTAssertTrue(self.syncMOC.saveOrRollback())
         }

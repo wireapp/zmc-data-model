@@ -135,7 +135,7 @@ extension ZMClientMessage: ZMImageOwner {
     public var imageDataIdentifier: String? {
         
         if self.imageData != nil {
-            return self.nonce.uuidString
+            return self.nonce?.uuidString
         }
         
         guard let linkPreview = self.firstZMLinkPreview else { return nil }
@@ -164,14 +164,14 @@ extension ZMClientMessage: ZMImageOwner {
             if genericMessage.hasText() || (genericMessage.hasEphemeral() && genericMessage.ephemeral.hasText()) {
                 let newMessage = ZMGenericMessage.message(text: self.textMessageData?.messageText ?? "",
                                                           linkPreview: updatedPreview,
-                                                          nonce: self.nonce.transportString(),
+                                                          nonce: self.nonce!.transportString(),
                                                           expiresAfter: self.deletionTimeout as NSNumber)
                 self.add(newMessage.data())
             } else if genericMessage.hasEdited() {
                 let newMessage = ZMGenericMessage(editMessage: genericMessage.edited.replacingMessageId,
                                                   newText: self.textMessageData?.messageText ?? "",
                                                   linkPreview: updatedPreview,
-                                                  nonce: self.nonce.transportString())
+                                                  nonce: self.nonce!.transportString())
                 self.add(newMessage.data())
             }
         }

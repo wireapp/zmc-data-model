@@ -82,8 +82,8 @@ private let zmLog = ZMSLog(tag: "AssetV3")
     }
 
     public var imageDataIdentifier: String? {
-        if nil != assetClientMessage.fileMessageData, isImage, let image = assetClientMessage.genericAssetMessage?.assetData?.original.image {
-            return "\(assetClientMessage.nonce.transportString())-\(image.width)x\(image.height)"
+        if nil != assetClientMessage.fileMessageData, isImage, let image = assetClientMessage.genericAssetMessage?.assetData?.original.image, let nonce = assetClientMessage.nonce {
+            return "\(nonce.transportString())-\(image.width)x\(image.height)"
         }
 
         return imageData.map { String(format: "orig-%p", $0 as NSData) }
@@ -169,7 +169,9 @@ extension V3Asset: AssetProxyType {
 
     public func processAddedImage(format: ZMImageFormat, properties: ZMIImageProperties, keys: ZMImageAssetEncryptionKeys) {
         guard format == .medium, let sha256 = keys.sha256 else { return zmLog.error("Tried to process non-medium v3 image for \(assetClientMessage)") }
-        let messageID = assetClientMessage.nonce.transportString()
+        guard let nonce = assetClientMessage.nonce else { return zmLog.error("Tried to process image message without nonce: \(assetClientMessage)") }
+        
+        let messageID = nonce.transportString()
 
         let original = ZMGenericMessage.genericMessage(
             withImageSize: properties.size,

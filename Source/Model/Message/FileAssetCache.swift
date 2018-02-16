@@ -257,13 +257,13 @@ open class FileAssetCache : NSObject {
     }
     
     static func cacheKeyForAsset(_ message : ZMConversationMessage, identifier: String? = nil, encrypted: Bool = false) -> String? {
-        guard let senderId = message.sender?.remoteIdentifier?.transportString(),
+        guard let messageId = message.nonce?.transportString(),
+              let senderId = message.sender?.remoteIdentifier?.transportString(),
               let conversationId = message.conversation?.remoteIdentifier?.transportString()
         else {
             return nil
         }
     
-        let messageId = message.nonce.transportString()
         var key = "\(messageId)_\(senderId)_\(conversationId)"
         
         if let identifier = identifier {

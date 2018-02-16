@@ -76,25 +76,6 @@ NSString * const ReactionsKey = @"reactions";
     [self checkBaseMessageAttributeForClass:aClass];
 }
 
-- (void)testThatWeCanSetAttributesOnImageMessage // TODO jacob disabled test, we cant set image on message not in conversation
-{
-    Class aClass = [ZMImageMessage class];
-    [self checkBaseMessageAttributeForClass:aClass];
-    [self checkAttributeForClass:aClass key:@"mediumRemoteIdentifier" value:[NSUUID createUUID] ];
-    
-    NSData *imageData = [self dataForResource:@"tiny" extension:@"jpg"];
-    XCTAssertNotNil(imageData);
-    [self checkAttributeForClass:aClass key:@"mediumData" value:imageData];
-    
-    imageData = [self dataForResource:@"medium" extension:@"jpg"];
-    XCTAssertNotNil(imageData);
-    [self checkAttributeForClass:aClass key:@"previewData" value:imageData];
-    
-    CGSize size = {12, 34};
-    NSValue *sizeValue = [NSValue valueWithBytes:&size objCType:@encode(CGSize)];
-    [self checkAttributeForClass:aClass key:@"originalSize" value:sizeValue];
-}
-
 - (void)testThatItCanSetData;
 {
     // given
