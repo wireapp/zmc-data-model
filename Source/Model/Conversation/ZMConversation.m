@@ -400,8 +400,17 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
                                               withParticipants:(nonnull NSArray<ZMUser *> *)participants
                                                         inTeam:(nullable Team *)team;
 {
+
+    return [self insertGroupConversationIntoUserSession:session withParticipants:participants name:nil inTeam:team];
+}
+
++ (nonnull instancetype)insertGroupConversationIntoUserSession:(nonnull id<ZMManagedObjectContextProvider> )session
+                                              withParticipants:(nonnull NSArray<ZMUser *> *)participants
+                                                          name:(nullable NSString*)name
+                                                        inTeam:(nullable Team *)team
+{
     VerifyReturnNil(session != nil);
-    return [self insertGroupConversationIntoManagedObjectContext:session.managedObjectContext withParticipants:participants inTeam:team];
+    return [self insertGroupConversationIntoManagedObjectContext:session.managedObjectContext withParticipants:participants name:name inTeam:team];
 }
 
 + (instancetype)existingOneOnOneConversationWithUser:(ZMUser *)otherUser inUserSession:(id<ZMManagedObjectContextProvider>)session;
@@ -896,10 +905,9 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return [NSSet setWithObjects:ZMConversationMessagesKey, ZMConversationLastReadServerTimeStampKey, nil];
 }
 
-- (void)updateKeysThatHaveLocalModifications;
+- (NSSet<NSString *> *)filterUpdatedLocallyModifiedKeys:(NSSet<NSString *> *)updatedKeys
 {
-    [super updateKeysThatHaveLocalModifications];
-    NSMutableSet *newKeys = [self.keysThatHaveLocalModifications mutableCopy];
+    NSMutableSet *newKeys = [super filterUpdatedLocallyModifiedKeys:updatedKeys].mutableCopy;
     if (self.unsyncedInactiveParticipants.count > 0) {
         ZMLogDebug(@"adding ZMConversationUnsyncedInactiveParticipantsKey to modified keys for %@", self.remoteIdentifier.transportString);
         [newKeys addObject:ZMConversationUnsyncedInactiveParticipantsKey];
@@ -908,9 +916,13 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         [newKeys addObject:ZMConversationUnsyncedActiveParticipantsKey];
     }
     
-    if( ![newKeys isEqual:self.keysThatHaveLocalModifications]) {
-        [self setLocallyModifiedKeys:newKeys];
+    // Don't sync the conversation name if it was set before inserting the conversation
+    // as it will already get synced when inserting the conversation on the backend.
+    if (self.isInserted && nil != self.userDefinedName && [newKeys containsObject:ZMConversationUserDefinedNameKey]) {
+        [newKeys removeObject:ZMConversationUserDefinedNameKey];
     }
+    
+    return newKeys;
 }
 
 - (void)willSave
@@ -1215,7 +1227,12 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return [self insertGroupConversationIntoManagedObjectContext:moc withParticipants:participants inTeam:nil];
 }
 
-+ (instancetype)insertGroupConversationIntoManagedObjectContext:(NSManagedObjectContext *)moc withParticipants:(NSArray *)participants inTeam:(nullable Team *)team;
++ (instancetype)insertGroupConversationIntoManagedObjectContext:(NSManagedObjectContext *)moc withParticipants:(NSArray *)participants inTeam:(nullable Team *)team
+{
+    return [self insertGroupConversationIntoManagedObjectContext:moc withParticipants:participants name:nil inTeam:team];
+}
+
++ (instancetype)insertGroupConversationIntoManagedObjectContext:(NSManagedObjectContext *)moc withParticipants:(NSArray *)participants name:(NSString *)name inTeam:(nullable Team *)team
 {
     ZMUser *selfUser = [ZMUser selfUserInContext:moc];
 
@@ -1223,13 +1240,12 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         return nil;
     }
 
-    RequireString((participants.count >= 2u), "Not enough users to create group conversations");
-
     ZMConversation *conversation = (ZMConversation *)[super insertNewObjectInManagedObjectContext:moc];
     conversation.lastModifiedDate = [NSDate date];
     conversation.conversationType = ZMConversationTypeGroup;
     conversation.creator = selfUser;
     conversation.team = team;
+    conversation.userDefinedName = name;
 
     for (ZMUser *participant in participants) {
         Require([participant isKindOfClass:[ZMUser class]]);
@@ -1444,6 +1460,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     systemMessage.systemMessageType = ZMSystemMessageTypeNewConversation;
     systemMessage.sender = [ZMUser selfUserInContext:self.managedObjectContext];
     systemMessage.sender = self.creator;
+    systemMessage.text = self.userDefinedName;
     systemMessage.users = self.activeParticipants.set;
     // the new conversation message should be displayed first,
     // additionally the use of reference date is to ensure proper transition for older clients so the message is the very
