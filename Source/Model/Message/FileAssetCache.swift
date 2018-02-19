@@ -274,7 +274,7 @@ open class FileAssetCache : NSObject {
             key = "\(key).encrypted"
         }
         
-        return key
+        return key.data(using: .utf8)?.zmSHA256Digest().zmHexEncodedString()
     }
     
 }

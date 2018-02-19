@@ -1499,8 +1499,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         self.lastModifiedDate = message.serverTimestamp;
     }
     
-//    [message prepareToSend];
-    
     return index;
 }
 
