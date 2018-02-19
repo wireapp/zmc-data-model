@@ -122,6 +122,7 @@ extension ZMAssetClientMessage: ZMFileMessageData {
         temporaryFileURL.appendPathComponent(filename)
         
         do {
+            try FileManager.default.createDirectory(at: temporaryFileURL.deletingLastPathComponent(), withIntermediateDirectories: true, attributes: nil)
             try FileManager.default.linkItem(at: assetURL, to: temporaryFileURL)
         } catch {
             return nil
