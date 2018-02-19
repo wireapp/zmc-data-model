@@ -115,7 +115,19 @@ extension ZMAssetClientMessage: ZMFileMessageData {
     }
     
     public var fileURL: URL? {
-        return self.asset?.fileURL;
+        guard let assetURL = asset?.fileURL, let filename = filename else { return nil }
+        
+        var temporaryFileURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        temporaryFileURL.appendPathComponent(UUID().uuidString)
+        temporaryFileURL.appendPathComponent(filename)
+        
+        do {
+            try FileManager.default.linkItem(at: assetURL, to: temporaryFileURL)
+        } catch {
+            return nil
+        }
+        
+        return temporaryFileURL;
     }
     
     public var previewData: Data? {
