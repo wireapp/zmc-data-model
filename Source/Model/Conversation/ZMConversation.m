@@ -100,6 +100,7 @@ static NSString *const LastEventIDDataKey = @"lastEventID_data";
 static NSString *const ClearedEventIDDataKey = @"clearedEventID_data";
 static NSString *const ArchivedEventIDDataKey = @"archivedEventID_data";
 static NSString *const LastReadEventIDDataKey = @"lastReadEventID_data";
+static NSString *const ConversationLinkKey = @"conversationLink";
 
 static NSString *const TeamKey = @"team";
 
@@ -161,6 +162,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @dynamic silencedChangedTimestamp;
 @dynamic messageDestructionTimeout;
 @dynamic team;
+@dynamic conversationLink;
 
 @synthesize tempMaxLastReadServerTimeStamp;
 @synthesize lastReadTimestampSaveDelay;
@@ -368,7 +370,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
             LastReadEventIDDataKey,
             TeamKey,
             TeamRemoteIdentifierKey,
-            TeamRemoteIdentifierDataKey
+            TeamRemoteIdentifierDataKey,
+            ConversationLinkKey
         };
         
         NSSet *additionalKeys = [NSSet setWithObjects:KeysIgnoredForTrackingModifications count:(sizeof(KeysIgnoredForTrackingModifications) / sizeof(*KeysIgnoredForTrackingModifications))];
@@ -1036,6 +1039,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @dynamic normalizedUserDefinedName;
 @dynamic hiddenMessages;
 @dynamic messageDestructionTimeout;
+@dynamic acccessLevelString;
 
 
 + (NSSet *)keyPathsForValuesAffectingIsArchived
@@ -1792,12 +1796,14 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (BOOL)validateUserDefinedName:(NSString **)ioName error:(NSError **)outError
 {
-    [ExtremeCombiningCharactersValidator validateValue:ioName error:outError];
+    BOOL result = [ExtremeCombiningCharactersValidator validateValue:ioName error:outError];
     if (outError != nil && *outError != nil) {
         return NO;
     }
     
-    return [ZMStringLengthValidator validateValue:ioName mimimumStringLength:1 maximumSringLength:64 error:outError];
+     result &= [ZMStringLengthValidator validateValue:ioName mimimumStringLength:1 maximumSringLength:64 error:outError];
+    
+    return result;
 }
 
 @end
