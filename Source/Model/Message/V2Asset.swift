@@ -62,18 +62,11 @@ extension String {
     }
 
     public var imageDataIdentifier: String? {
-        return imageDataIdentifier(for: assetStorage.mediumGenericMessage) ??
-               imageDataIdentifier(for: assetStorage.previewGenericMessage) ??
-               assetClientMessage.assetId?.uuidString ??
-               imageData.map { String(format: "orig-%p", $0 as NSData) }
+        return FileAssetCache.cacheKeyForAsset(assetClientMessage, format: .medium)
     }
 
     public var imagePreviewDataIdentifier: String? {
-        guard previewData != nil, let nonce = assetClientMessage.nonce else {
-            return nil
-        }
-        
-        return nonce.uuidString
+        return FileAssetCache.cacheKeyForAsset(assetClientMessage, format: .preview)
     }
 
     public var previewData: Data? {
@@ -110,18 +103,12 @@ extension String {
 
     // MARK: - Helper
 
-    private func imageDataIdentifier(for message: ZMGenericMessage?) -> String? {
-        guard let assetData = message?.imageAssetData, let nonce = assetClientMessage.nonce else { return nil }
-        return String(format: "%@-w%d-%@", nonce.transportString(), Int(assetData.width), NSNumber(value: assetClientMessage.hasDownloadedImage))
-
-    }
-
     private func imageData(for format: ZMImageFormat) -> Data? {
         return moc.zm_fileAssetCache.assetData(assetClientMessage, format: format, encrypted: false)
     }
 
     fileprivate func hasImageData(for format: ZMImageFormat) -> Bool {
-        return nil != imageData(for: format)
+        return moc.zm_fileAssetCache.hasDataOnDisk(assetClientMessage, format: format, encrypted: false)
     }
 
 }

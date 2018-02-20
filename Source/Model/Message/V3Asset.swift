@@ -82,15 +82,11 @@ private let zmLog = ZMSLog(tag: "AssetV3")
     }
 
     public var imageDataIdentifier: String? {
-        if nil != assetClientMessage.fileMessageData, isImage, let image = assetClientMessage.genericAssetMessage?.assetData?.original.image, let nonce = assetClientMessage.nonce {
-            return "\(nonce.transportString())-\(image.width)x\(image.height)"
-        }
-
-        return imageData.map { String(format: "orig-%p", $0 as NSData) }
+        return FileAssetCache.cacheKeyForAsset(assetClientMessage, format: .medium)
     }
 
     public var imagePreviewDataIdentifier: String? {
-        return previewData != nil ? assetClientMessage.genericAssetMessage?.previewAssetId : nil
+        return FileAssetCache.cacheKeyForAsset(assetClientMessage, format: .preview)
     }
 
     public var previewData: Data? {
@@ -124,8 +120,8 @@ private let zmLog = ZMSLog(tag: "AssetV3")
 extension V3Asset: AssetProxyType {
 
     public var hasDownloadedImage: Bool {
-        return nil != imageData(for: .medium, encrypted: false)
-            || nil != imageData(for: .original, encrypted: false)
+        return moc.zm_fileAssetCache.hasDataOnDisk(assetClientMessage, format: .medium, encrypted: false) ||
+               moc.zm_fileAssetCache.hasDataOnDisk(assetClientMessage, format: .original, encrypted: false)
     }
 
     public var hasDownloadedFile: Bool {

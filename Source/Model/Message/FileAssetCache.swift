@@ -65,53 +65,83 @@ private struct FileCache : Cache {
     
     func assetData(_ key: String) -> Data? {
         let url = URLForKey(key)
-        let data: Data?
-        do {
-            data = try Data(contentsOf: url, options: .mappedIfSafe)
-        }
-        catch let error as NSError {
-            if error.code != NSFileReadNoSuchFileError {
-                zmLog.error("\(error)")
+        let coordinator = NSFileCoordinator()
+        var data: Data? = nil
+        
+        var error : NSError? = nil
+        coordinator.coordinate(readingItemAt: url, options: .withoutChanges, error: &error) { (url) in
+            do {
+                data = try Data(contentsOf: url, options: .mappedIfSafe)
             }
-            data = nil
+            catch let error as NSError {
+                if error.code != NSFileReadNoSuchFileError {
+                    zmLog.error("\(error)")
+                }
+            }
         }
+        
+        if let error = error {
+            if error.code != NSFileReadNoSuchFileError {
+                zmLog.error("Failed reading asset data for key = \(key): \(error)")
+            }
+        }
+        
         return data
     }
     
     func storeAssetData(_ data: Data, key: String) {
         let url = URLForKey(key)
-        FileManager.default.createFile(atPath: url.path, contents: data, attributes: [FileAttributeKey.protectionKey.rawValue : FileProtectionType.completeUntilFirstUserAuthentication])
-        do {
-            try (url as NSURL).setResourceValue(true, forKey: URLResourceKey.isExcludedFromBackupKey)
-        } catch {
-            _ = try? FileManager.default.removeItem(at: url)
-            fatal("Failed to exclude file from backup \(url) \(error)")
+        let coordinator = NSFileCoordinator()
+        
+        var error : NSError? = nil
+        coordinator.coordinate(writingItemAt: url, options: NSFileCoordinator.WritingOptions.forReplacing, error: &error) { (url) in
+            FileManager.default.createFile(atPath: url.path, contents: data, attributes: [FileAttributeKey.protectionKey.rawValue : FileProtectionType.completeUntilFirstUserAuthentication])
+        }
+        
+        if let error = error {
+            zmLog.error("Failed storing asset data for key = \(key): \(error)")
         }
     }
     
-    func storeAssetFromURL(_ url: URL, key: String) {
-        guard url.scheme == NSURLFileScheme else { fatal("Can't save remote URL to cache: \(url)") }
-        let finalURL = URLForKey(key)
-        do {
-            try FileManager.default.copyItem(at: url, to: finalURL)
-            try FileManager.default.setAttributes([FileAttributeKey.protectionKey : FileProtectionType.completeUntilFirstUserAuthentication], ofItemAtPath: finalURL.path)
-            try (finalURL as NSURL).setResourceValue(true, forKey: URLResourceKey.isExcludedFromBackupKey)
-        } catch {
-            _ = try? FileManager.default.removeItem(at: finalURL)
-            fatal("Failed to copy from \(url) to \(finalURL), \(error)")
+    func storeAssetFromURL(_ fromUrl: URL, key: String) {
+        guard fromUrl.scheme == NSURLFileScheme else { fatal("Can't save remote URL to cache: \(fromUrl)") }
+        
+        let toUrl = URLForKey(key)
+        let coordinator = NSFileCoordinator()
+        
+        var error : NSError? = nil
+        coordinator.coordinate(writingItemAt: toUrl, options: .forReplacing, error: &error) { (url) in
+            do {
+                try FileManager.default.copyItem(at: fromUrl, to: url)
+                try FileManager.default.setAttributes([FileAttributeKey.protectionKey : FileProtectionType.completeUntilFirstUserAuthentication], ofItemAtPath: url.path)
+            } catch {
+                fatal("Failed to copy from \(url) to \(url), \(error)")
+            }
         }
         
+        if let error = error {
+            zmLog.error("Failed to copy asset data from \(fromUrl)  for key = \(key): \(error)")
+        }
     }
     
     func deleteAssetData(_ key: String) {
         let url = URLForKey(key)
-        do {
-            try FileManager.default.removeItem(at: url)
-        }
-        catch let error as NSError {
-            if error.domain != NSCocoaErrorDomain || error.code != NSFileNoSuchFileError {
-                zmLog.error("Can't delete file \(url.pathComponents.last!): \(error)")
+        let coordinator = NSFileCoordinator()
+        
+        var error : NSError? = nil
+        coordinator.coordinate(writingItemAt: url, options: .forDeleting, error: &error) { (url) in
+            do {
+                try FileManager.default.removeItem(at: url)
             }
+            catch let error as NSError {
+                if error.domain != NSCocoaErrorDomain || error.code != NSFileNoSuchFileError {
+                    zmLog.error("Can't delete file \(url.pathComponents.last!): \(error)")
+                }
+            }
+        }
+        
+        if let error = error {
+            zmLog.error("Failed deleting asset data for key = \(key): \(error)")
         }
     }
     
@@ -252,11 +282,11 @@ open class FileAssetCache : NSObject {
         }
     }
     
-    static func cacheKeyForAsset(_ message : ZMConversationMessage, format: ZMImageFormat, encrypted: Bool = false) -> String? {
+    public static func cacheKeyForAsset(_ message : ZMConversationMessage, format: ZMImageFormat, encrypted: Bool = false) -> String? {
         return cacheKeyForAsset(message, identifier: StringFromImageFormat(format), encrypted: encrypted)
     }
     
-    static func cacheKeyForAsset(_ message : ZMConversationMessage, identifier: String? = nil, encrypted: Bool = false) -> String? {
+    public static func cacheKeyForAsset(_ message : ZMConversationMessage, identifier: String? = nil, encrypted: Bool = false) -> String? {
         guard let messageId = message.nonce?.transportString(),
               let senderId = message.sender?.remoteIdentifier?.transportString(),
               let conversationId = message.conversation?.remoteIdentifier?.transportString()
