@@ -36,7 +36,7 @@
         <relationship name="to" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="connection" inverseEntity="User" syncable="YES"/>
     </entity>
     <entity name="Conversation" representedClassName="ZMConversation" syncable="YES">
-        <attribute name="accessLevelString" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="accessLevelStrings" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="archivedChangedTimestamp" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="clearedTimeStamp" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="conversationLink" optional="YES" attributeType="String" syncable="YES"/>

@@ -124,7 +124,6 @@ NS_ASSUME_NONNULL_END
 @property (nonatomic) ZMConversationType conversationType;
 @property (nonatomic, copy, nullable) NSString *normalizedUserDefinedName;
 @property (nonatomic) NSTimeInterval lastReadTimestampSaveDelay;
-@property (nonatomic, nullable) NSString *acccessLevelString;
 
 /// unreadTimeStamps is created on didAwakeFromFetch:
 /// updated when messages are inserted and the lastReadServerTimeStamp changes

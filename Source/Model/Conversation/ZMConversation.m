@@ -163,6 +163,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @dynamic messageDestructionTimeout;
 @dynamic team;
 @dynamic conversationLink;
+@dynamic acccessLevelStrings;
 
 @synthesize tempMaxLastReadServerTimeStamp;
 @synthesize lastReadTimestampSaveDelay;
@@ -189,7 +190,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 {
     return [NSSet setWithObjects: ZMConversationInternalEstimatedUnreadCountKey, ZMConversationLastReadServerTimeStampKey, nil];
 }
-
 
 - (void)setIsSilenced:(BOOL)isSilenced
 {
@@ -1039,7 +1039,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @dynamic normalizedUserDefinedName;
 @dynamic hiddenMessages;
 @dynamic messageDestructionTimeout;
-@dynamic acccessLevelString;
 
 
 + (NSSet *)keyPathsForValuesAffectingIsArchived
