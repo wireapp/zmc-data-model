@@ -3890,9 +3890,12 @@
         [ZMClientMessage messageUpdateResultFromUpdateEvent:event inManagedObjectContext:self.syncMOC prefetchResult:nil];
         [self.syncMOC saveOrRollback];
         
+        // re-create message with same nonce to access the cache
+        id<ZMConversationMessage> lookupMessage = [conversation appendMessageWithText:@"123"];
+        
         // then
-        XCTAssertNil([self.syncMOC.zm_fileAssetCache assetData:message encrypted:NO]); // TODO jacob message is probably deleted here
-        XCTAssertNil([self.syncMOC.zm_fileAssetCache assetData:message encrypted:YES]);
+        XCTAssertNil([self.syncMOC.zm_fileAssetCache assetData:lookupMessage encrypted:NO]);
+        XCTAssertNil([self.syncMOC.zm_fileAssetCache assetData:lookupMessage encrypted:YES]);
     }];
 }
 
