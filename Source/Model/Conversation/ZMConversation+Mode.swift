@@ -18,16 +18,16 @@
 
 import Foundation
 
-public enum ConversationAccessLevel: String {
+public enum ConversationAccessMode: String {
     case invite, code
 }
 
 public extension ZMConversation {
 
     // The conversation access level mode is stored as comma separated string in CoreData, cf. `acccessLevelString`.
-    var accessLevel: [ConversationAccessLevel] {
+    var accessMode: [ConversationAccessMode] {
         get {
-            return acccessLevelStrings.flatMap(ConversationAccessLevel.init)
+            return acccessLevelStrings.flatMap(ConversationAccessMode.init)
         }
         set {
             acccessLevelStrings = newValue.map { $0.rawValue }
