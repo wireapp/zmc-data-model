@@ -25,7 +25,7 @@ import Foundation
     /// In memory cache
     var cachedGenericAssetMessage: ZMGenericMessage? = nil
     
-    /// Creates a new `ZMAssetClientMessage` with an attached `imageAssetStorage` // TODO jacob make private
+    /// Creates a new `ZMAssetClientMessage` with an attached `imageAssetStorage`
     convenience internal init(originalImage imageData: Data,
                               nonce: UUID,
                               managedObjectContext: NSManagedObjectContext,
