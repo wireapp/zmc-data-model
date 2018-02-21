@@ -293,16 +293,8 @@ open class FileAssetCache : NSObject {
         else {
             return nil
         }
-    
-        var key = "\(messageId)_\(senderId)_\(conversationId)"
         
-        if let identifier = identifier {
-            key = "\(key)_\(identifier)"
-        }
-            
-        if (encrypted) {
-            key = "\(key).encrypted"
-        }
+        let key = [messageId, senderId, conversationId, identifier, encrypted ? "encrypted" : nil].flatMap({ $0 }).joined(separator: "_")
         
         return key.data(using: .utf8)?.zmSHA256Digest().zmHexEncodedString()
     }
