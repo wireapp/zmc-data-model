@@ -36,10 +36,9 @@
         <relationship name="to" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="connection" inverseEntity="User" syncable="YES"/>
     </entity>
     <entity name="Conversation" representedClassName="ZMConversation" syncable="YES">
-        <attribute name="accessLevelStrings" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <attribute name="accessModeStrings" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="archivedChangedTimestamp" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="clearedTimeStamp" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
-        <attribute name="conversationLink" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="conversationType" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="draftMessageText" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="hasUnreadUnsentMessage" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
@@ -237,7 +236,7 @@
         <element name="AssetClientMessage" positionX="9" positionY="153" width="128" height="225"/>
         <element name="ClientMessage" positionX="9" positionY="153" width="128" height="105"/>
         <element name="Connection" positionX="0" positionY="0" width="128" height="165"/>
-        <element name="Conversation" positionX="0" positionY="0" width="128" height="570"/>
+        <element name="Conversation" positionX="0" positionY="0" width="128" height="555"/>
         <element name="GenericMessageData" positionX="18" positionY="162" width="128" height="90"/>
         <element name="ImageMessage" positionX="0" positionY="0" width="128" height="165"/>
         <element name="KnockMessage" positionX="0" positionY="0" width="128" height="45"/>

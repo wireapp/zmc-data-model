@@ -77,8 +77,6 @@ extern NSString * _Null_unspecified const ZMIsDimmedKey; ///< Specifies that a r
 @property (nonatomic, readonly) BOOL hasDraftMessageText;
 @property (nonatomic, copy, nullable) NSString *draftMessageText;
 @property (nonatomic, nullable) Team *team;
-@property (nonatomic, nullable) NSString *conversationLink;
-@property (nonatomic, nonnull) NSArray<NSString *> *acccessLevelStrings;
 
 /// This is read only. Use -setVisibleWindowFromMessage:toMessage: to update this.
 /// This will return @c nil if the last read message has not yet been sync'd to this device, or if the conversation has no last read message.

@@ -35,6 +35,7 @@ extension ZMConversation : ObjectInSnapshot {
                     #keyPath(ZMConversation.isSelfAnActiveMember),
                     #keyPath(ZMConversation.relatedConnectionState),
                     #keyPath(ZMConversation.team),
+                    #keyPath(ZMConversation.accessModeStrings),
                     #keyPath(ZMConversation.remoteIdentifier)
             ])
     }
@@ -106,6 +107,10 @@ extension ZMConversation : ObjectInSnapshot {
         
     public var createdRemotelyChanged : Bool {
         return changedKeysContain(keys: #keyPath(ZMConversation.remoteIdentifier))
+    }
+    
+    public var accessModeChanged : Bool {
+        return changedKeysContain(keys: #keyPath(ZMConversation.accessModeStrings))
     }
     
     public var conversation : ZMConversation { return self.object as! ZMConversation }

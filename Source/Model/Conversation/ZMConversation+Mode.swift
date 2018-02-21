@@ -18,19 +18,63 @@
 
 import Foundation
 
-public enum ConversationAccessMode: String {
-    case invite, code
+public struct ConversationAccessMode: OptionSet {
+    public let rawValue: Int
+    
+    public init(rawValue: Int) {
+        self.rawValue = rawValue
+    }
+    
+    public static let invite = ConversationAccessMode(rawValue: 1 << 0)
+    public static let code   = ConversationAccessMode(rawValue: 1 << 1)
+    
+    public static let legacy = invite
+    public static let allowGuests: ConversationAccessMode = [.invite, .code]
+}
+
+extension ConversationAccessMode: Hashable {
+    public var hashValue: Int {
+        return self.rawValue
+    }
+}
+
+public extension ConversationAccessMode {
+    internal static let stringValues: [ConversationAccessMode: String] = [.invite: "invite",
+                                                                          .code:   "code"]
+
+    public var stringValue: [String] {
+        return ConversationAccessMode.stringValues.flatMap { self.contains($0) ? $1 : nil }
+    }
+    
+    public init(values: [String]) {
+        var result = ConversationAccessMode()
+        ConversationAccessMode.stringValues.forEach {
+            if values.contains($1) {
+                result.formUnion($0)
+            }
+        }
+        self = result
+    }
 }
 
 public extension ZMConversation {
-
-    // The conversation access level mode is stored as comma separated string in CoreData, cf. `acccessLevelString`.
-    var accessMode: [ConversationAccessMode] {
+    @NSManaged @objc dynamic internal var accessModeStrings: [String]?
+    
+    // The conversation access mode is stored as comma separated string in CoreData, cf. `acccessModeStrings`.
+    public var accessMode: ConversationAccessMode? {
         get {
-            return acccessLevelStrings.flatMap(ConversationAccessMode.init)
+            guard let strings = self.accessModeStrings else {
+                return nil
+            }
+
+            return ConversationAccessMode(values: strings)
         }
         set {
-            acccessLevelStrings = newValue.map { $0.rawValue }
+            guard let value = newValue else {
+                accessModeStrings = nil
+                return
+            }
+            accessModeStrings = value.stringValue
         }
     }
     
