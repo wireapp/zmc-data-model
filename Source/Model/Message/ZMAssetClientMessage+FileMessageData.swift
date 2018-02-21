@@ -132,7 +132,7 @@ extension ZMAssetClientMessage: ZMFileMessageData {
             return nil
         }
         
-        return temporaryFileURL;
+        return temporaryFileURL
     }
     
     public var previewData: Data? {
