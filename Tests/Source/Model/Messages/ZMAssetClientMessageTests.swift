@@ -1526,22 +1526,7 @@ extension ZMAssetClientMessageTests {
         
         XCTAssertEqual(id1, message1.imageMessageData?.imageDataIdentifier) // not random!
     }
-    
-//    func testThatImageDataIdentifierChangesWhenChangingProcessedImage() { TODO jacob why is this behaviour desired?
-//
-//        // given
-//        let message = self.createAssetClientMessageWithSampleImageAndEncryptionKeys(false, storeEncrypted: false, storeProcessed: false)
-//        let oldId = message.imageMessageData?.imageDataIdentifier
-//        let properties = ZMIImageProperties(size: CGSize(width: 300, height: 300), length: 234, mimeType: "image/jpg")
-//
-//        // when
-//        message.imageAssetStorage.setImageData(self.verySmallJPEGData(), for: .medium, properties: properties)
-//
-//        // then
-//        let id = message.imageMessageData?.imageDataIdentifier
-//        XCTAssertNotEqual(id, oldId)
-//    }
-    
+        
     func testThatItHasDownloadedImageWhenTheImageIsOnDisk() {
         
         // given
