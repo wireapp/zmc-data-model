@@ -68,6 +68,7 @@ class ZMConversationAccessModeTests: ZMConversationTestsBase {
     let testSet: [(ConversationAccessMode?, [String]?)] = [(nil, nil),
                                                            (ConversationAccessMode.teamOnly, []),
                                                            (ConversationAccessMode.code, ["code"]),
+                                                           (ConversationAccessMode.`private`, ["private"]),
                                                            (ConversationAccessMode.invite, ["invite"]),
                                                            (ConversationAccessMode.legacy, ["invite"]),
                                                            (ConversationAccessMode.allowGuests, ["code", "invite"])]
@@ -100,5 +101,45 @@ class ZMConversationAccessModeTests: ZMConversationTestsBase {
         }
     }
     
+    func testThatChangingAllowGuestsSetsAccessModeStrings() {
+        [(true, ["code", "invite"]), (false, [])].forEach {
+            // when
+            sut.allowGuests = $0.0
+            // then
+            XCTAssertEqual(sut.accessModeStrings!, $0.1)
+        }
+    }
+    
+    func testThatAccessModeStringsChangingAllowGuestsSets() {
+        [(true, ["code", "invite"]), (false, []), (true, ["invite"])].forEach {
+            // when
+            sut.accessModeStrings = $0.1
+            // then
+            XCTAssertEqual(sut.allowGuests, $0.0)
+        }
+    }
+    
+    func testThatTheConversationIsInsertedWithCorrectAccessMode_Default() {
+        // when
+        let conversation = ZMConversation.insertGroupConversation(into: self.uiMOC,
+                                                                  withParticipants: [],
+                                                                  name: "Test Conversation",
+                                                                  in: nil)!
+        // then
+        XCTAssertEqual(conversation.accessModeStrings!, ["code", "invite"])
+    }
+    
+    func testThatTheConversationIsInsertedWithCorrectAccessMode() {
+        [(true, ["code", "invite"]), (false, [])].forEach {
+            // when
+            let conversation = ZMConversation.insertGroupConversation(into: self.uiMOC,
+                                                                      withParticipants: [],
+                                                                      name: "Test Conversation",
+                                                                      in: nil,
+                                                                      allowGuests: $0.0)!
+            // then
+            XCTAssertEqual(conversation.accessModeStrings!, $0.1)
+        }
+    }
 }
 

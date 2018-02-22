@@ -28,12 +28,12 @@
 - (NSDictionary *)payloadForMetaDataOfConversation:(ZMConversation *)conversation conversationType:(ZMBackendConversationType)conversationType isArchived:(BOOL)isArchived archivedRef:(NSDate *)archivedRef isSilenced:(BOOL)isSilenced
     silencedRef: (NSDate *)silencedRef;
 {
-    return  [self payloadForMetaDataOfConversation:conversation conversationType:conversationType activeUserIDs:@[] isArchived:isArchived archivedRef:archivedRef isSilenced:isSilenced silencedRef:silencedRef teamID:nil];
+    return  [self payloadForMetaDataOfConversation:conversation conversationType:conversationType activeUserIDs:@[] isArchived:isArchived archivedRef:archivedRef isSilenced:isSilenced silencedRef:silencedRef teamID:nil accessMode:@[]];
 }
 
 - (NSDictionary *)payloadForMetaDataOfConversation:(ZMConversation *)conversation activeUserIDs:(NSArray <NSUUID *>*)activeUserIDs
 {
-    return  [self payloadForMetaDataOfConversation:conversation conversationType:1 activeUserIDs:activeUserIDs isArchived:NO archivedRef:nil isSilenced:NO silencedRef:nil teamID:nil];
+    return  [self payloadForMetaDataOfConversation:conversation conversationType:1 activeUserIDs:activeUserIDs isArchived:NO archivedRef:nil isSilenced:NO silencedRef:nil teamID:nil accessMode:@[]];
 }
 
 - (NSDictionary *)payloadForMetaDataOfConversation:(ZMConversation *)conversation
@@ -44,6 +44,7 @@
                                         isSilenced:(BOOL)isSilenced
                                        silencedRef:(NSDate *)silencedRef
                                             teamID:(NSUUID *)teamID
+                                        accessMode:(NSArray<NSString *> *)accessMode
 {
     NSMutableArray *others = [NSMutableArray array];
     for (NSUUID *uuid in activeUserIDs) {
@@ -69,6 +70,7 @@
                               @"type" : @(conversationType),
                               @"id" : [conversation.remoteIdentifier transportString],
                               @"team": [teamID transportString] ?: [NSNull null],
+                              @"access": accessMode,
                               };
     return  payload;
 }
@@ -184,7 +186,7 @@
         NSUUID *user2UUID = [NSUUID createUUID];
         NSUUID *teamID = [NSUUID createUUID];
 
-        NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation conversationType:ZMConvTypeGroup activeUserIDs:@[user1UUID, user2UUID] isArchived:NO archivedRef:nil isSilenced:NO silencedRef:nil teamID:teamID];
+        NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation conversationType:ZMConvTypeGroup activeUserIDs:@[user1UUID, user2UUID] isArchived:NO archivedRef:nil isSilenced:NO silencedRef:nil teamID:teamID accessMode:@[]];
 
         // when
         [conversation updateWithTransportData:payload serverTimeStamp:serverTimestamp];
@@ -228,7 +230,7 @@
         NSUUID *user2UUID = [NSUUID createUUID];
         Team *team = [Team fetchOrCreateTeamWithRemoteIdentifier:NSUUID.createUUID createIfNeeded:YES inContext:self.syncMOC created:nil];
 
-        NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation conversationType:ZMConvTypeGroup activeUserIDs:@[user1UUID, user2UUID] isArchived:NO archivedRef:nil isSilenced:NO silencedRef:nil teamID:team.remoteIdentifier];
+        NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation conversationType:ZMConvTypeGroup activeUserIDs:@[user1UUID, user2UUID] isArchived:NO archivedRef:nil isSilenced:NO silencedRef:nil teamID:team.remoteIdentifier accessMode:@[]];
 
         // when
         [conversation updateWithTransportData:payload serverTimeStamp:serverTimestamp];
@@ -273,7 +275,7 @@
         NSUUID *user1UUID = [NSUUID createUUID];
         NSUUID *user2UUID = [NSUUID createUUID];
 
-        NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation conversationType:ZMConvTypeGroup activeUserIDs:@[user1UUID, user2UUID] isArchived:NO archivedRef:nil isSilenced:NO silencedRef:nil teamID:nil];
+        NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation conversationType:ZMConvTypeGroup activeUserIDs:@[user1UUID, user2UUID] isArchived:NO archivedRef:nil isSilenced:NO silencedRef:nil teamID:nil accessMode:@[]];
 
         // when
         [conversation updateWithTransportData:payload serverTimeStamp:serverTimestamp];
@@ -297,6 +299,48 @@
         XCTAssertEqual(conversation.unsyncedInactiveParticipants.count, 0u);
         XCTAssertFalse(conversation.isArchived);
         XCTAssertFalse(conversation.isSilenced);
+    }];
+}
+
+- (void)testThatItUpdatesItselfFromTransportDataWithAccessModeSet_AllowGuests
+{
+    [self.syncMOC performGroupedBlockAndWait:^{
+        // given
+        ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
+        NSDate *serverTimestamp = [NSDate date];
+        NSUUID *uuid = NSUUID.createUUID;
+        conversation.remoteIdentifier = uuid;
+        
+        NSUUID *user1UUID = [NSUUID createUUID];
+        
+        NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation conversationType:ZMConvTypeGroup activeUserIDs:@[user1UUID] isArchived:NO archivedRef:nil isSilenced:NO silencedRef:nil teamID:nil accessMode:@[@"invite", @"code"]];
+        
+        // when
+        [conversation updateWithTransportData:payload serverTimeStamp:serverTimestamp];
+        
+        // then
+        XCTAssertTrue(conversation.allowGuests);
+    }];
+}
+
+- (void)testThatItUpdatesItselfFromTransportDataWithAccessModeSet_ForbidGuests
+{
+    [self.syncMOC performGroupedBlockAndWait:^{
+        // given
+        ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
+        NSDate *serverTimestamp = [NSDate date];
+        NSUUID *uuid = NSUUID.createUUID;
+        conversation.remoteIdentifier = uuid;
+        
+        NSUUID *user1UUID = [NSUUID createUUID];
+        
+        NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation conversationType:ZMConvTypeGroup activeUserIDs:@[user1UUID] isArchived:NO archivedRef:nil isSilenced:NO silencedRef:nil teamID:nil accessMode:@[]];
+        
+        // when
+        [conversation updateWithTransportData:payload serverTimeStamp:serverTimestamp];
+        
+        // then
+        XCTAssertFalse(conversation.allowGuests);
     }];
 }
 

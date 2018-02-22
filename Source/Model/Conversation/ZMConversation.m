@@ -411,8 +411,25 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
                                                           name:(nullable NSString*)name
                                                         inTeam:(nullable Team *)team
 {
+    return [self insertGroupConversationIntoUserSession:session
+                                       withParticipants:participants
+                                                   name:name
+                                                 inTeam:team
+                                            allowGuests:YES];
+}
+
++ (nonnull instancetype)insertGroupConversationIntoUserSession:(nonnull id<ZMManagedObjectContextProvider> )session
+                                              withParticipants:(nonnull NSArray<ZMUser *> *)participants
+                                                          name:(nullable NSString*)name
+                                                        inTeam:(nullable Team *)team
+                                                   allowGuests:(BOOL)allowGuests
+{
     VerifyReturnNil(session != nil);
-    return [self insertGroupConversationIntoManagedObjectContext:session.managedObjectContext withParticipants:participants name:name inTeam:team];
+    return [self insertGroupConversationIntoManagedObjectContext:session.managedObjectContext
+                                                withParticipants:participants
+                                                            name:name
+                                                          inTeam:team
+                                                     allowGuests:allowGuests];
 }
 
 + (instancetype)existingOneOnOneConversationWithUser:(ZMUser *)otherUser inUserSession:(id<ZMManagedObjectContextProvider>)session;
@@ -1229,12 +1246,33 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return [self insertGroupConversationIntoManagedObjectContext:moc withParticipants:participants inTeam:nil];
 }
 
-+ (instancetype)insertGroupConversationIntoManagedObjectContext:(NSManagedObjectContext *)moc withParticipants:(NSArray *)participants inTeam:(nullable Team *)team
++ (instancetype)insertGroupConversationIntoManagedObjectContext:(NSManagedObjectContext *)moc
+                                               withParticipants:(NSArray *)participants
+                                                         inTeam:(nullable Team *)team
 {
-    return [self insertGroupConversationIntoManagedObjectContext:moc withParticipants:participants name:nil inTeam:team];
+    return [self insertGroupConversationIntoManagedObjectContext:moc
+                                                withParticipants:participants
+                                                            name:nil
+                                                          inTeam:team];
 }
 
-+ (instancetype)insertGroupConversationIntoManagedObjectContext:(NSManagedObjectContext *)moc withParticipants:(NSArray *)participants name:(NSString *)name inTeam:(nullable Team *)team
++ (instancetype)insertGroupConversationIntoManagedObjectContext:(NSManagedObjectContext *)moc
+                                               withParticipants:(NSArray *)participants
+                                                           name:(NSString *)name
+                                                         inTeam:(nullable Team *)team
+{
+    return [self insertGroupConversationIntoManagedObjectContext:moc
+                                                withParticipants:participants
+                                                            name:name
+                                                          inTeam:team
+                                                     allowGuests:YES];
+}
+
++ (nullable instancetype)insertGroupConversationIntoManagedObjectContext:(nonnull NSManagedObjectContext *)moc
+                                                        withParticipants:(nonnull NSArray <ZMUser *>*)participants
+                                                                    name:(nullable NSString *)name
+                                                                  inTeam:(nullable Team *)team
+                                                             allowGuests:(BOOL)allowGuests
 {
     ZMUser *selfUser = [ZMUser selfUserInContext:moc];
 
@@ -1248,6 +1286,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     conversation.creator = selfUser;
     conversation.team = team;
     conversation.userDefinedName = name;
+    conversation.allowGuests = allowGuests;
 
     for (ZMUser *participant in participants) {
         Require([participant isKindOfClass:[ZMUser class]]);
@@ -1322,7 +1361,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     VerifyReturnNil(genericMessage != nil);
     VerifyReturnNil(!self.destructionEnabled || self.canSendEphemeral);
 
-    ZMClientMessage *message = [[ZMClientMessage alloc] initWithNonce:[NSUUID uuidWithTransportString:genericMessage.messageId] managedObjectContext:self.managedObjectContext];
+    ZMClientMessage *message = [[ZMClientMessage alloc] initWithNonce:[NSUUID uuidWithTransportString:genericMessage.messageId]
+                                                 managedObjectContext:self.managedObjectContext];
     [message addData:genericMessage.data];
     message.sender = [ZMUser selfUserInContext:self.managedObjectContext];
     

@@ -25,12 +25,13 @@ public struct ConversationAccessMode: OptionSet {
         self.rawValue = rawValue
     }
     
-    public static let invite = ConversationAccessMode(rawValue: 1 << 0)
-    public static let code   = ConversationAccessMode(rawValue: 1 << 1)
+    public static let invite    = ConversationAccessMode(rawValue: 1 << 0)
+    public static let code      = ConversationAccessMode(rawValue: 1 << 1)
+    public static let `private` = ConversationAccessMode(rawValue: 1 << 2)
     
-    public static let legacy = invite
+    public static let legacy    = invite
+    public static let teamOnly  = ConversationAccessMode()
     public static let allowGuests: ConversationAccessMode = [.invite, .code]
-    public static let teamOnly = ConversationAccessMode()
 }
 
 extension ConversationAccessMode: Hashable {
@@ -41,7 +42,8 @@ extension ConversationAccessMode: Hashable {
 
 public extension ConversationAccessMode {
     internal static let stringValues: [ConversationAccessMode: String] = [.invite: "invite",
-                                                                          .code:   "code"]
+                                                                          .code:   "code",
+                                                                          .`private`: "private"]
 
     public var stringValue: [String] {
         return ConversationAccessMode.stringValues.flatMap { self.contains($0) ? $1 : nil }
@@ -60,6 +62,16 @@ public extension ConversationAccessMode {
 
 public extension ZMConversation {
     @NSManaged @objc dynamic internal var accessModeStrings: [String]?
+    
+    public var allowGuests: Bool {
+        get {
+            return accessMode != .teamOnly
+        }
+        set {
+            accessMode = newValue ? .allowGuests : .teamOnly
+            // TODO: set access role
+        }
+    }
     
     // The conversation access mode is stored as comma separated string in CoreData, cf. `acccessModeStrings`.
     public var accessMode: ConversationAccessMode? {
