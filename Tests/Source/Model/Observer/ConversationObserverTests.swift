@@ -50,7 +50,8 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
             "conversationListIndicatorChanged",
             "clearedChanged",
             "securityLevelChanged",
-            "createdRemotelyChanged"
+            "createdRemotelyChanged",
+            "accessModeChanged"
         ]
     }
     
@@ -450,7 +451,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         
         // when
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
-                                                     modifier: { conversation, _ in conversation.accessMode = .legacy },
+                                                     modifier: { conversation, _ in conversation.accessMode = .teamOnly },
                                                      expectedChangedField: "accessModeChanged",
                                                      expectedChangedKeys: [#keyPath(ZMConversation.accessModeStrings)])
     }

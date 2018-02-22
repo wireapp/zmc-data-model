@@ -30,6 +30,7 @@ public struct ConversationAccessMode: OptionSet {
     
     public static let legacy = invite
     public static let allowGuests: ConversationAccessMode = [.invite, .code]
+    public static let teamOnly = ConversationAccessMode()
 }
 
 extension ConversationAccessMode: Hashable {
