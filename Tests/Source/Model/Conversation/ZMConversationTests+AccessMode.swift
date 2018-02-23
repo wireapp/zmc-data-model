@@ -26,13 +26,16 @@ class ZMConversationAccessModeTests: ZMConversationTestsBase {
     }
     
     var sut: ZMConversation!
+    var team: Team!
     
     override func setUp() {
         super.setUp()
+        team = Team.insertNewObject(in: self.uiMOC)
         sut = conversation()
     }
     
     override func tearDown() {
+        team = nil
         sut = nil
         super.tearDown()
     }
@@ -126,15 +129,26 @@ class ZMConversationAccessModeTests: ZMConversationTestsBase {
         }
     }
     
-    func testThatTheConversationIsInsertedWithCorrectAccessModeAccessRole_Default() {
+    func testThatTheConversationIsInsertedWithCorrectAccessModeAccessRole_Default_WithTeam() {
+        // when
+        let conversation = ZMConversation.insertGroupConversation(into: self.uiMOC,
+                                                                  withParticipants: [],
+                                                                  name: "Test Conversation",
+                                                                  in: team)!
+        // then
+        XCTAssertEqual(conversation.accessModeStrings!, ["code", "invite"])
+        XCTAssertEqual(conversation.accessRoleString!, ConversationAccessRole.nonVerified.rawValue)
+    }
+    
+    func testThatTheConversationIsInsertedWithCorrectAccessModeAccessRole_Default_NoTeam() {
         // when
         let conversation = ZMConversation.insertGroupConversation(into: self.uiMOC,
                                                                   withParticipants: [],
                                                                   name: "Test Conversation",
                                                                   in: nil)!
         // then
-        XCTAssertEqual(conversation.accessModeStrings!, ["code", "invite"])
-        XCTAssertEqual(conversation.accessRoleString!, ConversationAccessRole.nonVerified.rawValue)
+        XCTAssertTrue(conversation.accessModeStrings == nil)
+        XCTAssertEqual(conversation.accessRoleString, nil)
     }
     
     func testThatTheConversationIsInsertedWithCorrectAccessModeAccessRole() {
@@ -144,7 +158,7 @@ class ZMConversationAccessModeTests: ZMConversationTestsBase {
             let conversation = ZMConversation.insertGroupConversation(into: self.uiMOC,
                                                                       withParticipants: [],
                                                                       name: "Test Conversation",
-                                                                      in: nil,
+                                                                      in: team,
                                                                       allowGuests: $0.0)!
             // then
             XCTAssertEqual(conversation.accessModeStrings!, $0.1)

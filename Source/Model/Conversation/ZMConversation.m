@@ -1288,7 +1288,9 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     conversation.creator = selfUser;
     conversation.team = team;
     conversation.userDefinedName = name;
-    conversation.allowGuests = allowGuests;
+    if (nil != team) {
+        conversation.allowGuests = allowGuests;
+    }
 
     for (ZMUser *participant in participants) {
         Require([participant isKindOfClass:[ZMUser class]]);
