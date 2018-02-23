@@ -104,6 +104,7 @@ static NSString *const LastReadEventIDDataKey = @"lastReadEventID_data";
 static NSString *const TeamKey = @"team";
 
 static NSString *const AccessModeStringsKey = @"accessModeStrings";
+static NSString *const AccessRoleStringKey = @"accessRoleString";
 
 NSTimeInterval ZMConversationDefaultLastReadTimestampSaveDelay = 3.0;
 
@@ -370,7 +371,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
             TeamKey,
             TeamRemoteIdentifierKey,
             TeamRemoteIdentifierDataKey,
-            AccessModeStringsKey
+            AccessModeStringsKey,
+            AccessRoleStringKey,
         };
         
         NSSet *additionalKeys = [NSSet setWithObjects:KeysIgnoredForTrackingModifications count:(sizeof(KeysIgnoredForTrackingModifications) / sizeof(*KeysIgnoredForTrackingModifications))];

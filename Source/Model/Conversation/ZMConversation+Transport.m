@@ -37,6 +37,7 @@ static NSString *const ConversationInfoMembersKey = @"members";
 static NSString *const ConversationInfoCreatorKey = @"creator";
 static NSString *const ConversationInfoTeamIdKey = @"team";
 static NSString *const ConversationInfoAccessModeKey = @"access";
+static NSString *const ConversationInfoAccessRoleKey = @"access_role";
 
 NSString *const ZMConversationInfoOTRMutedValueKey = @"otr_muted";
 NSString *const ZMConversationInfoOTRMutedReferenceKey = @"otr_muted_ref";
@@ -107,6 +108,7 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
     }
     
     self.accessModeStrings = [transportData optionalArrayForKey:ConversationInfoAccessModeKey];
+    self.accessRoleString = [transportData optionalStringForKey:ConversationInfoAccessRoleKey];
 }
 
 - (void)updateMembersWithPayload:(NSDictionary *)members

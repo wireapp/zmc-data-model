@@ -18,16 +18,21 @@
 
 import Foundation
 
+/// Defines how users can join a conversation.
 public struct ConversationAccessMode: OptionSet {
     public let rawValue: Int
     
     public init(rawValue: Int) {
         self.rawValue = rawValue
     }
-    
+    /// Allowed user can be added by an existing conv member.
     public static let invite    = ConversationAccessMode(rawValue: 1 << 0)
+    /// Allowed user can join the conversation using the code.
     public static let code      = ConversationAccessMode(rawValue: 1 << 1)
-    public static let `private` = ConversationAccessMode(rawValue: 1 << 2)
+    /// Allowed user can join knowing only the conversation ID.
+    public static let link      = ConversationAccessMode(rawValue: 1 << 2)
+    /// Internal value that indicates the conversation that cannot be joined (1-1).
+    public static let `private` = ConversationAccessMode(rawValue: 1 << 3)
     
     public static let legacy    = invite
     public static let teamOnly  = ConversationAccessMode()
@@ -42,9 +47,10 @@ extension ConversationAccessMode: Hashable {
 
 public extension ConversationAccessMode {
     internal static let stringValues: [ConversationAccessMode: String] = [.invite: "invite",
-                                                                          .code:   "code",
+                                                                          .code: "code",
+                                                                          .link: "link",
                                                                           .`private`: "private"]
-
+    
     public var stringValue: [String] {
         return ConversationAccessMode.stringValues.flatMap { self.contains($0) ? $1 : nil }
     }
@@ -60,20 +66,35 @@ public extension ConversationAccessMode {
     }
 }
 
+/// Defines who can join the conversation.
+public enum ConversationAccessRole: String {
+    /// Only the team member can join.
+    case team = "team"
+    /// Only users who have verified their phone number / email can join.
+    case verified = "verified"
+    /// Any user can join.
+    case nonVerified = "non_verified"
+}
+
 public extension ZMConversation {
     @NSManaged @objc dynamic internal var accessModeStrings: [String]?
+    @NSManaged @objc dynamic internal var accessRoleString: String?
     
+    /// If set to true, then any user can join the conversation.
+    /// Controls the values of `accessMode` and `accessRole`.
     public var allowGuests: Bool {
         get {
-            return accessMode != .teamOnly
+            return accessMode != .teamOnly && accessRole == .nonVerified
         }
         set {
             accessMode = newValue ? .allowGuests : .teamOnly
-            // TODO: set access role
+            accessRole = newValue ? .nonVerified : .team
         }
     }
     
-    // The conversation access mode is stored as comma separated string in CoreData, cf. `acccessModeStrings`.
+    // The conversation access mode is stored as an array of string in CoreData, cf. `acccessModeStrings`.
+    
+    /// Defines how users can join a conversation.
     public var accessMode: ConversationAccessMode? {
         get {
             guard let strings = self.accessModeStrings else {
@@ -91,5 +112,22 @@ public extension ZMConversation {
         }
     }
     
+    /// Defines who can join the conversation.
+    public var accessRole: ConversationAccessRole? {
+        get {
+            guard let strings = self.accessRoleString else {
+                return nil
+            }
+            
+            return ConversationAccessRole(rawValue: strings)
+        }
+        set {
+            guard let value = newValue else {
+                accessRoleString = nil
+                return
+            }
+            accessRoleString = value.rawValue
+        }
+    }
 }
 

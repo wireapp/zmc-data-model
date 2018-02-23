@@ -51,7 +51,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
             "clearedChanged",
             "securityLevelChanged",
             "createdRemotelyChanged",
-            "accessModeChanged"
+            "allowGuestsChanged"
         ]
     }
     
@@ -452,8 +452,23 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         // when
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: { conversation, _ in conversation.accessMode = .teamOnly },
-                                                     expectedChangedField: "accessModeChanged",
+                                                     expectedChangedField: "allowGuestsChanged",
                                                      expectedChangedKeys: [#keyPath(ZMConversation.accessModeStrings)])
+    }
+    
+    func testThatAccessRoleChangeIsTriggeringObservation()
+    {
+        // given
+        let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
+        conversation.conversationType = ZMConversationType.group
+        uiMOC.saveOrRollback()
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        
+        // when
+        self.checkThatItNotifiesTheObserverOfAChange(conversation,
+                                                     modifier: { conversation, _ in conversation.accessRole = .verified },
+                                                     expectedChangedField: "allowGuestsChanged",
+                                                     expectedChangedKeys: [#keyPath(ZMConversation.accessRoleString)])
     }
     
     func testThatItNotifiesTheObserverOfChangedConnectionStatusWhenInsertingAConnection()
