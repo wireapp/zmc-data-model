@@ -106,7 +106,7 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
         [self updateTeamWithIdentifier:teamId];
     }
     
-    self.accessModeStrings = [transportData arrayForKey:ConversationInfoAccessModeKey];
+    self.accessModeStrings = [transportData optionalArrayForKey:ConversationInfoAccessModeKey];
 }
 
 - (void)updateMembersWithPayload:(NSDictionary *)members
