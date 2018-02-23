@@ -33,11 +33,13 @@ class ZMConversationAccessModeTests: ZMConversationTestsBase {
     }
     
     override func tearDown() {
-        super.tearDown()
         sut = nil
+        super.tearDown()
     }
     
     func testThatItCanSetTheMode() {
+        sut.accessMode = .teamOnly
+        XCTAssertEqual(sut.accessMode, .teamOnly)
         // when
         sut.accessMode = .allowGuests
         // then
