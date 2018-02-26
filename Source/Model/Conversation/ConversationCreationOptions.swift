@@ -19,10 +19,10 @@
 import Foundation
 
 public struct ConversationCreationOptions {
-    var participants: [ZMUser]
-    var name: String?
-    var team: Team?
-    var allowGuests: Bool
+    var participants: [ZMUser] = []
+    var name: String? = nil
+    var team: Team? = nil
+    var allowGuests: Bool = true
     
     public init(participants: [ZMUser], name: String?, team: Team?, allowGuests: Bool) {
         self.participants = participants
