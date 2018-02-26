@@ -66,6 +66,12 @@ public extension ConversationAccessMode {
     }
 }
 
+public extension ConversationAccessMode {
+    public static func value(forAllowGuests allowGuests: Bool) -> ConversationAccessMode {
+        return allowGuests ? .allowGuests : .teamOnly
+    }
+}
+
 /// Defines who can join the conversation.
 public enum ConversationAccessRole: String {
     /// Only the team member can join.
@@ -74,6 +80,12 @@ public enum ConversationAccessRole: String {
     case activated = "activated"
     /// Any user can join.
     case nonActivated = "non_activated"
+}
+
+public extension ConversationAccessRole {
+    public static func value(forAllowGuests allowGuests: Bool) -> ConversationAccessRole {
+        return allowGuests ? ConversationAccessRole.nonActivated : ConversationAccessRole.team
+    }
 }
 
 public extension ZMConversation {
@@ -87,8 +99,8 @@ public extension ZMConversation {
             return accessMode != .teamOnly && accessRole == .nonActivated
         }
         set {
-            accessMode = newValue ? .allowGuests : .teamOnly
-            accessRole = newValue ? .nonActivated : .team
+            accessMode = ConversationAccessMode.value(forAllowGuests: newValue)
+            accessRole = ConversationAccessRole.value(forAllowGuests: newValue)
         }
     }
     
