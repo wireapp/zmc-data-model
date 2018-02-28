@@ -1011,6 +1011,12 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
     return date;
 }
 
+- (BOOL)userIsTheSender
+{
+    BOOL onlyOneUser = self.users.count == 1;
+    BOOL isSender = [self.users containsObject:self.sender];
+    return onlyOneUser && isSender;
+}
 
 @end
 
