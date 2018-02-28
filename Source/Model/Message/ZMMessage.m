@@ -648,7 +648,7 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
     NSSet *noncesData = [nonces mapWithBlock:^NSData*(NSUUID *uuid) {
         return uuid.data;
     }];
-    NSPredicate *noncePredicate = [NSPredicate predicateWithFormat:@"%K IN %@", noncesData]; // FIXME? How can this work at all?
+    NSPredicate *noncePredicate = [NSPredicate predicateWithFormat:@"%K IN %@", noncesData];
     return [NSCompoundPredicate andPredicateWithSubpredicates:@[conversationPredicate, noncePredicate]];
 }
 
