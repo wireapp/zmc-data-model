@@ -141,8 +141,33 @@ extension ZMGenericMessage {
         }
         return messageData
     }
-    
+
+    func categorizeUsers(_ users: Set<ZMUser>) -> (services: [ZMUser], regularUsers: [ZMUser]) {
+        let (services, regularUsers) = users.reduce((NSMutableArray(), NSMutableArray())) { categories, user in
+            let target = user.isServiceUser ? categories.0 : categories.1
+            target.add(user)
+            return categories
+        }
+
+        return (services as! [ZMUser], regularUsers as! [ZMUser])
+    }
+
+    func mentionedServices(within activeServices: [ZMUser]) -> Set<ZMUser> {
+        guard let textData = self.textData else {
+            return []
+        }
+
+        let filteredServices = activeServices.filter { service in
+            textData.mention.contains { $0.userId == service.userIDForMention }
+        }
+
+        return Set(filteredServices)
+    }
+
     func recipientUsersforMessage(in conversation: ZMConversation, selfUser: ZMUser) -> (users: Set<ZMUser>, strategy: MissingClientsStrategy) {
+
+        let (services, otherUsers) = self.categorizeUsers(conversation.otherActiveParticipants.set as! Set<ZMUser>)
+        let mentionedServices = self.mentionedServices(within: services)
     
         func recipientForConfirmationMessage() -> Set<ZMUser>? {
             guard self.hasConfirmation(), self.confirmation.firstMessageId != nil else { return nil }
@@ -150,14 +175,13 @@ extension ZMGenericMessage {
             guard let sender = message.sender else { return nil }
             return Set(arrayLiteral: sender)
         }
-        
+
         func recipientForOtherUsers() -> Set<ZMUser>? {
-            guard conversation.connectedUser != nil || conversation.otherActiveParticipants.firstObject != nil else { return nil }
+            guard conversation.connectedUser != nil || (otherUsers.isEmpty == false) else { return nil }
             if let connectedUser = conversation.connectedUser { return Set(arrayLiteral:connectedUser) }
-            if let otherUsers = conversation.otherActiveParticipants.set as? Set<ZMUser> { return otherUsers }
-            return nil
+            return Set(otherUsers)
         }
-        
+
         func recipientsForDeletedEphemeral() -> Set<ZMUser>? {
             guard (self.hasDeleted() && conversation.conversationType == .group ) else { return nil }
             let nonce = UUID(uuidString: self.deleted.messageId)
@@ -169,9 +193,15 @@ extension ZMGenericMessage {
             }
             return Set(arrayLiteral: sender, selfUser)
         }
-        
+
+        func allAuthorizedRecipients() -> Set<ZMUser> {
+            if let connectedUser = conversation.connectedUser { return Set(arrayLiteral: connectedUser, selfUser) }
+            let authorizedRecipients = otherUsers + mentionedServices + [selfUser]
+            return Set(authorizedRecipients)
+        }
+
         var recipientUsers = Set<ZMUser>()
-        var specifiedUsersOnly = true
+
         if self.hasConfirmation() || self.hasEphemeral() {
             guard let recipients = recipientForConfirmationMessage() ?? recipientForOtherUsers() else {
                 let confirmationInfo = hasConfirmation() ? ", original message: \(self.confirmation.firstMessageId)" : ""
@@ -183,13 +213,17 @@ extension ZMGenericMessage {
             recipientUsers = deletedEphemeral
         }
         else {
-            specifiedUsersOnly = false
-            recipientUsers = conversation.activeParticipants.set as! Set<ZMUser>
+            recipientUsers = allAuthorizedRecipients()
         }
-        
-        let strategy : MissingClientsStrategy = specifiedUsersOnly ? .ignoreAllMissingClientsNotFromUsers(users: recipientUsers)
-                                                                   : .doNotIgnoreAnyMissingClient
-        
+
+        let hasRestrictions: Bool = {
+            if conversation.connectedUser != nil { return recipientUsers.count != 2 }
+            return recipientUsers.count != conversation.activeParticipants.count
+        }()
+
+        let strategy : MissingClientsStrategy = hasRestrictions ? .ignoreAllMissingClientsNotFromUsers(users: recipientUsers)
+                                                                : .doNotIgnoreAnyMissingClient
+
         return (recipientUsers, strategy)
     }
     
