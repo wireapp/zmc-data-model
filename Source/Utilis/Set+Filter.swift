@@ -18,23 +18,22 @@
 
 import Foundation
 
-extension ZMMentionBuilder {
+extension Set {
 
-    public static func build(_ users: [ZMUser]) -> [ZMMention] {
-        var mentions: [ZMMention] = []
+    func filtered(_ isIncluded: (Element) throws -> Bool) rethrows -> Set<Element> {
 
-        for user in users {
-            let builder = ZMMention.builder()!
-            builder.setUser(user)
-            mentions.append(builder.build()!)
+        var result: Set<Element> = []
+
+        for element in self {
+
+            if try isIncluded(element) {
+                result.insert(element)
+            }
+
         }
 
-        return mentions
-    }
+        return result
 
-    public func setUser(_ user: ZMUser) {
-        setUserId(user.remoteIdentifier!.transportString())
-        setUserName(user.name!)
     }
 
 }

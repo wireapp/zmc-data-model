@@ -28,6 +28,8 @@ extension ClientMessageTests_OTR {
 
     func testThatItCategorizesUsersCorrectly() {
         self.syncMOC.performGroupedBlockAndWait {
+            let conversation = ZMConversation.insertNewObject(in:self.syncMOC)
+
             let regularUser1 = ZMUser.insertNewObject(in: self.syncMOC)
             regularUser1.remoteIdentifier = UUID.create()
 
@@ -42,22 +44,14 @@ extension ClientMessageTests_OTR {
             serviceUser2.serviceIdentifier = UUID.create().transportString()
             serviceUser2.providerIdentifier = UUID.create().transportString()
 
-            let nonce = UUID.create()
-            let builder = ZMGenericMessage.builder()!
-            let textBuilder = ZMText.builder()!
-            textBuilder.setContent(self.textMessageRequiringExternalMessage(2))
-            builder.setText(textBuilder.build()!)
-            builder.setMessageId(nonce.transportString())
-            let textMessage = builder.build()!
-
             let users: Set<ZMUser> = [regularUser1, regularUser2, serviceUser1, serviceUser2]
-            let (services, regularUsers) = textMessage.categorizeUsers(users)
+            let (services, regularUsers) = conversation.categorizeUsers(in: users)
 
             XCTAssertEqual(regularUsers.count, 2)
             XCTAssertEqual(services.count, 2)
 
-            XCTAssertEqual(Set(regularUsers), [regularUser1, regularUser2])
-            XCTAssertEqual(Set(services), [serviceUser1, serviceUser2])
+            XCTAssertEqual(regularUsers, [regularUser1, regularUser2])
+            XCTAssertEqual(services, [serviceUser1, serviceUser2])
         }
     }
 
@@ -105,27 +99,26 @@ extension ClientMessageTests_OTR {
             serviceUser2.providerIdentifier = UUID.create().transportString()
 
             let selfUser = ZMUser.selfUser(in: self.syncMOC)
-            let remoteUsers = [regularUser1, regularUser2, serviceUser1, serviceUser2]
+            let remoteUsers: Set<ZMUser> = [regularUser1, regularUser2, serviceUser1, serviceUser2]
 
             let nonce = UUID.create()
+
             let builder = ZMGenericMessage.builder()!
-            let mentionBuilder = ZMMention.builder()!
-            mentionBuilder.setUser(serviceUser2)
-            let textBuilder = ZMText.builder()!
-            textBuilder.setContent(self.textMessageRequiringExternalMessage(2))
-            textBuilder.addMention(mentionBuilder.build()!)
-            builder.setText(textBuilder.build()!)
+            let text = ZMText(message: self.textMessageRequiringExternalMessage(2), linkPreview: nil,
+                              mentions: ZMMentionBuilder.build([serviceUser2]))
+            builder.setText(text)
             builder.setMessageId(nonce.transportString())
             let textMessage = builder.build()!
 
             let conversation = ZMConversation.insertNewObject(in:self.syncMOC)
             conversation.conversationType = .group
             conversation.remoteIdentifier = UUID.create()
-            conversation.addParticipants(Set(remoteUsers))
+            conversation.addParticipants(remoteUsers)
             XCTAssertTrue(self.syncMOC.saveOrRollback())
 
             // when
-            let mentionedServices = textMessage.mentionedServices(within: remoteUsers)
+            let remoteServices: Set<ZMUser> = conversation.services(in: remoteUsers)
+            let mentionedServices = textMessage.mentionedServices(within: remoteServices)
 
             guard let (_, strategy) = textMessage.encryptedMessagePayloadData(conversation, externalData: nil)
                 else { return XCTFail() }
@@ -194,7 +187,6 @@ extension ClientMessageTests_OTR {
             }
         }
     }
-
 
     func testThatCreatesEncryptedDataAndAddsItToGenericMessageAsBlob() {
         self.syncMOC.performGroupedBlockAndWait { 

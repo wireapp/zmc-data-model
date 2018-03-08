@@ -142,31 +142,9 @@ extension ZMGenericMessage {
         return messageData
     }
 
-    func categorizeUsers(_ users: Set<ZMUser>) -> (services: [ZMUser], regularUsers: [ZMUser]) {
-        let (services, regularUsers) = users.reduce((NSMutableArray(), NSMutableArray())) { categories, user in
-            let target = user.isServiceUser ? categories.0 : categories.1
-            target.add(user)
-            return categories
-        }
-
-        return (services as! [ZMUser], regularUsers as! [ZMUser])
-    }
-
-    func mentionedServices(within activeServices: [ZMUser]) -> Set<ZMUser> {
-        guard let textData = self.textData else {
-            return []
-        }
-
-        let filteredServices = activeServices.filter { service in
-            textData.mention.contains { $0.userId == service.remoteIdentifier?.transportString() }
-        }
-
-        return Set(filteredServices)
-    }
-
     func recipientUsersforMessage(in conversation: ZMConversation, selfUser: ZMUser) -> (users: Set<ZMUser>, strategy: MissingClientsStrategy) {
 
-        let (services, otherUsers) = self.categorizeUsers(conversation.otherActiveParticipants.set as! Set<ZMUser>)
+        let (services, otherUsers) = conversation.categorizeUsers(in: conversation.otherActiveParticipants.set as! Set<ZMUser>)
         let mentionedServices = self.mentionedServices(within: services)
     
         func recipientForConfirmationMessage() -> Set<ZMUser>? {
@@ -196,7 +174,7 @@ extension ZMGenericMessage {
 
         func allAuthorizedRecipients() -> Set<ZMUser> {
             if let connectedUser = conversation.connectedUser { return Set(arrayLiteral: connectedUser, selfUser) }
-            let authorizedRecipients = otherUsers + mentionedServices + [selfUser]
+            let authorizedRecipients = otherUsers.union(mentionedServices).union([selfUser])
             return Set(authorizedRecipients)
         }
 

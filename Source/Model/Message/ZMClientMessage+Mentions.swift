@@ -18,23 +18,22 @@
 
 import Foundation
 
-extension ZMMentionBuilder {
+extension ZMGenericMessage {
 
-    public static func build(_ users: [ZMUser]) -> [ZMMention] {
-        var mentions: [ZMMention] = []
+    func mentionedServices(within activeServices: Set<ZMUser>) -> Set<ZMUser> {
 
-        for user in users {
-            let builder = ZMMention.builder()!
-            builder.setUser(user)
-            mentions.append(builder.build()!)
+        guard let textData = self.textData else {
+            return []
         }
 
-        return mentions
-    }
+        guard let mentions = textData.mention else {
+            return []
+        }
 
-    public func setUser(_ user: ZMUser) {
-        setUserId(user.remoteIdentifier!.transportString())
-        setUserName(user.name!)
+        return activeServices.filtered { service in
+            mentions.contains { $0.userId == service.remoteIdentifier?.transportString() }
+        }
+
     }
 
 }

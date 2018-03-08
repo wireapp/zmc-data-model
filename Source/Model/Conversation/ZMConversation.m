@@ -727,6 +727,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     VerifyReturnNil(text != nil);
 
     NSUUID *nonce = NSUUID.UUID;
+
     id <ZMConversationMessage> message = [self appendOTRMessageWithText:text nonce:nonce fetchLinkPreview:fetchPreview];
 
     [[[NotificationInContext alloc] initWithName:ZMConversation.clearTypingNotificationName
@@ -1461,9 +1462,12 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 {
     VerifyReturnNil(!self.destructionEnabled || self.canSendEphemeral);
 
+    NSArray<ZMMention *> *mentions = [self mentionsInText:text];
     ZMGenericMessage *genericMessage = [ZMGenericMessage messageWithText:text.stringByRemovingExtremeCombiningCharacters
+                                                             linkPreview:nil
                                                                    nonce:nonce.transportString
-                                                            expiresAfter:@(self.messageDestructionTimeout)];
+                                                            expiresAfter:@(self.messageDestructionTimeout)
+                                                                mentions: mentions];
     ZMClientMessage *message = [self appendClientMessageWithGenericMessage:genericMessage];
     message.linkPreviewState = fetchPreview ? ZMLinkPreviewStateWaitingToBeProcessed : ZMLinkPreviewStateDone;
     return message;
