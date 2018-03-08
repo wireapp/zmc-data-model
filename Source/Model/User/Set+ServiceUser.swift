@@ -18,17 +18,16 @@
 
 import Foundation
 
-extension ZMConversation {
+extension Set where Element == ZMUser {
 
-    @objc(mentionsInText:)
-    func mentions(in text: String) -> [ZMMention] {
-        var mentionedUsers: [ZMUser] = []
+    var serviceUsers: Set<ZMUser> {
+        return self.filtered { $0.isServiceUser }
+    }
 
-        if text.starts(with: ServiceMentionKeyword + " ") {
-            mentionedUsers.append(contentsOf: (self.otherActiveParticipants.set as! Set<ZMUser>))
-        }
-
-        return ZMMentionBuilder.build(mentionedUsers)
+    func categorizeUsers() -> (services: Set<ZMUser>, users: Set<ZMUser>) {
+        let services = self.serviceUsers
+        let users = self.subtracting(services)
+        return (services, users)
     }
 
 }
