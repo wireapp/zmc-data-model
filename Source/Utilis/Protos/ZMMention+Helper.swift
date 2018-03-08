@@ -21,17 +21,8 @@ import Foundation
 extension ZMMentionBuilder {
 
     public func setUser(_ user: ZMUser) {
-        setUserId(user.userIDForMention)
+        setUserId(user.remoteIdentifier!.transportString())
         setUserName(user.name!)
-    }
-
-}
-
-extension ZMUser {
-
-    var userIDForMention: String {
-        return isServiceUser ? "/\(providerIdentifier!)/\(serviceIdentifier!)"
-            : remoteIdentifier!.transportString()
     }
 
 }

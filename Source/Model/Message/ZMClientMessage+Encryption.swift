@@ -158,7 +158,7 @@ extension ZMGenericMessage {
         }
 
         let filteredServices = activeServices.filter { service in
-            textData.mention.contains { $0.userId == service.userIDForMention }
+            textData.mention.contains { $0.userId == service.remoteIdentifier?.transportString() }
         }
 
         return Set(filteredServices)

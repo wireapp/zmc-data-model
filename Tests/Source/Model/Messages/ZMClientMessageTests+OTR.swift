@@ -73,14 +73,14 @@ extension ClientMessageTests_OTR {
             XCTAssertEqual(regularMention.userName, "Jane Doe")
 
             let serviceUser = ZMUser.insertNewObject(in: self.syncMOC)
+            serviceUser.remoteIdentifier = UUID.create()
             serviceUser.serviceIdentifier = UUID.create().transportString()
             serviceUser.providerIdentifier = UUID.create().transportString()
             serviceUser.name = "Wire News"
             let serviceMentionBuilder = ZMMention.builder()!
             serviceMentionBuilder.setUser(serviceUser)
             let serviceMention = serviceMentionBuilder.build()!
-            let expectedServiceID = "/\(serviceUser.providerIdentifier!)/\(serviceUser.serviceIdentifier!)"
-            XCTAssertEqual(serviceMention.userId, expectedServiceID)
+            XCTAssertEqual(serviceMention.userId, serviceUser.remoteIdentifier?.transportString())
             XCTAssertEqual(serviceMention.userName, "Wire News")
         }
     }
@@ -94,11 +94,13 @@ extension ClientMessageTests_OTR {
             regularUser2.remoteIdentifier = UUID.create()
 
             let serviceUser1 = ZMUser.insertNewObject(in: self.syncMOC)
+            serviceUser1.remoteIdentifier = UUID.create()
             serviceUser1.serviceIdentifier = UUID.create().transportString()
             serviceUser1.providerIdentifier = UUID.create().transportString()
 
             let serviceUser2 = ZMUser.insertNewObject(in: self.syncMOC)
             serviceUser2.name = "Wire News"
+            serviceUser2.remoteIdentifier = UUID.create()
             serviceUser2.serviceIdentifier = UUID.create().transportString()
             serviceUser2.providerIdentifier = UUID.create().transportString()
 
