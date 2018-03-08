@@ -159,10 +159,10 @@ extension ZMClientMessage: ZMImageOwner {
         let original = ZMAssetOriginal.original(withSize: UInt64(imageData.count), mimeType: properties?.mimeType ?? "", name: nil, imageMetaData: imageMetaData)
         
         let updatedPreview = linkPreview.update(withOtrKey: keys.otrKey, sha256: keys.sha256!, original: original)
-        var updatedMentions: [ZMMention] = []
+        var mentions: [ZMMention] = []
 
         if let conversation = conversation {
-            updatedMentions = conversation.mentions(in: self.textMessageData?.messageText ?? "")
+            mentions = conversation.mentions(in: self.textMessageData?.messageText ?? "")
         }
 
         if let genericMessage = self.genericMessage {
@@ -173,7 +173,7 @@ extension ZMClientMessage: ZMImageOwner {
                                                           linkPreview: updatedPreview,
                                                           nonce: self.nonce!.transportString(),
                                                           expiresAfter: self.deletionTimeout as NSNumber,
-                                                          mentions: updatedMentions)
+                                                          mentions: mentions)
                 self.add(newMessage.data())
             } else if genericMessage.hasEdited() {
 
@@ -181,7 +181,7 @@ extension ZMClientMessage: ZMImageOwner {
                                                   newText: self.textMessageData?.messageText ?? "",
                                                   linkPreview: updatedPreview,
                                                   nonce: self.nonce!.transportString(),
-                                                  mentions: updatedMentions)
+                                                  mentions: mentions)
                 self.add(newMessage.data())
             }
         }
