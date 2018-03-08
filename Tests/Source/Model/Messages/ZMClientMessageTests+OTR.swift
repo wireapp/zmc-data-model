@@ -28,7 +28,6 @@ extension ClientMessageTests_OTR {
 
     func testThatItCategorizesUsersCorrectly() {
         self.syncMOC.performGroupedBlockAndWait {
-            let conversation = ZMConversation.insertNewObject(in:self.syncMOC)
 
             let regularUser1 = ZMUser.insertNewObject(in: self.syncMOC)
             regularUser1.remoteIdentifier = UUID.create()
@@ -45,7 +44,7 @@ extension ClientMessageTests_OTR {
             serviceUser2.providerIdentifier = UUID.create().transportString()
 
             let users: Set<ZMUser> = [regularUser1, regularUser2, serviceUser1, serviceUser2]
-            let (services, regularUsers) = conversation.categorizeUsers(in: users)
+            let (services, regularUsers) = users.categorize()
 
             XCTAssertEqual(regularUsers.count, 2)
             XCTAssertEqual(services.count, 2)
@@ -117,8 +116,8 @@ extension ClientMessageTests_OTR {
             XCTAssertTrue(self.syncMOC.saveOrRollback())
 
             // when
-            let remoteServices: Set<ZMUser> = conversation.services(in: remoteUsers)
-            let mentionedServices = textMessage.mentionedServices(within: remoteServices)
+            let remoteServices: Set<ZMUser> = remoteUsers.serviceUsers
+            let mentionedServices = textMessage.mentionedUsers(within: remoteServices)
 
             guard let (_, strategy) = textMessage.encryptedMessagePayloadData(conversation, externalData: nil)
                 else { return XCTFail() }

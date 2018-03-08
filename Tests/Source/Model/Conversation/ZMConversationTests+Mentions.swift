@@ -55,7 +55,7 @@ class ZMConversationMentionsTests: ZMConversationTestsBase {
         serviceUser2.providerIdentifier = UUID.create().transportString()
 
         let users: Set<ZMUser> = [regularUser1, regularUser2, serviceUser1, serviceUser2]
-        let (services, regularUsers) = conversation.categorizeUsers(in: users)
+        let (services, regularUsers) = users.categorize()
 
         XCTAssertEqual(regularUsers.count, 2)
         XCTAssertEqual(services.count, 2)

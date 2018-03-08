@@ -20,7 +20,7 @@ import Foundation
 
 extension ZMGenericMessage {
 
-    func mentionedServices(within activeServices: Set<ZMUser>) -> Set<ZMUser> {
+    public func mentionedUsers(within participants: Set<ZMUser>) -> Set<ZMUser> {
 
         guard let textData = self.textData else {
             return []
@@ -30,7 +30,7 @@ extension ZMGenericMessage {
             return []
         }
 
-        return activeServices.filtered { service in
+        return participants.filtered { service in
             mentions.contains { $0.userId == service.remoteIdentifier?.transportString() }
         }
 

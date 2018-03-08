@@ -24,7 +24,7 @@ extension Set where Element == ZMUser {
         return self.filtered { $0.isServiceUser }
     }
 
-    func categorizeUsers() -> (services: Set<ZMUser>, users: Set<ZMUser>) {
+    func categorize() -> (services: Set<ZMUser>, users: Set<ZMUser>) {
         let services = self.serviceUsers
         let users = self.subtracting(services)
         return (services, users)
