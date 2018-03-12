@@ -364,6 +364,8 @@ class DatabaseMigrationTests: DatabaseBaseTest {
         
         let regex = try NSRegularExpression(pattern: "[0-9\\.]+[0-9]+")
         
+        var processedVersions = Set<String>()
+        
         try fm.contentsOfDirectory(atPath: source.path).filter { URL(fileURLWithPath: $0).pathExtension == "mom" } .forEach { modelFileName in
             
             let nameMatches = regex.matches(in: modelFileName, range: NSRange(modelFileName.startIndex..., in: modelFileName)).map {
@@ -374,13 +376,16 @@ class DatabaseMigrationTests: DatabaseBaseTest {
                 return
             }
             
-            guard let version = nameMatches.first else {
+            guard let version = nameMatches.first! else {
                 fatal("Wrong name format: \(modelFileName)")
             }
             
+            XCTAssertFalse(processedVersions.contains(version))
+            
             let store = NSManagedObjectModel(contentsOf: source.appendingPathComponent(modelFileName))!
             // then
-            XCTAssertTrue(store.versionIdentifiers.contains(version!))
+            XCTAssertTrue(store.versionIdentifiers.contains(version))
+            processedVersions.insert(version)
         }
     }
 }
