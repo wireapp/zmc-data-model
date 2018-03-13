@@ -143,10 +143,8 @@ extension ZMGenericMessage {
     }
 
     func recipientUsersforMessage(in conversation: ZMConversation, selfUser: ZMUser) -> (users: Set<ZMUser>, strategy: MissingClientsStrategy) {
-
         let (services, otherUsers) = (conversation.otherActiveParticipants.set as! Set<ZMUser>).categorize()
-        let mentionedServices = self.mentionedUsers(within: services)
-    
+
         func recipientForConfirmationMessage() -> Set<ZMUser>? {
             guard self.hasConfirmation(), self.confirmation.firstMessageId != nil else { return nil }
             guard let message = ZMMessage.fetch(withNonce:UUID(uuidString:self.confirmation.firstMessageId), for:conversation, in:conversation.managedObjectContext!) else { return nil }
@@ -174,8 +172,12 @@ extension ZMGenericMessage {
 
         func allAuthorizedRecipients() -> Set<ZMUser> {
             if let connectedUser = conversation.connectedUser { return Set(arrayLiteral: connectedUser, selfUser) }
-            let authorizedRecipients = otherUsers.union(mentionedServices).union([selfUser])
-            return Set(authorizedRecipients)
+
+            let authorizedServices = services.filtered { service in
+                self.textData?.mention?.contains { $0.userId == service.remoteIdentifier?.transportString() } ?? false
+            }
+
+            return otherUsers.union(authorizedServices).union([selfUser])
         }
 
         var recipientUsers = Set<ZMUser>()

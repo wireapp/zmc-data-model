@@ -65,13 +65,39 @@ class ZMConversationMentionsTests: ZMConversationTestsBase {
 
     }
 
+    func testThatItCreatesCorrectMentionForUser() {
+
+        let regularUser = ZMUser.insertNewObject(in: uiMOC)
+        regularUser.remoteIdentifier = UUID.create()
+        regularUser.name = "Jane Doe"
+        let regularMentionBuilder = ZMMention.builder()!
+        regularMentionBuilder.setUser(regularUser)
+        let regularMention = regularMentionBuilder.build()!
+        XCTAssertEqual(regularMention.userId, regularUser.remoteIdentifier?.transportString())
+        XCTAssertEqual(regularMention.userName, "Jane Doe")
+
+        let serviceUser = ZMUser.insertNewObject(in: uiMOC)
+        serviceUser.remoteIdentifier = UUID.create()
+        serviceUser.serviceIdentifier = UUID.create().transportString()
+        serviceUser.providerIdentifier = UUID.create().transportString()
+        serviceUser.name = "Wire News"
+        let serviceMentionBuilder = ZMMention.builder()!
+        serviceMentionBuilder.setUser(serviceUser)
+        let serviceMention = serviceMentionBuilder.build()!
+        XCTAssertEqual(serviceMention.userId, serviceUser.remoteIdentifier?.transportString())
+        XCTAssertEqual(serviceMention.userName, "Wire News")
+
+    }
+
     func testThatItDetectsServiceMentions() {
 
         let regularUser1 = ZMUser.insertNewObject(in: uiMOC)
         regularUser1.remoteIdentifier = UUID.create()
+        regularUser1.name = "John"
 
         let regularUser2 = ZMUser.insertNewObject(in: uiMOC)
         regularUser2.remoteIdentifier = UUID.create()
+        regularUser2.name = "Jane"
 
         let serviceUser1 = ZMUser.insertNewObject(in: uiMOC)
         serviceUser1.remoteIdentifier = UUID.create()
@@ -81,9 +107,9 @@ class ZMConversationMentionsTests: ZMConversationTestsBase {
 
         let serviceUser2 = ZMUser.insertNewObject(in: uiMOC)
         serviceUser2.remoteIdentifier = UUID.create()
-        serviceUser2.name = "Wire"
         serviceUser2.serviceIdentifier = UUID.create().transportString()
         serviceUser2.providerIdentifier = UUID.create().transportString()
+        serviceUser2.name = "Wire"
 
         conversation.conversationType = .group
         conversation.addParticipants([regularUser1, regularUser2, serviceUser1, serviceUser2])

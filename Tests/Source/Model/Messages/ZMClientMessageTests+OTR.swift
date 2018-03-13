@@ -26,58 +26,6 @@ class ClientMessageTests_OTR: BaseZMClientMessageTests {
 // MARK: - Payload creation
 extension ClientMessageTests_OTR {
 
-    func testThatItCategorizesUsersCorrectly() {
-        self.syncMOC.performGroupedBlockAndWait {
-
-            let regularUser1 = ZMUser.insertNewObject(in: self.syncMOC)
-            regularUser1.remoteIdentifier = UUID.create()
-
-            let regularUser2 = ZMUser.insertNewObject(in: self.syncMOC)
-            regularUser2.remoteIdentifier = UUID.create()
-
-            let serviceUser1 = ZMUser.insertNewObject(in: self.syncMOC)
-            serviceUser1.serviceIdentifier = UUID.create().transportString()
-            serviceUser1.providerIdentifier = UUID.create().transportString()
-
-            let serviceUser2 = ZMUser.insertNewObject(in: self.syncMOC)
-            serviceUser2.serviceIdentifier = UUID.create().transportString()
-            serviceUser2.providerIdentifier = UUID.create().transportString()
-
-            let users: Set<ZMUser> = [regularUser1, regularUser2, serviceUser1, serviceUser2]
-            let (services, regularUsers) = users.categorize()
-
-            XCTAssertEqual(regularUsers.count, 2)
-            XCTAssertEqual(services.count, 2)
-
-            XCTAssertEqual(regularUsers, [regularUser1, regularUser2])
-            XCTAssertEqual(services, [serviceUser1, serviceUser2])
-        }
-    }
-
-    func testThatItCreatesCorrectMentionForUser() {
-        self.syncMOC.performGroupedBlockAndWait {
-            let regularUser = ZMUser.insertNewObject(in: self.syncMOC)
-            regularUser.remoteIdentifier = UUID.create()
-            regularUser.name = "Jane Doe"
-            let regularMentionBuilder = ZMMention.builder()!
-            regularMentionBuilder.setUser(regularUser)
-            let regularMention = regularMentionBuilder.build()!
-            XCTAssertEqual(regularMention.userId, regularUser.remoteIdentifier?.transportString())
-            XCTAssertEqual(regularMention.userName, "Jane Doe")
-
-            let serviceUser = ZMUser.insertNewObject(in: self.syncMOC)
-            serviceUser.remoteIdentifier = UUID.create()
-            serviceUser.serviceIdentifier = UUID.create().transportString()
-            serviceUser.providerIdentifier = UUID.create().transportString()
-            serviceUser.name = "Wire News"
-            let serviceMentionBuilder = ZMMention.builder()!
-            serviceMentionBuilder.setUser(serviceUser)
-            let serviceMention = serviceMentionBuilder.build()!
-            XCTAssertEqual(serviceMention.userId, serviceUser.remoteIdentifier?.transportString())
-            XCTAssertEqual(serviceMention.userName, "Wire News")
-        }
-    }
-
     func testThatItExcludesServicesWhenNotMentioned() {
         self.syncMOC.performGroupedBlockAndWait {
             let regularUser1 = ZMUser.insertNewObject(in: self.syncMOC)
@@ -116,17 +64,11 @@ extension ClientMessageTests_OTR {
             XCTAssertTrue(self.syncMOC.saveOrRollback())
 
             // when
-            let remoteServices: Set<ZMUser> = remoteUsers.serviceUsers
-            let mentionedServices = textMessage.mentionedUsers(within: remoteServices)
 
             guard let (_, strategy) = textMessage.encryptedMessagePayloadData(conversation, externalData: nil)
                 else { return XCTFail() }
 
             // then
-
-            XCTAssertEqual(mentionedServices.count, 1)
-            XCTAssertFalse(mentionedServices.contains(serviceUser1))
-            XCTAssertTrue(mentionedServices.contains(serviceUser2))
 
             switch strategy {
             case .ignoreAllMissingClientsNotFromUsers(let users):
