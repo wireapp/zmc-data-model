@@ -123,4 +123,46 @@ class ZMConversationMentionsTests: ZMConversationTestsBase {
 
     }
 
+    func testThatItNormalizedMessageText() {
+
+        let regularUser = ZMUser.insertNewObject(in: uiMOC)
+        regularUser.remoteIdentifier = UUID.create()
+        regularUser.name = "John"
+
+        let serviceUser = ZMUser.insertNewObject(in: uiMOC)
+        serviceUser.remoteIdentifier = UUID.create()
+        serviceUser.serviceIdentifier = UUID.create().transportString()
+        serviceUser.providerIdentifier = UUID.create().transportString()
+        serviceUser.name = "Wire"
+
+        conversation.conversationType = .group
+        conversation.addParticipants([regularUser, serviceUser])
+
+        let regularMention = ZMMentionBuilder.build([regularUser])
+        let serviceMention = ZMMentionBuilder.build([serviceUser, regularUser])
+        let mixedMentions = ZMMentionBuilder.build([regularUser, serviceUser])
+
+        // When there are no mention, do not trim the text
+
+        let noMentionsNormalization = conversation.normalize(text: "Hello", for: [])
+        XCTAssertEqual(noMentionsNormalization, "Hello")
+
+        // When the first mention is a user, do not trim the text
+
+        let regularMentionNormalization = conversation.normalize(text: "Hello", for: regularMention)
+        XCTAssertEqual(regularMentionNormalization, "Hello")
+
+        // When the first mention is a bot, trim the text
+
+        let serviceMentionNormalization = conversation.normalize(text: "@bots @wire Hello", for: serviceMention)
+        XCTAssertEqual(serviceMentionNormalization, "@wire Hello")
+
+        // When the first mention is not a bot, do not trim the text
+
+        let mixedMentionsNormalization = conversation.normalize(text: "@wire @bots Hello", for: mixedMentions)
+        XCTAssertEqual(mixedMentionsNormalization, "@wire @bots Hello")
+
+
+    }
+
 }

@@ -86,7 +86,9 @@ extension ZMMessage {
         guard let conversation = conversation, let messageNonce = nonce else { return nil }
 
         let mentions = conversation.mentions(in: newText)
-        let edited = ZMGenericMessage(editMessage: messageNonce.transportString(), newText: newText, nonce: NSUUID().transportString(), mentions: mentions)
+        let normalizedNewText = conversation.normalize(text: newText, for: mentions)
+
+        let edited = ZMGenericMessage(editMessage: messageNonce.transportString(), newText: normalizedNewText, nonce: NSUUID().transportString(), mentions: mentions)
         
         guard let newMessage = conversation.appendClientMessage(with: edited, expires: true, hidden: false) else { return nil }
         newMessage.updatedTimestamp = newMessage.serverTimestamp

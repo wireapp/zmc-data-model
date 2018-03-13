@@ -1463,7 +1463,9 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     VerifyReturnNil(!self.destructionEnabled || self.canSendEphemeral);
 
     NSArray<ZMMention *> *mentions = [self mentionsInText:text];
-    ZMGenericMessage *genericMessage = [ZMGenericMessage messageWithText:text.stringByRemovingExtremeCombiningCharacters
+    NSString *normalizedText = [self normalizeText:text forMentions:mentions];
+
+    ZMGenericMessage *genericMessage = [ZMGenericMessage messageWithText:normalizedText.stringByRemovingExtremeCombiningCharacters
                                                              linkPreview:nil
                                                                    nonce:nonce.transportString
                                                             expiresAfter:@(self.messageDestructionTimeout)
