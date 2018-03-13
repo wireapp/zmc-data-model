@@ -22,10 +22,11 @@ extension ZMConversation {
 
     @objc(mentionsInText:)
     func mentions(in text: String) -> [ZMMention] {
+        let serviceUsers = (self.otherActiveParticipants.set as! Set<ZMUser>).serviceUsers
         var mentionedUsers: [ZMUser] = []
 
         if text.starts(with: ServiceMentionKeyword + " ") {
-            mentionedUsers.append(contentsOf: (self.otherActiveParticipants.set as! Set<ZMUser>))
+            mentionedUsers.append(contentsOf: serviceUsers)
         }
 
         return ZMMentionBuilder.build(mentionedUsers)
