@@ -120,7 +120,7 @@ public protocol ZMConversationMessage : NSObjectProtocol {
     func markAsUnread()
     
     /// Checks if the message can be marked unread
-    var canBeConsideredUnread: Bool { get }
+    var canBeMarkedUnread: Bool { get }
 }
 
 // MARK:- Conversation managed properties
@@ -142,7 +142,7 @@ extension ZMMessage : ZMConversationMessage {
         return false
     }
     
-    public var canBeConsideredUnread: Bool {
+    public var canBeMarkedUnread: Bool {
         guard self.isNormal,
                 let _ = self.serverTimestamp,
                 let _ = self.conversation,
@@ -155,7 +155,7 @@ extension ZMMessage : ZMConversationMessage {
     }
     
     public func markAsUnread() {
-        guard canBeConsideredUnread,
+        guard canBeMarkedUnread,
               let serverTimestamp = self.serverTimestamp,
               let conversation = self.conversation,
               let managedObjectContext = self.managedObjectContext,

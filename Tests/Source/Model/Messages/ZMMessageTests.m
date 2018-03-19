@@ -1825,7 +1825,7 @@ NSString * const ReactionsKey = @"reactions";
     ZMMessage *message = (id)[conversation appendMessageWithText:self.name];
     
     // then
-    XCTAssertFalse([message canBeConsideredUnread]);
+    XCTAssertFalse([message canBeMarkedUnread]);
 }
 
 @end
