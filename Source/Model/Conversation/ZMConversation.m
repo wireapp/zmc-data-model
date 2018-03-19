@@ -1023,7 +1023,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     NSUInteger lastMessageIndexCanBeConsideredUnread = [self.messages.reversedOrderedSet indexOfObjectPassingTest:^BOOL(id<ZMConversationMessage> message, NSUInteger idx, BOOL *stop) {
         NOT_USED(idx);
         NOT_USED(stop);
-        return [Message isNormalMessage:message];
+        return message.canBeConsideredUnread;
     }];
     
     if (lastMessageIndexCanBeConsideredUnread != NSNotFound) {
