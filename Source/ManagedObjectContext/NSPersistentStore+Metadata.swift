@@ -32,6 +32,7 @@ public protocol SwiftPersistableInMetadata {}
 extension String : SwiftPersistableInMetadata {}
 extension Date : SwiftPersistableInMetadata {}
 extension Data : SwiftPersistableInMetadata {}
+extension Set : SwiftPersistableInMetadata {}
 
 extension NSManagedObjectContext {
     
