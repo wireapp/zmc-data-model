@@ -31,10 +31,9 @@ public protocol SwiftPersistableInMetadata {}
 extension String : SwiftPersistableInMetadata {}
 extension Date : SwiftPersistableInMetadata {}
 extension Data : SwiftPersistableInMetadata {}
-extension Set : SwiftPersistableInMetadata {}
+extension Array : SwiftPersistableInMetadata {}
 
 // TODO: Swift 4
-// extension Set where Element == SwiftPersistableInMetadata: SwiftPersistableInMetadata {}
 // extension Array where Element == SwiftPersistableInMetadata: SwiftPersistableInMetadata {}
 
 extension NSManagedObjectContext {
