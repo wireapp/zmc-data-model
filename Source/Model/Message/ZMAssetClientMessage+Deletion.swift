@@ -48,7 +48,7 @@ extension ZMAssetClientMessage {
         guard sender == ZMUser.selfUser(in: managedObjectContext!) else { return }
         
         // Request the asset to be deleted
-        if let identifier = assetId?.transportString() {
+        if let identifier = genericAssetMessage?.v3_uploadedAssetId {
             NotificationCenter.default.post(name: .deleteAssetNotification, object: identifier)
         }
         
