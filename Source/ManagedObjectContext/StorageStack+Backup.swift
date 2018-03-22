@@ -29,7 +29,8 @@ extension StorageStack {
     }
 
     public enum BackupError: Error {
-        case error
+        case failedToRead
+        case failedToWrite
     }
 
     /// Will make a copy of account storage and place in a unique directory
@@ -41,24 +42,41 @@ extension StorageStack {
     ///   - completion: called on main thread when done. Result will contain the folder where all data was written to.
     public static func backupLocalStorage(accountIdentifier: UUID, applicationContainer: URL, dispatchGroup: ZMSDispatchGroup? = nil, completion: @escaping ((Result<URL>) -> Void)) {
 
+        func fail(_ error: BackupError) {
+            DispatchQueue.main.async {
+                completion(.failure(error))
+                dispatchGroup?.leave()
+            }
+        }
+        dispatchGroup?.enter()
+
+        let fileManager = FileManager()
+
         let accountDirectory = StorageStack.accountFolder(accountIdentifier: accountIdentifier, applicationContainer: applicationContainer)
         let storeFile = accountDirectory.appendingPersistentStoreLocation()
+
+        guard fileManager.fileExists(atPath: accountDirectory.path) else { return fail(.failedToRead) }
+
         let queue = DispatchQueue(label: "Database export", qos: .userInitiated)
 
         let target = backupsDirectory.appendingPathComponent(UUID().uuidString)
 
-        dispatchGroup?.enter()
         queue.async() {
             let model = NSManagedObjectModel.loadModel()
             let coordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
+            let persistentStore: NSPersistentStore
             do {
                 var readOptions = NSPersistentStoreCoordinator.persistentStoreOptions(supportsMigration: false)
                 // We don't want to change anything in there
                 readOptions[NSReadOnlyPersistentStoreOption] = true
 
                 // Create persistent store from what we have on disk
-                let persistentStore = try coordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: storeFile, options: readOptions)
+                persistentStore = try coordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: storeFile, options: readOptions)
+            } catch {
+                return fail(.failedToRead)
+            }
 
+            do {
                 // Create target directory
                 try FileManager.default.createDirectory(at: target, withIntermediateDirectories: true, attributes: nil)
                 let storeLocation = target.appendingStoreFile()
@@ -68,13 +86,10 @@ extension StorageStack {
                 try coordinator.migratePersistentStore(persistentStore, to: storeLocation, options: writeOptions, withType: NSSQLiteStoreType)
                 DispatchQueue.main.async {
                     completion(.success(target))
+                    dispatchGroup?.leave()
                 }
-                dispatchGroup?.leave()
             } catch {
-                DispatchQueue.main.async {
-                    completion(.failure(BackupError.error))
-                }
-                dispatchGroup?.leave()
+                fail(.failedToWrite)
             }
         }
     }
