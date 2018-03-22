@@ -119,6 +119,15 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
         let assetId = UUID.create().transportString()
         let uploaded = ZMGenericMessage.genericMessage(withUploadedOTRKey: .init(), sha256: .init(), messageID: sut.nonce!.transportString()).updatedUploaded(withAssetId: assetId, token: nil)
         sut.update(with: uploaded, updateEvent: ZMUpdateEvent(), initialUpdate: true)
+        
+        let previewAssetId = UUID.create().transportString()
+        let remote = ZMAssetRemoteData.remoteData(withOTRKey: .init(), sha256: .init(), assetId: previewAssetId, assetToken: nil)
+        let image = ZMAssetImageMetaData.imageMetaData(withWidth: 1024, height: 1024)
+        let preview = ZMAssetPreview.preview(withSize: 256, mimeType: "image/png", remoteData: remote, imageMetaData: image)
+        let asset = ZMAsset.asset(withOriginal: nil, preview: preview)
+        let genericMessage = ZMGenericMessage.genericMessage(asset: asset, messageID: sut.nonce!.transportString())
+        sut.update(with: genericMessage, updateEvent: ZMUpdateEvent(), initialUpdate: true)
+        
         let observer = AssetDeletionNotificationObserver()
         
         // when
@@ -132,7 +141,9 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
         
         // then
         assertDeletedContent(ofMessage: sut, inConversation: conversation, fileName: "file.dat")
-        XCTAssertEqual(observer.deletedIdentifiers, [assetId])
+        XCTAssertEqual(observer.deletedIdentifiers.count, 2)
+        XCTAssert(observer.deletedIdentifiers.contains(assetId))
+        XCTAssert(observer.deletedIdentifiers.contains(previewAssetId))
         wipeCaches()
     }
     
