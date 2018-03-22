@@ -20,7 +20,7 @@ import Foundation
 import XCTest
 @testable import WireDataModel
 
-final class BackupMetadataTests: XCTest {
+class BackupMetadataTests: XCTest {
     
     var url: URL!
     
