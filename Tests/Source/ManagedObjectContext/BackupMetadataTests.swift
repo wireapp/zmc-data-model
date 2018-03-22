@@ -75,27 +75,70 @@ class BackupMetadataTests: XCTestCase {
     }
     
     func testThatItVerifiesValidMetadata() {
-        XCTFail()
+        // Given
+        let userIdentifier = UUID.create()
+        
+        let sut = BackupMetadata(
+            appVersion: "3",
+            modelVersion: "24.2.8",
+            userIdentifier: userIdentifier,
+            clientIdentifier: UUID.create().transportString()
+        )
+        
+        // When & Then
+        let provider = MockProvider(version: "4.1.23", remoteIdentifier: userIdentifier)
+        XCTAssertNil(sut.verify(using: provider, appVersionProvider: provider))
     }
     
-    func testThatItThrowsAnErrorForNewerAppVersionBackupVerification() {
-        XCTFail()
+    func testThatItReturnsAnErrorForNewerAppVersionBackupVerification() {
+        // Given
+        let userIdentifier = UUID.create()
+        
+        let sut = BackupMetadata(
+            appVersion: "3.1",
+            modelVersion: "24.2.8",
+            userIdentifier: userIdentifier,
+            clientIdentifier: UUID.create().transportString()
+        )
+        
+        // When
+        let provider = MockProvider(version: "2.9.12", remoteIdentifier: userIdentifier)
+        let error = sut.verify(using: provider, appVersionProvider: provider)
+        
+        // Then
+        XCTAssertEqual(error, BackupMetadata.VerificationError.backupFromNewerAppVersion)
     }
     
-    func testThatItThrowsAnErrorForWrongUser() {
-        XCTFail()
+    func testThatItReturnsAnErrorForWrongUser() {
+        // Given
+        let userIdentifier = UUID.create()
+        
+        let sut = BackupMetadata(
+            appVersion: "3.1",
+            modelVersion: "24.2.8",
+            userIdentifier: userIdentifier,
+            clientIdentifier: UUID.create().transportString()
+        )
+        
+        // When
+        let provider = MockProvider(version: "3.1.0", remoteIdentifier: .create())
+        let error = sut.verify(using: provider, appVersionProvider: provider)
+        
+        // Then
+        XCTAssertEqual(error, BackupMetadata.VerificationError.userMismatch)
     }
     
-    func testThatItThrowsAnErrorForWrongUserClient() {
-        XCTFail()
-    }
+}
+
+// MARK: - Helper
+
+fileprivate class MockProvider: VersionProvider, RemoteIdentifierProvider {
     
-    func testThatItThrowsAnErrorForNoUserRemoteIdentifier() {
-        XCTFail()
-    }
+    var remoteIdentifier: UUID?
+    var version: String
     
-    func testThatItThrowsAnErrorForNoUserClientRemoteIdentifier() {
-        XCTFail()
+    init(version: String, remoteIdentifier: UUID) {
+        self.version = version
+        self.remoteIdentifier = remoteIdentifier
     }
-    
 }

@@ -96,8 +96,11 @@ public extension BackupMetadata {
         case userMismatch
     }
     
-    func verify(using user: ZMUser, appVersionProvider: VersionProvider = Bundle.main) -> VerificationError? {
-        guard userIdentifier == user.remoteIdentifier else { return .userMismatch }
+    func verify(
+        using remoteIdentifierProvider: RemoteIdentifierProvider,
+        appVersionProvider: VersionProvider = Bundle.main
+        ) -> VerificationError? {
+        guard userIdentifier == remoteIdentifierProvider.remoteIdentifier else { return .userMismatch }
         let current = Version(string: appVersionProvider.version)
         let backup = Version(string: appVersion)
 
@@ -107,6 +110,12 @@ public extension BackupMetadata {
     }
     
 }
+
+public protocol RemoteIdentifierProvider {
+    var remoteIdentifier: UUID? { get }
+}
+
+extension ZMUser: RemoteIdentifierProvider {}
 
 // MARK: - Version Helper
 
