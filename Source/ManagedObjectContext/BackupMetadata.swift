@@ -98,8 +98,8 @@ public extension BackupMetadata {
     
     func verify(using user: ZMUser, appVersionProvider: VersionProvider = Bundle.main) -> VerificationError? {
         guard userIdentifier == user.remoteIdentifier else { return .userMismatch }
-        let current = ZMVersion(versionString: appVersionProvider.version)
-        let backup = ZMVersion(versionString: appVersion)
+        let current = Version(string: appVersionProvider.version)
+        let backup = Version(string: appVersion)
 
         // Backup has been created on a newer app version.
         guard current >= backup else { return .backupFromNewerAppVersion }
@@ -124,16 +124,4 @@ extension Bundle: VersionProvider {
     public var version: String {
         return infoDictionary!["CFBundleShortVersionString"] as! String
     }
-}
-
-// MARK: - ZMVersion Comparable Operators
-
-extension ZMVersion: Comparable {}
-
-public func ==(lhs: ZMVersion, rhs: ZMVersion) -> Bool {
-    return lhs.compare(with: rhs) == .orderedSame
-}
-
-public func <(lhs: ZMVersion, rhs: ZMVersion) -> Bool {
-    return lhs.compare(with: rhs) == .orderedAscending
 }

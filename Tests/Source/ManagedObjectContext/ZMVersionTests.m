@@ -19,8 +19,6 @@
 @import WireDataModel;
 @import XCTest;
 
-#import "ZMVersion.h"
-
 @interface ZMVersionTests: XCTestCase
 @end
 
