@@ -16,11 +16,9 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-import Foundation
 import XCTest
-@testable import WireDataModel
 
-class BackupMetadataTests: XCTest {
+class BackupMetadataTests: XCTestCase {
     
     var url: URL!
     
