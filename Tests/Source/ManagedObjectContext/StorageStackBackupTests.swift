@@ -86,4 +86,38 @@ class StorageStackBackupTests: DatabaseBaseTest {
 
         XCTAssertEqual(error as? StorageStack.BackupError, .failedToWrite)
     }
+
+    func testThatItPreservesOriginalDataAfterBackup() {
+        // given
+        let uuid = UUID()
+        let directory = createStorageStackAndWaitForCompletion(userID: uuid)
+        _ = ZMConversation.insertGroupConversation(into: directory.uiContext, withParticipants: [])
+        directory.uiContext.saveOrRollback()
+
+        // when
+        guard let result = createBackup(accountIdentifier: uuid) else { return XCTFail() }
+
+        // then
+        guard case .success = result else { return XCTFail() }
+        let fetchConversations = ZMConversation.sortedFetchRequest()!
+        XCTAssertEqual(try directory.uiContext.count(for: fetchConversations), 1)
+    }
+
+    func testThatItPreservesOriginaDataAfterBackupIfStackIsNotActive() throws {
+        // given
+        let uuid = UUID()
+        let directory = createStorageStackAndWaitForCompletion(userID: uuid)
+        _ = ZMConversation.insertGroupConversation(into: directory.uiContext, withParticipants: [])
+        directory.uiContext.saveOrRollback()
+        StorageStack.reset()
+
+        // when
+        guard let result = createBackup(accountIdentifier: uuid) else { return XCTFail() }
+
+        // then
+        guard case .success = result else { return XCTFail() }
+        let anotherDirectory = createStorageStackAndWaitForCompletion(userID: uuid)
+        let fetchConversations = ZMConversation.sortedFetchRequest()!
+        XCTAssertEqual(try anotherDirectory.uiContext.count(for: fetchConversations), 1)
+    }
 }
