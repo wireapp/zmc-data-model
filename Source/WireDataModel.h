@@ -78,4 +78,6 @@
 #import <WireDataModel/ZMSyncMergePolicy.h>
 #import <WireDataModel/ZMTestSession.h>
 
+#import <WireDataModel/ZMVersion.h>
+
 
