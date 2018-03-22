@@ -18,7 +18,9 @@
 
 #import <Foundation/Foundation.h>
 
-@interface ZMVersion : NSObject
+NS_ASSUME_NONNULL_BEGIN
+
+@interface ZMVersion: NSObject
 
 @property (nonatomic, readonly) NSArray *arrayRepresentation;
 @property (nonatomic, readonly) NSString *versionString;
@@ -27,3 +29,5 @@
 - (NSComparisonResult)compareWithVersion:(ZMVersion *)otherVersion;
 
 @end
+
+NS_ASSUME_NONNULL_END
