@@ -570,9 +570,9 @@ extension StorageStackTests {
         
         // Set metadata on DB which we expect to be cleared when importing from a backup
         contextDirectory.uiContext.setPersistentStoreMetadata("1234567890", key: ZMPersistedClientIdKey)
-        contextDirectory.uiContext.setPersistentStoreMetadata("1234567890", key: "pushToken")
-        contextDirectory.uiContext.setPersistentStoreMetadata("1234567890", key: "ZMPushKitToken")
-        contextDirectory.uiContext.setPersistentStoreMetadata("1234567890", key: "LastUpdateEventID")
+        contextDirectory.uiContext.setPersistentStoreMetadata("1234567890", key: PersistentMetaDataKey.pushToken.rawValue)
+        contextDirectory.uiContext.setPersistentStoreMetadata("1234567890", key: PersistentMetaDataKey.pushKitToken.rawValue)
+        contextDirectory.uiContext.setPersistentStoreMetadata("1234567890", key: PersistentMetaDataKey.lastUpdateEventID.rawValue)
         contextDirectory.uiContext.forceSaveOrRollback()
         contextDirectory = nil
         
@@ -592,9 +592,9 @@ extension StorageStackTests {
         
         // THEN
         XCTAssertNil(contextDirectory.uiContext.persistentStoreMetadata(forKey: ZMPersistedClientIdKey))
-        XCTAssertNil(contextDirectory.uiContext.persistentStoreMetadata(forKey: "pushToken"))
-        XCTAssertNil(contextDirectory.uiContext.persistentStoreMetadata(forKey: "ZMPushKitToken"))
-        XCTAssertNil(contextDirectory.uiContext.persistentStoreMetadata(forKey: "LastUpdateEventID"))
+        XCTAssertNil(contextDirectory.uiContext.persistentStoreMetadata(forKey: PersistentMetaDataKey.pushToken.rawValue))
+        XCTAssertNil(contextDirectory.uiContext.persistentStoreMetadata(forKey: PersistentMetaDataKey.pushKitToken.rawValue))
+        XCTAssertNil(contextDirectory.uiContext.persistentStoreMetadata(forKey: PersistentMetaDataKey.lastUpdateEventID.rawValue))
     }
     
 }

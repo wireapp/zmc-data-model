@@ -1,6 +1,6 @@
 //
 // Wire
-// Copyright (C) 2018 Wire Swiss GmbH
+// Copyright (C) 2017 Wire Swiss GmbH
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,15 +18,11 @@
 
 import Foundation
 
-extension NSManagedObjectContext {
+public enum PersistentMetaDataKey: String {
     
-    /// Prepare a backed up database for being imported, deleting self client, push token etc.
-    func prepareToImportBackup() {
-        setPersistentStoreMetadata(nil as Data?, key: ZMPersistedClientIdKey)
-        setPersistentStoreMetadata(nil as Data?, key: PersistentMetaDataKey.pushToken.rawValue)
-        setPersistentStoreMetadata(nil as Data?, key: PersistentMetaDataKey.pushKitToken.rawValue)
-        setPersistentStoreMetadata(nil as Data?, key: PersistentMetaDataKey.lastUpdateEventID.rawValue)
-        saveOrRollback()
-    }
+    case lastUpdateEventID = "LastUpdateEventID"
+    case pushToken = "pushToken"
+    case pushKitToken = "ZMPushKitToken"
     
 }
+
