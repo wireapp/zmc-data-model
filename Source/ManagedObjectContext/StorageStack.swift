@@ -83,11 +83,12 @@ import UIKit
     /// - parameter completionHandler: this callback is invoked on the main queue.
     /// - parameter accountIdentifier: user identifier that the store should be created for
     /// - parameter container: the shared container for the app
-    @objc(createManagedObjectContextDirectoryForAccountIdentifier:applicationContainer:dispatchGroup:startedMigrationCallback:completionHandler:)
+    @objc(createManagedObjectContextDirectoryForAccountIdentifier:applicationContainer:dispatchGroup:importingFromBackup:startedMigrationCallback:completionHandler:)
     public func createManagedObjectContextDirectory(
         accountIdentifier: UUID,
         applicationContainer: URL,
         dispatchGroup: ZMSDispatchGroup? = nil,
+        importingFromBackup: Bool = false,
         startedMigrationCallback: (() -> Void)? = nil,
         completionHandler: @escaping (ManagedObjectContextDirectory) -> Void
         )
@@ -118,6 +119,7 @@ import UIKit
                     storeFile: storeFile,
                     applicationContainer: applicationContainer,
                     migrateIfNeeded: true,
+                    importingFromBackup: importingFromBackup,
                     startedMigrationCallback: {
                         DispatchQueue.main.async {
                             startedMigrationCallback?()
@@ -152,8 +154,8 @@ import UIKit
         storeFile: URL,
         applicationContainer: URL,
         migrateIfNeeded: Bool,
+        importingFromBackup: Bool,
         startedMigrationCallback: (() -> Void)? = nil,
-        importingFromBackup: Bool = false,
         completionHandler: @escaping (ManagedObjectContextDirectory) -> Void
         )
     {
@@ -171,7 +173,9 @@ import UIKit
             MemoryReferenceDebugger.register(directory)
             
             if importingFromBackup {
-                directory.uiContext.prepareToImportBackup()
+                directory.uiContext.performAndWait {
+                    directory.uiContext.prepareToImportBackup()
+                }
             }
             
             completionHandler(directory)

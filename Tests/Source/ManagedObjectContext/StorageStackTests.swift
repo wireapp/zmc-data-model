@@ -549,6 +549,56 @@ extension StorageStackTests {
     }
 }
 
+// MARK: - Backup Import
+
+extension StorageStackTests {
+    
+    func testThatMetadataIsDeletedWhenImportingFromBackup() {
+        
+        // GIVEN
+        let creationExpectation = self.expectation(description: "Callback invoked")
+
+        var contextDirectory: ManagedObjectContextDirectory! = nil
+        StorageStack.shared.createManagedObjectContextDirectory(accountIdentifier: accountID,
+                                                                applicationContainer: applicationContainer,
+                                                                dispatchGroup: dispatchGroup,
+                                                                completionHandler: {
+                                                                    contextDirectory = $0
+                                                                    creationExpectation.fulfill()
+                                                                })
+        XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
+        
+        // Set metadata on DB which we expect to be cleared when importing from a backup
+        contextDirectory.uiContext.setPersistentStoreMetadata("1234567890", key: ZMPersistedClientIdKey)
+        contextDirectory.uiContext.setPersistentStoreMetadata("1234567890", key: "pushToken")
+        contextDirectory.uiContext.setPersistentStoreMetadata("1234567890", key: "ZMPushKitToken")
+        contextDirectory.uiContext.setPersistentStoreMetadata("1234567890", key: "LastUpdateEventID")
+        contextDirectory.uiContext.forceSaveOrRollback()
+        contextDirectory = nil
+        
+        // WHEN
+        let importExpectation = self.expectation(description: "Callback invoked")
+        
+        StorageStack.shared.createManagedObjectContextDirectory(
+            accountIdentifier: accountID,
+            applicationContainer: applicationContainer,
+            dispatchGroup: dispatchGroup,
+            importingFromBackup: true,
+            completionHandler: {
+                contextDirectory = $0
+                importExpectation.fulfill()
+            })
+        XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
+        
+        // THEN
+        XCTAssertNil(contextDirectory.uiContext.persistentStoreMetadata(forKey: ZMPersistedClientIdKey))
+        XCTAssertNil(contextDirectory.uiContext.persistentStoreMetadata(forKey: "pushToken"))
+        XCTAssertNil(contextDirectory.uiContext.persistentStoreMetadata(forKey: "ZMPushKitToken"))
+        XCTAssertNil(contextDirectory.uiContext.persistentStoreMetadata(forKey: "LastUpdateEventID"))
+    }
+    
+}
+
 extension StorageStackTests {
     
     /// Checks that all support files exists
