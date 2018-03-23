@@ -22,9 +22,10 @@ extension NSManagedObjectContext {
     
     /// Prepare a backed up database for being imported, deleting self client, push token etc.
     func prepareToImportBackup() {
-        setPersistentStoreMetadata(nil as String?, key: ZMPersistedClientIdKey)
+        setPersistentStoreMetadata(nil as Data?, key: ZMPersistedClientIdKey)
         setPersistentStoreMetadata(nil as Data?, key: "pushToken") // TODO jacob: move string constant to data model
         setPersistentStoreMetadata(nil as Data?, key: "ZMPushKitToken") // TODO jacob: move string constant to data model
+        setPersistentStoreMetadata(nil as Data?, key: "LastUpdateEventID") // TODO jacob: move string constant to data model)
         saveOrRollback()
     }
     
