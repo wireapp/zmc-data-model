@@ -25,29 +25,34 @@ public struct BackupMetadata: Codable {
     public let appVersion, modelVersion: String
     public let creationTime: Date
     public let userIdentifier: UUID
+    public let clientIdentifier: String
     
     public init(
         appVersion: String,
         modelVersion: String,
         creationTime: Date = .init(),
-        userIdentifier: UUID
+        userIdentifier: UUID,
+        clientIdentifier: String
         ) {
         platform = .iOS
         self.appVersion = appVersion
         self.modelVersion = modelVersion
         self.creationTime = creationTime
         self.userIdentifier = userIdentifier
+        self.clientIdentifier = clientIdentifier
     }
     
     public init(
         userIdentifier: UUID,
+        clientIdentifier: String,
         appVersionProvider: VersionProvider = Bundle.main,
         modelVersionProvider: VersionProvider = NSManagedObjectModel.loadModel()
         ) {
         self.init(
             appVersion: appVersionProvider.version,
             modelVersion: modelVersionProvider.version,
-            userIdentifier: userIdentifier
+            userIdentifier: userIdentifier,
+            clientIdentifier: clientIdentifier
         )
     }
 }
@@ -62,6 +67,7 @@ public func ==(lhs: BackupMetadata, rhs: BackupMetadata) -> Bool {
         && lhs.modelVersion == rhs.modelVersion
         && lhs.creationTime == rhs.creationTime
         && lhs.userIdentifier == rhs.userIdentifier
+        && lhs.clientIdentifier == rhs.clientIdentifier
 }
 
 // MARK: - Serialization Helper
@@ -90,10 +96,10 @@ public extension BackupMetadata {
     }
     
     func verify(
-        using remoteIdentifierProvider: RemoteIdentifierProvider,
+        using userIdentifier: UUID,
         appVersionProvider: VersionProvider = Bundle.main
         ) -> VerificationError? {
-        guard userIdentifier == remoteIdentifierProvider.remoteIdentifier else { return .userMismatch }
+        guard self.userIdentifier == userIdentifier else { return .userMismatch }
         let current = Version(string: appVersionProvider.version)
         let backup = Version(string: appVersion)
 
@@ -103,12 +109,6 @@ public extension BackupMetadata {
     }
     
 }
-
-public protocol RemoteIdentifierProvider {
-    var remoteIdentifier: UUID? { get }
-}
-
-extension ZMUser: RemoteIdentifierProvider {}
 
 // MARK: - Version Helper
 
