@@ -18,7 +18,7 @@
 
 import Foundation
 
-public enum PersistentMetaDataKey: String {
+public enum PersistentMetadataKey: String {
     
     case lastUpdateEventID = "LastUpdateEventID"
     case pushToken = "pushToken"
