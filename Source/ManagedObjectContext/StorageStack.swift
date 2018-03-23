@@ -153,6 +153,7 @@ import UIKit
         applicationContainer: URL,
         migrateIfNeeded: Bool,
         startedMigrationCallback: (() -> Void)? = nil,
+        importingFromBackup: Bool = false,
         completionHandler: @escaping (ManagedObjectContextDirectory) -> Void
         )
     {
@@ -168,6 +169,11 @@ import UIKit
                 accountDirectory: accountDirectory,
                 applicationContainer: applicationContainer)
             MemoryReferenceDebugger.register(directory)
+            
+            if importingFromBackup {
+                directory.uiContext.prepareToImportBackup()
+            }
+            
             completionHandler(directory)
         }
     }
