@@ -25,6 +25,7 @@ import Foundation
     
     @objc(initWithVersionString:)
     public init(string: String) {
+        requireInternal(!string.isEmpty, "invalid version string")
         versionString = string
         arrayRepresentation = Version.integerComponents(of: string)
         super.init()
@@ -37,14 +38,14 @@ import Foundation
     }
     
     @objc(compareWithVersion:)
-    public func compare(with otherVersion: Version) -> ComparisonResult {
-        guard otherVersion.arrayRepresentation.count > 0 else { return .orderedDescending }
-        guard versionString != otherVersion.versionString else { return .orderedSame }
+    public func compare(with other: Version) -> ComparisonResult {
+        guard other.arrayRepresentation.count > 0 else { return .orderedDescending }
+        guard versionString != other.versionString else { return .orderedSame }
         
         for i in 0..<arrayRepresentation.count {
-            guard otherVersion.arrayRepresentation.count != i else { return .orderedDescending }
+            guard other.arrayRepresentation.count != i else { return .orderedDescending }
             let selfNumber = arrayRepresentation[i]
-            let otherNumber = otherVersion.arrayRepresentation[i]
+            let otherNumber = other.arrayRepresentation[i]
             
             if selfNumber > otherNumber {
                 return .orderedDescending
@@ -53,7 +54,7 @@ import Foundation
             }
         }
         
-        if arrayRepresentation.count < otherVersion.arrayRepresentation.count {
+        if arrayRepresentation.count < other.arrayRepresentation.count {
             return .orderedAscending
         }
         
