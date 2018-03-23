@@ -59,33 +59,22 @@ extension StorageStack {
 
         let queue = DispatchQueue(label: "Database export", qos: .userInitiated)
 
-        let target = backupsDirectory.appendingPathComponent(UUID().uuidString)
+        let backupDirectory = backupsDirectory.appendingPathComponent(UUID().uuidString)
 
         queue.async() {
-            let model = NSManagedObjectModel.loadModel()
-            let coordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
-            let persistentStore: NSPersistentStore
             do {
-                var readOptions = NSPersistentStoreCoordinator.persistentStoreOptions(supportsMigration: false)
-                // We don't want to change anything in there
-                readOptions[NSReadOnlyPersistentStoreOption] = true
+                let model = NSManagedObjectModel.loadModel()
+                let coordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
 
-                // Create persistent store from what we have on disk
-                persistentStore = try coordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: storeFile, options: readOptions)
-            } catch {
-                return fail(.failedToRead)
-            }
-
-            do {
                 // Create target directory
-                try FileManager.default.createDirectory(at: target, withIntermediateDirectories: true, attributes: nil)
-                let storeLocation = target.appendingStoreFile()
+                try FileManager.default.createDirectory(at: backupDirectory, withIntermediateDirectories: true, attributes: nil)
+                let backupLocation = backupDirectory.appendingStoreFile()
+                let options = NSPersistentStoreCoordinator.persistentStoreOptions(supportsMigration: false)
 
-                let writeOptions = NSPersistentStoreCoordinator.persistentStoreOptions(supportsMigration: false)
                 // Recreate the persistent store inside a new location
-                try coordinator.migratePersistentStore(persistentStore, to: storeLocation, options: writeOptions, withType: NSSQLiteStoreType)
+                try coordinator.replacePersistentStore(at: backupLocation, destinationOptions: options, withPersistentStoreFrom: storeFile, sourceOptions: options, ofType: NSSQLiteStoreType)
                 DispatchQueue.main.async {
-                    completion(.success(target))
+                    completion(.success(backupDirectory))
                     dispatchGroup?.leave()
                 }
             } catch {
