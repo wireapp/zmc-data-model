@@ -38,13 +38,11 @@ class BackupMetadataTests: XCTestCase {
         // Given
         let date = Date()
         let userIdentifier = UUID.create()
-        let clientIdentifier = UUID.create().transportString()
         let sut = BackupMetadata(
             appVersion: "3.9",
             modelVersion: "24.2.8",
             creationTime: date,
-            userIdentifier: userIdentifier,
-            clientIdentifier: clientIdentifier
+            userIdentifier: userIdentifier
         )
         
         // When & Then
@@ -56,13 +54,11 @@ class BackupMetadataTests: XCTestCase {
         // Given
         let date = Date()
         let userIdentifier = UUID.create()
-        let clientIdentifier = UUID.create().transportString()
         let sut = BackupMetadata(
             appVersion: "3.9",
             modelVersion: "24.2.8",
             creationTime: date,
-            userIdentifier: userIdentifier,
-            clientIdentifier: clientIdentifier
+            userIdentifier: userIdentifier
         )
         
         try sut.write(to: url)
@@ -81,8 +77,7 @@ class BackupMetadataTests: XCTestCase {
         let sut = BackupMetadata(
             appVersion: "3",
             modelVersion: "24.2.8",
-            userIdentifier: userIdentifier,
-            clientIdentifier: UUID.create().transportString()
+            userIdentifier: userIdentifier
         )
         
         // When & Then
@@ -97,8 +92,7 @@ class BackupMetadataTests: XCTestCase {
         let sut = BackupMetadata(
             appVersion: "3.1",
             modelVersion: "24.2.8",
-            userIdentifier: userIdentifier,
-            clientIdentifier: UUID.create().transportString()
+            userIdentifier: userIdentifier
         )
         
         // When
@@ -116,8 +110,7 @@ class BackupMetadataTests: XCTestCase {
         let sut = BackupMetadata(
             appVersion: "3.1",
             modelVersion: "24.2.8",
-            userIdentifier: userIdentifier,
-            clientIdentifier: UUID.create().transportString()
+            userIdentifier: userIdentifier
         )
         
         // When

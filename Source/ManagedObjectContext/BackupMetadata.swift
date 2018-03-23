@@ -25,35 +25,29 @@ public struct BackupMetadata: Codable {
     public let appVersion, modelVersion: String
     public let creationTime: Date
     public let userIdentifier: UUID
-    public let clientIdentifier: String
     
     public init(
         appVersion: String,
         modelVersion: String,
         creationTime: Date = .init(),
-        userIdentifier: UUID,
-        clientIdentifier: String
+        userIdentifier: UUID
         ) {
         platform = .iOS
         self.appVersion = appVersion
         self.modelVersion = modelVersion
         self.creationTime = creationTime
         self.userIdentifier = userIdentifier
-        self.clientIdentifier = clientIdentifier
     }
     
-    public init?(
-        client: UserClient,
+    public init(
+        userIdentifier: UUID,
         appVersionProvider: VersionProvider = Bundle.main,
         modelVersionProvider: VersionProvider = NSManagedObjectModel.loadModel()
         ) {
-        guard let clientIdentifier = client.remoteIdentifier,
-            let userIdentifier = client.user?.remoteIdentifier else { return nil }
         self.init(
             appVersion: appVersionProvider.version,
             modelVersion: modelVersionProvider.version,
-            userIdentifier: userIdentifier,
-            clientIdentifier: clientIdentifier
+            userIdentifier: userIdentifier
         )
     }
 }
@@ -68,7 +62,6 @@ public func ==(lhs: BackupMetadata, rhs: BackupMetadata) -> Bool {
         && lhs.modelVersion == rhs.modelVersion
         && lhs.creationTime == rhs.creationTime
         && lhs.userIdentifier == rhs.userIdentifier
-        && lhs.clientIdentifier == rhs.clientIdentifier
 }
 
 // MARK: - Serialization Helper
