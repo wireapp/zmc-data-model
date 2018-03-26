@@ -96,8 +96,8 @@ extension StorageStack {
     }
     
     public enum BackupImportError: Error {
-        case incompatibleBackup(error: Error)
-        case failedToCopy
+        case incompatibleBackup(Error)
+        case failedToCopy(Error)
     }
     
     /// Will import a backup for a given account
@@ -122,7 +122,7 @@ extension StorageStack {
         
         let accountDirectory = accountFolder(accountIdentifier: accountIdentifier, applicationContainer: applicationContainer)
         let accountStoreFile = accountDirectory.appendingPersistentStoreLocation()
-        let backupStoreFile = backupDirectory.appendingPathComponent(databaseDirectoryName).appendingPersistentStoreLocation()
+        let backupStoreFile = backupDirectory.appendingPathComponent(databaseDirectoryName).appendingStoreFile()
         let metadataURL = backupDirectory.appendingPathComponent(metadataFilename)
         
         queue.async() {
@@ -130,7 +130,8 @@ extension StorageStack {
                 let metadata = try BackupMetadata(url: metadataURL)
                 
                 if let verificationError = metadata.verify(using: accountIdentifier) {
-                    fail(.incompatibleBackup(error: verificationError))
+                    fail(.incompatibleBackup(verificationError))
+                    return
                 }
                 
                 let model = NSManagedObjectModel.loadModel()
@@ -147,8 +148,8 @@ extension StorageStack {
                     completion(.success(accountDirectory))
                     dispatchGroup?.leave()
                 }
-            } catch {
-                fail(.failedToCopy)
+            } catch let error {
+                fail(.failedToCopy(error))
             }
         }
     }
