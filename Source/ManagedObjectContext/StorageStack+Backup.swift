@@ -21,7 +21,7 @@ import WireUtilities
 
 extension StorageStack {
 
-    private static let metadataFilename = "metadata.json"
+    private static let metadataFilename = "export.json"
     private static let databaseDirectoryName = "data"
     
     // Each backup for any account will be created in a unique subdirectory inside.

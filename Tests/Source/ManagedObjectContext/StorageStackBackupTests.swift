@@ -70,7 +70,7 @@ class StorageStackBackupTests: DatabaseBaseTest {
         let fm = FileManager.default
         XCTAssertTrue(fm.fileExists(atPath: url.path))
         let databaseDirectory = url.appendingPathComponent("data")
-        let metadataURL = url.appendingPathComponent("metadata.json")
+        let metadataURL = url.appendingPathComponent("export.json")
         
         XCTAssertTrue(fm.fileExists(atPath: databaseDirectory.path))
         XCTAssertTrue(fm.fileExists(atPath: metadataURL.path))
