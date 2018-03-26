@@ -82,7 +82,10 @@ class StorageStackBackupTests: DatabaseBaseTest {
 
         guard case let .failure(error) = result else { return XCTFail() }
 
-        XCTAssertEqual(error as? StorageStack.BackupError, .failedToRead)
+        switch error as? StorageStack.BackupError {
+        case .failedToRead?: break
+        default: XCTFail("unexpected error type")
+        }
     }
 
     func testThatItFindsTheStorageWithCorrectAccountIdentifier() throws {
@@ -119,7 +122,10 @@ class StorageStackBackupTests: DatabaseBaseTest {
 
         guard case let .failure(error) = result else { return XCTFail() }
 
-        XCTAssertEqual(error as? StorageStack.BackupError, .failedToWrite)
+        switch error as? StorageStack.BackupError {
+        case .failedToWrite?: break
+        default: XCTFail("unexpected error type")
+        }
     }
 
     func testThatItPreservesOriginalDataAfterBackup() {
