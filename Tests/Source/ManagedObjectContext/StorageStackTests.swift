@@ -552,8 +552,52 @@ extension StorageStackTests {
 // MARK: - Backup Import
 
 extension StorageStackTests {
+
+    func testThatMetadataIsDeletedWhenMetadataDoesNotHaveFlagThatItIsABackup() {
+        // GIVEN
+        let creationExpectation = self.expectation(description: "Callback invoked")
+
+        var contextDirectory: ManagedObjectContextDirectory! = nil
+        StorageStack.shared.createManagedObjectContextDirectory(accountIdentifier: accountID,
+                                                                applicationContainer: applicationContainer,
+                                                                dispatchGroup: dispatchGroup,
+                                                                completionHandler: {
+                                                                    contextDirectory = $0
+                                                                    creationExpectation.fulfill()
+        })
+        XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
+
+        let metadata = "1234567890"
+        // Set metadata on DB which we expect to be cleared when importing from a backup
+        contextDirectory.uiContext.setPersistentStoreMetadata(metadata, key: ZMPersistedClientIdKey)
+        contextDirectory.uiContext.setPersistentStoreMetadata(metadata, key: PersistentMetadataKey.pushToken.rawValue)
+        contextDirectory.uiContext.setPersistentStoreMetadata(metadata, key: PersistentMetadataKey.pushKitToken.rawValue)
+        contextDirectory.uiContext.setPersistentStoreMetadata(metadata, key: PersistentMetadataKey.lastUpdateEventID.rawValue)
+        contextDirectory.uiContext.forceSaveOrRollback()
+        contextDirectory = nil
+
+        // WHEN
+        let importExpectation = self.expectation(description: "Callback invoked")
+
+        StorageStack.shared.createManagedObjectContextDirectory(
+            accountIdentifier: accountID,
+            applicationContainer: applicationContainer,
+            dispatchGroup: dispatchGroup,
+            completionHandler: {
+                contextDirectory = $0
+                importExpectation.fulfill()
+        })
+        XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
+
+        // THEN
+        XCTAssertEqual(contextDirectory.uiContext.persistentStoreMetadata(forKey: ZMPersistedClientIdKey) as? String, metadata)
+        XCTAssertEqual(contextDirectory.uiContext.persistentStoreMetadata(forKey: PersistentMetadataKey.pushToken.rawValue) as? String, metadata)
+        XCTAssertEqual(contextDirectory.uiContext.persistentStoreMetadata(forKey: PersistentMetadataKey.pushKitToken.rawValue) as? String, metadata)
+        XCTAssertEqual(contextDirectory.uiContext.persistentStoreMetadata(forKey: PersistentMetadataKey.lastUpdateEventID.rawValue) as? String, metadata)
+
+    }
     
-    func testThatMetadataIsDeletedWhenImportingFromBackup() {
+    func testThatMetadataIsDeletedWhenMetadataHasFlagThatItIsABackup() {
         
         // GIVEN
         let creationExpectation = self.expectation(description: "Callback invoked")
@@ -570,6 +614,7 @@ extension StorageStackTests {
         
         // Set metadata on DB which we expect to be cleared when importing from a backup
         contextDirectory.uiContext.setPersistentStoreMetadata("1234567890", key: ZMPersistedClientIdKey)
+        contextDirectory.uiContext.setPersistentStoreMetadata(NSNumber(booleanLiteral: true), key: PersistentMetadataKey.importedFromBackup.rawValue)
         contextDirectory.uiContext.setPersistentStoreMetadata("1234567890", key: PersistentMetadataKey.pushToken.rawValue)
         contextDirectory.uiContext.setPersistentStoreMetadata("1234567890", key: PersistentMetadataKey.pushKitToken.rawValue)
         contextDirectory.uiContext.setPersistentStoreMetadata("1234567890", key: PersistentMetadataKey.lastUpdateEventID.rawValue)
@@ -583,7 +628,6 @@ extension StorageStackTests {
             accountIdentifier: accountID,
             applicationContainer: applicationContainer,
             dispatchGroup: dispatchGroup,
-            importingFromBackup: true,
             completionHandler: {
                 contextDirectory = $0
                 importExpectation.fulfill()
