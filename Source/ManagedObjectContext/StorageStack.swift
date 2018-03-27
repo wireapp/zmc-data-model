@@ -83,12 +83,11 @@ import UIKit
     /// - parameter completionHandler: this callback is invoked on the main queue.
     /// - parameter accountIdentifier: user identifier that the store should be created for
     /// - parameter container: the shared container for the app
-    @objc(createManagedObjectContextDirectoryForAccountIdentifier:applicationContainer:dispatchGroup:importingFromBackup:startedMigrationCallback:completionHandler:)
+    @objc(createManagedObjectContextDirectoryForAccountIdentifier:applicationContainer:dispatchGroup:startedMigrationCallback:completionHandler:)
     public func createManagedObjectContextDirectory(
         accountIdentifier: UUID,
         applicationContainer: URL,
         dispatchGroup: ZMSDispatchGroup? = nil,
-        importingFromBackup: Bool = false,
         startedMigrationCallback: (() -> Void)? = nil,
         completionHandler: @escaping (ManagedObjectContextDirectory) -> Void
         )
@@ -119,7 +118,6 @@ import UIKit
                     storeFile: storeFile,
                     applicationContainer: applicationContainer,
                     migrateIfNeeded: true,
-                    importingFromBackup: importingFromBackup,
                     startedMigrationCallback: {
                         DispatchQueue.main.async {
                             startedMigrationCallback?()
@@ -154,7 +152,6 @@ import UIKit
         storeFile: URL,
         applicationContainer: URL,
         migrateIfNeeded: Bool,
-        importingFromBackup: Bool,
         startedMigrationCallback: (() -> Void)? = nil,
         completionHandler: @escaping (ManagedObjectContextDirectory) -> Void
         )
@@ -171,13 +168,13 @@ import UIKit
                 accountDirectory: accountDirectory,
                 applicationContainer: applicationContainer)
             MemoryReferenceDebugger.register(directory)
-            
-            if importingFromBackup {
-                directory.uiContext.performAndWait {
+
+            directory.uiContext.performAndWait {
+                if let imported = directory.uiContext.persistentStoreMetadata(forKey: PersistentMetadataKey.importedFromBackup.rawValue) as? NSNumber, imported.boolValue {
                     directory.uiContext.prepareToImportBackup()
                 }
             }
-            
+
             completionHandler(directory)
         }
     }

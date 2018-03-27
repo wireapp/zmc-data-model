@@ -168,7 +168,6 @@
     [[StorageStack shared] createManagedObjectContextDirectoryForAccountIdentifier:self.accountIdentifier
                                                               applicationContainer:self.containerURL
                                                                      dispatchGroup:self.dispatchGroup
-                                                               importingFromBackup:NO
                                                           startedMigrationCallback:nil
                                                                  completionHandler:^(ManagedObjectContextDirectory * directory) {
         self.contextDirectory = directory;
