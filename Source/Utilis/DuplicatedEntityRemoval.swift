@@ -172,12 +172,9 @@ extension ZMConversation {
         self.team = self.team ?? conversation.team // I don't want to delete a team just in case it's needed
         self.connection = ZMManagedObject.firstNonNullAndDeleteSecond(self.connection, conversation.connection)
         self.mutableLastServerSyncedActiveParticipants?.union(conversation.mutableLastServerSyncedActiveParticipants ?? NSOrderedSet())
-        self.mutableOtherActiveParticipants.removeAllObjects()
-        self.mutableOtherActiveParticipants.union(self.mutableLastServerSyncedActiveParticipants ?? NSOrderedSet())
         
         zmLog.debug("Merged duplicate conversation \(self.remoteIdentifier?.transportString() ?? "N/A")")
         zmLog.debug("mutableLastServerSyncedActiveParticipants = \(self.mutableLastServerSyncedActiveParticipants?.count ?? -1)")
-        zmLog.debug("mutableOtherActiveParticipants.count = \(self.mutableOtherActiveParticipants.count)")
     }
 }
 

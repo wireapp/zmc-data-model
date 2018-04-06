@@ -49,10 +49,8 @@ extern NSString *const ZMConversationIsSelfAnActiveMemberKey;
 extern NSString *const ZMConversationIsSilencedKey;
 extern NSString *const ZMConversationMessagesKey;
 extern NSString *const ZMConversationHiddenMessagesKey;
-extern NSString *const ZMConversationOtherActiveParticipantsKey;
+extern NSString *const ZMConversationLastServerSyncedActiveParticipantsKey;
 extern NSString *const ZMConversationHasUnreadKnock;
-extern NSString *const ZMConversationUnsyncedActiveParticipantsKey;
-extern NSString *const ZMConversationUnsyncedInactiveParticipantsKey;
 extern NSString *const ZMConversationUserDefinedNameKey;
 extern NSString *const ZMVisibleWindowLowerKey;
 extern NSString *const ZMVisibleWindowUpperKey;
@@ -132,8 +130,6 @@ NS_ASSUME_NONNULL_END
 
 @property (nonatomic) NSTimeInterval messageDestructionTimeout;
 
-- (void)resetParticipantsBackToLastServerSync;
-
 /// sorts the messages in the conversation
 - (void)sortMessages;
 - (void)resortMessagesWithUpdatedMessage:(nonnull ZMMessage *)message;
@@ -197,25 +193,11 @@ NS_ASSUME_NONNULL_END
 
 @interface ZMConversation (ParticipantsInternal)
 
-- (void)internalAddParticipants:(nonnull NSSet<ZMUser *> *)participants isAuthoritative:(BOOL)isAuthoritative;
+- (void)internalAddParticipants:(nonnull NSSet<ZMUser *> *)participants;
 - (void)internalRemoveParticipants:(nonnull NSSet<ZMUser *> *)participants sender:(nonnull ZMUser *)sender;
-- (void)internalRemoveParticipants:(nonnull NSSet<ZMUser *> *)participants sender:(nonnull ZMUser *)sender isAuthoritative:(BOOL)isAuthoritative;
 
 @property (nonatomic) BOOL isSelfAnActiveMember; ///< whether the self user is an active member (as opposed to a past member)
-@property (readonly, nonatomic, nonnull) NSOrderedSet<ZMUser *> *otherActiveParticipants;
-@property (readonly, nonatomic, nonnull) NSMutableOrderedSet<ZMUser *> *mutableOtherActiveParticipants;
-
-/// Removes user from unsyncedInactiveParticipants
-- (void)synchronizeRemovedUser:(nonnull ZMUser *)user;
-
-/// Removes user from unsyncedActiveParticipants
-- (void)synchronizeAddedUser:(nonnull ZMUser *)user;
-
-/// List of users which have been removed from the conversation locally but not one the backend
-@property (readonly, nonatomic, nullable) NSOrderedSet<ZMUser *> *unsyncedInactiveParticipants;
-
-/// List of users which have been added to the conversation locally but not one the backend
-@property (readonly, nonatomic, nullable) NSOrderedSet<ZMUser *> *unsyncedActiveParticipants;
+@property (readonly, nonatomic, nonnull) NSOrderedSet<ZMUser *> *lastServerSyncedActiveParticipants;
 
 /// Checks if the security level changed as the result of the participants change.
 /// Appends or moves the security level system message.
