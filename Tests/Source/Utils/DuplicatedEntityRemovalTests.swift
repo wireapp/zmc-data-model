@@ -220,7 +220,7 @@ extension DuplicatedEntityRemovalTests {
         conversation.conversationType = .oneOnOne
         let connection = createConnection(to: user1, conversation: conversation)
         user1.connection = connection
-        conversation.internalAddParticipants(Set([user1]))
+        conversation.mutableLastServerSyncedActiveParticipants.add(user1)
         self.moc.saveOrRollback()
         
         // WHEN
@@ -243,7 +243,7 @@ extension DuplicatedEntityRemovalTests {
         conversation.conversationType = .oneOnOne
         let connection = createConnection(to: user2, conversation: conversation)
         user2.connection = connection
-        conversation.internalAddParticipants(Set([user2]))
+        conversation.mutableLastServerSyncedActiveParticipants.add(user2)
         self.moc.saveOrRollback()
         
         // WHEN
@@ -264,10 +264,10 @@ extension DuplicatedEntityRemovalTests {
         user2.remoteIdentifier = user1.remoteIdentifier
         let conversation1 = createConversation()
         conversation1.conversationType = .oneOnOne
-        conversation1.internalAddParticipants(Set([user1]))
+        conversation1.mutableLastServerSyncedActiveParticipants.add(user1)
         let conversation2 = createConversation()
         conversation2.conversationType = .oneOnOne
-        conversation2.internalAddParticipants(Set([user2]))
+        conversation2.mutableLastServerSyncedActiveParticipants.add(user2)
         let connection1 = createConnection(to: user1, conversation: conversation1)
         user1.connection = connection1
         let connection2 = createConnection(to: user2, conversation: conversation2)
