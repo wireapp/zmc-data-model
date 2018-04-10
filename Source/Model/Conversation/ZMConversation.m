@@ -1599,7 +1599,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (void)internalAddParticipants:(NSSet<ZMUser *> *)participants
 {
-    VerifyReturn(participants != nil && self.conversationType != ZMConversationTypeOneOnOne);
+    VerifyReturn(participants != nil);
     
     NSSet<ZMUser *>* selfUserSet = [NSSet setWithObject:[ZMUser selfUserInContext:self.managedObjectContext]];
     
@@ -1624,7 +1624,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (void)internalRemoveParticipants:(NSSet<ZMUser *> *)participants sender:(ZMUser *)sender
 {
-    VerifyReturn(participants != nil && self.conversationType != ZMConversationTypeOneOnOne);
+    VerifyReturn(participants != nil);
     
     NSSet<ZMUser *>* selfUserSet = [NSSet setWithObject:[ZMUser selfUserInContext:self.managedObjectContext]];
     NSMutableSet<ZMUser *>* otherUsers = [participants mutableCopy];
