@@ -2663,6 +2663,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.wire.WireDataModelTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/Tests/Resources/Test-Bridging-Header.h";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WireDataModelTestHost.app/WireDataModelTestHost";
 			};
 			name = Debug;
 		};
@@ -2674,6 +2675,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = com.wire.WireDataModelTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "$(SRCROOT)/Tests/Resources/Test-Bridging-Header.h";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/WireDataModelTestHost.app/WireDataModelTestHost";
 			};
 			name = Release;
 		};
