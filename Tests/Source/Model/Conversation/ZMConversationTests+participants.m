@@ -25,40 +25,6 @@
 
 @implementation ZMConversationParticipantsTests
 
-- (void)testThatItDoesNotAllowAddingParticipantsToAOneOnOneConversation;
-{
-    // given
-    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    conversation.conversationType = ZMConversationTypeOneOnOne;
-    ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    
-    // when
-    [self performIgnoringZMLogError:^{
-        [conversation internalAddParticipants:[NSSet setWithObject:user]];
-    }];
-    
-    // then
-    XCTAssertEqual(conversation.lastServerSyncedActiveParticipants.count, 0u);
-}
-
-- (void)testThatItDoesNotAllowRemovingPaticipantsFromAOneOnOneConversation;
-{
-    // given
-    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    conversation.conversationType = ZMConversationTypeOneOnOne;
-    ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    [conversation.mutableLastServerSyncedActiveParticipants addObject:user];
-    XCTAssertEqual(conversation.lastServerSyncedActiveParticipants.count, 1u);
-    
-    // when
-    [self performIgnoringZMLogError:^{
-        [conversation internalRemoveParticipants:[NSSet setWithObject:user] sender:self.selfUser];
-    }];
-    
-    // then
-    XCTAssertEqual(conversation.lastServerSyncedActiveParticipants.count, 1u);
-}
-
 - (void)testThatItReturnsAllParticipantsAsActiveParticipantsInOneOnOneConversations
 {
     // given
