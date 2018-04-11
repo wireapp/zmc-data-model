@@ -149,7 +149,7 @@ extension StorageStack {
         store.metadata = storeMetadata
 
         // Save context & forward error
-        try context.performGroupedBlockAndWait {
+        try context.performGroupedAndWait { context in
             try context.save()
         }
     }
