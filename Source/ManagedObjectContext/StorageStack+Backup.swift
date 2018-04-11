@@ -149,17 +149,8 @@ extension StorageStack {
         store.metadata = storeMetadata
 
         // Save context & forward error
-        let error = context.performGroupedBlockAndWait { () -> Error? in
-            do {
-                try context.save()
-                return nil
-            } catch {
-                return error
-            }
-        }
-        
-        if let error = error {
-            throw error
+        try context.performGroupedBlockAndWait {
+            try context.save()
         }
     }
     
