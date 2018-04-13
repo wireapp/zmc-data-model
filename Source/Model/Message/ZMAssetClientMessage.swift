@@ -26,7 +26,7 @@ import Foundation
     var cachedGenericAssetMessage: ZMGenericMessage? = nil
     
     /// Creates a new `ZMAssetClientMessage` with an attached `imageAssetStorage`
-    convenience internal init(originalImage imageData: Data,
+    convenience internal init(originalImage imageData: Data, ///TODO: test
                               nonce: UUID,
                               managedObjectContext: NSManagedObjectContext,
                               expiresAfter timeout: TimeInterval = 0)
@@ -34,11 +34,15 @@ import Foundation
         self.init(nonce: nonce, managedObjectContext: managedObjectContext)
         
         // We update the size and mimeType once the preprocessing is done
+        ///TODO: not do so as promised...
+        var mimeType = ""
 
-        let isDataAnimatedGIF = ZMImageMessage.isDataAnimatedGIF(imageData)
+        if let contentType = ZMAssetMetaDataEncoder.contentType(forImageData: imageData) {
+            mimeType = contentType
+        }
 
         let assetMessage = ZMGenericMessage.genericMessage(withImageSize: CGSize.zero,
-                                                           mimeType: isDataAnimatedGIF ? "image/gif" : "",
+                                                           mimeType: mimeType,
                                                            size: UInt64(imageData.count),
                                                            nonce: nonce.transportString(),
                                                            expiresAfter: timeout as NSNumber)
