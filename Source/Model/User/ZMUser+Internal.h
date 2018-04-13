@@ -28,18 +28,15 @@
 @class Team;
 
 extern NSString * __nonnull const SessionObjectIDKey;
-extern NSString * __nonnull const ZMUserActiveConversationsKey;
 extern NSString * __nonnull const UserClientsKey;
 extern NSString * __nonnull const AvailabilityKey;
 
 @interface ZMUser (Internal)
 
-@property (nullable, nonatomic) NSUUID *remoteIdentifier;
+@property (null_unspecified, nonatomic) NSUUID *remoteIdentifier;
 @property (nullable, nonatomic) ZMConnection *connection;
 
 @property (nullable, nonatomic) NSUUID *teamIdentifier;
-
-@property (nonnull, nonatomic) NSOrderedSet *activeConversations;
 
 @property (nonnull, nonatomic) NSSet *showingUserAdded;
 @property (nonnull, nonatomic) NSSet *showingUserRemoved;
