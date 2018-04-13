@@ -26,7 +26,7 @@ import Foundation
     var cachedGenericAssetMessage: ZMGenericMessage? = nil
     
     /// Creates a new `ZMAssetClientMessage` with an attached `imageAssetStorage`
-    convenience internal init(originalImage imageData: Data, ///TODO: test
+    convenience internal init(originalImage imageData: Data,
                               nonce: UUID,
                               managedObjectContext: NSManagedObjectContext,
                               expiresAfter timeout: TimeInterval = 0)
