@@ -33,8 +33,8 @@ import Foundation
     {
         self.init(nonce: nonce, managedObjectContext: managedObjectContext)
         
-        // We update the size and mimeType once the preprocessing is done
-        ///TODO: not do so as promised...
+        // We update the size once the preprocessing is done
+        // mimeType is assigned first, to make sure UI can handle animated GIF file correctly
         var mimeType = ""
 
         if let contentType = ZMAssetMetaDataEncoder.contentType(forImageData: imageData) {
