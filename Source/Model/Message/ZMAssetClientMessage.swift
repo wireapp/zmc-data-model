@@ -33,7 +33,7 @@ import Foundation
     {
         self.init(nonce: nonce, managedObjectContext: managedObjectContext)
         
-        // We update the size and mimeType once the preprocesing is done
+        // We update the size and mimeType once the preprocessing is done
         let assetMessage = ZMGenericMessage.genericMessage(withImageSize: CGSize.zero,
                                                            mimeType: "",
                                                            size: UInt64(imageData.count),
