@@ -34,8 +34,11 @@ import Foundation
         self.init(nonce: nonce, managedObjectContext: managedObjectContext)
         
         // We update the size and mimeType once the preprocessing is done
+
+        let isDataAnimatedGIF = ZMImageMessage.isDataAnimatedGIF(imageData)
+
         let assetMessage = ZMGenericMessage.genericMessage(withImageSize: CGSize.zero,
-                                                           mimeType: "",
+                                                           mimeType: isDataAnimatedGIF ? "image/gif" : "",
                                                            size: UInt64(imageData.count),
                                                            nonce: nonce.transportString(),
                                                            expiresAfter: timeout as NSNumber)
