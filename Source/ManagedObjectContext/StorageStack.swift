@@ -111,6 +111,7 @@ import UIKit
             }
         } else {
             let storeFile = accountDirectory.appendingPersistentStoreLocation()
+            dispatchGroup?.enter()
             isolationQueue.async {
                 self.createOnDiskStack(
                     accountIdentifier: accountIdentifier,
@@ -127,6 +128,7 @@ import UIKit
                         self?.managedObjectContextDirectory = mocs
                         DispatchQueue.main.async {
                             completionHandler(mocs)
+                            dispatchGroup?.leave()
                         }
                     }
                 )
