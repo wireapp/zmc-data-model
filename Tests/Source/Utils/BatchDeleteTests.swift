@@ -20,7 +20,7 @@ import XCTest
 import WireTesting
 @testable import WireDataModel
 
-class TestEntity_Root: NSManagedObject {
+class TestEntity: NSManagedObject {
     @NSManaged var identifier: String?
     @NSManaged var parameter: String?
 }
@@ -30,20 +30,20 @@ class BatchDeleteTests: ZMTBaseTest {
         let model = NSManagedObjectModel()
         
         let entity = NSEntityDescription()
-        entity.name = "\(TestEntity_Root.self)"
-        entity.managedObjectClassName = NSStringFromClass(TestEntity_Root.self)
+        entity.name = "\(TestEntity.self)"
+        entity.managedObjectClassName = NSStringFromClass(TestEntity.self)
         
         var properties = Array<NSAttributeDescription>()
         
         let remoteURLAttribute = NSAttributeDescription()
-        remoteURLAttribute.name = #keyPath(TestEntity_Root.identifier)
+        remoteURLAttribute.name = #keyPath(TestEntity.identifier)
         remoteURLAttribute.attributeType = .stringAttributeType
         remoteURLAttribute.isOptional = true
         remoteURLAttribute.isIndexed = true
         properties.append(remoteURLAttribute)
         
         let fileDataAttribute = NSAttributeDescription()
-        fileDataAttribute.name = #keyPath(TestEntity_Root.parameter)
+        fileDataAttribute.name = #keyPath(TestEntity.parameter)
         fileDataAttribute.attributeType = .stringAttributeType
         fileDataAttribute.isOptional = true
         properties.append(fileDataAttribute)
@@ -52,21 +52,19 @@ class BatchDeleteTests: ZMTBaseTest {
         model.entities = [entity]
         return model
     }
+
+    func cleanStorage() {
+        if FileManager.default.fileExists(atPath: storagePath) {
+            try! FileManager.default.removeItem(at: URL(fileURLWithPath: storagePath))
+        }
+    }
     
     func createTestCoreData() throws -> (NSManagedObjectModel, NSManagedObjectContext) {
         let model = self.model
         let persistentStoreCoordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
-
-        let path = NSTemporaryDirectory().appending("test.sqlite")
-        let url = URL(fileURLWithPath: path)
-        
-        if FileManager.default.fileExists(atPath: path) {
-            try FileManager.default.removeItem(at: url)
-        }
-        
         try persistentStoreCoordinator.addPersistentStore(ofType: NSSQLiteStoreType,
                                                           configurationName: nil,
-                                                          at: url,
+                                                          at: URL(fileURLWithPath: storagePath),
                                                           options: [:])
         
         let managedObjectContext = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
@@ -74,36 +72,43 @@ class BatchDeleteTests: ZMTBaseTest {
         return (model, managedObjectContext)
     }
     
+    let storagePath = NSTemporaryDirectory().appending("test.sqlite")
     var mom: NSManagedObjectModel!
     var moc: NSManagedObjectContext!
     
     override func setUp() {
         super.setUp()
+        cleanStorage()
         let (mom, moc) = try! createTestCoreData()
         self.mom = mom
         self.moc = moc
     }
     
     override func tearDown() {
+        moc.persistentStoreCoordinator?.persistentStores.forEach {
+            try! self.moc.persistentStoreCoordinator!.remove($0)
+        }
+        
         self.moc = nil
         self.mom = nil
+        cleanStorage()
         super.tearDown()
     }
     
     func testThatItDoesNotRemoveValidGenericMessageData() throws {
         // given
-        let entity = mom.entitiesByName["\(TestEntity_Root.self)"]!
+        let entity = mom.entitiesByName["\(TestEntity.self)"]!
         
         let ints = Array(0...10)
-        let objects: [TestEntity_Root] = ints.map { (id: Int) in
-            let object = TestEntity_Root(entity: entity, insertInto: self.moc)
+        let objects: [TestEntity] = ints.map { (id: Int) in
+            let object = TestEntity(entity: entity, insertInto: self.moc)
             object.identifier = "\(id)"
             object.parameter = "value"
             return object
         }
         
-        let objectsShouldBeDeleted: [TestEntity_Root] = ints.map { (id: Int) in
-            let object = TestEntity_Root(entity: entity, insertInto: self.moc)
+        let objectsShouldBeDeleted: [TestEntity] = ints.map { (id: Int) in
+            let object = TestEntity(entity: entity, insertInto: self.moc)
             object.identifier = "\(id + 100)"
             object.parameter = nil
             return object
@@ -113,8 +118,8 @@ class BatchDeleteTests: ZMTBaseTest {
         
         try moc.save()
         
-        let predicate = NSPredicate(format: "%K == nil", #keyPath(TestEntity_Root.parameter))
-        try moc.batchDeleteEntities(named: "\(TestEntity_Root.self)", matching: predicate)
+        let predicate = NSPredicate(format: "%K == nil", #keyPath(TestEntity.parameter))
+        try moc.batchDeleteEntities(named: "\(TestEntity.self)", matching: predicate)
         
         // then
         objects.forEach {
@@ -150,9 +155,9 @@ class BatchDeleteTests: ZMTBaseTest {
         }
         
         // given
-        let entity = mom.entitiesByName["\(TestEntity_Root.self)"]!
+        let entity = mom.entitiesByName["\(TestEntity.self)"]!
         
-        let object = TestEntity_Root(entity: entity, insertInto: self.moc)
+        let object = TestEntity(entity: entity, insertInto: self.moc)
         object.identifier = "1"
         object.parameter = nil
         
@@ -162,8 +167,8 @@ class BatchDeleteTests: ZMTBaseTest {
         
         let observer = FetchRequestObserver()
         
-        let fetchRequest = NSFetchRequest<TestEntity_Root>(entityName: "\(TestEntity_Root.self)")
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: #keyPath(TestEntity_Root.identifier), ascending: true)]
+        let fetchRequest = NSFetchRequest<TestEntity>(entityName: "\(TestEntity.self)")
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: #keyPath(TestEntity.identifier), ascending: true)]
         let fetchRequestController = NSFetchedResultsController(fetchRequest: fetchRequest,
                                                                 managedObjectContext: moc,
                                                                 sectionNameKeyPath: nil,
@@ -172,10 +177,10 @@ class BatchDeleteTests: ZMTBaseTest {
         try fetchRequestController.performFetch()
         XCTAssertEqual(fetchRequestController.sections?.count, 1)
         XCTAssertEqual(fetchRequestController.sections?.first?.objects?.count, 1)
-        XCTAssertEqual(fetchRequestController.sections?.first?.objects?.first as! TestEntity_Root, object)
+        XCTAssertEqual(fetchRequestController.sections?.first?.objects?.first as! TestEntity, object)
         
-        let predicate = NSPredicate(format: "%K == nil", #keyPath(TestEntity_Root.parameter))
-        try moc.batchDeleteEntities(named: "\(TestEntity_Root.self)", matching: predicate)
+        let predicate = NSPredicate(format: "%K == nil", #keyPath(TestEntity.parameter))
+        try moc.batchDeleteEntities(named: "\(TestEntity.self)", matching: predicate)
         try moc.save()
 
         // then
