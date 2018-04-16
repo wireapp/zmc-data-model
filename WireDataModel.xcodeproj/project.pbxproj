@@ -99,6 +99,7 @@
 		5E0FB215205176B400FD9867 /* Set+ServiceUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E0FB214205176B400FD9867 /* Set+ServiceUser.swift */; };
 		7C7AF812201892FA00D0A3BE /* UTType+MIMEType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C7AF811201892FA00D0A3BE /* UTType+MIMEType.swift */; };
 		7CBC3FC120177C3C008D06E4 /* RasterImages+Protobuf.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CBC3FC020177C3C008D06E4 /* RasterImages+Protobuf.swift */; };
+		871DD79F2084A316006B1C56 /* BatchDeleteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871DD79E2084A316006B1C56 /* BatchDeleteTests.swift */; };
 		872A2E8A1FFD2FBF00900B22 /* ZMSearchUserPayloadParsingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 872A2E891FFD2FBF00900B22 /* ZMSearchUserPayloadParsingTests.swift */; };
 		873B88FA2040431200FBE254 /* store2-42-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 873B88F82040430A00FBE254 /* store2-42-0.wiredatabase */; };
 		873B88FC204044AC00FBE254 /* ConversationCreationOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 873B88FB204044AC00FBE254 /* ConversationCreationOptions.swift */; };
@@ -108,7 +109,6 @@
 		87A7FA25203DD1CC00AA066C /* ZMConversationTests+AccessMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87A7FA23203DD11100AA066C /* ZMConversationTests+AccessMode.swift */; };
 		87C125F71EF94EE800D28DC1 /* ZMManagedObject+Grouping.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C125F61EF94EE800D28DC1 /* ZMManagedObject+Grouping.swift */; };
 		87C125F91EF94F2E00D28DC1 /* ZMManagedObjectGroupingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C125F81EF94F2E00D28DC1 /* ZMManagedObjectGroupingTests.swift */; };
-		87C1C264207F889D0083BF6B /* store2-45-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 87C1C262207F88530083BF6B /* store2-45-0.wiredatabase */; };
 		87C1C25F207F7DA80083BF6B /* InvalidGenericMessageDataRemoval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C1C25E207F7DA80083BF6B /* InvalidGenericMessageDataRemoval.swift */; };
 		87C1C261207F812F0083BF6B /* InvalidGenericMessageDataRemovalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87C1C260207F812F0083BF6B /* InvalidGenericMessageDataRemovalTests.swift */; };
 		87C1C264207F889D0083BF6B /* store2-45-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 87C1C262207F88530083BF6B /* store2-45-0.wiredatabase */; };
@@ -585,6 +585,7 @@
 		7CBC3FC020177C3C008D06E4 /* RasterImages+Protobuf.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RasterImages+Protobuf.swift"; sourceTree = "<group>"; };
 		8702B0EA20527F47006B60B9 /* zmessaging2.44.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = zmessaging2.44.0.xcdatamodel; sourceTree = "<group>"; };
 		8702B0EB20529C78006B60B9 /* store2-43-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; name = "store2-43-0.wiredatabase"; path = "Tests/Resources/store2-43-0.wiredatabase"; sourceTree = SOURCE_ROOT; };
+		871DD79E2084A316006B1C56 /* BatchDeleteTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BatchDeleteTests.swift; sourceTree = "<group>"; };
 		872A2E891FFD2FBF00900B22 /* ZMSearchUserPayloadParsingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMSearchUserPayloadParsingTests.swift; sourceTree = "<group>"; };
 		873B88F82040430A00FBE254 /* store2-42-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; name = "store2-42-0.wiredatabase"; path = "Tests/Resources/store2-42-0.wiredatabase"; sourceTree = SOURCE_ROOT; };
 		873B88FB204044AC00FBE254 /* ConversationCreationOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationCreationOptions.swift; sourceTree = "<group>"; };
@@ -596,7 +597,6 @@
 		87A7FA23203DD11100AA066C /* ZMConversationTests+AccessMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMConversationTests+AccessMode.swift"; sourceTree = "<group>"; };
 		87C125F61EF94EE800D28DC1 /* ZMManagedObject+Grouping.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZMManagedObject+Grouping.swift"; sourceTree = "<group>"; };
 		87C125F81EF94F2E00D28DC1 /* ZMManagedObjectGroupingTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZMManagedObjectGroupingTests.swift; sourceTree = "<group>"; };
-		87C1C262207F88530083BF6B /* store2-45-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; name = "store2-45-0.wiredatabase"; path = "Tests/Resources/store2-45-0.wiredatabase"; sourceTree = SOURCE_ROOT; };
 		87C1C25E207F7DA80083BF6B /* InvalidGenericMessageDataRemoval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvalidGenericMessageDataRemoval.swift; sourceTree = "<group>"; };
 		87C1C260207F812F0083BF6B /* InvalidGenericMessageDataRemovalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvalidGenericMessageDataRemovalTests.swift; sourceTree = "<group>"; };
 		87C1C262207F88530083BF6B /* store2-45-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; name = "store2-45-0.wiredatabase"; path = "Tests/Resources/store2-45-0.wiredatabase"; sourceTree = SOURCE_ROOT; };
@@ -1097,6 +1097,7 @@
 				54F84CFE1F99588D00ABD7D5 /* DuplicatedEntityRemovalTests.swift */,
 				F11F3E8A1FA32AA0007B6D3D /* InvalidClientsRemovalTests.swift */,
 				87C1C260207F812F0083BF6B /* InvalidGenericMessageDataRemovalTests.swift */,
+				871DD79E2084A316006B1C56 /* BatchDeleteTests.swift */,
 				54F84D001F995A1F00ABD7D5 /* DiskDatabaseTests.swift */,
 			);
 			name = Utils;
@@ -2520,6 +2521,7 @@
 				F9B71FA71CB2BF37001DB03F /* ZMConversationTests+UnreadCount.m in Sources */,
 				F9B71F9F1CB2BF2B001DB03F /* ZMConversationListDirectoryTests.m in Sources */,
 				F94A208F1CB51AF50059632A /* ManagedObjectValidationTests.m in Sources */,
+				871DD79F2084A316006B1C56 /* BatchDeleteTests.swift in Sources */,
 				F9DD60C11E8916170019823F /* ChangedIndexesTests.swift in Sources */,
 				F9A7083D1CAEEB7500C2F5FE /* ModelObjectsTests.m in Sources */,
 				F9B71F921CB2BEF4001DB03F /* BaseClientMessageTests.swift in Sources */,
