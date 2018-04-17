@@ -68,7 +68,7 @@ fileprivate extension ZMArticle {
 
 extension ZMGenericMessage {
     
-    public var sanitizedDebugDescription: String {
+    open override var debugDescription: String {
         
         guard let builder = self.toBuilder() else { return "" }
         
@@ -80,9 +80,10 @@ extension ZMGenericMessage {
             builder.setEdited(editedBuilder.setText(editedBuilder.text().sanitize()))
         }
         
-        return builder.build().debugDescription
+        let message = builder.build()!
+        
+        let description = NSMutableString()
+        message.writeDescription(to: description, withIndent: "")
+        return description as String
     }
-    
-    
-
 }
