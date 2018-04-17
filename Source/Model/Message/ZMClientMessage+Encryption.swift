@@ -72,7 +72,9 @@ extension ZMClientMessage: EncryptedPayloadGenerator {
     }
 
     public var debugInfo: String {
-        var info = "\(String(describing: genericMessage))"
+        
+        var info = genericMessage?.sanitizedDebugDescription ?? "genericMessage is nil"
+                
         if let genericMessage = genericMessage, genericMessage.hasExternal() {
             info = "External message: " + info
         }
@@ -90,7 +92,7 @@ extension ZMAssetClientMessage: EncryptedPayloadGenerator {
     }
 
     public var debugInfo: String {
-        return "\(String(describing: genericAssetMessage))"
+        return genericAssetMessage?.sanitizedDebugDescription ?? "genericMessage is nil"
     }
     
 }
