@@ -18,13 +18,13 @@
 
 import Foundation
 
-fileprivate let retractedValue = "<retracted>"
+fileprivate let redactedValue = "<redacted>"
 
 fileprivate extension ZMText {
     
     func sanitize() -> ZMText {
         let builder = toBuilder()!
-        _ = builder.setContent(retractedValue)
+        _ = builder.setContent(redactedValue)
         
         if let linkPreviews = builder.linkPreview() as? [ZMLinkPreview] {
             builder.setLinkPreviewArray(linkPreviews.map({ $0.sanitize() }))
@@ -39,10 +39,10 @@ fileprivate extension ZMLinkPreview {
     
     func sanitize() -> ZMLinkPreview {
         let builder = toBuilder()!
-        builder.setUrl(retractedValue)
-        builder.setPermanentUrl(retractedValue)
-        builder.setTitle(retractedValue)
-        builder.setSummary(retractedValue)
+        builder.setUrl(redactedValue)
+        builder.setPermanentUrl(redactedValue)
+        builder.setTitle(redactedValue)
+        builder.setSummary(redactedValue)
         builder.clearTweet()
         
         if builder.hasArticle() {
@@ -58,9 +58,9 @@ fileprivate extension ZMArticle {
     
     func sanitize() -> ZMArticle {
         let builder = toBuilder()!
-        builder.setTitle(retractedValue)
-        builder.setPermanentUrl(retractedValue)
-        builder.setSummary(retractedValue)
+        builder.setTitle(redactedValue)
+        builder.setPermanentUrl(redactedValue)
+        builder.setSummary(redactedValue)
         return builder.build()
     }
     
