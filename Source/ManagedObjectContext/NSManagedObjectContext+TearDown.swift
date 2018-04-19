@@ -17,8 +17,9 @@
 //
 
 import Foundation
+import WireUtilities;
 
-extension NSManagedObjectContext {
+extension NSManagedObjectContext: TearDownCapable {
     
     /// Tear down the context. Using the context after this call results in
     /// undefined behavior.
