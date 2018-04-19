@@ -236,7 +236,7 @@ import Foundation
     
     private func removeNotUploaded() {
         for data in self.dataSet.array.map({ $0 as! ZMGenericMessageData }) {
-            if let assetData = data.genericMessage.assetData,
+            if let assetData = data.genericMessage?.assetData,
                 assetData.hasNotUploaded() {
                 data.asset = nil
                 self.managedObjectContext?.delete(data)

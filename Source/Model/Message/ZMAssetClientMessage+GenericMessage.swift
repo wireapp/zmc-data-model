@@ -23,7 +23,7 @@ extension ZMAssetClientMessage {
     func genericMessageDataFromDataSet(for format: ZMImageFormat) -> ZMGenericMessageData? {
         return self.dataSet.array
             .flatMap { $0 as? ZMGenericMessageData }
-            .filter { $0.genericMessage.imageAssetData?.imageFormat() == format }
+            .filter { $0.genericMessage?.imageAssetData?.imageFormat() == format }
             .first
     }
     

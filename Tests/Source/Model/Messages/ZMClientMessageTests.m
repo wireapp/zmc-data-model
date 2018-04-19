@@ -229,6 +229,40 @@
     AssertEqualData(sut.genericMessage.data, contentData);
 }
 
+- (void)testThatItDoesNotCreateOTRMessageIfItsIdentifierIsInvalid
+{
+    // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    conversation.remoteIdentifier = [NSUUID createUUID];
+
+    NSString *senderClientID = [NSString createAlphanumericalString];
+    NSUUID *nonce = [NSUUID createUUID];
+    ZMGenericMessage *prototype = [ZMGenericMessage messageWithText:self.name nonce:nonce expiresAfter:nil];
+    ZMGenericMessageBuilder *builder = [ZMGenericMessage builderWithPrototype:prototype];
+    [builder setMessageId:@"please-fail"];
+
+    ZMGenericMessage *message = [builder build];
+    NSData *contentData = message.data;
+
+    NSDictionary *data = @{ @"sender": senderClientID, @"text" : [contentData base64EncodedStringWithOptions:0] };
+    NSDictionary *payload = [self payloadForMessageInConversation:conversation type:EventConversationAddOTRMessage data:data];
+
+    ZMUpdateEvent *event = [ZMUpdateEvent eventFromEventStreamPayload:payload uuid:nil];
+    XCTAssertNotNil(event);
+
+    // when
+    __block ZMClientMessage *sut;
+    [self performPretendingUiMocIsSyncMoc:^{
+        sut = (id)[ZMClientMessage messageUpdateResultFromUpdateEvent:event inManagedObjectContext:self.uiMOC prefetchResult:nil].message;
+    }];
+
+    // then
+    XCTAssertNotNil(sut);
+    XCTAssertEqualObjects(sut.conversation, conversation);
+    XCTAssertTrue([sut isKindOfClass:[ZMSystemMessage class]]);
+    XCTAssertEqualObjects(sut.serverTimestamp.transportString, payload[@"time"]);
+}
+
 - (void)testThatItDoesNotCreateKnockMessagesIfThereIsAlreadyOtrKnockWithTheSameNonce
 {
     // given
@@ -493,32 +527,6 @@
     XCTAssertNotNil(sut);
     XCTAssertNotNil(existingMessage.linkPreview);
     XCTAssertEqualObjects(existingMessage.textMessageData.messageText, initialText);
-}
-
-- (void)testThatItReturnsNilIfTheClientMessageContentIsInvalid
-{
-    // given
-    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    conversation.remoteIdentifier = [NSUUID createUUID];
-    
-    NSString *data = @"123";
-    
-    NSDictionary *payload = [self payloadForMessageInConversation:conversation type:EventConversationAdd data:data];
-    
-    ZMUpdateEvent *event = [ZMUpdateEvent eventFromEventStreamPayload:payload uuid:nil];
-    XCTAssertNotNil(event);
-    
-    // when
-    __block ZMClientMessage *sut;
-    [self performPretendingUiMocIsSyncMoc:^{
-        [self performIgnoringZMLogError:^{
-            sut = (id)[ZMClientMessage messageUpdateResultFromUpdateEvent:event inManagedObjectContext:self.uiMOC prefetchResult:nil].message;
-        }];
-    }];
-    
-    // then
-    XCTAssertNil(sut);
-    
 }
 
 - (void)testThatItReturnsNilIfTheClientMessageIsZombie

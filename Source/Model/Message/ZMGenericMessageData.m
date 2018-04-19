@@ -38,8 +38,8 @@ static NSString * const ZMGenericMessageDataDataKey = @"data";
 
 - (ZMGenericMessage *)genericMessage
 {
-    ZMGenericMessage *message = (ZMGenericMessage *)[[ZMGenericMessage builder] mergeFromData:self.data];
-    return [message validatingFields];
+    ZMGenericMessageBuilder *message = (ZMGenericMessageBuilder *)[[ZMGenericMessage builder] mergeFromData:self.data];
+    return [message buildAndValidate];
 }
 
 - (NSSet *)modifiedKeys
