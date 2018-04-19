@@ -27,7 +27,7 @@
 @interface ZMGenericMessageData: ZMManagedObject
 
 @property (nonatomic) NSData *data;
-@property (nonatomic, readonly) ZMGenericMessage *genericMessage;
+@property (nonatomic, readonly, nullable) ZMGenericMessage *genericMessage;
 @property (nonatomic) ZMClientMessage *message;
 @property (nonatomic) ZMAssetClientMessage *asset;
 

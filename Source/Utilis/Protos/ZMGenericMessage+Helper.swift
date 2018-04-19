@@ -220,7 +220,7 @@ public extension ZMGenericMessage {
             return nil
         }
 
-        return builder.build()
+        return builder.buildAndValidate()
     }
 
 }

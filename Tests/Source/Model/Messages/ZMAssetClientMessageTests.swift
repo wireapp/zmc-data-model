@@ -890,10 +890,10 @@ extension ZMAssetClientMessageTests {
             XCTAssertNil(sut.fileMessageData?.thumbnailAssetID)
             
             // when
-            sut.fileMessageData!.thumbnailAssetID = uuid.transportString()
+            sut.fileMessageData!.thumbnailAssetID = uuid
             
             // then
-            XCTAssertEqual(sut.fileMessageData?.thumbnailAssetID, uuid.transportString())
+            XCTAssertEqual(sut.fileMessageData?.thumbnailAssetID, uuid)
             // testing that other properties are kept
             XCTAssertEqual(sut.genericAssetMessage?.asset.preview.remote.otrKey, remoteData.otrKey)
             XCTAssertEqual(sut.genericAssetMessage?.asset.preview.remote.sha256, remoteData.sha256)
@@ -929,7 +929,7 @@ extension ZMAssetClientMessageTests {
             sut.update(with: genericMessage, updateEvent: updateEvent, initialUpdate: true)
             
             // then
-            XCTAssertEqual(sut.fileMessageData?.thumbnailAssetID, uuid.transportString())
+            XCTAssertEqual(sut.fileMessageData?.thumbnailAssetID, uuid)
             // testing that other properties are kept
             XCTAssertEqual(sut.genericAssetMessage?.asset.preview.remote.otrKey, remoteData.otrKey)
             XCTAssertEqual(sut.genericAssetMessage?.asset.preview.remote.sha256, remoteData.sha256)
@@ -959,7 +959,7 @@ extension ZMAssetClientMessageTests {
             let payload : [String : AnyObject] = [
                 "type" : "conversation.otr-asset-add" as AnyObject,
                 "data" : [
-                    "id" : UUID.create()
+                    "id" : UUID.create().uuidString
                 ] as AnyObject
             ]
             let updateEvent = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: UUID.create())
@@ -1658,7 +1658,7 @@ extension ZMAssetClientMessageTests {
         XCTAssertEqual(sut.conversation?.remoteIdentifier, conversation.remoteIdentifier)
         XCTAssertEqual(sut.sender?.remoteIdentifier!.transportString(), payload["from"] as? String)
         XCTAssertEqual(sut.serverTimestamp?.transportString(), payload["time"] as? String)
-        XCTAssertEqual(sut.fileMessageData?.thumbnailAssetID, thumbnailId.transportString())
+        XCTAssertEqual(sut.fileMessageData?.thumbnailAssetID, thumbnailId)
         XCTAssertEqual(sut.nonce, nonce)
         XCTAssertNotNil(sut.fileMessageData)
     }
@@ -2058,7 +2058,7 @@ extension ZMAssetClientMessageTests {
         sut.update(with: preview, updateEvent: ZMUpdateEvent(), initialUpdate: false)
 
         // then
-        XCTAssertEqual(sut.fileMessageData?.thumbnailAssetID, previewMeta.assetId?.transportString())
+        XCTAssertEqual(sut.fileMessageData?.thumbnailAssetID, previewMeta.assetId)
     }
 
     func testThatItReturnsTheThumbnailDataWhenItHasItOnDisk_V3() {

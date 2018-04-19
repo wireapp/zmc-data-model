@@ -207,7 +207,7 @@ extension ZMAssetClientMessage {
             
             if !assetData.preview.remote.hasAssetId() {
                 if let thumbnailId = eventData["id"] as? String {
-                    self.fileMessageData?.thumbnailAssetID = thumbnailId
+                    self.fileMessageData?.thumbnailAssetID = UUID(uuidString: thumbnailId)
                 }
             } else {
                 self.version = 3

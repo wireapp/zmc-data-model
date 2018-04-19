@@ -41,7 +41,7 @@ import Foundation
     var fileURL: URL? { get }
     
     /// The asset ID of the thumbnail, if any
-    var thumbnailAssetID: String? { get set }
+    var thumbnailAssetID: UUID? { get set }
     
     /// Duration of the media in milliseconds
     var durationMilliseconds: UInt64 { get }
@@ -144,7 +144,7 @@ extension ZMAssetClientMessage: ZMFileMessageData {
         return self.genericAssetMessage?.assetData?.original.name.removingExtremeCombiningCharacters
     }
     
-    public var thumbnailAssetID: String? {
+    public var thumbnailAssetID: UUID? {
         
         get {
             guard self.fileMessageData != nil else { return nil }
@@ -153,15 +153,11 @@ extension ZMAssetClientMessage: ZMFileMessageData {
                 let assetId = assetData.preview.remote.assetId,
                 !assetId.isEmpty
             else { return nil }
-            return assetId
+            return UUID(uuidString:assetId)
         }
         
         set {
 
-            guard newValue.flatMap(UUID.init) != nil else {
-                return
-            }
-                
             // This method has to inject this value in the currently existing thumbnail message.
             // Unfortunately it is immutable. So I need to create a copy, modify and then replace.
             guard self.fileMessageData != nil else { return }
@@ -184,9 +180,9 @@ extension ZMAssetClientMessage: ZMFileMessageData {
                 assetBuilder.merge(from: assetData)
             }
             messageBuilder.merge(from: thumbnailMessage)
-            remoteBuilder.setAssetId(newValue)
+            remoteBuilder.setAssetId(newValue?.transportString())
 
-            previewBuilder.setRemote(remoteBuilder.build())
+            previewBuilder.setRemote(remoteBuilder.buildAndValidate())
             assetBuilder.setPreview(previewBuilder.build())
             let asset = assetBuilder.build()!
             
