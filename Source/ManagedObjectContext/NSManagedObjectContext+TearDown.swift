@@ -28,6 +28,9 @@ extension NSManagedObjectContext: TearDownCapable {
             self.tearDownUserInfo()
             let objects = self.registeredObjects
             objects.forEach {
+                if let tearDownCapable = $0 as? TearDownCapable {
+                    tearDownCapable.tearDown()
+                }
                 self.refresh($0, mergeChanges: false)
             }
         }
@@ -35,6 +38,11 @@ extension NSManagedObjectContext: TearDownCapable {
 
     private func tearDownUserInfo() {
         let allKeys = userInfo.allKeys
+        for value in userInfo.allValues {
+            if let tearDownCapable = value as? TearDownCapable {
+                tearDownCapable.tearDown()
+            }
+        }
         userInfo.removeObjects(forKeys: Array(allKeys))
     }
 }
