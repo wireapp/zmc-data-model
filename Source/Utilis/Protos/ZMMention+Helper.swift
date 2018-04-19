@@ -26,7 +26,9 @@ extension ZMMentionBuilder {
         for user in users {
             let builder = ZMMention.builder()!
             builder.setUser(user)
-            mentions.append(builder.build()!)
+            if let user = builder.buildAndValidate() {
+                mentions.append(user)
+            }
         }
 
         return mentions

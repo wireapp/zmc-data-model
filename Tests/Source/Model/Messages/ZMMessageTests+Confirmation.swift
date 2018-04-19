@@ -304,7 +304,7 @@ extension ZMMessageTests_Confirmation {
     
     func insertMessage(_ conversation: ZMConversation, fromSender: ZMUser? = nil, timestamp: Date = .init(), moc: NSManagedObjectContext? = nil, eventSource: ZMUpdateEventSource = .download) -> MessageUpdateResult {
         let nonce = UUID.create()
-        let genericMessage = ZMGenericMessage.message(text: "foo", nonce: nonce.transportString())
+        let genericMessage = ZMGenericMessage.message(text: "foo", nonce: nonce)
         let messageEvent = createUpdateEvent(
             nonce,
             conversationID: conversation.remoteIdentifier!,
@@ -332,7 +332,7 @@ extension ZMMessageTests_Confirmation {
     }
     
     func createMessageConfirmationUpdateEvent(_ nonce: UUID, conversationID: UUID, senderID: UUID = .create()) -> ZMUpdateEvent {
-        let genericMessage = ZMGenericMessage(confirmation: nonce.transportString(), type: .DELIVERED, nonce: UUID.create().transportString())
+        let genericMessage = ZMGenericMessage(confirmation: nonce, type: .DELIVERED, nonce: UUID.create())
         return createUpdateEvent(nonce, conversationID: conversationID, genericMessage: genericMessage, senderID: senderID)
     }
     

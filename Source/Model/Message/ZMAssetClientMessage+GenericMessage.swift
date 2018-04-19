@@ -67,11 +67,15 @@ extension ZMAssetClientMessage {
         }
     }
     
-    func mergeWithExistingData(data: Data) -> ZMGenericMessageData {
+    func mergeWithExistingData(data: Data) -> ZMGenericMessageData? {
         self.cachedGenericAssetMessage = nil
         
-        let genericMessage = ZMGenericMessageBuilder().merge(from: data).build()! as! ZMGenericMessage
-        
+        let message = ZMGenericMessageBuilder().merge(from: data).build() as? ZMGenericMessage
+
+        guard let genericMessage = message?.validatingFields() else {
+            return nil
+        }
+
         if let imageFormat = genericMessage.imageAssetData?.imageFormat(),
             let existingMessageData = self.genericMessageDataFromDataSet(for: imageFormat)
         {
@@ -105,7 +109,7 @@ extension ZMAssetClientMessage {
         
         let builder = ZMGenericMessage.builder()!
         filteredMessages.forEach { builder.merge(from: $0) }
-        return builder.build()
+        return builder.buildAndValidate()
     }
     
     /// Returns the generic message for the given representation

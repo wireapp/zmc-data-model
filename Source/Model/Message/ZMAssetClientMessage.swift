@@ -37,7 +37,7 @@ import Foundation
         let assetMessage = ZMGenericMessage.genericMessage(withImageSize: CGSize.zero,
                                                            mimeType: "",
                                                            size: UInt64(imageData.count),
-                                                           nonce: nonce.transportString(),
+                                                           nonce: nonce,
                                                            expiresAfter: timeout as NSNumber)
         add(assetMessage)
         preprocessedSize = ZMImagePreprocessor.sizeOfPrerotatedImage(with: imageData)
@@ -61,7 +61,7 @@ import Foundation
         delivered = false
         version = 3
         
-        add(ZMGenericMessage.genericMessage(fileMetadata: metadata, messageID: nonce.transportString(), expiresAfter: timeout as NSNumber))
+        add(ZMGenericMessage.genericMessage(fileMetadata: metadata, messageID: nonce, expiresAfter: timeout as NSNumber))
     }
     
     /// Remote asset ID
