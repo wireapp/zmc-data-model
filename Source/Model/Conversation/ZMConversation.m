@@ -586,28 +586,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         return;
     }
     
-    // If the message is a self system message, then we would not update the
-    // last read server time stamp, even if there are previous unread messages
-    if ([message isKindOfClass:[ZMSystemMessage class]] && senderIsSelfUser) {
-        // find the last message where sender is not self
-        __block ZMMessage *lastReceivedMessage;
-        [self.messages.array enumerateObjectsAtIndexes:[NSIndexSet indexSetWithIndexesInRange:NSMakeRange(0, idx)] options:NSEnumerationReverse usingBlock:^(ZMMessage *aMessage, NSUInteger anIdx __unused, BOOL *stop) {
-            if (!aMessage.sender.isSelfUser) {
-                lastReceivedMessage = aMessage;
-                *stop = YES;
-            }
-        }];
-        
-        if (lastReceivedMessage == nil ||
-            [lastReceivedMessage.serverTimestamp compare:self.lastReadServerTimeStamp] == NSOrderedAscending)
-        {
-            return;
-        }
-        
-        [self updateLastReadServerTimeStamp:lastReceivedMessage.serverTimestamp senderIsSelfUser:NO];
-        return;
-    }
-    
     if (idx+1  == self.messages.count) {
         timeStamp = self.lastServerTimeStamp;
     }
