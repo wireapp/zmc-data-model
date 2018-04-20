@@ -151,7 +151,7 @@ NSString * const DeliveredKey = @"delivered";
     if (message == nil) {
         ZMUser *sender = [ZMUser userWithRemoteID:updateEvent.senderUUID createIfNeeded:NO inContext:moc];
         VerifyReturnNil(sender);
-        ZMSystemMessage *systemMessage = [conversation appendInvalidSystemMessageAt:updateEvent.timeStamp sender:sender moc:moc];
+        ZMSystemMessage *systemMessage = [conversation appendInvalidSystemMessageAt:updateEvent.timeStamp sender:sender];
         return [[MessageUpdateResult alloc] initWithMessage:systemMessage needsConfirmation:NO wasInserted:YES];
     }
 
