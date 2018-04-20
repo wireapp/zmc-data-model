@@ -1797,7 +1797,7 @@
     XCTAssertEqualObjects(conversation.lastReadServerTimeStamp, ((ZMMessage *) conversation.messages[4]).serverTimestamp);
 }
 
-- (void)testThatItSetsTheLastReadServerTimeStampToTheLastReadNonSystemMessageInTheVisibleRange;
+- (void)testThatItSetsTheLastReadServerTimeStampToTheLastReadMessageInTheVisibleRangeEvenIfSystemMessage;
 {
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
@@ -1808,6 +1808,7 @@
     }
     
     message = [self insertNonUnreadDotGeneratingMessageIntoConversation:conversation];
+    conversation.lastServerTimeStamp = message.serverTimestamp;
     
     // when
     [conversation setVisibleWindowFromMessage:conversation.messages[2] toMessage:conversation.messages[11]];
@@ -1815,7 +1816,7 @@
     WaitForAllGroupsToBeEmpty(0.5);
     
     // then
-    XCTAssertEqualObjects(conversation.lastReadServerTimeStamp, ((ZMMessage *) conversation.messages[10]).serverTimestamp);
+    XCTAssertEqualObjects(conversation.lastReadServerTimeStamp, ((ZMMessage *) conversation.messages[11]).serverTimestamp);
 }
 
 
