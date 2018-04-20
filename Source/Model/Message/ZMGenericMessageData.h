@@ -24,8 +24,12 @@
 @class ZMClientMessage;
 @class ZMAssetClientMessage;
 
+NS_ASSUME_NONNULL_BEGIN
+
 extern NSString * const ZMGenericMessageDataMessageKey;
 extern NSString * const ZMGenericMessageDataAssetKey;
+
+NS_ASSUME_NONNULL_END
 
 @interface ZMGenericMessageData: ZMManagedObject
 
