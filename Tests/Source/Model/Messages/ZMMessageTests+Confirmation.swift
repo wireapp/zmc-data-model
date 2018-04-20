@@ -143,7 +143,7 @@ extension ZMMessageTests_Confirmation {
             return
         }
         
-        XCTAssertTrue(hiddenMessage.genericMessage!.hasConfirmation())
+        XCTAssertTrue(hiddenMessage.genericMessage?.hasConfirmation() == true)
         // when
         
         sut.message!.removePendingDeliveryReceipts()
@@ -245,6 +245,10 @@ extension ZMMessageTests_Confirmation {
     func testThatItSendsOutNotificationsForTheDeliveryStatusChange(){
         // given
         let dispatcher = NotificationDispatcher(managedObjectContext: uiMOC)
+
+        defer {
+            dispatcher.tearDown()
+        }
         
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
         conversation.remoteIdentifier = .create()
@@ -278,7 +282,6 @@ extension ZMMessageTests_Confirmation {
             return XCTFail()
         }
         XCTAssertTrue(messageChangeInfo.deliveryStateChanged)
-        dispatcher.tearDown()
     }
     
     func testThatAMessageConfirmationDoesNotExpire() {

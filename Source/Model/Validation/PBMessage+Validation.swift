@@ -42,13 +42,81 @@ extension UUID {
 
 extension ZMGenericMessage {
     @objc public func validatingFields() -> ZMGenericMessage? {
+        // Validate the message itself
         guard UUID.isValid(object: messageId) else { return nil }
+
+        // Validate the mentions in the text
+        if self.hasText() {
+            guard self.text!.validatingFields() != nil else { return nil }
+        }
+
+        // Validate the last read
+        if self.hasLastRead() {
+            guard self.lastRead!.validatingFields() != nil else { return nil }
+        }
+
+        // Validate the cleared
+        if self.hasCleared() {
+            guard self.cleared!.validatingFields() != nil else { return nil }
+        }
+
+        // Validate the hide
+        if self.hasHidden() {
+            guard self.hidden!.validatingFields() != nil else { return nil }
+        }
+
+        // Validate the delete
+        if self.hasDeleted() {
+            guard self.deleted!.validatingFields() != nil else { return nil }
+        }
+
+        // Validate the edit
+        if self.hasEdited() {
+            guard self.edited!.validatingFields() != nil else { return nil }
+        }
+
+        // Validate the confirmation
+        if self.hasConfirmation() {
+            guard self.confirmation!.validatingFields() != nil else { return nil }
+        }
+
+        // Validate the reaction
+        if self.hasReaction() {
+            guard self.reaction!.validatingFields() != nil else { return nil }
+        }
+
+        // Validate the reaction
+        if self.hasAsset() {
+            guard self.asset!.validatingFields() != nil else { return nil }
+        }
+
         return self
     }
 }
 
 extension ZMGenericMessageBuilder {
     @objc public func buildAndValidate() -> ZMGenericMessage? {
+        return self.build()?.validatingFields()
+    }
+}
+
+// MARK: - Text
+
+extension ZMText {
+    @objc public func validatingFields() -> ZMText? {
+
+        if let mentions = self.mention {
+            let validMentions = mentions.flatMap { $0.validatingFields() }
+            guard validMentions.count == mentions.count else { return nil }
+        }
+
+        return self
+
+    }
+}
+
+extension ZMTextBuilder {
+    @objc public func buildAndValidate() -> ZMText? {
         return self.build()?.validatingFields()
     }
 }
@@ -149,13 +217,34 @@ extension ZMMessageEditBuilder {
 extension ZMConfirmation {
     @objc public func validatingFields() -> ZMConfirmation? {
         guard UUID.isValid(object: firstMessageId) else { return nil }
-        guard UUID.isValid(array: moreMessageIds) else { return nil }
+
+        if self.moreMessageIds != nil {
+            guard UUID.isValid(array: moreMessageIds) else { return nil }
+        }
+
         return self
     }
 }
 
 extension ZMConfirmationBuilder {
     @objc public func buildAndValidate() -> ZMConfirmation? {
+        return self.build()?.validatingFields()
+    }
+}
+
+// MARK: - Asset
+
+extension ZMAsset {
+    @objc public func validatingFields() -> ZMAsset? {
+        if self.hasUploaded() {
+            guard self.uploaded!.validatingFields() != nil else { return nil }
+        }
+        return self
+    }
+}
+
+extension ZMAssetBuilder {
+    @objc public func buildAndValidate() -> ZMAsset? {
         return self.build()?.validatingFields()
     }
 }
