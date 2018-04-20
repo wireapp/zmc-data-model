@@ -475,7 +475,7 @@ extension ZMAssetClientMessageTests {
         
         // when
         let originalMessage = ZMGenericMessage.genericMessage(withUploadedOTRKey: Data.zmRandomSHA256Key(), sha256: Data.zmRandomSHA256Key(), messageID: nonce)
-        let uploadedMessage = originalMessage.updatedUploaded(withAssetId: UUID.create(), token: UUID.create())
+        let uploadedMessage = originalMessage.updatedUploaded(withAssetId: "id", token: "token")
         sut.update(with: uploadedMessage, updateEvent: ZMUpdateEvent(), initialUpdate: true)
         
         // then
@@ -528,7 +528,7 @@ extension ZMAssetClientMessageTests {
         
         // when
         let originalMessage = ZMGenericMessage.genericMessage(withUploadedOTRKey: Data.zmRandomSHA256Key(), sha256: Data.zmRandomSHA256Key(), messageID: nonce)
-        let uploadedMessage = originalMessage.updatedUploaded(withAssetId: UUID.create(), token: UUID.create())
+        let uploadedMessage = originalMessage.updatedUploaded(withAssetId: "id", token: "token")
         sut.update(with: uploadedMessage, updateEvent: ZMUpdateEvent(), initialUpdate: true)
         let canceledMessage = ZMGenericMessage.genericMessage(notUploaded: .CANCELLED, messageID: nonce)
         sut.update(with: canceledMessage, updateEvent: ZMUpdateEvent(), initialUpdate: true)
@@ -881,7 +881,7 @@ extension ZMAssetClientMessageTests {
             let remoteData = ZMAssetRemoteData.remoteData(withOTRKey: Data.zmRandomSHA256Key(), sha256: Data.zmRandomSHA256Key())
             let imageMetaData = ZMAssetImageMetaData.imageMetaData(withWidth: 4235, height: 324)
             
-            let uuid = UUID.create()
+            let uuid = "asset_id"
             let sut = appendFileMessage(to: syncConversation)!
             
             let asset = ZMAsset.asset(withOriginal: nil, preview: ZMAssetPreview.preview(withSize: previewSize, mimeType: previewMimeType, remoteData: remoteData, imageMetaData: imageMetaData))
@@ -911,7 +911,7 @@ extension ZMAssetClientMessageTests {
             let remoteData = ZMAssetRemoteData.remoteData(withOTRKey: Data.zmRandomSHA256Key(), sha256: Data.zmRandomSHA256Key())
             let imageMetaData = ZMAssetImageMetaData.imageMetaData(withWidth: 4235, height: 324)
             
-            let uuid = UUID.create()
+            let uuid = "uuid"
             let sut = appendFileMessage(to: syncConversation)!
             
             let asset = ZMAsset.asset(withOriginal: nil, preview: ZMAssetPreview.preview(withSize: previewSize, mimeType: previewMimeType, remoteData: remoteData, imageMetaData: imageMetaData))
@@ -919,7 +919,7 @@ extension ZMAssetClientMessageTests {
             let payload : [String : AnyObject] = [
                 "type" : "conversation.otr-asset-add" as AnyObject,
                 "data" : [
-                    "id" : uuid.transportString()
+                    "id" : uuid
                 ] as AnyObject
             ]
             let updateEvent = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: UUID.create())
@@ -1631,7 +1631,7 @@ extension ZMAssetClientMessageTests {
         let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
         conversation.remoteIdentifier = UUID.create()
         let nonce = UUID.create()
-        let thumbnailId = UUID.create()
+        let thumbnailId = "uuid"
         let remoteData = ZMAssetRemoteData.remoteData(withOTRKey: Data.zmRandomSHA256Key(), sha256: Data.zmRandomSHA256Key())
         let imageMetaData = ZMAssetImageMetaData.imageMetaData(withWidth: 4235, height: 324)
         let asset = ZMAsset.asset(withOriginal: nil, preview: ZMAssetPreview.preview(withSize: 256, mimeType: "video/mp4", remoteData: remoteData, imageMetaData: imageMetaData))
@@ -1640,7 +1640,7 @@ extension ZMAssetClientMessageTests {
         
         let dataPayload = [
             "info" : genericMessage.data().base64String(),
-            "id" : thumbnailId.transportString()
+            "id" : thumbnailId
         ] as [String : Any]
         
         let payload = self.payloadForMessage(in: conversation, type: EventConversationAddOTRAsset, data: dataPayload)!
@@ -1870,7 +1870,7 @@ extension ZMAssetClientMessageTests {
 
 extension ZMAssetClientMessageTests {
 
-    typealias PreviewMeta = (otr: Data, sha: Data, assetId: UUID?, token: UUID?)
+    typealias PreviewMeta = (otr: Data, sha: Data, assetId: String?, token: String?)
 
     private func originalGenericMessage(nonce: UUID, image: ZMAssetImageMetaData? = nil, preview: ZMAssetPreview? = nil, mimeType: String = "image/jpg", name: String? = nil) -> ZMGenericMessage {
         let asset = ZMAsset.asset(withOriginal: .original(withSize: 128, mimeType: mimeType, name: name, imageMetaData: image), preview: preview)
@@ -1895,7 +1895,7 @@ extension ZMAssetClientMessageTests {
         return ZMGenericMessage.genericMessage(asset: assetBuilder.build(), messageID: nonce)
     }
 
-    func previewGenericMessage(with nonce: UUID, assetId: UUID? = UUID.create(), token: UUID? = UUID.create(), otr: Data = .randomEncryptionKey(), sha: Data = .randomEncryptionKey()) -> (ZMGenericMessage, PreviewMeta) {
+    func previewGenericMessage(with nonce: UUID, assetId: String? = UUID.create().transportString(), token: String? = UUID.create().transportString(), otr: Data = .randomEncryptionKey(), sha: Data = .randomEncryptionKey()) -> (ZMGenericMessage, PreviewMeta) {
         let assetBuilder = ZMAsset.builder()
         let previewBuilder = ZMAssetPreview.builder()
         let remoteBuilder = ZMAssetRemoteData.builder()
@@ -1903,10 +1903,10 @@ extension ZMAssetClientMessageTests {
         _ = remoteBuilder?.setOtrKey(otr)
         _ = remoteBuilder?.setSha256(sha)
         if let assetId = assetId {
-            _ = remoteBuilder?.setAssetId(assetId.transportString())
+            _ = remoteBuilder?.setAssetId(assetId)
         }
         if let token = token {
-            _ = remoteBuilder?.setAssetToken(token.transportString())
+            _ = remoteBuilder?.setAssetToken(token)
         }
         _ = previewBuilder?.setSize(512)
         _ = previewBuilder?.setMimeType("image/jpg")

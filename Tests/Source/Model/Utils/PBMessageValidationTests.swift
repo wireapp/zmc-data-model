@@ -248,36 +248,6 @@ class ModelValidationTests: XCTestCase {
 
     }
 
-    // MARK: Asset Remote Data
-
-    func testThatItCreatesAssetWithValidFields() {
-
-        let builder = ZMAssetRemoteData.builder()!
-        builder.setAssetId("671F7546-C5CF-434D-95C7-32629780FC08")
-        builder.setOtrKey(Data())
-        builder.setSha256(Data())
-        builder.setAssetToken("token")
-        builder.setEncryption(ZMEncryptionAlgorithm.AESCBC)
-
-        let asset = builder.buildAndValidate()
-        XCTAssertNotNil(asset)
-
-    }
-
-    func testThatItDoesNotCreateAssetWithInvalidFields() {
-
-        let builder = ZMAssetRemoteData.builder()!
-        builder.setAssetId("nil")
-        builder.setOtrKey(Data())
-        builder.setSha256(Data())
-        builder.setAssetToken("token")
-        builder.setEncryption(ZMEncryptionAlgorithm.AESCBC)
-
-        let asset = builder.buildAndValidate()
-        XCTAssertNil(asset)
-
-    }
-
     // MARK: Reaction
 
     func testThatItCreatesReactionWithValidFields() {

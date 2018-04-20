@@ -137,7 +137,7 @@ class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
 
         article.title = "title"
         article.summary = "summary"
-        let assetKey = UUID.create()
+        let assetKey = "asset_key"
 
         let linkPreview = article.protocolBuffer.update(withOtrKey: .randomEncryptionKey(), sha256: .zmRandomSHA256Key()).update(withAssetKey: assetKey, assetToken: nil)
         clientMessage.add(ZMGenericMessage.message(text: "sample text", linkPreview: linkPreview, nonce: nonce).data())
@@ -146,7 +146,7 @@ class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
         let imageDataIdentifier = clientMessage.textMessageData!.imageDataIdentifier
         
         // then
-        XCTAssertEqual(imageDataIdentifier, assetKey.transportString())
+        XCTAssertEqual(imageDataIdentifier, assetKey)
     }
     
     func testThatItDoesntReturnsImageDataIdentifier_whenArticleHasNoImage() {
@@ -176,7 +176,7 @@ class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
         let nonce = UUID.create()
         let clientMessage = ZMClientMessage(nonce: nonce, managedObjectContext: uiMOC)
 
-        let assetKey = UUID.create()
+        let assetKey = "asset_key"
         let twitterStatus = TwitterStatus(
             originalURLString: "example.com/tweet",
             permanentURLString: "http://www.example.com/tweet/1",
@@ -195,7 +195,7 @@ class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
         let imageDataIdentifier = clientMessage.textMessageData!.imageDataIdentifier
         
         // then
-        XCTAssertEqual(imageDataIdentifier, assetKey.transportString())
+        XCTAssertEqual(imageDataIdentifier, assetKey)
     }
     
     func testThatItDoesntReturnsImageDataIdentifier_whenTwitterStatusHasNoImage() {
@@ -262,7 +262,7 @@ class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
         let clientMessage = ZMClientMessage(nonce: nonce, managedObjectContext: uiMOC)
         
         let updated = preview.protocolBuffer.update(withOtrKey: .randomEncryptionKey(), sha256: .zmRandomSHA256Key())
-        let withID = updated.update(withAssetKey: UUID.create(), assetToken: nil)
+        let withID = updated.update(withAssetKey: "id", assetToken: nil)
         clientMessage.add(ZMGenericMessage.message(text: "Text", linkPreview: withID, nonce: nonce).data())
         try! uiMOC.obtainPermanentIDs(for: [clientMessage])
 

@@ -75,7 +75,7 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
         cache.storeAssetData(sut, format: .medium, encrypted: true, data: mediumJPEGData())
         
         // expect
-        let assetId = UUID.create()
+        let assetId = "asset_id"
         let uploaded = ZMGenericMessage.genericMessage(withUploadedOTRKey: .init(), sha256: .init(), messageID: sut.nonce!).updatedUploaded(withAssetId: assetId, token: nil)
         sut.update(with: uploaded, updateEvent: ZMUpdateEvent(), initialUpdate: true)
         let observer = AssetDeletionNotificationObserver()
@@ -91,7 +91,7 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
         
         // then
         assertDeletedContent(ofMessage: sut, inConversation: conversation)
-        XCTAssertEqual(observer.deletedIdentifiers, [assetId.transportString()])
+        XCTAssertEqual(observer.deletedIdentifiers, [assetId])
         wipeCaches()
     }
     
@@ -116,11 +116,11 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
         XCTAssertNotNil(cache.assetData(sut, encrypted: false))
         
         // expect
-        let assetId = UUID.create()
+        let assetId = "asset_id"
         let uploaded = ZMGenericMessage.genericMessage(withUploadedOTRKey: .init(), sha256: .init(), messageID: sut.nonce!).updatedUploaded(withAssetId: assetId, token: nil)
         sut.update(with: uploaded, updateEvent: ZMUpdateEvent(), initialUpdate: true)
         
-        let previewAssetId = UUID.create()
+        let previewAssetId = "preview_assetId"
         let remote = ZMAssetRemoteData.remoteData(withOTRKey: .init(), sha256: .init(), assetId: previewAssetId, assetToken: nil)
         let image = ZMAssetImageMetaData.imageMetaData(withWidth: 1024, height: 1024)
         let preview = ZMAssetPreview.preview(withSize: 256, mimeType: "image/png", remoteData: remote, imageMetaData: image)
@@ -142,8 +142,8 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
         // then
         assertDeletedContent(ofMessage: sut, inConversation: conversation, fileName: "file.dat")
         XCTAssertEqual(observer.deletedIdentifiers.count, 2)
-        XCTAssert(observer.deletedIdentifiers.contains(assetId.transportString()))
-        XCTAssert(observer.deletedIdentifiers.contains(previewAssetId.transportString()))
+        XCTAssert(observer.deletedIdentifiers.contains(assetId))
+        XCTAssert(observer.deletedIdentifiers.contains(previewAssetId))
         wipeCaches()
     }
     

@@ -85,11 +85,6 @@ extension ZMGenericMessage {
             guard self.reaction!.validatingFields() != nil else { return nil }
         }
 
-        // Validate the reaction
-        if self.hasAsset() {
-            guard self.asset!.validatingFields() != nil else { return nil }
-        }
-
         return self
     }
 }
@@ -228,38 +223,6 @@ extension ZMConfirmation {
 
 extension ZMConfirmationBuilder {
     @objc public func buildAndValidate() -> ZMConfirmation? {
-        return self.build()?.validatingFields()
-    }
-}
-
-// MARK: - Asset
-
-extension ZMAsset {
-    @objc public func validatingFields() -> ZMAsset? {
-        if self.hasUploaded() {
-            guard self.uploaded!.validatingFields() != nil else { return nil }
-        }
-        return self
-    }
-}
-
-extension ZMAssetBuilder {
-    @objc public func buildAndValidate() -> ZMAsset? {
-        return self.build()?.validatingFields()
-    }
-}
-
-// MARK: Asset Remote Data
-
-extension ZMAssetRemoteData {
-    @objc public func validatingFields() -> ZMAssetRemoteData? {
-        guard UUID.isValid(object: assetId) else { return nil }
-        return self
-    }
-}
-
-extension ZMAssetRemoteDataBuilder {
-    @objc public func buildAndValidate() -> ZMAssetRemoteData? {
         return self.build()?.validatingFields()
     }
 }

@@ -23,7 +23,7 @@ class ZMGenericMessageTests_Obfuscation : ZMBaseManagedObjectTest {
     
     func assetWithImage() -> ZMAsset {
         let original = ZMAssetOriginal.original(withSize: 1000, mimeType: "image", name: "foo")
-        let remoteData = ZMAssetRemoteData.remoteData(withOTRKey: Data(), sha256: Data(), assetId: UUID.create(), assetToken: UUID.create())
+        let remoteData = ZMAssetRemoteData.remoteData(withOTRKey: Data(), sha256: Data(), assetId: "id", assetToken: "token")
         let imageMetaData = ZMAssetImageMetaData.imageMetaData(withWidth: 30, height: 40)
         let imageMetaDataBuilder = imageMetaData.toBuilder()!
         imageMetaDataBuilder.setTag("bar")

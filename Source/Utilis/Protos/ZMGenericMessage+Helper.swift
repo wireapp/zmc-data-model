@@ -179,7 +179,7 @@ public extension ZMGenericMessage {
     }
 
     // MARK: Updating assets with asset ID and token
-    public func updatedUploaded(withAssetId assetId: UUID, token: UUID?) -> ZMGenericMessage? {
+    public func updatedUploaded(withAssetId assetId: String, token: String?) -> ZMGenericMessage? {
         guard let asset = assetData, let remote = asset.uploaded, asset.hasUploaded() else { return nil }
         let newRemote = remote.updated(withId: assetId, token: token)
         let builder = toBuilder()!
@@ -200,7 +200,7 @@ public extension ZMGenericMessage {
         return builder.buildAndValidate()
     }
 
-    public func updatedPreview(withAssetId assetId: UUID, token: UUID?) -> ZMGenericMessage? {
+    public func updatedPreview(withAssetId assetId: String, token: String?) -> ZMGenericMessage? {
         guard let asset = assetData, let preview = asset.preview, let remote = preview.remote, preview.hasRemote() else { return nil }
         let newRemote = remote.updated(withId: assetId, token: token)
         let previewBuilder = preview.toBuilder()
@@ -227,11 +227,11 @@ public extension ZMGenericMessage {
 
 extension ZMAssetRemoteData {
 
-    public func updated(withId assetId: UUID, token: UUID?) -> ZMAssetRemoteData {
+    public func updated(withId assetId: String, token: String?) -> ZMAssetRemoteData {
         let builder = toBuilder()!
-        builder.setAssetId(assetId.transportString())
+        builder.setAssetId(assetId)
         if let token = token {
-            builder.setAssetToken(token.transportString())
+            builder.setAssetToken(token)
         }
         return builder.build()
     }
@@ -500,7 +500,7 @@ public extension ZMLinkPreview {
         return linkPreviewbuilder.build()
     }
     
-    func update(withAssetKey assetKey: UUID, assetToken: UUID?) -> ZMLinkPreview {
+    func update(withAssetKey assetKey: String, assetToken: String?) -> ZMLinkPreview {
         
         let linkPreviewbuilder = toBuilder()!
         
