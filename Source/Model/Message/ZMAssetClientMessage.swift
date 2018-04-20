@@ -33,9 +33,12 @@ import Foundation
     {
         self.init(nonce: nonce, managedObjectContext: managedObjectContext)
         
-        // We update the size and mimeType once the preprocesing is done
+        // We update the size once the preprocessing is done
+        // mimeType is assigned first, to make sure UI can handle animated GIF file correctly
+        let mimeType = ZMAssetMetaDataEncoder.contentType(forImageData: imageData) ?? ""
+        
         let assetMessage = ZMGenericMessage.genericMessage(withImageSize: CGSize.zero,
-                                                           mimeType: "",
+                                                           mimeType: mimeType,
                                                            size: UInt64(imageData.count),
                                                            nonce: nonce,
                                                            expiresAfter: timeout as NSNumber)
@@ -62,6 +65,13 @@ import Foundation
         version = 3
         
         add(ZMGenericMessage.genericMessage(fileMetadata: metadata, messageID: nonce, expiresAfter: timeout as NSNumber))
+    }
+    
+    public override func prepareForDeletion() {
+        super.prepareForDeletion()
+        self.dataSet.map { $0 as! ZMGenericMessageData } .forEach {
+            $0.managedObjectContext?.delete($0)
+        }
     }
     
     /// Remote asset ID

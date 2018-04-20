@@ -25,6 +25,9 @@
 
 static NSString * const ZMGenericMessageDataDataKey = @"data";
 
+NSString * const ZMGenericMessageDataMessageKey = @"message";
+NSString * const ZMGenericMessageDataAssetKey = @"asset";
+
 @implementation ZMGenericMessageData
 
 @dynamic data;

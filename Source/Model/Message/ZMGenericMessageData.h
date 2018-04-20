@@ -24,6 +24,9 @@
 @class ZMClientMessage;
 @class ZMAssetClientMessage;
 
+extern NSString * const ZMGenericMessageDataMessageKey;
+extern NSString * const ZMGenericMessageDataAssetKey;
+
 @interface ZMGenericMessageData: ZMManagedObject
 
 @property (nonatomic, nonnull) NSData *data;

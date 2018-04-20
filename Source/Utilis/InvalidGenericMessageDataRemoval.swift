@@ -1,6 +1,6 @@
 //
 // Wire
-// Copyright (C) 2017 Wire Swiss GmbH
+// Copyright (C) 2018 Wire Swiss GmbH
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,17 +18,13 @@
 
 import Foundation
 
-enum InvalidClientsRemoval {
-
-    /// We had a situation where after merging duplicate users we were not disposing user clients
-    /// and this lead to UserClient -> User relationship to be nil. This
+final class InvalidGenericMessageDataRemoval {
     static func removeInvalid(in moc: NSManagedObjectContext) {
-        // will skip this during test unless on disk
         do {
-            try moc.batchDeleteEntities(named: UserClient.entityName(), matching: NSPredicate(format: "\(ZMUserClientUserKey) == nil"))
+            try moc.batchDeleteEntities(named: ZMGenericMessageData.entityName(),
+                                        matching: NSPredicate(format: "\(ZMGenericMessageDataAssetKey) == nil AND \(ZMGenericMessageDataMessageKey) == nil"))
         } catch {
             fatalError("Failed to perform batch update: \(error)")
         }
     }
 }
-
