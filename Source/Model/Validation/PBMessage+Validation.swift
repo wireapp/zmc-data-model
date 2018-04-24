@@ -110,24 +110,12 @@ extension ZMText {
     }
 }
 
-extension ZMTextBuilder {
-    @objc public func buildAndValidate() -> ZMText? {
-        return self.build()?.validatingFields()
-    }
-}
-
 // MARK: Mention
 
 extension ZMMention {
     @objc public func validatingFields() -> ZMMention? {
         guard UUID.isValid(object: userId) else { return nil }
         return self
-    }
-}
-
-extension ZMMentionBuilder {
-    @objc public func buildAndValidate() -> ZMMention? {
-        return self.build()?.validatingFields()
     }
 }
 
@@ -140,24 +128,12 @@ extension ZMLastRead {
     }
 }
 
-extension ZMLastReadBuilder {
-    @objc public func buildAndValidate() -> ZMLastRead? {
-        return self.build()?.validatingFields()
-    }
-}
-
 // MARK: Cleared
 
 extension ZMCleared {
     @objc public func validatingFields() -> ZMCleared? {
         guard UUID.isValid(object: conversationId) else { return nil }
         return self
-    }
-}
-
-extension ZMClearedBuilder {
-    @objc public func buildAndValidate() -> ZMCleared? {
-        return self.build()?.validatingFields()
     }
 }
 
@@ -171,12 +147,6 @@ extension ZMMessageHide {
     }
 }
 
-extension ZMMessageHideBuilder {
-    @objc public func buildAndValidate() -> ZMMessageHide? {
-        return self.build()?.validatingFields()
-    }
-}
-
 // MARK: Message Delete
 
 extension ZMMessageDelete {
@@ -186,24 +156,12 @@ extension ZMMessageDelete {
     }
 }
 
-extension ZMMessageDeleteBuilder {
-    @objc public func buildAndValidate() -> ZMMessageDelete? {
-        return self.build()?.validatingFields()
-    }
-}
-
 // MARK: Message Edit
 
 extension ZMMessageEdit {
     @objc public func validatingFields() -> ZMMessageEdit? {
         guard UUID.isValid(object: replacingMessageId) else { return nil }
         return self
-    }
-}
-
-extension ZMMessageEditBuilder {
-    @objc public func buildAndValidate() -> ZMMessageEdit? {
-        return self.build()?.validatingFields()
     }
 }
 
@@ -221,12 +179,6 @@ extension ZMConfirmation {
     }
 }
 
-extension ZMConfirmationBuilder {
-    @objc public func buildAndValidate() -> ZMConfirmation? {
-        return self.build()?.validatingFields()
-    }
-}
-
 // MARK: Reaction
 
 extension ZMReaction {
@@ -236,23 +188,11 @@ extension ZMReaction {
     }
 }
 
-extension ZMReactionBuilder {
-    @objc public func buildAndValidate() -> ZMReaction? {
-        return self.build()?.validatingFields()
-    }
-}
-
 // MARK: User ID
 
 extension ZMUserId {
     @objc public func validatingFields() -> ZMUserId? {
         guard UUID.isValid(bytes: uuid) else { return nil }
         return self
-    }
-}
-
-extension ZMUserIdBuilder {
-    @objc public func buildAndValidate() -> ZMUserId? {
-        return self.build()?.validatingFields()
     }
 }

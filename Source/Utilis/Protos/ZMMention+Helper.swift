@@ -21,17 +21,11 @@ import Foundation
 extension ZMMentionBuilder {
 
     public static func build(_ users: [ZMUser]) -> [ZMMention] {
-        var mentions: [ZMMention] = []
-
-        for user in users {
+        return users.map {
             let builder = ZMMention.builder()!
-            builder.setUser(user)
-            if let user = builder.buildAndValidate() {
-                mentions.append(user)
-            }
+            builder.setUser($0)
+            return builder.build()
         }
-
-        return mentions
     }
 
     public func setUser(_ user: ZMUser) {

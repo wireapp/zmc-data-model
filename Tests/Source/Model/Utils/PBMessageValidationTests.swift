@@ -54,25 +54,41 @@ class ModelValidationTests: XCTestCase {
 
     // MARK: Mention
 
-    func testThatItCreatesMentionWithValidFields() {
+    func testThatItCreatesTextWithValidMentions() {
 
-        let builder = ZMMention.builder()!
-        builder.setUserName("John Appleseed")
-        builder.setUserId("8783C4BD-A5D3-4F6B-8C41-A6E75F12926F")
+        let mentionBuilder = ZMMention.builder()!
+        mentionBuilder.setUserName("John Appleseed")
+        mentionBuilder.setUserId("8783C4BD-A5D3-4F6B-8C41-A6E75F12926F")
 
-        let mention = builder.buildAndValidate()
-        XCTAssertNotNil(mention)
+        let textBuilder = ZMText.builder()!
+        textBuilder.setContent("Hello @John Appleseed")
+        textBuilder.addMention(mentionBuilder.build()!)
+
+        let builder = ZMGenericMessage.builder()!
+        builder.setMessageId(UUID.create().transportString())
+        builder.setText(textBuilder.build()!)
+
+        let message = builder.buildAndValidate()
+        XCTAssertNotNil(message)
 
     }
 
-    func testThatItDoesNotCreateMentionWithInvalidFields() {
+    func testThatItDoesNotCreateTextWithInvalidMention() {
 
-        let builder = ZMMention.builder()!
-        builder.setUserName("Jane Appleseed")
-        builder.setUserId("user\u{0}")
+        let mentionBuilder = ZMMention.builder()!
+        mentionBuilder.setUserName("Jane Appleseed")
+        mentionBuilder.setUserId("user\u{0}")
 
-        let mention = builder.buildAndValidate()
-        XCTAssertNil(mention)
+        let textBuilder = ZMText.builder()!
+        textBuilder.setContent("Hello @John Appleseed")
+        textBuilder.addMention(mentionBuilder.build()!)
+
+        let builder = ZMGenericMessage.builder()!
+        builder.setMessageId(UUID.create().transportString())
+        builder.setText(textBuilder.build()!)
+
+        let message = builder.buildAndValidate()
+        XCTAssertNil(message)
 
     }
 
@@ -84,8 +100,11 @@ class ModelValidationTests: XCTestCase {
         builder.setConversationId("8783C4BD-A5D3-4F6B-8C41-A6E75F12926F")
         builder.setLastReadTimestamp(25_000)
 
-        let lastRead = builder.buildAndValidate()
-        XCTAssertNotNil(lastRead)
+        let messageBuilder = genericMessageBuilder()
+        messageBuilder.setLastRead(builder.build())
+
+        let message = messageBuilder.buildAndValidate()
+        XCTAssertNotNil(message)
 
     }
 
@@ -95,8 +114,11 @@ class ModelValidationTests: XCTestCase {
         builder.setConversationId("null")
         builder.setLastReadTimestamp(25_000)
 
-        let lastRead = builder.buildAndValidate()
-        XCTAssertNil(lastRead)
+        let messageBuilder = genericMessageBuilder()
+        messageBuilder.setLastRead(builder.build())
+
+        let message = messageBuilder.buildAndValidate()
+        XCTAssertNil(message)
 
     }
 
@@ -108,8 +130,11 @@ class ModelValidationTests: XCTestCase {
         builder.setConversationId("8783C4BD-A5D3-4F6B-8C41-A6E75F12926F")
         builder.setClearedTimestamp(25_000)
 
-        let cleared = builder.buildAndValidate()
-        XCTAssertNotNil(cleared)
+        let messageBuilder = genericMessageBuilder()
+        messageBuilder.setCleared(builder.build())
+
+        let message = messageBuilder.buildAndValidate()
+        XCTAssertNotNil(message)
 
     }
 
@@ -119,8 +144,11 @@ class ModelValidationTests: XCTestCase {
         builder.setConversationId("wirewire")
         builder.setClearedTimestamp(25_000)
 
-        let cleared = builder.buildAndValidate()
-        XCTAssertNil(cleared)
+        let messageBuilder = genericMessageBuilder()
+        messageBuilder.setCleared(builder.build())
+
+        let message = messageBuilder.buildAndValidate()
+        XCTAssertNil(message)
 
     }
 
@@ -132,8 +160,11 @@ class ModelValidationTests: XCTestCase {
         builder.setConversationId("8783C4BD-A5D3-4F6B-8C41-A6E75F12926F")
         builder.setMessageId("8B496992-E74D-41D2-A2C4-C92EEE777DCE")
 
-        let hide = builder.buildAndValidate()
-        XCTAssertNotNil(hide)
+        let messageBuilder = genericMessageBuilder()
+        messageBuilder.setHidden(builder.build())
+
+        let message = messageBuilder.buildAndValidate()
+        XCTAssertNotNil(message)
 
     }
 
@@ -143,21 +174,27 @@ class ModelValidationTests: XCTestCase {
         invalidConversationBuilder.setConversationId("")
         invalidConversationBuilder.setMessageId("8B496992-E74D-41D2-A2C4-C92EEE777DCE")
 
-        let invalidConversationHide = invalidConversationBuilder.buildAndValidate()
+        let invalidConversationMessageBuilder = genericMessageBuilder()
+        invalidConversationMessageBuilder.setHidden(invalidConversationBuilder.build())
+        let invalidConversationHide = invalidConversationMessageBuilder.buildAndValidate()
         XCTAssertNil(invalidConversationHide)
 
         let invalidMessageBuilder = ZMMessageHide.builder()!
         invalidMessageBuilder.setConversationId("8B496992-E74D-41D2-A2C4-C92EEE777DCE")
         invalidMessageBuilder.setMessageId("")
 
-        let invalidMessageHide = invalidMessageBuilder.buildAndValidate()
+        let invalidMessageMessageBuilder = genericMessageBuilder()
+        invalidMessageMessageBuilder.setHidden(invalidMessageBuilder)
+        let invalidMessageHide = invalidMessageMessageBuilder.buildAndValidate()
         XCTAssertNil(invalidMessageHide)
 
         let invalidHideBuilder = ZMMessageHide.builder()!
         invalidHideBuilder.setConversationId("")
         invalidHideBuilder.setMessageId("")
 
-        let invalidHide = invalidHideBuilder.buildAndValidate()
+        let invalidHideMessageBuilder = genericMessageBuilder()
+        invalidHideMessageBuilder.setHidden(invalidHideBuilder)
+        let invalidHide = invalidHideMessageBuilder.buildAndValidate()
         XCTAssertNil(invalidHide)
 
     }
@@ -169,8 +206,11 @@ class ModelValidationTests: XCTestCase {
         let builder = ZMMessageDelete.builder()!
         builder.setMessageId("8B496992-E74D-41D2-A2C4-C92EEE777DCE")
 
-        let delete = builder.buildAndValidate()
-        XCTAssertNotNil(delete)
+        let messageBuilder = genericMessageBuilder()
+        messageBuilder.setDeleted(builder.build())
+
+        let message = messageBuilder.buildAndValidate()
+        XCTAssertNotNil(message)
 
     }
 
@@ -179,8 +219,11 @@ class ModelValidationTests: XCTestCase {
         let builder = ZMMessageDelete.builder()!
         builder.setMessageId("invalid")
 
-        let delete = builder.buildAndValidate()
-        XCTAssertNil(delete)
+        let messageBuilder = genericMessageBuilder()
+        messageBuilder.setDeleted(builder.build())
+
+        let message = messageBuilder.buildAndValidate()
+        XCTAssertNil(message)
 
     }
 
@@ -195,8 +238,11 @@ class ModelValidationTests: XCTestCase {
         builder.setText(text)
         builder.setReplacingMessageId("8B496992-E74D-41D2-A2C4-C92EEE777DCE")
 
-        let edit = builder.buildAndValidate()
-        XCTAssertNotNil(edit)
+        let messageBuilder = genericMessageBuilder()
+        messageBuilder.setEdited(builder.build())
+
+        let message = messageBuilder.buildAndValidate()
+        XCTAssertNotNil(message)
 
     }
 
@@ -209,8 +255,11 @@ class ModelValidationTests: XCTestCase {
         builder.setText(text)
         builder.setReplacingMessageId("N0TAUNIV-ER5A-77YU-NIQU-EID3NTIF1ER!")
 
-        let edit = builder.buildAndValidate()
-        XCTAssertNil(edit)
+        let messageBuilder = genericMessageBuilder()
+        messageBuilder.setEdited(builder.build())
+
+        let message = messageBuilder.buildAndValidate()
+        XCTAssertNil(message)
 
     }
 
@@ -223,8 +272,11 @@ class ModelValidationTests: XCTestCase {
         builder.setFirstMessageId("8B496992-E74D-41D2-A2C4-C92EEE777DCE")
         builder.setMoreMessageIdsArray(["54A6E947-1321-42C6-BA99-F407FDF1A229"])
 
-        let confirmation = builder.buildAndValidate()
-        XCTAssertNotNil(confirmation)
+        let messageBuilder = genericMessageBuilder()
+        messageBuilder.setConfirmation(builder.build())
+
+        let message = messageBuilder.buildAndValidate()
+        XCTAssertNotNil(message)
 
     }
 
@@ -235,16 +287,20 @@ class ModelValidationTests: XCTestCase {
         invalidFirstIDBuilder.setFirstMessageId("invalid")
         invalidFirstIDBuilder.setMoreMessageIdsArray(["54A6E947-1321-42C6-BA99-F407FDF1A229"])
 
-        let invalidFirstID = invalidFirstIDBuilder.buildAndValidate()
-        XCTAssertNil(invalidFirstID)
+        let invalidFirstIDMessageBuilder = genericMessageBuilder()
+        invalidFirstIDMessageBuilder.setConfirmation(invalidFirstIDBuilder.build())
+        let invalidFirstIDMessage = invalidFirstIDMessageBuilder.buildAndValidate()
+        XCTAssertNil(invalidFirstIDMessage)
 
         let invalidArrayBuilder = ZMConfirmation.builder()!
         invalidArrayBuilder.setType(.DELIVERED)
         invalidArrayBuilder.setFirstMessageId("8B496992-E74D-41D2-A2C4-C92EEE777DCE")
         invalidArrayBuilder.setMoreMessageIdsArray(["54A6E947-1321-42C6-BA99-F407FDF1A229", 150])
 
-        let invalidArray = invalidArrayBuilder.buildAndValidate()
-        XCTAssertNil(invalidArray)
+        let invalidArrayMessageBuilder = genericMessageBuilder()
+        invalidArrayMessageBuilder.setConfirmation(invalidArrayBuilder.build())
+        let invalidArrayMessage = invalidArrayMessageBuilder.buildAndValidate()
+        XCTAssertNil(invalidArrayMessage)
 
     }
 
@@ -256,8 +312,11 @@ class ModelValidationTests: XCTestCase {
         builder.setMessageId("8B496992-E74D-41D2-A2C4-C92EEE777DCE")
         builder.setEmoji("🤩")
 
-        let reaction = builder.buildAndValidate()
-        XCTAssertNotNil(reaction)
+        let messageBuilder = genericMessageBuilder()
+        messageBuilder.setReaction(builder.build())
+
+        let message = messageBuilder.buildAndValidate()
+        XCTAssertNotNil(message)
 
     }
 
@@ -267,8 +326,11 @@ class ModelValidationTests: XCTestCase {
         builder.setMessageId("Not-A-UUID")
         builder.setEmoji("🤩")
 
-        let reaction = builder.buildAndValidate()
-        XCTAssertNil(reaction)
+        let messageBuilder = genericMessageBuilder()
+        messageBuilder.setReaction(builder.build())
+
+        let message = messageBuilder.buildAndValidate()
+        XCTAssertNil(message)
 
     }
 
@@ -279,7 +341,7 @@ class ModelValidationTests: XCTestCase {
         let builder = ZMUserId.builder()!
         builder.setUuid(NSUUID().data())
 
-        let userID = builder.buildAndValidate()
+        let userID = builder.build().validatingFields()
         XCTAssertNotNil(userID)
 
     }
@@ -289,9 +351,17 @@ class ModelValidationTests: XCTestCase {
         let tooSmallBuilder = ZMUserId.builder()!
         tooSmallBuilder.setUuid(Data())
 
-        let tooSmall = tooSmallBuilder.buildAndValidate()
+        let tooSmall = tooSmallBuilder.build().validatingFields()
         XCTAssertNil(tooSmall)
 
+    }
+
+    // MARK: - Utilities
+
+    private func genericMessageBuilder() -> ZMGenericMessageBuilder {
+        let builder = ZMGenericMessage.builder()!
+        builder.setMessageId(UUID.create().uuidString)
+        return builder
     }
 
 }
