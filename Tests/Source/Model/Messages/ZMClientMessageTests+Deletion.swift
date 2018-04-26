@@ -75,7 +75,7 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
         cache.storeAssetData(sut, format: .medium, encrypted: true, data: mediumJPEGData())
         
         // expect
-        let assetId = "asset_id"
+        let assetId = "asset-id"
         let uploaded = ZMGenericMessage.genericMessage(withUploadedOTRKey: .init(), sha256: .init(), messageID: sut.nonce!).updatedUploaded(withAssetId: assetId, token: nil)
         sut.update(with: uploaded, updateEvent: ZMUpdateEvent(), initialUpdate: true)
         let observer = AssetDeletionNotificationObserver()
@@ -116,7 +116,7 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
         XCTAssertNotNil(cache.assetData(sut, encrypted: false))
         
         // expect
-        let assetId = "asset_id"
+        let assetId = "asset-id"
         let uploaded = ZMGenericMessage.genericMessage(withUploadedOTRKey: .init(), sha256: .init(), messageID: sut.nonce!).updatedUploaded(withAssetId: assetId, token: nil)
         sut.update(with: uploaded, updateEvent: ZMUpdateEvent(), initialUpdate: true)
         

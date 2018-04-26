@@ -21,17 +21,63 @@ import WireProtos
 
 extension UUID {
 
-    fileprivate static func isValid(object: Any?) -> Bool {
+    public static func isValid(object: Any?) -> Bool {
         guard let string = object as? String else { return false }
         return UUID(uuidString: string) != nil
     }
 
-    fileprivate static func isValid(bytes: Data?) -> Bool {
+    public static func isValid(bytes: Data?) -> Bool {
         return bytes?.count == 16
     }
 
-    fileprivate static func isValid(array: [Any]?) -> Bool {
+    public static func isValid(array: [Any]?) -> Bool {
         return array?.map(UUID.isValid).contains(false) == false
+    }
+
+}
+
+// MARK: - String Formatting
+
+extension String {
+
+    public var isValidAssetID: Bool {
+
+        // Format: https://github.com/wireapp/wire-webapp/blob/dev/app/script/util/ValidationUtil.js
+
+        var assetIDAllowedCharacters = CharacterSet()
+        assetIDAllowedCharacters.formUnion(.decimalDigits) // numbers
+        assetIDAllowedCharacters.insert(charactersIn: "A" ... "Z") // A-Z
+        assetIDAllowedCharacters.insert(charactersIn: "a" ... "z") // a-z
+        assetIDAllowedCharacters.insert("-") // hyphen
+
+        return self.trimmingCharacters(in: assetIDAllowedCharacters).isEmpty
+
+    }
+
+    public var isValidBearerToken: Bool {
+
+        // Format: https://github.com/wireapp/wire-webapp/blob/dev/app/script/util/ValidationUtil.js
+
+        let decodedAssetToken = self.removingPercentEncoding ?? self
+
+        var assetTokenAllowedCharacters = CharacterSet()
+        assetTokenAllowedCharacters.formUnion(.decimalDigits) // numbers
+        assetTokenAllowedCharacters.insert(charactersIn: "A" ... "Z") // A-Z
+        assetTokenAllowedCharacters.insert(charactersIn: "a" ... "z") // a-z
+        assetTokenAllowedCharacters.insert(charactersIn: "-._~+/") // special characters
+
+        // Check the last non-alphanumerical characters (can be 0-2 equal signs)
+
+        let disallowedSuffix = decodedAssetToken.unicodeScalars.drop(while: assetTokenAllowedCharacters.contains)
+
+        switch String(disallowedSuffix) {
+        case "", "=", "==":
+            return true
+
+        default:
+            return false
+        }
+
     }
 
 }
@@ -83,6 +129,11 @@ extension ZMGenericMessage {
         // Validate the reaction
         if self.hasReaction() {
             guard self.reaction!.validatingFields() != nil else { return nil }
+        }
+
+        // Validate the asset
+        if self.hasAsset() {
+            guard self.asset!.validatingFields() != nil else { return nil }
         }
 
         return self
@@ -195,4 +246,54 @@ extension ZMUserId {
         guard UUID.isValid(bytes: uuid) else { return nil }
         return self
     }
+}
+
+// MARK: - Asset
+
+extension ZMAsset {
+
+    @objc public func validatingFields() -> ZMAsset? {
+
+        if self.hasPreview() && self.preview!.hasRemote() {
+            guard self.preview.remote.validatingFields() != nil else { return nil }
+        }
+
+        if self.hasUploaded() {
+            guard self.uploaded.validatingFields() != nil else { return nil }
+        }
+
+        return self
+
+    }
+
+}
+
+extension ZMAssetRemoteData {
+
+    @objc public func validatingFields() -> ZMAssetRemoteData? {
+
+        // Validate the asset ID
+
+        if let assetID = assetId, assetID.isEmpty == false {
+
+            guard assetID.isValidAssetID else {
+                return nil
+            }
+
+        }
+
+        // Check if the token is in the bearer token format
+
+        if let assetToken = assetToken, assetToken.isEmpty == false {
+
+            guard assetToken.isValidBearerToken else {
+                return nil
+            }
+
+        }
+
+        return self
+
+    }
+
 }

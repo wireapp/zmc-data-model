@@ -356,12 +356,94 @@ class ModelValidationTests: XCTestCase {
 
     }
 
+    // MARK: - Assets
+
+    func testThatItCreatesMessageWithValidAsset() {
+
+        XCTAssertNotNil(genericMessage(assetId: "asset-id", assetToken: "token", preview: true))
+        XCTAssertNotNil(genericMessage(assetId: "asset-id", assetToken: "token=", preview: false))
+
+        XCTAssertNotNil(genericMessage(assetId: "3-1-C89D16C3-8FB4-48D7-8EE5-F8D69A2068C8", assetToken: "aV0TGxF3ugpawm3wAYPmew==", preview: true))
+        XCTAssertNotNil(genericMessage(assetId: "3-1-c89d16c3-8fb4-48d7-8ee5-f8d69a2068c8", assetToken: "aV0TGxF3ugpawm3wAYPmew==", preview: false))
+
+        XCTAssertNotNil(genericMessage(assetId: "C89D16C3-8FB4-48D7-8EE5-F8D69A2068C8", assetToken: "", preview: true))
+        XCTAssertNotNil(genericMessage(assetId: "c89d16c3-8fb4-48d7-8ee5-f8d69a2068c8", assetToken: "", preview: false))
+
+        XCTAssertNotNil(genericMessage(assetId: "", assetToken: "", preview: true))
+        XCTAssertNotNil(genericMessage(assetId: "", assetToken: "", preview: false))
+
+    }
+
+    func testThatItDoesNotCreateMessageWithInvalidAsset() {
+
+        // Invalid asset ID
+        XCTAssertNil(genericMessage(assetId: "asset:id", assetToken: "token", preview: true))
+        XCTAssertNil(genericMessage(assetId: "asset/id", assetToken: "token", preview: false))
+        XCTAssertNil(genericMessage(assetId: "asset.id", assetToken: "token", preview: true))
+        XCTAssertNil(genericMessage(assetId: "asset@id", assetToken: "token", preview: false))
+        XCTAssertNil(genericMessage(assetId: "asset[id", assetToken: "token", preview: true))
+        XCTAssertNil(genericMessage(assetId: "asset`id", assetToken: "token", preview: false))
+        XCTAssertNil(genericMessage(assetId: "asset{id", assetToken: "token", preview: true))
+
+        // Invalid asset token
+        XCTAssertNil(genericMessage(assetId: "asset-id", assetToken: "5@shay_a3wAY4%$@#$@%)!@-pOe==", preview: true))
+        XCTAssertNil(genericMessage(assetId: "asset-id", assetToken: "aV0TGxF3ugpawm3wAYPmew===", preview: false))
+        XCTAssertNil(genericMessage(assetId: "3-1-C89D16C3-8FB4-48D7-8EE5-F8D69A2068C8", assetToken: "aV0TGxF3ugpawm3wAYPmew=Hello", preview: true))
+        XCTAssertNil(genericMessage(assetId: "3-1-c89d16c3-8fb4-48d7-8ee5-f8d69a2068c8", assetToken: "aV0TGxF3ugpawm3wAYPmew==Hello", preview: false))
+
+
+        // Both
+        XCTAssertNil(genericMessage(assetId: "../C89D16C3-8FB4-48D7-8EE5-F8D69A2068C8", assetToken: "token?name=foo", preview: true))
+        XCTAssertNil(genericMessage(assetId: "../C89D16C3-8FB4-48D7-8EE5-F8D69A2068C8", assetToken: "token?name=foo", preview: false))
+
+
+    }
+
     // MARK: - Utilities
 
     private func genericMessageBuilder() -> ZMGenericMessageBuilder {
         let builder = ZMGenericMessage.builder()!
         builder.setMessageId(UUID.create().uuidString)
         return builder
+    }
+
+    private func genericMessage(assetId: String, assetToken: String?, preview: Bool) -> ZMGenericMessage? {
+
+        let builder = ZMAsset.builder()!
+
+        if preview {
+
+            let metaBuilder = ZMAssetImageMetaData.builder()!
+            metaBuilder.setWidth(1000)
+            metaBuilder.setHeight(1000)
+            metaBuilder.setTag("tag")
+
+            let preview = ZMAssetPreview.preview(withSize: 1000,
+                                                 mimeType: "image/png",
+                                                 remoteData: assetRemoteData(id: assetId, token: assetToken),
+                                                 imageMetaData: metaBuilder.build())
+
+            builder.setPreview(preview)
+
+        }
+
+        builder.setUploaded(assetRemoteData(id: assetId, token: assetToken))
+
+        return ZMGenericMessage.genericMessage(asset: builder.buildPartial()!, messageID: UUID.create()).validatingFields()
+
+    }
+
+    private func assetRemoteData(id: String, token: String?) -> ZMAssetRemoteData {
+
+        let dataBuilder = ZMAssetRemoteData.builder()!
+        dataBuilder.setAssetId(id)
+        dataBuilder.setAssetToken(token)
+        dataBuilder.setOtrKey(Data("pFHd6iVTvOVP2wFAd2yVlA==".utf8))
+        dataBuilder.setSha256(Data("8fab1b98a5b5ac2b07f0f77c739980bd4c895db23a09a3bed9ecec584d3ed3e0".utf8))
+        dataBuilder.setEncryption(.AESCBC)
+
+        return dataBuilder.build()
+
     }
 
 }
