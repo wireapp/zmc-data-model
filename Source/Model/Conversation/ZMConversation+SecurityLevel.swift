@@ -243,7 +243,7 @@ extension ZMConversation {
 extension ZMConversation {
     
     fileprivate func appendNewIsSecureSystemMessage(verified clients: Set<UserClient>) {
-        let users = Set(clients.flatMap { $0.user })
+        let users = Set(clients.compactMap { $0.user })
         self.appendNewIsSecureSystemMessage(verified: clients, for: users)
     }
     
@@ -265,7 +265,7 @@ extension ZMConversation {
     }
     
     fileprivate func appendNewAddedClientSystemMessage(added clients: Set<UserClient>, causedBy cause: DiscoveryCause) {
-        let users = Set(clients.flatMap { $0.user })
+        let users = Set(clients.compactMap { $0.user })
         var timestamp : Date?
         var addedUsers: Set<ZMUser> = Set<ZMUser>([])
         
@@ -294,7 +294,7 @@ extension ZMConversation {
     
     fileprivate func appendIgnoredClientsSystemMessage(ignored clients: Set<UserClient>) {
         guard !clients.isEmpty else { return }
-        let users = Set(clients.flatMap { $0.user })
+        let users = Set(clients.compactMap { $0.user })
         self.appendSystemMessage(type: .ignoredClient,
                                  sender: ZMUser.selfUser(in: self.managedObjectContext!),
                                  users: users,
