@@ -243,7 +243,7 @@ extension ZMGenericMessage {
         ) -> [ZMUserEntry]
     {
         let userEntries = recipients.compactMap { user -> ZMUserEntry? in
-                let clientsEntries = user.clients.flatMap { client -> ZMClientEntry? in
+                let clientsEntries = user.clients.compactMap { client -> ZMClientEntry? in
                 if client != selfClient {
                     guard let clientRemoteIdentifier = client.sessionIdentifier else {
                         return nil

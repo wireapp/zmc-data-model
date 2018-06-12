@@ -140,7 +140,7 @@
         let options : NSLinguisticTagger.Options = [.omitPunctuation, .omitWhitespace, .omitOther]
         fullName.enumerateLinguisticTags(in: fullRange, scheme: convertFromNSLinguisticTagScheme(NSLinguisticTagScheme.tokenType), options: options, orthography: nil) { (tag, substringRange, _, _) in
             guard tag == convertFromNSLinguisticTag(NSLinguisticTag.word) else { return }
-            let substring = fullName.substring(with: substringRange)
+            let substring = fullName[substringRange]
             if let aComponent = component {
                 if let lastRangeBound = lastRange?.upperBound, lastRangeBound == substringRange.lowerBound {
                     component = aComponent+substring
@@ -150,7 +150,7 @@
                 component = nil
             }
             if !substring.isEmpty {
-                component = substring
+                component = String(substring)
                 lastRange = substringRange
             } else {
                 lastRange = nil
