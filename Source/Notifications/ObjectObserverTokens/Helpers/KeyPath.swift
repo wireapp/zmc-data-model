@@ -60,7 +60,8 @@ public final class KeyPath : Hashable {
                 var tail : KeyPath?
                 if i != self.rawValue.endIndex {
                     let nextIndex = self.rawValue.index(after: i)
-                    tail = KeyPath.keyPathForString(String(self.rawValue[...nextIndex]))
+                    let result = self.rawValue[nextIndex...]
+                    tail = KeyPath.keyPathForString(String(result))
                 }
                 return (KeyPath.keyPathForString(String(head)), tail)
             }
