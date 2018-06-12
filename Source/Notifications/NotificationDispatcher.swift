@@ -114,7 +114,7 @@ extension ZMManagedObject {
     }
 }
 
-public class NotificationDispatcher : NSObject {
+@objcMembers public class NotificationDispatcher : NSObject {
 
     fileprivate unowned var managedObjectContext: NSManagedObjectContext
     

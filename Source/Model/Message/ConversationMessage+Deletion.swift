@@ -40,7 +40,7 @@ extension ZMMessage {
         castedMessage.hideForSelfUser()
     }
     
-    func hideForSelfUser() {
+    @objc public func hideForSelfUser() {
         guard !isZombieObject else { return }
         ZMConversation.appendHideMessageToSelfConversation(self)
 

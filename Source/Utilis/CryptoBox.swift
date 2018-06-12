@@ -75,7 +75,7 @@ public enum UserClientKeyStoreError: Error {
 }
 
 /// A storage for cryptographic keys material
-@objc(UserClientKeysStore)
+@objc(UserClientKeysStore) @objcMembers
 open class UserClientKeysStore: NSObject {
     
     /// Maximum possible ID for prekey
