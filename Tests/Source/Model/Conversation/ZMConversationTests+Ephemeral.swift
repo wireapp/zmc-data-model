@@ -31,11 +31,11 @@ class ZMConversationMessageDestructionTimeoutTests : XCTestCase {
     }
 
     func testThatItReturnsTheClosestTimeOut() {
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: -2), 5)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: 0), 5)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: 2), 5)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: 5), 5)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: 6), 6)
+        XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: -2), 10)
+        XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: 0), 10)
+        XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: 2), 10)
+        XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: 5), 10)
+        XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: 6), 10)
         XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: 14), 14)
         XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: 15), 15)
         XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: 16), 16)
@@ -50,8 +50,8 @@ class ZMConversationMessageDestructionTimeoutTests : XCTestCase {
         XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: 301), 301)
         XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: 86399), 86399)
         XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: 86400), 86400)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: 86401), 86400)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: 1234567890), 86400)
+        XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: 86401), 86401)
+        XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: 1234567890), 2419200)
     }
 
 }
