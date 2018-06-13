@@ -65,10 +65,10 @@ class ZMConversationTests_Ephemeral : BaseZMMessageTests {
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         
         // when
-        conversation.updateMessageDestructionTimeout(timeout: .fiveSeconds)
+        conversation.updateMessageDestructionTimeout(timeout: .tenSeconds)
         
         // then
-        XCTAssertEqual(conversation.messageDestructionTimeout, 5)
+        XCTAssertEqual(conversation.messageDestructionTimeout, 10)
     }
 
     
@@ -78,10 +78,10 @@ class ZMConversationTests_Ephemeral : BaseZMMessageTests {
         conversation.conversationType = .oneOnOne
         
         // when
-        conversation.updateMessageDestructionTimeout(timeout: .fiveSeconds)
+        conversation.updateMessageDestructionTimeout(timeout: .tenSeconds)
         
         // then
-        XCTAssertEqual(conversation.messageDestructionTimeout, 5)
+        XCTAssertEqual(conversation.messageDestructionTimeout, 10)
     }
  
     func testThatSendingEphemeralToEmptyConversationIsNotPossible() {
