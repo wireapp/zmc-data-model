@@ -31,7 +31,9 @@ class ZMConversationMessageDestructionTimeoutTests : XCTestCase {
         XCTAssertEqual(ZMConversationMessageDestructionTimeout.fiveMinutes.rawValue, 300)
         XCTAssertEqual(ZMConversationMessageDestructionTimeout.oneDay.rawValue, 86400)
     }
-    
+
+    ///TODO: string test
+
     func testThatItReturnsTheClosestTimeOut() {
         XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: -2), 5)
         XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: 0), 5)
