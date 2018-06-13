@@ -67,7 +67,7 @@ public extension ZMGenericMessage {
     }
 }
 
-public extension ZMGenericMessage {
+@objc public extension ZMGenericMessage {
 
     var v3_isImage: Bool {
         return assetData?.original.hasRasterImage ?? false
@@ -179,7 +179,7 @@ public extension ZMGenericMessage {
     }
 
     // MARK: Updating assets with asset ID and token
-    public func updatedUploaded(withAssetId assetId: String, token: String?) -> ZMGenericMessage? {
+    @objc public func updatedUploaded(withAssetId assetId: String, token: String?) -> ZMGenericMessage? {
         guard let asset = assetData, let remote = asset.uploaded, asset.hasUploaded() else { return nil }
         let newRemote = remote.updated(withId: assetId, token: token)
         let builder = toBuilder()!
@@ -200,7 +200,7 @@ public extension ZMGenericMessage {
         return builder.buildAndValidate()
     }
 
-    public func updatedPreview(withAssetId assetId: String, token: String?) -> ZMGenericMessage? {
+    @objc public func updatedPreview(withAssetId assetId: String, token: String?) -> ZMGenericMessage? {
         guard let asset = assetData, let preview = asset.preview, let remote = preview.remote, preview.hasRemote() else { return nil }
         let newRemote = remote.updated(withId: assetId, token: token)
         let previewBuilder = preview.toBuilder()
@@ -225,7 +225,7 @@ public extension ZMGenericMessage {
 
 }
 
-extension ZMAssetRemoteData {
+@objc extension ZMAssetRemoteData {
 
     public func updated(withId assetId: String, token: String?) -> ZMAssetRemoteData {
         let builder = toBuilder()!
