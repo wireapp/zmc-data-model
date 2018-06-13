@@ -19,20 +19,16 @@
 import Foundation
 @testable import WireDataModel
 
-
 class ZMConversationMessageDestructionTimeoutTests : XCTestCase {
 
     func testThatItReturnsTheCorrectTimeouts(){
         XCTAssertEqual(ZMConversationMessageDestructionTimeout.none.rawValue, 0)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout.fiveSeconds.rawValue, 5)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout.fifteenSeconds.rawValue, 15)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout.thirtySeconds.rawValue, 30)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout.oneMinute.rawValue, 60)
+        XCTAssertEqual(ZMConversationMessageDestructionTimeout.tenSeconds.rawValue, 10)
         XCTAssertEqual(ZMConversationMessageDestructionTimeout.fiveMinutes.rawValue, 300)
         XCTAssertEqual(ZMConversationMessageDestructionTimeout.oneDay.rawValue, 86400)
+        XCTAssertEqual(ZMConversationMessageDestructionTimeout.oneWeek.rawValue, 604800)
+        XCTAssertEqual(ZMConversationMessageDestructionTimeout.fourWeeks.rawValue, 2419200)
     }
-
-    ///TODO: string test
 
     func testThatItReturnsTheClosestTimeOut() {
         XCTAssertEqual(ZMConversationMessageDestructionTimeout.validTimeout(for: -2), 5)
