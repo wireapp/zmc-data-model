@@ -130,7 +130,7 @@ class MessageObserverTests : NotificationDispatcherTestBase {
             expectedChangedField: #keyPath(MessageChangeInfo.linkPreviewChanged)
         )
     }
-    
+
     func testThatItNotifiesObserverWhenTheLinkPreviewStateChanges_NewGenericMessageData() {
         // given
         let clientMessage = ZMClientMessage(nonce: UUID.create(), managedObjectContext: uiMOC)

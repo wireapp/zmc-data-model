@@ -19,11 +19,11 @@
 import Foundation
 import WireLinkPreview
 
-extension ZMClientMessage {
+@objc extension ZMClientMessage {
     
     public static let linkPreviewImageDownloadNotification = NSNotification.Name(rawValue: "ZMClientMessageLinkPreviewImageDownloadNotificationName")
     
-    @objc public var linkPreviewState: ZMLinkPreviewState {
+    public var linkPreviewState: ZMLinkPreviewState {
         set {
             let key = #keyPath(ZMClientMessage.linkPreviewState)
             self.willChangeValue(forKey: key)
@@ -43,7 +43,7 @@ extension ZMClientMessage {
         }
     }
     
-    @objc public var linkPreview: LinkPreview? {
+    public var linkPreview: LinkPreview? {
         
         guard let linkPreview = self.firstZMLinkPreview else { return nil }
         if linkPreview.hasTweet() {

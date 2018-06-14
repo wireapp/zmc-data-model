@@ -335,9 +335,7 @@ extension ZMManagedObject {
         return smallImageUsers.union(largeImageUsers)
     }
     
-    
-    func extractUsersWithImageChange(objectIDs: [NSManagedObjectID]?, changedKey: String) -> Set<ZMUser>
-    {
+    func extractUsersWithImageChange(objectIDs: [NSManagedObjectID]?, changedKey: String) -> Set<ZMUser> {
         guard let objectIDs = objectIDs else { return Set() }
         var users = Set<ZMUser>()
         objectIDs.forEach { objectID in
