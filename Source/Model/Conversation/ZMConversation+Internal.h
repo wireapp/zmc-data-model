@@ -64,6 +64,7 @@ extern NSString *const ZMConversationLastServerTimeStampKey;
 extern NSString *const ZMConversationClearedTimeStampKey;
 extern NSString *const ZMConversationArchivedChangedTimeStampKey;
 extern NSString *const ZMConversationSilencedChangedTimeStampKey;
+extern NSString *const ZMConversationSelectedEphemeralTimer;
 
 extern NSString *const ZMNotificationConversationKey;
 extern NSString *const ZMConversationRemoteIdentifierDataKey;
@@ -111,6 +112,7 @@ NS_ASSUME_NONNULL_END
 @property (nonatomic, nullable) NSDate *clearedTimeStamp;
 @property (nonatomic, nullable) NSDate *archivedChangedTimestamp;
 @property (nonatomic, nullable) NSDate *silencedChangedTimestamp;
+@property (nonatomic, nullable) NSNumber *selectedEphemeralTimer;
 
 @property (nonatomic, nullable) NSUUID *remoteIdentifier;
 @property (nonatomic, nullable) NSUUID *teamRemoteIdentifier;
@@ -227,6 +229,13 @@ NS_ASSUME_NONNULL_END
 @interface ZMConversation (Optimization)
 
 + (void)refreshObjectsThatAreNotNeededInSyncContext:(nonnull NSManagedObjectContext *)managedObjectContext;
+
+@end
+
+
+@interface ZMConversation (Ephemerals)
+
+- (void)setConversationEphemeralTimer:(nullable NSNumber *)ephemeralTimer;
 
 @end
 

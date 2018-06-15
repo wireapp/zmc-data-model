@@ -67,6 +67,7 @@ NSString *const ZMConversationLastReadServerTimeStampKey = @"lastReadServerTimeS
 NSString *const ZMConversationClearedTimeStampKey = @"clearedTimeStamp";
 NSString *const ZMConversationArchivedChangedTimeStampKey = @"archivedChangedTimestamp";
 NSString *const ZMConversationSilencedChangedTimeStampKey = @"silencedChangedTimestamp";
+NSString *const ZMConversationSelectedEphemeralTimer = @"selectedEphemeralTimer";
 
 NSString *const ZMNotificationConversationKey = @"ZMNotificationConversationKey";
 
@@ -126,6 +127,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @property (nonatomic) NSDate *clearedTimeStamp;
 @property (nonatomic) NSDate *archivedChangedTimestamp;
 @property (nonatomic) NSDate *silencedChangedTimestamp;
+@property (nonatomic) NSNumber *selectedEphemeralTimer;
 
 @end
 
@@ -159,6 +161,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @dynamic internalIsArchived;
 @dynamic archivedChangedTimestamp;
 @dynamic silencedChangedTimestamp;
+@dynamic selectedEphemeralTimer;
 @dynamic messageDestructionTimeout;
 @dynamic team;
 
@@ -1850,6 +1853,15 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 - (void)revealClearedConversation
 {
     self.isArchived = NO;
+}
+
+@end
+
+
+@implementation ZMConversation (Ephemerals)
+
+- (void)setConversationEphemeralTimer:(nullable NSNumber *)ephemeralTimer {
+    self.selectedEphemeralTimer = ephemeralTimer;
 }
 
 @end
