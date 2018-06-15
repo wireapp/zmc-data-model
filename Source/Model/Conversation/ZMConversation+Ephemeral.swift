@@ -98,9 +98,5 @@ public extension ZMConversation {
     public var destructionTimeout: ZMConversationMessageDestructionTimeout {
         return ZMConversationMessageDestructionTimeout(rawValue: messageDestructionTimeout)
     }
-
-    @objc public var canSendEphemeral: Bool {
-        return self.activeParticipants.count >= 1
-    }
 }
 
