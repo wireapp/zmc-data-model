@@ -90,6 +90,7 @@ static NSString *const VoiceChannelKey = @"voiceChannel";
 static NSString *const VoiceChannelStateKey = @"voiceChannelState";
 
 static NSString *const MessageDestructionTimeoutKey = @"messageDestructionTimeout";
+static NSString *const GlobalMessageDestructionTimeoutKey = @"globalMessageDestructionTimeout";
 
 
 static NSString *const DownloadedMessageIDsDataKey = @"downloadedMessageIDs_data";
@@ -359,6 +360,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
             ZMConversationIsArchivedKey,
             ZMConversationIsSilencedKey,
             MessageDestructionTimeoutKey,
+            GlobalMessageDestructionTimeoutKey,
             DownloadedMessageIDsDataKey,
             LastEventIDDataKey,
             ClearedEventIDDataKey,

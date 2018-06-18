@@ -98,5 +98,11 @@ public extension ZMConversation {
     public var destructionTimeout: ZMConversationMessageDestructionTimeout {
         return ZMConversationMessageDestructionTimeout(rawValue: messageDestructionTimeout)
     }
+    
+    @NSManaged public var globalMessageDestructionTimeout: TimeInterval
+    
+    public var globalDestructionTimeout: ZMConversationMessageDestructionTimeout {
+        return ZMConversationMessageDestructionTimeout(rawValue: globalMessageDestructionTimeout)
+    }
 }
 
