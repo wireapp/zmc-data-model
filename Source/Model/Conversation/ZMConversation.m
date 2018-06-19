@@ -67,6 +67,7 @@ NSString *const ZMConversationLastReadServerTimeStampKey = @"lastReadServerTimeS
 NSString *const ZMConversationClearedTimeStampKey = @"clearedTimeStamp";
 NSString *const ZMConversationArchivedChangedTimeStampKey = @"archivedChangedTimestamp";
 NSString *const ZMConversationSilencedChangedTimeStampKey = @"silencedChangedTimestamp";
+NSString *const ZMConversationMessageTimer = @"messageTimer";
 
 NSString *const ZMNotificationConversationKey = @"ZMNotificationConversationKey";
 
@@ -126,6 +127,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @property (nonatomic) NSDate *clearedTimeStamp;
 @property (nonatomic) NSDate *archivedChangedTimestamp;
 @property (nonatomic) NSDate *silencedChangedTimestamp;
+@property (nonatomic) NSNumber *messageTimer;
 
 @end
 
@@ -159,6 +161,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @dynamic internalIsArchived;
 @dynamic archivedChangedTimestamp;
 @dynamic silencedChangedTimestamp;
+@dynamic messageTimer;
 @dynamic messageDestructionTimeout;
 @dynamic team;
 
