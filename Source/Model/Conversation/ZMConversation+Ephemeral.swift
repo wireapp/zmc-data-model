@@ -107,6 +107,7 @@ public extension ZMConversation {
                 return nil
             }
         }
+
         set {
             let currentValue = messageDestructionTimeout
             
@@ -114,21 +115,23 @@ public extension ZMConversation {
                 switch (currentValue, newTimeout) {
                 case (_, .synced(let value)):
                     syncedMessageDestructionTimeout = value.rawValue
-                case (.some(.synced(_)), .local(_)):
-                    fatal("Not allowed to set synced timeout when local is set")
-                case (.some(.local(_)), .local(let value)):
+                case (.synced?, .local):
+                    // It is not allowed to set a local timeout while a synced timeout is set, this should never happen.
+                    fatal("Not allowed to set local timeout when synced timeout is set")
+                case (.local?, .local(let value)):
                     localMessageDestructionTimeout = value.rawValue
                 case (nil, .local(let value)):
                     localMessageDestructionTimeout = value.rawValue
                 }
             }
             else {
+                // Reset the currently set field / type when setting to nil
                 switch currentValue {
-                case .some(.local(_)):
+                case .local?:
                     localMessageDestructionTimeout = 0
-                case .some(.synced(_)):
+                case .synced?:
                     syncedMessageDestructionTimeout = 0
-                case .none:
+                case nil:
                     localMessageDestructionTimeout = 0
                 }
             }

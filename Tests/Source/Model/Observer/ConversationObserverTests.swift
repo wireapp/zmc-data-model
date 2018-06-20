@@ -484,7 +484,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: { conversation, _ in conversation.localMessageDestructionTimeout = 1000 },
                                                      expectedChangedField: "destructionTimeoutChanged",
-                                                     expectedChangedKeys: [#keyPath(ZMConversation.syncedMessageDestructionTimeout)])
+                                                     expectedChangedKeys: [#keyPath(ZMConversation.localMessageDestructionTimeout)])
     }
     
     func testThatAccessRoleChangeIsTriggeringObservation()
