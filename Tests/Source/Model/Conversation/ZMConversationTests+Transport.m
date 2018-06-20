@@ -599,7 +599,7 @@
         
         // then
         XCTAssertNotNil(conversation);
-        XCTAssertEqual(conversation.globalMessageDestructionTimeout, 1000);
+        XCTAssertEqual(conversation.messageDestructionTimeoutValue, 1000);
     }];
 }
 

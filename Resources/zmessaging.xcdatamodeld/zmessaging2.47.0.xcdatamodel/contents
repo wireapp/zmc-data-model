@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14133" systemVersion="17E199" minimumToolsVersion="Xcode 4.3" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="2.47.0">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14133" systemVersion="17F77" minimumToolsVersion="Xcode 4.3" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="2.47.0">
     <entity name="AddressBookEntry" representedClassName=".AddressBookEntry" syncable="YES">
         <attribute name="cachedName" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="localIdentifier" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
@@ -35,7 +35,7 @@
         <relationship name="conversation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Conversation" inverseName="connection" inverseEntity="Conversation" syncable="YES"/>
         <relationship name="to" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="connection" inverseEntity="User" syncable="YES"/>
     </entity>
-    <entity name="Conversation" representedClassName="ZMConversation" syncable="YES">
+    <entity name="Conversation" representedClassName="ZMConversation" elementID="messageDestructionTimeout" syncable="YES">
         <attribute name="accessModeStrings" optional="YES" attributeType="Transformable" syncable="YES"/>
         <attribute name="accessRoleString" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="archivedChangedTimestamp" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>

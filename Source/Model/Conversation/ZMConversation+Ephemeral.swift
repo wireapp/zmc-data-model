@@ -17,7 +17,7 @@
 //
 
 
-public enum ZMConversationMessageDestructionTimeout : RawRepresentable, Hashable {
+public enum MessageDestructionTimeoutValue : RawRepresentable, Hashable {
 
     case none
     case tenSeconds
@@ -57,9 +57,9 @@ public enum ZMConversationMessageDestructionTimeout : RawRepresentable, Hashable
 
 }
 
-public extension ZMConversationMessageDestructionTimeout {
+public extension MessageDestructionTimeoutValue {
 
-    static var all: [ZMConversationMessageDestructionTimeout] {
+    static var all: [MessageDestructionTimeoutValue] {
         return [
             .none,
             .tenSeconds,
@@ -72,7 +72,7 @@ public extension ZMConversationMessageDestructionTimeout {
     }
 }
 
-public extension ZMConversationMessageDestructionTimeout {
+public extension MessageDestructionTimeoutValue {
 
     public var isKnownTimeout: Bool {
         if case .custom = self {
@@ -83,26 +83,70 @@ public extension ZMConversationMessageDestructionTimeout {
 
 }
 
+public enum MessageDestructionTimeout {
+    case local(MessageDestructionTimeoutValue)
+    case synced(MessageDestructionTimeoutValue)
+}
+
 public extension ZMConversation {
 
-    /// Sets messageDestructionTimeout
-    /// @param timeout: The timeout after which an appended message should "self-destruct"
-    public func updateMessageDestructionTimeout(timeout : ZMConversationMessageDestructionTimeout) {
-        messageDestructionTimeout = timeout.rawValue
-    }
-
-    @objc public var destructionEnabled: Bool {
-        return destructionTimeout != .none
-    }
-
-    public var destructionTimeout: ZMConversationMessageDestructionTimeout {
-        return ZMConversationMessageDestructionTimeout(rawValue: messageDestructionTimeout)
+    /// Defines the time interval until an inserted messages is deleted / "self-destructs" on all clients.
+    /// Can be set to the local or to the synchronized value.
+    /// WARNING: setting the synced value: please update the value on the backend and then update the value of this
+    /// property.
+    /// Computed property from @c localMessageDestructionTimeout and @c syncedMessageDestructionTimeout.
+    public var messageDestructionTimeout: MessageDestructionTimeout? {
+        get {
+            if syncedMessageDestructionTimeout != 0 {
+                return .synced(MessageDestructionTimeoutValue(rawValue: syncedMessageDestructionTimeout))
+            }
+            else if localMessageDestructionTimeout != 0 {
+                return .local(MessageDestructionTimeoutValue(rawValue: localMessageDestructionTimeout))
+            }
+            else {
+                return nil
+            }
+        }
+        set {
+            let currentValue = messageDestructionTimeout
+            
+            if let newTimeout = newValue {
+                switch (currentValue, newTimeout) {
+                case (_, .synced(let value)):
+                    syncedMessageDestructionTimeout = value.rawValue
+                case (.some(.synced(_)), .local(_)):
+                    fatal("Not allowed to set synced timeout when local is set")
+                case (.some(.local(_)), .local(let value)):
+                    localMessageDestructionTimeout = value.rawValue
+                case (nil, .local(let value)):
+                    localMessageDestructionTimeout = value.rawValue
+                }
+            }
+            else {
+                switch currentValue {
+                case .some(.local(_)):
+                    localMessageDestructionTimeout = 0
+                case .some(.synced(_)):
+                    syncedMessageDestructionTimeout = 0
+                case .none:
+                    localMessageDestructionTimeout = 0
+                }
+            }
+        }
     }
     
-    @NSManaged public var globalMessageDestructionTimeout: TimeInterval
-    
-    public var globalDestructionTimeout: ZMConversationMessageDestructionTimeout {
-        return ZMConversationMessageDestructionTimeout(rawValue: globalMessageDestructionTimeout)
+    @objc var messageDestructionTimeoutValue: TimeInterval {
+        switch messageDestructionTimeout {
+        case .some(.local(let value)):
+            return value.rawValue
+        case .some(.synced(let value)):
+            return value.rawValue
+        case .none:
+            return 0
+        }
     }
+    
+    @NSManaged internal var localMessageDestructionTimeout: TimeInterval
+    @NSManaged internal var syncedMessageDestructionTimeout: TimeInterval
 }
 

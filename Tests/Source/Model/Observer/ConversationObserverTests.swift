@@ -52,7 +52,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
             "securityLevelChanged",
             "createdRemotelyChanged",
             "allowGuestsChanged",
-            "globalDestructionTimeoutChanged"
+            "destructionTimeoutChanged"
         ]
     }
     
@@ -457,7 +457,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
                                                      expectedChangedKeys: [#keyPath(ZMConversation.accessModeStrings)])
     }
     
-    func testThatGlobalDestructionTimeoutChangeIsTriggeringObservation()
+    func testThatSyncedDestructionTimeoutChangeIsTriggeringObservation()
     {
         // given
         let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
@@ -467,9 +467,24 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         
         // when
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
-                                                     modifier: { conversation, _ in conversation.globalMessageDestructionTimeout = 1000 },
-                                                     expectedChangedField: "globalDestructionTimeoutChanged",
-                                                     expectedChangedKeys: [#keyPath(ZMConversation.globalMessageDestructionTimeout)])
+                                                     modifier: { conversation, _ in conversation.syncedMessageDestructionTimeout = 1000 },
+                                                     expectedChangedField: "destructionTimeoutChanged",
+                                                     expectedChangedKeys: [#keyPath(ZMConversation.syncedMessageDestructionTimeout)])
+    }
+    
+    func testThatLocalDestructionTimeoutChangeIsTriggeringObservation()
+    {
+        // given
+        let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
+        conversation.conversationType = ZMConversationType.group
+        uiMOC.saveOrRollback()
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        
+        // when
+        self.checkThatItNotifiesTheObserverOfAChange(conversation,
+                                                     modifier: { conversation, _ in conversation.localMessageDestructionTimeout = 1000 },
+                                                     expectedChangedField: "destructionTimeoutChanged",
+                                                     expectedChangedKeys: [#keyPath(ZMConversation.syncedMessageDestructionTimeout)])
     }
     
     func testThatAccessRoleChangeIsTriggeringObservation()

@@ -38,7 +38,8 @@ extension ZMConversation : ObjectInSnapshot {
                     #keyPath(ZMConversation.accessModeStrings),
                     #keyPath(ZMConversation.accessRoleString),
                     #keyPath(ZMConversation.remoteIdentifier),
-                    #keyPath(ZMConversation.globalMessageDestructionTimeout)
+                    #keyPath(ZMConversation.localMessageDestructionTimeout),
+                    #keyPath(ZMConversation.syncedMessageDestructionTimeout)
             ])
     }
 
@@ -116,8 +117,9 @@ extension ZMConversation : ObjectInSnapshot {
                changedKeysContain(keys: #keyPath(ZMConversation.accessRoleString))
     }
     
-    public var globalDestructionTimeoutChanged : Bool {
-        return changedKeysContain(keys: #keyPath(ZMConversation.globalMessageDestructionTimeout))
+    public var destructionTimeoutChanged : Bool {
+        return changedKeysContain(keys: #keyPath(ZMConversation.localMessageDestructionTimeout)) ||
+                changedKeysContain(keys: #keyPath(ZMConversation.syncedMessageDestructionTimeout))
     }
     
     public var conversation : ZMConversation { return self.object as! ZMConversation }
@@ -137,7 +139,7 @@ extension ZMConversation : ObjectInSnapshot {
         "securityLevelChanged \(securityLevelChanged)," +
         "teamChanged \(teamChanged)" +
         "createdRemotelyChanged \(createdRemotelyChanged)" +
-        "globalDestructionTimeoutChanged \(globalDestructionTimeoutChanged)"
+        "destructionTimeoutChanged \(destructionTimeoutChanged)"
     }
     
     public required init(object: NSObject) {
