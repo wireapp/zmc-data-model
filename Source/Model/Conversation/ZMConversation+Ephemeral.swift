@@ -17,7 +17,7 @@
 //
 
 
-public enum MessageDestructionTimeoutValue : RawRepresentable, Hashable {
+public enum MessageDestructionTimeoutValue: RawRepresentable, Hashable {
 
     case none
     case tenSeconds
@@ -55,6 +55,16 @@ public enum MessageDestructionTimeoutValue : RawRepresentable, Hashable {
         }
     }
 
+}
+
+extension MessageDestructionTimeoutValue: ExpressibleByIntegerLiteral, ExpressibleByFloatLiteral {
+    public init(integerLiteral value: TimeInterval) {
+        self.init(rawValue: value)
+    }
+    
+    public init(floatLiteral value: TimeInterval) {
+        self.init(rawValue: value)
+    }
 }
 
 public extension MessageDestructionTimeoutValue {
