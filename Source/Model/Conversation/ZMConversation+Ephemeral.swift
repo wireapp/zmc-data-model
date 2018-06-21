@@ -54,6 +54,7 @@ public enum MessageDestructionTimeoutValue: RawRepresentable, Hashable {
         case .custom(let duration): return duration
         }
     }
+    
 
 }
 
@@ -97,6 +98,52 @@ public enum MessageDestructionTimeout {
     case local(MessageDestructionTimeoutValue)
     case synced(MessageDestructionTimeoutValue)
 }
+
+fileprivate let longStyleFormatter: DateComponentsFormatter = {
+    let formatter = DateComponentsFormatter()
+    formatter.unitsStyle = .full
+    formatter.allowedUnits = [.day, .hour, .minute, .second]
+    formatter.zeroFormattingBehavior = .dropAll
+    return formatter
+}()
+
+public extension MessageDestructionTimeoutValue {
+    
+    var displayString: String? {
+        guard .none != self else { return NSLocalizedString("input.ephemeral.timeout.none", comment: "") }
+        return longStyleFormatter.string(from: TimeInterval(rawValue))
+    }
+    
+    var shortDisplayString: String? {
+        if isSeconds { return String(Int(rawValue)) }
+        if isMinutes { return String(Int(rawValue / 60)) }
+        if isHours { return String(Int(rawValue / 3600)) }
+        if isDays { return String(Int(rawValue / 86400)) }
+        return nil
+    }
+    
+}
+
+public extension MessageDestructionTimeoutValue {
+    
+    var isSeconds: Bool {
+        return rawValue < 60
+    }
+    
+    var isMinutes: Bool {
+        return 60..<3600 ~= rawValue
+    }
+    
+    var isHours: Bool {
+        return 3600..<86400 ~= rawValue
+    }
+    
+    var isDays: Bool {
+        return rawValue >= 86400
+    }
+    
+}
+
 
 public extension ZMConversation {
 
@@ -158,6 +205,24 @@ public extension ZMConversation {
         case .none:
             return 0
         }
+    }
+    
+    @objc public func appendMessageTimerUpdateMessage(fromUser user: ZMUser, timer: Double) -> ZMSystemMessage {
+        let (message, _) = appendSystemMessage(
+            type: .messageTimerUpdate,
+            sender: user,
+            users: [user],
+            clients: nil,
+            timestamp: nil,
+            messageTimer: timer
+        )
+        
+        if isArchived && !isSilenced {
+            isArchived = false
+        }
+        
+        managedObjectContext?.enqueueDelayedSave()
+        return message
     }
     
     @NSManaged internal var localMessageDestructionTimeout: TimeInterval

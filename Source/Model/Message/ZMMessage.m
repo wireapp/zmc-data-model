@@ -833,6 +833,7 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
 @dynamic duration;
 @dynamic childMessages;
 @dynamic parentMessage;
+@dynamic messageTimer;
 
 + (instancetype)createOrUpdateMessageFromUpdateEvent:(ZMUpdateEvent *)updateEvent
                               inManagedObjectContext:(NSManagedObjectContext *)moc
@@ -940,6 +941,7 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
             case ZMSystemMessageTypeNewConversation:
             case ZMSystemMessageTypeParticipantsAdded:
             case ZMSystemMessageTypeParticipantsRemoved:
+            case ZMSystemMessageTypeMessageTimerUpdate:
                 return NO;
         }
     }];
