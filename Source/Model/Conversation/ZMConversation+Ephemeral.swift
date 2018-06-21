@@ -124,6 +124,7 @@ public extension ZMConversation {
             if let newTimeout = newValue {
                 switch (currentValue, newTimeout) {
                 case (_, .synced(let value)):
+                    precondition(conversationType == .group)
                     syncedMessageDestructionTimeout = value.rawValue
                 case (.synced?, .local):
                     // It is not allowed to set a local timeout while a synced timeout is set, this should never happen.

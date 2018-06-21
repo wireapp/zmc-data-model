@@ -62,6 +62,7 @@ class ZMConversationTests_Ephemeral : BaseZMMessageTests {
     func testThatItAllowsSettingTimeoutsOnGroupConversations(){
         // given
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
+        conversation.conversationType = .group
         
         // when
         conversation.messageDestructionTimeout = .local(.tenSeconds)
@@ -70,6 +71,17 @@ class ZMConversationTests_Ephemeral : BaseZMMessageTests {
         XCTAssertEqual(conversation.messageDestructionTimeoutValue, 10)
     }
 
+    func testThatItAllowsSettingSyncedTimeoutsOnGroupConversations(){
+        // given
+        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+        conversation.conversationType = .group
+        
+        // when
+        conversation.messageDestructionTimeout = .synced(.tenSeconds)
+        
+        // then
+        XCTAssertEqual(conversation.messageDestructionTimeoutValue, 10)
+    }
     
     func testThatItAllowsSettingTimeoutsOnOneOnOneConversations(){
         // given
