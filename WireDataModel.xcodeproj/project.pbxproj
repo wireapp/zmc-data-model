@@ -2840,7 +2840,7 @@
 				F18998A41E7BE03800E579A2 /* zmessaging2.8.xcdatamodel */,
 				F18998A51E7BE03800E579A2 /* zmessaging2.9.xcdatamodel */,
 			);
-			currentVersion = 87C1C265207F8FE40083BF6B /* zmessaging2.47.0.xcdatamodel */;
+			currentVersion = 87140ACC20D7DD700036B7CB /* zmessaging2.48.0.xcdatamodel */;
 			path = zmessaging.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
