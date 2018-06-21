@@ -79,6 +79,7 @@ NSString * const ZMMessageDeliveryStateKey = @"deliveryState";
 NSString * const ZMMessageDurationKey = @"duration";
 NSString * const ZMMessageChildMessagesKey = @"childMessages";
 NSString * const ZMMessageParentMessageKey = @"parentMessage";
+NSString * const ZMSystemMessageMessageTimerKey = @"messageTimer";
 
 
 @interface ZMMessage ()
@@ -707,7 +708,8 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
                              ZMMessageNormalizedTextKey,
                              ZMMessageDurationKey,
                              ZMMessageChildMessagesKey,
-                             ZMMessageParentMessageKey
+                             ZMMessageParentMessageKey,
+                             ZMSystemMessageMessageTimerKey,
                              ];
         ignoredKeys = [keys setByAddingObjectsFromArray:newKeys];
     });
