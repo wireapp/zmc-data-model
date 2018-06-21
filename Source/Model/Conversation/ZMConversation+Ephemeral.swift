@@ -98,5 +98,24 @@ public extension ZMConversation {
     public var destructionTimeout: ZMConversationMessageDestructionTimeout {
         return ZMConversationMessageDestructionTimeout(rawValue: messageDestructionTimeout)
     }
+    
+    @objc public func appendMessageTimerUpdateMessage(fromUser user: ZMUser, with duration: Int) -> ZMSystemMessage {
+        let (message, _) = appendSystemMessage(
+            type: .messageTimerUpdate,
+            sender: user,
+            users: [user],
+            clients: nil,
+            timestamp: nil,
+            messageTimer: duration
+        )
+        
+        if isArchived && !isSilenced {
+            isArchived = false
+        }
+        
+        managedObjectContext?.enqueueDelayedSave()
+        return message
+    }
+    
 }
 
