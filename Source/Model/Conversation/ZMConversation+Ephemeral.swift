@@ -119,6 +119,7 @@ public extension MessageDestructionTimeoutValue {
         if isMinutes { return String(Int(rawValue / 60)) }
         if isHours { return String(Int(rawValue / 3600)) }
         if isDays { return String(Int(rawValue / 86400)) }
+        if isWeeks { return String(Int(rawValue / 604800)) }
         return nil
     }
     
@@ -140,6 +141,10 @@ public extension MessageDestructionTimeoutValue {
     
     var isDays: Bool {
         return rawValue >= 86400
+    }
+
+    var isWeeks: Bool {
+        return rawValue >= 604800
     }
     
 }
