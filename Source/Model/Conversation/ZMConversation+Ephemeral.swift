@@ -94,7 +94,7 @@ public extension MessageDestructionTimeoutValue {
 
 }
 
-public enum MessageDestructionTimeout {
+public enum MessageDestructionTimeout: Equatable {
     case local(MessageDestructionTimeoutValue)
     case synced(MessageDestructionTimeoutValue)
 }
@@ -144,6 +144,13 @@ public extension MessageDestructionTimeoutValue {
     
 }
 
+public func ==(lhs: MessageDestructionTimeout, rhs: MessageDestructionTimeout) -> Bool {
+    switch (rhs, lhs) {
+    case let (.local(lhsValue), .local(rhsValue)): return lhsValue == rhsValue
+    case let (.synced(lhsValue), .synced(rhsValue)): return lhsValue == rhsValue
+    default: return false
+    }
+}
 
 public extension ZMConversation {
 
@@ -190,6 +197,7 @@ public extension ZMConversation {
                 case .synced?:
                     syncedMessageDestructionTimeout = 0
                 case nil:
+                    syncedMessageDestructionTimeout = 0
                     localMessageDestructionTimeout = 0
                 }
             }
