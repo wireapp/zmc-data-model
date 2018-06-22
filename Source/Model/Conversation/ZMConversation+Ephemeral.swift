@@ -144,14 +144,6 @@ public extension MessageDestructionTimeoutValue {
     
 }
 
-public func ==(lhs: MessageDestructionTimeout, rhs: MessageDestructionTimeout) -> Bool {
-    switch (rhs, lhs) {
-    case let (.local(lhsValue), .local(rhsValue)): return lhsValue == rhsValue
-    case let (.synced(lhsValue), .synced(rhsValue)): return lhsValue == rhsValue
-    default: return false
-    }
-}
-
 public extension ZMConversation {
 
     /// Defines the time interval until an inserted messages is deleted / "self-destructs" on all clients.
@@ -206,11 +198,11 @@ public extension ZMConversation {
     
     @objc var messageDestructionTimeoutValue: TimeInterval {
         switch messageDestructionTimeout {
-        case .some(.local(let value)):
+        case .local(let value)?:
             return value.rawValue
-        case .some(.synced(let value)):
+        case .synced(let value)?:
             return value.rawValue
-        case .none:
+        case nil:
             return 0
         }
     }
