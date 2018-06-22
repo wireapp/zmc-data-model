@@ -140,7 +140,7 @@ public extension MessageDestructionTimeoutValue {
     }
     
     var isDays: Bool {
-        return rawValue >= 86400
+        return 86400..<604800 ~= rawValue
     }
 
     var isWeeks: Bool {
