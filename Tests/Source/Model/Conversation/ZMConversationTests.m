@@ -1567,7 +1567,7 @@
     }
     
     // when
-    [conversation setVisibleWindowFromMessage:conversation.messages[2] toMessage:conversation.messages[4]];
+    [conversation markMessagesAsReadFrom:conversation.messages[2] to:conversation.messages[4]];
     
     WaitForAllGroupsToBeEmpty(0.5);
     
@@ -1589,7 +1589,7 @@
     conversation.lastServerTimeStamp = message.serverTimestamp;
     
     // when
-    [conversation setVisibleWindowFromMessage:conversation.messages[2] toMessage:conversation.messages[11]];
+    [conversation markMessagesAsReadFrom:conversation.messages[2] to:conversation.messages[11]];
     
     WaitForAllGroupsToBeEmpty(0.5);
     
@@ -1609,7 +1609,7 @@
     }
     
     // when
-    [conversation setVisibleWindowFromMessage:conversation.messages[2] toMessage:conversation.messages[4]];
+    [conversation markMessagesAsReadFrom:conversation.messages[2] to:conversation.messages[4]];
     [conversation savePendingLastRead];
     
     // then
@@ -1631,7 +1631,7 @@
     conversation.lastReadServerTimeStamp = originalLastReadTimeStamp;
     
     // when
-    [conversation setVisibleWindowFromMessage:conversation.messages[2] toMessage:conversation.messages[4]];
+    [conversation markMessagesAsReadFrom:conversation.messages[2] to:conversation.messages[4]];
     WaitForAllGroupsToBeEmpty(0.5);
 
     // then
@@ -1650,7 +1650,7 @@
     }
 
     // when
-    [conversation setVisibleWindowFromMessage:conversation.messages.firstObject toMessage:conversation.messages.lastObject];
+    [conversation markMessagesAsReadFrom:conversation.messages.firstObject to:conversation.messages.lastObject];
     WaitForAllGroupsToBeEmpty(0.5);
 
     // then
@@ -3700,7 +3700,7 @@
     // (2) set first call as read
     ZMConversation *uiConv = [self.uiMOC objectWithID:conversation.objectID];
     ZMMessage *uiMessage = [self.uiMOC objectWithID:message.objectID];
-    [uiConv setVisibleWindowFromMessage:uiMessage toMessage:uiMessage];
+    [uiConv markMessagesAsReadFrom:uiMessage to:uiMessage];
     WaitForAllGroupsToBeEmpty(0.5);
     
     // then
@@ -3718,7 +3718,7 @@
     [self.uiMOC refreshObject:uiConv mergeChanges:YES];
 
     // (4) set second call as read
-    [uiConv setVisibleWindowFromMessage:uiMessage toMessage:uiMessage];
+    [uiConv markMessagesAsReadFrom:uiMessage to:uiMessage];
     WaitForAllGroupsToBeEmpty(0.5);
     
     // then

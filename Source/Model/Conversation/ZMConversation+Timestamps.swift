@@ -126,8 +126,8 @@ extension ZMConversation {
     
     // MARK: - Mark as read
     
-    @objc(setVisibleWindowFromMessage:toMessage:)
-    public func setVisibleMessageWindow(from: ZMConversationMessage, to: ZMConversationMessage) { // TODO jacob rename to markMessagesAsRead(from:to:)
+    @objc(markMessagesAsReadFrom:to:)
+    public func markMessagesAsRead(from: ZMConversationMessage, to: ZMConversationMessage) {
         
         guard let timestamp = [from.serverTimestampIncludingChildMessages, to.serverTimestampIncludingChildMessages].compactMap({ $0 }).max() else { return }
         
