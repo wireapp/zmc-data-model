@@ -104,7 +104,7 @@ fileprivate let longStyleFormatter: DateComponentsFormatter = {
     formatter.includesApproximationPhrase = false
     formatter.maximumUnitCount = 1
     formatter.unitsStyle = .full
-    formatter.allowedUnits = [.weekOfMonth, .day, .hour, .minute, .second]
+    formatter.allowedUnits = [.year, .weekOfMonth, .day, .hour, .minute, .second]
     formatter.zeroFormattingBehavior = .dropAll
     return formatter
 }()
