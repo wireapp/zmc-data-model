@@ -624,8 +624,8 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
                                                         let user = ZMUser.insertNewObject(in: self.uiMOC)
                                                         conversation.internalAddParticipants(Set(arrayLiteral: user))
         },
-                                                     expectedChangedFields: ["securityLevelChanged", "messagesChanged", "nameChanged", "participantsChanged"],
-                                                     expectedChangedKeys: ["displayName", "messages", "lastServerSyncedActiveParticipants", "securityLevel"])
+                                                     expectedChangedFields: ["securityLevelChanged", "messagesChanged", "nameChanged", "participantsChanged", "conversationListIndicatorChanged", "unreadCountChanged"],
+                                                     expectedChangedKeys: ["displayName", "messages", "lastServerSyncedActiveParticipants", "securityLevel", "conversationListIndicator", "estimatedUnreadCount"])
     
     }
     
@@ -648,8 +648,8 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
                                                         conversation.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [client], causedBy: nil)
 
         },
-                                                     expectedChangedFields: ["securityLevelChanged", "messagesChanged"],
-                                                     expectedChangedKeys: ["securityLevel", "messages"])
+                                                     expectedChangedFields: ["securityLevelChanged", "messagesChanged", "unreadCountChanged", "conversationListIndicatorChanged"],
+                                                     expectedChangedKeys: ["securityLevel", "messages", "estimatedUnreadCount", "conversationListIndicator"])
         
     }
     
