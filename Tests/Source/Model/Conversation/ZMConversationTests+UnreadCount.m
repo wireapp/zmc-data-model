@@ -21,6 +21,7 @@
 #import "ZMConversationTests.h"
 #import "ZMConversation+UnreadCount.h"
 
+// NOTE jacob disabled
 @interface ZMConversationUnreadCountTests : ZMConversationTestsBase
 @end
 

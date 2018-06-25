@@ -22,11 +22,7 @@
 
 @interface ZMConversation (Timestamps)
 
-- (BOOL)updateLastServerTimeStampIfNeeded:(NSDate *)serverTimeStamp;
-- (BOOL)updateLastReadServerTimeStampIfNeededWithTimeStamp:(NSDate *)timeStamp andSync:(BOOL)shouldSync;
-- (BOOL)updateLastModifiedDateIfNeeded:(NSDate *)date;
 - (BOOL)updateClearedServerTimeStampIfNeeded:(NSDate *)date andSync:(BOOL)shouldSync;
-
 - (BOOL)updateArchivedChangedTimeStampIfNeeded:(NSDate *)date andSync:(BOOL)shouldSync;
 - (BOOL)updateSilencedChangedTimeStampIfNeeded:(NSDate *)date andSync:(BOOL)shouldSync;
 

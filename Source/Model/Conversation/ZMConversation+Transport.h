@@ -34,10 +34,8 @@ extern NSString *const ZMConversationInfoOTRArchivedReferenceKey;
 
 @interface ZMConversation (Transport)
 
-- (void)updateLastReadFromPostPayloadEvent:(ZMUpdateEvent *)event;
 - (void)updateClearedFromPostPayloadEvent:(ZMUpdateEvent *)event;
 - (void)updateWithTransportData:(NSDictionary *)transportData serverTimeStamp:(NSDate *)serverTimeStamp;
-
 - (void)updatePotentialGapSystemMessagesIfNeededWithUsers:(NSSet <ZMUser *>*)users;
 
 /// Pass timeStamp when the timeStamp equals the time of the lastRead / cleared event, otherwise pass nil

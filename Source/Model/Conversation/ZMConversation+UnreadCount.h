@@ -35,20 +35,20 @@
 
 /// call [didUpdateConversationWhileFetchingUnreadMessages] in awakeFromFetch to fetch the timeStamps of messages that are currently unread
 /// returns YES if there are changes that require a save, NO otherwise
-- (BOOL)didUpdateConversationWhileFetchingUnreadMessages;
+//- (BOOL)didUpdateConversationWhileFetchingUnreadMessages;
 
 /// call [insertTimeStamp:] when inserting a message
 /// make sure to check if the sender is not the selfUser before doing so
-- (void)insertTimeStamp:(NSDate *)serverTimeStamp;
+//- (void)insertTimeStamp:(NSDate *)serverTimeStamp;
 
 /// call updateUnread() when updating the lastReadServerTimeStamp
-- (void)updateUnread;
+//- (void)updateUnread;
 
 /// Sets the estimatedUnreadCount value
-- (BOOL)updateUnreadCount;
+//- (BOOL)updateUnreadCount;
 
 /// call [updateUnreadMessagesWithMessage:] when inserting / updating a message
-- (void)updateUnreadMessagesWithMessage:(ZMMessage *)message;
+//- (void)updateUnreadMessagesWithMessage:(ZMMessage *)message;
 
 /// Predicate for conversations that will be considered unread for the purpose of the badge count
 + (NSPredicate *)predicateForConversationConsideredUnread;

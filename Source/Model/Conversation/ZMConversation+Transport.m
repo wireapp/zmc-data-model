@@ -48,16 +48,6 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
 
 @implementation ZMConversation (Transport)
 
-
-- (void)updateLastReadFromPostPayloadEvent:(ZMUpdateEvent *)event
-{
-    NSDate *serverTimeStamp = event.timeStamp;
-    
-    [self updateLastModifiedDateIfNeeded:serverTimeStamp];
-    [self updateLastServerTimeStampIfNeeded:serverTimeStamp];
-    [self updateLastReadServerTimeStampIfNeededWithTimeStamp:serverTimeStamp andSync:YES];
-}
-
 - (void)updateClearedFromPostPayloadEvent:(ZMUpdateEvent *)event
 {
     [self updateClearedServerTimeStampIfNeeded:event.timeStamp andSync:YES];
@@ -71,14 +61,15 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
                   remoteId.transportString.UTF8String,
                   self.remoteIdentifier.transportString.UTF8String);
     
-    if(transportData[ConversationInfoNameKey] != [NSNull null]) {
+    if (transportData[ConversationInfoNameKey] != [NSNull null]) {
         self.userDefinedName = [transportData stringForKey:ConversationInfoNameKey];
     }
     
     self.conversationType = [self conversationTypeFromTransportData:[transportData numberForKey:ConversationInfoTypeKey]];
     
-    [self updateLastModifiedDateIfNeeded:serverTimeStamp];
-    [self updateLastServerTimeStampIfNeeded:serverTimeStamp];
+    if (serverTimeStamp != nil) {
+        [self updateServerModified:serverTimeStamp];
+    }
     
     NSDictionary *selfStatus = [[transportData dictionaryForKey:ConversationInfoMembersKey] dictionaryForKey:@"self"];
     if(selfStatus != nil) {

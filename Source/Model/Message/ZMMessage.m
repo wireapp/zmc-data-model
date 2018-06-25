@@ -53,6 +53,7 @@ NSString * const ZMMessageMediumDataLoadedKey = @"mediumDataLoaded";
 NSString * const ZMMessageOriginalSizeDataKey = @"originalSize_data";
 NSString * const ZMMessageOriginalSizeKey = @"originalSize";
 NSString * const ZMMessageConversationKey = @"visibleInConversation";
+NSString * const ZMMessageHiddenInConversationKey = @"hiddenInConversation";
 NSString * const ZMMessageExpirationDateKey = @"expirationDate";
 NSString * const ZMMessageNameKey = @"name";
 NSString * const ZMMessageNeedsToBeUpdatedFromBackendKey = @"needsToBeUpdatedFromBackend";
@@ -67,7 +68,6 @@ NSString * const ZMMessageClientsKey = @"clients";
 NSString * const ZMMessageAddedUsersKey = @"addedUsers";
 NSString * const ZMMessageRemovedUsersKey = @"removedUsers";
 NSString * const ZMMessageNeedsUpdatingUsersKey = @"needsUpdatingUsers";
-NSString * const ZMMessageHiddenInConversationKey = @"hiddenInConversation";
 NSString * const ZMMessageSenderClientIDKey = @"senderClientID";
 NSString * const ZMMessageReactionKey = @"reactions";
 NSString * const ZMMessageConfirmationKey = @"confirmations";
@@ -85,11 +85,7 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
 
 + (ZMConversation *)conversationForUpdateEvent:(ZMUpdateEvent *)event inContext:(NSManagedObjectContext *)context prefetchResult:(ZMFetchRequestBatchResult *)prefetchResult;
 
-// isUpdatingExistingMessage parameter means that update event updates already existing message (i.e. for image messages)
-// it will affect updating serverTimestamp and messages sorting
-- (void)updateWithUpdateEvent:(ZMUpdateEvent *)event forConversation:(ZMConversation *)conversation isUpdatingExistingMessage:(BOOL)isUpdate;
-
-- (void)updateWithTimestamp:(NSDate *)serverTimestamp senderUUID:(NSUUID *)senderUUID forConversation:(ZMConversation *)conversation isUpdatingExistingMessage:(BOOL)isUpdate;
+- (void)updateWithUpdateEvent:(ZMUpdateEvent *)event forConversation:(ZMConversation *)conversation;
 
 @property (nonatomic) NSSet *missingRecipients;
 
@@ -253,15 +249,6 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
     self.conversation.hasUnreadUnsentMessage = YES;
 }
 
-- (void)updateTimestamp:(NSDate *)timestamp isUpdatingExistingMessage:(BOOL)isUpdate
-{
-    if (isUpdate) {
-        self.serverTimestamp = [NSDate lastestOfDate:self.serverTimestamp and:timestamp];
-    } else if (timestamp != nil) {
-        self.serverTimestamp = timestamp;
-    }
-}
-
 + (NSSet *)keyPathsForValuesAffectingDeliveryState;
 {
     return [NSMutableSet setWithObjects: ZMMessageIsExpiredKey, ZMMessageConfirmationKey, nil];
@@ -312,32 +299,21 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
     return NSOrderedSame;
 }
 
-- (void)updateWithUpdateEvent:(ZMUpdateEvent *)event forConversation:(ZMConversation *)conversation isUpdatingExistingMessage:(BOOL)isUpdate;
+- (void)updateWithUpdateEvent:(ZMUpdateEvent *)event forConversation:(ZMConversation *)conversation
 {
-    [self updateWithTimestamp:event.timeStamp senderUUID:event.senderUUID forConversation:conversation isUpdatingExistingMessage:isUpdate];
-}
-
-- (void)updateWithTimestamp:(NSDate *)serverTimestamp senderUUID:(NSUUID *)senderUUID forConversation:(ZMConversation *)conversation isUpdatingExistingMessage:(BOOL)isUpdate;
-{
-    [self updateTimestamp:serverTimestamp isUpdatingExistingMessage:isUpdate];
-
     if (self.managedObjectContext != conversation.managedObjectContext) {
         conversation = [ZMConversation conversationWithRemoteID:conversation.remoteIdentifier createIfNeeded:NO inContext:self.managedObjectContext];
     }
     
     self.visibleInConversation = conversation;
-    ZMUser *sender = [ZMUser userWithRemoteID:senderUUID createIfNeeded:YES inContext:self.managedObjectContext];
+    ZMUser *sender = [ZMUser userWithRemoteID:event.senderUUID createIfNeeded:YES inContext:self.managedObjectContext];
     if (sender != nil && !sender.isZombieObject && self.managedObjectContext == sender.managedObjectContext) {
         self.sender = sender;
     } else {
         ZMLogError(@"Sender is nil or from a different context than message. \n Sender is zombie %@: %@ \n Message: %@", @(sender.isZombieObject), sender, self);
     }
     
-    if (self.sender.isSelfUser) {
-        // if the message was sent by the selfUser we don't want to send a lastRead event, since we consider this message to be already read
-        [self.conversation updateLastReadServerTimeStampIfNeededWithTimeStamp:self.serverTimestamp andSync:NO];
-    }
-    [conversation updateWithMessage:self timeStamp:serverTimestamp];
+    [conversation updateTimestampsAfterUpdatingMessage:self];
 }
 
 + (ZMConversation *)conversationForUpdateEvent:(ZMUpdateEvent *)event inContext:(NSManagedObjectContext *)moc prefetchResult:(ZMFetchRequestBatchResult *)prefetchResult
@@ -424,6 +400,8 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
         [message removeMessageClearingSender:YES];
         [message updateCategoryCache];
     }
+    
+    [conversation updateTimestampsAfterDeletingMessage];
 }
 
 + (void)stopDeletionTimerForMessage:(ZMMessage *)message
@@ -530,9 +508,10 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
         self.serverTimestamp = timestamp;
         updatedTimestamp = YES;
     }
-    [self.conversation updateLastReadServerTimeStampIfNeededWithTimeStamp:timestamp andSync:NO];
-    [self.conversation updateLastServerTimeStampIfNeeded:timestamp];
-    [self.conversation updateLastModifiedDateIfNeeded:timestamp];
+    
+    [self.conversation updateServerModified:timestamp];
+    [self.conversation updateTimestampsAfterUpdatingMessage:self];
+    
     if (updatedTimestamp) {
         [self.conversation resortMessagesWithUpdatedMessage:self];
     }
@@ -867,8 +846,9 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
     ZMSystemMessage *message = [[ZMSystemMessage alloc] initWithNonce:NSUUID.UUID managedObjectContext:moc];
     message.systemMessageType = type;
     message.visibleInConversation = conversation;
+    message.serverTimestamp = updateEvent.timeStamp;
     
-    [message updateWithUpdateEvent:updateEvent forConversation:conversation isUpdatingExistingMessage:NO];
+    [message updateWithUpdateEvent:updateEvent forConversation:conversation];
     
     if (![usersSet isEqual:[NSSet setWithObject:message.sender]]) {
         [usersSet removeObject:message.sender];
@@ -880,6 +860,8 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
     if (type == ZMSystemMessageTypeParticipantsAdded || type == ZMSystemMessageTypeParticipantsRemoved) {
         [conversation insertOrUpdateSecurityVerificationMessageAfterParticipantsChange:message];
     }
+    
+    [conversation updateTimestampsAfterUpdatingMessage:message];
     
     return message;
 }
@@ -990,15 +972,15 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
 - (BOOL)shouldUpdateLastModifiedDate
 {
     switch (self.systemMessageType) {
-        case ZMSystemMessageTypeParticipantsRemoved:
-        case ZMSystemMessageTypeConversationNameChanged:
-            return NO;
+        case ZMSystemMessageTypeMissedCall:
+            return YES;
 
         default:
-            return YES;
+            return NO;
     }
 }
 
+// TODO jacob this should probably be the same as shouldUpdateLastModifiedDate
 - (BOOL)shouldGenerateUnreadCount;
 {
     return self.systemMessageType == ZMSystemMessageTypeMissedCall;

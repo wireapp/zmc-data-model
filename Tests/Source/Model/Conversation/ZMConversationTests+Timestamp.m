@@ -43,7 +43,7 @@
                                                         [expectation fulfill];
                                                     }];
     
-    [sut updateLastReadServerTimeStampIfNeededWithTimeStamp:[NSDate date] andSync:NO];
+    [sut updateLastRead:[NSDate date] synchronize:NO];
     XCTAssertTrue([self waitForCustomExpectationsWithTimeout:0.5]);
     
     // then

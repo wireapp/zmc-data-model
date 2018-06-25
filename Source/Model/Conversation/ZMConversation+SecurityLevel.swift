@@ -308,7 +308,7 @@ extension ZMConversation {
                                          users: Set<ZMUser>?,
                                          addedUsers: Set<ZMUser> = Set(),
                                          clients: Set<UserClient>?,
-                                         timestamp: Date?,
+                                         timestamp: Date?, // TODO jacob should not be optional
                                          duration: TimeInterval? = nil) -> (message: ZMSystemMessage, insertionIndex: UInt) {
         let systemMessage = ZMSystemMessage(nonce: UUID(), managedObjectContext: managedObjectContext!)
         systemMessage.systemMessageType = type
@@ -322,13 +322,6 @@ extension ZMConversation {
         }
         
         let index = self.sortedAppendMessage(systemMessage)
-        systemMessage.visibleInConversation = self
-        
-        if systemMessage.shouldGenerateUnreadCount() {
-            precondition(timestamp != nil, "An unread dot generating system message must have a timestamp")
-            updateLastServerTimeStampIfNeeded(timestamp)
-            updateUnreadMessages(with: systemMessage)
-        }
         
         return (message: systemMessage, insertionIndex: index)
     }
