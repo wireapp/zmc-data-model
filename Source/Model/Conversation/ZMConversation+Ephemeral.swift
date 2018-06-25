@@ -122,6 +122,7 @@ public extension MessageDestructionTimeoutValue {
         if isHours { return String(Int(rawValue / 3600)) }
         if isDays { return String(Int(rawValue / 86400)) }
         if isWeeks { return String(Int(rawValue / 604800)) }
+        if isYears { return String(Int(rawValue / 31536000)) }
         return nil
     }
     
@@ -146,9 +147,13 @@ public extension MessageDestructionTimeoutValue {
     }
 
     var isWeeks: Bool {
-        return rawValue >= 604800
+        return 604800..<31536000 ~= rawValue
     }
-    
+
+    var isYears: Bool {
+        return rawValue >= 31536000
+    }
+
 }
 
 public extension ZMConversation {
