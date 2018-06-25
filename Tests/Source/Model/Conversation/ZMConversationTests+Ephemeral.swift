@@ -56,7 +56,7 @@ extension MessageDestructionTimeoutValueTests {
         XCTAssertEqual(MessageDestructionTimeoutValue.oneDay.shortDisplayString, "1")
         XCTAssertEqual(MessageDestructionTimeoutValue.oneWeek.shortDisplayString, "1")
         XCTAssertEqual(MessageDestructionTimeoutValue.fourWeeks.shortDisplayString, "4")
-        XCTAssertEqual(MessageDestructionTimeoutValue.custom(31536000).shortDisplayString, "1")
+        XCTAssertEqual(MessageDestructionTimeoutValue.custom(TimeInterval.oneYearSinceNow()).shortDisplayString, "1")
     }
 
     func testThatItReturnsTheCorrectFormattedString(){
@@ -66,6 +66,7 @@ extension MessageDestructionTimeoutValueTests {
         XCTAssertEqual(MessageDestructionTimeoutValue.oneDay.displayString, "1 day")
         XCTAssertEqual(MessageDestructionTimeoutValue.oneWeek.displayString, "1 week")
         XCTAssertEqual(MessageDestructionTimeoutValue.fourWeeks.displayString, "4 weeks")
+        XCTAssertEqual(MessageDestructionTimeoutValue.custom(TimeInterval.oneYearSinceNow()).displayString, "1 year")
     }
 
     func testThatItReturnsTheCorrectFormattedStringForCustomTimeOut(){
@@ -82,7 +83,6 @@ extension MessageDestructionTimeoutValueTests {
 
         XCTAssertEqual(MessageDestructionTimeoutValue.custom(MessageDestructionTimeoutValue.oneWeek.rawValue * 1.5 + 1).displayString, "2 weeks")
 
-        XCTAssertEqual(MessageDestructionTimeoutValue.custom(31536000).displayString, "1 year")
     }
 }
 

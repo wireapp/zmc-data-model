@@ -122,7 +122,7 @@ public extension MessageDestructionTimeoutValue {
         if isHours { return String(Int(rawValue / 3600)) }
         if isDays { return String(Int(rawValue / 86400)) }
         if isWeeks { return String(Int(rawValue / 604800)) }
-        if isYears { return String(Int(rawValue / 31536000)) }
+        if isYears { return String(Int(rawValue / TimeInterval.oneYearSinceNow())) }
         return nil
     }
     
@@ -147,13 +147,23 @@ public extension MessageDestructionTimeoutValue {
     }
 
     var isWeeks: Bool {
-        return 604800..<31536000 ~= rawValue
+        return rawValue >= 604800 && !isYears
     }
 
     var isYears: Bool {
-        return rawValue >= 31536000
+        return rawValue >= TimeInterval.oneYearSinceNow()
     }
 
+}
+
+
+extension TimeInterval {
+    static func oneYearSinceNow() -> TimeInterval {
+        let now = Date()
+        let oneYear = Calendar.current.date(byAdding: .year, value: 1, to: now)
+
+        return (oneYear?.timeIntervalSince(now))!
+    }
 }
 
 public extension ZMConversation {
