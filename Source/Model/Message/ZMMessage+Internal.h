@@ -73,7 +73,6 @@ extern NSString * _Nonnull const ZMMessageDeliveryStateKey;
 - (void)updateWithPostPayload:(NSDictionary * _Nonnull)payload updatedKeys:(__unused NSSet * _Nullable)updatedKeys;
 - (void)resend;
 - (BOOL)shouldGenerateUnreadCount;
-- (BOOL)shouldUpdateLastModifiedDate;
 
 /// Removes the message and deletes associated content
 /// @param clearingSender Whether information about the sender should be removed or not

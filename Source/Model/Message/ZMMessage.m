@@ -174,11 +174,6 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
     return YES;
 }
 
-- (BOOL)shouldUpdateLastModifiedDate
-{
-    return YES;
-}
-
 + (NSPredicate *)predicateForObjectsThatNeedToBeUpdatedUpstream;
 {
     return [NSPredicate predicateWithValue:NO];
@@ -969,18 +964,6 @@ NSString * const ZMMessageParentMessageKey = @"parentMessage";
     return self;
 }
 
-- (BOOL)shouldUpdateLastModifiedDate
-{
-    switch (self.systemMessageType) {
-        case ZMSystemMessageTypeMissedCall:
-            return YES;
-
-        default:
-            return NO;
-    }
-}
-
-// TODO jacob this should probably be the same as shouldUpdateLastModifiedDate
 - (BOOL)shouldGenerateUnreadCount;
 {
     return self.systemMessageType == ZMSystemMessageTypeMissedCall;

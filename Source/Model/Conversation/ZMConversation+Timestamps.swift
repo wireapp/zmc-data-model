@@ -105,7 +105,7 @@ extension ZMConversation {
     func updateTimestampsAfterInsertingMessage(_ message: ZMMessage) {
         guard let timestamp = message.serverTimestamp else { return }
         
-        if message.shouldUpdateLastModifiedDate() {
+        if message.shouldGenerateUnreadCount() {
             updateLastModified(timestamp)
         }
 
@@ -241,7 +241,7 @@ extension ZMConversation {
         }
         
         let messages = managedObjectContext.fetchOrAssert(request: fetchRequest)
-        return messages.lazy.map(replaceChildWithParent).filter({ $0.visibleInConversation != nil }).first(where: { $0.shouldUpdateLastModifiedDate() })
+        return messages.lazy.map(replaceChildWithParent).filter({ $0.visibleInConversation != nil }).first(where: { $0.shouldGenerateUnreadCount() })
     }
     
     @objc
