@@ -191,7 +191,7 @@ extension ZMConversation {
                                              ZMMessageConversationKey, self,
                                              ZMMessageSenderKey, selfUser,
                                              ZMMessageServerTimestampKey, lastReadServerTimestamp as NSDate)
-        fetchRequest.sortDescriptors = ZMMessage.defaultSortDescriptors() as? [NSSortDescriptor] // TODO jacob annotate
+        fetchRequest.sortDescriptors = ZMMessage.defaultSortDescriptors()
         
         let messages = managedObjectContext.fetchOrAssert(request: fetchRequest)
         var lastKnockDate: Date? = nil
@@ -230,7 +230,7 @@ extension ZMConversation {
                                              ZMMessageHiddenInConversationKey, self,
                                              ZMMessageSenderKey, selfUser,
                                              ZMMessageServerTimestampKey, lastReadServerTimestamp as NSDate)
-        fetchRequest.sortDescriptors = ZMMessage.defaultSortDescriptors() as? [NSSortDescriptor] // TODO jacob annotate
+        fetchRequest.sortDescriptors = ZMMessage.defaultSortDescriptors()
         
         let replaceChildWithParent: (ZMMessage) -> ZMMessage = { message in
             if let systemMessage = message as? ZMSystemMessage, let parentMessage = systemMessage.parentMessage as? ZMMessage {
@@ -251,7 +251,7 @@ extension ZMConversation {
         let lastReadServerTimestamp = lastReadServerTimeStamp ?? Date.distantPast
         let fetchRequest = NSFetchRequest<ZMMessage>(entityName: ZMMessage.entityName())
         fetchRequest.predicate = NSPredicate(format: "%K == %@ AND %K > %@", ZMMessageConversationKey, self, ZMMessageServerTimestampKey, lastReadServerTimestamp as NSDate)
-        fetchRequest.sortDescriptors = ZMMessage.defaultSortDescriptors() as? [NSSortDescriptor] // TODO jacob annotate
+        fetchRequest.sortDescriptors = ZMMessage.defaultSortDescriptors()
         
         return managedObjectContext.fetchOrAssert(request: fetchRequest)
     }

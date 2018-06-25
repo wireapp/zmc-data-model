@@ -67,7 +67,7 @@ extern NSString * _Nonnull const ZMMessageDeliveryStateKey;
 - (instancetype _Nonnull)initWithNonce:(NSUUID * _Nonnull)nonce managedObjectContext:(NSManagedObjectContext * _Nonnull)managedObjectContext;
 
 // Use these for sorting:
-+ (NSArray * _Nonnull)defaultSortDescriptors;
++ (NSArray<NSSortDescriptor *> * _Nonnull)defaultSortDescriptors;
 - (NSComparisonResult)compare:(ZMMessage * _Nonnull)other;
 - (NSUUID * _Nullable)nonceFromPostPayload:(NSDictionary * _Nonnull)payload;
 - (void)updateWithPostPayload:(NSDictionary * _Nonnull)payload updatedKeys:(__unused NSSet * _Nullable)updatedKeys;
