@@ -388,7 +388,6 @@
 @end
 
 
-// TODO jacob port to Swift to when case use NotificationName extension
 @implementation ZMConversationMessageWindowTests (ScrollingNotification)
 
 - (void)testThatScrollingTheWindowUpCausesAScrollingNotification
