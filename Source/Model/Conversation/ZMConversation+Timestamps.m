@@ -24,8 +24,8 @@
 #import "NSManagedObjectContext+zmessaging.h"
 #import <WireDataModel/WireDataModel-Swift.h>
 
+// TODO jacob port to Swift
 @implementation ZMConversation (Timestamps)
-
 
 + (NSDate *)updateTimeStamp:(NSDate *)timeToUpdate ifNeededWithTimeStamp:(NSDate *)newTimeStamp
 {
@@ -35,44 +35,6 @@
         return newTimeStamp;
     }
     return nil;
-}
-
-- (BOOL)updateLastServerTimeStampIfNeeded:(NSDate *)serverTimeStamp
-{
-    NSDate *newTime = [ZMConversation updateTimeStamp:self.lastServerTimeStamp ifNeededWithTimeStamp:serverTimeStamp];
-    if (newTime != nil) {
-        self.lastServerTimeStamp = newTime;
-    }
-    return (newTime != nil);
-}
-
-- (BOOL)updateLastReadServerTimeStampIfNeededWithTimeStamp:(NSDate *)timeStamp andSync:(BOOL)shouldSync
-{
-    NSDate *newTime = [ZMConversation updateTimeStamp:self.lastReadServerTimeStamp ifNeededWithTimeStamp:timeStamp];
-    if (newTime != nil) {
-        self.lastReadServerTimeStamp = newTime;
-        BOOL isSyncContext = self.managedObjectContext.zm_isSyncContext; // modified keys are set "automatically" on the uiMOC
-        if (shouldSync && self.lastReadServerTimeStamp != nil && isSyncContext) {
-            [self setLocallyModifiedKeys:[NSSet setWithObject:ZMConversationLastReadServerTimeStampKey]];
-        }
-        NSString *name = ZMConversation.lastReadDidChangeNotificationName;
-        [[[NotificationInContext alloc] initWithName:name
-                                             context:self.managedObjectContext.notificationContext
-                                              object:self
-                                            userInfo:nil
-          ] post];
-    }
-    return (newTime != nil);
-}
-
-- (BOOL)updateLastModifiedDateIfNeeded:(NSDate *)date
-{
-    NSDate *newTime =  [ZMConversation updateTimeStamp:self.lastModifiedDate ifNeededWithTimeStamp:date];
-    if (newTime != nil) {
-        self.lastModifiedDate = newTime;
-    }
-
-    return (newTime != nil);
 }
 
 - (BOOL)updateClearedServerTimeStampIfNeeded:(NSDate *)date andSync:(BOOL)shouldSync

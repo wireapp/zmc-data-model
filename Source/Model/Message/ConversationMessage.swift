@@ -178,22 +178,6 @@ extension ZMMessage : ZMConversationMessage {
             syncConversation.calculateLastUnreadMessages()
             syncContext.saveOrRollback()
         }
-
-        // TODO jacob what about this notification?
-//        syncContext.performGroupedBlock {
-//            guard let syncObject = try? syncContext.existingObject(with: conversationID),
-//                  let syncConversation = syncObject as? ZMConversation else {
-//                zmLog.error("Cannot mark as unread message outside of the conversation: sync conversation cannot be fetched.")
-//                return
-//            }
-//
-//            syncConversation.updateUnreadCount()
-//            syncContext.saveOrRollback()
-//
-//            NotificationInContext(name: ZMConversation.lastReadDidChangeNotificationName,
-//                                  context: syncContext.notificationContext,
-//                                  object: syncConversation).post()
-//        }
     }
 }
 
