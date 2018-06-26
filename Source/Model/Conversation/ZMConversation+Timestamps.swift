@@ -61,7 +61,7 @@ extension ZMConversation {
             lastReadServerTimeStamp = timestamp
             
             // modified keys are set "automatically" on the uiMOC
-            if managedObjectContext.zm_isSyncContext {
+            if synchronize && managedObjectContext.zm_isSyncContext {
                 setLocallyModifiedKeys(Set([ZMConversationLastReadServerTimeStampKey]))
             }
             
@@ -83,7 +83,66 @@ extension ZMConversation {
         }
     }
     
-    func updateLastUnreadKnock(_ timestamp: Date?) {
+    @objc
+    func updateCleared(_ timestamp: Date, synchronize: Bool = false) {
+        guard let managedObjectContext = managedObjectContext else { return }
+        
+        if timestamp > clearedTimeStamp {
+            clearedTimeStamp = timestamp
+            
+            if synchronize && managedObjectContext.zm_isSyncContext {
+                setLocallyModifiedKeys(Set([ZMConversationClearedTimeStampKey]))
+            }
+        }
+    }
+    
+    @objc @discardableResult
+    func updateArchived(_ timestamp: Date, synchronize: Bool = false) -> Bool {
+        guard let managedObjectContext = managedObjectContext else { return false }
+        
+        if timestamp > archivedChangedTimestamp {
+            archivedChangedTimestamp = timestamp
+            
+            if synchronize && managedObjectContext.zm_isSyncContext {
+                setLocallyModifiedKeys([ZMConversationArchivedChangedTimeStampKey])
+            }
+            
+            return true
+        } else if timestamp == archivedChangedTimestamp {
+            if synchronize {
+                setLocallyModifiedKeys([ZMConversationArchivedChangedTimeStampKey])
+            }
+            
+            return true
+        }
+        
+        return false
+    }
+    
+    @objc @discardableResult
+    func updateSilenced(_ timestamp: Date, synchronize: Bool = false) -> Bool {
+        guard let managedObjectContext = managedObjectContext else { return false }
+        
+        if timestamp > silencedChangedTimestamp {
+            silencedChangedTimestamp = timestamp
+            
+            if synchronize && managedObjectContext.zm_isSyncContext {
+                setLocallyModifiedKeys([ZMConversationSilencedChangedTimeStampKey])
+            }
+            
+            return true
+        } else if timestamp == silencedChangedTimestamp {
+            if synchronize {
+                setLocallyModifiedKeys([ZMConversationSilencedChangedTimeStampKey])
+            }
+            
+            return true
+        }
+        
+        return false
+    }
+    
+    fileprivate func updateLastUnreadKnock(_ timestamp: Date?) {
         guard let timestamp = timestamp else { return lastUnreadKnockDate = nil }
         
         if timestamp > lastUnreadKnockDate {
@@ -91,7 +150,7 @@ extension ZMConversation {
         }
     }
     
-    func updateLastUnreadMissedCall(_ timestamp: Date?) {
+    fileprivate func updateLastUnreadMissedCall(_ timestamp: Date?) {
         guard let timestamp = timestamp else { return lastUnreadMissedCallDate = nil }
         
         if timestamp > lastUnreadMissedCallDate {

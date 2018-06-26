@@ -28,7 +28,6 @@
 #import "ZMManagedObject+Internal.h"
 #import "ZMManagedObjectContextProvider.h"
 #import "ZMConversation+Internal.h"
-#import "ZMConversation+Timestamps.h"
 #import "ZMConversation+UnreadCount.h"
 
 #import "ZMUser+Internal.h"
@@ -175,7 +174,10 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 - (void)setIsArchived:(BOOL)isArchived
 {
     self.internalIsArchived = isArchived;
-    [self updateArchivedChangedTimeStampIfNeeded:self.lastServerTimeStamp andSync:YES];
+    
+    if (self.lastServerTimeStamp != nil) {
+        [self updateArchived:self.lastServerTimeStamp synchronize:YES];
+    }
 }
 
 - (NSUInteger)estimatedUnreadCount
@@ -194,8 +196,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     [self setPrimitiveValue:@(isSilenced) forKey:ZMConversationIsSilencedKey];
     [self didChangeValueForKey:ZMConversationIsSilencedKey];
     
-    if (self.managedObjectContext.zm_isUserInterfaceContext) {
-        [self updateSilencedChangedTimeStampIfNeeded:self.lastServerTimeStamp andSync:YES];
+    if (self.managedObjectContext.zm_isUserInterfaceContext && self.lastServerTimeStamp) {
+        [self updateSilenced:self.lastServerTimeStamp synchronize:YES];
     }
 }
 
@@ -1282,12 +1284,13 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     double newTimeStamp = cleared.clearedTimestamp;
     NSDate *timestamp = [NSDate dateWithTimeIntervalSince1970:(newTimeStamp/1000)];
     NSUUID *conversationID = [NSUUID uuidWithTransportString:cleared.conversationId];
+    
     if (conversationID == nil || timestamp == nil) {
         return;
     }
     
-    ZMConversation *conversationToUpdate = [ZMConversation conversationWithRemoteID:conversationID createIfNeeded:YES inContext:context];
-    [conversationToUpdate updateClearedServerTimeStampIfNeeded:timestamp andSync:NO];
+    ZMConversation *conversation = [ZMConversation conversationWithRemoteID:conversationID createIfNeeded:YES inContext:context];
+    [conversation updateCleared:timestamp synchronize:NO];
 }
 
 

@@ -261,7 +261,10 @@ NSString * const DeliveredKey = @"delivered";
     
     if (!olderThanClearTimestamp) {
         conversation.internalIsArchived = NO;
-        [conversation updateArchivedChangedTimeStampIfNeeded:self.serverTimestamp andSync:NO];
+        
+        if (conversation.lastServerTimeStamp != nil) {
+            [conversation updateArchived:self.serverTimestamp synchronize:NO];
+        }
     }
 }
 

@@ -22,7 +22,6 @@
 #import "ZMMessage.h"
 #import "ZMConnection.h"
 #import "ZMConversationSecurityLevel.h"
-#import "ZMConversation+Timestamps.h"
 
 @import WireImages;
 

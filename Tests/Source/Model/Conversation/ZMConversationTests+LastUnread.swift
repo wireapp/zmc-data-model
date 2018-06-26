@@ -164,6 +164,19 @@ class ZMConversationTests_LastUnread: ZMConversationTestsBase {
         XCTAssertNil(conversation.lastReadServerTimeStamp)
     }
     
+    func testThatItSendsANotificationWhenSettingTheLastRead() {
+        // given
+        let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
+        
+        // expect
+        expectation(forNotification: ZMConversation.lastReadDidChangeNotificationName, object: nil) { (note) -> Bool in
+            return true
+        }
+        
+        // when
+        conversation.updateLastRead(Date())
+        XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
+    }
     
     // MARK: - First Unread Message
     
