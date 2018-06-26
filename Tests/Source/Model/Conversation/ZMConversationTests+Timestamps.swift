@@ -19,8 +19,7 @@
 import XCTest
 @testable import WireDataModel
 
-// TODO jacob split up this test class into multiple files
-class ZMConversationTests_LastUnread: ZMConversationTestsBase {
+class ZMConversationTests_Timestamps: ZMConversationTestsBase {
     
     // MARK: - Unread Count
     
@@ -259,6 +258,5 @@ class ZMConversationTests_LastUnread: ZMConversationTestsBase {
         // then
         XCTAssertNil(conversation.firstUnreadMessage)
     }
-    
     
 }
