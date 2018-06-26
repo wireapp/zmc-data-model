@@ -24,16 +24,43 @@ class ZMConversationTests_LastUnread: ZMConversationTestsBase {
     
     // MARK: - Unread Count
     
-    // TODO jacob
     func testThatLastUnreadKnockDateIsSetWhenMessageInserted() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let timestamp = Date()
+            let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
+            let knock = ZMGenericMessage.knock(nonce: UUID())
+            let message = ZMClientMessage(nonce: UUID(), managedObjectContext: self.syncMOC)
+            message.add(knock.data())
+            message.serverTimestamp = timestamp
+            message.visibleInConversation = conversation
+            
+            // when
+            conversation.updateTimestampsAfterInsertingMessage(message)
+            
+            // then
+            XCTAssertEqual(conversation.lastUnreadKnockDate, timestamp)
+            XCTAssertEqual(conversation.estimatedUnreadCount, 1)
+        }
     }
     
-    // TODO jacob
     func testThatLastUnreadMissedCallDateIsSetWhenMessageInserted() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let timestamp = Date()
+            let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
+            let message = ZMSystemMessage(nonce: UUID(), managedObjectContext: self.syncMOC)
+            message.systemMessageType = .missedCall
+            message.serverTimestamp = timestamp
+            message.visibleInConversation = conversation
+            
+            // when
+            conversation.updateTimestampsAfterInsertingMessage(message)
+            
+            // then
+            XCTAssertEqual(conversation.lastUnreadMissedCallDate, timestamp)
+            XCTAssertEqual(conversation.estimatedUnreadCount, 1)
+        }
     }
     
     func testThatUnreadCountIsUpdatedWhenMessageIsInserted() {
