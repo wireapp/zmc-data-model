@@ -88,7 +88,8 @@ static NSString *const TeamRemoteIdentifierDataKey = @"teamRemoteIdentifier_data
 static NSString *const VoiceChannelKey = @"voiceChannel";
 static NSString *const VoiceChannelStateKey = @"voiceChannelState";
 
-static NSString *const MessageDestructionTimeoutKey = @"messageDestructionTimeout";
+static NSString *const LocalMessageDestructionTimeoutKey = @"localMessageDestructionTimeout";
+static NSString *const SyncedMessageDestructionTimeoutKey = @"syncedMessageDestructionTimeout";
 
 
 static NSString *const DownloadedMessageIDsDataKey = @"downloadedMessageIDs_data";
@@ -158,7 +159,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @dynamic internalIsArchived;
 @dynamic archivedChangedTimestamp;
 @dynamic silencedChangedTimestamp;
-@dynamic messageDestructionTimeout;
 @dynamic team;
 
 @synthesize pendingLastReadServerTimestamp;
@@ -360,7 +360,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
             ZMConversationInternalEstimatedUnreadCountKey,
             ZMConversationIsArchivedKey,
             ZMConversationIsSilencedKey,
-            MessageDestructionTimeoutKey,
+            LocalMessageDestructionTimeoutKey,
+            SyncedMessageDestructionTimeoutKey,
             DownloadedMessageIDsDataKey,
             LastEventIDDataKey,
             ClearedEventIDDataKey,
@@ -370,7 +371,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
             TeamRemoteIdentifierKey,
             TeamRemoteIdentifierDataKey,
             AccessModeStringsKey,
-            AccessRoleStringKey,
+            AccessRoleStringKey
         };
         
         NSSet *additionalKeys = [NSSet setWithObjects:KeysIgnoredForTrackingModifications count:(sizeof(KeysIgnoredForTrackingModifications) / sizeof(*KeysIgnoredForTrackingModifications))];
@@ -732,8 +733,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @dynamic lastModifiedDate;
 @dynamic normalizedUserDefinedName;
 @dynamic hiddenMessages;
-@dynamic messageDestructionTimeout;
-
 
 + (NSSet *)keyPathsForValuesAffectingIsArchived
 {
@@ -1039,7 +1038,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     [[ZMAssetClientMessage alloc] initWithOriginalImage:imageData
                                                   nonce:nonce
                                    managedObjectContext:self.managedObjectContext
-                                           expiresAfter:self.messageDestructionTimeout];
+                                           expiresAfter:self.messageDestructionTimeoutValue];
 
     message.sender = [ZMUser selfUserInContext:self.managedObjectContext];
     
@@ -1063,7 +1062,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     [[ZMAssetClientMessage alloc] initWith:fileMetadata
                                      nonce:nonce
                       managedObjectContext:self.managedObjectContext
-                              expiresAfter:self.messageDestructionTimeout];
+                              expiresAfter:self.messageDestructionTimeoutValue];
 
     message.sender = [ZMUser selfUserInContext:self.managedObjectContext];
     [self sortedAppendMessage:message];
@@ -1083,14 +1082,14 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (ZMClientMessage *)appendOTRMessageWithLocationData:(ZMLocationData *)locationData nonce:(NSUUID *)nonce
 {
-    ZMGenericMessage *genericMessage = [ZMGenericMessage genericMessageWithLocation:locationData.zmLocation messageID:nonce expiresAfter:@(self.messageDestructionTimeout)];
+    ZMGenericMessage *genericMessage = [ZMGenericMessage genericMessageWithLocation:locationData.zmLocation messageID:nonce expiresAfter:@(self.messageDestructionTimeoutValue)];
     ZMClientMessage *message = [self appendClientMessageWithGenericMessage:genericMessage];
     return message;
 }
 
 - (ZMClientMessage *)appendOTRKnockMessageWithNonce:(NSUUID *)nonce
 {
-    ZMGenericMessage *genericMessage = [ZMGenericMessage knockWithNonce:nonce expiresAfter:@(self.messageDestructionTimeout)];
+    ZMGenericMessage *genericMessage = [ZMGenericMessage knockWithNonce:nonce expiresAfter:@(self.messageDestructionTimeoutValue)];
     ZMClientMessage *message = [self appendClientMessageWithGenericMessage:genericMessage];
     return message;
 }
@@ -1103,7 +1102,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     ZMGenericMessage *genericMessage = [ZMGenericMessage messageWithText:normalizedText.stringByRemovingExtremeCombiningCharacters
                                                              linkPreview:nil
                                                                    nonce:nonce
-                                                            expiresAfter:@(self.messageDestructionTimeout)
+                                                            expiresAfter:@(self.messageDestructionTimeoutValue)
                                                                 mentions: mentions];
     ZMClientMessage *message = [self appendClientMessageWithGenericMessage:genericMessage];
     message.linkPreviewState = fetchPreview ? ZMLinkPreviewStateWaitingToBeProcessed : ZMLinkPreviewStateDone;

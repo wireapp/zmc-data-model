@@ -19,48 +19,109 @@
 import Foundation
 @testable import WireDataModel
 
-class ZMConversationMessageDestructionTimeoutTests : XCTestCase {
+final class MessageDestructionTimeoutValueTests : XCTestCase {
 
     func testThatItReturnsTheCorrectTimeouts(){
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout.none.rawValue, 0)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout.tenSeconds.rawValue, 10)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout.fiveMinutes.rawValue, 300)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout.oneHour.rawValue, 3600)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout.oneDay.rawValue, 86400)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout.oneWeek.rawValue, 604800)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout.fourWeeks.rawValue, 2419200)
+        XCTAssertEqual(MessageDestructionTimeoutValue.none.rawValue, 0)
+        XCTAssertEqual(MessageDestructionTimeoutValue.tenSeconds.rawValue, 10)
+        XCTAssertEqual(MessageDestructionTimeoutValue.fiveMinutes.rawValue, 300)
+        XCTAssertEqual(MessageDestructionTimeoutValue.oneHour.rawValue, 3600)
+        XCTAssertEqual(MessageDestructionTimeoutValue.oneDay.rawValue, 86400)
+        XCTAssertEqual(MessageDestructionTimeoutValue.oneWeek.rawValue, 604800)
+        XCTAssertEqual(MessageDestructionTimeoutValue.fourWeeks.rawValue, 2419200)
     }
 
     func testThatItCreatesAValidTimeOut() {
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout(rawValue: -2), .custom(-2))
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout(rawValue: 0), .none)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout(rawValue: 10), .tenSeconds)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout(rawValue: 300), .fiveMinutes)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout(rawValue: 3600), .oneHour)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout(rawValue: 86400), .oneDay)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout(rawValue: 604800), .oneWeek)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout(rawValue: 690000), .custom(690000))
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout(rawValue: 2419200), .fourWeeks)
-        XCTAssertEqual(ZMConversationMessageDestructionTimeout(rawValue: 1234567890), .custom(1234567890))
+        XCTAssertEqual(MessageDestructionTimeoutValue(rawValue: -2), .custom(-2))
+        XCTAssertEqual(MessageDestructionTimeoutValue(rawValue: 0), .none)
+        XCTAssertEqual(MessageDestructionTimeoutValue(rawValue: 10), .tenSeconds)
+        XCTAssertEqual(MessageDestructionTimeoutValue(rawValue: 300), .fiveMinutes)
+        XCTAssertEqual(MessageDestructionTimeoutValue(rawValue: 3600), .oneHour)
+        XCTAssertEqual(MessageDestructionTimeoutValue(rawValue: 86400), .oneDay)
+        XCTAssertEqual(MessageDestructionTimeoutValue(rawValue: 604800), .oneWeek)
+        XCTAssertEqual(MessageDestructionTimeoutValue(rawValue: 690000), .custom(690000))
+        XCTAssertEqual(MessageDestructionTimeoutValue(rawValue: 2419200), .fourWeeks)
+        XCTAssertEqual(MessageDestructionTimeoutValue(rawValue: 1234567890), .custom(1234567890))
     }
 
 }
 
+// Tests for displayString of MessageDestructionTimeoutValue
+extension MessageDestructionTimeoutValueTests {
 
+    func testThatItReturnsTheCorrectShortDisplayString(){
+        XCTAssertEqual(MessageDestructionTimeoutValue.none.displayString, NSLocalizedString("input.ephemeral.timeout.none", comment: ""))
+        XCTAssertEqual(MessageDestructionTimeoutValue.tenSeconds.shortDisplayString, "10")
+        XCTAssertEqual(MessageDestructionTimeoutValue.fiveMinutes.shortDisplayString, "5")
+        XCTAssertEqual(MessageDestructionTimeoutValue.oneDay.shortDisplayString, "1")
+        XCTAssertEqual(MessageDestructionTimeoutValue.oneWeek.shortDisplayString, "1")
+        XCTAssertEqual(MessageDestructionTimeoutValue.fourWeeks.shortDisplayString, "4")
+        XCTAssertEqual(MessageDestructionTimeoutValue.custom(TimeInterval.oneYearSinceNow()).shortDisplayString, "1")
+    }
+
+    func testThatItReturnsTheCorrectFormattedString(){
+        XCTAssertEqual(MessageDestructionTimeoutValue.none.displayString, NSLocalizedString("input.ephemeral.timeout.none", comment: ""))
+        XCTAssertEqual(MessageDestructionTimeoutValue.tenSeconds.displayString, "10 seconds")
+        XCTAssertEqual(MessageDestructionTimeoutValue.fiveMinutes.displayString, "5 minutes")
+        XCTAssertEqual(MessageDestructionTimeoutValue.oneDay.displayString, "1 day")
+        XCTAssertEqual(MessageDestructionTimeoutValue.oneWeek.displayString, "1 week")
+        XCTAssertEqual(MessageDestructionTimeoutValue.fourWeeks.displayString, "4 weeks")
+        XCTAssertEqual(MessageDestructionTimeoutValue.custom(TimeInterval.oneYearSinceNow()).displayString, "1 year")
+    }
+
+    func testThatItReturnsTheCorrectFormattedStringForCustomTimeOut(){
+        XCTAssertEqual(MessageDestructionTimeoutValue.custom(1 + 0.1).displayString, "1 second")
+
+        XCTAssertEqual(MessageDestructionTimeoutValue.custom(60 + 31).displayString, "2 minutes")
+
+        XCTAssertEqual(MessageDestructionTimeoutValue.custom(3601).displayString, "1 hour")
+        XCTAssertEqual(MessageDestructionTimeoutValue.custom(3600 + 1799).displayString, "1 hour")
+        XCTAssertEqual(MessageDestructionTimeoutValue.custom(3600 + 1800).displayString, "2 hours")
+        XCTAssertEqual(MessageDestructionTimeoutValue.custom(3600 + 1801).displayString, "2 hours")
+
+        XCTAssertEqual(MessageDestructionTimeoutValue.custom(86400 + 86400 - 1).displayString, "2 days")
+
+        XCTAssertEqual(MessageDestructionTimeoutValue.custom(MessageDestructionTimeoutValue.oneWeek.rawValue * 1.5 + 1).displayString, "2 weeks")
+
+    }
+}
+
+extension ZMConversation {
+    func setLocalMessageDestructionTimeout(to newValue: TimeInterval) {
+        if newValue == 0 {
+            messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: newValue))
+        }
+        else {
+            messageDestructionTimeout = nil
+        }
+    }
+}
 
 class ZMConversationTests_Ephemeral : BaseZMMessageTests {
 
     func testThatItAllowsSettingTimeoutsOnGroupConversations(){
         // given
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
+        conversation.conversationType = .group
         
         // when
-        conversation.updateMessageDestructionTimeout(timeout: .tenSeconds)
+        conversation.messageDestructionTimeout = .local(.tenSeconds)
         
         // then
-        XCTAssertEqual(conversation.messageDestructionTimeout, 10)
+        XCTAssertEqual(conversation.messageDestructionTimeoutValue, 10)
     }
 
+    func testThatItAllowsSettingSyncedTimeoutsOnGroupConversations(){
+        // given
+        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+        conversation.conversationType = .group
+        
+        // when
+        conversation.messageDestructionTimeout = .synced(.tenSeconds)
+        
+        // then
+        XCTAssertEqual(conversation.messageDestructionTimeoutValue, 10)
+    }
     
     func testThatItAllowsSettingTimeoutsOnOneOnOneConversations(){
         // given
@@ -68,10 +129,10 @@ class ZMConversationTests_Ephemeral : BaseZMMessageTests {
         conversation.conversationType = .oneOnOne
         
         // when
-        conversation.updateMessageDestructionTimeout(timeout: .tenSeconds)
+        conversation.messageDestructionTimeout = .local(.tenSeconds)
         
         // then
-        XCTAssertEqual(conversation.messageDestructionTimeout, 10)
+        XCTAssertEqual(conversation.messageDestructionTimeoutValue, 10)
     }
 }
 
