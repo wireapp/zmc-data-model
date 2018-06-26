@@ -213,7 +213,7 @@ extension ZMConversation {
     /// Update the last read timestamp.
     ///
     /// NOTE: This method only has an effect when called from the UI context and it's throttled so it's fine to call it repeatedly.
-    func enqueueUpdateLastRead(_ timestamp: Date) {
+    fileprivate func enqueueUpdateLastRead(_ timestamp: Date) {
         guard let managedObjectContext = managedObjectContext, managedObjectContext.zm_isUserInterfaceContext else { return }
         
         updatePendingLastRead(timestamp)
