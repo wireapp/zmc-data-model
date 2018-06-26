@@ -1703,6 +1703,49 @@
     XCTAssertEqual(conversation.firstUnreadMessage, unreadMessage);
 }
 
+- (void)testThatItResetsHasUnreadUnsentMessage
+{
+    // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMMessage *message1 = (id)[conversation appendMessageWithText:@"haha"];
+    ZMMessage *message2 = (id)[conversation appendMessageWithText:@"haha"];
+    [message2 expire];
+    
+    XCTAssertEqual(conversation.conversationListIndicator, ZMConversationListIndicatorExpiredMessage);
+    [self.uiMOC saveOrRollback];
+    
+    conversation.lastServerTimeStamp = message1.serverTimestamp;
+    
+    // when
+    [conversation markMessagesAsReadFrom:message1 to:message2];
+    WaitForAllGroupsToBeEmpty(1.0);
+    
+    // then
+    XCTAssertEqual(conversation.conversationListIndicator, ZMConversationListIndicatorNone);
+}
+
+- (void)testThatItResetsHasUnreadUnsentMessageWhenThereAreAdditionalSentMessages
+{
+    // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMMessage *message1 = (id)[conversation appendMessageWithText:@"haha"];
+    ZMMessage *message2 = (id)[conversation appendMessageWithText:@"haha"];
+    [message2 expire];
+    ZMMessage *message3 = (id)[conversation appendMessageWithText:@"haha"];
+    
+    XCTAssertEqual(conversation.conversationListIndicator, ZMConversationListIndicatorExpiredMessage);
+    [self.uiMOC saveOrRollback];
+    
+    conversation.lastServerTimeStamp = message3.serverTimestamp;
+    
+    // when
+    [conversation markMessagesAsReadFrom:message1 to:message2];
+    WaitForAllGroupsToBeEmpty(1.0);
+    
+    // then
+    XCTAssertEqual(conversation.conversationListIndicator, ZMConversationListIndicatorNone);
+}
+
 @end
 
 @implementation ZMConversationTests (LastEditableMessage)

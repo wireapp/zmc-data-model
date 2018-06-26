@@ -953,7 +953,6 @@
 		F9B71F511CB2BC85001DB03F /* ZMConversationTests+gapsAndWindows.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ZMConversationTests+gapsAndWindows.m"; sourceTree = "<group>"; };
 		F9B71F531CB2BC85001DB03F /* ZMConversationTests+participants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ZMConversationTests+participants.m"; sourceTree = "<group>"; };
 		F9B71F541CB2BC85001DB03F /* ZMConversationTests+Transport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ZMConversationTests+Transport.m"; sourceTree = "<group>"; };
-		F9B71F551CB2BC85001DB03F /* ZMConversationTests+UnreadCount.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ZMConversationTests+UnreadCount.m"; sourceTree = "<group>"; };
 		F9B71F561CB2BC85001DB03F /* ZMConversationTests+Validation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ZMConversationTests+Validation.m"; sourceTree = "<group>"; };
 		F9B71F571CB2BC85001DB03F /* ZMConversationTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZMConversationTests.h; sourceTree = "<group>"; };
 		F9B71F581CB2BC85001DB03F /* ZMConversationTests.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ZMConversationTests.m; sourceTree = "<group>"; };
@@ -1675,7 +1674,6 @@
 				16D5260C20DD1D9400608D8E /* ZMConversationTests+Timestamps.swift */,
 				F9B71F531CB2BC85001DB03F /* ZMConversationTests+participants.m */,
 				F9B71F541CB2BC85001DB03F /* ZMConversationTests+Transport.m */,
-				F9B71F551CB2BC85001DB03F /* ZMConversationTests+UnreadCount.m */,
 				F9B71F561CB2BC85001DB03F /* ZMConversationTests+Validation.m */,
 				F92C992B1DAFC58A0034AFDD /* ZMConversationTests+Ephemeral.swift */,
 				F1B025601E534CF900900C65 /* ZMConversationTests+PrepareToSend.swift */,
