@@ -56,6 +56,34 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
     }
 }
 
+- (void)updateWithUpdateEvent:(ZMUpdateEvent *)updateEvent
+{
+    NSDate *timestamp = updateEvent.timeStamp;
+    
+    if (timestamp == NULL) {
+        return;
+    }
+    
+    [self updateServerModified:timestamp];
+    
+    if ([self shouldUnarchiveOnEvent:updateEvent]) {
+        [self unarchiveConversationFromEvent:updateEvent];
+    }
+}
+
+- (BOOL)shouldUnarchiveOnEvent:(ZMUpdateEvent *)event
+{
+    // This list only contains events that should unarchive conversations which doesn't generate a message in the conversation.
+    switch (event.type) {
+        case ZMUpdateEventTypeConversationCreate:
+        case ZMUpdateEventTypeConversationConnectRequest:
+            return YES;
+        default:
+            return NO;
+            
+    }
+}
+
 - (void)updateWithTransportData:(NSDictionary *)transportData serverTimeStamp:(NSDate *)serverTimeStamp;
 {
     NSUUID *remoteId = [transportData uuidForKey:ConversationInfoIDKey];
@@ -168,7 +196,7 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
     [latestSystemMessage updateNeedsUpdatingUsersIfNeeded];
 }
 
-/// Pass timeStamp when the timeStamp equals the time of the lastRead / cleared event, otherwise pass nil
+/// Pass timestamp when the timestamp equals the time of the lastRead / cleared event, otherwise pass nil
 - (void)updateSelfStatusFromDictionary:(NSDictionary *)dictionary timeStamp:(NSDate *)timeStamp previousLastServerTimeStamp:(NSDate *)previousLastServerTimestamp
 {
     self.isSelfAnActiveMember = YES;
@@ -233,11 +261,11 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
         self.internalIsArchived = NO;
         
         if (event.timeStamp != nil) {
+            [self updateLastModified:event.timeStamp];
             [self updateArchived:event.timeStamp synchronize:NO];
         }
     }
 }
-
 
 - (BOOL)shouldAddEvent:(ZMUpdateEvent *)event
 {
