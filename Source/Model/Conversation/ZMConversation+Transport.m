@@ -99,6 +99,7 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
     self.conversationType = [self conversationTypeFromTransportData:[transportData numberForKey:ConversationInfoTypeKey]];
     
     if (serverTimeStamp != nil) {
+        [self updateLastModified:serverTimeStamp];
         [self updateServerModified:serverTimeStamp];
     }
     
