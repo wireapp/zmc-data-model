@@ -58,29 +58,8 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
 
 - (void)updateWithUpdateEvent:(ZMUpdateEvent *)updateEvent
 {
-    NSDate *timestamp = updateEvent.timeStamp;
-    
-    if (timestamp == NULL) {
-        return;
-    }
-    
-    [self updateServerModified:timestamp];
-    
-    if ([self shouldUnarchiveOnEvent:updateEvent]) {
-        [self unarchiveConversationFromEvent:updateEvent];
-    }
-}
-
-- (BOOL)shouldUnarchiveOnEvent:(ZMUpdateEvent *)event
-{
-    // This list only contains events that should unarchive conversations which doesn't generate a message in the conversation.
-    switch (event.type) {
-        case ZMUpdateEventTypeConversationCreate:
-        case ZMUpdateEventTypeConversationConnectRequest:
-            return YES;
-        default:
-            return NO;
-            
+    if (updateEvent.timeStamp != nil) {
+        [self updateServerModified:updateEvent.timeStamp];
     }
 }
 
@@ -253,18 +232,6 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
         default:
             NOT_USED(ZMConvTypeSelf);
             return ZMConversationTypeSelf;
-    }
-}
-
-- (void)unarchiveConversationFromEvent:(ZMUpdateEvent *)event;
-{
-    if ([event canUnarchiveConversation:self]){
-        self.internalIsArchived = NO;
-        
-        if (event.timeStamp != nil) {
-            [self updateLastModified:event.timeStamp];
-            [self updateArchived:event.timeStamp synchronize:NO];
-        }
     }
 }
 

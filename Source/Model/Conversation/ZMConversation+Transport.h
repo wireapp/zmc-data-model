@@ -44,7 +44,6 @@ extern NSString *const ZMConversationInfoOTRArchivedReferenceKey;
 
 + (ZMConversationType)conversationTypeFromTransportData:(NSNumber *)transportType;
 
-- (void)unarchiveConversationFromEvent:(ZMUpdateEvent *)event;
 - (BOOL)shouldAddEvent:(ZMUpdateEvent *)event;
 
 @end
