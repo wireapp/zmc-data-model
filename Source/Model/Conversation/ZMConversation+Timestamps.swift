@@ -249,6 +249,7 @@ extension ZMConversation {
         guard let timestamp = lastServerTimeStamp else { return }
         
         enqueueUpdateLastRead(timestamp)
+        savePendingLastRead()
     }
     
     /// Calculates the the last unread knock, missed call and total unread unread count. This should be re-calculated
