@@ -356,6 +356,11 @@ struct stringAndStatus {
     if (oldStatus == ZMConnectionStatusSent && (connection.status == ZMConnectionStatusAccepted)) {
         connection.conversation.conversationType = ZMConversationTypeOneOnOne;
         connection.needsToBeUpdatedFromBackend = YES; // Do we really need that?
+        
+        if (connection.conversation.isArchived) {
+            // When a connection is accepted we always want to bring it out of the archive
+            connection.conversation.isArchived = NO;
+        }
     }
     
     //Handle race condition when at the same time we send request to the user and this user also send us connection request
