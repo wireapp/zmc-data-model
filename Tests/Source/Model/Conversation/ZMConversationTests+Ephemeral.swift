@@ -135,7 +135,7 @@ class ZMConversationTests_Ephemeral : BaseZMMessageTests {
         XCTAssertEqual(conversation.messageDestructionTimeoutValue, 10)
     }
     
-    func testThatItHasSyncedDestructionTimeout() {
+    func testThatItHasDestructionTimeout() {
         // given
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.conversationType = .group
@@ -143,26 +143,26 @@ class ZMConversationTests_Ephemeral : BaseZMMessageTests {
         XCTAssertFalse(conversation.hasLocalDestructionTimeout)
         
         // when
-        conversation.messageDestructionTimeout = .synced(.tenSeconds)
-        
-        // then
-        XCTAssertTrue(conversation.hasSyncedDestructionTimeout)
-        XCTAssertFalse(conversation.hasLocalDestructionTimeout)
-    }
-    
-    func testThatItHasLocalDestructionTimeout() {
-        // given
-        let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        conversation.conversationType = .group
-        XCTAssertFalse(conversation.hasSyncedDestructionTimeout)
-        XCTAssertFalse(conversation.hasLocalDestructionTimeout)
-        
-        // when
-        conversation.messageDestructionTimeout = .local(.tenSeconds)
+        conversation.messageDestructionTimeout = .local(.fiveMinutes)
         
         // then
         XCTAssertTrue(conversation.hasLocalDestructionTimeout)
         XCTAssertFalse(conversation.hasSyncedDestructionTimeout)
+        
+        // and when
+        conversation.messageDestructionTimeout = .synced(.tenSeconds)
+        
+        // then synced timeout dominates
+        XCTAssertTrue(conversation.hasSyncedDestructionTimeout)
+        XCTAssertFalse(conversation.hasLocalDestructionTimeout)
+        
+        // and when
+        conversation.messageDestructionTimeout = .synced(.none)
+        
+        // then local timeout persists
+        XCTAssertFalse(conversation.hasSyncedDestructionTimeout)
+        XCTAssertTrue(conversation.hasLocalDestructionTimeout)
     }
+
 }
 
