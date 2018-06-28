@@ -969,7 +969,18 @@ NSString * const ZMSystemMessageMessageTimerKey = @"messageTimer";
 
 - (BOOL)shouldGenerateUnreadCount;
 {
-    return self.systemMessageType == ZMSystemMessageTypeMissedCall;
+    switch (self.systemMessageType) {
+        case ZMSystemMessageTypeParticipantsRemoved:
+        case ZMSystemMessageTypeParticipantsAdded:
+        {
+            ZMUser *selfUser = [ZMUser selfUserInContext:self.managedObjectContext];
+            return [self.users containsObject:selfUser] && !self.sender.isSelfUser;
+        }
+        case ZMSystemMessageTypeMissedCall:
+            return YES;
+        default:
+            return NO;
+    }
 }
 
 - (NSDate *)lastChildMessageDate
