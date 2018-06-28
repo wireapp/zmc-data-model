@@ -132,7 +132,7 @@ class ZMConversationTests_Timestamps: ZMConversationTestsBase {
         
     // MARK: - Last Read Date
     
-    func testThatLastReadDateIsUpdatedWhenMessageFromSelfUserInserted() {
+    func testThatLastReadDateIsNotUpdatedWhenMessageFromSelfUserInserted() {
         // given
         let timestamp = Date()
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
@@ -144,7 +144,7 @@ class ZMConversationTests_Timestamps: ZMConversationTestsBase {
         conversation.updateTimestampsAfterInsertingMessage(message)
         
         // then
-        XCTAssertEqual(conversation.lastReadServerTimeStamp, timestamp)
+        XCTAssertNil(conversation.lastReadServerTimeStamp)
     }
     
     func testThatLastReadDateIsNotUpdatedWhenMessageFromOtherUserInserted() {

@@ -202,17 +202,17 @@ extension ZMConversation {
     
     // MARK: - Mark as read
     
-    @objc(markMessagesAsReadFrom:to:)
-    public func markMessagesAsRead(from: ZMConversationMessage, to: ZMConversationMessage) {
-        
-        guard let timestamp = [from.serverTimestampIncludingChildMessages, to.serverTimestampIncludingChildMessages].compactMap({ $0 }).max() else { return }
-        
-        enqueueUpdateLastRead(timestamp)
+    @objc(markMessagesAsReadUntil:)
+    public func markMessagesAsRead(until message: ZMConversationMessage) {
         
         // Any unsent unread message is cleared when entering a conversation
         if hasUnreadUnsentMessage {
             hasUnreadUnsentMessage = false
         }
+        
+        guard let messageTimestamp = message.serverTimestampIncludingChildMessages, let unreadTimestamp = lastUnreadMessage(olderOrEqualThan: messageTimestamp)?.serverTimestamp else { return }
+        
+        enqueueUpdateLastRead(unreadTimestamp)
     }
     
     /// Update the last read timestamp.
@@ -316,6 +316,24 @@ extension ZMConversation {
         fetchRequest.sortDescriptors = ZMMessage.defaultSortDescriptors()
         
         return managedObjectContext.fetchOrAssert(request: fetchRequest)
+    }
+    
+    fileprivate func lastUnreadMessage(olderOrEqualThan date: Date) -> ZMMessage? {
+        guard let managedObjectContext = managedObjectContext else { return nil }
+        
+        let lastReadServerTimestamp = lastReadServerTimeStamp ?? Date.distantPast
+        let selfUser = ZMUser.selfUser(in: managedObjectContext)
+        let fetchRequest = NSFetchRequest<ZMMessage>(entityName: ZMMessage.entityName())
+        fetchRequest.predicate = NSPredicate(format: "(%K == %@ OR %K == %@) AND %K != %@ AND %K > %@ AND %K <= %@",
+                                             ZMMessageConversationKey, self,
+                                             ZMMessageHiddenInConversationKey, self,
+                                             ZMMessageSenderKey, selfUser,
+                                             ZMMessageServerTimestampKey, lastReadServerTimestamp as NSDate,
+                                             ZMMessageServerTimestampKey, date as NSDate)
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: ZMMessageServerTimestampKey, ascending: false)]
+        fetchRequest.fetchLimit = 1
+        
+        return managedObjectContext.fetchOrAssert(request: fetchRequest).first
     }
     
 }

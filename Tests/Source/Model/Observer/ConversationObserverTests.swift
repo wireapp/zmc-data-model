@@ -287,8 +287,8 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
                                                      modifier: { conversation, _ in
                                                         _ = conversation.appendMessage(withText: "foo")
             },
-                                                     expectedChangedFields: ["messagesChanged", "lastModifiedDateChanged", "conversationListIndicatorChanged", "unreadCountChanged"],
-                                                     expectedChangedKeys: ["messages", "lastModifiedDate", "estimatedUnreadCount", "conversationListIndicator"])
+                                                     expectedChangedFields: ["messagesChanged", "lastModifiedDateChanged"],
+                                                     expectedChangedKeys: ["messages", "lastModifiedDate"])
     }
     
     func testThatItNotifiesTheObserverOfAnAddedParticipant()
@@ -655,8 +655,8 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
                                                         let user = ZMUser.insertNewObject(in: self.uiMOC)
                                                         conversation.internalAddParticipants(Set(arrayLiteral: user))
         },
-                                                     expectedChangedFields: ["securityLevelChanged", "messagesChanged", "nameChanged", "participantsChanged", "conversationListIndicatorChanged", "unreadCountChanged"],
-                                                     expectedChangedKeys: ["displayName", "messages", "lastServerSyncedActiveParticipants", "securityLevel", "conversationListIndicator", "estimatedUnreadCount"])
+                                                     expectedChangedFields: ["securityLevelChanged", "messagesChanged", "nameChanged", "participantsChanged"],
+                                                     expectedChangedKeys: ["displayName", "messages", "lastServerSyncedActiveParticipants", "securityLevel"])
     
     }
     
@@ -679,8 +679,8 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
                                                         conversation.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [client], causedBy: nil)
 
         },
-                                                     expectedChangedFields: ["securityLevelChanged", "messagesChanged", "unreadCountChanged", "conversationListIndicatorChanged"],
-                                                     expectedChangedKeys: ["securityLevel", "messages", "estimatedUnreadCount", "conversationListIndicator"])
+                                                     expectedChangedFields: ["securityLevelChanged", "messagesChanged"],
+                                                     expectedChangedKeys: ["securityLevel", "messages"])
         
     }
     

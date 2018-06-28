@@ -1567,7 +1567,7 @@
     }
     
     // when
-    [conversation markMessagesAsReadFrom:conversation.messages[2] to:conversation.messages[4]];
+    [conversation markMessagesAsReadUntil:conversation.messages[4]];
     
     WaitForAllGroupsToBeEmpty(0.5);
     
@@ -1589,7 +1589,7 @@
     conversation.lastServerTimeStamp = message.serverTimestamp;
     
     // when
-    [conversation markMessagesAsReadFrom:conversation.messages[2] to:conversation.messages[11]];
+    [conversation markMessagesAsReadUntil:conversation.messages[11]];
     
     WaitForAllGroupsToBeEmpty(0.5);
     
@@ -1609,7 +1609,7 @@
     }
     
     // when
-    [conversation markMessagesAsReadFrom:conversation.messages[2] to:conversation.messages[4]];
+    [conversation markMessagesAsReadUntil:conversation.messages[4]];
     [conversation savePendingLastRead];
     
     // then
@@ -1631,7 +1631,7 @@
     conversation.lastReadServerTimeStamp = originalLastReadTimeStamp;
     
     // when
-    [conversation markMessagesAsReadFrom:conversation.messages[2] to:conversation.messages[4]];
+    [conversation markMessagesAsReadUntil:conversation.messages[4]];
     WaitForAllGroupsToBeEmpty(0.5);
 
     // then
@@ -1650,7 +1650,7 @@
     }
 
     // when
-    [conversation markMessagesAsReadFrom:conversation.messages.firstObject to:conversation.messages.lastObject];
+    [conversation markMessagesAsReadUntil:conversation.messages.lastObject];
     WaitForAllGroupsToBeEmpty(0.5);
 
     // then
@@ -1717,7 +1717,7 @@
     conversation.lastServerTimeStamp = message1.serverTimestamp;
     
     // when
-    [conversation markMessagesAsReadFrom:message1 to:message2];
+    [conversation markMessagesAsReadUntil:message2];
     WaitForAllGroupsToBeEmpty(1.0);
     
     // then
@@ -1728,7 +1728,7 @@
 {
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    ZMMessage *message1 = (id)[conversation appendMessageWithText:@"haha"];
+    [conversation appendMessageWithText:@"haha"];
     ZMMessage *message2 = (id)[conversation appendMessageWithText:@"haha"];
     [message2 expire];
     ZMMessage *message3 = (id)[conversation appendMessageWithText:@"haha"];
@@ -1739,7 +1739,7 @@
     conversation.lastServerTimeStamp = message3.serverTimestamp;
     
     // when
-    [conversation markMessagesAsReadFrom:message1 to:message2];
+    [conversation markMessagesAsReadUntil:message2];
     WaitForAllGroupsToBeEmpty(1.0);
     
     // then
@@ -3687,7 +3687,7 @@
     // (2) set first call as read
     ZMConversation *uiConv = [self.uiMOC objectWithID:conversation.objectID];
     ZMMessage *uiMessage = [self.uiMOC objectWithID:message.objectID];
-    [uiConv markMessagesAsReadFrom:uiMessage to:uiMessage];
+    [uiConv markMessagesAsReadUntil:uiMessage];
     WaitForAllGroupsToBeEmpty(0.5);
     
     // then
@@ -3705,7 +3705,7 @@
     [self.uiMOC refreshObject:uiConv mergeChanges:YES];
 
     // (4) set second call as read
-    [uiConv markMessagesAsReadFrom:uiMessage to:uiMessage];
+    [uiConv markMessagesAsReadUntil:uiMessage];
     WaitForAllGroupsToBeEmpty(0.5);
     
     // then
