@@ -134,5 +134,35 @@ class ZMConversationTests_Ephemeral : BaseZMMessageTests {
         // then
         XCTAssertEqual(conversation.messageDestructionTimeoutValue, 10)
     }
+    
+    func testThatItHasSyncedDestructionTimeout() {
+        // given
+        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+        conversation.conversationType = .group
+        XCTAssertFalse(conversation.hasSyncedDestructionTimeout)
+        XCTAssertFalse(conversation.hasLocalDestructionTimeout)
+        
+        // when
+        conversation.messageDestructionTimeout = .synced(.tenSeconds)
+        
+        // then
+        XCTAssertTrue(conversation.hasSyncedDestructionTimeout)
+        XCTAssertFalse(conversation.hasLocalDestructionTimeout)
+    }
+    
+    func testThatItHasLocalDestructionTimeout() {
+        // given
+        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+        conversation.conversationType = .group
+        XCTAssertFalse(conversation.hasSyncedDestructionTimeout)
+        XCTAssertFalse(conversation.hasLocalDestructionTimeout)
+        
+        // when
+        conversation.messageDestructionTimeout = .local(.tenSeconds)
+        
+        // then
+        XCTAssertTrue(conversation.hasLocalDestructionTimeout)
+        XCTAssertFalse(conversation.hasSyncedDestructionTimeout)
+    }
 }
 

@@ -249,5 +249,8 @@ public extension ZMConversation {
     
     @NSManaged internal var localMessageDestructionTimeout: TimeInterval
     @NSManaged internal var syncedMessageDestructionTimeout: TimeInterval
+    
+    public var hasSyncedDestructionTimeout: Bool { return syncedMessageDestructionTimeout != 0 }
+    public var hasLocalDestructionTimeout: Bool { return localMessageDestructionTimeout != 0 }
 }
 
