@@ -81,6 +81,9 @@ extension ManagedObjectContextDirectory {
             moc.configure(with: persistentStoreCoordinator)
             ZMUser.selfUser(in: moc)
             dispatchGroup.apply(moc.add)
+            if #available(iOS 10, *) {
+                try? moc.setQueryGenerationFrom(.current)
+            }
         }
         moc.mergePolicy = ZMSyncMergePolicy(merge: .rollbackMergePolicyType)
         return moc
@@ -125,6 +128,9 @@ extension ManagedObjectContextDirectory {
             moc.undoManager = nil
             moc.mergePolicy = ZMSyncMergePolicy(merge: .rollbackMergePolicyType)
             dispatchGroup.apply(moc.add)
+            if #available(iOS 10, *) {
+                try? moc.setQueryGenerationFrom(.current)
+            }
         }
         return moc
     }

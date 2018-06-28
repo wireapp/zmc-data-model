@@ -471,6 +471,29 @@ class StorageStackTests: DatabaseBaseTest {
         StorageStack.reset()
         
     }
+
+    func testThatItSetsQueryGenerationTokenOnUIAndSerchContext() {
+        // GIVEN
+        let completionExpectation = self.expectation(description: "Callback invoked")
+
+        // WHEN
+        StorageStack.shared.createManagedObjectContextDirectory(
+            accountIdentifier: accountID,
+            applicationContainer: self.applicationContainer,
+            startedMigrationCallback: { XCTFail() }
+        ) { directory in
+            if #available(iOS 10, *) {
+                XCTAssertNotNil(directory.uiContext.queryGenerationToken)
+                XCTAssertNil(directory.syncContext.queryGenerationToken)
+                XCTAssertNotNil(directory.searchContext.queryGenerationToken)
+            }
+            completionExpectation.fulfill()
+        }
+
+        // THEN
+        XCTAssertTrue(self.waitForCustomExpectations(withTimeout: 0.5))
+
+    }
 }
 
 // MARK: - Legacy User ID
