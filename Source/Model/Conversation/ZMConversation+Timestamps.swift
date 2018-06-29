@@ -33,7 +33,7 @@ fileprivate extension ZMConversationMessage {
 
 fileprivate extension ZMMessage {
     
-    static var isVisible: (ZMMessage) -> Bool = { message in
+    static func isVisible(_ message: ZMMessage) -> Bool {
         if let systemMessage = message as? ZMSystemMessage, let parentMessage = systemMessage.parentMessage as? ZMMessage {
             return parentMessage.visibleInConversation != nil
         } else {
