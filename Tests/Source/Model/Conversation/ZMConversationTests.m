@@ -2091,7 +2091,6 @@
 @end
 
 
-
 @implementation ZMConversationTests (Clearing)
 
 - (void)testThatGettingRemovedIsNotMovingConversationToClearedList

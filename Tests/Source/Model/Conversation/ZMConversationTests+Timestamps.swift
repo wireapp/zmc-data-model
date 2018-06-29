@@ -99,6 +99,33 @@ class ZMConversationTests_Timestamps: ZMConversationTestsBase {
         }
     }
     
+    // MARK: - Cleared Date
+    
+    func testThatClearedTimestampIsUpdated() {
+        let timestamp = Date()
+        let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
+        
+        // when
+        conversation.updateCleared(timestamp)
+        
+        // then
+        XCTAssertEqual(conversation.clearedTimeStamp, timestamp)
+    }
+    
+    func testThatClearedTimestampIsNotUpdatedToAnOlderTimestamp() {
+        
+        let timestamp = Date()
+        let olderTimestamp = timestamp.addingTimeInterval(-100)
+        let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
+        conversation.clearedTimeStamp = timestamp
+        
+        // when
+        conversation.updateCleared(olderTimestamp)
+        
+        // then
+        XCTAssertEqual(conversation.clearedTimeStamp, timestamp)
+    }
+    
     // MARK: - Modified Date
     
     func testThatModifiedDateIsUpdatedWhenMessageInserted() {
