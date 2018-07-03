@@ -81,6 +81,31 @@ private let zmLog = ZMSLog(tag: "UserClient")
     @NSManaged public var apsDecryptionKey: Data?
     @NSManaged public var needsToUploadSignalingKeys: Bool
 
+
+    private enum Keys {
+        static let PushToken = "pushToken"
+    }
+
+    @NSManaged private var primitivePushToken: Data?
+    public var pushToken: PushToken? {
+        set {
+            self.willChangeValue(forKey: Keys.PushToken)
+            primitivePushToken = try? JSONEncoder().encode(newValue)
+            self.didChangeValue(forKey: Keys.PushToken)
+        }
+        get {
+            self.willAccessValue(forKey: Keys.PushToken)
+            let token: PushToken?
+            if let data = primitivePushToken {
+                token = try? JSONDecoder().decode(PushToken.self, from:data)
+            } else {
+                token = nil
+            }
+            self.didAccessValue(forKey: Keys.PushToken)
+            return token
+        }
+    }
+
     /// Clients that are trusted by self client.
     @NSManaged public var trustedClients: Set<UserClient>
     
