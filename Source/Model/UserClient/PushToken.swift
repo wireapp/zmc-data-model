@@ -19,9 +19,27 @@
 import Foundation
 
 public struct PushToken: Equatable, Codable {
-    public private(set) var deviceToken: Data
-    public private(set) var appIdentifier: String
-    public private(set) var transportType: String
-    public private(set) var isRegistered: Bool
-    public private(set) var isMarkedForDeletion: Bool = false
+    public let deviceToken: Data
+    public let appIdentifier: String
+    public let transportType: String
+    public var isRegistered: Bool
+    public var isMarkedForDeletion: Bool = false
+    public var isMarkedForDownload: Bool = false
+}
+
+extension PushToken {
+    public init(deviceToken: Data, appIdentifier: String, transportType: String, isRegistered: Bool) {
+        self.init(deviceToken: deviceToken, appIdentifier: appIdentifier, transportType: transportType, isRegistered: isRegistered, isMarkedForDeletion: false, isMarkedForDownload: false)
+    }
+
+    public var deviceTokenString: String {
+        return deviceToken.reduce(""){$0 + String(format: "%02hhx", $1)}
+    }
+
+    public func resetFlags() -> PushToken {
+        var token = self
+        token.isMarkedForDownload = false
+        token.isMarkedForDeletion = false
+        return token
+    }
 }

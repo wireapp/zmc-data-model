@@ -89,9 +89,11 @@ private let zmLog = ZMSLog(tag: "UserClient")
     @NSManaged private var primitivePushToken: Data?
     public var pushToken: PushToken? {
         set {
-            self.willChangeValue(forKey: Keys.PushToken)
-            primitivePushToken = try? JSONEncoder().encode(newValue)
-            self.didChangeValue(forKey: Keys.PushToken)
+            if newValue != pushToken {
+                self.willChangeValue(forKey: Keys.PushToken)
+                primitivePushToken = try? JSONEncoder().encode(newValue)
+                self.didChangeValue(forKey: Keys.PushToken)
+            }
         }
         get {
             self.willAccessValue(forKey: Keys.PushToken)
@@ -150,7 +152,7 @@ private let zmLog = ZMSLog(tag: "UserClient")
     }
 
     public override func keysTrackedForLocalModifications() -> Set<String> {
-        return [ZMUserClientMarkedToDeleteKey, ZMUserClientNumberOfKeysRemainingKey, ZMUserClientMissingKey, ZMUserClientNeedsToUpdateSignalingKeysKey]
+        return [ZMUserClientMarkedToDeleteKey, ZMUserClientNumberOfKeysRemainingKey, ZMUserClientMissingKey, ZMUserClientNeedsToUpdateSignalingKeysKey, Keys.PushToken]
     }
     
     public override static func sortKey() -> String {

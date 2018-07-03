@@ -792,3 +792,44 @@ extension UserClientTests {
     }
 }
 
+extension UserClientTests {
+    func testThatClientHasNoPushTokenWhenCreated() {
+        // given
+        let client = UserClient.insertNewObject(in: self.uiMOC)
+
+        // then
+        XCTAssertNil(client.pushToken)
+    }
+
+    func testThatWeCanAccessPushTokenAfterCreation() {
+        // given
+        let client = UserClient.insertNewObject(in: self.uiMOC)
+        let token = PushToken(deviceToken: Data(), appIdentifier: "one", transportType: "two", isRegistered: false)
+
+        // when
+        client.pushToken = token
+
+        // then
+        XCTAssertEqual(client.pushToken, token)
+    }
+
+    func testThatWeCanAccessPushTokenFromAnotherContext() throws {
+        // given
+        let client = UserClient.insertNewObject(in: self.uiMOC)
+        let token = PushToken(deviceToken: Data(), appIdentifier: "one", transportType: "two", isRegistered: false)
+        self.uiMOC.saveOrRollback()
+
+        self.syncMOC.performGroupedBlockAndWait {
+            let syncClient = try? self.syncMOC.existingObject(with: client.objectID) as! UserClient
+
+            // when
+            syncClient?.pushToken = token
+            self.syncMOC.saveOrRollback()
+        }
+
+        // then
+        self.uiMOC.refreshAllObjects()
+        XCTAssertEqual(client.pushToken, token)
+    }
+}
+
