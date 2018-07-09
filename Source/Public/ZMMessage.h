@@ -44,8 +44,12 @@
 @property (nonatomic, readonly) NSData *previewData;
 @property (nonatomic, readonly) NSString *imagePreviewDataIdentifier; /// This can be used as a cache key for @c -previewData
 @property (nonatomic, readonly) BOOL isAnimatedGIF; // If it is GIF and has more than 1 frame
+@property (nonatomic, readonly) BOOL isDownloaded; // If it is GIF and has more than 1 frame
 @property (nonatomic, readonly) NSString *imageType; // UTI e.g. kUTTypeGIF
 @property (nonatomic, readonly) CGSize originalSize;
+
+- (void)fetchImageDataWithQueue:(dispatch_queue_t)queue completionHandler:(void (^)(NSData *imageData))completionHandler;
+- (void)fetchPreviewDataWithQueue:(dispatch_queue_t)queue completionHandler:(void (^)(NSData *previewData))completionHandler;
 
 @end
 

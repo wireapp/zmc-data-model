@@ -30,7 +30,19 @@ extension String {
 
 
 @objcMembers public class V2Asset: NSObject, ZMImageMessageData {
-
+    
+    public var isDownloaded: Bool {
+        return false
+    }
+    
+    public func fetchImageData(with queue: DispatchQueue!, completionHandler: ((Data?) -> Void)!) {
+        // TODO jacob write
+    }
+    
+    public func fetchPreviewData(with queue: DispatchQueue!, completionHandler: ((Data?) -> Void)!) {
+        // TODO jacob write
+    }
+    
     fileprivate let assetClientMessage: ZMAssetClientMessage
     fileprivate let moc: NSManagedObjectContext
     fileprivate let assetStorage: ImageAssetStorage
