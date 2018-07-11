@@ -86,12 +86,15 @@ typedef NS_ENUM(int16_t, ZMSystemMessageType) {
 
 @property (nonatomic, readonly) NSString *messageText;
 @property (nonatomic, readonly) LinkPreview *linkPreview;
-/// Returns image data associated with the link preview
-@property (nonatomic, readonly) NSData *imageData; // TODO jacob make this asynchronous (rename to linkPreviewImageData?)
+
 /// Returns true if the link preview will have an image
-@property (nonatomic, readonly) BOOL hasImageData; // TODO jacob rename to hasLinkPreviewImageData?
-/// Unique identifier for imageData. Returns nil there's not imageData associAated with the message.
-@property (nonatomic, readonly) NSString *imageDataIdentifier; // TODO jacob rename to linkPreviewImageIdentifier?
+@property (nonatomic, readonly) BOOL linkPreviewHasImage;
+
+/// Unique identifier for imageData. Returns nil there's not imageData associated with the message.
+@property (nonatomic, readonly) NSString *linkPreviewImageCacheKey;
+
+/// Fetch linkpreview image data from disk on the given queue
+- (void)fetchLinkPreviewImageDataWithQueue:(dispatch_queue_t)queue completionHandler:(void (^)(NSData *imageData))completionHandler;
 
 @end
 

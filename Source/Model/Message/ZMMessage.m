@@ -733,17 +733,17 @@ NSString * const ZMSystemMessageMessageTimerKey = @"messageTimer";
     return self;
 }
 
-- (NSData *)imageData
+- (NSData *)linkPreviewImageData
 {
     return nil;
 }
 
-- (BOOL)hasImageData
+- (BOOL)linkPreviewHasImage
 {
     return NO;
 }
 
-- (NSString *)imageDataIdentifier
+- (NSString *)linkPreviewImageCacheKey
 {
     return nil;
 }
@@ -757,6 +757,11 @@ NSString * const ZMSystemMessageMessageTimerKey = @"messageTimer";
 - (ZMDeliveryState)deliveryState
 {
     return ZMDeliveryStateDelivered;
+}
+
+- (void)fetchLinkPreviewImageDataWithQueue:(dispatch_queue_t)queue completionHandler:(void (^)(NSData *))completionHandler {
+    NOT_USED(queue);
+    NOT_USED(completionHandler);
 }
 
 @end
