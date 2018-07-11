@@ -33,7 +33,7 @@ extension PushToken {
     }
 
     public var deviceTokenString: String {
-        return deviceToken.reduce(""){$0 + String(format: "%02hhx", $1)}
+        return deviceToken.zmHexEncodedString()
     }
 
     public func resetFlags() -> PushToken {
@@ -42,4 +42,17 @@ extension PushToken {
         token.isMarkedForDeletion = false
         return token
     }
+
+    public func markToDownload() -> PushToken {
+        var token = self
+        token.isMarkedForDownload = true
+        return token
+    }
+
+    public func markToDelete() -> PushToken {
+        var token = self
+        token.isMarkedForDeletion = true
+        return token
+    }
+
 }
