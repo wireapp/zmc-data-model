@@ -28,6 +28,11 @@ public struct PushToken: Equatable, Codable {
 }
 
 extension PushToken {
+
+    public init(pushToken: ZMPushToken) {
+        self.init(deviceToken: pushToken.deviceToken, appIdentifier: pushToken.appIdentifier, transportType: pushToken.transportType, isRegistered: pushToken.isRegistered, isMarkedForDeletion: pushToken.isMarkedForDeletion, isMarkedForDownload: true)
+    }
+
     public init(deviceToken: Data, appIdentifier: String, transportType: String, isRegistered: Bool) {
         self.init(deviceToken: deviceToken, appIdentifier: appIdentifier, transportType: transportType, isRegistered: isRegistered, isMarkedForDeletion: false, isMarkedForDownload: false)
     }

@@ -83,7 +83,7 @@ class UserClientTests: ZMBaseManagedObjectTest {
     }
     
     func testThatItTracksCorrectKeys() {
-        let expectedKeys = Set(arrayLiteral: ZMUserClientMarkedToDeleteKey, ZMUserClientNumberOfKeysRemainingKey, ZMUserClientMissingKey, ZMUserClientNeedsToUpdateSignalingKeysKey)
+        let expectedKeys = Set(arrayLiteral: ZMUserClientMarkedToDeleteKey, ZMUserClientNumberOfKeysRemainingKey, ZMUserClientMissingKey, ZMUserClientNeedsToUpdateSignalingKeysKey, "pushToken")
         let client = UserClient.insertNewObject(in: self.uiMOC)
 
         XCTAssertEqual(client.keysTrackedForLocalModifications() , expectedKeys)
@@ -802,15 +802,17 @@ extension UserClientTests {
     }
 
     func testThatWeCanAccessPushTokenAfterCreation() {
-        // given
-        let client = UserClient.insertNewObject(in: self.uiMOC)
-        let token = PushToken(deviceToken: Data(), appIdentifier: "one", transportType: "two", isRegistered: false)
+        syncMOC.performGroupedAndWait { _ in
+            // given
+            let client = UserClient.insertNewObject(in: self.syncMOC)
+            let token = PushToken(deviceToken: Data(), appIdentifier: "one", transportType: "two", isRegistered: false)
 
-        // when
-        client.pushToken = token
+            // when
+            client.pushToken = token
 
-        // then
-        XCTAssertEqual(client.pushToken, token)
+            // then
+            XCTAssertEqual(client.pushToken, token)
+        }
     }
 
     func testThatWeCanAccessPushTokenFromAnotherContext() throws {
