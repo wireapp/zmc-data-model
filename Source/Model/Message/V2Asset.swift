@@ -45,15 +45,6 @@ extension String {
         }
     }
     
-    public func fetchPreviewData(with queue: DispatchQueue!, completionHandler: ((Data?) -> Void)!) {
-        let cache = moc.zm_fileAssetCache
-        let previewKey = FileAssetCache.cacheKeyForAsset(assetClientMessage, format: .preview)
-        
-        queue.async {
-            completionHandler([previewKey].lazy.compactMap({ $0 }).compactMap({ cache.assetData($0) }).first)
-        }
-    }
-    
     fileprivate let assetClientMessage: ZMAssetClientMessage
     fileprivate let moc: NSManagedObjectContext
     fileprivate let assetStorage: ImageAssetStorage
@@ -90,18 +81,6 @@ extension String {
 
     public var imagePreviewDataIdentifier: String? {
         return FileAssetCache.cacheKeyForAsset(assetClientMessage, format: .preview)
-    }
-
-    public var previewData: Data? {
-        if assetStorage.previewGenericMessage?.imageAssetData?.width > 0 {
-            // Image preview data
-            return assetStorage.imageData(for: .original, encrypted: false)
-        } else if nil != assetClientMessage.fileMessageData, assetClientMessage.hasDownloadedImage {
-            // File preview data
-            return imageData(for: .original) ?? imageData(for: .medium)
-        }
-
-        return nil
     }
 
     public var isAnimatedGIF: Bool {

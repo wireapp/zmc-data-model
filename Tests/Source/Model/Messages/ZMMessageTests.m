@@ -661,18 +661,12 @@ NSString * const ReactionsKey = @"reactions";
     [self.uiMOC saveOrRollback];
     
     // expect
-    XCTestExpectation *previewDataArrived = [self expectationWithDescription:@"preview image data arrived"];
-    XCTestExpectation *completeDataArrived = [self expectationWithDescription:@"complete image data arrived"];
+    XCTestExpectation *imageDataArrived = [self expectationWithDescription:@"image data arrived"];
     
     // when
-    [message fetchPreviewDataWithQueue:dispatch_get_global_queue(QOS_CLASS_BACKGROUND, 0) completionHandler:^(NSData *previewDataResult) {
-        XCTAssertEqualObjects(previewDataResult, imageData);
-        [previewDataArrived fulfill];
-    }];
-    
     [message fetchImageDataWithQueue:dispatch_get_global_queue(QOS_CLASS_BACKGROUND, 0) completionHandler:^(NSData *imageDataResult) {
         XCTAssertEqualObjects(imageDataResult, imageData);
-        [completeDataArrived fulfill];
+        [imageDataArrived fulfill];
     }];
     
     XCTAssertTrue([self waitForCustomExpectationsWithTimeout:0.5]);

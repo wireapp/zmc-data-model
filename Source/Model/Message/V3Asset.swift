@@ -33,8 +33,7 @@ private let zmLog = ZMSLog(tag: "AssetV3")
     var hasDownloadedFile: Bool { get }
     var imageMessageData: ZMImageMessageData? { get }
     var fileURL: URL? { get }
-
-    var previewData: Data? { get }
+    
     var imagePreviewDataIdentifier: String? { get }
 
     @objc(imageDataForFormat:encrypted:)
@@ -42,6 +41,9 @@ private let zmLog = ZMSLog(tag: "AssetV3")
 
     func requestFileDownload()
     func requestImageDownload()
+    
+    @objc(fetchImageDataWithQueue:completionHandler:)
+    func fetchImageData(with queue: DispatchQueue!, completionHandler: ((Data?) -> Void)!)
 
     // Image preprocessing
     var requiredImageFormats: NSOrderedSet { get }
@@ -51,6 +53,7 @@ private let zmLog = ZMSLog(tag: "AssetV3")
 
 @objcMembers public class V3Asset: NSObject, ZMImageMessageData {
     
+    @objc(fetchImageDataWithQueue:completionHandler:)
     public func fetchImageData(with queue: DispatchQueue!, completionHandler: ((Data?) -> Void)!) {
         let cache = moc.zm_fileAssetCache
         let mediumKey = FileAssetCache.cacheKeyForAsset(assetClientMessage, format: .medium)
@@ -60,16 +63,7 @@ private let zmLog = ZMSLog(tag: "AssetV3")
             completionHandler([mediumKey, originalKey].lazy.compactMap({ $0 }).compactMap({ cache.assetData($0) }).first)
         }
     }
-    
-    public func fetchPreviewData(with queue: DispatchQueue!, completionHandler: ((Data?) -> Void)!) {
-        let cache = moc.zm_fileAssetCache
-        let previewKey = FileAssetCache.cacheKeyForAsset(assetClientMessage, format: .preview)
         
-        queue.async {
-            completionHandler([previewKey].lazy.compactMap({ $0 }).compactMap({ cache.assetData($0) }).first)
-        }
-    }
-    
     public var isDownloaded: Bool {
         return hasDownloadedImage
     }
@@ -110,11 +104,6 @@ private let zmLog = ZMSLog(tag: "AssetV3")
 
     public var imagePreviewDataIdentifier: String? {
         return FileAssetCache.cacheKeyForAsset(assetClientMessage, format: .preview)
-    }
-
-    public var previewData: Data? {
-        guard nil != assetClientMessage.fileMessageData, !isImage, hasDownloadedImage else { return nil }
-        return imageData(for: .medium, encrypted: false) ?? imageData(for: .original, encrypted: false)
     }
 
     public var isAnimatedGIF: Bool {
