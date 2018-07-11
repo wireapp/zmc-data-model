@@ -81,7 +81,6 @@ private let zmLog = ZMSLog(tag: "UserClient")
     @NSManaged public var apsDecryptionKey: Data?
     @NSManaged public var needsToUploadSignalingKeys: Bool
 
-
     private enum Keys {
         static let PushToken = "pushToken"
     }
@@ -89,10 +88,12 @@ private let zmLog = ZMSLog(tag: "UserClient")
     @NSManaged private var primitivePushToken: Data?
     public var pushToken: PushToken? {
         set {
+            precondition(managedObjectContext!.zm_isSyncContext, "Push token should be set only on sync context")
             if newValue != pushToken {
                 self.willChangeValue(forKey: Keys.PushToken)
                 primitivePushToken = try? JSONEncoder().encode(newValue)
                 self.didChangeValue(forKey: Keys.PushToken)
+                setLocallyModifiedKeys([Keys.PushToken])
             }
         }
         get {
