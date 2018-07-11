@@ -148,13 +148,14 @@ class ZMSearchUserPayloadParsingTests: ZMBaseManagedObjectTest {
                                                   "size": "preview",
                                                   "key": assetKey]]]
         
+        let searchUser1 = ZMSearchUser.searchUser(from: payload, contextProvider: self)!
+        XCTAssertNil(searchUser1.user)
+        
         let localUser = ZMUser.insertNewObject(in: uiMOC)
         localUser.remoteIdentifier = uuid
         
-        let searchUser1 = ZMSearchUser.searchUser(from: payload, contextProvider: self)!
-        
         // when
-        let searchUser2 = ZMSearchUser.searchUser(from: payload, contextProvider: self, user: localUser)
+        let searchUser2 = ZMSearchUser.searchUser(from: payload, contextProvider: self)
         
         // then
         XCTAssertNotNil(searchUser2)

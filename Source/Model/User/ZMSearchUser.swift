@@ -274,14 +274,16 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         return payloadArray.compactMap({ searchUser(from: $0, contextProvider: contextProvider) })
     }
     
-    public static func searchUser(from payload: [String : Any], contextProvider: ZMManagedObjectContextProvider, user: ZMUser? = nil) -> ZMSearchUser? {
+    public static func searchUser(from payload: [String : Any], contextProvider: ZMManagedObjectContextProvider) -> ZMSearchUser? {
         guard let uuidString = payload["id"] as? String, let remoteIdentifier = UUID(uuidString: uuidString) else { return nil }
         
+        let localUser = ZMUser(remoteID: remoteIdentifier, createIfNeeded: false, in: contextProvider.managedObjectContext)
+        
         if let searchUser = contextProvider.managedObjectContext.zm_searchUserCache?.object(forKey: remoteIdentifier as NSUUID) {
-            searchUser.user = user
+            searchUser.user = localUser
             return searchUser
         } else {
-            return ZMSearchUser(from: payload, contextProvider: contextProvider, user: user)
+            return ZMSearchUser(from: payload, contextProvider: contextProvider, user: localUser)
         }
     }
     

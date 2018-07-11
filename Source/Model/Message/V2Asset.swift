@@ -36,11 +36,22 @@ extension String {
     }
     
     public func fetchImageData(with queue: DispatchQueue!, completionHandler: ((Data?) -> Void)!) {
-        // TODO jacob write
+        let cache = moc.zm_fileAssetCache
+        let mediumKey = FileAssetCache.cacheKeyForAsset(assetClientMessage, format: .medium)
+        let originalKey = FileAssetCache.cacheKeyForAsset(assetClientMessage, format: .original)
+        
+        queue.async {
+            completionHandler([mediumKey, originalKey].lazy.compactMap({ $0 }).compactMap({ cache.assetData($0) }).first)
+        }
     }
     
     public func fetchPreviewData(with queue: DispatchQueue!, completionHandler: ((Data?) -> Void)!) {
-        // TODO jacob write
+        let cache = moc.zm_fileAssetCache
+        let previewKey = FileAssetCache.cacheKeyForAsset(assetClientMessage, format: .preview)
+        
+        queue.async {
+            completionHandler([previewKey].lazy.compactMap({ $0 }).compactMap({ cache.assetData($0) }).first)
+        }
     }
     
     fileprivate let assetClientMessage: ZMAssetClientMessage

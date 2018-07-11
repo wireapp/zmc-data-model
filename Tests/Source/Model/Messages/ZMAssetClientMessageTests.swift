@@ -1287,6 +1287,38 @@ extension ZMAssetClientMessageTests {
             
         }
     }
+    
+    func testThatImageDataCanBeFetchedAsynchrounously() {
+        // given
+        let message = self.createAssetClientMessageWithSampleImageAndEncryptionKeys(false, storeEncrypted: false, storeProcessed: true)
+        uiMOC.saveOrRollback()
+        
+        // expect
+        let expectation = self.expectation(description: "Image arrived")
+        
+        // when
+        message.imageMessageData?.fetchImageData(with: DispatchQueue.global(qos: .background), completionHandler: { (imageData) in
+            XCTAssertNotNil(imageData)
+            expectation.fulfill()
+        })
+        XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
+    }
+    
+    func testThatPreviewImageDataCanBeFetchedAsynchrounously() {
+        // given
+        let message = self.createAssetClientMessageWithSampleImageAndEncryptionKeys(false, storeEncrypted: false, storeProcessed: true)
+        uiMOC.saveOrRollback()
+        
+        // expect
+        let expectation = self.expectation(description: "Image arrived")
+        
+        // when
+        message.imageMessageData?.fetchPreviewData(with: DispatchQueue.global(qos: .background), completionHandler: { (imageData) in
+            XCTAssertNotNil(imageData)
+            expectation.fulfill()
+        })
+        XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
+    }
 
     func testThatItReturnsTheOriginalImageSize() {
         

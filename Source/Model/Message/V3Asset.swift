@@ -62,7 +62,12 @@ private let zmLog = ZMSLog(tag: "AssetV3")
     }
     
     public func fetchPreviewData(with queue: DispatchQueue!, completionHandler: ((Data?) -> Void)!) {
-        // TODO jacob write
+        let cache = moc.zm_fileAssetCache
+        let previewKey = FileAssetCache.cacheKeyForAsset(assetClientMessage, format: .preview)
+        
+        queue.async {
+            completionHandler([previewKey].lazy.compactMap({ $0 }).compactMap({ cache.assetData($0) }).first)
+        }
     }
     
     public var isDownloaded: Bool {
