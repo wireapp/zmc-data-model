@@ -27,7 +27,7 @@ public final class ZMConversationMessageWindow: NSObject {
         return min(size, UInt(conversation.messages.count))
     }
 
-    var messages: NSOrderedSet {
+    @objc public var messages: NSOrderedSet {
         return mutableMessages.reversed
     }
 
@@ -104,7 +104,7 @@ public final class ZMConversationMessageWindow: NSObject {
 }
 
 extension ZMConversation {
-    public func conversationWindow(withSize size: UInt) -> ZMConversationMessageWindow? {
+    @objc public func conversationWindow(withSize size: UInt) -> ZMConversationMessageWindow? {
         ///TODO: recalc at this point?
         return ZMConversationMessageWindow(conversation: self, size: size)
     }
