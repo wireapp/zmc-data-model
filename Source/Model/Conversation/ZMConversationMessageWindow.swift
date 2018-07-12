@@ -21,7 +21,7 @@ import Foundation
 public final class ZMConversationMessageWindow: NSObject {
     private(set) var size: UInt
     let mutableMessages: NSMutableOrderedSet
-    let conversation: ZMConversation
+    public let conversation: ZMConversation
     
     var activeSize: UInt {
         return min(size, UInt(conversation.messages.count))
@@ -84,7 +84,7 @@ public final class ZMConversationMessageWindow: NSObject {
 
     }
 
-    public func moveUp(byMessages amountOfMessages: UInt) {
+    @objc public func moveUp(byMessages amountOfMessages: UInt) {
         let oldSize = activeSize
         size += amountOfMessages
         if oldSize != activeSize {
@@ -93,7 +93,7 @@ public final class ZMConversationMessageWindow: NSObject {
         }
     }
 
-    public func moveDown(byMessages amountOfMessages: UInt) {
+    @objc public func moveDown(byMessages amountOfMessages: UInt) {
         let oldSize = activeSize
         size -= min(amountOfMessages, max(size, 1) - 1)
         if oldSize != activeSize {
