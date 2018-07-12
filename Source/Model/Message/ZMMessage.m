@@ -811,6 +811,8 @@ NSString * const ZMSystemMessageMessageTimerKey = @"messageTimer";
 @dynamic childMessages;
 @dynamic parentMessage;
 @dynamic messageTimer;
+@dynamic allTeamUsersAdded;
+@dynamic numberOfGuestsAdded;
 
 + (instancetype)createOrUpdateMessageFromUpdateEvent:(ZMUpdateEvent *)updateEvent
                               inManagedObjectContext:(NSManagedObjectContext *)moc
@@ -855,6 +857,8 @@ NSString * const ZMSystemMessageMessageTimerKey = @"messageTimer";
     
     message.users = usersSet;
     message.text = messageText != nil ? messageText : name;
+    
+    [message updateNewConversationPropertiesWithUsers:usersSet context:moc conversation:conversation];
     
     if (type == ZMSystemMessageTypeParticipantsAdded || type == ZMSystemMessageTypeParticipantsRemoved) {
         [conversation insertOrUpdateSecurityVerificationMessageAfterParticipantsChange:message];
