@@ -18,6 +18,11 @@
 
 import Foundation
 
+public extension ZMSystemMessage {
+    @NSManaged public var numberOfGuestsAdded: Int16  // Only filled for .newConversation
+    @NSManaged public var allTeamUsersAdded: Bool     // Only filled for .newConversation
+}
+
 extension ZMSystemMessage {
 
     @objc(updateNewConversationPropertiesWithUsers:context:conversation:)
@@ -31,9 +36,9 @@ extension ZMSystemMessage {
         
         let members = team.members.compactMap { $0.user }
         let guests = users.filter { $0.isGuest(in: conversation) }
-        
+
         allTeamUsersAdded = users.isSuperset(of: members)
-        numberOfGuestsAdded = guests.count
+        numberOfGuestsAdded = Int16(guests.count)
     }
 
 }
