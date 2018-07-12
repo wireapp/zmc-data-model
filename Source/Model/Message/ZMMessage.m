@@ -856,7 +856,9 @@ NSString * const ZMSystemMessageMessageTimerKey = @"messageTimer";
     message.users = usersSet;
     message.text = messageText != nil ? messageText : name;
     
-    [message updateNewConversationPropertiesWithUsers:usersSet context:moc conversation:conversation];
+    [message updateNewConversationSystemMessageIfNeededWithUsers:usersSet
+                                                         context:moc
+                                                    conversation:conversation];
     
     if (type == ZMSystemMessageTypeParticipantsAdded || type == ZMSystemMessageTypeParticipantsRemoved) {
         [conversation insertOrUpdateSecurityVerificationMessageAfterParticipantsChange:message];

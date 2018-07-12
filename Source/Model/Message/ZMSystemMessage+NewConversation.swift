@@ -25,8 +25,8 @@ public extension ZMSystemMessage {
 
 extension ZMSystemMessage {
 
-    @objc(updateNewConversationPropertiesWithUsers:context:conversation:)
-    func updateNewConversationProperties(
+    @objc(updateNewConversationSystemMessageIfNeededWithUsers:context:conversation:)
+    func updateNewConversationSystemMessagePropertiesIfNeeded(
         users: Set<ZMUser>,
         context: NSManagedObjectContext,
         conversation: ZMConversation
