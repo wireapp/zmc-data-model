@@ -19,6 +19,7 @@
 
 #import "ZMConversation+Internal.h"
 #import "ZMConversationMessageWindow.h"
+#import "ZMConversationMessageWindow+Internal.h"
 #import "ZMChangedIndexes.h"
 #import "ZMOrderedSetState.h"
 #import "ZMMessage+Internal.h"
@@ -27,16 +28,12 @@
 
 @interface ZMConversationMessageWindow ()
 
+- (instancetype)initWithConversation:(ZMConversation *)conversation size:(NSUInteger)size;
+
+@property (nonatomic) NSUInteger size;
 @property (nonatomic, readonly) NSMutableOrderedSet *mutableMessages;
 
-- (instancetype)initWithConversation:(ZMConversation *)conversation size:(NSUInteger)size;
-- (void)recalculateMessages;
-
-@property (nonatomic, readonly) NSUInteger activeSize;
-@property (nonatomic) NSUInteger size;
-
 @end
-
 
 
 @implementation ZMConversationMessageWindow
@@ -77,29 +74,6 @@
     return MIN(self.size, self.conversation.messages.count);
 }
 
-- (void)recalculateMessages
-{
-    NSOrderedSet *messages = self.conversation.messages;
-    const NSUInteger numberOfMessages = self.activeSize;
-    const NSRange range = NSMakeRange(messages.count - numberOfMessages, numberOfMessages);
-    NSMutableOrderedSet *newMessages = [NSMutableOrderedSet orderedSetWithOrderedSet:messages range:range copyItems:NO];
-
-    if (self.conversation.clearedTimeStamp != nil) {
-        [newMessages filterUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(ZMMessage * _Nullable message, NSDictionary<NSString *,id> * _Nullable __unused bindings) {
-            return message.shouldBeDisplayed &&
-                   (message.deliveryState == ZMDeliveryStatePending || [message.serverTimestamp compare:self.conversation.clearedTimeStamp] == NSOrderedDescending);
-        }]];
-    } else {
-        [newMessages filterUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(ZMMessage * _Nullable message, NSDictionary<NSString *,id> * _Nullable __unused bindings) {
-            return message.shouldBeDisplayed;
-        }]];
-    }
-    
-    [self.mutableMessages removeAllObjects];
-    [self.mutableMessages unionOrderedSet:newMessages];
-}
-
-
 - (NSOrderedSet *)messages
 {
     return self.mutableMessages.reversedOrderedSet;
@@ -132,6 +106,7 @@
 
 - (ZMConversationMessageWindow *)conversationWindowWithSize:(NSUInteger)size
 {
+    ///TODO: recalc at this point?
     return [[ZMConversationMessageWindow alloc] initWithConversation:self size:size];
 }
 

@@ -20,6 +20,7 @@
 
 @interface ZMConversationMessageWindow (Internal)
 
-- (void)recalculateMessages;
+@property (nonatomic, readonly) NSUInteger activeSize;
+@property (nonatomic) NSMutableOrderedSet *mutableMessages;
 
 @end
