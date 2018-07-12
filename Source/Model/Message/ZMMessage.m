@@ -82,7 +82,7 @@ NSString * const ZMMessageChildMessagesKey = @"childMessages";
 NSString * const ZMMessageParentMessageKey = @"parentMessage";
 NSString * const ZMSystemMessageMessageTimerKey = @"messageTimer";
 NSString * const ZMSystemMessageAllTeamUsersAddedKey = @"allTeamUsersAdded";
-NSString * const ZMSystemMessageNumberOfGuestsAddedKey = @"numerOfGuestsAdded";
+NSString * const ZMSystemMessageNumberOfGuestsAddedKey = @"numberOfGuestsAdded";
 
 
 @interface ZMMessage ()
