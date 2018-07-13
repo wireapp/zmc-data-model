@@ -72,7 +72,7 @@ public final class ZMConversationMessageWindow: NSObject {
                 filterResult = message.shouldBeDisplayed
             }
 
-            return filterResult && message.isExpirationZombie
+            return filterResult && !message.isExpirationZombie
         }
 
         mutableMessages.removeAllObjects()
