@@ -18,8 +18,6 @@
 
 #import "ZMPushToken.h"
 
-#import <stdio.h>
-
 static NSString * const DeviceTokenKey = @"deviceToken";
 static NSString * const IdentifierKey = @"identifier";
 static NSString * const TransportKey = @"transportType";
