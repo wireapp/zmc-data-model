@@ -21,7 +21,7 @@ import Foundation
 public final class ZMConversationMessageWindow: NSObject {
     private(set) var size: UInt
     let mutableMessages: NSMutableOrderedSet
-    public let conversation: ZMConversation
+    @objc public let conversation: ZMConversation
     
     var activeSize: UInt {
         return min(size, UInt(conversation.messages.count))
@@ -55,32 +55,18 @@ public final class ZMConversationMessageWindow: NSObject {
         }
     }
 
+
     @objc func recalculateMessages() {
         let messages = conversation.messages
         let numberOfMessages = Int(activeSize)
         let range = NSRange(location: messages.count - numberOfMessages, length: numberOfMessages)
         let newMessages = NSMutableOrderedSet(orderedSet: messages, range: range, copyItems: false)
+        let newMessagesArray = newMessages.array as! [ZMMessage]
+            let filtered = newMessagesArray.filter{ !$0.isExpiredJunk }
 
-        var predicate: NSPredicate!
-        if conversation.clearedTimeStamp != nil {
-            predicate = NSPredicate(block: { message, _ in
-                guard let message = message as? ZMMessage else { return false }
+            mutableMessages.removeAllObjects()
+            mutableMessages.union(NSOrderedSet(array: filtered))
 
-                return message.shouldBeDisplayed && (message.deliveryState == .pending || message.serverTimestamp!.compare(self.conversation.clearedTimeStamp!) == .orderedDescending)
-            })
-
-        } else {
-            predicate = NSPredicate(block: { message, _ in
-                guard let message = message as? ZMMessage else { return false }
-
-                return message.shouldBeDisplayed
-            })
-        }
-        
-        newMessages.filter(using: predicate)
-
-        mutableMessages.removeAllObjects()
-        mutableMessages.union(newMessages)
 
     }
 
@@ -100,12 +86,18 @@ public final class ZMConversationMessageWindow: NSObject {
             recalculateMessages()
         }
     }
+}
 
+extension ZMMessage {
+    public var isExpiredJunk: Bool { ///TODO rename
+        guard let destructionDate = self.destructionDate else { return false }
+
+        return destructionDate.timeIntervalSinceNow <= 0 && isObfuscated == false
+    }
 }
 
 extension ZMConversation {
     @objc public func conversationWindow(withSize size: UInt) -> ZMConversationMessageWindow? {
-        ///TODO: recalc at this point?
         return ZMConversationMessageWindow(conversation: self, size: size)
     }
 }
