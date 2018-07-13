@@ -61,13 +61,22 @@ public final class ZMConversationMessageWindow: NSObject {
         let numberOfMessages = Int(activeSize)
         let range = NSRange(location: messages.count - numberOfMessages, length: numberOfMessages)
         let newMessages = NSMutableOrderedSet(orderedSet: messages, range: range, copyItems: false)
-        let newMessagesArray = newMessages.array as! [ZMMessage]
-            let filtered = newMessagesArray.filter{ !$0.isExpiredJunk }
 
-            mutableMessages.removeAllObjects()
-            mutableMessages.union(NSOrderedSet(array: filtered))
+        let filtered = newMessages.filter{message in
+            guard let message = message as? ZMMessage else { return false }
 
+            var filterResult: Bool!
+            if let _ = conversation.clearedTimeStamp {
+                filterResult = message.shouldBeDisplayed && (message.deliveryState == .pending || message.serverTimestamp!.compare(self.conversation.clearedTimeStamp!) == .orderedDescending)
+            } else {
+                filterResult = message.shouldBeDisplayed
+            }
 
+            return filterResult && message.isExpiredJunk
+        }
+
+        mutableMessages.removeAllObjects()
+        mutableMessages.union(NSOrderedSet(array: filtered))
     }
 
     @objc public func moveUp(byMessages amountOfMessages: UInt) {
