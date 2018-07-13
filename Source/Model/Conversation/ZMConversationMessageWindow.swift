@@ -62,7 +62,7 @@ public final class ZMConversationMessageWindow: NSObject {
         let range = NSRange(location: messages.count - numberOfMessages, length: numberOfMessages)
         let newMessages = NSMutableOrderedSet(orderedSet: messages, range: range, copyItems: false)
 
-        let filtered = newMessages.filter{message in
+        let filtered = newMessages.filter{ message in
             guard let message = message as? ZMMessage else { return false }
 
             var filterResult: Bool!
@@ -72,7 +72,7 @@ public final class ZMConversationMessageWindow: NSObject {
                 filterResult = message.shouldBeDisplayed
             }
 
-            return filterResult && message.isExpiredJunk
+            return filterResult && message.isExpirationZombie
         }
 
         mutableMessages.removeAllObjects()
@@ -98,7 +98,9 @@ public final class ZMConversationMessageWindow: NSObject {
 }
 
 extension ZMMessage {
-    public var isExpiredJunk: Bool { ///TODO rename
+
+    /// a message that should be destructed, but isObfuscated flag is false and it still exist in Core Date
+    fileprivate var isExpirationZombie: Bool {
         guard let destructionDate = self.destructionDate else { return false }
 
         return destructionDate.timeIntervalSinceNow <= 0 && isObfuscated == false
@@ -106,7 +108,7 @@ extension ZMMessage {
 }
 
 extension ZMConversation {
-    @objc public func conversationWindow(withSize size: UInt) -> ZMConversationMessageWindow? {
+    @objc public func conversationWindow(withSize size: UInt) -> ZMConversationMessageWindow {
         return ZMConversationMessageWindow(conversation: self, size: size)
     }
 }
