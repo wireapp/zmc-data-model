@@ -64,19 +64,4 @@ final class PushTokenTests: XCTestCase {
         XCTAssertFalse(reset.isMarkedForDownload)
         XCTAssertFalse(reset.isMarkedForDownload)
     }
-
-    func testThatItCanBeInitializedFromLegacyToken() {
-        let legacyToken = ZMPushToken(deviceToken: sut.deviceToken, identifier: sut.appIdentifier, transportType: sut.transportType, isRegistered: sut.isRegistered, isMarkedForDeletion: sut.isMarkedForDeletion)
-
-        let pushToken = PushToken(pushToken: legacyToken)
-
-        XCTAssertEqual(pushToken.deviceToken, sut.deviceToken)
-        XCTAssertEqual(pushToken.appIdentifier, sut.appIdentifier)
-        XCTAssertEqual(pushToken.transportType, sut.transportType)
-        XCTAssertEqual(pushToken.isRegistered, sut.isRegistered)
-        XCTAssertEqual(pushToken.isMarkedForDeletion, sut.isMarkedForDeletion)
-
-        // We need to re-download it to make sure it is still valid
-        XCTAssertTrue(pushToken.isMarkedForDownload)
-    }
 }
