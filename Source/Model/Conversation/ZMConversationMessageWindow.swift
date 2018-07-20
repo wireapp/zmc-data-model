@@ -22,7 +22,7 @@ public final class ZMConversationMessageWindow: NSObject {
     private(set) var size: UInt
     let mutableMessages: NSMutableOrderedSet
     @objc public let conversation: ZMConversation
-    
+
     var activeSize: UInt {
         return min(size, UInt(conversation.messages.count))
     }
@@ -55,14 +55,13 @@ public final class ZMConversationMessageWindow: NSObject {
         }
     }
 
-
     @objc func recalculateMessages() {
         let messages = conversation.messages
         let numberOfMessages = Int(activeSize)
         let range = NSRange(location: messages.count - numberOfMessages, length: numberOfMessages)
         let newMessages = NSMutableOrderedSet(orderedSet: messages, range: range, copyItems: false)
 
-        let filtered = newMessages.filter{ message in
+        let filtered = newMessages.filter { message in
             guard let message = message as? ZMMessage else { return false }
 
             var filterResult: Bool!
