@@ -50,7 +50,7 @@ public final class ZMConversationMessageWindow: NSObject {
 
     deinit {
         if let zm_isValidContext = conversation.managedObjectContext?.zm_isValidContext,
-            zm_isValidContext == true {
+           zm_isValidContext {
             conversation.managedObjectContext?.messageWindowObserverCenter.removeMessageWindow(self)
         }
     }
@@ -64,7 +64,7 @@ public final class ZMConversationMessageWindow: NSObject {
         let filtered = newMessages.filter { message in
             guard let message = message as? ZMMessage else { return false }
 
-            var filterResult: Bool!
+            var filterResult: Bool = false
             if let _ = conversation.clearedTimeStamp {
                 filterResult = message.shouldBeDisplayed && (message.deliveryState == .pending || message.serverTimestamp!.compare(self.conversation.clearedTimeStamp!) == .orderedDescending)
             } else {
