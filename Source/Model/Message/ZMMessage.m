@@ -811,6 +811,7 @@ NSString * const ZMSystemMessageMessageTimerKey = @"messageTimer";
 @dynamic childMessages;
 @dynamic parentMessage;
 @dynamic messageTimer;
+@dynamic isRelevant;
 
 + (instancetype)createOrUpdateMessageFromUpdateEvent:(ZMUpdateEvent *)updateEvent
                               inManagedObjectContext:(NSManagedObjectContext *)moc
