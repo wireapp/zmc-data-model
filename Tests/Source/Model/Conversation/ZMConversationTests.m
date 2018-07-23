@@ -3607,7 +3607,7 @@
         XCTAssertFalse(conversation.hasUnreadMissedCall);
         
         // when
-        [conversation appendMissedCallMessageFromUser:user at:[NSDate date]];
+        [conversation appendMissedCallMessageFromUser:user at:[NSDate date] isRelevant:YES];
         
         // then
         XCTAssertTrue(conversation.hasUnreadMissedCall);
@@ -3627,7 +3627,7 @@
         XCTAssertTrue(conversation.isArchived);
 
         // when
-        [conversation appendMissedCallMessageFromUser:user at:[NSDate date]];
+        [conversation appendMissedCallMessageFromUser:user at:[NSDate date] isRelevant:YES];
 
         // then
         XCTAssertFalse(conversation.isArchived);
@@ -3678,7 +3678,7 @@
         
         // when
         // (1) append first missed call
-        message = [conversation appendMissedCallMessageFromUser:user at:firstCallDate];
+        message = [conversation appendMissedCallMessageFromUser:user at:firstCallDate isRelevant:YES];
         [self.syncMOC saveOrRollback];
     }];
     WaitForAllGroupsToBeEmpty(0.5);
@@ -3695,7 +3695,7 @@
     [self.syncMOC performGroupedBlockAndWait:^{
         // and when
         // (3) append second missed call (as childMessage)
-        [conversation appendMissedCallMessageFromUser:user at:secondCallDate];
+        [conversation appendMissedCallMessageFromUser:user at:secondCallDate isRelevant:YES];
         [self.syncMOC saveOrRollback];
     }];
     WaitForAllGroupsToBeEmpty(0.5);
@@ -3729,11 +3729,11 @@
         ZMMessage *textMessage = (id)[conversation appendMessageWithText:@"Foo"];
 
         // (1) append first missed call
-        ZMMessage *message1 = [conversation appendMissedCallMessageFromUser:user at:firstCallDate];
+        ZMMessage *message1 = [conversation appendMissedCallMessageFromUser:user at:firstCallDate isRelevant:YES];
         conversation.lastReadServerTimeStamp = message1.serverTimestamp;
 
         // (2) append first second call
-        [conversation appendMissedCallMessageFromUser:user at:secondCallDate];
+        [conversation appendMissedCallMessageFromUser:user at:secondCallDate isRelevant:YES];
 
         // when
         id<ZMConversationMessage> firstUnreadMessage = [conversation firstUnreadMessage];
@@ -3762,11 +3762,11 @@
         [conversation appendMessageWithText:@"Foo"];
 
         // (1) append first missed call
-        ZMMessage *message1 = [conversation appendMissedCallMessageFromUser:user at:firstCallDate];
+        ZMMessage *message1 = [conversation appendMissedCallMessageFromUser:user at:firstCallDate isRelevant:YES];
         conversation.lastReadServerTimeStamp = message1.serverTimestamp;
         
         // (2) append first second call
-        ZMMessage *message2 = [conversation appendMissedCallMessageFromUser:user at:secondCallDate];
+        ZMMessage *message2 = [conversation appendMissedCallMessageFromUser:user at:secondCallDate isRelevant:YES];
         conversation.lastReadServerTimeStamp = message2.serverTimestamp;
 
         // when
@@ -3774,6 +3774,26 @@
 
         // then
         XCTAssertNil(firstUnreadMessage);
+    }];
+}
+
+- (void)testThatStoresIsRelevantOnSystemMessages
+{
+    [self.syncMOC performGroupedBlockAndWait:^{
+        // given
+        ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
+        ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.syncMOC];
+        
+        XCTAssertFalse(conversation.hasUnreadMissedCall);
+        
+        // when
+        ZMSystemMessage *message1 = [conversation appendMissedCallMessageFromUser:user at:[NSDate date] isRelevant:YES];
+        ZMSystemMessage *message2 = [conversation appendMissedCallMessageFromUser:user at:[NSDate date] isRelevant:NO];
+        
+        // then
+        XCTAssertTrue(message1.isRelevant);
+        XCTAssertFalse(message2.isRelevant);
+        XCTAssertTrue(conversation.hasUnreadMissedCall);
     }];
 }
 
