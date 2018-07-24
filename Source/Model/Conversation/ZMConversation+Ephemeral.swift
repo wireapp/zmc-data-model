@@ -166,6 +166,23 @@ extension TimeInterval {
     }
 }
 
+//TODO: new file
+public extension ZMConversation {
+    @NSManaged internal var language: String
+
+    public var inputLanguage: String? {
+        get {
+            return language
+        }
+
+        set {
+            if let newValue = newValue {
+                language = newValue
+            }
+        }
+    }
+}
+
 public extension ZMConversation {
 
     /// Defines the time interval until an inserted messages is deleted / "self-destructs" on all clients.
