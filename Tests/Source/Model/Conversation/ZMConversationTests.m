@@ -3606,7 +3606,7 @@
         XCTAssertFalse(conversation.hasUnreadMissedCall);
         
         // when
-        [conversation appendMissedCallMessageFromUser:user at:[NSDate date] isRelevant:YES];
+        [conversation appendMissedCallMessageFromUser:user at:[NSDate date] relevantForStatus:YES];
         
         // then
         XCTAssertTrue(conversation.hasUnreadMissedCall);
@@ -3626,7 +3626,7 @@
         XCTAssertTrue(conversation.isArchived);
 
         // when
-        [conversation appendMissedCallMessageFromUser:user at:[NSDate date] isRelevant:YES];
+        [conversation appendMissedCallMessageFromUser:user at:[NSDate date] relevantForStatus:YES];
 
         // then
         XCTAssertFalse(conversation.isArchived);
@@ -3677,7 +3677,7 @@
         
         // when
         // (1) append first missed call
-        message = [conversation appendMissedCallMessageFromUser:user at:firstCallDate isRelevant:YES];
+        message = [conversation appendMissedCallMessageFromUser:user at:firstCallDate relevantForStatus:YES];
         [self.syncMOC saveOrRollback];
     }];
     WaitForAllGroupsToBeEmpty(0.5);
@@ -3694,7 +3694,7 @@
     [self.syncMOC performGroupedBlockAndWait:^{
         // and when
         // (3) append second missed call (as childMessage)
-        [conversation appendMissedCallMessageFromUser:user at:secondCallDate isRelevant:YES];
+        [conversation appendMissedCallMessageFromUser:user at:secondCallDate relevantForStatus:YES];
         [self.syncMOC saveOrRollback];
     }];
     WaitForAllGroupsToBeEmpty(0.5);
@@ -3728,11 +3728,11 @@
         ZMMessage *textMessage = (id)[conversation appendMessageWithText:@"Foo"];
 
         // (1) append first missed call
-        ZMMessage *message1 = [conversation appendMissedCallMessageFromUser:user at:firstCallDate isRelevant:YES];
+        ZMMessage *message1 = [conversation appendMissedCallMessageFromUser:user at:firstCallDate relevantForStatus:YES];
         conversation.lastReadServerTimeStamp = message1.serverTimestamp;
 
         // (2) append first second call
-        [conversation appendMissedCallMessageFromUser:user at:secondCallDate isRelevant:YES];
+        [conversation appendMissedCallMessageFromUser:user at:secondCallDate relevantForStatus:YES];
 
         // when
         id<ZMConversationMessage> firstUnreadMessage = [conversation firstUnreadMessage];
@@ -3761,11 +3761,11 @@
         [conversation appendMessageWithText:@"Foo"];
 
         // (1) append first missed call
-        ZMMessage *message1 = [conversation appendMissedCallMessageFromUser:user at:firstCallDate isRelevant:YES];
+        ZMMessage *message1 = [conversation appendMissedCallMessageFromUser:user at:firstCallDate relevantForStatus:YES];
         conversation.lastReadServerTimeStamp = message1.serverTimestamp;
         
         // (2) append first second call
-        ZMMessage *message2 = [conversation appendMissedCallMessageFromUser:user at:secondCallDate isRelevant:YES];
+        ZMMessage *message2 = [conversation appendMissedCallMessageFromUser:user at:secondCallDate relevantForStatus:YES];
         conversation.lastReadServerTimeStamp = message2.serverTimestamp;
 
         // when
@@ -3776,7 +3776,7 @@
     }];
 }
 
-- (void)testThatStoresIsRelevantOnSystemMessages
+- (void)testThatStoresRelevantForConversationStatusOnSystemMessages
 {
     [self.syncMOC performGroupedBlockAndWait:^{
         // given
@@ -3786,12 +3786,12 @@
         XCTAssertFalse(conversation.hasUnreadMissedCall);
         
         // when
-        ZMSystemMessage *message1 = [conversation appendMissedCallMessageFromUser:user at:[NSDate date] isRelevant:YES];
-        ZMSystemMessage *message2 = [conversation appendMissedCallMessageFromUser:user at:[NSDate date] isRelevant:NO];
+        ZMSystemMessage *message1 = [conversation appendMissedCallMessageFromUser:user at:[NSDate date] relevantForStatus:YES];
+        ZMSystemMessage *message2 = [conversation appendMissedCallMessageFromUser:user at:[NSDate date] relevantForStatus:NO];
         
         // then
-        XCTAssertTrue(message1.isRelevant);
-        XCTAssertFalse(message2.isRelevant);
+        XCTAssertTrue(message1.relevantForConversationStatus);
+        XCTAssertFalse(message2.relevantForConversationStatus);
         XCTAssertTrue(conversation.hasUnreadMissedCall);
     }];
 }

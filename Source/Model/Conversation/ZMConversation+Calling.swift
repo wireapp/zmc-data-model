@@ -20,14 +20,14 @@
 public extension ZMConversation {
 
     @discardableResult
-    @objc public func appendMissedCallMessage(fromUser user: ZMUser, at timestamp: Date, isRelevant: Bool = true) -> ZMSystemMessage {
+    @objc public func appendMissedCallMessage(fromUser user: ZMUser, at timestamp: Date, relevantForStatus: Bool = true) -> ZMSystemMessage {
         let (message, index) = appendSystemMessage(
             type: .missedCall,
             sender: user,
             users: [user],
             clients: nil,
             timestamp: timestamp,
-            isRelevant: isRelevant
+            relevantForStatus: relevantForStatus
         )
 
         if isArchived && !isSilenced {

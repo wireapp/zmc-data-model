@@ -81,7 +81,7 @@ NSString * const ZMMessageDurationKey = @"duration";
 NSString * const ZMMessageChildMessagesKey = @"childMessages";
 NSString * const ZMMessageParentMessageKey = @"parentMessage";
 NSString * const ZMSystemMessageMessageTimerKey = @"messageTimer";
-NSString * const ZMMessageIsRelevantKey = @"isRelevant";
+NSString * const ZMSystemMessageRelevantForConversationStatusKey = @"relevantForConversationStatus";
 NSString * const ZMSystemMessageAllTeamUsersAddedKey = @"allTeamUsersAdded";
 NSString * const ZMSystemMessageNumberOfGuestsAddedKey = @"numberOfGuestsAdded";
 
@@ -688,7 +688,7 @@ NSString * const ZMSystemMessageNumberOfGuestsAddedKey = @"numberOfGuestsAdded";
                              ZMMessageChildMessagesKey,
                              ZMMessageParentMessageKey,
                              ZMSystemMessageMessageTimerKey,
-                             ZMMessageIsRelevantKey,
+                             ZMSystemMessageRelevantForConversationStatusKey,
                              ZMSystemMessageAllTeamUsersAddedKey,
                              ZMSystemMessageNumberOfGuestsAddedKey
                              ];
@@ -817,7 +817,7 @@ NSString * const ZMSystemMessageNumberOfGuestsAddedKey = @"numberOfGuestsAdded";
 @dynamic childMessages;
 @dynamic parentMessage;
 @dynamic messageTimer;
-@dynamic isRelevant;
+@dynamic relevantForConversationStatus;
 
 + (instancetype)createOrUpdateMessageFromUpdateEvent:(ZMUpdateEvent *)updateEvent
                               inManagedObjectContext:(NSManagedObjectContext *)moc
