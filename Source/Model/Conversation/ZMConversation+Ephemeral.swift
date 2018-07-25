@@ -166,7 +166,6 @@ extension TimeInterval {
     }
 }
 
-
 public extension ZMConversation {
 
     /// Defines the time interval until an inserted messages is deleted / "self-destructs" on all clients.
