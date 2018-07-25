@@ -473,19 +473,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
                                                      expectedChangedKeys: [#keyPath(ZMConversation.syncedMessageDestructionTimeout)])
     }
     
-    func testThatLocalDestructionTimeoutChangeIsTriggeringObservation()
-    {
-        // given
-        let conversation = setupGroupConversation()
-
-        // when
-        self.checkThatItNotifiesTheObserverOfAChange(conversation,
-                                                     modifier: { conversation, _ in conversation.localMessageDestructionTimeout = 1000 },
-                                                     expectedChangedField: "destructionTimeoutChanged",
-                                                     expectedChangedKeys: [#keyPath(ZMConversation.localMessageDestructionTimeout)])
-    }
-
-    func setupGroupConversation() -> ZMConversation{
+    func createGroupConversation() -> ZMConversation{
         let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
         conversation.conversationType = ZMConversationType.group
         uiMOC.saveOrRollback()
@@ -494,9 +482,21 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         return conversation
     }
 
+    func testThatLocalDestructionTimeoutChangeIsTriggeringObservation()
+    {
+        // given
+        let conversation = createGroupConversation()
+
+        // when
+        self.checkThatItNotifiesTheObserverOfAChange(conversation,
+                                                     modifier: { conversation, _ in conversation.localMessageDestructionTimeout = 1000 },
+                                                     expectedChangedField: "destructionTimeoutChanged",
+                                                     expectedChangedKeys: [#keyPath(ZMConversation.localMessageDestructionTimeout)])
+    }
+
     func testThatLanguageChangeIsTriggeringObservation() {
         // given
-        let conversation = setupGroupConversation()
+        let conversation = createGroupConversation()
 
         // when
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
