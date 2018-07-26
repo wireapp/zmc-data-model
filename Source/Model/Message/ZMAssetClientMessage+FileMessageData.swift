@@ -49,6 +49,9 @@ import Foundation
     /// Dimensions of the video
     var videoDimensions: CGSize { get }
     
+    /// File thumbnail preview image
+    var previewData: Data? { get }
+    
     /// This can be used as a cache key for @c -previewData
     var imagePreviewDataIdentifier: String? { get }
     
@@ -133,6 +136,10 @@ extension ZMAssetClientMessage: ZMFileMessageData {
         }
         
         return temporaryFileURL
+    }
+    
+    public var previewData: Data? {
+        return self.asset?.previewData
     }
     
     public func fetchImagePreviewData(queue: DispatchQueue, completionHandler: @escaping (Data?) -> Void) {

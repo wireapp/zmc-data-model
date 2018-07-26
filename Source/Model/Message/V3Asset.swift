@@ -33,7 +33,8 @@ private let zmLog = ZMSLog(tag: "AssetV3")
     var hasDownloadedFile: Bool { get }
     var imageMessageData: ZMImageMessageData? { get }
     var fileURL: URL? { get }
-    
+
+    var previewData: Data? { get }
     var imagePreviewDataIdentifier: String? { get }
 
     @objc(imageDataForFormat:encrypted:)
@@ -104,6 +105,11 @@ private let zmLog = ZMSLog(tag: "AssetV3")
 
     public var imagePreviewDataIdentifier: String? {
         return FileAssetCache.cacheKeyForAsset(assetClientMessage, format: .preview)
+    }
+
+    public var previewData: Data? {
+        guard nil != assetClientMessage.fileMessageData, !isImage, hasDownloadedImage else { return nil }
+        return imageData(for: .medium, encrypted: false) ?? imageData(for: .original, encrypted: false)
     }
 
     public var isAnimatedGIF: Bool {

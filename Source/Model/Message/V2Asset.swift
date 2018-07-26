@@ -84,6 +84,15 @@ extension String {
         return FileAssetCache.cacheKeyForAsset(assetClientMessage, format: .preview)
     }
 
+    public var previewData: Data? {
+        if nil != assetClientMessage.fileMessageData, assetClientMessage.hasDownloadedImage {
+            // File preview data
+            return imageData(for: .original) ?? imageData(for: .medium)
+        }
+
+        return nil
+    }
+
     public var isAnimatedGIF: Bool {
         return assetStorage.mediumGenericMessage?.imageAssetData?.mimeType.isGIF ?? false
     }
