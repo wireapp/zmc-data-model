@@ -66,7 +66,7 @@ public protocol UserType: NSObjectProtocol {
     func requestPreviewProfileImage()
     func requestCompleteProfileImage()
     
-    /// AAA Wheater this user is a guest in a conversation
+    /// Whether this user is a guest in a conversation
     func isGuest(in conversation: ZMConversation) -> Bool
     
     /// Fetch a profile image with the given size on the given queue
