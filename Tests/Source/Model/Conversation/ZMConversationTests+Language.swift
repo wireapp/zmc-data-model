@@ -26,11 +26,19 @@ class ZMConversationTests_Language : BaseZMMessageTests {
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         let germanLanguage = "de-DE"
 
+        let uuid = UUID.create()
+        conversation.remoteIdentifier = uuid
+        conversation.language = germanLanguage
+
+        XCTAssert(uiMOC.saveOrRollback())
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.1))
+
+
         // when
-        conversation.inputLanguage = germanLanguage
+        let conversationFetched = ZMConversation.fetch(withRemoteIdentifier: uuid, in: uiMOC)
 
         // then
-        XCTAssertEqual(conversation.language, germanLanguage)
+        XCTAssertEqual(conversationFetched?.language, germanLanguage)
     }
 
 }
