@@ -32,7 +32,8 @@ extension String {
 @objcMembers public class V2Asset: NSObject, ZMImageMessageData {
     
     public var isDownloaded: Bool {
-        return false
+        return moc.zm_fileAssetCache.hasDataOnDisk(assetClientMessage, format: .medium, encrypted: false) ||
+               moc.zm_fileAssetCache.hasDataOnDisk(assetClientMessage, format: .original, encrypted: false)
     }
     
     public func fetchImageData(with queue: DispatchQueue!, completionHandler: ((Data?) -> Void)!) {
