@@ -155,5 +155,10 @@ NSString *const ZMConversationLastReadLocalTimestampKey = @"lastReadLocalTimesta
     return [NSSet setWithObjects:ZMConversationLastUnreadMissedCallDateKey, ZMConversationLastUnreadKnockDateKey, ZMConversationInternalEstimatedUnreadCountKey, ZMConversationLastReadServerTimeStampKey, ZMConversationHasUnreadUnsentMessageKey,  nil];
 }
 
+- (BOOL)hasUnreadMessagesInOtherConversations
+{
+    return [ZMConversation unreadConversationCountIncludingSilencedInContext:self.managedObjectContext excluding:self] > 0;
+}
+
 @end
 

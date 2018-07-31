@@ -30,6 +30,8 @@
 /// and reset when the visible window changes
 @property (nonatomic) BOOL hasUnreadUnsentMessage;
 
+@property (nonatomic, readonly) BOOL hasUnreadMessagesInOtherConversations;
+
 @property (nonatomic, readonly) ZMConversationListIndicator unreadListIndicator;
 + (NSSet *)keyPathsForValuesAffectingUnreadListIndicator;
 
