@@ -36,8 +36,14 @@
 /// Predicate for conversations that will be considered unread for the purpose of the badge count
 + (NSPredicate *)predicateForConversationConsideredUnread;
 
-/// Count of unread conversation
+/// Predicate for conversations that will be considered unread for the purpose of the back arrow dot
++ ( NSPredicate *)predicateForConversationConsideredUnreadIncludingSilenced;
+
+/// Count of unread conversations (exluding silenced converations)
 + (NSUInteger)unreadConversationCountInContext:(NSManagedObjectContext *)moc;
+
+/// Count of unread conversations (including silenced conversations)
++ (NSUInteger)unreadConversationCountIncludingSilencedInContext:(NSManagedObjectContext *)moc excluding:(ZMConversation *)conversation;
 
 @end
 
