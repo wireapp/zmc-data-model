@@ -95,13 +95,15 @@ extension ZMConversation {
     /// Creates a system message that inform that there are pontential lost messages, and that some users were added to the conversation
     @objc public func appendNewPotentialGapSystemMessage(users: Set<ZMUser>?, timestamp: Date) {
         
-        let (systemMessage, index) = self.appendSystemMessage(type: .potentialGap,
+        let systemMessage = self.appendSystemMessage(type: .potentialGap,
                                                               sender: ZMUser.selfUser(in: self.managedObjectContext!),
                                                               users: users,
                                                               clients: nil,
                                                               timestamp: timestamp)
         systemMessage.needsUpdatingUsers = true
-        if index > 1,
+        let index = self.messages.index(of: systemMessage)
+        if index != NSNotFound,
+            index > 1,
             let previousMessage = self.messages[Int(index - 1)] as? ZMSystemMessage,
             previousMessage.systemMessageType == .potentialGap
         {
@@ -307,7 +309,7 @@ extension ZMConversation {
                                          timestamp: Date,
                                          duration: TimeInterval? = nil,
                                          messageTimer: Double? = nil,
-                                         relevantForStatus: Bool = true) -> (message: ZMSystemMessage, insertionIndex: UInt) {
+                                         relevantForStatus: Bool = true) -> ZMSystemMessage {
         let systemMessage = ZMSystemMessage(nonce: UUID(), managedObjectContext: managedObjectContext!)
         systemMessage.systemMessageType = type
         systemMessage.sender = sender
@@ -325,12 +327,10 @@ extension ZMConversation {
         
         systemMessage.relevantForConversationStatus = relevantForStatus
         
-        let index = self.sortedAppendMessage(systemMessage)
+        self.appendMessage(systemMessage)
         
-        return (message: systemMessage, insertionIndex: index)
+        return systemMessage
     }
-    
-
     
     /// Returns a timestamp that is shortly (as short as possible) before the given message,
     /// or the last modified date if the message is nil

@@ -1781,7 +1781,7 @@ NSString * const ReactionsKey = @"reactions";
 
     //then
     XCTAssertEqual(conversation.hiddenMessages.count, 1lu);
-    ZMClientMessage *reactionMessage = [conversation.hiddenMessages lastObject];
+    ZMClientMessage *reactionMessage = (ZMClientMessage *)[conversation.hiddenMessages anyObject];
     XCTAssertNotNil(reactionMessage.genericMessage);
     XCTAssertTrue(reactionMessage.genericMessage.hasReaction);
     XCTAssertEqualObjects(reactionMessage.genericMessage.reaction.emoji, @"❤️");

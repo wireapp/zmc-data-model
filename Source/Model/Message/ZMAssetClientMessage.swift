@@ -282,7 +282,6 @@ import Foundation
             if let serverTimestamp = (payload as NSDictionary).date(forKey: "time") {
                 self.serverTimestamp = serverTimestamp
             }
-            conversation?.resortMessages(withUpdatedMessage: self)
             conversation?.updateTimestampsAfterUpdatingMessage(self)
         }
         

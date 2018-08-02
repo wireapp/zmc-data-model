@@ -102,7 +102,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
             systemMessage.serverTimestamp = lastModified.addingTimeInterval(100)
     
             // when
-            conversation.sortedAppendMessage(systemMessage)
+            conversation.appendMessage(systemMessage)
     
             // then
             XCTAssertEqual(conversation.lastModifiedDate, lastModified)

@@ -82,7 +82,7 @@ static NSString * const MessageKeyForDebugging = @"nonce";
         
         NSMutableOrderedSet *addedMessages;
         {
-            NSString *key = ZMConversationMessagesKey;
+            NSString *key = ZMConversationAllMessagesKey;
             NSOrderedSet *commitedMessages = [conversation committedValuesForKeys:@[key]][key];
             ZMLogDebug(@"  commited value for 'messages': %@", [[commitedMessages.array valueForKey:MessageKeyForDebugging] componentsJoinedByString:@"; "]);
             
@@ -106,7 +106,7 @@ static NSString * const MessageKeyForDebugging = @"nonce";
         {
             NSManagedObjectContext *moc = conflict.sourceObject.managedObjectContext;
             NSPersistentStoreCoordinator *psc = moc.persistentStoreCoordinator;
-            NSRelationshipDescription *messagesRelationship = conflict.sourceObject.entity.relationshipsByName[@"messages"];
+            NSRelationshipDescription *messagesRelationship = conflict.sourceObject.entity.relationshipsByName[@"allMessages"];
             
             // We'll fetch from the PSC. This will not retain the ordering, but at least show us what's there:
             NSFetchRequest *request = [[NSFetchRequest alloc] init];
@@ -124,7 +124,7 @@ static NSString * const MessageKeyForDebugging = @"nonce";
             [mergedMessages zm_insertObject:m sortedByDescriptors:sortDescriptors];
         }
         
-        [self.objectToValueDictionaryMap setObject:@{ZMConversationMessagesKey : mergedMessages} forKey:conversation];
+        [self.objectToValueDictionaryMap setObject:@{ZMConversationAllMessagesKey : mergedMessages} forKey:conversation];
         ZMLogDebug(@"  resolved messages: %@", [[mergedMessages.array valueForKey:MessageKeyForDebugging] componentsJoinedByString:@"; "]);
     }];
 }

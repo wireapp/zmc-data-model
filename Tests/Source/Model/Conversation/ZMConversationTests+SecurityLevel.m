@@ -185,7 +185,7 @@
         XCTAssertEqual(conversation.securityLevel, ZMConversationSecurityLevelSecureWithIgnored);
         
         // Conversation degraded message
-        ZMSystemMessage *conversationDegradedMessage = conversation.messages.lastObject;
+        ZMSystemMessage *conversationDegradedMessage = (ZMSystemMessage *)conversation.messages.lastObject;
         XCTAssertEqual(conversationDegradedMessage.systemMessageType, ZMSystemMessageTypeNewClient);
         XCTAssertEqualObjects(conversationDegradedMessage.addedUsers, [NSSet setWithObject:user3]);
         XCTAssertEqualObjects(conversationDegradedMessage.users, [NSSet setWithObject:user3]);
@@ -196,7 +196,7 @@
         // then
         XCTAssertTrue(conversation.allUsersTrusted);
         XCTAssertEqual(conversation.securityLevel, ZMConversationSecurityLevelSecure);
-        ZMSystemMessage *message2 = conversation.messages.lastObject;
+        ZMSystemMessage *message2 = (ZMSystemMessage *)conversation.messages.lastObject;
         XCTAssertEqual(message2.systemMessageType, ZMSystemMessageTypeConversationIsSecure);
     }];
 }
@@ -381,7 +381,7 @@
         // then
         XCTAssertEqual(conversation.securityLevel, ZMConversationSecurityLevelNotSecure);
         XCTAssertEqual(conversation.messages.count, 1lu);
-        ZMSystemMessage *message = conversation.messages.lastObject;
+        ZMSystemMessage *message = (ZMSystemMessage *)conversation.messages.lastObject;
         XCTAssertNotEqual(message.systemMessageType, ZMSystemMessageTypeConversationIsSecure);
     }];
     
@@ -478,7 +478,7 @@
     [conversation appendStartedUsingThisDeviceMessage];
     
     // then
-    ZMSystemMessage *message = conversation.messages.lastObject;
+    ZMSystemMessage *message = (ZMSystemMessage *)conversation.messages.lastObject;
     XCTAssertNotNil(message.serverTimestamp);
 }
 
@@ -494,7 +494,7 @@
     [conversation appendDecryptionFailedSystemMessageAtTime:[NSDate date] sender:user client:nil errorCode:CBOX_REMOTE_IDENTITY_CHANGED];
     
     // then
-    ZMSystemMessage *lastMessage = conversation.messages.lastObject;
+    ZMSystemMessage *lastMessage = (ZMSystemMessage *)conversation.messages.lastObject;
     XCTAssertEqual(lastMessage.systemMessageType, ZMSystemMessageTypeDecryptionFailed_RemoteIdentityChanged);
 }
 
@@ -510,7 +510,7 @@
     [conversation appendDecryptionFailedSystemMessageAtTime:[NSDate date] sender:user client:nil errorCode:CBOX_INVALID_MESSAGE];
     
     // then
-    ZMSystemMessage *lastMessage = conversation.messages.lastObject;
+    ZMSystemMessage *lastMessage = (ZMSystemMessage *)conversation.messages.lastObject;
     XCTAssertEqual(lastMessage.systemMessageType, ZMSystemMessageTypeDecryptionFailed);
 }
 
@@ -529,7 +529,7 @@
     [conversation appendContinuedUsingThisDeviceMessage];
     
     // then
-    ZMSystemMessage *message = conversation.messages.lastObject;
+    ZMSystemMessage *message = (ZMSystemMessage *)conversation.messages.lastObject;
     XCTAssertNotNil(message.serverTimestamp);
     XCTAssertLessThan([previousMessage.serverTimestamp timeIntervalSince1970], [message.serverTimestamp timeIntervalSince1970]);
     XCTAssertEqualWithAccuracy([[NSDate date] timeIntervalSince1970], [message.serverTimestamp timeIntervalSince1970], 1.0);

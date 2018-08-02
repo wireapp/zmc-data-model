@@ -107,7 +107,6 @@
     ZMMessage *message = [[ZMMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:conversation.managedObjectContext];
     message.serverTimestamp = [conversation.lastServerTimeStamp dateByAddingTimeInterval:5];
     message.visibleInConversation = conversation;
-    [conversation resortMessagesWithUpdatedMessage:message];
     conversation.lastServerTimeStamp = message.serverTimestamp;
     return message.serverTimestamp;
 }
@@ -452,104 +451,6 @@
     XCTAssertTrue([predicate evaluateWithObject:conversation]);
 }
 
-- (void)testThatItSortsTheConversationBasedOnServerTimestamp
-{
-    // given
-    const NSUInteger numberOfMessages = 50;
-    [self.syncMOC performGroupedBlockAndWait:^{
-        
-        ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
-        conversation.remoteIdentifier = [NSUUID createUUID];
-        
-        ZMUser *creator = [ZMUser insertNewObjectInManagedObjectContext:self.syncMOC];
-        conversation.creator = creator;
-        
-        for(NSUInteger i = 0; i < numberOfMessages; ++i) {
-            NSString *text = [NSString stringWithFormat:@"Conversation test message %lu", (unsigned long)i];
-            ZMTextMessage *message = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.syncMOC];
-            message.text = text;
-            message.visibleInConversation = conversation;
-            message.sender = creator;
-            uint64_t poorRandom2 = (13 + i * 98953) % 93179;
-            message.serverTimestamp = [NSDate dateWithTimeIntervalSinceReferenceDate:poorRandom2*100];
-        }
-        
-        // when
-        [conversation sortMessages];
-        
-        // then
-        NSDate *lastFoundDate;
-        for(ZMMessage *message in conversation.messages)
-        {
-            if(lastFoundDate != nil) {
-                XCTAssertEqual([lastFoundDate compare:message.serverTimestamp], NSOrderedAscending);
-            }
-            lastFoundDate = message.serverTimestamp;
-        }
-        XCTAssertNotNil(lastFoundDate);
-    }];
-}
-
-- (void)testThatItFetchesMessagesAndSetsTheUnreadCountAfterSortingMessages
-{
-    // given
-    const NSUInteger numberOfMessages = 10;
-    [self.syncMOC performGroupedBlockAndWait:^{
-        
-        ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
-        conversation.remoteIdentifier = [NSUUID createUUID];
-
-        ZMUser *creator = [ZMUser insertNewObjectInManagedObjectContext:self.syncMOC];
-        conversation.creator = creator;
-        
-        for(NSUInteger i = 0; i < numberOfMessages; ++i) {
-            NSString *text = [NSString stringWithFormat:@"Conversation test message %lu", (unsigned long)i];
-            ZMTextMessage *message = [[ZMTextMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.syncMOC];
-            message.text = text;
-            message.visibleInConversation = conversation;
-            message.sender = creator;
-            uint64_t poorRandom2 = (13 + i * 98953) % 93179;
-            message.serverTimestamp = [NSDate dateWithTimeIntervalSinceReferenceDate:poorRandom2*100];
-        }
-        
-        XCTAssertEqual(conversation.estimatedUnreadCount, 0u);
-        
-        // when
-        [conversation sortMessages];
-        
-        // then
-        XCTAssertEqual(conversation.estimatedUnreadCount, 10u);
-    }];
-}
-
-- (void)testThatItDoesNotTouchTheMessagesRelationWhenItIsAlreadySorted;
-{
-    // If we dirty the relationship (on the sync context), changes in the UI context might
-    // get rolled back.
-    // We were seeing that messages would get lost when the user quickly inserts a lot
-    // of messages.
-    
-    // given
-    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    ZMMessage *mA = (id)[conversation appendMessageWithText:@"A"];
-    mA.serverTimestamp = [NSDate dateWithTimeIntervalSinceNow:10000];
-    ZMMessage *mB = (id)[conversation appendMessageWithText:@"B"];
-    mB.serverTimestamp = [NSDate dateWithTimeIntervalSinceNow:20000];
-    [self performIgnoringZMLogError:^{
-        [conversation sortMessages];
-    }];
-    XCTAssert([self.uiMOC saveOrRollback]);
-    XCTAssertEqual(conversation.changedValues.count, 0u);
-    
-    // when
-    [self performIgnoringZMLogError:^{
-        [conversation sortMessages];
-    }];
-    
-    // then
-    XCTAssertEqual(conversation.changedValues.count, 0u);
-}
-
 - (void)testThatItRemovesAndAppendsTheMessageWhenResortingWithUpdatedMessage
 {
     // given
@@ -566,7 +467,6 @@
     
     // when
     message1.serverTimestamp = [NSDate date];
-    [conversation resortMessagesWithUpdatedMessage:message1];
     
     // then
     NSOrderedSet *expectedMessages = [NSOrderedSet orderedSetWithArray:@[message2, message3, message1]];
@@ -592,7 +492,6 @@
     
     // when
     message3.serverTimestamp = date2;
-    [conversation resortMessagesWithUpdatedMessage:message3];
     
     // then
     NSOrderedSet *expectedMessages = [NSOrderedSet orderedSetWithArray:@[message1, message3, message2]];
@@ -2269,9 +2168,6 @@
     // then
     XCTAssertFalse(conversation.isArchived);
     XCTAssertNil(conversation.clearedTimeStamp);
-
-    ZMConversationMessageWindow *window = [conversation conversationWindowWithSize:2];
-    XCTAssertEqual(window.messages.count, 2u);
 }
 
 
@@ -2447,8 +2343,7 @@
         ZMClientMessage *message = [[ZMClientMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.syncMOC];
         message.serverTimestamp = messageDate;
         conversation.lastReadServerTimeStamp = [messageDate dateByAddingTimeInterval:-1000];
-        [conversation sortedAppendMessage:message];
-        [conversation resortMessagesWithUpdatedMessage:message];
+        [conversation appendMessage:message];
     }
     [self.syncMOC saveOrRollback];
     return conversation;

@@ -511,10 +511,6 @@ NSString * const ZMSystemMessageNumberOfGuestsAddedKey = @"numberOfGuestsAdded";
     
     [self.conversation updateServerModified:timestamp];
     [self.conversation updateTimestampsAfterUpdatingMessage:self];
-    
-    if (updatedTimestamp) {
-        [self.conversation resortMessagesWithUpdatedMessage:self];
-    }
 }
 
 - (NSString *)shortDebugDescription;
@@ -558,7 +554,7 @@ NSString * const ZMSystemMessageNumberOfGuestsAddedKey = @"numberOfGuestsAdded";
     BOOL checkedAllHiddenMessages = NO;
     BOOL checkedAllVisibleMessage = NO;
 
-    if (![conversation hasFaultForRelationshipNamed:ZMConversationMessagesKey]) {
+    if (![conversation hasFaultForRelationshipNamed:ZMConversationAllMessagesKey]) {
         checkedAllVisibleMessage = YES;
         for (ZMMessage *message in conversation.messages) {
             if (message.isFault) {

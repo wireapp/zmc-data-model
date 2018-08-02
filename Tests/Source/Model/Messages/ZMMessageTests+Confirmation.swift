@@ -138,7 +138,7 @@ extension ZMMessageTests_Confirmation {
         let _ = sut.message?.confirmReception()
         // then
         XCTAssertTrue(sut.needsConfirmation)
-        guard let hiddenMessage = conversation.hiddenMessages.lastObject as? ZMClientMessage else {
+        guard let hiddenMessage = conversation.hiddenMessages.first as? ZMClientMessage else {
             XCTFail("Did not insert confirmation message.")
             return
         }

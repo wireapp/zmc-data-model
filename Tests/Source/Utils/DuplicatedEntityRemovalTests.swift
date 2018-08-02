@@ -45,7 +45,7 @@ public final class DuplicatedEntityRemovalTests: DiskDatabaseTest {
             systemMessage.duration = duration
         }
 
-        conversation.sortedAppendMessage(systemMessage)
+        conversation.appendMessage(systemMessage)
         systemMessage.visibleInConversation = conversation
         return systemMessage
     }
@@ -638,7 +638,7 @@ extension DuplicatedEntityRemovalTests {
         self.moc.saveOrRollback()
         
         // THEN
-        XCTAssertEqual(conversation1.hiddenMessages.set, Set([message1, message2]))
+        XCTAssertEqual(conversation1.hiddenMessages, Set([message1, message2]))
     }
     
     public func testThatItMergesConversations_team_convo1HasIt() {

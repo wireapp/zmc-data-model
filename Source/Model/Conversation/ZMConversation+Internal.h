@@ -29,7 +29,6 @@
 @class ZMAssetClientMessage;
 @class ZMConnection;
 @class ZMUser;
-@class ZMConversationMessageWindow;
 @class ZMConversationList;
 @class ZMLastRead;
 @class ZMCleared;
@@ -46,7 +45,7 @@ extern NSString *const ZMConversationHasUnreadUnsentMessageKey;
 extern NSString *const ZMConversationIsArchivedKey;
 extern NSString *const ZMConversationIsSelfAnActiveMemberKey;
 extern NSString *const ZMConversationIsSilencedKey;
-extern NSString *const ZMConversationMessagesKey;
+extern NSString *const ZMConversationAllMessagesKey;
 extern NSString *const ZMConversationHiddenMessagesKey;
 extern NSString *const ZMConversationLastServerSyncedActiveParticipantsKey;
 extern NSString *const ZMConversationHasUnreadKnock;
@@ -114,8 +113,8 @@ NS_ASSUME_NONNULL_END
 
 @property (nonatomic, nullable) NSUUID *remoteIdentifier;
 @property (nonatomic, nullable) NSUUID *teamRemoteIdentifier;
-@property (readonly, nonatomic, nonnull) NSMutableOrderedSet *mutableMessages;
-@property (readonly, nonatomic, nonnull) NSOrderedSet *hiddenMessages;
+@property (readonly, nonatomic, nonnull) NSMutableSet<ZMMessage *> *mutableMessages;
+@property (readonly, nonatomic, nonnull) NSSet<ZMMessage *> *hiddenMessages;
 @property (nonatomic, nullable) ZMConnection *connection;
 @property (readonly, nonatomic) enum ZMConnectionStatus relatedConnectionState; // This is a computed property, needed for snapshoting
 @property (nonatomic, nonnull) ZMUser *creator;
@@ -129,17 +128,12 @@ NS_ASSUME_NONNULL_END
 /// updated when messages are inserted and the lastReadServerTimeStamp changes
 @property (nonatomic, nullable) NSMutableOrderedSet *unreadTimeStamps;
 
-/// sorts the messages in the conversation
-- (void)sortMessages;
-- (void)resortMessagesWithUpdatedMessage:(nonnull ZMMessage *)message;
-
 /**
-    Appends the given message in the conversation at the proper place to keep the conversation sorted.
+    Appends the given message in the conversation.
  
     @param message The message that should be inserted.
-    @returns The index the message was inserted at in the conversation.
 */
-- (NSUInteger)sortedAppendMessage:(nonnull ZMMessage *)message;
+- (void)appendMessage:(nonnull ZMMessage *)message;
 
 - (void)mergeWithExistingConversationWithRemoteID:(nonnull NSUUID *)remoteID;
 
@@ -168,6 +162,8 @@ NS_ASSUME_NONNULL_END
 - (void)appendNewConversationSystemMessageIfNeeded;
 
 - (void)deleteOlderMessages;
+
+@property (nonatomic, nullable) id _recentMessagesFetcher;
 
 @end
 
@@ -198,15 +194,6 @@ NS_ASSUME_NONNULL_END
 /// Checks if the security level changed as the result of the participants change.
 /// Appends or moves the security level system message.
 - (void)insertOrUpdateSecurityVerificationMessageAfterParticipantsChange:(nonnull ZMSystemMessage *)participantsChange;
-
-@end
-
-
-
-
-@interface ZMConversation (ZMConversationMessageWindow)
-
-@property (nonatomic, nullable) ZMConversationMessageWindow *messageWindow;
 
 @end
 

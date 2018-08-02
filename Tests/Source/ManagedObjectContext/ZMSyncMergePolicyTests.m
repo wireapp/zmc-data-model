@@ -46,7 +46,6 @@
     [(ZMMessage *)[self.uiConversation appendMessageWithText:@"A"] setServerTimestamp:[self nextDate]];
     [(ZMMessage *)[self.uiConversation appendMessageWithText:@"B"] setServerTimestamp:[self nextDate]];
     [(ZMMessage *)[self.uiConversation appendMessageWithText:@"C"] setServerTimestamp:[self nextDate]];
-    [self.uiConversation.mutableMessages sortUsingDescriptors:ZMMessage.defaultSortDescriptors];
     [self.uiMOC saveOrRollback];
     
     [self.syncMOC performGroupedBlockAndWait:^{
@@ -136,7 +135,6 @@
 {
     // given
     [(ZMMessage *)[self.uiConversation appendMessageWithText:@"D"] setServerTimestamp:[self nextDate]];
-    [self.uiConversation.mutableMessages sortUsingDescriptors:ZMMessage.defaultSortDescriptors];
     
     // when
     [self.syncMOC performGroupedBlockAndWait:^{
@@ -180,13 +178,11 @@
 {
     // given
     [(ZMMessage *)[self.uiConversation appendMessageWithText:@"D"] setServerTimestamp:[self nextDate]];
-    [self.uiConversation.mutableMessages sortUsingDescriptors:ZMMessage.defaultSortDescriptors];
 
     // when
     [self.syncMOC performGroupedBlockAndWait:^{
-        ZMClientMessage *m = self.syncConversation.messages[0];
+        ZMClientMessage *m = (ZMClientMessage *)self.syncConversation.messages[0];
         m.serverTimestamp = [self nextDate];
-        [self.syncConversation.mutableMessages sortUsingDescriptors:ZMMessage.defaultSortDescriptors];
         XCTAssert([self.syncMOC saveOrRollback]);
     }];
     WaitForAllGroupsToBeEmpty(0.5);
@@ -224,14 +220,12 @@
     // given
     [self.syncMOC performGroupedBlockAndWait:^{
         [(ZMMessage *)[self.syncConversation appendMessageWithText:@"D"] setServerTimestamp:[self nextDate]];
-        [self.syncConversation.mutableMessages sortUsingDescriptors:ZMMessage.defaultSortDescriptors];
     }];
     WaitForAllGroupsToBeEmpty(0.5);
     
     // when
-    ZMTextMessage *m = self.uiConversation.messages[0];
+    ZMTextMessage *m = (ZMTextMessage *)self.uiConversation.messages[0];
     m.serverTimestamp = [self nextDate];
-    [self.uiConversation.mutableMessages sortUsingDescriptors:ZMMessage.defaultSortDescriptors];
     XCTAssert([self.uiMOC saveOrRollback]);
     WaitForAllGroupsToBeEmpty(0.5);
     
@@ -270,7 +264,6 @@
     
     // given
     [(ZMMessage *)[self.uiConversation appendMessageWithText:@"D"] setServerTimestamp:[self nextDate]];
-    [self.uiConversation.mutableMessages sortUsingDescriptors:ZMMessage.defaultSortDescriptors];
 
     [self.syncMOC performGroupedBlockAndWait:^{
         (void)self.syncConversation.mutableMessages;

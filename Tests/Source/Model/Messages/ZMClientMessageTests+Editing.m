@@ -364,7 +364,7 @@
     NSDate *lastModifiedDate2 = conversation.lastModifiedDate;
     
     // then
-    ZMClientMessage *newMessage2 = conversation.messages.lastObject;
+    ZMClientMessage *newMessage2 = (ZMClientMessage *)conversation.messages.lastObject;
     
     XCTAssertEqualObjects(newMessage2.serverTimestamp, originalDate);
     XCTAssertEqualObjects(newMessage2.updatedAt, lastModifiedDate2);

@@ -95,9 +95,6 @@ extension ZMMessage {
         guard let newMessage = conversation.appendClientMessage(with: edited, expires: true, hidden: false) else { return nil }
         newMessage.updatedTimestamp = newMessage.serverTimestamp
         newMessage.serverTimestamp = serverTimestamp
-        let oldIndex = conversation.messages.index(of: self)
-        let newIndex = conversation.messages.index(of: newMessage)
-        conversation.mutableMessages.moveObjects(at: IndexSet(integer:newIndex), to: oldIndex)
 
         hiddenInConversation = conversation
         visibleInConversation = nil

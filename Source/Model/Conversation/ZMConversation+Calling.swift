@@ -21,7 +21,7 @@ public extension ZMConversation {
 
     @discardableResult
     @objc public func appendMissedCallMessage(fromUser user: ZMUser, at timestamp: Date, relevantForStatus: Bool = true) -> ZMSystemMessage {
-        let (message, index) = appendSystemMessage(
+        let message = appendSystemMessage(
             type: .missedCall,
             sender: user,
             users: [user],
@@ -29,12 +29,12 @@ public extension ZMConversation {
             timestamp: timestamp,
             relevantForStatus: relevantForStatus
         )
-
+        
         if isArchived && !isSilenced {
             isArchived = false
         }
 
-        if let previous = associatedMessage(before: message, at: index) {
+        if let previous = associatedMessage(before: message) {
             previous.addChild(message)
         }
 
@@ -44,7 +44,7 @@ public extension ZMConversation {
 
     @discardableResult
     @objc public func appendPerformedCallMessage(with duration: TimeInterval, caller: ZMUser) -> ZMSystemMessage {
-        let (message, index) = appendSystemMessage(
+        let message = appendSystemMessage(
             type: .performedCall,
             sender: caller,
             users: [caller],
@@ -57,7 +57,7 @@ public extension ZMConversation {
             isArchived = false
         }
 
-        if let previous = associatedMessage(before: message, at: index) {
+        if let previous = associatedMessage(before: message) {
             previous.addChild(message)
         }
 
@@ -65,9 +65,11 @@ public extension ZMConversation {
         return message
     }
 
-    @objc public func associatedMessage(before message: ZMSystemMessage, at index: UInt) -> ZMSystemMessage? {
-        guard index >= 1 else { return nil }
-        guard let previous = messages[Int(index - 1)] as? ZMSystemMessage else { return nil }
+    @objc public func associatedMessage(before message: ZMSystemMessage) -> ZMSystemMessage? {
+        let index = messages.index(of: message)
+
+        guard index != NSNotFound, index >= 1 else { return nil }
+        guard let previous = messages[index - 1] as? ZMSystemMessage else { return nil }
         guard previous.systemMessageType == message.systemMessageType else { return nil }
         guard previous.users == message.users, previous.sender == message.sender else { return nil }
         return previous
