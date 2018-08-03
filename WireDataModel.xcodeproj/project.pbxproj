@@ -886,18 +886,8 @@
 		F9A706D31CAEE30700C2F5FE /* medium.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = medium.jpg; path = Tests/Resources/medium.jpg; sourceTree = SOURCE_ROOT; };
 		F9A706D41CAEE30700C2F5FE /* not_animated.gif */ = {isa = PBXFileReference; lastKnownFileType = image.gif; name = not_animated.gif; path = Tests/Resources/not_animated.gif; sourceTree = SOURCE_ROOT; };
 		F9A706D91CAEE30700C2F5FE /* tiny.jpg */ = {isa = PBXFileReference; lastKnownFileType = image.jpeg; name = tiny.jpg; path = Tests/Resources/tiny.jpg; sourceTree = SOURCE_ROOT; };
-		F9A7070F1CAEE3AA00C2F5FE /* 00E7D1E8-4E5D-3D96-9DAC-244B9F3F0D03.bcsymbolmap */ = {isa = PBXFileReference; lastKnownFileType = text; path = "00E7D1E8-4E5D-3D96-9DAC-244B9F3F0D03.bcsymbolmap"; sourceTree = "<group>"; };
-		F9A707101CAEE3AA00C2F5FE /* 079F5E7E-E520-3DAB-B261-567E7236EE84.bcsymbolmap */ = {isa = PBXFileReference; lastKnownFileType = text; path = "079F5E7E-E520-3DAB-B261-567E7236EE84.bcsymbolmap"; sourceTree = "<group>"; };
-		F9A707111CAEE3AA00C2F5FE /* 1F2182A9-5B69-3C38-A63D-BB2832437B0F.bcsymbolmap */ = {isa = PBXFileReference; lastKnownFileType = text; path = "1F2182A9-5B69-3C38-A63D-BB2832437B0F.bcsymbolmap"; sourceTree = "<group>"; };
-		F9A707121CAEE3AA00C2F5FE /* 244C799E-E099-323C-B0CB-151BEABA79A0.bcsymbolmap */ = {isa = PBXFileReference; lastKnownFileType = text; path = "244C799E-E099-323C-B0CB-151BEABA79A0.bcsymbolmap"; sourceTree = "<group>"; };
-		F9A707131CAEE3AA00C2F5FE /* 2824FA0E-BDBD-3A7D-A875-4B6E432364D8.bcsymbolmap */ = {isa = PBXFileReference; lastKnownFileType = text; path = "2824FA0E-BDBD-3A7D-A875-4B6E432364D8.bcsymbolmap"; sourceTree = "<group>"; };
-		F9A707141CAEE3AA00C2F5FE /* 3DE8E963-9543-3A1D-861E-C1E1D1B3BAD6.bcsymbolmap */ = {isa = PBXFileReference; lastKnownFileType = text; path = "3DE8E963-9543-3A1D-861E-C1E1D1B3BAD6.bcsymbolmap"; sourceTree = "<group>"; };
-		F9A707151CAEE3AA00C2F5FE /* 9233C58A-4024-334B-BDAA-01490C0318AB.bcsymbolmap */ = {isa = PBXFileReference; lastKnownFileType = text; path = "9233C58A-4024-334B-BDAA-01490C0318AB.bcsymbolmap"; sourceTree = "<group>"; };
-		F9A707161CAEE3AA00C2F5FE /* B7256918-8324-38CD-B41C-AFAABE7413F8.bcsymbolmap */ = {isa = PBXFileReference; lastKnownFileType = text; path = "B7256918-8324-38CD-B41C-AFAABE7413F8.bcsymbolmap"; sourceTree = "<group>"; };
 		F9A707171CAEE3AA00C2F5FE /* Cryptobox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = Cryptobox.framework; sourceTree = "<group>"; };
 		F9A707181CAEE3AA00C2F5FE /* Cryptobox.framework.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = Cryptobox.framework.dSYM; sourceTree = "<group>"; };
-		F9A707191CAEE3AA00C2F5FE /* libPhoneNumber.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = libPhoneNumber.framework; sourceTree = "<group>"; };
-		F9A7071A1CAEE3AA00C2F5FE /* libPhoneNumber.framework.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = libPhoneNumber.framework.dSYM; sourceTree = "<group>"; };
 		F9A7071B1CAEE3AA00C2F5FE /* ocmock.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ocmock.framework; sourceTree = "<group>"; };
 		F9A7071C1CAEE3AA00C2F5FE /* ocmock.framework.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = ocmock.framework.dSYM; sourceTree = "<group>"; };
 		F9A7071D1CAEE3AA00C2F5FE /* PINCache.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = PINCache.framework; sourceTree = "<group>"; };
@@ -906,8 +896,6 @@
 		F9A707201CAEE3AA00C2F5FE /* ProtocolBuffers.framework.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = ProtocolBuffers.framework.dSYM; sourceTree = "<group>"; };
 		F9A707211CAEE3AA00C2F5FE /* WireImages.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WireImages.framework; sourceTree = "<group>"; };
 		F9A707221CAEE3AA00C2F5FE /* WireImages.framework.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = WireImages.framework.dSYM; sourceTree = "<group>"; };
-		F9A707231CAEE3AA00C2F5FE /* ZMCMockTransport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = ZMCMockTransport.framework; sourceTree = "<group>"; };
-		F9A707241CAEE3AA00C2F5FE /* ZMCMockTransport.framework.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = ZMCMockTransport.framework.dSYM; sourceTree = "<group>"; };
 		F9A707251CAEE3AA00C2F5FE /* WireSystem.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WireSystem.framework; sourceTree = "<group>"; };
 		F9A707261CAEE3AA00C2F5FE /* WireSystem.framework.dSYM */ = {isa = PBXFileReference; lastKnownFileType = wrapper.dsym; path = WireSystem.framework.dSYM; sourceTree = "<group>"; };
 		F9A707271CAEE3AA00C2F5FE /* WireProtos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = WireProtos.framework; sourceTree = "<group>"; };
@@ -1541,18 +1529,8 @@
 		F9A7070E1CAEE3AA00C2F5FE /* iOS */ = {
 			isa = PBXGroup;
 			children = (
-				F9A7070F1CAEE3AA00C2F5FE /* 00E7D1E8-4E5D-3D96-9DAC-244B9F3F0D03.bcsymbolmap */,
-				F9A707101CAEE3AA00C2F5FE /* 079F5E7E-E520-3DAB-B261-567E7236EE84.bcsymbolmap */,
-				F9A707111CAEE3AA00C2F5FE /* 1F2182A9-5B69-3C38-A63D-BB2832437B0F.bcsymbolmap */,
-				F9A707121CAEE3AA00C2F5FE /* 244C799E-E099-323C-B0CB-151BEABA79A0.bcsymbolmap */,
-				F9A707131CAEE3AA00C2F5FE /* 2824FA0E-BDBD-3A7D-A875-4B6E432364D8.bcsymbolmap */,
-				F9A707141CAEE3AA00C2F5FE /* 3DE8E963-9543-3A1D-861E-C1E1D1B3BAD6.bcsymbolmap */,
-				F9A707151CAEE3AA00C2F5FE /* 9233C58A-4024-334B-BDAA-01490C0318AB.bcsymbolmap */,
-				F9A707161CAEE3AA00C2F5FE /* B7256918-8324-38CD-B41C-AFAABE7413F8.bcsymbolmap */,
 				F9A707171CAEE3AA00C2F5FE /* Cryptobox.framework */,
 				F9A707181CAEE3AA00C2F5FE /* Cryptobox.framework.dSYM */,
-				F9A707191CAEE3AA00C2F5FE /* libPhoneNumber.framework */,
-				F9A7071A1CAEE3AA00C2F5FE /* libPhoneNumber.framework.dSYM */,
 				F9A7071B1CAEE3AA00C2F5FE /* ocmock.framework */,
 				F9A7071C1CAEE3AA00C2F5FE /* ocmock.framework.dSYM */,
 				F9A7071D1CAEE3AA00C2F5FE /* PINCache.framework */,
@@ -1561,8 +1539,6 @@
 				F9A707201CAEE3AA00C2F5FE /* ProtocolBuffers.framework.dSYM */,
 				F9A707211CAEE3AA00C2F5FE /* WireImages.framework */,
 				F9A707221CAEE3AA00C2F5FE /* WireImages.framework.dSYM */,
-				F9A707231CAEE3AA00C2F5FE /* ZMCMockTransport.framework */,
-				F9A707241CAEE3AA00C2F5FE /* ZMCMockTransport.framework.dSYM */,
 				F9A707251CAEE3AA00C2F5FE /* WireSystem.framework */,
 				F9A707261CAEE3AA00C2F5FE /* WireSystem.framework.dSYM */,
 				F9A707271CAEE3AA00C2F5FE /* WireProtos.framework */,
