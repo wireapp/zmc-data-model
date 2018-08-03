@@ -41,6 +41,7 @@
 
 - (ZMMessage *)insertDownloadedMessageAfterMessageIntoConversation:(ZMConversation *)conversation;
 - (ZMMessage *)insertDownloadedMessageIntoConversation:(ZMConversation *)conversation;
+- (ZMConversation *)insertConversationWithUnread:(BOOL)hasUnread;
 
 @end
 
@@ -144,6 +145,23 @@
     [conversation.mutableMessages addObject:systemMessage];
     
     return systemMessage;
+}
+
+- (ZMConversation *)insertConversationWithUnread:(BOOL)hasUnread
+{
+    NSDate *messageDate = [NSDate dateWithTimeIntervalSince1970:230000000];
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
+    conversation.conversationType = ZMConversationTypeOneOnOne;
+    conversation.lastServerTimeStamp = messageDate;
+    if(hasUnread) {
+        ZMClientMessage *message = [[ZMClientMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.syncMOC];
+        message.serverTimestamp = messageDate;
+        conversation.lastReadServerTimeStamp = [messageDate dateByAddingTimeInterval:-1000];
+        [conversation sortedAppendMessage:message];
+        [conversation resortMessagesWithUpdatedMessage:message];
+    }
+    [self.syncMOC saveOrRollback];
+    return conversation;
 }
 
 @end
@@ -2330,24 +2348,45 @@
 
 @end
 
+@implementation ZMConversationTests (UnreadCountIncludingSilenced)
+
+- (void)testThatItDoesNotCountExcludedConversationWithUnreadMessagesAsUnread
+{
+    // given
+    
+    [self.syncMOC performGroupedBlockAndWait:^{
+        XCTAssertEqual([ZMConversation unreadConversationCountInContext:self.syncMOC], 0lu);
+        ZMConversation *conversation = [self insertConversationWithUnread:YES];
+        
+        // when
+        XCTAssert([self.syncMOC saveOrRollback]);
+        
+        //then
+        XCTAssertEqual([ZMConversation unreadConversationCountIncludingSilencedInContext:self.syncMOC excluding:conversation], 0lu);
+    }];
+}
+
+- (void)testThatItCountsSilencedConversationsUnreadContentAsUnread;
+{
+    // given
+    [self.syncMOC performGroupedBlockAndWait:^{
+        XCTAssertEqual([ZMConversation unreadConversationCountInContext:self.syncMOC], 0lu);
+        
+        ZMConversation *conversation = [self insertConversationWithUnread:YES];
+        conversation.isSilenced = YES;
+        
+        // when
+        XCTAssert([self.syncMOC saveOrRollback]);
+        
+        // then
+        XCTAssertEqual([ZMConversation unreadConversationCountIncludingSilencedInContext:self.syncMOC excluding:nil], 1lu);
+    }];
+}
+
+@end
+
 
 @implementation ZMConversationTests (ObjectIds)
-
-- (ZMConversation *)insertConversationWithUnread:(BOOL)hasUnread
-{
-    NSDate *messageDate = [NSDate dateWithTimeIntervalSince1970:230000000];
-    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
-    conversation.conversationType = ZMConversationTypeOneOnOne;
-    conversation.lastServerTimeStamp = messageDate;
-    if(hasUnread) {
-        ZMClientMessage *message = [[ZMClientMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.syncMOC];
-        message.serverTimestamp = messageDate;
-        conversation.lastReadServerTimeStamp = [messageDate dateByAddingTimeInterval:-1000];
-        [conversation appendMessage:message];
-    }
-    [self.syncMOC saveOrRollback];
-    return conversation;
-}
 
 - (void)testThatItCountsConversationsWithUnreadMessagesAsUnread_IfItHasUnread
 {
@@ -2512,6 +2551,7 @@
         XCTAssertEqual([ZMConversation unreadConversationCountInContext:self.syncMOC], 0lu);
     }];
 }
+
 
 @end
 
