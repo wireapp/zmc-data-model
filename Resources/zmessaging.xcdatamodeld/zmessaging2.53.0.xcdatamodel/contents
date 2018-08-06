@@ -18,12 +18,28 @@
         <attribute name="uploadState" optional="YES" attributeType="Integer 16" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="version" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <relationship name="dataSet" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="GenericMessageData" inverseName="asset" inverseEntity="GenericMessageData" syncable="YES"/>
+        <compoundIndexes>
+            <compoundIndex>
+                <index value="visibleInConversation"/>
+                <index value="serverTimestamp"/>
+                <index value="isExpired"/>
+                <index value="delivered"/>
+            </compoundIndex>
+        </compoundIndexes>
     </entity>
     <entity name="ClientMessage" representedClassName="ZMClientMessage" parentEntity="Message" syncable="YES">
         <attribute name="delivered" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="linkPreviewState" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="updatedTimestamp" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <relationship name="dataSet" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="GenericMessageData" inverseName="message" inverseEntity="GenericMessageData" syncable="YES"/>
+        <compoundIndexes>
+            <compoundIndex>
+                <index value="visibleInConversation"/>
+                <index value="serverTimestamp"/>
+                <index value="delivered"/>
+                <index value="isExpired"/>
+            </compoundIndex>
+        </compoundIndexes>
     </entity>
     <entity name="Connection" representedClassName="ZMConnection" syncable="YES">
         <attribute name="existsOnBackend" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
@@ -68,9 +84,9 @@
         <attribute name="voiceChannel" optional="YES" transient="YES" syncable="YES"/>
         <relationship name="connection" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Connection" inverseName="conversation" inverseEntity="Connection" syncable="YES"/>
         <relationship name="creator" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="conversationsCreated" inverseEntity="User" syncable="YES"/>
-        <relationship name="hiddenMessages" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Message" inverseName="hiddenInConversation" inverseEntity="Message" syncable="YES"/>
+        <relationship name="hiddenMessages" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Message" inverseName="hiddenInConversation" inverseEntity="Message" syncable="YES"/>
         <relationship name="lastServerSyncedActiveParticipants" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="User" inverseName="lastServerSyncedActiveConversations" inverseEntity="User" syncable="YES"/>
-        <relationship name="allMessages" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Message" inverseName="visibleInConversation" inverseEntity="Message" elementID="messages" syncable="YES"/>
+        <relationship name="messages" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Message" inverseName="visibleInConversation" inverseEntity="Message" syncable="YES"/>
         <relationship name="team" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Team" inverseName="conversations" inverseEntity="Team" syncable="YES"/>
         <compoundIndexes>
             <compoundIndex>
@@ -121,7 +137,14 @@
         <relationship name="missingRecipients" optional="YES" transient="YES" toMany="YES" deletionRule="Nullify" destinationEntity="UserClient" inverseName="messagesMissingRecipient" inverseEntity="UserClient" syncable="YES"/>
         <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Reaction" inverseName="message" inverseEntity="Reaction" syncable="YES"/>
         <relationship name="sender" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" syncable="YES"/>
-        <relationship name="visibleInConversation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Conversation" inverseName="allMessages" inverseEntity="Conversation" syncable="YES"/>
+        <relationship name="visibleInConversation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Conversation" inverseName="messages" inverseEntity="Conversation" syncable="YES"/>
+        <compoundIndexes>
+            <compoundIndex>
+                <index value="visibleInConversation"/>
+                <index value="serverTimestamp"/>
+                <index value="isExpired"/>
+            </compoundIndex>
+        </compoundIndexes>
     </entity>
     <entity name="MessageConfirmation" representedClassName="ZMMessageConfirmation" syncable="YES">
         <attribute name="type" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
