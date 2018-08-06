@@ -1179,6 +1179,21 @@ static NSString *const TeamIdentifierKey = @"teamIdentifier";
     return [super validateValue:value forKey:key error:error];
 }
 
+- (BOOL)validateEmailAddress:(NSString **)ioEmailAddress error:(NSError **)outError
+{
+    return [ZMUser validateEmailAddress:ioEmailAddress error:outError];
+}
+
+- (BOOL)validateName:(NSString **)ioName error:(NSError **)outError
+{
+    return [ZMUser validateName:ioName error:outError];
+}
+
+- (BOOL)validateAccentColorValue:(NSNumber **)ioAccent error:(NSError **)outError
+{
+    return [ZMUser validateAccentColorValue:ioAccent error:outError];
+}
+
 @end
 
 
