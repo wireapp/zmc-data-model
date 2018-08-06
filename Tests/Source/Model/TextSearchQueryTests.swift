@@ -119,7 +119,7 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
         XCTAssertNil(firstMessage.normalizedText)
         XCTAssertNil(secondMessage.normalizedText)
         XCTAssertNil(lastMessage.normalizedText)
-        XCTAssertEqual(conversation.messages.count, 403)
+        XCTAssertEqual(conversation.allMessages.count, 403)
 
         // When
         let results = search(for: "in the conversation", in: conversation)
@@ -200,7 +200,7 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
         XCTAssertNotNil(firstMessage.normalizedText)
         XCTAssertNotNil(secondMessage.normalizedText)
         XCTAssertNotNil(lastMessage.normalizedText)
-        XCTAssertEqual(conversation.messages.count, 403)
+        XCTAssertEqual(conversation.allMessages.count, 403)
 
         // When
         let results = search(for: "in the conversation", in: conversation)
@@ -281,7 +281,7 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
         XCTAssertNil(firstMessage.normalizedText)
         XCTAssertNil(secondMessage.normalizedText)
         XCTAssertNotNil(lastMessage.normalizedText)
-        XCTAssertEqual(conversation.messages.count, 403)
+        XCTAssertEqual(conversation.allMessages.count, 403)
 
         // When
         let results = search(for: "in the conversation", in: conversation)

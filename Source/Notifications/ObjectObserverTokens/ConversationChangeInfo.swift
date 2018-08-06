@@ -22,7 +22,7 @@ import Foundation
 extension ZMConversation : ObjectInSnapshot {
     
     @objc public static var observableKeys : Set<String> {
-        return Set([#keyPath(ZMConversation.messages),
+        return Set([#keyPath(ZMConversation.allMessages),
                     #keyPath(ZMConversation.lastModifiedDate),
                     #keyPath(ZMConversation.isArchived),
                     #keyPath(ZMConversation.conversationListIndicator),
@@ -66,7 +66,7 @@ extension ZMConversation : ObjectInSnapshot {
     }
 
     public var messagesChanged : Bool {
-        return changedKeysContain(keys: #keyPath(ZMConversation.messages))
+        return changedKeysContain(keys: #keyPath(ZMConversation.allMessages))
     }
 
     public var participantsChanged : Bool {
@@ -131,7 +131,7 @@ extension ZMConversation : ObjectInSnapshot {
     
     public override var description : String { return self.debugDescription }
     public override var debugDescription : String {
-        return "messagesChanged: \(messagesChanged)," +
+        return "allMessagesChanged: \(messagesChanged)," +
         "participantsChanged: \(participantsChanged)," +
         "nameChanged: \(nameChanged)," +
         "unreadCountChanged: \(unreadCountChanged)," +
