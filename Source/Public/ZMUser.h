@@ -125,4 +125,10 @@ extern NSString * _Nonnull const ZMPersistedClientIdKey;
 + (BOOL)validatePassword:(NSString * __nullable * __nullable)ioPassword error:(NSError * __nullable * __nullable)outError;
 + (BOOL)validatePhoneVerificationCode:(NSString * __nullable * __nullable)ioVerificationCode error:(NSError * __nullable * __nullable)outError;
 
++ (BOOL)isValidName:(NSString *)name;
++ (BOOL)isValidEmailAddress:(NSString *)emailAddress;
++ (BOOL)isValidPassword:(NSString *)password;
++ (BOOL)isValidPhoneNumber:(NSString *)phoneNumber;
++ (BOOL)isValidPhoneVerificationCode:(NSString *)phoneVerificationCode;
+
 @end
