@@ -19,7 +19,7 @@
 import Foundation
 
 extension ZMConversation {
-    var visibleMessagesPredicate: NSPredicate? {
+    public var visibleMessagesPredicate: NSPredicate? {
         var allPredicates: [NSPredicate] = []
 
         if let clearedTimeStamp = self.clearedTimeStamp {

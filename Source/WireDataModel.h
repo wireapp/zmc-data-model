@@ -69,5 +69,4 @@
 #import <WireDataModel/ZMGenericMessage+PropertyUtils.h>
 #import <WireDataModel/ZMMessageTimer.h>
 #import <WireDataModel/NSPredicate+ZMSearch.h>
-#import <WireDataModel/ZMSyncMergePolicy.h>
 #import <WireDataModel/ZMTestSession.h>

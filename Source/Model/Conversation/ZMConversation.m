@@ -759,7 +759,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return @"Conversation";
 }
 
-- (NSMutableSet *)mutableMessages;
+- (NSMutableSet<ZMMessage *> *)mutableMessages;
 {
     return [self mutableSetValueForKey:ZMConversationAllMessagesKey];
 }
@@ -1153,12 +1153,9 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 {
     Require(message != nil);
     [message updateNormalizedText];
-
-    ZMMessage * const currentLastMessage = self.messages.lastObject;
-    Require(currentLastMessage != message);
     message.visibleInConversation = self;
-    [self.mutableMessages addObject:message];
     
+    [self addAllMessagesObject:message];
     [self updateMessageFetcher];
     
     [self updateTimestampsAfterInsertingMessage:message];
