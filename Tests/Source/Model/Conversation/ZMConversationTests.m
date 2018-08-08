@@ -484,6 +484,7 @@
     
     // when
     message1.serverTimestamp = [NSDate date];
+    [self.uiMOC processPendingChanges];
     
     // then
     NSOrderedSet *expectedMessages = [NSOrderedSet orderedSetWithArray:@[message2, message3, message1]];
@@ -509,7 +510,8 @@
     
     // when
     message3.serverTimestamp = date2;
-    
+    [self.uiMOC processPendingChanges];
+
     // then
     NSOrderedSet *expectedMessages = [NSOrderedSet orderedSetWithArray:@[message1, message3, message2]];
     XCTAssertEqualObjects(expectedMessages, conversation.messages);
@@ -2038,29 +2040,29 @@
 }
 
 
-- (void)testThatClearingMessageHistoryDeletesAllMessages
+- (void)testThatClearingMessageHistorySetsLastReadServerTimeStampToLastServerTimeStamp
 {
     // given
-    [self.syncMOC performGroupedBlockAndWait:^{
-        ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
-        
-        ZMMessage *message1 = (id)[conversation appendMessageWithText:@"B"];
-        [message1 expire];
-        
-        [conversation appendMessageWithText:@"A"];
-        
-        ZMMessage *message3 = (id)[conversation appendMessageWithText:@"B"];
-        [message3 expire];
-        conversation.lastServerTimeStamp = message3.serverTimestamp;
-        
-        // when
-        conversation.clearedTimeStamp = conversation.lastServerTimeStamp;
-        
-        // then
-        for (ZMMessage *message in conversation.messages) {
-            XCTAssertTrue(message.isDeleted);
-        }
-    }];
+    NSDate *clearedTimeStamp = [NSDate date];
+    
+    ZMUser *otherUser = [self createUser];
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    conversation.lastServerTimeStamp = clearedTimeStamp;
+
+    ZMClientMessage *message1 = [[ZMClientMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
+    message1.serverTimestamp = clearedTimeStamp;
+    message1.sender = otherUser;
+    message1.visibleInConversation = conversation;
+    
+    XCTAssertNil(conversation.lastReadServerTimeStamp);
+    
+    // when
+    [conversation clearMessageHistory];
+    [self.uiMOC saveOrRollback];
+    WaitForAllGroupsToBeEmpty(0.5);
+    
+    // then
+    XCTAssertEqualObjects(conversation.lastReadServerTimeStamp, clearedTimeStamp);
 }
 
 - (void)testThatSettingClearedTimeStampDueToRemoteChangeDoesNotDeleteUnsentMessages
@@ -2114,31 +2116,6 @@
         XCTAssertTrue(message1.isDeleted);
         XCTAssertFalse(message2.isDeleted);
     }];
-}
-
-- (void)testThatClearingMessageHistorySetsLastReadServerTimeStampToLastServerTimeStamp
-{
-    // given
-    NSDate *clearedTimeStamp = [NSDate date];
-    
-    ZMUser *otherUser = [self createUser];
-    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    conversation.lastServerTimeStamp = clearedTimeStamp;
-
-    ZMClientMessage *message1 = [[ZMClientMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
-    message1.serverTimestamp = clearedTimeStamp;
-    message1.sender = otherUser;
-    message1.visibleInConversation = conversation;
-    
-    XCTAssertNil(conversation.lastReadServerTimeStamp);
-    
-    // when
-    [conversation clearMessageHistory];
-    [self.uiMOC saveOrRollback];
-    WaitForAllGroupsToBeEmpty(0.5);
-    
-    // then
-    XCTAssertEqualObjects(conversation.lastReadServerTimeStamp, clearedTimeStamp);
 }
 
 - (void)testThatClearingMessageHistorySetsClearedTimeStampToLastServerTimeStamp

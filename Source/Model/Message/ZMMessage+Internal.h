@@ -74,6 +74,8 @@ extern NSString * _Nonnull const ZMMessageDeliveryStateKey;
 - (void)resend;
 - (BOOL)shouldGenerateUnreadCount;
 
+@property (nonatomic) BOOL delivered;
+
 /// Removes the message and deletes associated content
 /// @param clearingSender Whether information about the sender should be removed or not
 - (void)removeMessageClearingSender:(BOOL)clearingSender;

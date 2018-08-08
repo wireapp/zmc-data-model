@@ -81,7 +81,7 @@ public class FetchedObjectsArrayTests: ZMBaseManagedObjectTest {
         try uiMOC.save()
         // THEN
         
-        XCTAssertEqual(array.count, 5)
+        XCTAssertEqual(array.count, 15)
         XCTAssertEqual(array[0].textMessageData!.messageText, "20")
     }
     

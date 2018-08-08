@@ -330,29 +330,6 @@ extension ClientMessageTests_OTR {
         }
     }
 
-    func testThatItCreatesPayloadForZMClearedMessages() {
-        self.syncMOC.performGroupedBlockAndWait {
-            // given
-            self.syncConversation.clearedTimeStamp = Date()
-            self.syncConversation.remoteIdentifier = UUID()
-            guard let message = ZMConversation.appendSelfConversation(withClearedOf: self.syncConversation) else { return XCTFail() }
-            
-            self.expectedRecipients = [self.syncSelfUser.remoteIdentifier!.transportString(): [self.syncSelfClient2.remoteIdentifier!]]
-            
-            // when
-            guard let payloadAndStrategy = message.encryptedMessagePayloadData() else { return XCTFail() }
-            
-            // then
-            self.assertMessageMetadata(payloadAndStrategy.data)
-            switch payloadAndStrategy.strategy {
-            case .doNotIgnoreAnyMissingClient:
-                break
-            default:
-                XCTFail()
-            }
-        }
-    }
-    
     func testThatItCreatesPayloadForExternalMessage() {
         
         syncMOC.performGroupedBlockAndWait {
@@ -568,5 +545,37 @@ extension ClientMessageTests_OTR {
             string = string + string
         }
         return string
+    }
+}
+
+extension DatabaseBaseTest {
+    
+    func createSelfUser(in moc: NSManagedObjectContext) -> (ZMUser, ZMConversation) {
+        let selfUser = ZMUser.selfUser(in: moc)
+        selfUser.remoteIdentifier = UUID()
+
+        let conversation = ZMConversation(remoteID: selfUser.remoteIdentifier,
+                                          createIfNeeded: true,
+                                          in: moc)!
+        moc.saveOrRollback()
+        return (selfUser, conversation)
+    }
+    
+    func createSelfClient(on moc: NSManagedObjectContext) -> UserClient {
+        let selfUser = ZMUser.selfUser(in: moc)
+        
+        let selfClient = UserClient.insertNewObject(in: moc)
+        selfClient.remoteIdentifier = NSString.createAlphanumerical()
+        selfClient.user = selfUser
+        
+        moc.setPersistentStoreMetadata(selfClient.remoteIdentifier, key: ZMPersistedClientIdKey)
+        
+        let payload = ["id": selfClient.remoteIdentifier!,
+                       "type": "permanent",
+                       "time": Date().transportString()] as [String: AnyObject]
+        let _ = UserClient.createOrUpdateSelfUserClient(payload, context:moc)
+        
+        moc.saveOrRollback()
+        return selfClient
     }
 }

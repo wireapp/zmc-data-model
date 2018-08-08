@@ -39,9 +39,9 @@ public class ZMConversationRecentMessagesTest: ZMBaseManagedObjectTest {
         }
         
         // THEN
-        XCTAssertEqual(conversation.recentMessages.count, 30)
+        XCTAssertEqual(conversation.recentMessages.count, 41)
         XCTAssertNotNil(conversation.recentMessages[0].textMessageData)
-        XCTAssertEqual(conversation.recentMessages[0].textMessageData!.messageText, "40")
+        XCTAssertEqual(conversation.recentMessages[0].textMessageData!.messageText, "0")
     }
     
     func testThatItDoesNotIncludeMessagesFromOtherConversations() {
@@ -61,9 +61,9 @@ public class ZMConversationRecentMessagesTest: ZMBaseManagedObjectTest {
         // THEN
         XCTAssertEqual(conversation.recentMessages.count, 10)
         XCTAssertNotNil(conversation.recentMessages[0].textMessageData)
-        XCTAssertEqual(conversation.recentMessages[0].textMessageData!.messageText, "10")
+        XCTAssertEqual(conversation.recentMessages[0].textMessageData!.messageText, "1")
         
-        XCTAssertEqual(otherConversation.recentMessages[0].textMessageData!.messageText, "Other 10")
+        XCTAssertEqual(otherConversation.recentMessages[0].textMessageData!.messageText, "Other 1")
 
     }
 }

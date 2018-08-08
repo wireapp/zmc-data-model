@@ -33,7 +33,6 @@ NSString * const DeliveredKey = @"delivered";
 
 @implementation ZMOTRMessage
 
-@dynamic delivered;
 @dynamic dataSet;
 @dynamic missingRecipients;
 

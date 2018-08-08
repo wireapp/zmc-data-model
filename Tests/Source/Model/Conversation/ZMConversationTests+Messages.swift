@@ -310,26 +310,6 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         }
     }
     
-    func testThatLastClearedUpdatesInSelfConversationDontExpire()
-    {
-        
-        self.syncMOC.performGroupedBlockAndWait {
-            // given
-            let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
-            conversation.remoteIdentifier = UUID()
-            conversation.clearedTimeStamp = Date()
-            
-            // when
-            guard let message = ZMConversation.appendSelfConversation(withClearedOf: conversation) else {
-                XCTFail()
-                return
-            }
-            
-            // then
-            XCTAssertNil(message.expirationDate)
-        }
-    }
-
     func testThatWeCanInsertAFileMessage()
     {
         // given

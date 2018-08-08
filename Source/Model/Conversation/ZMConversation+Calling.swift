@@ -66,10 +66,8 @@ public extension ZMConversation {
     }
 
     @objc public func associatedMessage(before message: ZMSystemMessage) -> ZMSystemMessage? {
-        let index = messages.index(of: message)
-
-        guard index != NSNotFound, index >= 1 else { return nil }
-        guard let previous = messages[index - 1] as? ZMSystemMessage else { return nil }
+        guard self.messages.count > 1 else { return nil }
+        guard let previous = messages[messages.count - 2] as? ZMSystemMessage else { return nil }
         guard previous.systemMessageType == message.systemMessageType else { return nil }
         guard previous.users == message.users, previous.sender == message.sender else { return nil }
         return previous
@@ -84,6 +82,8 @@ public extension ZMSystemMessage {
         mutableSetValue(forKey: #keyPath(ZMSystemMessage.childMessages)).add(message)
         message.visibleInConversation = nil
         message.hiddenInConversation = conversation
+        
+        managedObjectContext?.processPendingChanges()
     }
 
 }

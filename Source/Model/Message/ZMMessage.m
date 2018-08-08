@@ -127,6 +127,7 @@ NSString * const ZMSystemMessageNumberOfGuestsAddedKey = @"numberOfGuestsAdded";
 @dynamic confirmations;
 @dynamic isObfuscated;
 @dynamic normalizedText;
+@dynamic delivered;
 
 - (instancetype)initWithNonce:(NSUUID *)nonce managedObjectContext:(NSManagedObjectContext *)managedObjectContext
 {
@@ -686,7 +687,8 @@ NSString * const ZMSystemMessageNumberOfGuestsAddedKey = @"numberOfGuestsAdded";
                              ZMSystemMessageMessageTimerKey,
                              ZMSystemMessageRelevantForConversationStatusKey,
                              ZMSystemMessageAllTeamUsersAddedKey,
-                             ZMSystemMessageNumberOfGuestsAddedKey
+                             ZMSystemMessageNumberOfGuestsAddedKey,
+                             DeliveredKey,
                              ];
         ignoredKeys = [keys setByAddingObjectsFromArray:newKeys];
     });
@@ -886,7 +888,7 @@ NSString * const ZMSystemMessageNumberOfGuestsAddedKey = @"numberOfGuestsAdded";
     [message updateNewConversationSystemMessageIfNeededWithUsers:usersSet
                                                          context:moc
                                                     conversation:conversation];
-    
+    [message.managedObjectContext processPendingChanges];
     if (type == ZMSystemMessageTypeParticipantsAdded || type == ZMSystemMessageTypeParticipantsRemoved) {
         [conversation insertOrUpdateSecurityVerificationMessageAfterParticipantsChange:message];
     }

@@ -1168,29 +1168,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
 }
 
-- (void)deleteOlderMessages
-{
-    if ( self.messages.count == 0 || self.clearedTimeStamp == nil) {
-        return;
-    }
-    
-    NSMutableArray *messagesToDelete = [NSMutableArray array];
-    [self.messages enumerateObjectsUsingBlock:^(ZMMessage *message, NSUInteger __unused idx, BOOL *stop) {
-        NOT_USED(stop);
-        // cleared event can be an invisible event that is not a message
-        // therefore we should stop when we reach a message that is older than the clearedTimestamp
-        if ([message.serverTimestamp compare:self.clearedTimeStamp] == NSOrderedDescending) {
-            *stop = YES;
-            return;
-        }
-        [messagesToDelete addObject:message];
-    }];
-    
-    for (ZMMessage *message in messagesToDelete) {
-        [self.managedObjectContext deleteObject:message];
-    }
-}
-
 @end
 
 
@@ -1333,13 +1310,13 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 - (void)insertOrUpdateSecurityVerificationMessageAfterParticipantsChange:(ZMSystemMessage *)participantsChange
 {
     NSUInteger messageIndex = [self.messages indexOfObject:participantsChange];
-    if (messageIndex == 0) {
+    if (messageIndex == 0 || messageIndex == NSNotFound) {
         return;
     }
     ZMMessage *previousMessage = [self.messages objectAtIndex:messageIndex - 1];
     
     BOOL (^isAppropriateVerificationSystemMessage)(ZMMessage *message) = ^BOOL(ZMMessage *message) {
-        if (![previousMessage isKindOfClass:[ZMSystemMessage class]]) {
+        if (![message isKindOfClass:[ZMSystemMessage class]]) {
             return NO;
         }
         

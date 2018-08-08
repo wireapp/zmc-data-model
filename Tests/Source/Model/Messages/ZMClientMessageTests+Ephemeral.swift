@@ -405,10 +405,15 @@ extension ZMClientMessageTests_Ephemeral {
 
     
     func hasDeleteMessage(for message: ZMMessage) -> Bool {
-        guard let deleteMessage = (conversation.hiddenMessages.first as? ZMClientMessage)?.genericMessage,
-            deleteMessage.hasDeleted(), deleteMessage.deleted.messageId == message.nonce!.transportString()
-            else { return false }
-        return true
+         for enumeratedMessage in conversation.hiddenMessages {
+            if let clientMessage = enumeratedMessage as? ZMClientMessage,
+                let genericMessage = clientMessage.genericMessage,
+                genericMessage.hasDeleted(),
+                genericMessage.deleted.messageId == message.nonce!.transportString()  {
+                    return true
+            }
+        }
+        return false
     }
     
     func insertEphemeralMessage() -> ZMMessage {

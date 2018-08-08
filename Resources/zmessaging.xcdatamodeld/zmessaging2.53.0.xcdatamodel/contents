@@ -10,7 +10,6 @@
         <attribute name="assetId_data" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="associatedTaskIdentifier" optional="YES" transient="YES" syncable="YES"/>
         <attribute name="associatedTaskIdentifier_data" optional="YES" attributeType="Binary" syncable="YES"/>
-        <attribute name="delivered" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="preprocessedSize" optional="YES" transient="YES" syncable="YES"/>
         <attribute name="preprocessedSize_data" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="progress" optional="YES" attributeType="Float" defaultValueString="0.0" usesScalarValueType="NO" syncable="YES"/>
@@ -28,7 +27,6 @@
         </compoundIndexes>
     </entity>
     <entity name="ClientMessage" representedClassName="ZMClientMessage" parentEntity="Message" syncable="YES">
-        <attribute name="delivered" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="linkPreviewState" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="updatedTimestamp" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <relationship name="dataSet" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="GenericMessageData" inverseName="message" inverseEntity="GenericMessageData" syncable="YES"/>
@@ -121,6 +119,7 @@
     </entity>
     <entity name="Message" representedClassName="ZMMessage" isAbstract="YES" syncable="YES">
         <attribute name="cachedCategory" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
+        <attribute name="delivered" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="destructionDate" optional="YES" attributeType="Date" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
         <attribute name="expirationDate" optional="YES" attributeType="Date" usesScalarValueType="NO" indexed="YES" versionHashModifier="add index" syncable="YES"/>
         <attribute name="isExpired" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
@@ -266,15 +265,15 @@
     </entity>
     <elements>
         <element name="AddressBookEntry" positionX="9" positionY="153" width="128" height="90"/>
-        <element name="AssetClientMessage" positionX="9" positionY="153" width="128" height="225"/>
-        <element name="ClientMessage" positionX="9" positionY="153" width="128" height="105"/>
+        <element name="AssetClientMessage" positionX="9" positionY="153" width="128" height="210"/>
+        <element name="ClientMessage" positionX="9" positionY="153" width="128" height="90"/>
         <element name="Connection" positionX="0" positionY="0" width="128" height="165"/>
         <element name="Conversation" positionX="0" positionY="0" width="128" height="585"/>
         <element name="GenericMessageData" positionX="18" positionY="162" width="128" height="90"/>
         <element name="ImageMessage" positionX="0" positionY="0" width="128" height="165"/>
         <element name="KnockMessage" positionX="0" positionY="0" width="128" height="45"/>
         <element name="Member" positionX="18" positionY="162" width="128" height="135"/>
-        <element name="Message" positionX="0" positionY="0" width="128" height="315"/>
+        <element name="Message" positionX="0" positionY="0" width="128" height="330"/>
         <element name="MessageConfirmation" positionX="9" positionY="153" width="128" height="90"/>
         <element name="Reaction" positionX="18" positionY="162" width="128" height="105"/>
         <element name="Session" positionX="9" positionY="153" width="128" height="60"/>

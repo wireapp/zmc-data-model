@@ -161,8 +161,6 @@ NS_ASSUME_NONNULL_END
 
 - (void)appendNewConversationSystemMessageIfNeeded;
 
-- (void)deleteOlderMessages;
-
 @property (nonatomic, nullable) id _recentMessagesFetcher;
 
 @end
