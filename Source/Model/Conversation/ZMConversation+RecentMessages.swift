@@ -48,7 +48,8 @@ extension ZMConversation {
             }
             
             let fetchRequest = NSFetchRequest<ZMMessage>(entityName: ZMMessage.entityName())
-            fetchRequest.fetchLimit = 100
+            // Magic number of messages that are relevant to the user
+            fetchRequest.fetchLimit = 256
             fetchRequest.predicate = self.visibleMessagesPredicate
             fetchRequest.sortDescriptors = [NSSortDescriptor(key: #keyPath(ZMMessage.serverTimestamp), ascending: false)]
             

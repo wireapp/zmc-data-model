@@ -68,6 +68,7 @@ extern NSString * _Null_unspecified const ZMIsDimmedKey; ///< Specifies that a r
 
 @property (readonly, nonatomic) ZMConversationType conversationType;
 @property (readonly, nonatomic, nullable) NSDate *lastModifiedDate;
+/// Returns the array of recent messages in the conversation. Does not include all messages (see @c -allMessages).
 @property (readonly, nonatomic, nonnull) NSOrderedSet<ZMMessage *> *messages;
 @property (readonly, nonatomic, nonnull) NSSet<ZMMessage *> *allMessages;
 @property (readonly, nonatomic, nonnull) NSOrderedSet<ZMUser *> *activeParticipants;

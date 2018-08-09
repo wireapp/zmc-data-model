@@ -26,7 +26,9 @@ public final class FetchedObjectsArray<Element: NSFetchRequestResult>: NSObject,
         return 0
     }
     
-    public var endIndex: Int = 0
+    public var endIndex: Int {
+        return fetchResultController.fetchedObjects?.count ?? 0
+    }
     
     public func index(after i: Int) -> Int {
         return i + 1
@@ -47,38 +49,15 @@ public final class FetchedObjectsArray<Element: NSFetchRequestResult>: NSObject,
                                                                 sectionNameKeyPath: nil,
                                                                 cacheName: nil)
         super.init()
+        // We need to assign the delegate in order for the NSFetchedResultsController to update it's content.
         self.fetchResultController.delegate = self
         try fetchResultController.performFetch()
-        updateCount()
-    }
-    
-    private func updateCount() {
-        endIndex = fetchResultController.fetchedObjects?.count ?? 0
     }
     
     // MARK: - Fetched results controller
     
-    public func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>,
-                           didChange anObject: Any,
-                           at indexPath: IndexPath?,
-                           for type: NSFetchedResultsChangeType,
-                           newIndexPath: IndexPath?) {
-        
-    }
-  
-    public func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>,
-                           didChange sectionInfo: NSFetchedResultsSectionInfo,
-                           atSectionIndex sectionIndex: Int,
-                           for type: NSFetchedResultsChangeType) {
-        
-    }
-    
-    public func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        
-    }
-    
     public func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        updateCount()
+        // We have to implement this method in order for the NSFetchedResultsController to update it's content.
     }
 }
 

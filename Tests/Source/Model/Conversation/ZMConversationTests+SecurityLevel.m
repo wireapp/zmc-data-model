@@ -1085,9 +1085,7 @@
     XCTAssertTrue([conversation.messages.lastObject isKindOfClass:[ZMSystemMessage class]]);
     XCTAssertEqual(((ZMSystemMessage *)conversation.messages.lastObject).systemMessageType, ZMSystemMessageTypeNewClient);
     XCTAssertTrue([((ZMSystemMessage *)conversation.messages.lastObject).addedUsers isEqualToSet:unverifiedUsers]);
-    
-    [NSThread sleepUntilDate:[[NSDate date] dateByAddingTimeInterval:0.2]];
-    
+        
     // WHEN
     [self simulateAdding:otherUnverifiedUsers to:conversation by:selfUser];
     

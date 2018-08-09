@@ -336,8 +336,6 @@ extension ZMConversation {
     /// or the last modified date if the message is nil
     fileprivate func timestamp(before: ZMMessage?) -> Date? {
         guard let timestamp = before?.serverTimestamp ?? self.lastModifiedDate else { return nil }
-        // this feels a bit hackish, but should work. If two messages are less than 1 milliseconds apart
-        // then in this case one of them will be out of order
         return timestamp.previousNearestTimestamp
     }
     
@@ -345,8 +343,6 @@ extension ZMConversation {
     /// or the last modified date if the message is nil
     fileprivate func timestamp(after: ZMMessage?) -> Date? {
         guard let timestamp = after?.serverTimestamp ?? self.lastModifiedDate else { return nil }
-        // this feels a bit hackish, but should work. If two messages are less than 1 milliseconds apart
-        // then in this case one of them will be out of order
         return timestamp.nextNearestTimestamp
     }
     
