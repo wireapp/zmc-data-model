@@ -1340,9 +1340,10 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         // The message needs to be inserted when the action was remote
         
         if (isAppropriateVerificationSystemMessage(previousMessage)) {
-            NSDate *newDate = [participantsChange.serverTimestamp dateByAddingTimeInterval:0.01];
+            NSDate *newDate = [participantsChange.serverTimestamp nextNearestTimestamp];
             
             previousMessage.serverTimestamp = newDate;
+            [self updateMessageFetcher];
         }
         else {
             [self decreaseSecurityLevelIfNeededAfterDiscoveringClients:[NSSet set] causedByAddedUsers:participantsChange.users];
@@ -1354,9 +1355,10 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         // The message needs to be inserted when the action was remote
         
         if (isAppropriateVerificationSystemMessage(previousMessage)) {
-            NSDate *newDate = [participantsChange.serverTimestamp dateByAddingTimeInterval:0.01];
+            NSDate *newDate = [participantsChange.serverTimestamp nextNearestTimestamp];
             
             previousMessage.serverTimestamp = newDate;
+            [self updateMessageFetcher];
         }
         else {
             [self increaseSecurityLevelIfNeededAfterRemovingClientForUsers:participantsChange.users];

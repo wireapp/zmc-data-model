@@ -888,7 +888,7 @@ NSString * const ZMSystemMessageNumberOfGuestsAddedKey = @"numberOfGuestsAdded";
     [message updateNewConversationSystemMessageIfNeededWithUsers:usersSet
                                                          context:moc
                                                     conversation:conversation];
-    [message.managedObjectContext processPendingChanges];
+    [conversation updateMessageFetcher];
     if (type == ZMSystemMessageTypeParticipantsAdded || type == ZMSystemMessageTypeParticipantsRemoved) {
         [conversation insertOrUpdateSecurityVerificationMessageAfterParticipantsChange:message];
     }

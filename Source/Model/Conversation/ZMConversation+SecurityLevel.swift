@@ -338,7 +338,7 @@ extension ZMConversation {
         guard let timestamp = before?.serverTimestamp ?? self.lastModifiedDate else { return nil }
         // this feels a bit hackish, but should work. If two messages are less than 1 milliseconds apart
         // then in this case one of them will be out of order
-        return timestamp.addingTimeInterval(-0.01)
+        return timestamp.previousNearestTimestamp
     }
     
     /// Returns a timestamp that is shortly (as short as possible) after the given message,
@@ -347,7 +347,7 @@ extension ZMConversation {
         guard let timestamp = after?.serverTimestamp ?? self.lastModifiedDate else { return nil }
         // this feels a bit hackish, but should work. If two messages are less than 1 milliseconds apart
         // then in this case one of them will be out of order
-        return timestamp.addingTimeInterval(0.01)
+        return timestamp.nextNearestTimestamp
     }
     
     // Returns a timestamp that is shortly (as short as possible) after the last message in the conversation,
@@ -420,5 +420,23 @@ extension ZMMessage {
     fileprivate var isConversationNotVerifiedSystemMessage : Bool {
         guard let system = self as? ZMSystemMessage else { return false }
         return system.systemMessageType == .ignoredClient
+    }
+}
+
+extension Date {
+    var nextNearestTimestamp: Date {
+        return Date(timeIntervalSinceReferenceDate: timeIntervalSinceReferenceDate.nextUp)
+    }
+    var previousNearestTimestamp: Date {
+        return Date(timeIntervalSinceReferenceDate: timeIntervalSinceReferenceDate.nextDown)
+    }
+}
+
+extension NSDate {
+    @objc var nextNearestTimestamp: NSDate {
+        return NSDate(timeIntervalSinceReferenceDate: timeIntervalSinceReferenceDate.nextUp)
+    }
+    @objc var previousNearestTimestamp: NSDate {
+        return NSDate(timeIntervalSinceReferenceDate: timeIntervalSinceReferenceDate.nextDown)
     }
 }
