@@ -70,7 +70,8 @@ public extension ZMGenericMessage {
 @objc public extension ZMGenericMessage {
 
     var v3_isImage: Bool {
-        return assetData?.original.hasRasterImage ?? false
+        guard let original = assetData?.original else { return false }
+        return original.hasRasterImage && original.hasValidImageSize
     }
 
     var v3_uploadedAssetId: String? {
