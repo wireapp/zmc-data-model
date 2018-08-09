@@ -386,11 +386,19 @@ extension ZMClientMessageTests_Ephemeral {
         spinMainQueue(withTimeout: 0.5)
         
         // then
-        guard let deleteMessage = conversation.hiddenMessages.first as? ZMClientMessage
+        guard let clientMessage = conversation.hiddenMessages.first(where: {
+            if let clientMessage = $0 as? ZMClientMessage,
+            let genericMessage = clientMessage.genericMessage,
+                genericMessage.hasDeleted() {
+                return true
+            }
+            else {
+                return false
+            }
+        }) as? ZMClientMessage
         else { return XCTFail()}
 
-        guard let genericMessage = deleteMessage.genericMessage, genericMessage.hasDeleted()
-        else {return XCTFail()}
+        let deleteMessage = clientMessage.genericMessage
 
         XCTAssertNotEqual(deleteMessage, message)
         XCTAssertNotNil(message.sender)
