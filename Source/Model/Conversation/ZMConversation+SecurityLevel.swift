@@ -205,7 +205,7 @@ extension ZMConversation {
                     message.causedSecurityLevelDegradation = true
                 }
             }
-            if startingMessage == message {
+            if startingMessage.isEqual(message) {
                 stop.initialize(to: true)
             }
         }
