@@ -481,4 +481,62 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         XCTAssertFalse(fileMessageData.isVideo)
         XCTAssertTrue(fileMessageData.isAudio)
     }
+    
+    func testThatItDoesNotFetchMessageWhenMissing() {
+        // GIVEN
+        let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
+        conversation.remoteIdentifier = UUID()
+        
+        // WHEN
+        let lastMessage = conversation.lastMessageSent(by: selfUser)
+        
+        // THEN
+        XCTAssertEqual(lastMessage, nil)
+    }
+    
+    func testThatItFetchesMessageForUser() {
+        // GIVEN
+        let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
+        conversation.remoteIdentifier = UUID()
+        
+        let message = conversation.appendMessage(withText: "Test Message") as! ZMMessage
+        
+        // WHEN
+        let lastMessage = conversation.lastMessageSent(by: selfUser)
+        
+        // THEN
+        XCTAssertEqual(lastMessage, message)
+    }
+    
+    func testThatItFetchesLastMessageForUser() {
+        // GIVEN
+        let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
+        conversation.remoteIdentifier = UUID()
+        
+        let _ = conversation.appendMessage(withText: "Test Message") as! ZMMessage
+        let message2 = conversation.appendMessage(withText: "Test Message 2") as! ZMMessage
+        
+        // WHEN
+        let lastMessage = conversation.lastMessageSent(by: selfUser)
+        
+        // THEN
+        XCTAssertEqual(lastMessage, message2)
+    }
+    
+    func testThatItIgnoreMessagesFromOtherUsers() {
+        // GIVEN
+        let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
+        conversation.remoteIdentifier = UUID()
+        
+        let message1 = conversation.appendMessage(withText: "Test Message") as! ZMMessage
+        message1.sender = self.createUser()
+        
+        self.uiMOC.processPendingChanges()
+        
+        // WHEN
+        let lastMessage = conversation.lastMessageSent(by: selfUser)
+        
+        // THEN
+        XCTAssertEqual(lastMessage, nil)
+    }
 }
