@@ -97,8 +97,9 @@ class BaseZMAssetClientMessageTests : BaseZMClientMessageTests {
         return documentsURL.appendingPathComponent(filename)
     }
     
-    func createTestFile(_ url: URL) -> Data {
-        let data: Data! = "Some other data".data(using: String.Encoding.utf8)
+    func createTestFile(_ url: URL, size: Int = 128) -> Data {
+        let string = "".padding(toLength: size, withPad: "-", startingAt: 0)
+        let data: Data! = string.data(using: String.Encoding.utf8)
         try! data.write(to: url, options: [])
         return data
     }
@@ -361,6 +362,36 @@ extension ZMAssetClientMessageTests {
         // then
         XCTAssertTrue(sut.hasDownloadedImage)
     }
+
+    func testThatItReturnsIsValidImageSizeForSmallImage() {
+        performIgnoringZMLogError {
+            // given
+            let data = "".padding(toLength: 4_500_000, withPad: "-", startingAt: 0).data(using: .utf8)!
+            
+            // when
+            let sut = self.appendImageMessage(to: self.conversation, imageData: data)
+            XCTAssertNotNil(sut)
+            
+            // then
+            guard let original = sut.genericAssetMessage?.asset.original else { return XCTFail("no asset original") }
+            XCTAssertTrue(original.hasValidImageSize)
+        }
+    }
+    
+    func testThatItDoesNotReturnIsValidImageSizeForLargeImage() {
+        performIgnoringZMLogError {
+            // given
+            let data = "".padding(toLength: 5_500_000, withPad: "-", startingAt: 0).data(using: .utf8)!
+            
+            // when
+            let sut = self.appendImageMessage(to: self.conversation, imageData: data)
+            XCTAssertNotNil(sut)
+            
+            // then
+            guard let original = sut.genericAssetMessage?.asset.original else { return XCTFail("no asset original") }
+            XCTAssertFalse(original.hasValidImageSize)
+        }
+    }
     
     func testThatItSetsTheGenericAssetMessageWhenCreatingMessage()
     {
@@ -387,11 +418,12 @@ extension ZMAssetClientMessageTests {
         XCTAssertNotNil(assetMessage?.asset)
         XCTAssertTrue(assetMessage!.asset.hasOriginal())
         
-        let original = assetMessage?.asset.original
-        XCTAssertNotNil(original)
-        XCTAssertEqual(original?.name, filename)
-        XCTAssertEqual(original?.mimeType, mimeType)
-        XCTAssertEqual(original?.size, size)
+        guard let original = assetMessage?.asset.original else { return XCTFail("no asset original") }
+        XCTAssertEqual(original.name, filename)
+        XCTAssertEqual(original.mimeType, mimeType)
+        XCTAssertEqual(original.size, size)
+        XCTAssertFalse(original.hasValidImageSize)
+        XCTAssertFalse(original.hasRasterImage)
     }
     
     func testThatItMergesMultipleGenericAssetMessagesForFileMessages()
