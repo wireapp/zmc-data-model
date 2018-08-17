@@ -40,12 +40,23 @@ public class UnregisteredUser {
     public var name: String?
     public var accentColorValue: ZMAccentColor?
     public var profileImageData: Data?
+    public var acceptedTermsOfService: Bool?
 
     /**
      * Creates an empty unregistered user.
      */
 
     public init() {}
+
+    /// Whether the user is complete and can be registered.
+    public var isComplete: Bool {
+        return credentials != nil
+            && verificationCode != nil
+            && name != nil
+            && accentColorValue != nil
+            && profileImageData != nil
+            && acceptedTermsOfService != nil
+    }
 
 }
 

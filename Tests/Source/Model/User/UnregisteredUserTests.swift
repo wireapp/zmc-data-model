@@ -111,6 +111,22 @@ class UnregisteredUserTests: XCTestCase {
         assertNormalizationValue(normalizedEmail, "john.doe@gmail.com")
     }
 
+    func testThatItReturnsCompletedWhenUserIsComplete() {
+        // GIVEN
+        let user = UnregisteredUser()
+
+        // WHEN
+        user.name = "Mario"
+        user.credentials = .phone(number: "+49123456789")
+        user.verificationCode = "123456"
+        user.profileImageData = Data()
+        user.accentColorValue = .softPink
+        user.acceptedTermsOfService = true
+
+        // THEN
+        XCTAssertTrue(user.isComplete)
+    }
+
 }
 
 // MARK: - Helpers
