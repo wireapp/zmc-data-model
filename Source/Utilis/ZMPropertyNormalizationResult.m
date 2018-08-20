@@ -20,7 +20,7 @@
 
 @interface ZMPropertyNormalizationResult ()
 
-@property (nonatomic, readwrite) BOOL isValid;
+@property (nonatomic, readwrite, getter=isValid) BOOL valid;
 @property (nonatomic, readwrite, nullable) id normalizedValue;
 @property (nonatomic, readwrite, nullable) NSError* validationError;
 
@@ -28,11 +28,11 @@
 
 @implementation ZMPropertyNormalizationResult
 
-- (instancetype)initWithResult:(BOOL)isValid normalizedValue:(id)normalizedValue validationError:(NSError *)validationError
+- (instancetype)initWithResult:(BOOL)valid normalizedValue:(id)normalizedValue validationError:(NSError *)validationError
 {
     self = [super init];
     if (self) {
-        self.isValid = isValid;
+        self.valid = valid;
         self.normalizedValue = normalizedValue;
         self.validationError = validationError;
     }
