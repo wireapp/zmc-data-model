@@ -30,7 +30,7 @@ import Foundation
 
 public class UnregisteredUser {
 
-    public enum Credentials {
+    public enum Credentials: Equatable {
         case phone(number: String)
         case email(address: String, password: String)
     }
@@ -56,6 +56,21 @@ public class UnregisteredUser {
             && accentColorValue != nil
             && profileImageData != nil
             && acceptedTermsOfService != nil
+    }
+
+}
+
+// MARK: - Equatable
+
+extension UnregisteredUser: Equatable {
+
+    public static func == (lhs: UnregisteredUser, rhs: UnregisteredUser) -> Bool {
+        return lhs.credentials == rhs.credentials
+            && lhs.verificationCode == rhs.verificationCode
+            && lhs.name == rhs.name
+            && lhs.accentColorValue == rhs.accentColorValue
+            && lhs.profileImageData == rhs.profileImageData
+            && lhs.acceptedTermsOfService == rhs.acceptedTermsOfService
     }
 
 }
