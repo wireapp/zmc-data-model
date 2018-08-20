@@ -210,9 +210,9 @@ extension ZMConversation {
             hasUnreadUnsentMessage = false
         }
         
-        guard let messageTimestamp = message.serverTimestampIncludingChildMessages, let unreadTimestamp = lastUnreadMessage(olderOrEqualThan: messageTimestamp)?.serverTimestamp else { return }
-        
-        enqueueUpdateLastRead(unreadTimestamp)
+        guard let messageTimestamp = message.serverTimestampIncludingChildMessages,
+            let unreadTimestamp = lastUnreadMessage(olderOrEqualThan: messageTimestamp)?.serverTimestamp else { return }
+        enqueueUpdateLastRead(messageTimestamp)
     }
     
     /// Update the last read timestamp.
