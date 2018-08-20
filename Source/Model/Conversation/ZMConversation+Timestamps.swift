@@ -212,7 +212,7 @@ extension ZMConversation {
         
         guard let messageTimestamp = message.serverTimestampIncludingChildMessages,
             let unreadTimestamp = lastUnreadMessage(olderOrEqualThan: messageTimestamp)?.serverTimestamp else { return }
-        enqueueUpdateLastRead(messageTimestamp)
+        enqueueUpdateLastRead(unreadTimestamp)
     }
     
     /// Update the last read timestamp.
