@@ -41,6 +41,7 @@ public class UnregisteredUser {
     public var accentColorValue: ZMAccentColor?
     public var profileImageData: Data?
     public var acceptedTermsOfService: Bool?
+    public var marketingConsent: Bool?
 
     /**
      * Creates an empty unregistered user.
@@ -56,6 +57,7 @@ public class UnregisteredUser {
             && accentColorValue != nil
             && profileImageData != nil
             && acceptedTermsOfService != nil
+            && marketingConsent != nil
     }
 
 }
