@@ -122,6 +122,7 @@ class UnregisteredUserTests: XCTestCase {
         user.profileImageData = Data()
         user.accentColorValue = .softPink
         user.acceptedTermsOfService = true
+        user.marketingConsent = false
 
         // THEN
         XCTAssertTrue(user.isComplete)

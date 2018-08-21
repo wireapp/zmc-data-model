@@ -73,6 +73,7 @@ extension UnregisteredUser: Equatable {
             && lhs.accentColorValue == rhs.accentColorValue
             && lhs.profileImageData == rhs.profileImageData
             && lhs.acceptedTermsOfService == rhs.acceptedTermsOfService
+            && lhs.marketingConsent == rhs.marketingConsent
     }
 
 }
