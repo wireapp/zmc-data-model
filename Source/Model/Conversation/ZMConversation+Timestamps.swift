@@ -303,37 +303,68 @@ extension ZMConversation {
     }
     
     fileprivate var unreadMessagesIncludingInvisible: [ZMMessage] {
-        guard let managedObjectContext = managedObjectContext else { return [] }
-        
-        let lastReadServerTimestamp = lastReadServerTimeStamp ?? Date.distantPast
-        let selfUser = ZMUser.selfUser(in: managedObjectContext)
-        let fetchRequest = NSFetchRequest<ZMMessage>(entityName: ZMMessage.entityName())
-        fetchRequest.predicate = NSPredicate(format: "(%K == %@ OR %K == %@) AND %K != %@ AND %K > %@",
-                                             ZMMessageConversationKey, self,
-                                             ZMMessageHiddenInConversationKey, self,
-                                             ZMMessageSenderKey, selfUser,
-                                             ZMMessageServerTimestampKey, lastReadServerTimestamp as NSDate)
-        fetchRequest.sortDescriptors = ZMMessage.defaultSortDescriptors()
-        
-        return managedObjectContext.fetchOrAssert(request: fetchRequest).filter(\.messageIsRelevantForConversationStatus)
+        return unreadMessagesIncludingInvisible(order: .ascending).filter(\.messageIsRelevantForConversationStatus)
     }
     
     fileprivate func lastUnreadMessage(olderOrEqualThan date: Date) -> ZMMessage? {
-        guard let managedObjectContext = managedObjectContext else { return nil }
-        
+        return unreadMessagesIncludingInvisible(fetchLimit: 1, before: date, order: .descending).first
+    }
+    
+    enum Order {
+        case ascending
+        case descending
+    }
+    
+    fileprivate func unreadMessagesIncludingInvisible(fetchLimit: Int? = nil, before date: Date? = nil, order: Order) -> [ZMMessage] {
+        guard let managedObjectContext = managedObjectContext else { return [] }
+
         let lastReadServerTimestamp = lastReadServerTimeStamp ?? Date.distantPast
         let selfUser = ZMUser.selfUser(in: managedObjectContext)
-        let fetchRequest = NSFetchRequest<ZMMessage>(entityName: ZMMessage.entityName())
-        fetchRequest.predicate = NSPredicate(format: "(%K == %@ OR %K == %@) AND %K != %@ AND %K > %@ AND %K <= %@",
-                                             ZMMessageConversationKey, self,
-                                             ZMMessageHiddenInConversationKey, self,
-                                             ZMMessageSenderKey, selfUser,
-                                             ZMMessageServerTimestampKey, lastReadServerTimestamp as NSDate,
-                                             ZMMessageServerTimestampKey, date as NSDate)
-        fetchRequest.sortDescriptors = [NSSortDescriptor(key: ZMMessageServerTimestampKey, ascending: false)]
-        fetchRequest.fetchLimit = 1
         
-        return managedObjectContext.fetchOrAssert(request: fetchRequest).first
+        var predicate = NSPredicate(format: "%K != %@ AND %K > %@", ZMMessageSenderKey, selfUser,
+                                                                    ZMMessageServerTimestampKey, lastReadServerTimestamp as NSDate)
+        
+        if let beforeDate = date {
+            let beforeDatePredicate = NSPredicate(format: "%K <= %@", ZMMessageServerTimestampKey, beforeDate as NSDate)
+            predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate, beforeDatePredicate])
+        }
+        
+        let visibleMessages = fetchMessages(type: .visible, fetchLimit: fetchLimit, predicate: predicate, order: order)
+        let hiddenMessages  = fetchMessages(type: .hidden, fetchLimit: fetchLimit, predicate: predicate, order: order)
+        
+        var allMessages = hiddenMessages
+        
+        allMessages.append(contentsOf: visibleMessages)
+        allMessages.sort {
+            return $0.serverTimestamp < $1.serverTimestamp
+        }
+        
+        if let limit = fetchLimit, allMessages.count > limit {
+            allMessages.removeLast(allMessages.count - limit)
+        }
+        
+        return allMessages
+    }
+    
+    enum MessageTypeKey: String {
+        case visible = "visibleInConversation"
+        case hidden = "hiddenInConversation"
+    }
+    
+    fileprivate func fetchMessages(type: MessageTypeKey, fetchLimit: Int?, predicate: NSPredicate, order: Order) -> [ZMMessage] {
+        guard let managedObjectContext = managedObjectContext else { return [] }
+
+        let fetchRequest = NSFetchRequest<ZMMessage>(entityName: ZMMessage.entityName())
+        let typePredicate = NSPredicate(format: "%K == %@", type.rawValue, self)
+        let finalPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [predicate, typePredicate])
+        
+        fetchRequest.predicate = finalPredicate
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: ZMMessageServerTimestampKey, ascending: order == .ascending)]
+        if let limit = fetchLimit {
+            fetchRequest.fetchLimit = limit
+        }
+        
+        return managedObjectContext.fetchOrAssert(request: fetchRequest)
     }
     
 }

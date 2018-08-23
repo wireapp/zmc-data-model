@@ -17,27 +17,11 @@
         <attribute name="uploadState" optional="YES" attributeType="Integer 16" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="version" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <relationship name="dataSet" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="GenericMessageData" inverseName="asset" inverseEntity="GenericMessageData" syncable="YES"/>
-        <compoundIndexes>
-            <compoundIndex>
-                <index value="visibleInConversation"/>
-                <index value="serverTimestamp"/>
-                <index value="isExpired"/>
-                <index value="delivered"/>
-            </compoundIndex>
-        </compoundIndexes>
     </entity>
     <entity name="ClientMessage" representedClassName="ZMClientMessage" parentEntity="Message" syncable="YES">
         <attribute name="linkPreviewState" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="updatedTimestamp" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <relationship name="dataSet" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="GenericMessageData" inverseName="message" inverseEntity="GenericMessageData" syncable="YES"/>
-        <compoundIndexes>
-            <compoundIndex>
-                <index value="visibleInConversation"/>
-                <index value="serverTimestamp"/>
-                <index value="delivered"/>
-                <index value="isExpired"/>
-            </compoundIndex>
-        </compoundIndexes>
     </entity>
     <entity name="Connection" representedClassName="ZMConnection" syncable="YES">
         <attribute name="existsOnBackend" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
@@ -142,6 +126,13 @@
                 <index value="visibleInConversation"/>
                 <index value="serverTimestamp"/>
                 <index value="isExpired"/>
+                <index value="delivered"/>
+            </compoundIndex>
+            <compoundIndex>
+                <index value="hiddenInConversation"/>
+                <index value="serverTimestamp"/>
+                <index value="isExpired"/>
+                <index value="delivered"/>
             </compoundIndex>
         </compoundIndexes>
     </entity>
