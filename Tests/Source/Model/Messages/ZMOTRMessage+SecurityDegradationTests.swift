@@ -84,7 +84,7 @@ class ZMOTRMessage_SecurityDegradationTests : BaseZMClientMessageTests {
             self.syncMOC.saveOrRollback()
             
             let confirmation = message.confirmReception()!
-            convo.appendMessage(confirmation)
+            convo.append(confirmation)
 
             // WHEN
             let newClient = UserClient.insertNewObject(in: self.syncMOC)

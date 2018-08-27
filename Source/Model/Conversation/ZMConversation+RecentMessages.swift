@@ -59,7 +59,7 @@ extension ZMConversation {
         }
     }
     
-    @objc public var recentMessages: [ZMConversationMessage] {
+    @objc public var recentMessages: [ZMMessage] {
         return recentMessagesFetcher.reversed()
     }
     

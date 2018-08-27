@@ -334,7 +334,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
     func appendPreviewImageMessage() -> ZMAssetClientMessage {
         let imageData = verySmallJPEGData()
         let message = ZMAssetClientMessage(nonce: UUID(), managedObjectContext: uiMOC)
-        conversation.appendMessage(message)
+        conversation.append(message)
         
         let imageSize = ZMImagePreprocessor.sizeOfPrerotatedImage(with: imageData)
         let properties = ZMIImageProperties(size:imageSize, length:UInt(imageData.count), mimeType:"image/jpeg")

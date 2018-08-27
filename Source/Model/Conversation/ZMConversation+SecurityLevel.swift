@@ -101,10 +101,10 @@ extension ZMConversation {
                                                               clients: nil,
                                                               timestamp: timestamp)
         systemMessage.needsUpdatingUsers = true
-        let index = self.messages.index(of: systemMessage)
-        if index != NSNotFound,
+        
+        if let index = self.recentMessages.index(of: systemMessage),
             index > 1,
-            let previousMessage = self.messages[Int(index - 1)] as? ZMSystemMessage,
+            let previousMessage = self.recentMessages[Int(index - 1)] as? ZMSystemMessage,
             previousMessage.systemMessageType == .potentialGap
         {
             // In case the message before the new system message was also a system message of
@@ -191,7 +191,7 @@ extension ZMConversation {
     
     /// Expire all pending message after the given message, including the given message
     fileprivate func expireAllPendingMessagesBecauseOfSecurityLevelDegradation(staringFrom startingMessage: ZMMessage) {
-        self.messages.enumerateObjects(options: .reverse) { (msg, idx, stop) in
+        NSOrderedSet(array: self.recentMessages).enumerateObjects(options: .reverse) { (msg, idx, stop) in
             guard let message = msg as? ZMOTRMessage else { return }
             if message.deliveryState != .delivered && message.deliveryState != .sent {
                 if let clientMessage = message as? ZMClientMessage,
@@ -221,7 +221,7 @@ extension ZMConversation {
         let selfUser = ZMUser.selfUser(in: self.managedObjectContext!)
         guard let selfClient = selfUser.selfClient() else { return }
         
-        self.messages.enumerateObjects(options: .reverse) { (msg, idx, stop) in
+        NSOrderedSet(array: recentMessages).enumerateObjects(options: .reverse) { (msg, idx, stop) in
             guard idx <= 2 else {
                 stop.initialize(to: true)
                 return
@@ -327,7 +327,7 @@ extension ZMConversation {
         
         systemMessage.relevantForConversationStatus = relevantForStatus
         
-        self.appendMessage(systemMessage)
+        self.append(systemMessage)
         
         return systemMessage
     }
@@ -349,7 +349,7 @@ extension ZMConversation {
     // Returns a timestamp that is shortly (as short as possible) after the last message in the conversation,
     // or current time if there's no last message
     fileprivate func timestampAfterLastMessage() -> Date {
-        return timestamp(after: self.messages.lastObject as? ZMMessage) ?? Date()
+        return timestamp(after: recentMessages.last) ?? Date()
     }
 }
 

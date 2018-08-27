@@ -48,7 +48,7 @@
     NSUUID *originalNonce = message.nonce;
     
     XCTAssertEqual(message.visibleInConversation, conversation);
-    XCTAssertEqual(conversation.messages.count, 1u);
+    XCTAssertEqual(conversation.recentMessages.count, 1u);
     XCTAssertEqual(conversation.hiddenMessages.count, 0u);
     
     // when
@@ -56,7 +56,7 @@
     WaitForAllGroupsToBeEmpty(0.5);
     
     // then
-    XCTAssertEqual(conversation.messages.count, 1u);
+    XCTAssertEqual(conversation.recentMessages.count, 1u);
     
     if (shouldEdit) {
         XCTAssertEqual(conversation.hiddenMessages.count, 1u);
@@ -109,7 +109,7 @@
     [conversation appendMessageWithText:@"Foo"];
     [conversation appendMessageWithText:@"Foo"];
     
-    NSUInteger oldIndex = [conversation.messages indexOfObject:message];
+    NSUInteger oldIndex = [conversation.recentMessages indexOfObject:message];
     
     // when
     ZMClientMessage *newMessage = (id)[ZMMessage edit:message newText:newText];
@@ -117,7 +117,7 @@
     WaitForAllGroupsToBeEmpty(0.5);
     
     // then
-    NSUInteger newIndex = [conversation.messages indexOfObject:newMessage];
+    NSUInteger newIndex = [conversation.recentMessages indexOfObject:newMessage];
     XCTAssertEqual(newIndex, oldIndex);
 }
 
@@ -218,7 +218,7 @@
     [message markAsSent];
 
     XCTAssertEqual(message.visibleInConversation, conversation);
-    XCTAssertEqual(conversation.messages.count, 1u);
+    XCTAssertEqual(conversation.recentMessages.count, 1u);
     XCTAssertEqual(conversation.hiddenMessages.count, 0u);
     
     // when
@@ -247,7 +247,7 @@
     conversation.lastServerTimeStamp = originalDate;
 
     XCTAssertEqual(message.visibleInConversation, conversation);
-    XCTAssertEqual(conversation.messages.count, 1u);
+    XCTAssertEqual(conversation.recentMessages.count, 1u);
     XCTAssertEqual(conversation.hiddenMessages.count, 0u);
     
     ZMMessage *newMessage = [ZMMessage edit:message newText:newText];
@@ -298,7 +298,7 @@
     NSUUID *originalNonce = message.nonce;
 
     XCTAssertEqual(message.visibleInConversation, conversation);
-    XCTAssertEqual(conversation.messages.count, 1u);
+    XCTAssertEqual(conversation.recentMessages.count, 1u);
     XCTAssertEqual(conversation.hiddenMessages.count, 0u);
     
     ZMMessage *newMessage = [ZMMessage edit:message newText:newText];
@@ -342,7 +342,7 @@
     NSUUID *originalNonce = message.nonce;
 
     XCTAssertEqual(message.visibleInConversation, conversation);
-    XCTAssertEqual(conversation.messages.count, 1u);
+    XCTAssertEqual(conversation.recentMessages.count, 1u);
     XCTAssertEqual(conversation.hiddenMessages.count, 0u);
     
     ZMMessage *newMessage1 = [ZMMessage edit:message newText:newText];
@@ -364,7 +364,7 @@
     NSDate *lastModifiedDate2 = conversation.lastModifiedDate;
     
     // then
-    ZMClientMessage *newMessage2 = (ZMClientMessage *)conversation.messages.lastObject;
+    ZMClientMessage *newMessage2 = (ZMClientMessage *)conversation.recentMessages.lastObject;
     
     XCTAssertEqualObjects(newMessage2.serverTimestamp, originalDate);
     XCTAssertEqualObjects(newMessage2.updatedAt, lastModifiedDate2);
@@ -450,8 +450,8 @@
         XCTAssertNotNil(message.sender);
         
         XCTAssertTrue(message.reactions.isEmpty);
-        XCTAssertEqual(conversation.messages.count, 1lu);
-        ZMMessage *editedMessage = conversation.messages.firstObject;
+        XCTAssertEqual(conversation.recentMessages.count, 1lu);
+        ZMMessage *editedMessage = conversation.recentMessages.firstObject;
 
         XCTAssertTrue(editedMessage.reactions.isEmpty);
         XCTAssertEqualObjects(editedMessage.textMessageData.messageText, newText);
@@ -662,9 +662,9 @@
     
     // then
     XCTAssertTrue(message.reactions.isEmpty);
-    XCTAssertEqual(conversation.messages.count, 1lu);
+    XCTAssertEqual(conversation.recentMessages.count, 1lu);
 
-    ZMMessage *editedMessage = conversation.messages.firstObject;
+    ZMMessage *editedMessage = conversation.recentMessages.firstObject;
     XCTAssertTrue(editedMessage.reactions.isEmpty);
     XCTAssertEqualObjects(editedMessage.textMessageData.messageText, @"Hello");
 }
@@ -700,9 +700,9 @@
     
     // then
     XCTAssertTrue(message.reactions.isEmpty);
-    XCTAssertEqual(conversation.messages.count, 1lu);
+    XCTAssertEqual(conversation.recentMessages.count, 1lu);
     
-    ZMMessage *editedMessage = conversation.messages.firstObject;
+    ZMMessage *editedMessage = conversation.recentMessages.firstObject;
     XCTAssertTrue(editedMessage.reactions.isEmpty);
     XCTAssertEqualObjects(editedMessage.textMessageData.messageText, @"Hello");
 }

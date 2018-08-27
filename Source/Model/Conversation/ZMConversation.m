@@ -189,11 +189,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return (unsigned long)self.internalEstimatedUnreadCount;
 }
 
-- (NSOrderedSet<ZMMessage *>*)messages
-{
-    return [[NSOrderedSet alloc] initWithArray:self.recentMessages];
-}
-
 + (NSSet *)keyPathsForValuesAffectingEstimatedUnreadCount
 {
     return [NSSet setWithObjects: ZMConversationInternalEstimatedUnreadCountKey, ZMConversationLastReadServerTimeStampKey, nil];
@@ -659,7 +654,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 - (ZMMessage *)lastEditableMessage;
 {
     __block ZMMessage *result;
-    [self.messages enumerateObjectsWithOptions:NSEnumerationReverse
+    [self.recentMessages enumerateObjectsWithOptions:NSEnumerationReverse
                                     usingBlock:^(ZMMessage *message, NSUInteger ZM_UNUSED idx, BOOL *stop) {
                                             if ([message isEditableMessage]) {
                                                 result = message;
@@ -694,7 +689,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (BOOL)canMarkAsUnread
 {
-    if (self.messages.count == 0) {
+    if (self.recentMessages.count == 0) {
         return NO;
     }
     
@@ -711,14 +706,15 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (ZMMessage *)lastMessageCanBeMarkedUnread
 {
-    NSUInteger lastMessageIndexCanBeMarkedUnread = [self.messages.reversedOrderedSet indexOfObjectPassingTest:^BOOL(ZMMessage *message, NSUInteger idx, BOOL *stop) {
+    NSUInteger lastMessageIndexCanBeMarkedUnread = [self.recentMessages indexOfObjectWithOptions:NSEnumerationReverse
+                                                                                     passingTest:^BOOL(ZMMessage *message, NSUInteger idx, BOOL *stop) {
         NOT_USED(idx);
         NOT_USED(stop);
         return message.canBeMarkedUnread;
     }];
     
     if (lastMessageIndexCanBeMarkedUnread != NSNotFound) {
-        return self.messages[self.messages.count - lastMessageIndexCanBeMarkedUnread - 1];
+        return self.recentMessages[self.recentMessages.count - lastMessageIndexCanBeMarkedUnread - 1];
     }
     else {
         return nil;
@@ -794,7 +790,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     ZMConversation *existingConversation = [ZMConversation conversationWithRemoteID:remoteID createIfNeeded:NO inContext:self.managedObjectContext];
     if ((existingConversation != nil) && ![existingConversation isEqual:self]) {
         Require(self.remoteIdentifier == nil);
-        [self.mutableMessages addObjectsFromArray:existingConversation.messages.array];
+        [self.mutableMessages unionSet:existingConversation.allMessages];
         // Just to be on the safe side, force update:
         self.needsToBeUpdatedFromBackend = YES;
         // This is a duplicate. Delete the other one
@@ -1122,7 +1118,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (void)appendNewConversationSystemMessageIfNeeded;
 {
-    ZMMessage *firstMessage = self.messages.firstObject;
+    ZMMessage *firstMessage = self.recentMessages.firstObject;
     if ([firstMessage isKindOfClass:[ZMSystemMessage class]]) {
         ZMSystemMessage *systemMessage = (ZMSystemMessage *)firstMessage;
         if (systemMessage.systemMessageType == ZMSystemMessageTypeNewConversation) {
@@ -1309,11 +1305,11 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (void)insertOrUpdateSecurityVerificationMessageAfterParticipantsChange:(ZMSystemMessage *)participantsChange
 {
-    NSUInteger messageIndex = [self.messages indexOfObject:participantsChange];
+    NSUInteger messageIndex = [self.recentMessages indexOfObject:participantsChange];
     if (messageIndex == 0 || messageIndex == NSNotFound) {
         return;
     }
-    ZMMessage *previousMessage = [self.messages objectAtIndex:messageIndex - 1];
+    ZMMessage *previousMessage = [self.recentMessages objectAtIndex:messageIndex - 1];
     
     BOOL (^isAppropriateVerificationSystemMessage)(ZMMessage *message) = ^BOOL(ZMMessage *message) {
         if (![message isKindOfClass:[ZMSystemMessage class]]) {

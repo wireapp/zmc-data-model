@@ -531,13 +531,21 @@ NSString * const ZMSystemMessageNumberOfGuestsAddedKey = @"numberOfGuestsAdded";
             ];
 }
 
-+ (instancetype)fetchMessageWithNonce:(NSUUID *)nonce forConversation:(ZMConversation *)conversation inManagedObjectContext:(NSManagedObjectContext *)moc
++ (instancetype)fetchMessageWithNonce:(NSUUID *)nonce
+                      forConversation:(ZMConversation *)conversation
+               inManagedObjectContext:(NSManagedObjectContext *)moc
 {
-    return [self fetchMessageWithNonce:nonce forConversation:conversation inManagedObjectContext:moc prefetchResult:nil];
+    return [self fetchMessageWithNonce:nonce
+                       forConversation:conversation
+                inManagedObjectContext:moc
+                        prefetchResult:nil];
 }
 
 
-+ (instancetype)fetchMessageWithNonce:(NSUUID *)nonce forConversation:(ZMConversation *)conversation inManagedObjectContext:(NSManagedObjectContext *)moc prefetchResult:(ZMFetchRequestBatchResult *)prefetchResult
++ (instancetype)fetchMessageWithNonce:(NSUUID *)nonce
+                      forConversation:(ZMConversation *)conversation
+               inManagedObjectContext:(NSManagedObjectContext *)moc
+                       prefetchResult:(ZMFetchRequestBatchResult *)prefetchResult
 {
     NSSet <ZMMessage *>* prefetchedMessages = prefetchResult.messagesByNonce[nonce];
     
@@ -557,7 +565,7 @@ NSString * const ZMSystemMessageNumberOfGuestsAddedKey = @"numberOfGuestsAdded";
 
     if (![conversation hasFaultForRelationshipNamed:ZMConversationAllMessagesKey]) {
         checkedAllVisibleMessage = YES;
-        for (ZMMessage *message in conversation.messages) {
+        for (ZMMessage *message in conversation.allMessages) {
             if (message.isFault) {
                 checkedAllVisibleMessage = NO;
             } else if ([message.entity isKindOfEntity:entity] && [noncePredicate evaluateWithObject:message]) {
