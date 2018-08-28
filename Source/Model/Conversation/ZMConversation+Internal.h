@@ -197,7 +197,7 @@ NS_ASSUME_NONNULL_END
 
 /// Checks if the security level changed as the result of the participants change.
 /// Appends or moves the security level system message.
-- (void)insertOrUpdateSecurityVerificationMessageAfterParticipantsChange:(nonnull ZMSystemMessage *)participantsChange;
+//- (void)insertOrUpdateSecurityVerificationMessageAfterParticipantsChange:(nonnull ZMSystemMessage *)participantsChange;
 
 @end
 

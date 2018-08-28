@@ -142,6 +142,33 @@ extension ZMConversation {
         self.securityLevel = .secure
         return true
     }
+    
+    /// Adds the user to the list of participants if not already present and inserts a .participantsAdded system message
+    @objc(appendParticipantIfMissing:date:)
+    public func addParticipantIfMissing(_ user: ZMUser, at date: Date = Date()) {
+        guard !activeParticipants.contains(user) else { return }
+        
+        switch conversationType {
+        case .group:
+            appendSystemMessage(type: .participantsAdded, sender: user, users: Set(arrayLiteral: user), clients: nil, timestamp: date)
+            internalAddParticipants(Set(arrayLiteral: user))
+            break
+        case .oneOnOne, .connection:
+            if user.connection == nil {
+                user.connection = connection ?? ZMConnection.insertNewObject(in: managedObjectContext!)
+            } else if connection == nil {
+                connection = user.connection
+            }
+            
+            user.connection?.needsToBeUpdatedFromBackend = true
+            break
+        default:
+            break
+        }
+        
+        // A missing user indicate that we are out of sync with the BE so we'll re-sync the conversation
+        needsToBeUpdatedFromBackend = true
+    }
 }
 
 // MARK: - Messages resend/expiration
