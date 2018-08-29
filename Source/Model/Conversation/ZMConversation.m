@@ -1530,11 +1530,11 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         NSUInteger currentIndex = length-1;
         const NSUInteger keepUntilIndex = (length-1 >= NumberOfMessagesToKeep) // avoid overflow
         ? (length-1 - NumberOfMessagesToKeep)
-        : length-1;
+        : 0;
         
         while(YES) { // not using a for loop because when hitting 0, --i would make it overflow and wrap
             [messagesToKeep addObject:self.messages[currentIndex]];
-            if(currentIndex == keepUntilIndex) {
+            if (currentIndex == keepUntilIndex) {
                 break;
             }
             --currentIndex;
