@@ -744,7 +744,7 @@
     }];
 }
 
-- (void)testIMarksConversationAsNotSecureAfterResendMessages
+- (void)testItMarksConversationAsNotSecureAfterResendMessages
 {
     __block ZMConversation *conversation;
     [self.syncMOC performGroupedBlockAndWait:^{
