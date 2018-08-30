@@ -1462,24 +1462,19 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     
     const static NSUInteger NumberOfMessagesToKeep = 3;
     
-    if(![self hasFaultForRelationshipNamed:ZMConversationMessagesKey])
-    {
+    if (![self hasFaultForRelationshipNamed:ZMConversationMessagesKey]) {
         const NSUInteger length = self.messages.count;
-        if(length == 0) {
+        
+        if (length == 0) {
             return [NSSet set];
         }
-        NSUInteger currentIndex = length-1;
-        const NSUInteger keepUntilIndex = (length-1 >= NumberOfMessagesToKeep) // avoid overflow
-        ? (length-1 - NumberOfMessagesToKeep)
-        : 0;
         
-        while(YES) { // not using a for loop because when hitting 0, --i would make it overflow and wrap
-            [messagesToKeep addObject:self.messages[currentIndex]];
-            if (currentIndex == keepUntilIndex) {
-                break;
-            }
-            --currentIndex;
-        };
+        const NSUInteger startIndex = length > NumberOfMessagesToKeep ? length - NumberOfMessagesToKeep : 0;
+        const NSUInteger endIndex = length - 1;
+        
+        for (NSUInteger index = startIndex; index <= endIndex; index++) {
+            [messagesToKeep addObject:self.messages[index]];
+        }
     }
     
     return messagesToKeep;
