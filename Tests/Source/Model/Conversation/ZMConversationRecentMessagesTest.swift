@@ -21,12 +21,48 @@ import Foundation
 import XCTest
 @testable import WireDataModel
 
+final class ManagedObjectContextChangesMerger: NSObject {
+    let managedObjectContexts: Set<NSManagedObjectContext>
+    
+    init(managedObjectContexts: Set<NSManagedObjectContext>) {
+        self.managedObjectContexts = managedObjectContexts
+        super.init()
+        managedObjectContexts.forEach { moc in
+            NotificationCenter.default.addObserver(self,
+                                                   selector: #selector(ManagedObjectContextChangesMerger.contextDidSave(_:)),
+                                                   name: NSNotification.Name.NSManagedObjectContextDidSave,
+                                                   object: moc)
+        }
+    }
+    
+    @objc func contextDidSave(_ notification: Notification) {
+        let mocThatSaved = notification.object as! NSManagedObjectContext
+        managedObjectContexts.subtracting(Set(arrayLiteral: mocThatSaved)).forEach { moc in
+            moc.performGroupedBlockAndWait {
+                moc.mergeChanges(fromContextDidSave: notification)
+            }
+        }
+    }
+}
+
 public class ZMConversationRecentMessagesTest: ZMBaseManagedObjectTest {
-    func createConversation() -> ZMConversation {
-        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+    func createConversation(on moc: NSManagedObjectContext? = nil) -> ZMConversation {
+        let conversation = ZMConversation.insertNewObject(in: moc ?? uiMOC)
         conversation.remoteIdentifier = UUID()
         conversation.conversationType = .group
         return conversation
+    }
+    
+    var changesObserver: ManagedObjectContextChangesMerger!
+    
+    override public func setUp() {
+        super.setUp()
+        changesObserver = ManagedObjectContextChangesMerger(managedObjectContexts: Set([self.uiMOC, self.syncMOC]))
+    }
+    
+    override public func tearDown() {
+        changesObserver = nil
+        super.tearDown()
     }
     
     func testThatItFetchesRecentMessages() throws {
@@ -66,4 +102,55 @@ public class ZMConversationRecentMessagesTest: ZMBaseManagedObjectTest {
         XCTAssertEqual(otherConversation.recentMessages[0].textMessageData!.messageText, "Other 1")
 
     }
+    
+    func testThatMessagesMergedFromUIContextAppearOnSyncContext() {
+        // GIVEN
+        let conversation = self.createConversation(on: uiMOC)
+        uiMOC.saveOrRollback()
+        let conversationID = conversation.objectID
+        var syncConversation: ZMConversation!
+        syncMOC.performGroupedBlockAndWait {
+            syncConversation = self.syncMOC.object(with: conversationID) as! ZMConversation
+        }
+        // WHEN & THEN
+        verifyUpdatedMessages(from: conversation, to: syncConversation)
+    }
+    
+    func testThatMessagesMergedFromSyncContextAppearOnUIContext() {
+        // GIVEN
+        var conversationID: NSManagedObjectID!
+        var syncConversation: ZMConversation!
+        syncMOC.performGroupedBlockAndWait {
+            syncConversation = self.createConversation(on: self.syncMOC)
+            self.syncMOC.saveOrRollback()
+            conversationID = syncConversation.objectID
+        }
+        
+        let conversation = uiMOC.object(with: conversationID) as! ZMConversation
+        // WHEN & THEN
+        syncMOC.performGroupedBlock {
+            self.verifyUpdatedMessages(from: syncConversation, to: conversation)
+        }
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+    }
+    
+    func verifyUpdatedMessages(from conversation: ZMConversation,
+                               to otherContextConversation: ZMConversation) {
+
+        // AND WHEN
+        otherContextConversation.managedObjectContext!.performGroupedBlockAndWait {
+            XCTAssertEqual(otherContextConversation.recentMessages.count, 0)
+        }
+        // WHEN
+        let _ = conversation.appendMessage(withText: "Hello")
+        conversation.managedObjectContext!.saveOrRollback()
+    
+        // THEN
+        otherContextConversation.managedObjectContext!.performGroupedBlock {
+            XCTAssertEqual(otherContextConversation.allMessages.count, 1)
+            XCTAssertEqual(otherContextConversation.recentMessages.count, 1)
+        }
+
+    }
+    
 }

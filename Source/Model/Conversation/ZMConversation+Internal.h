@@ -161,6 +161,8 @@ NS_ASSUME_NONNULL_END
 
 - (void)appendNewConversationSystemMessageIfNeeded;
 
++ (nonnull NSDate *)newConversationMessageTimestamp;
+
 @property (nonatomic, nullable) id _recentMessagesFetcher;
 
 @end

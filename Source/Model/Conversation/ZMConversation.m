@@ -1140,9 +1140,14 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     // the new conversation message should be displayed first,
     // additionally the use of reference date is to ensure proper transition for older clients so the message is the very
     // first message in conversation
-    systemMessage.serverTimestamp = [NSDate dateWithTimeIntervalSinceReferenceDate:0];
+    systemMessage.serverTimestamp = [ZMConversation newConversationMessageTimestamp];
     
     [self appendMessage:systemMessage];
+}
+
++ (NSDate *)newConversationMessageTimestamp
+{
+    return [NSDate dateWithTimeIntervalSinceReferenceDate:0];
 }
 
 - (void)appendMessage:(ZMMessage *)message;
@@ -1423,6 +1428,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     for(NSManagedObject *obj in registeredObjects) {
         if(!obj.isFault && [obj isKindOfClass:ZMConversation.class]) {
             ZMConversation *conversation = (ZMConversation *)obj;
+            [messagesToKeep addObjectsFromArray:[conversation messagesNotToRefresh].allObjects];
             
             if(conversation.shouldNotBeRefreshed) {
                 [conversationsToKeep addObject:conversation];
@@ -1455,6 +1461,29 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
 }
 
+- (NSSet *)messagesNotToRefresh
+{
+    NSMutableSet *messagesToKeep = [NSMutableSet set];
+    
+    const static NSUInteger NumberOfMessagesToKeep = 3;
+    
+    if (![self hasFaultForRelationshipNamed:ZMConversationAllMessagesKey]) {
+        const NSUInteger length = self.recentMessages.count;
+        
+        if (length == 0) {
+            return [NSSet set];
+        }
+        
+        const NSUInteger startIndex = length > NumberOfMessagesToKeep ? length - NumberOfMessagesToKeep : 0;
+        const NSUInteger endIndex = length - 1;
+        
+        for (NSUInteger index = startIndex; index <= endIndex; index++) {
+            [messagesToKeep addObject:self.recentMessages[index]];
+        }
+    }
+    
+    return messagesToKeep;
+}
 
 - (BOOL)shouldNotBeRefreshed
 {
