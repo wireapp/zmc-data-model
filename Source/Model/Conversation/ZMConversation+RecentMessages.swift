@@ -70,7 +70,7 @@ extension ZMConversation {
     public func lastMessageSent(by user: ZMUser) -> ZMMessage? {
         let fetchRequest = NSFetchRequest<ZMMessage>(entityName: ZMMessage.entityName())
         fetchRequest.fetchLimit = 1
-        fetchRequest.predicate = NSPredicate(format: "%K == %@ AND %K == %@", #keyPath(ZMMessage.conversation), self, #keyPath(ZMMessage.sender), user)
+        fetchRequest.predicate = NSPredicate(format: "%K == %@ AND %K == %@", #keyPath(ZMMessage.visibleInConversation), self, #keyPath(ZMMessage.sender), user)
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: #keyPath(ZMMessage.serverTimestamp), ascending: false)]
         
         return self.managedObjectContext?.fetchOrAssert(request: fetchRequest).first
