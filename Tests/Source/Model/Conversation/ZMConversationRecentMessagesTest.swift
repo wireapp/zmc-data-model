@@ -19,31 +19,8 @@
 
 import Foundation
 import XCTest
+import WireTesting
 @testable import WireDataModel
-
-final class ManagedObjectContextChangesMerger: NSObject {
-    let managedObjectContexts: Set<NSManagedObjectContext>
-    
-    init(managedObjectContexts: Set<NSManagedObjectContext>) {
-        self.managedObjectContexts = managedObjectContexts
-        super.init()
-        managedObjectContexts.forEach { moc in
-            NotificationCenter.default.addObserver(self,
-                                                   selector: #selector(ManagedObjectContextChangesMerger.contextDidSave(_:)),
-                                                   name: NSNotification.Name.NSManagedObjectContextDidSave,
-                                                   object: moc)
-        }
-    }
-    
-    @objc func contextDidSave(_ notification: Notification) {
-        let mocThatSaved = notification.object as! NSManagedObjectContext
-        managedObjectContexts.subtracting(Set(arrayLiteral: mocThatSaved)).forEach { moc in
-            moc.performGroupedBlockAndWait {
-                moc.mergeChanges(fromContextDidSave: notification)
-            }
-        }
-    }
-}
 
 public class ZMConversationRecentMessagesTest: ZMBaseManagedObjectTest {
     func createConversation(on moc: NSManagedObjectContext? = nil) -> ZMConversation {
