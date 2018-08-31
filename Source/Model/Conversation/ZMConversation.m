@@ -1308,65 +1308,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @dynamic isSelfAnActiveMember;
 @dynamic lastServerSyncedActiveParticipants;
 
-- (void)insertOrUpdateSecurityVerificationMessageAfterParticipantsChange:(ZMSystemMessage *)participantsChange
-{
-    NSUInteger messageIndex = [self.recentMessages indexOfObject:participantsChange];
-    if (messageIndex == 0 || messageIndex == NSNotFound) {
-        return;
-    }
-    ZMMessage *previousMessage = [self.recentMessages objectAtIndex:messageIndex - 1];
-    
-    BOOL (^isAppropriateVerificationSystemMessage)(ZMMessage *message) = ^BOOL(ZMMessage *message) {
-        if (![message isKindOfClass:[ZMSystemMessage class]]) {
-            return NO;
-        }
-        
-        ZMSystemMessage *systemMessage = (ZMSystemMessage *)message;
-        
-        if (participantsChange.systemMessageType == ZMSystemMessageTypeParticipantsAdded &&
-            systemMessage.systemMessageType == ZMSystemMessageTypeNewClient) {
-            return ([systemMessage.addedUsers isEqualToSet:participantsChange.users]);
-        }
-        else if (participantsChange.systemMessageType == ZMSystemMessageTypeParticipantsRemoved &&
-                 systemMessage.systemMessageType == ZMSystemMessageTypeConversationIsSecure) {
-            return ([systemMessage.users isEqualToSet:participantsChange.users]);
-        }
-        
-        return NO;
-    };
-    
-    if (participantsChange.systemMessageType == ZMSystemMessageTypeParticipantsAdded) {
-        // Check if the previous system message about the conversation degradation must be now moved or inserted
-        // The message needs to be moved when the action (adding the participant) was local
-        // The message needs to be inserted when the action was remote
-        
-        if (isAppropriateVerificationSystemMessage(previousMessage)) {
-            NSDate *newDate = [participantsChange.serverTimestamp nextNearestTimestamp];
-            
-            previousMessage.serverTimestamp = newDate;
-            [self updateMessageFetcher];
-        }
-        else {
-            [self decreaseSecurityLevelIfNeededAfterDiscoveringClients:[NSSet set] causedByAddedUsers:participantsChange.users];
-        }
-    }
-    else if (participantsChange.systemMessageType == ZMSystemMessageTypeParticipantsRemoved) {
-        // Check if the previous system message about the conversation is secured must be now moved or inserted
-        // The message needs to be moved when the action (removing the participant) was local
-        // The message needs to be inserted when the action was remote
-        
-        if (isAppropriateVerificationSystemMessage(previousMessage)) {
-            NSDate *newDate = [participantsChange.serverTimestamp nextNearestTimestamp];
-            
-            previousMessage.serverTimestamp = newDate;
-            [self updateMessageFetcher];
-        }
-        else {
-            [self increaseSecurityLevelIfNeededAfterRemovingClientForUsers:participantsChange.users];
-        }
-    }
-}
-
 @end
 
 
