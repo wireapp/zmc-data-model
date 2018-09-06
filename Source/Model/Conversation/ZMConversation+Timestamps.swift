@@ -204,7 +204,12 @@ extension ZMConversation {
     
     @objc(markMessagesAsReadUntil:)
     public func markMessagesAsRead(until message: ZMConversationMessage) {
-        
+        if let currentTimestamp = lastReadServerTimeStamp,
+            let messageTimestamp = message.serverTimestamp,
+            currentTimestamp.compare(messageTimestamp) == .orderedDescending {
+            // Current timestamp is already pointing to the message newer to the one we are marking as read.
+            return
+        }
         // Any unsent unread message is cleared when entering a conversation
         if hasUnreadUnsentMessage {
             hasUnreadUnsentMessage = false
