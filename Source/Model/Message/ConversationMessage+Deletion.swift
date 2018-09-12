@@ -87,10 +87,7 @@ extension ZMMessage {
         guard !isZombieObject, let sender = sender , sender.isSelfUser else { return nil }
         guard let conversation = conversation, let messageNonce = nonce else { return nil }
 
-        let mentions = conversation.mentions(in: newText)
-        let normalizedNewText = conversation.normalize(text: newText, for: mentions)
-
-        let edited = ZMGenericMessage(editMessage: messageNonce, newText: normalizedNewText, nonce: UUID(), mentions: mentions)
+        let edited = ZMGenericMessage(editMessage: messageNonce, newText: newText, nonce: UUID()) // TODO jacob are mentions kept here?
         
         guard let newMessage = conversation.appendClientMessage(with: edited, expires: true, hidden: false) else { return nil }
         newMessage.updatedTimestamp = newMessage.serverTimestamp

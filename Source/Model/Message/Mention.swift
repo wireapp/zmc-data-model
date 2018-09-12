@@ -18,19 +18,17 @@
 
 import Foundation
 
-extension ZMMentionBuilder {
-
-    public static func build(_ users: [ZMUser]) -> [ZMMention] {
-        return users.map {
-            let builder = ZMMention.builder()!
-            builder.setUser($0)
-            return builder.build()
-        }
+@objc
+public class Mention: NSObject {
+    
+    public let range: CountableClosedRange<Int>
+    public let userId: UUID
+    
+    init?(_ protobuf: ZMMention) {
+        guard protobuf.hasUserId(), let userId = UUID(uuidString: protobuf.userId) else { return nil }
+        
+        self.userId = userId
+        self.range = Int(protobuf.start)...Int(protobuf.end)
     }
-
-    public func setUser(_ user: ZMUser) {
-        setUserId(user.remoteIdentifier!.transportString())
-        setUserName(user.name!)
-    }
-
+    
 }

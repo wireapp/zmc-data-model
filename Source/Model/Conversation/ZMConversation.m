@@ -1098,14 +1098,10 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (ZMClientMessage *)appendOTRMessageWithText:(NSString *)text nonce:(NSUUID *)nonce fetchLinkPreview:(BOOL)fetchPreview
 {
-    NSArray<ZMMention *> *mentions = [self mentionsInText:text];
-    NSString *normalizedText = [self normalizeText:text forMentions:mentions];
-
-    ZMGenericMessage *genericMessage = [ZMGenericMessage messageWithText:normalizedText.stringByRemovingExtremeCombiningCharacters
+    ZMGenericMessage *genericMessage = [ZMGenericMessage messageWithText:text.stringByRemovingExtremeCombiningCharacters
                                                              linkPreview:nil
                                                                    nonce:nonce
-                                                            expiresAfter:@(self.messageDestructionTimeoutValue)
-                                                                mentions: mentions];
+                                                            expiresAfter:@(self.messageDestructionTimeoutValue)];
     ZMClientMessage *message = [self appendClientMessageWithGenericMessage:genericMessage];
     message.linkPreviewState = fetchPreview ? ZMLinkPreviewStateWaitingToBeProcessed : ZMLinkPreviewStateDone;
     return message;

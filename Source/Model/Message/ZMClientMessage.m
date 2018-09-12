@@ -64,10 +64,6 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
 
 @end
 
-@interface ZMClientMessage (ZMTextMessageData) <ZMTextMessageData>
-
-@end
-
 @implementation ZMClientMessage
 
 @dynamic updatedTimestamp;
@@ -379,21 +375,6 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
 - (int32_t)zoomLevel
 {
     return self.genericMessage.locationData.zoom ?: 0;
-}
-
-@end
-
-
-@implementation ZMClientMessage (ZMTextMessageData)
-
-- (NSString *)messageText
-{
-    return self.genericMessage.textData.content.stringByRemovingExtremeCombiningCharacters;
-}
-
-- (BOOL)isEdited
-{
-    return self.genericMessage.hasEdited;
 }
 
 @end

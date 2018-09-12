@@ -776,6 +776,11 @@ NSString * const ZMSystemMessageNumberOfGuestsAddedKey = @"numberOfGuestsAdded";
     
 }
 
+- (NSArray<Mention *> *)mentions
+{
+    return @[];
+}
+
 @end
 
 
