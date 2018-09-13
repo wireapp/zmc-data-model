@@ -31,4 +31,9 @@ public class Mention: NSObject {
         self.range = Int(protobuf.start)...Int(protobuf.end)
     }
     
+    public init(range: CountableClosedRange<Int>, userId: UUID) {
+        self.range = range
+        self.userId = userId
+    }
+    
 }
