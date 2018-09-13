@@ -238,7 +238,7 @@ NSString * const ZMSystemMessageNumberOfGuestsAddedKey = @"numberOfGuestsAdded";
 
 - (ZMClientMessage *)confirmReception
 {
-    ZMGenericMessage *genericMessage = [ZMGenericMessage messageWithConfirmation:self.nonce type:ZMConfirmationTypeDELIVERED nonce:[NSUUID UUID]];
+    ZMGenericMessage *genericMessage = [ZMGenericMessage messageWithContent:[ZMConfirmation confirmWithMessageId:self.nonce type:ZMConfirmationTypeDELIVERED] nonce:NSUUID.UUID];
     return [self.conversation appendClientMessageWithGenericMessage:genericMessage expires:NO hidden:YES];
 }
 
