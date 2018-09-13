@@ -21,17 +21,18 @@ import Foundation
 @objc
 public class Mention: NSObject {
     
-    public let range: CountableClosedRange<Int>
+    public let range: NSRange
     public let userId: UUID
     
     init?(_ protobuf: ZMMention) {
         guard protobuf.hasUserId(), let userId = UUID(uuidString: protobuf.userId) else { return nil }
         
+        let length = protobuf.end - protobuf.start
         self.userId = userId
-        self.range = Int(protobuf.start)...Int(protobuf.end)
+        self.range = NSRange(location: Int(protobuf.start), length: max(Int(length), 0))
     }
     
-    public init(range: CountableClosedRange<Int>, userId: UUID) {
+    public init(range: NSRange, userId: UUID) {
         self.range = range
         self.userId = userId
     }
