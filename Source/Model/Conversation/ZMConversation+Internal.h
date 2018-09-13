@@ -148,7 +148,7 @@ NS_ASSUME_NONNULL_END
 + (nonnull ZMConversation *)selfConversationInContext:(nonnull NSManagedObjectContext *)managedObjectContext;
 
 - (nullable ZMClientMessage *)appendOTRKnockMessageWithNonce:(nonnull NSUUID *)nonce;
-- (nullable ZMClientMessage *)appendOTRMessageWithText:(nonnull NSString *)text nonce:(nonnull NSUUID *)nonce fetchLinkPreview:(BOOL)fetchPreview;
+- (nullable ZMClientMessage *)appendOTRMessageWithText:(nonnull NSString *)text nonce:(nonnull NSUUID *)nonce mentions:(nonnull NSArray<Mention *> *)mentions fetchLinkPreview:(BOOL)fetchPreview;
 - (nullable ZMClientMessage *)appendOTRMessageWithLocationData:(nonnull ZMLocationData *)locationData nonce:(nonnull NSUUID *)nonce;
 - (nullable ZMAssetClientMessage *)appendOTRMessageWithImageData:(nonnull NSData *)imageData nonce:(nonnull NSUUID *)nonce;
 - (nullable ZMAssetClientMessage *)appendOTRMessageWithFileMetadata:(nonnull ZMFileMetadata *)fileMetadata nonce:(nonnull NSUUID *)nonce;

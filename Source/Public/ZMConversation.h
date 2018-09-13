@@ -120,7 +120,7 @@ extern NSString * _Null_unspecified const ZMIsDimmedKey; ///< Specifies that a r
 /// It's safe to pass @c nil. Returns @c nil if no message was inserted.
 - (nullable id <ZMConversationMessage>)appendMessageWithText:(nullable NSString *)text;
 /// It's safe to pass @c nil. Returns @c nil if no message was inserted. Specify if a linkPreview should be fetched when available.
-- (nullable id <ZMConversationMessage>)appendMessageWithText:(nullable NSString *)text fetchLinkPreview:(BOOL)fetchPreview;
+- (nullable id <ZMConversationMessage>)appendMessageWithText:(nullable NSString *)text mentions:(nonnull NSArray<Mention *> *)mentions fetchLinkPreview:(BOOL)fetchPreview;
 
 /// The given URL must be a file URL. It's safe to pass @c nil. Returns @c nil if no message was inserted.
 - (nullable id<ZMConversationMessage>)appendMessageWithImageAtURL:(nonnull NSURL *)fileURL;

@@ -36,5 +36,5 @@ public class Mention: NSObject {
         self.range = range
         self.userId = userId
     }
-    
+        
 }

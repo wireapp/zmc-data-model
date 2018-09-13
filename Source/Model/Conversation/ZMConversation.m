@@ -535,17 +535,17 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (id <ZMConversationMessage>)appendMessageWithText:(NSString *)text;
 {
-    return [self appendMessageWithText:text fetchLinkPreview:YES];
+    return [self appendMessageWithText:text mentions:@[] fetchLinkPreview:YES];
 }
 
-- (nullable id <ZMConversationMessage>)appendMessageWithText:(nullable NSString *)text fetchLinkPreview:(BOOL)fetchPreview;
+- (nullable id <ZMConversationMessage>)appendMessageWithText:(nullable NSString *)text mentions:(nonnull NSArray<Mention *> *)mentions fetchLinkPreview:(BOOL)fetchPreview;
 {    
     VerifyReturnNil(![text zmHasOnlyWhitespaceCharacters]);
     VerifyReturnNil(text != nil);
 
     NSUUID *nonce = NSUUID.UUID;
 
-    id <ZMConversationMessage> message = [self appendOTRMessageWithText:text nonce:nonce fetchLinkPreview:fetchPreview];
+    id <ZMConversationMessage> message = [self appendOTRMessageWithText:text nonce:nonce mentions:mentions fetchLinkPreview:fetchPreview];
 
     [[[NotificationInContext alloc] initWithName:ZMConversation.clearTypingNotificationName
                                         context:self.managedObjectContext.notificationContext
@@ -1096,12 +1096,13 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return message;
 }
 
-- (ZMClientMessage *)appendOTRMessageWithText:(NSString *)text nonce:(NSUUID *)nonce fetchLinkPreview:(BOOL)fetchPreview
+- (ZMClientMessage *)appendOTRMessageWithText:(NSString *)text nonce:(NSUUID *)nonce mentions:(nonnull NSArray<Mention *> *)mentions fetchLinkPreview:(BOOL)fetchPreview
 {
     ZMGenericMessage *genericMessage = [ZMGenericMessage messageWithText:text.stringByRemovingExtremeCombiningCharacters
                                                              linkPreview:nil
                                                                    nonce:nonce
-                                                            expiresAfter:@(self.messageDestructionTimeoutValue)];
+                                                            expiresAfter:@(self.messageDestructionTimeoutValue)
+                                                                mentions:[mentions mapWithBlock:^id(Mention *mention) { return [ZMMention mention:mention]; }] ];
     ZMClientMessage *message = [self appendClientMessageWithGenericMessage:genericMessage];
     message.linkPreviewState = fetchPreview ? ZMLinkPreviewStateWaitingToBeProcessed : ZMLinkPreviewStateDone;
     return message;
@@ -1109,7 +1110,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (ZMClientMessage *)appendOTRMessageWithText:(NSString *)text nonce:(NSUUID *)nonce
 {
-    return [self appendOTRMessageWithText:text nonce:nonce fetchLinkPreview:YES];
+    return [self appendOTRMessageWithText:text nonce:nonce mentions:@[] fetchLinkPreview:YES];
 }
 
 - (ZMAssetClientMessage *)appendOTRMessageWithImageData:(NSData *)imageData nonce:(NSUUID *)nonce

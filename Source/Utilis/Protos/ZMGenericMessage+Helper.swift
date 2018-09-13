@@ -574,4 +574,19 @@ public extension ZMAvailability {
     
 }
 
+@objc
+extension ZMMention {
+    
+    public static func mention(_ mention: Mention) -> ZMMention {
+        let builder = ZMMentionBuilder()
+        
+        builder.setUserId(mention.userId.transportString())
+        builder.setStart(Int32(mention.range.lowerBound))
+        builder.setEnd(Int32(mention.range.upperBound))
+    
+        return builder.build()
+    }
+    
+}
+
 
