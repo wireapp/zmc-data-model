@@ -26,7 +26,7 @@ public class Mention: NSObject {
     
     init?(_ protobuf: ZMMention, context: NSManagedObjectContext) {
         guard protobuf.hasUserId(), let userId = UUID(uuidString: protobuf.userId),
-              let user = ZMUser(remoteID: userId, createIfNeeded:  true, in: context) else { return nil }
+              let user = ZMUser(remoteID: userId, createIfNeeded: false, in: context) else { return nil }
         
         let length = protobuf.end - protobuf.start
         self.user = user
