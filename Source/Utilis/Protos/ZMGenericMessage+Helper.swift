@@ -384,6 +384,7 @@ public extension ZMOtrAssetMeta {
     
 }
 
+@objc
 extension ZMAsset: EphemeralMessageContentType {
     
     public static func asset(originalWithImageSize imageSize: CGSize, mimeType: String, size: UInt64) -> ZMAsset {

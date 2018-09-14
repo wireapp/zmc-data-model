@@ -123,6 +123,11 @@ extension ZMConversation {
         return append(imageFromData: imageData)
     }
     
+    @discardableResult @objc(appendMessageWithFileMetadata:)
+    public func _append(file fileMetadata: ZMFileMetadata) -> ZMConversationMessage? {
+        return append(file: fileMetadata)
+    }
+    
     // MARK: - Helper methods
     
     func append(message: MessageContentType, nonce: UUID = UUID(), hidden: Bool = false, expires: Bool = false) -> ZMClientMessage? {
