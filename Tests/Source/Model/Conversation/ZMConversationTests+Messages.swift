@@ -124,25 +124,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         messageText.append("1234")
         XCTAssertEqual(message.textMessageData?.messageText, originalText)
     }
-    
-    func testThatInsertATextMessageWithNilTextDoesNotCreateANewMessage()
-    {
-        // given
-        let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
-        conversation.remoteIdentifier = UUID()
-        let start = self.uiMOC.insertedObjects
-    
-        // when
-        var message: Any? = nil
-        self.performIgnoringZMLogError {
-            message = conversation.append(text: nil)
-        }
-    
-        // then
-        XCTAssertNil(message)
-        XCTAssertEqual(start, self.uiMOC.insertedObjects);
-    }
-    
+        
     func testThatWeCanInsertAnImageMessageFromAFileURL()
     {
         // given

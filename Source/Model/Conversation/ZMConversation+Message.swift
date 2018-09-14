@@ -20,9 +20,10 @@ import Foundation
 
 private let log = ZMSLog(tag: "Conversations")
 
+@objc 
 extension ZMConversation {
     
-    @discardableResult
+    @discardableResult @objc(appendLocation:nonce:)
     public func append(location: LocationData, nonce: UUID = UUID()) -> ZMConversationMessage? {
         return appendClientMessage(with: ZMGenericMessage.message(content: location.zmLocation(), nonce: nonce, expiresAfter: messageDestructionTimeoutValue))
     }
@@ -32,10 +33,11 @@ extension ZMConversation {
         return appendClientMessage(with: ZMGenericMessage.message(content: ZMKnock.knock(), nonce: nonce, expiresAfter: messageDestructionTimeoutValue))
     }
     
-    @discardableResult
+    @discardableResult @objc(appendText:mentions:fetchLinkPreview:nonce:)
     public func append(text: String, mentions: [Mention] = [], fetchLinkPreview: Bool = true, nonce: UUID = UUID()) -> ZMConversationMessage? {
-        let message = appendClientMessage(with: ZMGenericMessage.message(content: ZMText.text(with: text, mentions: mentions, linkPreviews: []), nonce: nonce, expiresAfter: messageDestructionTimeoutValue))
+        guard !(text as NSString).zmHasOnlyWhitespaceCharacters() else { return nil }
         
+        let message = appendClientMessage(with: ZMGenericMessage.message(content: ZMText.text(with: text, mentions: mentions, linkPreviews: []), nonce: nonce, expiresAfter: messageDestructionTimeoutValue))
         message?.linkPreviewState = fetchLinkPreview ? .waitingToBeProcessed : .done
         
         if let managedObjectContext = managedObjectContext {
@@ -47,7 +49,7 @@ extension ZMConversation {
         return message
     }
     
-    @discardableResult
+    @discardableResult @objc(appendImageAtURL:nonce:)
     public func append(imageAtURL URL: URL, nonce: UUID = UUID()) -> ZMConversationMessage?  {
         guard URL.isFileURL,
               ZMImagePreprocessor.sizeOfPrerotatedImage(at: URL) != .zero,
@@ -56,7 +58,7 @@ extension ZMConversation {
         return append(imageFromData: imageData)
     }
     
-    @discardableResult
+    @discardableResult @objc(appendImageFromData:nonce:)
     public func append(imageFromData imageData: Data, nonce: UUID = UUID()) -> ZMConversationMessage? {
         do {
             let imageDataWithoutMetadata = try imageData.wr_removingImageMetadata()
@@ -67,7 +69,7 @@ extension ZMConversation {
         }
     }
     
-    @discardableResult
+    @discardableResult @objc(appendFile:nonce:)
     public func append(file fileMetadata: ZMFileMetadata, nonce: UUID = UUID()) -> ZMConversationMessage? {
         guard let data = try? Data.init(contentsOf: fileMetadata.fileURL, options: .mappedIfSafe),
               let managedObjectContext = managedObjectContext else { return nil }
@@ -92,6 +94,33 @@ extension ZMConversation {
         message.prepareToSend()
         
         return message
+    }
+    
+    // MARK: - Objective-C compability methods
+    
+    @discardableResult @objc(appendMessageWithText:)
+    public func _append(text: String) -> ZMConversationMessage? {
+        return append(text: text)
+    }
+    
+    @discardableResult @objc(appendMessageWithText:fetchLinkPreview:)
+    public func _append(text: String, fetchLinkPreview: Bool) -> ZMConversationMessage? {
+        return append(text: text, fetchLinkPreview: fetchLinkPreview)
+    }
+    
+    @discardableResult @objc(appendKnock)
+    public func _appendKnock() -> ZMConversationMessage? {
+        return appendKnock()
+    }
+    
+    @discardableResult @objc(appendMessageWithLocationData:)
+    public func _append(location: LocationData) -> ZMConversationMessage? {
+        return append(location: location)
+    }
+    
+    @discardableResult @objc(appendMessageWithImageData:)
+    public func _append(imageFromData imageData: Data) -> ZMConversationMessage? {
+        return append(imageFromData: imageData)
     }
     
     // MARK: - Helper methods

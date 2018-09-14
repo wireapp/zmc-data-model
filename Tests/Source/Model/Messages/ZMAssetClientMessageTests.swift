@@ -465,7 +465,7 @@ extension ZMAssetClientMessageTests {
         XCTAssertNotNil(sut)
         
         // when
-        let originalMessage = ZMGenericMessage.message(content: ZMAsset.asset(originalWithImageSize: CGSize(width: 10, height: 10), mimeType: mimeType, size: 256), nonce: nonce)
+        let originalMessage = ZMGenericMessage.message(content: ZMAsset.asset(withOriginal: .original(withSize: 256, mimeType: mimeType, name: name), preview: nil), nonce: nonce)
         sut.update(with: originalMessage, updateEvent: ZMUpdateEvent(), initialUpdate: true)
         
         // then

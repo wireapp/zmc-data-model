@@ -67,6 +67,11 @@ public extension ZMGenericMessage {
         return builder.build()
     }
     
+    @objc(messageWithContent:nonce:timeout:)
+    public static func _message(content: EphemeralMessageContentType, nonce: UUID = UUID(), expiresAfter timeout: TimeInterval) -> ZMGenericMessage {
+        return message(content: content, nonce: nonce, expiresAfter: timeout)
+    }
+    
     public static func message(content: EphemeralMessageContentType, nonce: UUID = UUID(), expiresAfter timeout: TimeInterval?) -> ZMGenericMessage {
         let builder = ZMGenericMessageBuilder()
     
@@ -83,6 +88,7 @@ public extension ZMGenericMessage {
         return builder.build()
     }
     
+    @objc
     public static func clientAction(_ action: ZMClientAction, nonce: UUID = UUID()) -> ZMGenericMessage {
         let builder = ZMGenericMessageBuilder()
         
@@ -93,6 +99,7 @@ public extension ZMGenericMessage {
     }
     
     // MARK: Updating assets with asset ID and token
+    
     @objc public func updatedUploaded(withAssetId assetId: String, token: String?) -> ZMGenericMessage? {
         guard let asset = assetData, let remote = asset.uploaded, asset.hasUploaded() else { return nil }
         let newRemote = remote.updated(withId: assetId, token: token)
@@ -158,13 +165,14 @@ extension ZMKnock: EphemeralMessageContentType {
     
 }
 
+@objc
 extension ZMText: EphemeralMessageContentType {
     
     public static func text(with message: String, mentions: [Mention] = [], linkPreviews: [ZMLinkPreview] = []) -> ZMText {
         let builder = ZMTextBuilder()
                 
         builder.setContent(message)
-        builder.setMentionArray(mentions.map(ZMMention.mention))
+        builder.setMentionArray(mentions.compactMap(ZMMention.mention))
         builder.setLinkPreviewArray(linkPreviews)
         
         return builder.build()
@@ -561,6 +569,7 @@ public extension ZMTweet {
     }
 }
 
+@objc
 extension ZMAvailability: MessageContentType {
     
     public static func availability(_ availability : Availability) -> ZMAvailability {
@@ -586,6 +595,7 @@ extension ZMAvailability: MessageContentType {
     
 }
 
+@objc
 extension ZMMessageDelete: MessageContentType {
     
     public static func delete(messageId: UUID) -> ZMMessageDelete {
@@ -602,6 +612,7 @@ extension ZMMessageDelete: MessageContentType {
     
 }
 
+@objc
 extension ZMMessageHide: MessageContentType {
     
     public static func hide(conversationId: UUID, messageId: UUID) -> ZMMessageHide {
@@ -618,6 +629,7 @@ extension ZMMessageHide: MessageContentType {
     }
 }
 
+@objc
 extension ZMMessageEdit: MessageContentType {
     
     public static func edit(with text: ZMText, replacingMessageId: UUID) -> ZMMessageEdit {
@@ -635,6 +647,7 @@ extension ZMMessageEdit: MessageContentType {
     
 }
 
+@objc
 extension ZMReaction: MessageContentType {
     
     public static func reaction(emojiString: String, messageId: UUID) -> ZMReaction {

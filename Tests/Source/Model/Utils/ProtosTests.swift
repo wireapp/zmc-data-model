@@ -115,7 +115,7 @@ class ProtosTests: XCTestCase {
         let nonce = UUID.create()
         
         // when
-        let message = ZMGenericMessage.message(content: ZMImageAsset(data: data as Data, format: .medium), nonce: nonce)
+        let message = ZMGenericMessage.message(content: ZMImageAsset(data: data as Data, format: .medium)!, nonce: nonce)
         
         // then
         XCTAssertEqual(message.image.width, 0)
@@ -132,7 +132,7 @@ class ProtosTests: XCTestCase {
     
     func testThatItCanCreateKnock() {
         let nonce = UUID()
-        let message = ZMGenericMessage.message(content: ZMKnock.knock())
+        let message = ZMGenericMessage.message(content: ZMKnock.knock(), nonce: nonce)
         
         XCTAssertNotNil(message)
         XCTAssertTrue(message.hasKnock())
@@ -174,7 +174,7 @@ class ProtosTests: XCTestCase {
     
     func testThatItCanCreateSessionReset() {
         let nonce = UUID.create()
-        let message = ZMGenericMessage.clientAction(.RESETSESSION)
+        let message = ZMGenericMessage.clientAction(.RESETSESSION, nonce: nonce)
         
         XCTAssertNotNil(message)
         XCTAssertTrue(message.hasClientAction())

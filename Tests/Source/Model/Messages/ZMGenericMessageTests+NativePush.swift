@@ -23,7 +23,7 @@ import Foundation
 class GenericMessageTests_NativePush: BaseZMMessageTests {
 
     func testThatItSetsNativePushToFalseWhenSendingAConfirmationMessage() {
-        let message = ZMGenericMessage.message(content: ZMConfirmation.confirm(messages: UUID.create()))
+        let message = ZMGenericMessage.message(content: ZMConfirmation.confirm(messageId: UUID.create()))
         assertThatItSetsNativePush(to: false, for: message)
     }
 

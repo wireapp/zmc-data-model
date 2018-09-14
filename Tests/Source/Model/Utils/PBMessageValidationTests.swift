@@ -389,7 +389,7 @@ class ModelValidationTests: XCTestCase {
 
         builder.setUploaded(assetRemoteData(id: assetId, token: assetToken))
 
-        return ZMGenericMessage.genericMessage(asset: builder.buildPartial()!, messageID: UUID.create()).validatingFields()
+        return ZMGenericMessage.message(content: builder.buildPartial()!).validatingFields()
 
     }
 
