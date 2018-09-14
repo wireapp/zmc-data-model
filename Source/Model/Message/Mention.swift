@@ -23,6 +23,7 @@ public class Mention: NSObject {
     
     public let range: NSRange
     public let user: UserType
+    public let userId: UUID
     
     init?(_ protobuf: ZMMention, context: NSManagedObjectContext) {
         guard protobuf.hasUserId(), let userId = UUID(uuidString: protobuf.userId),
@@ -30,12 +31,14 @@ public class Mention: NSObject {
         
         let length = protobuf.end - protobuf.start
         self.user = user
+        self.userId = userId
         self.range = NSRange(location: Int(protobuf.start), length: max(Int(length), 0))
     }
     
-    public init(range: NSRange, user: UserType) {
+    public init(range: NSRange, user: UserType, userId: UUID) {
         self.range = range
         self.user = user
+        self.userId = userId
     }
         
 }
