@@ -18,6 +18,12 @@
 
 import Foundation
 
+extension NSRange {
+    var countableClosedRange: CountableClosedRange<Int> {
+        return lowerBound...upperBound
+    }
+}
+
 @objc
 extension ZMClientMessage: ZMTextMessageData {
     
@@ -29,7 +35,16 @@ extension ZMClientMessage: ZMTextMessageData {
         guard let protoBuffers = genericMessage?.textData?.mentions,
               let managedObjectContext = managedObjectContext else { return [] }
         
-        return protoBuffers.compactMap({ Mention($0, context: managedObjectContext) })
+        let mentions = Array(protoBuffers.compactMap({ Mention($0, context: managedObjectContext) }).prefix(500))
+        var mentionRanges = IndexSet()
+        
+        return mentions.filter({ mention  in
+            let range = mention.range.countableClosedRange
+            guard mentionRanges.intersects(integersIn: range) else { return false }
+            mentionRanges.insert(integersIn: range)
+            
+            return true
+        })
     }
     
 }
