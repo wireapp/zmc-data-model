@@ -22,19 +22,20 @@ import Foundation
 public class Mention: NSObject {
     
     public let range: NSRange
-    public let userId: UUID
+    public let user: UserType
     
-    init?(_ protobuf: ZMMention) {
-        guard protobuf.hasUserId(), let userId = UUID(uuidString: protobuf.userId) else { return nil }
+    init?(_ protobuf: ZMMention, context: NSManagedObjectContext) {
+        guard protobuf.hasUserId(), let userId = UUID(uuidString: protobuf.userId),
+              let user = ZMUser(remoteID: userId, createIfNeeded:  true, in: context) else { return nil }
         
         let length = protobuf.end - protobuf.start
-        self.userId = userId
+        self.user = user
         self.range = NSRange(location: Int(protobuf.start), length: max(Int(length), 0))
     }
     
-    public init(range: NSRange, userId: UUID) {
+    public init(range: NSRange, user: UserType) {
         self.range = range
-        self.userId = userId
+        self.user = user
     }
         
 }
