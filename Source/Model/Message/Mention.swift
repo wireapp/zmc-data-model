@@ -39,3 +39,17 @@ public class Mention: NSObject {
     }
         
 }
+
+// MARK: - Helper
+
+@objc public extension Mention {
+    var isForSelf: Bool {
+        return user.isSelfUser
+    }
+}
+
+public extension ZMTextMessageData {
+    var isMentioningSelf: Bool {
+        return mentions.any(\.isForSelf)
+    }
+}
