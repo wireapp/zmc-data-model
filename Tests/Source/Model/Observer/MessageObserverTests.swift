@@ -170,7 +170,7 @@ class MessageObserverTests : NotificationDispatcherTestBase {
     
     func testThatItNotifiesWhenAReactionIsAddedOnMessage() {
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
-        let message = conversation.appendMessage(withText: "foo") as! ZMClientMessage
+        let message = conversation.append(text: "foo") as! ZMClientMessage
         uiMOC.saveOrRollback()
 
         // when
@@ -183,7 +183,7 @@ class MessageObserverTests : NotificationDispatcherTestBase {
     
     func testThatItNotifiesWhenAReactionIsAddedOnMessageFromADifferentUser() {
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
-        let message = conversation.appendMessage(withText: "foo") as! ZMClientMessage
+        let message = conversation.append(text: "foo") as! ZMClientMessage
 
         let otherUser = ZMUser.insertNewObject(in:uiMOC)
         otherUser.name = "Hans"
@@ -200,7 +200,7 @@ class MessageObserverTests : NotificationDispatcherTestBase {
     
     func testThatItNotifiesWhenAReactionIsUpdateForAUserOnMessage() {
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
-        let message = conversation.appendMessage(withText: "foo") as! ZMClientMessage
+        let message = conversation.append(text: "foo") as! ZMClientMessage
 
         let selfUser = ZMUser.selfUser(in: self.uiMOC)
         message.addReaction("LOVE IT, HUH", forUser: selfUser)
@@ -216,7 +216,7 @@ class MessageObserverTests : NotificationDispatcherTestBase {
     
     func testThatItNotifiesWhenAReactionFromADifferentUserIsAddedOnTopOfSelfReaction() {
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
-        let message = conversation.appendMessage(withText: "foo") as! ZMClientMessage
+        let message = conversation.append(text: "foo") as! ZMClientMessage
 
         let otherUser = ZMUser.insertNewObject(in:uiMOC)
         otherUser.name = "Hans"
@@ -236,7 +236,7 @@ class MessageObserverTests : NotificationDispatcherTestBase {
 
     func testThatItNotifiesObserversWhenDeliveredChanges(){
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
-        let message = conversation.appendMessage(withText: "foo") as! ZMClientMessage
+        let message = conversation.append(text: "foo") as! ZMClientMessage
         XCTAssertFalse(message.delivered)
         uiMOC.saveOrRollback()
         

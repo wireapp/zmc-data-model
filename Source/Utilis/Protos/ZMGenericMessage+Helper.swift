@@ -396,24 +396,24 @@ extension ZMAsset: EphemeralMessageContentType {
 
 extension ZMImageAsset: EphemeralMessageContentType {
     
-    public static func imageAsset(mediumProperties: ZMIImageProperties, processedProperties: ZMIImageProperties, encryptionKeys: ZMImageAssetEncryptionKeys, format: ZMImageFormat) -> ZMImageAsset {
-        let builder = ZMImageAssetBuilder()
-        
-        builder.setWidth(Int32(processedProperties.size.width))
-        builder.setHeight(Int32(processedProperties.size.height))
-        builder.setSize(Int32(processedProperties.length))
-        
-        builder.setOriginalWidth(Int32(mediumProperties.size.width))
-        builder.setOriginalHeight(Int32(mediumProperties.size.height))
-        
-        builder.setOtrKey(encryptionKeys.otrKey)
-        builder.setSha256(encryptionKeys.sha256)
-        builder.setMimeType(processedProperties.mimeType)
-        builder.setTag(StringFromImageFormat(format))
-        
-        return builder.build()
-    }
-    
+//    public static func imageAsset(mediumProperties: ZMIImageProperties, processedProperties: ZMIImageProperties, encryptionKeys: ZMImageAssetEncryptionKeys, format: ZMImageFormat) -> ZMImageAsset {
+//        let builder = ZMImageAssetBuilder()
+//        
+//        builder.setWidth(Int32(processedProperties.size.width))
+//        builder.setHeight(Int32(processedProperties.size.height))
+//        builder.setSize(Int32(processedProperties.length))
+//        
+//        builder.setOriginalWidth(Int32(mediumProperties.size.width))
+//        builder.setOriginalHeight(Int32(mediumProperties.size.height))
+//        
+//        builder.setOtrKey(encryptionKeys.otrKey)
+//        builder.setSha256(encryptionKeys.sha256)
+//        builder.setMimeType(processedProperties.mimeType)
+//        builder.setTag(StringFromImageFormat(format))
+//        
+//        return builder.build()
+//    }
+//    
     public func set(on builder: ZMGenericMessageBuilder) {
         builder.setImage(self)
     }
@@ -718,3 +718,20 @@ extension ZMCleared: MessageContentType {
     }
     
 }
+
+extension ZMCalling: MessageContentType {
+    
+    public static func calling(message: String) -> ZMCalling {
+        let builder = ZMCallingBuilder()
+        
+        builder.setContent(message)
+        
+        return builder.build()
+    }
+    
+    public func set(on builder: ZMGenericMessageBuilder) {
+        builder.setCalling(self)
+    }
+    
+}
+

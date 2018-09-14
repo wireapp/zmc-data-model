@@ -22,15 +22,18 @@ private let log = ZMSLog(tag: "Conversations")
 
 extension ZMConversation {
     
-    func append(location: LocationData, nonce: UUID = UUID()) -> ZMConversationMessage? {
+    @discardableResult
+    public func append(location: LocationData, nonce: UUID = UUID()) -> ZMConversationMessage? {
         return appendClientMessage(with: ZMGenericMessage.message(content: location.zmLocation(), nonce: nonce, expiresAfter: messageDestructionTimeoutValue))
     }
     
-    func appendKnock(nonce: UUID = UUID()) -> ZMConversationMessage? {
+    @discardableResult
+    public func appendKnock(nonce: UUID = UUID()) -> ZMConversationMessage? {
         return appendClientMessage(with: ZMGenericMessage.message(content: ZMKnock.knock(), nonce: nonce, expiresAfter: messageDestructionTimeoutValue))
     }
     
-    func append(text: String, mentions: [Mention] = [], fetchLinkPreview: Bool = true, nonce: UUID = UUID()) -> ZMConversationMessage? {
+    @discardableResult
+    public func append(text: String, mentions: [Mention] = [], fetchLinkPreview: Bool = true, nonce: UUID = UUID()) -> ZMConversationMessage? {
         let message = appendClientMessage(with: ZMGenericMessage.message(content: ZMText.text(with: text, mentions: mentions, linkPreviews: []), nonce: nonce, expiresAfter: messageDestructionTimeoutValue))
         
         message?.linkPreviewState = fetchLinkPreview ? .waitingToBeProcessed : .done
@@ -44,7 +47,8 @@ extension ZMConversation {
         return message
     }
     
-    func append(imageAtURL URL: URL, nonce: UUID = UUID()) -> ZMConversationMessage?  {
+    @discardableResult
+    public func append(imageAtURL URL: URL, nonce: UUID = UUID()) -> ZMConversationMessage?  {
         guard URL.isFileURL,
               ZMImagePreprocessor.sizeOfPrerotatedImage(at: URL) != .zero,
               let imageData = try? Data.init(contentsOf: URL, options: []) else { return nil }
@@ -52,7 +56,8 @@ extension ZMConversation {
         return append(imageFromData: imageData)
     }
     
-    func append(imageFromData imageData: Data, nonce: UUID = UUID()) -> ZMConversationMessage? {
+    @discardableResult
+    public func append(imageFromData imageData: Data, nonce: UUID = UUID()) -> ZMConversationMessage? {
         do {
             let imageDataWithoutMetadata = try imageData.wr_removingImageMetadata()
             return appendAssetClientMessage(withNonce: nonce, imageData: imageDataWithoutMetadata)
@@ -62,7 +67,8 @@ extension ZMConversation {
         }
     }
     
-    func append(file fileMetadata: ZMFileMetadata, nonce: UUID = UUID()) -> ZMConversationMessage? {
+    @discardableResult
+    public func append(file fileMetadata: ZMFileMetadata, nonce: UUID = UUID()) -> ZMConversationMessage? {
         guard let data = try? Data.init(contentsOf: fileMetadata.fileURL, options: .mappedIfSafe),
               let managedObjectContext = managedObjectContext else { return nil }
         

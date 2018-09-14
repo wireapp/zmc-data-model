@@ -184,16 +184,16 @@ extension V2Asset: AssetProxyType {
 
     func processAddedMediumImage(properties: ZMIImageProperties, keys: ZMImageAssetEncryptionKeys) {
         let nonce = assetClientMessage.nonce!
-        let imageAsset = ZMImageAsset.imageAsset(mediumProperties: properties, processedProperties: properties, encryptionKeys: keys, format: .medium)
+        let imageAsset = ZMImageAsset(mediumProperties: properties, processedProperties: properties, encryptionKeys: keys, format: .medium)
         let mediumUpdate = ZMGenericMessage.message(content: imageAsset, nonce: nonce, expiresAfter: assetClientMessage.deletionTimeout)
 
         assetClientMessage.add(mediumUpdate)
 
         if let preview = assetStorage.genericMessage(for: .preview), preview.imageAssetData?.size > 0 { // if the preview is there, update it with the medium size
-            let previewImageAsset = ZMImageAsset.imageAsset(mediumProperties: imageProperties(from: mediumUpdate),
-                                                            processedProperties: imageProperties(from: preview),
-                                                            encryptionKeys: encryptionKeys(from: preview),
-                                                            format: .preview)
+            let previewImageAsset = ZMImageAsset(mediumProperties: imageProperties(from: mediumUpdate),
+                                                 processedProperties: imageProperties(from: preview),
+                                                 encryptionKeys: encryptionKeys(from: preview),
+                                                 format: .preview)
             
             let previewUpdate = ZMGenericMessage.message(content: previewImageAsset, nonce: nonce, expiresAfter: assetClientMessage.deletionTimeout)
             assetClientMessage.add(previewUpdate)
@@ -202,7 +202,7 @@ extension V2Asset: AssetProxyType {
 
     func processAddedPreviewImage(properties: ZMIImageProperties, keys: ZMImageAssetEncryptionKeys) {
         let medium = assetStorage.genericMessage(for: .medium)
-        let previewImageAsset = ZMImageAsset.imageAsset(mediumProperties: medium.map(imageProperties)!, processedProperties: properties, encryptionKeys: keys, format: .preview)
+        let previewImageAsset = ZMImageAsset(mediumProperties: medium.map(imageProperties)!, processedProperties: properties, encryptionKeys: keys, format: .preview)
         let previewUpdate = ZMGenericMessage.message(content: previewImageAsset, nonce: assetClientMessage.nonce!, expiresAfter: assetClientMessage.deletionTimeout)
         
         assetClientMessage.add(previewUpdate)

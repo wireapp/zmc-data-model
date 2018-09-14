@@ -27,7 +27,7 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
     func testThatItDeletesAMessage() {
         // given
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
-        guard let sut = conversation.appendMessage(withText: name) as? ZMMessage else { return XCTFail() }
+        guard let sut = conversation.append(text: name) as? ZMMessage else { return XCTFail() }
         
         // when
         performPretendingUiMocIsSyncMoc { 
@@ -46,7 +46,7 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
     func testThatItSetsTheCategoryToUndefined() {
         // given
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
-        guard let sut = conversation.appendMessage(withText: name) as? ZMMessage else { return XCTFail() }
+        guard let sut = conversation.append(text: name) as? ZMMessage else { return XCTFail() }
         XCTAssertEqual(sut.cachedCategory, .text)
 
         // when
@@ -240,7 +240,7 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
         // given
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
         let otherUser = ZMUser.insertNewObject(in:uiMOC)
-        guard let sut = conversation.appendMessage(withText: name) as? ZMMessage else { return XCTFail() }
+        guard let sut = conversation.append(text: name) as? ZMMessage else { return XCTFail() }
         sut.sender = otherUser
         
         // when
@@ -297,7 +297,7 @@ extension ZMClientMessageTests_Deletion {
     func testThatItDoesNotInsertASystemMessageWhenAMessageIsDeletedForEveryoneLocally() {
         // given
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
-        guard let sut = conversation.appendMessage(withText: name) else { return XCTFail() }
+        guard let sut = conversation.append(text: name) else { return XCTFail() }
         
         // when
         performPretendingUiMocIsSyncMoc {
@@ -320,7 +320,7 @@ extension ZMClientMessageTests_Deletion {
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
         conversation.lastModifiedDate = Date(timeIntervalSince1970: 123456789)
         conversation.remoteIdentifier = .create()
-        guard let sut = conversation.appendMessage(withText: name) as? ZMMessage else { return XCTFail() }
+        guard let sut = conversation.append(text: name) as? ZMMessage else { return XCTFail() }
 
         // when
         let updateEvent = createMessageDeletedUpdateEvent(sut.nonce!, conversationID: conversation.remoteIdentifier!)
@@ -341,7 +341,7 @@ extension ZMClientMessageTests_Deletion {
         // given
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
         conversation.remoteIdentifier = .create()
-        guard let sut = conversation.appendMessage(withText: name) as? ZMMessage else { return XCTFail() }
+        guard let sut = conversation.append(text: name) as? ZMMessage else { return XCTFail() }
         let lastModified = Date(timeIntervalSince1970: 1234567890)
         conversation.lastModifiedDate = lastModified
 
@@ -367,7 +367,7 @@ extension ZMClientMessageTests_Deletion {
         // given
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
         conversation.remoteIdentifier = .create()
-        guard let sut = conversation.appendMessage(withText: name) as? ZMMessage else { return XCTFail() }
+        guard let sut = conversation.append(text: name) as? ZMMessage else { return XCTFail() }
         let lastModified = Date(timeIntervalSince1970: 1234567890)
         conversation.lastModifiedDate = lastModified
         XCTAssertEqual(sut.cachedCategory, .text)
@@ -429,7 +429,7 @@ extension ZMClientMessageTests_Deletion {
         // given
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
         conversation.remoteIdentifier = .create()
-        guard let sut = conversation.appendMessage(withText: name) as? ZMMessage else { return XCTFail() }
+        guard let sut = conversation.append(text: name) as? ZMMessage else { return XCTFail() }
         let lastModified = Date(timeIntervalSince1970: 1234567890)
         conversation.lastModifiedDate = lastModified
         let nonce = sut.nonce!
@@ -471,7 +471,7 @@ extension ZMClientMessageTests_Deletion {
     func testThatItStopsDeletionTimerForEphemeralMessages(){
         // given
         conversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: 1000))
-        let sut = conversation.appendMessage(withText: "foo") as! ZMClientMessage
+        let sut = conversation.append(text: "foo") as! ZMClientMessage
         sut.sender = user1
         _ = uiMOC.zm_messageDeletionTimer.startDeletionTimer(message: sut, timeout: 1000)
         XCTAssertTrue(uiMOC.zm_messageDeletionTimer.isTimerRunning(for: sut))
@@ -502,7 +502,7 @@ extension ZMClientMessageTests_Deletion {
             self.syncConversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: 1000))
             
             // self sends ephemeral
-            let sut = self.syncConversation.appendMessage(withText: "foo") as! ZMClientMessage
+            let sut = self.syncConversation.append(text: "foo") as! ZMClientMessage
             sut.sender = self.syncSelfUser
             XCTAssertTrue(sut.startDestructionIfNeeded())
             XCTAssertNotNil(sut.destructionDate)
@@ -528,7 +528,7 @@ extension ZMClientMessageTests_Deletion {
         conversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: 1000))
         
         // ephemeral received
-        let sut = conversation.appendMessage(withText: "foo") as! ZMClientMessage
+        let sut = conversation.append(text: "foo") as! ZMClientMessage
         sut.sender = user1
         XCTAssertTrue(sut.startDestructionIfNeeded())
         XCTAssertNotNil(sut.destructionDate)
