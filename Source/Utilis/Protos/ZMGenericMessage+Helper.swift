@@ -19,7 +19,7 @@
 
 @objc
 public protocol MessageContentType: NSObjectProtocol {
-    func set(on builder: ZMGenericMessageBuilder)
+    func setContent(on builder: ZMGenericMessageBuilder)
 }
 
 @objc
@@ -62,7 +62,7 @@ public extension ZMGenericMessage {
         let builder = ZMGenericMessageBuilder()
         
         builder.setMessageId(nonce.transportString())
-        content.set(on: builder)
+        content.setContent(on: builder)
         
         return builder.build()
     }
@@ -83,7 +83,7 @@ public extension ZMGenericMessage {
         }
         
         builder.setMessageId(nonce.transportString())
-        messageContent.set(on: builder)
+        messageContent.setContent(on: builder)
         
         return builder.build()
     }
@@ -155,7 +155,7 @@ extension ZMKnock: EphemeralMessageContentType {
         return builder.build()
     }
     
-    public func set(on builder: ZMGenericMessageBuilder) {
+    public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setKnock(self)
     }
     
@@ -178,7 +178,7 @@ extension ZMText: EphemeralMessageContentType {
         return builder.build()
     }
     
-    public func set(on builder: ZMGenericMessageBuilder) {
+    public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setText(self)
     }
     
@@ -284,7 +284,7 @@ extension ZMEphemeral: MessageContentType {
         return builder.build()
     }
     
-    public func set(on builder: ZMGenericMessageBuilder) {
+    public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setEphemeral(self)
     }
     
@@ -306,7 +306,7 @@ extension ZMLocation: EphemeralMessageContentType {
         return builder.build()
     }
     
-    public func set(on builder: ZMGenericMessageBuilder) {
+    public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setLocation(self)
     }
     
@@ -328,7 +328,7 @@ extension ZMExternal: MessageContentType {
         return ZMExternal.external(withOTRKey: keys.aesKey, sha256: keys.sha256)
     }
     
-    public func set(on builder: ZMGenericMessageBuilder) {
+    public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setExternal(self)
     }
     
@@ -392,7 +392,7 @@ extension ZMAsset: EphemeralMessageContentType {
         return ZMAsset.asset(withOriginal: original, preview: nil)
     }
         
-    public func set(on builder: ZMGenericMessageBuilder) {
+    public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setAsset(self)
     }
     
@@ -422,7 +422,7 @@ extension ZMImageAsset: EphemeralMessageContentType {
 //        return builder.build()
 //    }
 //    
-    public func set(on builder: ZMGenericMessageBuilder) {
+    public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setImage(self)
     }
     
@@ -589,7 +589,7 @@ extension ZMAvailability: MessageContentType {
         return builder.build()
     }
     
-    public func set(on builder: ZMGenericMessageBuilder) {
+    public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setAvailability(self)
     }
     
@@ -606,7 +606,7 @@ extension ZMMessageDelete: MessageContentType {
         return builder.build()
     }
     
-    public func set(on builder: ZMGenericMessageBuilder) {
+    public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setDeleted(self)
     }
     
@@ -624,7 +624,7 @@ extension ZMMessageHide: MessageContentType {
         return builder.build()
     }
     
-    public func set(on builder: ZMGenericMessageBuilder) {
+    public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setHidden(self)
     }
 }
@@ -641,7 +641,7 @@ extension ZMMessageEdit: MessageContentType {
         return builder.build()
     }
     
-    public func set(on builder: ZMGenericMessageBuilder) {
+    public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setEdited(self)
     }
     
@@ -659,7 +659,7 @@ extension ZMReaction: MessageContentType {
         return builder.build()
     }
     
-    public func set(on builder: ZMGenericMessageBuilder) {
+    public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setReaction(self)
     }
     
@@ -692,7 +692,7 @@ extension ZMConfirmation: MessageContentType {
         return builder.build()
     }
     
-    public func set(on builder: ZMGenericMessageBuilder) {
+    public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setConfirmation(self)
     }
     
@@ -718,7 +718,7 @@ extension ZMMention {
 @objc
 extension ZMLastRead: MessageContentType {
     
-    public func set(on builder: ZMGenericMessageBuilder) {
+    public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setLastRead(self)
     }
     
@@ -726,7 +726,7 @@ extension ZMLastRead: MessageContentType {
 
 extension ZMCleared: MessageContentType {
     
-    public func set(on builder: ZMGenericMessageBuilder) {
+    public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setCleared(self)
     }
     
@@ -742,7 +742,7 @@ extension ZMCalling: MessageContentType {
         return builder.build()
     }
     
-    public func set(on builder: ZMGenericMessageBuilder) {
+    public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setCalling(self)
     }
     
