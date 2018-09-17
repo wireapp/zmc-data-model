@@ -26,7 +26,7 @@ extension ZMClientMessage: ZMTextMessageData {
     }
     
     public var mentions: [Mention] {
-        guard let protoBuffers = genericMessage?.text.mention,
+        guard let protoBuffers = genericMessage?.textData?.mention,
               let managedObjectContext = managedObjectContext else { return [] }
         
         return protoBuffers.compactMap({ Mention($0, context: managedObjectContext) })
