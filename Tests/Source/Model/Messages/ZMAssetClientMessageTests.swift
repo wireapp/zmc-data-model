@@ -1671,7 +1671,7 @@ extension ZMAssetClientMessageTests {
         // when
         var sut: ZMAssetClientMessage!
         performPretendingUiMocIsSyncMoc {
-            sut = ZMAssetClientMessage.messageUpdateResult(from: updateEvent, in: self.uiMOC, prefetchResult: nil).message as! ZMAssetClientMessage
+            sut = ZMAssetClientMessage.messageUpdateResult(from: updateEvent, in: self.uiMOC, prefetchResult: nil).message as? ZMAssetClientMessage
         }
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
