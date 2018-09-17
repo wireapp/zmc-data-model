@@ -126,7 +126,7 @@ extension ClientMessageTests_OTR {
         self.syncMOC.performGroupedBlockAndWait {
             //given
             self.syncConversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: 10))
-            syncMessage = self.syncConversation.append(text: self.name, fetchLinkPreview: true, nonce: UUID.create()) as! ZMClientMessage
+            syncMessage = self.syncConversation.append(text: self.name, fetchLinkPreview: true, nonce: UUID.create()) as? ZMClientMessage
             syncMessage.sender = self.syncUser1
             XCTAssertTrue(syncMessage.isEphemeral)
             self.syncMOC.saveOrRollback()
@@ -163,7 +163,7 @@ extension ClientMessageTests_OTR {
         self.syncMOC.performGroupedBlockAndWait {
             //given
             self.syncConversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: 10))
-            syncMessage = self.syncConversation.append(text: self.name, fetchLinkPreview: true, nonce: UUID.create()) as! ZMClientMessage
+            syncMessage = self.syncConversation.append(text: self.name, fetchLinkPreview: true, nonce: UUID.create()) as? ZMClientMessage
             syncMessage.sender = self.syncUser1
             XCTAssertTrue(syncMessage.isEphemeral)
             self.syncMOC.saveOrRollback()

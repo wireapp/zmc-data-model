@@ -36,7 +36,7 @@ extension String {
                moc.zm_fileAssetCache.hasDataOnDisk(assetClientMessage, format: .original, encrypted: false)
     }
     
-    public func fetchImageData(with queue: DispatchQueue!, completionHandler: ((Data?) -> Void)!) {
+    public func fetchImageData(with queue: DispatchQueue, completionHandler: @escaping ((Data?) -> Void)) {
         let cache = moc.zm_fileAssetCache
         let mediumKey = FileAssetCache.cacheKeyForAsset(assetClientMessage, format: .medium)
         let originalKey = FileAssetCache.cacheKeyForAsset(assetClientMessage, format: .original)

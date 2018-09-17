@@ -172,7 +172,7 @@ extension ZMText: EphemeralMessageContentType {
         let builder = ZMTextBuilder()
                 
         builder.setContent(message)
-        builder.setMentionArray(mentions.compactMap(ZMMention.mention))
+        builder.setMentionsArray(mentions.compactMap(ZMMention.mention))
         builder.setLinkPreviewArray(linkPreviews)
         
         return builder.build()
