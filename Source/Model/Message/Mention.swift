@@ -26,7 +26,7 @@ public class Mention: NSObject {
     
     init?(_ protobuf: ZMMention, context: NSManagedObjectContext) {
         guard protobuf.hasUserId(), let userId = UUID(uuidString: protobuf.userId),
-              let user = ZMUser(remoteID: userId, createIfNeeded:  true, in: context) else { return nil }
+              let user = ZMUser(remoteID: userId, createIfNeeded: false, in: context) else { return nil }
         
         let length = protobuf.end - protobuf.start
         self.user = user
@@ -38,4 +38,18 @@ public class Mention: NSObject {
         self.user = user
     }
         
+}
+
+// MARK: - Helper
+
+@objc public extension Mention {
+    var isForSelf: Bool {
+        return user.isSelfUser
+    }
+}
+
+public extension ZMTextMessageData {
+    var isMentioningSelf: Bool {
+        return mentions.any(\.isForSelf)
+    }
 }
