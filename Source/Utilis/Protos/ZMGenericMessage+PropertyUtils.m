@@ -37,7 +37,7 @@
         [textBuilder addLinkPreview:linkPreview];
     }
     if (mentions != nil) {
-        [textBuilder setMentionArray:mentions];
+        [textBuilder setMentionsArray:mentions];
     }
     return [textBuilder build];
 }
