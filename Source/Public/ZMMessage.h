@@ -108,14 +108,14 @@ typedef NS_ENUM(int16_t, ZMSystemMessageType) {
 @protocol ZMSystemMessageData <NSObject>
 
 @property (nonatomic, readonly) ZMSystemMessageType systemMessageType;
-@property (nonatomic, readonly, nullable) NSSet <ZMUser *>*users;
-@property (nonatomic, readonly, nullable) NSSet <id<UserClientType>>*clients;
-@property (nonatomic, nullable) NSSet<ZMUser *> *addedUsers; // Only filled for ZMSystemMessageTypePotentialGap
-@property (nonatomic, nullable) NSSet<ZMUser *> *removedUsers; // Only filled for ZMSystemMessageTypePotentialGap
+@property (nonatomic, readonly, nonnull) NSSet <ZMUser *>*users;
+@property (nonatomic, readonly, nonnull) NSSet <id<UserClientType>>*clients;
+@property (nonatomic, nonnull) NSSet<ZMUser *> *addedUsers; // Only filled for ZMSystemMessageTypePotentialGap
+@property (nonatomic, nonnull) NSSet<ZMUser *> *removedUsers; // Only filled for ZMSystemMessageTypePotentialGap
 @property (nonatomic, readonly, copy, nullable) NSString *text;
 @property (nonatomic) BOOL needsUpdatingUsers;
 @property (nonatomic) NSTimeInterval duration;
-@property (nonatomic, nullable) NSSet<id <ZMSystemMessageData>>  *childMessages;
+@property (nonatomic, nonnull) NSSet<id <ZMSystemMessageData>>  *childMessages;
 @property (nonatomic, nullable) id <ZMSystemMessageData> parentMessage;
 @property (nonatomic, readonly) BOOL userIsTheSender;
 @property (nonatomic, nullable) NSNumber *messageTimer;
