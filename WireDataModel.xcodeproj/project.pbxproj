@@ -668,6 +668,7 @@
 		BF491CE31F063EDB0055EE44 /* Account.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Account.swift; sourceTree = "<group>"; };
 		BF491CE51F063EE50055EE44 /* AccountStore.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountStore.swift; sourceTree = "<group>"; };
 		BF491CE71F063EEB0055EE44 /* AccountManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AccountManager.swift; sourceTree = "<group>"; };
+		BF5AF281215134DA00449D43 /* zmessaging2.53.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = zmessaging2.53.0.xcdatamodel; sourceTree = "<group>"; };
 		BF5DF5CB20F4E8DD002BCB67 /* zmessaging2.49.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = zmessaging2.49.0.xcdatamodel; sourceTree = "<group>"; };
 		BF5DF5CC20F4EB3E002BCB67 /* ZMSystemMessage+NewConversation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMSystemMessage+NewConversation.swift"; sourceTree = "<group>"; };
 		BF6ACFFA21060F7200FD762B /* store2-48-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; name = "store2-48-0.wiredatabase"; path = "Tests/Resources/store2-48-0.wiredatabase"; sourceTree = SOURCE_ROOT; };
@@ -2838,6 +2839,7 @@
 		F189988C1E7BE03800E579A2 /* zmessaging.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				BF5AF281215134DA00449D43 /* zmessaging2.53.0.xcdatamodel */,
 				BFC183E0210F389900601E5D /* zmessaging2.52.0.xcdatamodel */,
 				EF9A46FD2109FA6400085102 /* zmessaging2.51.0.xcdatamodel */,
 				7C2E467721072A31007E2566 /* zmessaging2.50.0.xcdatamodel */,
@@ -2880,7 +2882,7 @@
 				F18998A41E7BE03800E579A2 /* zmessaging2.8.xcdatamodel */,
 				F18998A51E7BE03800E579A2 /* zmessaging2.9.xcdatamodel */,
 			);
-			currentVersion = BFC183E0210F389900601E5D /* zmessaging2.52.0.xcdatamodel */;
+			currentVersion = BF5AF281215134DA00449D43 /* zmessaging2.53.0.xcdatamodel */;
 			path = zmessaging.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;

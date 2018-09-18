@@ -76,7 +76,7 @@ fileprivate extension Mention {
     }
 }
 
-extension ZMConversation {
+@objc extension ZMConversation {
     
     @NSManaged var draftMessageData: Data?
 
