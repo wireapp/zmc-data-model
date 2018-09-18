@@ -231,7 +231,7 @@
 
 - (void)testThatWeCanSetAttributesOnConversation
 {
-    [self checkConversationAttributeForKey:@"draftMessageText" value:@"It’s cold outside."];
+    [self checkConversationAttributeForKey:@"draftMessage" value:[[DraftMessage alloc] initWithText:@"My draft message text" mentions:@[]]];
     [self checkConversationAttributeForKey:ZMConversationUserDefinedNameKey value:@"Foo"];
     [self checkConversationAttributeForKey:@"normalizedUserDefinedName" value:@"Foo"];
     [self checkConversationAttributeForKey:@"conversationType" value:@(1)];
@@ -2015,7 +2015,7 @@
     XCTAssertTrue(conversation.hasDraftMessage);
     
     // expect
-    [self keyValueObservingExpectationForObject:conversation keyPath:@"hasDraftMessageText" expectedValue:nil];
+    [self keyValueObservingExpectationForObject:conversation keyPath:@"hasDraftMessage" expectedValue:nil];
     
     // when
     conversation.draftMessage = nil;
