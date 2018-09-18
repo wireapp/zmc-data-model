@@ -25,14 +25,12 @@ public class Mention: NSObject {
     public let user: UserType
     
     init?(_ protobuf: ZMMention, context: NSManagedObjectContext) {
-        let length = protobuf.end - protobuf.start
-        
         guard protobuf.hasUserId(), let userId = UUID(uuidString: protobuf.userId),
-              length > 0, protobuf.start > 0, protobuf.end > 0,
+              protobuf.length > 0, protobuf.start >= 0,
               let user = ZMUser(remoteID: userId, createIfNeeded: false, in: context) else { return nil }
         
         self.user = user
-        self.range = NSRange(location: Int(protobuf.start), length: Int(length))
+        self.range = NSRange(location: Int(protobuf.start), length: Int(protobuf.length))
     }
     
     public init(range: NSRange, user: UserType) {

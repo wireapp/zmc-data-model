@@ -690,8 +690,8 @@ extension ZMMention {
         let builder = ZMMentionBuilder()
         
         builder.setUserId(userId.transportString())
-        builder.setStart(Int32(mention.range.lowerBound))
-        builder.setEnd(Int32(mention.range.upperBound))
+        builder.setStart(Int32(mention.range.location))
+        builder.setLength(Int32(mention.range.length))
     
         return builder.build()
     }
