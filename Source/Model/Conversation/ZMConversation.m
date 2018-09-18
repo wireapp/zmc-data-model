@@ -76,7 +76,7 @@ NSString *const SecurityLevelKey = @"securityLevel";
 
 static NSString *const ConnectedUserKey = @"connectedUser";
 static NSString *const CreatorKey = @"creator";
-static NSString *const DraftMessageTextKey = @"draftMessageText";
+static NSString *const DraftMessageDataKey = @"draftMessageData";
 static NSString *const IsPendingConnectionConversationKey = @"isPendingConnectionConversation";
 static NSString *const LastModifiedDateKey = @"lastModifiedDate";
 static NSString *const LastReadMessageKey = @"lastReadMessage";
@@ -149,7 +149,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @dynamic messages;
 @dynamic lastModifiedDate;
 @dynamic creator;
-@dynamic draftMessageText;
 @dynamic normalizedUserDefinedName;
 @dynamic conversationType;
 @dynamic clearedTimeStamp;
@@ -344,7 +343,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
             ZMConversationConnectionKey,
             ZMConversationConversationTypeKey,
             CreatorKey,
-            DraftMessageTextKey,
+            DraftMessageDataKey,
             LastModifiedDateKey,
             ZMNormalizedUserDefinedNameKey,
             ZMConversationLastServerSyncedActiveParticipantsKey,
@@ -564,14 +563,14 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 }
 
 
-- (BOOL)hasDraftMessageText
+- (BOOL)hasDraftMessage
 {
-    return (0 < self.draftMessageText.length);
+    return (0 < self.draftMessage.text.length);
 }
 
-+ (NSSet *)keyPathsForValuesAffectingHasDraftMessageText
++ (NSSet *)keyPathsForValuesAffectingHasDraftMessage
 {
-    return [NSSet setWithObject:DraftMessageTextKey];
+    return [NSSet setWithObject:DraftMessageDataKey];
 }
 
 - (ZMMessage *)lastEditableMessage;

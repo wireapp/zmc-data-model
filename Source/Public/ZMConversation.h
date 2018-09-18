@@ -74,8 +74,7 @@ extern NSString * _Null_unspecified const ZMIsDimmedKey; ///< Specifies that a r
 @property (nonatomic, readonly) BOOL isPendingConnectionConversation;
 @property (nonatomic, readonly) NSUInteger estimatedUnreadCount;
 @property (nonatomic, readonly) ZMConversationListIndicator conversationListIndicator;
-@property (nonatomic, readonly) BOOL hasDraftMessageText;
-@property (nonatomic, copy, nullable) NSString *draftMessageText;
+@property (nonatomic, readonly) BOOL hasDraftMessage;
 @property (nonatomic, nullable) Team *team;
 
 /// This will return @c nil if the last added by self user message has not yet been sync'd to this device, or if the conversation has no self editable message.

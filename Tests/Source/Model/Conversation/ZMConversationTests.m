@@ -231,7 +231,7 @@
 
 - (void)testThatWeCanSetAttributesOnConversation
 {
-    [self checkConversationAttributeForKey:@"draftMessageText" value:@"It’s cold outside."];
+    [self checkConversationAttributeForKey:@"draftMessage" value:[[DraftMessage alloc] initWithText:@"My draft message text" mentions:@[]]];
     [self checkConversationAttributeForKey:ZMConversationUserDefinedNameKey value:@"Foo"];
     [self checkConversationAttributeForKey:@"normalizedUserDefinedName" value:@"Foo"];
     [self checkConversationAttributeForKey:@"conversationType" value:@(1)];
@@ -768,11 +768,11 @@
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     
     // when
-    conversation.draftMessageText = mutableValue;
+    conversation.draftMessage = [[DraftMessage alloc] initWithText:mutableValue mentions:@[]];
     [mutableValue appendString:@".uk"];
     
     // then
-    XCTAssertEqualObjects(conversation.draftMessageText, originalValue);
+    XCTAssertEqualObjects(conversation.draftMessage.text, originalValue);
 }
 
 - (void)addNotification:(NSNotification *)note
@@ -2010,18 +2010,18 @@
 {
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    conversation.draftMessageText = @"This is a test";
+    conversation.draftMessage = [[DraftMessage alloc] initWithText:@"This is a test" mentions:@[]];
     
-    XCTAssertTrue(conversation.hasDraftMessageText);
+    XCTAssertTrue(conversation.hasDraftMessage);
     
     // expect
-    [self keyValueObservingExpectationForObject:conversation keyPath:@"hasDraftMessageText" expectedValue:nil];
+    [self keyValueObservingExpectationForObject:conversation keyPath:@"hasDraftMessage" expectedValue:nil];
     
     // when
-    conversation.draftMessageText = @"";
+    conversation.draftMessage = nil;
     
     // then
-    XCTAssertFalse(conversation.hasDraftMessageText);
+    XCTAssertFalse(conversation.hasDraftMessage);
     XCTAssert([self waitForCustomExpectationsWithTimeout:0.5]);
 }
 
