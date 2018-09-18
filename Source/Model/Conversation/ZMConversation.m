@@ -563,12 +563,12 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 }
 
 
-- (BOOL)hasDraftMessageText
+- (BOOL)hasDraftMessage
 {
     return (0 < self.draftMessage.text.length);
 }
 
-+ (NSSet *)keyPathsForValuesAffectingHasDraftMessageText
++ (NSSet *)keyPathsForValuesAffectingHasDraftMessage
 {
     return [NSSet setWithObject:DraftMessageDataKey];
 }
