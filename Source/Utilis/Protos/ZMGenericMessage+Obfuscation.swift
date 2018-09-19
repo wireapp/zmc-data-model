@@ -60,7 +60,7 @@ public extension ZMGenericMessage {
                     let originalURL = obfuscatedContent[offsetIndex...]
                     obfuscatedLinkPreviews = linkPreviews.map{$0.obfuscated(originalURL: String(originalURL))}
                 }
-                let obfuscatedText = ZMText.text(with: obfuscatedContent, mentions: [], linkPreviews: obfuscatedLinkPreviews) // TODO Jacob keep mentions?
+                let obfuscatedText = ZMText.text(with: obfuscatedContent, mentions: [], linkPreviews: obfuscatedLinkPreviews)
                 return ZMGenericMessage.message(content: obfuscatedText, nonce: messageID)
             }
         }
