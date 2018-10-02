@@ -181,7 +181,7 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
 {
     self.isSelfAnActiveMember = YES;
     
-    [self updateIsSilencedWithPayload:dictionary];
+    [self updateMutedStatusWithPayload:dictionary];
     if ([self updateIsArchivedWithPayload:dictionary] && self.isArchived && previousLastServerTimestamp != nil) {
         if (timeStamp != nil && self.clearedTimeStamp != nil && [self.clearedTimeStamp isEqualToDate:previousLastServerTimestamp]) {
             [self updateCleared:timeStamp synchronize:NO];
@@ -202,16 +202,18 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
     return NO;
 }
 
-- (void)updateIsSilencedWithPayload:(NSDictionary *)dictionary
+- (void)updateMutedStatusWithPayload:(NSDictionary *)dictionary
 {
-    if (dictionary[ZMConversationInfoOTRMutedReferenceKey] != nil && dictionary[ZMConversationInfoOTRMutedReferenceKey] != [NSNull null]) {
-        NSDate *silencedRef = [dictionary dateForKey:ZMConversationInfoOTRMutedReferenceKey];
-        
-        if (silencedRef != nil && [self updateSilenced:silencedRef synchronize:NO]) {
-            NSNumber *silenced = [dictionary optionalNumberForKey:ZMConversationInfoOTRMutedValueKey];
-            self.isSilenced = [silenced isEqual:@1];
-        }
-    }
+    NOT_USED(dictionary);
+    // TODO Mike
+//    if (dictionary[ZMConversationInfoOTRMutedReferenceKey] != nil && dictionary[ZMConversationInfoOTRMutedReferenceKey] != [NSNull null]) {
+//        NSDate *silencedRef = [dictionary dateForKey:ZMConversationInfoOTRMutedReferenceKey];
+//
+//        if (silencedRef != nil && [self updateSilenced:silencedRef synchronize:NO]) {
+//            NSNumber *silenced = [dictionary optionalNumberForKey:ZMConversationInfoOTRMutedValueKey];
+//            self.isSilenced = [silenced isEqual:@1];
+//        }
+//    }
 }
 
 - (ZMConversationType)conversationTypeFromTransportData:(NSNumber *)transportType
