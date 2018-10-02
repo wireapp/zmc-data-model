@@ -26,11 +26,15 @@ public struct MutedMessageTypes: OptionSet {
         self.rawValue = rawValue
     }
     
+    /// None of the messages are muted.
     public static let none     = MutedMessageTypes(rawValue: 0)
-    ///
-    public static let all      = MutedMessageTypes(rawValue: (1 << 0) ^ (1 << 1))
-    ///
-    public static let mentions = MutedMessageTypes(rawValue: 1 << 1)
+
+    /// All messages, including mentions, are muted.
+    public static let all: MutedMessageTypes = [.nonMentions, .mentions]
+    
+    /// Only non-mentions are muted.
+    public static let nonMentions = MutedMessageTypes(rawValue: 1 << 0)
+    private static let mentions = MutedMessageTypes(rawValue: 1 << 1)
 }
 
 public extension ZMConversation {

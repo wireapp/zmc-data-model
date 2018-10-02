@@ -25,7 +25,7 @@ extension ZMConversation {
     }
     
     @objc var isOnlyMentions: Bool {
-        return mutedMessageTypes == .mentions
+        return mutedMessageTypes == .nonMentions
     }
 }
 

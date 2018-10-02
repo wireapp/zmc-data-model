@@ -131,7 +131,7 @@ extension ZMConversation {
             self.mutedStatus = mutedStatus
         }
         else if let mutedLegacyFlag = payload[ZMConversationInfoOTRMutedValueKey] as? Int {
-            self.mutedStatus = (mutedLegacyFlag == 0) ? MutedMessageTypes.none.rawValue : MutedMessageTypes.mentions.rawValue
+            self.mutedStatus = (mutedLegacyFlag == 0) ? MutedMessageTypes.none.rawValue : MutedMessageTypes.nonMentions.rawValue
         }
     }
     
