@@ -61,7 +61,7 @@ class ZMConversationTests_Silencing: ZMConversationTestsBase {
             conversation.lastServerTimeStamp = timestamp
         
             // when
-            conversation.updateSilenced(timestamp, synchronize: true)
+            conversation.updateMuted(timestamp, synchronize: true)
             self.syncMOC.saveOrRollback()
             
             // then

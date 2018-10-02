@@ -41,6 +41,7 @@ static NSString *const ConversationInfoAccessRoleKey = @"access_role";
 static NSString *const ConversationInfoMessageTimer = @"message_timer";
 
 NSString *const ZMConversationInfoOTRMutedValueKey = @"otr_muted";
+NSString *const ZMConversationInfoOTRMutedStatusValueKey = @"otr_muted_status";
 NSString *const ZMConversationInfoOTRMutedReferenceKey = @"otr_muted_ref";
 NSString *const ZMConversationInfoOTRArchivedValueKey = @"otr_archived";
 NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
@@ -200,20 +201,6 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
         }
     }
     return NO;
-}
-
-- (void)updateMutedStatusWithPayload:(NSDictionary *)dictionary
-{
-    NOT_USED(dictionary);
-    // TODO Mike
-//    if (dictionary[ZMConversationInfoOTRMutedReferenceKey] != nil && dictionary[ZMConversationInfoOTRMutedReferenceKey] != [NSNull null]) {
-//        NSDate *silencedRef = [dictionary dateForKey:ZMConversationInfoOTRMutedReferenceKey];
-//
-//        if (silencedRef != nil && [self updateSilenced:silencedRef synchronize:NO]) {
-//            NSNumber *silenced = [dictionary optionalNumberForKey:ZMConversationInfoOTRMutedValueKey];
-//            self.isSilenced = [silenced isEqual:@1];
-//        }
-//    }
 }
 
 - (ZMConversationType)conversationTypeFromTransportData:(NSNumber *)transportType

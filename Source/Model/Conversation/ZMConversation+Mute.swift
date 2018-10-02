@@ -46,7 +46,7 @@ public extension ZMConversation {
             if let moc = managedObjectContext,
                 moc.zm_isUserInterfaceContext,
                 let lastServerTimestamp = self.lastServerTimeStamp {
-                updateSilenced(lastServerTimestamp, synchronize: true)
+                updateMuted(lastServerTimestamp, synchronize: true)
             }
         }
     }
