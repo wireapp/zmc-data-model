@@ -119,7 +119,6 @@ class UnregisteredUserTests: XCTestCase {
         user.name = "Mario"
         user.credentials = .phone(number: "+49123456789")
         user.verificationCode = "123456"
-        user.profileImageData = Data()
         user.accentColorValue = .softPink
         user.acceptedTermsOfService = true
         user.marketingConsent = false
