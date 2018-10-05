@@ -120,8 +120,8 @@ NSString *const ZMConversationLastReadLocalTimestampKey = @"lastReadLocalTimesta
 
 + (NSPredicate *)predicateForUnreadConversation
 {
-    NSPredicate *notifyAllPredicate = [NSPredicate predicateWithFormat:@"%K == 0", ZMConversationMutedStatusKey];
-    NSPredicate *notifyMentionsPredicate = [NSPredicate predicateWithFormat:@"%K < 2", ZMConversationMutedStatusKey];
+    NSPredicate *notifyAllPredicate = [NSPredicate predicateWithFormat:@"%K == %lu", ZMConversationMutedStatusKey, MutedMessageOptionValueNone];
+    NSPredicate *notifyMentionsPredicate = [NSPredicate predicateWithFormat:@"%K < %lu", ZMConversationMutedStatusKey, MutedMessageOptionValueMentions];
     NSPredicate *unreadMentions = [NSPredicate predicateWithFormat:@"%K > 0", ZMConversationInternalEstimatedUnreadSelfMentionCountKey];
     NSPredicate *unreadMessages = [NSPredicate predicateWithFormat:@"%K > 0", ZMConversationInternalEstimatedUnreadCountKey];
     NSPredicate *notifyAllAndHasUnreadMessages = [NSCompoundPredicate andPredicateWithSubpredicates:@[notifyAllPredicate, unreadMessages]];
