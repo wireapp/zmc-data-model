@@ -49,13 +49,34 @@ public extension ZMConversation {
     
     public var mutedMessageTypes: MutedMessageTypes {
         get {
-            return MutedMessageTypes(rawValue: mutedStatus)
+            guard let managedObjectContext = self.managedObjectContext else {
+                return .none
+            }
+            
+            let selfUser = ZMUser.selfUser(in: managedObjectContext)
+            
+            if selfUser.hasTeam {
+                return MutedMessageTypes(rawValue: mutedStatus)
+            }
+            else {
+                return mutedStatus == MutedMessageOptionValue.none.rawValue ? MutedMessageTypes.none : MutedMessageTypes.all
+            }
         }
         set {
-            mutedStatus = newValue.rawValue
+            guard let managedObjectContext = self.managedObjectContext else {
+                return
+            }
             
-            if let moc = managedObjectContext,
-                moc.zm_isUserInterfaceContext,
+            let selfUser = ZMUser.selfUser(in: managedObjectContext)
+            
+            if selfUser.hasTeam {
+                mutedStatus = newValue.rawValue
+            }
+            else {
+                mutedStatus = (newValue == .none) ? MutedMessageOptionValue.none.rawValue : MutedMessageOptionValue.mentions.rawValue
+            }
+            
+            if managedObjectContext.zm_isUserInterfaceContext,
                 let lastServerTimestamp = self.lastServerTimeStamp {
                 updateMuted(lastServerTimestamp, synchronize: true)
             }
