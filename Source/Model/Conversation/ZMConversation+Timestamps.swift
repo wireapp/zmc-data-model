@@ -278,6 +278,7 @@ extension ZMConversation {
         var lastKnockDate: Date? = nil
         var lastMissedCallDate: Date? = nil
         var unreadCount: Int64 = 0
+        var unreadSelfMentionCount: Int64 = 0
         
         for message in messages {
             if message.isKnock {
@@ -288,6 +289,10 @@ extension ZMConversation {
                 lastMissedCallDate = message.serverTimestamp
             }
             
+            if let textMessageData = message.textMessageData, textMessageData.isMentioningSelf {
+                unreadSelfMentionCount += 1
+            }
+            
             if message.shouldGenerateUnreadCount() {
                 unreadCount += 1
             }
@@ -296,6 +301,7 @@ extension ZMConversation {
         updateLastUnreadKnock(lastKnockDate)
         updateLastUnreadMissedCall(lastMissedCallDate)
         internalEstimatedUnreadCount = unreadCount
+        internalEstimatedUnreadSelfMentionCount = unreadSelfMentionCount
     }
     
     /// Returns the first unread message in a converation. If the first unread message is child message of system message the parent message will be returned.
