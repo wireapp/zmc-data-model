@@ -73,7 +73,7 @@ public extension ZMConversation {
                 mutedStatus = newValue.rawValue
             }
             else {
-                mutedStatus = (newValue == .none) ? MutedMessageOptionValue.none.rawValue : MutedMessageOptionValue.mentions.rawValue
+                mutedStatus = (newValue == .none) ? MutedMessageOptionValue.none.rawValue : (MutedMessageOptionValue.mentions.rawValue + MutedMessageOptionValue.nonMentions.rawValue)
             }
             
             if managedObjectContext.zm_isUserInterfaceContext,
