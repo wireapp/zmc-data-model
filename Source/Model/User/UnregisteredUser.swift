@@ -39,7 +39,6 @@ public class UnregisteredUser {
     public var verificationCode: String?
     public var name: String?
     public var accentColorValue: ZMAccentColor?
-    public var profileImageData: Data?
     public var acceptedTermsOfService: Bool?
     public var marketingConsent: Bool?
 
@@ -55,7 +54,6 @@ public class UnregisteredUser {
             && verificationCode != nil
             && name != nil
             && accentColorValue != nil
-            && profileImageData != nil
             && acceptedTermsOfService != nil
             && marketingConsent != nil
     }
@@ -71,7 +69,6 @@ extension UnregisteredUser: Equatable {
             && lhs.verificationCode == rhs.verificationCode
             && lhs.name == rhs.name
             && lhs.accentColorValue == rhs.accentColorValue
-            && lhs.profileImageData == rhs.profileImageData
             && lhs.acceptedTermsOfService == rhs.acceptedTermsOfService
             && lhs.marketingConsent == rhs.marketingConsent
     }
