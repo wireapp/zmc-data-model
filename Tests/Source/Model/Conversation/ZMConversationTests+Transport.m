@@ -57,7 +57,7 @@
                                        archivedRef:nil
                                         isSilenced:NO
                                        silencedRef:nil
-                                    silencedStatus:@(MutedMessageOptionValueMentions + MutedMessageOptionValueNonMentions)
+                                    silencedStatus:@(MutedMessageOptionValueAll)
                                             teamID:nil
                                         accessMode:@[]
                                         accessRole:@"non_activated"];
@@ -162,7 +162,7 @@
                                                            archivedRef:archivedDate
                                                             isSilenced:YES
                                                            silencedRef:silencedDate
-                                                        silencedStatus:@(MutedMessageOptionValueMentions + MutedMessageOptionValueNonMentions)];
+                                                        silencedStatus:@(MutedMessageOptionValueAll)];
         
         // when
         [conversation updateWithTransportData:payload serverTimeStamp:serverTimestamp];
@@ -320,7 +320,7 @@
                                                            archivedRef:archivedDate
                                                             isSilenced:YES
                                                            silencedRef:silencedDate
-                                                        silencedStatus:@(MutedMessageOptionValueMentions + MutedMessageOptionValueNonMentions)];
+                                                        silencedStatus:@(MutedMessageOptionValueAll)];
         
         // when
         [conversation updateWithTransportData:payload serverTimeStamp:serverTimestamp];
@@ -387,7 +387,7 @@
         NSUUID *uuid = NSUUID.createUUID;
         conversation.remoteIdentifier = uuid;
         
-        NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation conversationType:1 isArchived:NO archivedRef:nil isSilenced:NO silencedRef:nil silencedStatus:@(MutedMessageOptionValueMentions + MutedMessageOptionValueNonMentions)];
+        NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation conversationType:1 isArchived:NO archivedRef:nil isSilenced:NO silencedRef:nil silencedStatus:@(MutedMessageOptionValueAll)];
 
         // when
         NSDate *serverTimeStamp = [NSDate date];
@@ -422,7 +422,7 @@
                                                            archivedRef:nil
                                                             isSilenced:NO
                                                            silencedRef:nil
-                                                        silencedStatus:@(MutedMessageOptionValueMentions + MutedMessageOptionValueNonMentions)
+                                                        silencedStatus:@(MutedMessageOptionValueAll)
                                                                 teamID:teamID
                                                             accessMode:@[]
                                                             accessRole:@"non_activated"];
@@ -474,7 +474,7 @@
                                                            archivedRef:nil
                                                             isSilenced:NO
                                                            silencedRef:nil
-                                                        silencedStatus:@(MutedMessageOptionValueMentions + MutedMessageOptionValueNonMentions)
+                                                        silencedStatus:@(MutedMessageOptionValueAll)
                                                                 teamID:team.remoteIdentifier
                                                             accessMode:@[]
                                                             accessRole:@"non_activated"];
@@ -527,7 +527,7 @@
                                                            archivedRef:nil
                                                             isSilenced:NO
                                                            silencedRef:nil
-                                                        silencedStatus:@(MutedMessageOptionValueMentions + MutedMessageOptionValueNonMentions)
+                                                        silencedStatus:@(MutedMessageOptionValueAll)
                                                                 teamID:nil
                                                             accessMode:@[]
                                                             accessRole:@"non_activated"];
@@ -574,7 +574,7 @@
                                                            archivedRef:nil
                                                             isSilenced:NO
                                                            silencedRef:nil
-                                                        silencedStatus:@(MutedMessageOptionValueMentions + MutedMessageOptionValueNonMentions)
+                                                        silencedStatus:@(MutedMessageOptionValueAll)
                                                                 teamID:nil
                                                             accessMode:@[@"invite", @"code"]
                                                             accessRole:@"non_activated"];
@@ -608,7 +608,7 @@
                                                            archivedRef:nil
                                                             isSilenced:NO
                                                            silencedRef:nil
-                                                        silencedStatus:@(MutedMessageOptionValueMentions + MutedMessageOptionValueNonMentions)
+                                                        silencedStatus:@(MutedMessageOptionValueAll)
                                                                 teamID:nil
                                                             accessMode:@[]
                                                             accessRole:@"team"];

@@ -23,6 +23,7 @@ public enum MutedMessageOptionValue: Int32 {
     case none = 0
     case nonMentions = 1
     case mentions = 2
+    case all = 3
 }
 
 /// Defines what kind of messages are muted.
@@ -73,7 +74,7 @@ public extension ZMConversation {
                 mutedStatus = newValue.rawValue
             }
             else {
-                mutedStatus = (newValue == .none) ? MutedMessageOptionValue.none.rawValue : (MutedMessageOptionValue.mentions.rawValue + MutedMessageOptionValue.nonMentions.rawValue)
+                mutedStatus = (newValue == .none) ? MutedMessageOptionValue.none.rawValue : (MutedMessageOptionValue.all.rawValue)
             }
             
             if managedObjectContext.zm_isUserInterfaceContext,
