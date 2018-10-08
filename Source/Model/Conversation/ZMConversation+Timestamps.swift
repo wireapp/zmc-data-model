@@ -119,8 +119,41 @@ extension ZMConversation {
         return false
     }
     
+    @objc(updateMutedStatusWithPayload:)
+    func updateMuted(with payload: [String: Any]) {
+        guard let referenceDateAsString = payload[ZMConversationInfoOTRMutedReferenceKey] as? String,
+              let referenceDate = NSDate(transport: referenceDateAsString),
+              updateMuted(referenceDate as Date, synchronize: false) else {
+            return
+        }
+        
+        let mutedStatus = payload[ZMConversationInfoOTRMutedStatusValueKey] as? Int32
+        let mutedLegacyFlag = payload[ZMConversationInfoOTRMutedValueKey] as? Int
+        
+        if let legacyFlag = mutedLegacyFlag {
+            // In case both flags are set we want to respect the legacy one and only read the second bit from the new status.
+            if let status = mutedStatus {
+                var statusFlags = MutedMessageTypes(rawValue: status)
+                if legacyFlag != 0 {
+                    statusFlags.formUnion(.nonMentions)
+                }
+                else {
+                    statusFlags = MutedMessageTypes.none
+                }
+                
+                self.mutedStatus = statusFlags.rawValue
+            }
+            else {
+                self.mutedStatus = (legacyFlag == 0) ? MutedMessageTypes.none.rawValue : MutedMessageTypes.nonMentions.rawValue
+            }
+        }
+        else if let status = mutedStatus {
+            self.mutedStatus = status
+        }
+    }
+    
     @objc @discardableResult
-    func updateSilenced(_ timestamp: Date, synchronize: Bool = false) -> Bool {
+    func updateMuted(_ timestamp: Date, synchronize: Bool = false) -> Bool {
         guard let managedObjectContext = managedObjectContext else { return false }
         
         if timestamp > silencedChangedTimestamp {
@@ -262,6 +295,7 @@ extension ZMConversation {
         var lastKnockDate: Date? = nil
         var lastMissedCallDate: Date? = nil
         var unreadCount: Int64 = 0
+        var unreadSelfMentionCount: Int64 = 0
         
         for message in messages {
             if message.isKnock {
@@ -272,6 +306,10 @@ extension ZMConversation {
                 lastMissedCallDate = message.serverTimestamp
             }
             
+            if let textMessageData = message.textMessageData, textMessageData.isMentioningSelf {
+                unreadSelfMentionCount += 1
+            }
+            
             if message.shouldGenerateUnreadCount() {
                 unreadCount += 1
             }
@@ -280,6 +318,7 @@ extension ZMConversation {
         updateLastUnreadKnock(lastKnockDate)
         updateLastUnreadMissedCall(lastMissedCallDate)
         internalEstimatedUnreadCount = unreadCount
+        internalEstimatedUnreadSelfMentionCount = unreadSelfMentionCount
     }
     
     /// Returns the first unread message in a converation. If the first unread message is child message of system message the parent message will be returned.
@@ -294,6 +333,11 @@ extension ZMConversation {
         }
         
         return unreadMessagesIncludingInvisible.lazy.map(replaceChildWithParent).filter({ $0.visibleInConversation != nil }).first(where: { $0.shouldGenerateUnreadCount() })
+    }
+    
+    // Returns first unread message mentioning the self user
+    public var firstUnreadMessageMentioningSelf: ZMConversationMessage? {
+        return unreadMessages.first(where: { $0.textMessageData?.isMentioningSelf ?? false })
     }
     
     /// Returns all unread messages. This may contain unread child messages of a system message which aren't directly visible in the conversation.

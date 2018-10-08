@@ -64,10 +64,6 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
 
 @end
 
-@interface ZMClientMessage (ZMTextMessageData) <ZMTextMessageData>
-
-@end
-
 @implementation ZMClientMessage
 
 @dynamic updatedTimestamp;
@@ -194,7 +190,9 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
 
 - (void)updateWithGenericMessage:(ZMGenericMessage *)message updateEvent:(ZMUpdateEvent *__unused)updateEvent initialUpdate:(BOOL)initialUpdate
 {
-    if (!initialUpdate && (message.text.linkPreview.count == 0 || ![self.messageText isEqualToString:message.text.content])) {
+    if (!initialUpdate
+        && (message.text != nil && (message.text.linkPreview.count == 0 || ![self.messageText isEqualToString:message.text.content]))
+        && (message.ephemeral.text != nil && (message.ephemeral.text.linkPreview.count == 0 || ![self.messageText isEqualToString:message.ephemeral.text.content]))) {
         return; // We only update client messages if the update contains a link preview and the content didn't change
     }
     
@@ -239,7 +237,7 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
 - (void)resend
 {
     if (self.genericMessage.hasEdited) {
-        NOT_USED([ZMMessage edit:self newText:self.textMessageData.messageText]);
+        NOT_USED([ZMMessage edit:self newText:self.textMessageData.messageText mentions:self.textMessageData.mentions fetchLinkPreview:YES]); // TODO jacob why can't we just resend the message?
     } else {
         [super resend];
     }
@@ -377,21 +375,6 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
 - (int32_t)zoomLevel
 {
     return self.genericMessage.locationData.zoom ?: 0;
-}
-
-@end
-
-
-@implementation ZMClientMessage (ZMTextMessageData)
-
-- (NSString *)messageText
-{
-    return self.genericMessage.textData.content.stringByRemovingExtremeCombiningCharacters;
-}
-
-- (BOOL)isEdited
-{
-    return self.genericMessage.hasEdited;
 }
 
 @end

@@ -164,7 +164,7 @@ extension ZMGenericMessage {
             guard let message = ZMMessage.fetch(withNonce:nonce, for:conversation, in:conversation.managedObjectContext!) else { return nil }
             guard message.destructionDate != nil else { return nil }
             guard let sender = message.sender else {
-                zmLog.error("sender of deleted ephemeral message \(self.deleted.messageId) is already cleared \n ConvID: \(String(describing: conversation.remoteIdentifier)) ConvType: \(conversation.conversationType.rawValue)")
+                zmLog.error("sender of deleted ephemeral message \(String(describing: self.deleted.messageId)) is already cleared \n ConvID: \(String(describing: conversation.remoteIdentifier)) ConvType: \(conversation.conversationType.rawValue)")
                 return Set(arrayLiteral: selfUser)
             }
             
@@ -182,7 +182,7 @@ extension ZMGenericMessage {
 
             func mentionedServices() -> Set<ZMUser> {
                 return services.filtered { service in
-                    self.textData?.mention?.contains { $0.userId == service.remoteIdentifier?.transportString() } ?? false
+                    self.textData?.mentions?.contains { $0.userId == service.remoteIdentifier?.transportString() } ?? false
                 }
             }
             
@@ -195,7 +195,7 @@ extension ZMGenericMessage {
 
         if self.hasConfirmation() {
             guard let recipients = recipientForConfirmationMessage() ?? recipientForOtherUsers() else {
-                let confirmationInfo = hasConfirmation() ? ", original message: \(self.confirmation.firstMessageId)" : ""
+                let confirmationInfo = hasConfirmation() ? ", original message: \(String(describing: self.confirmation.firstMessageId))" : ""
                 fatal("confirmation need a recipient\n ConvType: \(conversation.conversationType.rawValue) \(confirmationInfo)")
             }
             recipientUsers = recipients
@@ -301,19 +301,17 @@ extension ZMGenericMessage {
     /// Returns a message with recipients, with the content stored externally, and a strategy to handle missing clients
     fileprivate func encryptedMessageDataWithExternalDataBlob(_ conversation: ZMConversation) -> (data: Data, strategy: MissingClientsStrategy)? {
         
-        guard let encryptedDataWithKeys = ZMGenericMessage.encryptedDataWithKeys(from: self)
-        else {return nil}
+        guard let encryptedDataWithKeys = ZMGenericMessage.encryptedDataWithKeys(from: self) else { return nil }
         
-        let externalGenericMessage = ZMGenericMessage.genericMessage(withKeyWithChecksum: encryptedDataWithKeys.keys, messageID: UUID())
+        let externalGenericMessage = ZMGenericMessage.message(content: ZMExternal.external(withKeyWithChecksum: encryptedDataWithKeys.keys))
         return externalGenericMessage.encryptedMessagePayloadData(conversation, externalData: encryptedDataWithKeys.data)
     }
     
     fileprivate func encryptedMessageDataWithExternalDataBlob(_ recipients: Set<ZMUser>, context: NSManagedObjectContext) -> Data? {
         
-        guard let encryptedDataWithKeys = ZMGenericMessage.encryptedDataWithKeys(from: self)
-            else {return nil}
+        guard let encryptedDataWithKeys = ZMGenericMessage.encryptedDataWithKeys(from: self) else { return nil }
         
-        let externalGenericMessage = ZMGenericMessage.genericMessage(withKeyWithChecksum: encryptedDataWithKeys.keys, messageID: UUID())
+        let externalGenericMessage = ZMGenericMessage.message(content: ZMExternal.external(withKeyWithChecksum: encryptedDataWithKeys.keys))
         return externalGenericMessage.encryptedMessagePayloadData(for: recipients, externalData: encryptedDataWithKeys.data, context: context)
     }
 }

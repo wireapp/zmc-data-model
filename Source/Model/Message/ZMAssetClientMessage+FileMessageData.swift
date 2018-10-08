@@ -124,11 +124,9 @@ extension ZMAssetClientMessage: ZMFileMessageData {
     }
     
     public var fileURL: URL? {
-        guard let assetURL = asset?.fileURL, let filename = filename, let cacheKey = FileAssetCache.cacheKeyForAsset(self) else { return nil }
+        guard let assetURL = asset?.fileURL, let filename = filename, let temporaryDirectoryURL = temporaryDirectoryURL else { return nil }
         
-        var temporaryFileURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
-        temporaryFileURL.appendPathComponent(cacheKey)
-        temporaryFileURL.appendPathComponent(filename)
+        let temporaryFileURL = temporaryDirectoryURL.appendingPathComponent(filename)
         
         if FileManager.default.fileExists(atPath: temporaryFileURL.path) {
             return temporaryFileURL
@@ -142,6 +140,13 @@ extension ZMAssetClientMessage: ZMFileMessageData {
         }
         
         return temporaryFileURL
+    }
+    
+    public var temporaryDirectoryURL: URL? {
+        guard let cacheKey = FileAssetCache.cacheKeyForAsset(self) else { return nil }
+        var temporaryURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
+        temporaryURL.appendPathComponent(cacheKey)
+        return temporaryURL
     }
     
     public var previewData: Data? {
@@ -202,8 +207,7 @@ extension ZMAssetClientMessage: ZMFileMessageData {
             let asset = assetBuilder.build()!
             
             if self.isEphemeral {
-                let ephemeral = ZMEphemeral.ephemeral(pbMessage: asset, expiresAfter: self.deletionTimeout as NSNumber)
-                messageBuilder.setEphemeral(ephemeral)
+                messageBuilder.setEphemeral(ZMEphemeral.ephemeral(content: asset, expiresAfter: deletionTimeout))
             } else {
                 messageBuilder.setAsset(asset)
             }
@@ -291,10 +295,8 @@ extension ZMAssetClientMessage {
         else {
             return // already canceled or not yet sent
         }
-                
-        let notUploadedMessage = ZMGenericMessage.genericMessage(notUploaded: notUploaded,
-                                                                 messageID: messageID,
-                                                                 expiresAfter: self.deletionTimeout as NSNumber)
+        
+        let notUploadedMessage = ZMGenericMessage.message(content: ZMAsset.asset(withNotUploaded: notUploaded), nonce: messageID, expiresAfter: deletionTimeout)
         self.add(notUploadedMessage)
         self.uploadState = .uploadingFailed
     }

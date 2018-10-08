@@ -23,8 +23,12 @@
 @interface ZMConversation (UnreadCount)
 
 /// internalEstimatedUnreadCount can only be set from the syncMOC
-/// It is calculated by counting the unreadTimeStamps which are managed on the sync context
+/// It is calculated by counting the unread messages which should generate an unread dot
 @property (nonatomic) int64_t internalEstimatedUnreadCount;
+
+/// internalEstimatedUnreadSelfMentionCount can only be set from the syncMOC
+/// It is calculated by counting the unread messages which mention the self user
+@property (nonatomic) int64_t internalEstimatedUnreadSelfMentionCount;
 
 /// hasUnreadUnsentMessage is set when a message expires
 /// and reset when the visible window changes
@@ -39,13 +43,14 @@
 + (NSPredicate *)predicateForConversationConsideredUnread;
 
 /// Predicate for conversations that will be considered unread for the purpose of the back arrow dot
-+ ( NSPredicate *)predicateForConversationConsideredUnreadIncludingSilenced;
++ (NSPredicate *)predicateForConversationConsideredUnreadExcludingSilenced;
 
 /// Count of unread conversations (exluding silenced converations)
 + (NSUInteger)unreadConversationCountInContext:(NSManagedObjectContext *)moc;
 
-/// Count of unread conversations (including silenced conversations)
-+ (NSUInteger)unreadConversationCountIncludingSilencedInContext:(NSManagedObjectContext *)moc excluding:(ZMConversation *)conversation;
+/// Count of unread conversations (excluding silenced conversations)
++ (NSUInteger)unreadConversationCountExcludingSilencedInContext:(NSManagedObjectContext *)moc
+                                                      excluding:(ZMConversation *)conversation;
 
 @end
 

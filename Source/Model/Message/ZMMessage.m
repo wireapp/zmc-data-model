@@ -238,7 +238,7 @@ NSString * const ZMSystemMessageNumberOfGuestsAddedKey = @"numberOfGuestsAdded";
 
 - (ZMClientMessage *)confirmReception
 {
-    ZMGenericMessage *genericMessage = [ZMGenericMessage messageWithConfirmation:self.nonce type:ZMConfirmationTypeDELIVERED nonce:[NSUUID UUID]];
+    ZMGenericMessage *genericMessage = [ZMGenericMessage messageWithContent:[ZMConfirmation confirmWithMessageId:self.nonce type:ZMConfirmationTypeDELIVERED] nonce:NSUUID.UUID];
     return [self.conversation appendClientMessageWithGenericMessage:genericMessage expires:NO hidden:YES];
 }
 
@@ -776,6 +776,11 @@ NSString * const ZMSystemMessageNumberOfGuestsAddedKey = @"numberOfGuestsAdded";
     
 }
 
+- (NSArray<Mention *> *)mentions
+{
+    return @[];
+}
+
 @end
 
 
@@ -890,11 +895,7 @@ NSString * const ZMSystemMessageNumberOfGuestsAddedKey = @"numberOfGuestsAdded";
     [message updateNewConversationSystemMessageIfNeededWithUsers:usersSet
                                                          context:moc
                                                     conversation:conversation];
-    
-    if (type == ZMSystemMessageTypeParticipantsAdded || type == ZMSystemMessageTypeParticipantsRemoved) {
-        [conversation insertOrUpdateSecurityVerificationMessageAfterParticipantsChange:message];
-    }
-    
+        
     [conversation updateTimestampsAfterUpdatingMessage:message];
     
     return message;

@@ -61,7 +61,6 @@ class SnapshotCenterTests : BaseZMMessageTests {
                                                            "draftMessageText": nil,
                                                            "modifiedKeys": nil,
                                                            "securityLevel": 0 as Optional<NSObject>,
-                                                           "isSilenced": 0 as Optional<NSObject>,
                                                            "lastServerTimeStamp": nil,
                                                            "localMessageDestructionTimeout": 0 as Optional<NSObject>,
                                                            "syncedMessageDestructionTimeout": 0 as Optional<NSObject>,
@@ -77,7 +76,8 @@ class SnapshotCenterTests : BaseZMMessageTests {
                                                            "remoteIdentifier_data": nil,
                                                            "lastReadServerTimeStamp": nil,
                                                            "normalizedUserDefinedName": nil,
-                                                           "remoteIdentifier": nil]
+                                                           "remoteIdentifier": nil,
+                                                           "mutedStatus": 0 as Optional<NSObject>]
         let expectedToManyRelationships = ["hiddenMessages": 0,
                                            "lastServerSyncedActiveParticipants": 0,
                                            "messages": 0]
@@ -99,9 +99,9 @@ class SnapshotCenterTests : BaseZMMessageTests {
             conv.lastUnreadKnockDate = Date()
             conv.lastUnreadMissedCallDate = Date()
         }
-        conv.isSilenced = true
+        conv.mutedMessageTypes = .all
         conv.isSelfAnActiveMember = false
-        conv.appendMessage(withText: "foo")
+        conv.append(text: "foo")
         conv.resetLocallyModifiedKeys(conv.keysThatHaveLocalModifications)
         _ = sut.extractChangedKeysFromSnapshot(for: conv)
         
@@ -117,7 +117,6 @@ class SnapshotCenterTests : BaseZMMessageTests {
                                                          "draftMessageText": nil,
                                                          "modifiedKeys": nil,
                                                          "securityLevel": 0 as Optional<NSObject>,
-                                                         "isSilenced": 1 as Optional<NSObject>,
                                                          "lastServerTimeStamp": conv.lastServerTimeStamp as Optional<NSObject>,
                                                          "localMessageDestructionTimeout": 0 as Optional<NSObject>,
                                                          "syncedMessageDestructionTimeout": 0 as Optional<NSObject>,
@@ -133,7 +132,8 @@ class SnapshotCenterTests : BaseZMMessageTests {
                                                          "remoteIdentifier_data": nil,
                                                          "lastReadServerTimeStamp": conv.lastReadServerTimeStamp as Optional<NSObject>,
                                                          "normalizedUserDefinedName": conv.normalizedUserDefinedName as Optional<NSObject>,
-                                                         "remoteIdentifier": nil]
+                                                         "remoteIdentifier": nil,
+                                                         "mutedStatus": (MutedMessageOptionValue.all.rawValue) as Optional<NSObject>]
         let expectedToManyRelationships = ["hiddenMessages": 0,
                                            "lastServerSyncedActiveParticipants": 0,
                                            "messages": 1]

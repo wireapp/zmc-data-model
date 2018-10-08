@@ -28,7 +28,7 @@ class ZMConversationTests_Timestamps: ZMConversationTestsBase {
             // given
             let timestamp = Date()
             let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
-            let knock = ZMGenericMessage.knock(nonce: UUID())
+            let knock = ZMGenericMessage.message(content: ZMKnock.knock())
             let message = ZMClientMessage(nonce: UUID(), managedObjectContext: self.syncMOC)
             message.add(knock.data())
             message.serverTimestamp = timestamp
@@ -76,6 +76,27 @@ class ZMConversationTests_Timestamps: ZMConversationTestsBase {
             
             // then
             XCTAssertEqual(conversation.estimatedUnreadCount, 1)
+            XCTAssertEqual(conversation.estimatedUnreadSelfMentionCount, 0)
+        }
+    }
+    
+    func testThatSelfMentionUnreadCountIsUpdatedWhenMessageIsInserted() {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let nonce = UUID()
+            let timestamp = Date()
+            let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
+            let mention = Mention(range: NSRange(location: 0, length: 4), user: self.selfUser)
+            let message = ZMClientMessage(nonce: UUID(), managedObjectContext: self.syncMOC)
+            message.add(ZMGenericMessage.message(content: ZMText.text(with: "@joe hello", mentions: [mention]), nonce: nonce).data())
+            message.serverTimestamp = timestamp
+            message.visibleInConversation = conversation
+            
+            // when
+            conversation.updateTimestampsAfterInsertingMessage(message)
+            
+            // then
+            XCTAssertEqual(conversation.estimatedUnreadSelfMentionCount, 1)
         }
     }
     
@@ -96,6 +117,29 @@ class ZMConversationTests_Timestamps: ZMConversationTestsBase {
             
             // then
             XCTAssertEqual(conversation.estimatedUnreadCount, 0)
+        }
+    }
+    
+    func testThatUnreadSelfMentionCountIsUpdatedWhenMessageIsDeleted() {
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let nonce = UUID()
+            let timestamp = Date()
+            let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
+            let mention = Mention(range: NSRange(location: 0, length: 4), user: self.selfUser)
+            let message = ZMClientMessage(nonce: nonce, managedObjectContext: self.syncMOC)
+            message.add(ZMGenericMessage.message(content: ZMText.text(with: "@joe hello", mentions: [mention]), nonce: nonce).data())
+            message.serverTimestamp = timestamp
+            message.visibleInConversation = conversation
+            conversation.updateTimestampsAfterInsertingMessage(message)
+            XCTAssertEqual(conversation.internalEstimatedUnreadSelfMentionCount, 1)
+            
+            // when
+            message.visibleInConversation = nil
+            conversation.updateTimestampsAfterDeletingMessage()
+            
+            // then
+            XCTAssertEqual(conversation.internalEstimatedUnreadSelfMentionCount, 0)
         }
     }
     
@@ -216,6 +260,26 @@ class ZMConversationTests_Timestamps: ZMConversationTestsBase {
         
         // then
         XCTAssertEqual(conversation.firstUnreadMessage as? ZMClientMessage, message)
+    }
+    
+    func testThatItReturnsTheFirstUnreadMessageMentioningSelfIfWeHaveItLocally() {
+        // given
+        let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
+        
+        // when
+        let message1 = ZMClientMessage(nonce: UUID(), managedObjectContext: uiMOC)
+        message1.visibleInConversation = conversation
+        message1.serverTimestamp = Date(timeIntervalSinceNow: -2)
+        
+        let nonce = UUID()
+        let message2 = ZMClientMessage(nonce: nonce, managedObjectContext: uiMOC)
+        let mention = Mention(range: NSRange(location: 0, length: 4), user: selfUser)
+        message2.add(ZMGenericMessage.message(content: ZMText.text(with: "@joe hello", mentions: [mention]), nonce: nonce).data())
+        message2.visibleInConversation = conversation
+        message1.serverTimestamp = Date(timeIntervalSinceNow: -1)
+        
+        // then
+        XCTAssertEqual(conversation.firstUnreadMessageMentioningSelf as? ZMClientMessage, message2)
     }
     
     func testThatItReturnsNilIfTheLastReadServerTimestampIsMoreRecent() {
