@@ -27,6 +27,13 @@ public enum MutedMessageOptionValue: Int32 {
 }
 
 /// Defines what kind of messages are muted.
+/// +--------------+----------------+-------------------------------+--------+
+/// | mutedStatus  | Normal Message | Message that contains mention |  Call  |
+/// +--------------+----------------+-------------------------------+--------+
+/// | none         | Notify         | Notify                        | Notify |
+/// | onlyMentions | X              | Notify                        | X      |
+/// | all          | X              | X                             | X      |
+/// +--------------+----------------+-------------------------------+--------+
 public struct MutedMessageTypes: OptionSet {
     public let rawValue: Int32
     
@@ -35,13 +42,16 @@ public struct MutedMessageTypes: OptionSet {
     }
     
     /// None of the messages are muted.
-    public static let none     = MutedMessageTypes(rawValue: MutedMessageOptionValue.none.rawValue)
+    public static let none = MutedMessageTypes(rawValue: MutedMessageOptionValue.none.rawValue)
 
     /// All messages, including mentions, are muted.
     public static let all: MutedMessageTypes = [.nonMentions, .mentions]
     
     /// Only non-mentions are muted.
     public static let nonMentions = MutedMessageTypes(rawValue: MutedMessageOptionValue.nonMentions.rawValue)
+    
+    /// Only mentions are muted. Only used to check the bits in the bitmask.
+    /// Please do not set this as the value on the conversation.
     public static let mentions = MutedMessageTypes(rawValue: MutedMessageOptionValue.mentions.rawValue)
 }
 
