@@ -57,7 +57,7 @@
                                        archivedRef:nil
                                         isSilenced:NO
                                        silencedRef:nil
-                                    silencedStatus:@(3)
+                                    silencedStatus:@(MutedMessageOptionValueAll)
                                             teamID:nil
                                         accessMode:@[]
                                         accessRole:@"non_activated"];
@@ -110,6 +110,7 @@
 {
     [self.syncMOC performGroupedBlockAndWait:^{
         // given
+        [ZMUser selfUserInContext:self.syncMOC].teamIdentifier = [NSUUID UUID];
         ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
         NSUUID *uuid = NSUUID.createUUID;
         conversation.remoteIdentifier = uuid;
@@ -159,9 +160,9 @@
                                                       conversationType:ZMConvTypeGroup
                                                             isArchived:YES
                                                            archivedRef:archivedDate
-                                                            isSilenced:NO
+                                                            isSilenced:YES
                                                            silencedRef:silencedDate
-                                                        silencedStatus:@(3)];
+                                                        silencedStatus:@(MutedMessageOptionValueAll)];
         
         // when
         [conversation updateWithTransportData:payload serverTimeStamp:serverTimestamp];
@@ -181,10 +182,52 @@
         XCTAssertEqualObjects(conversation.creator.remoteIdentifier, [payload[@"creator"] UUID]);
     }];
 }
+
+- (void)testThatItUpdatesItselfFromTransportData_mutedStatusToLegacy
+{
+    [self.syncMOC performGroupedBlockAndWait:^{
+        // given
+        ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
+        NSUUID *uuid = NSUUID.createUUID;
+        conversation.remoteIdentifier = uuid;
+        conversation.mutedStatus = 3;
+        NSDate *serverTimestamp = [NSDate date];
+        NSDate *archivedDate = [NSDate date];
+        NSDate *silencedDate = [archivedDate dateByAddingTimeInterval:10];
+        
+        NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation
+                                                      conversationType:ZMConvTypeGroup
+                                                            isArchived:YES
+                                                           archivedRef:archivedDate
+                                                            isSilenced:NO
+                                                           silencedRef:silencedDate
+                                                        silencedStatus:nil];
+        
+        // when
+        [conversation updateWithTransportData:payload serverTimeStamp:serverTimestamp];
+        
+        // then
+        XCTAssertEqualObjects(conversation.remoteIdentifier, [payload[@"id"] UUID]);
+        XCTAssertNil(conversation.userDefinedName);
+        XCTAssertEqual(conversation.conversationType, ZMConversationTypeGroup);
+        XCTAssertEqualObjects(conversation.lastServerTimeStamp, serverTimestamp);
+        
+        XCTAssertTrue(conversation.isArchived);
+        XCTAssertEqualWithAccuracy([conversation.archivedChangedTimestamp timeIntervalSince1970], [archivedDate timeIntervalSince1970], 1.0);
+        
+        XCTAssertFalse(conversation.isFullyMuted);
+        XCTAssertEqualWithAccuracy([conversation.silencedChangedTimestamp timeIntervalSince1970], [silencedDate timeIntervalSince1970], 1.0);
+        
+        XCTAssertEqualObjects(conversation.creator.remoteIdentifier, [payload[@"creator"] UUID]);
+    }];
+}
+
+
 - (void)testThatItUpdatesItselfFromTransportData_mutedStatus_onlyMentions
 {
     [self.syncMOC performGroupedBlockAndWait:^{
         // given
+        [ZMUser selfUserInContext:self.syncMOC].teamIdentifier = [NSUUID UUID];
         ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
         NSUUID *uuid = NSUUID.createUUID;
         conversation.remoteIdentifier = uuid;
@@ -196,7 +239,7 @@
                                                       conversationType:ZMConvTypeGroup
                                                             isArchived:YES
                                                            archivedRef:archivedDate
-                                                            isSilenced:NO
+                                                            isSilenced:YES
                                                            silencedRef:silencedDate
                                                         silencedStatus:@(1)];
         
@@ -219,6 +262,84 @@
     }];
 }
 
+- (void)testThatItUpdatesItselfFromTransportData_keepsNonMutedMentions
+{
+    [self.syncMOC performGroupedBlockAndWait:^{
+        // given
+        [ZMUser selfUserInContext:self.syncMOC].teamIdentifier = [NSUUID UUID];
+        ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
+        NSUUID *uuid = NSUUID.createUUID;
+        conversation.remoteIdentifier = uuid;
+        conversation.mutedStatus = 1;
+        NSDate *serverTimestamp = [NSDate date];
+        NSDate *archivedDate = [NSDate date];
+        NSDate *silencedDate = [archivedDate dateByAddingTimeInterval:10];
+        
+        NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation
+                                                      conversationType:ZMConvTypeGroup
+                                                            isArchived:YES
+                                                           archivedRef:archivedDate
+                                                            isSilenced:YES
+                                                           silencedRef:silencedDate
+                                                        silencedStatus:@(1)];
+        
+        // when
+        [conversation updateWithTransportData:payload serverTimeStamp:serverTimestamp];
+        
+        // then
+        XCTAssertEqualObjects(conversation.remoteIdentifier, [payload[@"id"] UUID]);
+        XCTAssertNil(conversation.userDefinedName);
+        XCTAssertEqual(conversation.conversationType, ZMConversationTypeGroup);
+        XCTAssertEqualObjects(conversation.lastServerTimeStamp, serverTimestamp);
+        
+        XCTAssertTrue(conversation.isArchived);
+        XCTAssertEqualWithAccuracy([conversation.archivedChangedTimestamp timeIntervalSince1970], [archivedDate timeIntervalSince1970], 1.0);
+        
+        XCTAssertTrue(conversation.isOnlyMentions);
+        XCTAssertEqualWithAccuracy([conversation.silencedChangedTimestamp timeIntervalSince1970], [silencedDate timeIntervalSince1970], 1.0);
+        
+        XCTAssertEqualObjects(conversation.creator.remoteIdentifier, [payload[@"creator"] UUID]);
+    }];
+}
+
+- (void)testThatItUpdatesItselfFromTransportData_keepsFullMutedMentions
+{
+    [self.syncMOC performGroupedBlockAndWait:^{
+        // given
+        ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
+        NSUUID *uuid = NSUUID.createUUID;
+        conversation.remoteIdentifier = uuid;
+        conversation.mutedStatus = 3;
+        NSDate *serverTimestamp = [NSDate date];
+        NSDate *archivedDate = [NSDate date];
+        NSDate *silencedDate = [archivedDate dateByAddingTimeInterval:10];
+        
+        NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation
+                                                      conversationType:ZMConvTypeGroup
+                                                            isArchived:YES
+                                                           archivedRef:archivedDate
+                                                            isSilenced:YES
+                                                           silencedRef:silencedDate
+                                                        silencedStatus:@(MutedMessageOptionValueAll)];
+        
+        // when
+        [conversation updateWithTransportData:payload serverTimeStamp:serverTimestamp];
+        
+        // then
+        XCTAssertEqualObjects(conversation.remoteIdentifier, [payload[@"id"] UUID]);
+        XCTAssertNil(conversation.userDefinedName);
+        XCTAssertEqual(conversation.conversationType, ZMConversationTypeGroup);
+        XCTAssertEqualObjects(conversation.lastServerTimeStamp, serverTimestamp);
+        
+        XCTAssertTrue(conversation.isArchived);
+        XCTAssertEqualWithAccuracy([conversation.archivedChangedTimestamp timeIntervalSince1970], [archivedDate timeIntervalSince1970], 1.0);
+        
+        XCTAssertTrue(conversation.isFullyMuted);
+        XCTAssertEqualWithAccuracy([conversation.silencedChangedTimestamp timeIntervalSince1970], [silencedDate timeIntervalSince1970], 1.0);
+        
+        XCTAssertEqualObjects(conversation.creator.remoteIdentifier, [payload[@"creator"] UUID]);
+    }];
+}
 
 - (void)testThatItUpdatesItselfFromTransportDataForGroupConversation
 {
@@ -266,7 +387,7 @@
         NSUUID *uuid = NSUUID.createUUID;
         conversation.remoteIdentifier = uuid;
         
-        NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation conversationType:1 isArchived:NO archivedRef:nil isSilenced:NO silencedRef:nil silencedStatus:@(3)];
+        NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation conversationType:1 isArchived:NO archivedRef:nil isSilenced:NO silencedRef:nil silencedStatus:@(MutedMessageOptionValueAll)];
 
         // when
         NSDate *serverTimeStamp = [NSDate date];
@@ -301,7 +422,7 @@
                                                            archivedRef:nil
                                                             isSilenced:NO
                                                            silencedRef:nil
-                                                        silencedStatus:@(3)
+                                                        silencedStatus:@(MutedMessageOptionValueAll)
                                                                 teamID:teamID
                                                             accessMode:@[]
                                                             accessRole:@"non_activated"];
@@ -353,7 +474,7 @@
                                                            archivedRef:nil
                                                             isSilenced:NO
                                                            silencedRef:nil
-                                                        silencedStatus:@(3)
+                                                        silencedStatus:@(MutedMessageOptionValueAll)
                                                                 teamID:team.remoteIdentifier
                                                             accessMode:@[]
                                                             accessRole:@"non_activated"];
@@ -406,7 +527,7 @@
                                                            archivedRef:nil
                                                             isSilenced:NO
                                                            silencedRef:nil
-                                                        silencedStatus:@(3)
+                                                        silencedStatus:@(MutedMessageOptionValueAll)
                                                                 teamID:nil
                                                             accessMode:@[]
                                                             accessRole:@"non_activated"];
@@ -453,7 +574,7 @@
                                                            archivedRef:nil
                                                             isSilenced:NO
                                                            silencedRef:nil
-                                                        silencedStatus:@(3)
+                                                        silencedStatus:@(MutedMessageOptionValueAll)
                                                                 teamID:nil
                                                             accessMode:@[@"invite", @"code"]
                                                             accessRole:@"non_activated"];
@@ -487,7 +608,7 @@
                                                            archivedRef:nil
                                                             isSilenced:NO
                                                            silencedRef:nil
-                                                        silencedStatus:@(3)
+                                                        silencedStatus:@(MutedMessageOptionValueAll)
                                                                 teamID:nil
                                                             accessMode:@[]
                                                             accessRole:@"team"];

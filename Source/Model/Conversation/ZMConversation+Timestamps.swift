@@ -127,11 +127,28 @@ extension ZMConversation {
             return
         }
         
-        if let mutedStatus = payload[ZMConversationInfoOTRMutedStatusValueKey] as? Int32 {
-            self.mutedStatus = mutedStatus
+        let mutedStatus = payload[ZMConversationInfoOTRMutedStatusValueKey] as? Int32
+        let mutedLegacyFlag = payload[ZMConversationInfoOTRMutedValueKey] as? Int
+        
+        if let legacyFlag = mutedLegacyFlag {
+            // In case both flags are set we want to respect the legacy one and only read the second bit from the new status.
+            if let status = mutedStatus {
+                var statusFlags = MutedMessageTypes(rawValue: status)
+                if legacyFlag != 0 {
+                    statusFlags.formUnion(.nonMentions)
+                }
+                else {
+                    statusFlags = MutedMessageTypes.none
+                }
+                
+                self.mutedStatus = statusFlags.rawValue
+            }
+            else {
+                self.mutedStatus = (legacyFlag == 0) ? MutedMessageTypes.none.rawValue : MutedMessageTypes.nonMentions.rawValue
+            }
         }
-        else if let mutedLegacyFlag = payload[ZMConversationInfoOTRMutedValueKey] as? Int {
-            self.mutedStatus = (mutedLegacyFlag == 0) ? MutedMessageTypes.none.rawValue : MutedMessageTypes.nonMentions.rawValue
+        else if let status = mutedStatus {
+            self.mutedStatus = status
         }
     }
     
@@ -278,6 +295,7 @@ extension ZMConversation {
         var lastKnockDate: Date? = nil
         var lastMissedCallDate: Date? = nil
         var unreadCount: Int64 = 0
+        var unreadSelfMentionCount: Int64 = 0
         
         for message in messages {
             if message.isKnock {
@@ -288,6 +306,10 @@ extension ZMConversation {
                 lastMissedCallDate = message.serverTimestamp
             }
             
+            if let textMessageData = message.textMessageData, textMessageData.isMentioningSelf {
+                unreadSelfMentionCount += 1
+            }
+            
             if message.shouldGenerateUnreadCount() {
                 unreadCount += 1
             }
@@ -296,6 +318,7 @@ extension ZMConversation {
         updateLastUnreadKnock(lastKnockDate)
         updateLastUnreadMissedCall(lastMissedCallDate)
         internalEstimatedUnreadCount = unreadCount
+        internalEstimatedUnreadSelfMentionCount = unreadSelfMentionCount
     }
     
     /// Returns the first unread message in a converation. If the first unread message is child message of system message the parent message will be returned.
