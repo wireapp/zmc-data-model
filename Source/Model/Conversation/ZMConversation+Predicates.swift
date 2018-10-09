@@ -35,13 +35,16 @@ extension ZMConversation {
 
         /// do not include team 1 to 1 conversations
 
-        let activeParticipantsPredicate = NSPredicate(format: "%K.@count > 1",                                                                      ZMConversationLastServerSyncedActiveParticipantsKey
+        let activeParticipantsPredicate = NSPredicate(format: "%K.@count == 1",                                                                      ZMConversationLastServerSyncedActiveParticipantsKey
         )
 
-        let userDefinedNamePredicate = NSPredicate(format: "%K != NULL",                                                                      "userDefinedName"
+        let userDefinedNamePredicate = NSPredicate(format: "%K == NULL",                                                                      "userDefinedName"
         )
 
-        return NSCompoundPredicate(andPredicateWithSubpredicates: [searchPredicate, activeMemberPredicate, basePredicate, activeParticipantsPredicate, userDefinedNamePredicate])
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [searchPredicate,
+                                                                   activeMemberPredicate,
+                                                                   basePredicate, NSCompoundPredicate(notPredicateWithSubpredicate:NSCompoundPredicate(andPredicateWithSubpredicates:[
+                                                                   activeParticipantsPredicate, userDefinedNamePredicate]))])
     }
 
     @objc(predicateForConversationsInTeam:)
