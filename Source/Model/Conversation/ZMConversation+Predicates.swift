@@ -27,11 +27,11 @@ extension ZMConversation {
     }
 
     @objc
-    class func predicate(forSearchQuery searchQuery: String) -> NSPredicate! {
+    public class func predicate(forSearchQuery searchQuery: String) -> NSPredicate! {
         let formatDict = [ZMConversationLastServerSyncedActiveParticipantsKey: "ANY %K.normalizedName MATCHES %@", ZMNormalizedUserDefinedNameKey: "%K MATCHES %@"]
         guard let searchPredicate = NSPredicate(formatDictionary: formatDict, matchingSearch: searchQuery) else { return .none }
         let activeMemberPredicate = NSPredicate(format: "%K == NULL OR %K == YES", ZMConversationClearedTimeStampKey, ZMConversationIsSelfAnActiveMemberKey)
-        let basePredicate = NSPredicate(format: "(%K == %@)", ZMConversationConversationTypeKey, ZMConversationType.group.rawValue)
+        let basePredicate = NSPredicate(format: "(\(ZMConversationConversationTypeKey) == \(ZMConversationType.group.rawValue))")
 
         /// do not include team 1 to 1 conversations
 
