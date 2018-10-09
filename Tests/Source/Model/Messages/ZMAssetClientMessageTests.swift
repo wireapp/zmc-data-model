@@ -380,7 +380,7 @@ extension ZMAssetClientMessageTests {
     func testThatItReturnsIsValidImageSizeForSmallImage() {
         performIgnoringZMLogError {
             // given
-            let data = "".padding(toLength: 4_500_000, withPad: "-", startingAt: 0).data(using: .utf8)!
+            let data = self.verySmallJPEGData()
             
             // when
             let sut = self.appendImageMessage(to: self.conversation, imageData: data)
@@ -395,7 +395,7 @@ extension ZMAssetClientMessageTests {
     func testThatItDoesNotReturnIsValidImageSizeForLargeImage() {
         performIgnoringZMLogError {
             // given
-            let data = "".padding(toLength: 5_500_000, withPad: "-", startingAt: 0).data(using: .utf8)!
+            let data = self.largeJPEGData() // "".padding(toLength: 5_500_000, withPad: "-", startingAt: 0).data(using: .utf8)!
             
             // when
             let sut = self.appendImageMessage(to: self.conversation, imageData: data)
