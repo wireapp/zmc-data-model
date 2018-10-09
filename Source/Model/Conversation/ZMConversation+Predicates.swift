@@ -38,13 +38,18 @@ extension ZMConversation {
         let activeParticipantsPredicate = NSPredicate(format: "%K.@count == 1",                                                                      ZMConversationLastServerSyncedActiveParticipantsKey
         )
 
-        let userDefinedNamePredicate = NSPredicate(format: "%K == NULL",                                                                      "userDefinedName"
+        let userDefinedNamePredicate = NSPredicate(format: "%K == NULL",                                                                      ZMConversationUserDefinedNameKey
+        )
+
+        let teamRemoteIdentifierPredicate = NSPredicate(format: "%K != NULL",                                                                      TeamRemoteIdentifierKey
         )
 
         return NSCompoundPredicate(andPredicateWithSubpredicates: [searchPredicate,
                                                                    activeMemberPredicate,
                                                                    basePredicate, NSCompoundPredicate(notPredicateWithSubpredicate:NSCompoundPredicate(andPredicateWithSubpredicates:[
-                                                                   activeParticipantsPredicate, userDefinedNamePredicate]))])
+                                                                   activeParticipantsPredicate,
+                                                                   userDefinedNamePredicate,
+                                                                   teamRemoteIdentifierPredicate]))])
     }
 
     @objc(predicateForConversationsInTeam:)

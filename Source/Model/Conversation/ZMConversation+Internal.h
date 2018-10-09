@@ -66,6 +66,7 @@ extern NSString *const ZMConversationSilencedChangedTimeStampKey;
 
 extern NSString *const ZMNotificationConversationKey;
 extern NSString *const ZMConversationRemoteIdentifierDataKey;
+extern NSString *const TeamRemoteIdentifierKey;
 
 
 extern const NSUInteger ZMConversationMaxTextMessageLength;
