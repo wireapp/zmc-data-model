@@ -51,7 +51,7 @@ NSString *const ZMConversationHasUnreadMissedCallKey = @"hasUnreadMissedCall";
 NSString *const ZMConversationHasUnreadUnsentMessageKey = @"hasUnreadUnsentMessage";
 NSString *const ZMConversationIsArchivedKey = @"internalIsArchived";
 NSString *const ZMConversationIsSelfAnActiveMemberKey = @"isSelfAnActiveMember";
-NSString *const ZMConversationIsSilencedKey = @"isSilenced";
+NSString *const ZMConversationMutedStatusKey = @"mutedStatus";
 NSString *const ZMConversationMessagesKey = @"messages";
 NSString *const ZMConversationHiddenMessagesKey = @"hiddenMessages";
 NSString *const ZMConversationLastServerSyncedActiveParticipantsKey = @"lastServerSyncedActiveParticipants";
@@ -76,7 +76,7 @@ NSString *const SecurityLevelKey = @"securityLevel";
 
 static NSString *const ConnectedUserKey = @"connectedUser";
 static NSString *const CreatorKey = @"creator";
-static NSString *const DraftMessageTextKey = @"draftMessageText";
+static NSString *const DraftMessageDataKey = @"draftMessageData";
 static NSString *const IsPendingConnectionConversationKey = @"isPendingConnectionConversation";
 static NSString *const LastModifiedDateKey = @"lastModifiedDate";
 static NSString *const LastReadMessageKey = @"lastReadMessage";
@@ -149,14 +149,11 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @dynamic messages;
 @dynamic lastModifiedDate;
 @dynamic creator;
-@dynamic draftMessageText;
 @dynamic normalizedUserDefinedName;
 @dynamic conversationType;
 @dynamic clearedTimeStamp;
 @dynamic lastReadServerTimeStamp;
 @dynamic lastServerTimeStamp;
-@dynamic isSilenced;
-@dynamic isMuted;
 @dynamic internalIsArchived;
 @dynamic archivedChangedTimestamp;
 @dynamic silencedChangedTimestamp;
@@ -186,25 +183,14 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return (unsigned long)self.internalEstimatedUnreadCount;
 }
 
+- (NSUInteger)estimatedUnreadSelfMentionCount
+{
+    return (unsigned long)self.internalEstimatedUnreadSelfMentionCount;
+}
+
 + (NSSet *)keyPathsForValuesAffectingEstimatedUnreadCount
 {
     return [NSSet setWithObjects: ZMConversationInternalEstimatedUnreadCountKey, ZMConversationLastReadServerTimeStampKey, nil];
-}
-
-- (void)setIsSilenced:(BOOL)isSilenced
-{
-    [self willChangeValueForKey:ZMConversationIsSilencedKey];
-    [self setPrimitiveValue:@(isSilenced) forKey:ZMConversationIsSilencedKey];
-    [self didChangeValueForKey:ZMConversationIsSilencedKey];
-    
-    if (self.managedObjectContext.zm_isUserInterfaceContext && self.lastServerTimeStamp) {
-        [self updateSilenced:self.lastServerTimeStamp synchronize:YES];
-    }
-}
-
-+ (NSSet *)keyPathsForValuesAffectingIsSilenced
-{
-    return [NSSet setWithObject:ZMConversationIsSilencedKey];
 }
 
 + (NSFetchRequest *)sortedFetchRequest
@@ -344,7 +330,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
             ZMConversationConnectionKey,
             ZMConversationConversationTypeKey,
             CreatorKey,
-            DraftMessageTextKey,
+            DraftMessageDataKey,
             LastModifiedDateKey,
             ZMNormalizedUserDefinedNameKey,
             ZMConversationLastServerSyncedActiveParticipantsKey,
@@ -359,8 +345,9 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
             ZMConversationLastUnreadMissedCallDateKey,
             ZMConversationLastReadLocalTimestampKey,
             ZMConversationInternalEstimatedUnreadCountKey,
+            ZMConversationInternalEstimatedUnreadSelfMentionCountKey,
             ZMConversationIsArchivedKey,
-            ZMConversationIsSilencedKey,
+            ZMConversationMutedStatusKey,
             LocalMessageDestructionTimeoutKey,
             SyncedMessageDestructionTimeoutKey,
             DownloadedMessageIDsDataKey,
@@ -533,75 +520,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
              [NSSortDescriptor sortDescriptorWithKey:ZMConversationRemoteIdentifierDataKey ascending:YES],];
 }
 
-- (id <ZMConversationMessage>)appendMessageWithText:(NSString *)text;
-{
-    return [self appendMessageWithText:text fetchLinkPreview:YES];
-}
-
-- (nullable id <ZMConversationMessage>)appendMessageWithText:(nullable NSString *)text fetchLinkPreview:(BOOL)fetchPreview;
-{    
-    VerifyReturnNil(![text zmHasOnlyWhitespaceCharacters]);
-    VerifyReturnNil(text != nil);
-
-    NSUUID *nonce = NSUUID.UUID;
-
-    id <ZMConversationMessage> message = [self appendOTRMessageWithText:text nonce:nonce fetchLinkPreview:fetchPreview];
-
-    [[[NotificationInContext alloc] initWithName:ZMConversation.clearTypingNotificationName
-                                        context:self.managedObjectContext.notificationContext
-                                         object:self
-                                       userInfo:nil
-     ] post];
-
-    return message;
-}
-
-- (id<ZMConversationMessage>)appendMessageWithImageAtURL:(NSURL *)fileURL;
-{
-    VerifyReturnNil(fileURL != nil);
-    if (! fileURL.isFileURL) {
-        ZMLogWarn(@"Trying to add an image message, but the URL is not a file URL.");
-        return nil;
-    }
-    NSError *error;
-    // We specifically do not want the data to be mapped at this place, because the underlying file might go away before we're done using the data.
-    NSData * const originalImageData = [NSData dataWithContentsOfURL:fileURL options:0 error:&error];
-    VerifyReturnNil(originalImageData != nil);
-    CGSize const originalSize = [ZMImagePreprocessor sizeOfPrerotatedImageAtURL:fileURL];
-    VerifyReturnNil(! CGSizeEqualToSize(originalSize, CGSizeZero));
-    return [self appendMessageWithOriginalImageData:originalImageData originalSize:originalSize];
-}
-
-- (id<ZMConversationMessage>)appendMessageWithImageData:(NSData *)imageData;
-{
-    imageData = [imageData copy];
-    VerifyReturnNil(imageData != nil);
-    CGSize const originalSize = [ZMImagePreprocessor sizeOfPrerotatedImageWithData:imageData];
-    VerifyReturnNil(! CGSizeEqualToSize(originalSize, CGSizeZero));
-
-    return [self appendMessageWithOriginalImageData:imageData originalSize:originalSize];
-}
-
-- (nullable id<ZMConversationMessage>)appendMessageWithFileMetadata:(nonnull ZMFileMetadata *)fileMetadata
-{
-    return [self appendOTRMessageWithFileMetadata:fileMetadata nonce:NSUUID.UUID];
-}
-
-- (nullable id<ZMConversationMessage>)appendMessageWithLocationData:(nonnull ZMLocationData *)locationData
-{
-    return [self appendOTRMessageWithLocationData:locationData nonce:NSUUID.UUID];
-}
-
-- (id<ZMConversationMessage>)appendMessageWithOriginalImageData:(NSData *)originalImageData originalSize:(CGSize __unused)originalSize;
-{
-    return [self appendOTRMessageWithImageData:originalImageData nonce:NSUUID.UUID];
-}
-
-- (id<ZMConversationMessage>)appendKnock;
-{
-    return [self appendOTRKnockMessageWithNonce:[NSUUID UUID]];
-}
-
 - (BOOL)isPendingConnectionConversation;
 {
     return self.connection != nil && self.connection.status == ZMConnectionStatusPending;
@@ -633,14 +551,14 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 }
 
 
-- (BOOL)hasDraftMessageText
+- (BOOL)hasDraftMessage
 {
-    return (0 < self.draftMessageText.length);
+    return (0 < self.draftMessage.text.length);
 }
 
-+ (NSSet *)keyPathsForValuesAffectingHasDraftMessageText
++ (NSSet *)keyPathsForValuesAffectingHasDraftMessage
 {
-    return [NSSet setWithObject:DraftMessageTextKey];
+    return [NSSet setWithObject:DraftMessageDataKey];
 }
 
 - (ZMMessage *)lastEditableMessage;
@@ -1054,85 +972,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return message;
 }
 
-- (ZMAssetClientMessage *)appendOTRMessageWithFileMetadata:(ZMFileMetadata *)fileMetadata nonce:(NSUUID *)nonce
-{
-    NSData *data = [NSData dataWithContentsOfURL:fileMetadata.fileURL options:NSDataReadingMappedIfSafe error:nil];
-    if (data == nil) {
-        return nil;
-    }
-    
-    ZMAssetClientMessage *message =
-    [[ZMAssetClientMessage alloc] initWith:fileMetadata
-                                     nonce:nonce
-                      managedObjectContext:self.managedObjectContext
-                              expiresAfter:self.messageDestructionTimeoutValue];
-
-    message.sender = [ZMUser selfUserInContext:self.managedObjectContext];
-    [self sortedAppendMessage:message];
-    [self unarchiveIfNeeded];
-    
-    [self.managedObjectContext.zm_fileAssetCache storeAssetData:message encrypted:NO data:data];
-
-    if (fileMetadata.thumbnail != nil) {
-        [self.managedObjectContext.zm_fileAssetCache storeAssetData:message format:ZMImageFormatOriginal encrypted:NO data:fileMetadata.thumbnail];
-    }
-    
-    [message updateCategoryCache];
-    [message prepareToSend];
-    
-    return message;
-}
-
-- (ZMClientMessage *)appendOTRMessageWithLocationData:(ZMLocationData *)locationData nonce:(NSUUID *)nonce
-{
-    ZMGenericMessage *genericMessage = [ZMGenericMessage genericMessageWithLocation:locationData.zmLocation messageID:nonce expiresAfter:@(self.messageDestructionTimeoutValue)];
-    ZMClientMessage *message = [self appendClientMessageWithGenericMessage:genericMessage];
-    return message;
-}
-
-- (ZMClientMessage *)appendOTRKnockMessageWithNonce:(NSUUID *)nonce
-{
-    ZMGenericMessage *genericMessage = [ZMGenericMessage knockWithNonce:nonce expiresAfter:@(self.messageDestructionTimeoutValue)];
-    ZMClientMessage *message = [self appendClientMessageWithGenericMessage:genericMessage];
-    return message;
-}
-
-- (ZMClientMessage *)appendOTRMessageWithText:(NSString *)text nonce:(NSUUID *)nonce fetchLinkPreview:(BOOL)fetchPreview
-{
-    NSArray<ZMMention *> *mentions = [self mentionsInText:text];
-    NSString *normalizedText = [self normalizeText:text forMentions:mentions];
-
-    ZMGenericMessage *genericMessage = [ZMGenericMessage messageWithText:normalizedText.stringByRemovingExtremeCombiningCharacters
-                                                             linkPreview:nil
-                                                                   nonce:nonce
-                                                            expiresAfter:@(self.messageDestructionTimeoutValue)
-                                                                mentions: mentions];
-    ZMClientMessage *message = [self appendClientMessageWithGenericMessage:genericMessage];
-    message.linkPreviewState = fetchPreview ? ZMLinkPreviewStateWaitingToBeProcessed : ZMLinkPreviewStateDone;
-    return message;
-}
-
-- (ZMClientMessage *)appendOTRMessageWithText:(NSString *)text nonce:(NSUUID *)nonce
-{
-    return [self appendOTRMessageWithText:text nonce:nonce fetchLinkPreview:YES];
-}
-
-- (ZMAssetClientMessage *)appendOTRMessageWithImageData:(NSData *)imageData nonce:(NSUUID *)nonce
-{
-    NSError *metadataError = nil;
-    NSData *imageDataWithoutMetadata = [imageData wr_imageDataWithoutMetadataAndReturnError:&metadataError];
-    
-    if (metadataError != nil) {
-        ZMLogError(@"Cannot remove image metadata: %@", metadataError);
-    }
-    if (imageDataWithoutMetadata == nil) {
-        imageDataWithoutMetadata = imageData;
-    }
-    
-    ZMAssetClientMessage *message = [self appendAssetClientMessageWithNonce:nonce imageData:imageDataWithoutMetadata];
-    return message;
-}
-
 - (void)appendNewConversationSystemMessageIfNeeded;
 {
     ZMMessage *firstMessage = self.messages.firstObject;
@@ -1251,7 +1090,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
 
     NSUUID *nonce = [NSUUID UUID];
-    ZMGenericMessage *message = [ZMGenericMessage messageWithLastRead:lastRead ofConversationWithID:convID nonce:nonce];
+    ZMGenericMessage *message = [ZMGenericMessage messageWithContent:[ZMLastRead lastReadWithTimestamp:lastRead conversationRemoteID:convID] nonce:nonce];
     VerifyReturnNil(message != nil);
     
     return [self appendSelfConversationWithGenericMessage:message managedObjectContext:conversation.managedObjectContext];
@@ -1280,7 +1119,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
     
     NSUUID *nonce = [NSUUID UUID];
-    ZMGenericMessage *message = [ZMGenericMessage messageWithClearedTimestamp:cleared ofConversationWithID:convID nonce:nonce];
+    ZMGenericMessage *message = [ZMGenericMessage messageWithContent:[ZMCleared clearedWithTimestamp:cleared conversationRemoteID:convID] nonce:nonce];
     VerifyReturnNil(message != nil);
     
     return [self appendSelfConversationWithGenericMessage:message managedObjectContext:conversation.managedObjectContext];
@@ -1361,65 +1200,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 @dynamic isSelfAnActiveMember;
 @dynamic lastServerSyncedActiveParticipants;
-
-- (void)insertOrUpdateSecurityVerificationMessageAfterParticipantsChange:(ZMSystemMessage *)participantsChange
-{
-    NSUInteger messageIndex = [self.messages indexOfObject:participantsChange];
-    if (messageIndex == 0) {
-        return;
-    }
-    ZMMessage *previousMessage = [self.messages objectAtIndex:messageIndex - 1];
-    
-    BOOL (^isAppropriateVerificationSystemMessage)(ZMMessage *message) = ^BOOL(ZMMessage *message) {
-        if (![previousMessage isKindOfClass:[ZMSystemMessage class]]) {
-            return NO;
-        }
-        
-        ZMSystemMessage *systemMessage = (ZMSystemMessage *)message;
-        
-        if (participantsChange.systemMessageType == ZMSystemMessageTypeParticipantsAdded &&
-            systemMessage.systemMessageType == ZMSystemMessageTypeNewClient) {
-            return ([systemMessage.addedUsers isEqualToSet:participantsChange.users]);
-        }
-        else if (participantsChange.systemMessageType == ZMSystemMessageTypeParticipantsRemoved &&
-                 systemMessage.systemMessageType == ZMSystemMessageTypeConversationIsSecure) {
-            return ([systemMessage.users isEqualToSet:participantsChange.users]);
-        }
-        
-        return NO;
-    };
-    
-    if (participantsChange.systemMessageType == ZMSystemMessageTypeParticipantsAdded) {
-        // Check if the previous system message about the conversation degradation must be now moved or inserted
-        // The message needs to be moved when the action (adding the participant) was local
-        // The message needs to be inserted when the action was remote
-        
-        if (isAppropriateVerificationSystemMessage(previousMessage)) {
-            NSDate *newDate = [participantsChange.serverTimestamp dateByAddingTimeInterval:0.01];
-            
-            previousMessage.serverTimestamp = newDate;
-            [self resortMessagesWithUpdatedMessage:previousMessage];
-        }
-        else {
-            [self decreaseSecurityLevelIfNeededAfterDiscoveringClients:[NSSet set] causedByAddedUsers:participantsChange.users];
-        }
-    }
-    else if (participantsChange.systemMessageType == ZMSystemMessageTypeParticipantsRemoved) {
-        // Check if the previous system message about the conversation is secured must be now moved or inserted
-        // The message needs to be moved when the action (removing the participant) was local
-        // The message needs to be inserted when the action was remote
-        
-        if (isAppropriateVerificationSystemMessage(previousMessage)) {
-            NSDate *newDate = [participantsChange.serverTimestamp dateByAddingTimeInterval:0.01];
-            
-            previousMessage.serverTimestamp = newDate;
-            [self resortMessagesWithUpdatedMessage:previousMessage];
-        }
-        else {
-            [self increaseSecurityLevelIfNeededAfterRemovingClientForUsers:participantsChange.users];
-        }
-    }
-}
 
 @end
 
@@ -1522,24 +1302,19 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     
     const static NSUInteger NumberOfMessagesToKeep = 3;
     
-    if(![self hasFaultForRelationshipNamed:ZMConversationMessagesKey])
-    {
+    if (![self hasFaultForRelationshipNamed:ZMConversationMessagesKey]) {
         const NSUInteger length = self.messages.count;
-        if(length == 0) {
+        
+        if (length == 0) {
             return [NSSet set];
         }
-        NSUInteger currentIndex = length-1;
-        const NSUInteger keepUntilIndex = (length-1 >= NumberOfMessagesToKeep) // avoid overflow
-        ? (length-1 - NumberOfMessagesToKeep)
-        : length-1;
         
-        while(YES) { // not using a for loop because when hitting 0, --i would make it overflow and wrap
-            [messagesToKeep addObject:self.messages[currentIndex]];
-            if(currentIndex == keepUntilIndex) {
-                break;
-            }
-            --currentIndex;
-        };
+        const NSUInteger startIndex = length > NumberOfMessagesToKeep ? length - NumberOfMessagesToKeep : 0;
+        const NSUInteger endIndex = length - 1;
+        
+        for (NSUInteger index = startIndex; index <= endIndex; index++) {
+            [messagesToKeep addObject:self.messages[index]];
+        }
     }
     
     return messagesToKeep;

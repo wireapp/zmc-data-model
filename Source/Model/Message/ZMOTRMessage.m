@@ -154,6 +154,9 @@ NSString * const DeliveredKey = @"delivered";
         ZMSystemMessage *systemMessage = [conversation appendInvalidSystemMessageAt:updateEvent.timeStamp sender:sender];
         return [[MessageUpdateResult alloc] initWithMessage:systemMessage needsConfirmation:NO wasInserted:YES];
     }
+    
+    // Verify sender is part of conversation
+    [conversation addParticipantIfMissing:[ZMUser userWithRemoteID:updateEvent.senderUUID createIfNeeded:YES inContext:moc] date: [updateEvent.timeStamp dateByAddingTimeInterval:-0.01]];
 
     // Insert the message
 
@@ -236,8 +239,9 @@ NSString * const DeliveredKey = @"delivered";
     }
     
     [clientMessage updateWithUpdateEvent:updateEvent forConversation:conversation];
-    [clientMessage unarchiveConversationIfNeeded:conversation];
+    [clientMessage unarchiveIfNeeded:conversation];
     [clientMessage updateCategoryCache];
+    [conversation resortMessagesWithUpdatedMessage:clientMessage];
     
     BOOL needsConfirmation = NO;
     if (isNewMessage && !clientMessage.sender.isSelfUser && conversation.conversationType == ZMConversationTypeOneOnOne) {
@@ -247,25 +251,6 @@ NSString * const DeliveredKey = @"delivered";
     
     MessageUpdateResult *result = [[MessageUpdateResult alloc] initWithMessage:clientMessage needsConfirmation:needsConfirmation wasInserted:isNewMessage];
     return result;
-}
-
-
-- (void)unarchiveConversationIfNeeded:(ZMConversation *)conversation
-{
-    if (!conversation.isArchived || conversation.isSilenced) {
-        return;
-    }
-    
-    BOOL olderThanClearTimestamp = (conversation.clearedTimeStamp != nil) &&
-                                   ([self.serverTimestamp compare:conversation.clearedTimeStamp] == NSOrderedAscending);
-    
-    if (!olderThanClearTimestamp) {
-        conversation.internalIsArchived = NO;
-        
-        if (conversation.lastServerTimeStamp != nil) {
-            [conversation updateArchived:self.serverTimestamp synchronize:NO];
-        }
-    }
 }
 
 @end

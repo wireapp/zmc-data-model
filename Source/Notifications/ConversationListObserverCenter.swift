@@ -73,7 +73,7 @@ public class ConversationListObserverCenter : NSObject, ZMConversationObserver, 
         zmLog.debug("Recreating snapshot for conversationList with identifier \(conversationList.identifier)")
         zmLog.ifDebug {
             (conversationList as Array).forEach{
-                zmLog.debug("Conversation in \(conversationList.identifier) includes: \($0.objectID) with type: \($0.conversationType.rawValue)")
+                zmLog.debug("Conversation in \(conversationList.identifier) includes: \(String(describing: $0.objectID)) with type: \($0.conversationType.rawValue)")
             }
         }
         listSnapshots[conversationList.identifier] = ConversationListSnapshot(conversationList: conversationList, managedObjectContext: self.managedObjectContext)
@@ -103,7 +103,7 @@ public class ConversationListObserverCenter : NSObject, ZMConversationObserver, 
     /// Handles updated conversations, updates lists and notifies observers
     public func conversationDidChange(_ changes: ConversationChangeInfo) {
         guard    changes.nameChanged              || changes.connectionStateChanged  || changes.isArchivedChanged
-              || changes.isSilencedChanged        || changes.lastModifiedDateChanged || changes.conversationListIndicatorChanged
+              || changes.mutedMessageTypesChanged || changes.lastModifiedDateChanged || changes.conversationListIndicatorChanged
               || changes.clearedChanged           || changes.securityLevelChanged    || changes.teamChanged
         else { return }
         zmLog.debug("conversationDidChange with changes \(changes.customDebugDescription)")
