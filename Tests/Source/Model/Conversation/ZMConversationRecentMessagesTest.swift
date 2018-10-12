@@ -48,7 +48,7 @@ public class ZMConversationRecentMessagesTest: ZMBaseManagedObjectTest {
         
         // WHEN
         (0...40).forEach { i in
-            conversation.appendMessage(withText: "\(i)")
+            conversation.append(text: "\(i)")
         }
         
         // THEN
@@ -64,11 +64,11 @@ public class ZMConversationRecentMessagesTest: ZMBaseManagedObjectTest {
         
         // WHEN
         (1...10).forEach { i in
-            conversation.appendMessage(withText: "\(i)")
+            conversation.append(text: "\(i)")
         }
         
         (1...10).forEach { i in
-            otherConversation.appendMessage(withText: "Other \(i)")
+            otherConversation.append(text: "Other \(i)")
         }
         
         // THEN
@@ -119,7 +119,7 @@ public class ZMConversationRecentMessagesTest: ZMBaseManagedObjectTest {
             XCTAssertEqual(otherContextConversation.recentMessages.count, 0)
         }
         // WHEN
-        let _ = conversation.appendMessage(withText: "Hello")
+        let _ = conversation.append(text: "Hello")
         conversation.managedObjectContext!.saveOrRollback()
     
         // THEN

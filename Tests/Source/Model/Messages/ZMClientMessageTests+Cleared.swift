@@ -89,12 +89,12 @@ final class ClientMessageTests_Cleared: DatabaseBaseTest {
             let syncConversation = ZMConversation.insertGroupConversation(into: contextDirectory.syncContext, withParticipants: [])!
             syncConversation.remoteIdentifier = UUID.create()
             
-            let message1 = syncConversation.appendMessage(withText: "B") as! ZMMessage
+            let message1 = syncConversation.append(text: "B") as! ZMMessage
             message1.expire()
             
-            syncConversation.appendMessage(withText: "A")
+            syncConversation.append(text: "A")
             
-            let message3 = syncConversation.appendMessage(withText: "B") as! ZMMessage
+            let message3 = syncConversation.append(text: "B") as! ZMMessage
             message3.expire()
     
             syncConversation.lastServerTimeStamp = message3.serverTimestamp

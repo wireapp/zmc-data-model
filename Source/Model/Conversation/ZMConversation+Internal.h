@@ -44,7 +44,7 @@ extern NSString *const ZMConversationHasUnreadMissedCallKey;
 extern NSString *const ZMConversationHasUnreadUnsentMessageKey;
 extern NSString *const ZMConversationIsArchivedKey;
 extern NSString *const ZMConversationIsSelfAnActiveMemberKey;
-extern NSString *const ZMConversationIsSilencedKey;
+extern NSString *const ZMConversationMutedStatusKey;
 extern NSString *const ZMConversationAllMessagesKey;
 extern NSString *const ZMConversationHiddenMessagesKey;
 extern NSString *const ZMConversationLastServerSyncedActiveParticipantsKey;
@@ -65,12 +65,13 @@ extern NSString *const ZMConversationSilencedChangedTimeStampKey;
 
 extern NSString *const ZMNotificationConversationKey;
 extern NSString *const ZMConversationRemoteIdentifierDataKey;
-
+extern NSString *const TeamRemoteIdentifierDataKey;
 
 extern const NSUInteger ZMConversationMaxTextMessageLength;
 extern NSTimeInterval ZMConversationDefaultLastReadTimestampSaveDelay;
 extern NSString *const ZMConversationEstimatedUnreadCountKey;
 
+extern NSString *const ZMConversationInternalEstimatedUnreadSelfMentionCountKey;
 extern NSString *const ZMConversationInternalEstimatedUnreadCountKey;
 extern NSString *const ZMConversationLastUnreadKnockDateKey;
 extern NSString *const ZMConversationLastUnreadMissedCallDateKey;
@@ -97,7 +98,6 @@ NS_ASSUME_NONNULL_END
 + (nonnull ZMConversationList *)pendingConversationsInContext:(nonnull NSManagedObjectContext *)moc;
 
 + (nonnull NSPredicate *)predicateForSearchQuery:(nonnull NSString *)searchQuery team:(nullable Team *)team;
-+ (nonnull NSPredicate *)predicateForSearchQuery:(nonnull NSString *)searchQuery;
 + (nonnull NSPredicate *)userDefinedNamePredicateForSearchString:(nonnull NSString *)searchString;
 
 @property (readonly, nonatomic, nonnull) NSMutableOrderedSet *mutableLastServerSyncedActiveParticipants;
@@ -141,13 +141,6 @@ NS_ASSUME_NONNULL_END
 + (nonnull NSUUID *)selfConversationIdentifierInContext:(nonnull NSManagedObjectContext *)context;
 + (nonnull ZMConversation *)selfConversationInContext:(nonnull NSManagedObjectContext *)managedObjectContext;
 
-- (nullable ZMClientMessage *)appendOTRKnockMessageWithNonce:(nonnull NSUUID *)nonce;
-- (nullable ZMClientMessage *)appendOTRMessageWithText:(nonnull NSString *)text nonce:(nonnull NSUUID *)nonce fetchLinkPreview:(BOOL)fetchPreview;
-- (nullable ZMClientMessage *)appendOTRMessageWithLocationData:(nonnull ZMLocationData *)locationData nonce:(nonnull NSUUID *)nonce;
-- (nullable ZMAssetClientMessage *)appendOTRMessageWithImageData:(nonnull NSData *)imageData nonce:(nonnull NSUUID *)nonce;
-- (nullable ZMAssetClientMessage *)appendOTRMessageWithFileMetadata:(nonnull ZMFileMetadata *)fileMetadata nonce:(nonnull NSUUID *)nonce;
-
-
 /// Appends a new message to the conversation.
 /// @param genericMessage the generic message that should be appended
 /// @param expires wether the message should expire or tried to be send infinitively
@@ -159,11 +152,16 @@ NS_ASSUME_NONNULL_END
 - (nullable ZMClientMessage *)appendClientMessageWithGenericMessage:(nonnull ZMGenericMessage *)genericMessage;
 
 
+- (nullable ZMAssetClientMessage *)appendAssetClientMessageWithNonce:(nonnull NSUUID *)nonce imageData:(nonnull NSData *)imageData;
+
+
 - (void)appendNewConversationSystemMessageIfNeeded;
 
 + (nonnull NSDate *)newConversationMessageTimestamp;
 
 @property (nonatomic, nullable) id _recentMessagesFetcher;
+
+- (void)unarchiveIfNeeded;
 
 @end
 
@@ -182,7 +180,6 @@ NS_ASSUME_NONNULL_END
 @end
 
 
-
 @interface ZMConversation (ParticipantsInternal)
 
 - (void)internalAddParticipants:(nonnull NSSet<ZMUser *> *)participants;
@@ -193,8 +190,6 @@ NS_ASSUME_NONNULL_END
 
 @end
 
-
-
 @interface NSUUID (ZMSelfConversation)
 
 - (BOOL)isSelfConversationRemoteIdentifierInContext:(nonnull NSManagedObjectContext *)moc;
@@ -202,11 +197,9 @@ NS_ASSUME_NONNULL_END
 @end
 
 
-
 @interface ZMConversation (Optimization)
 
 + (void)refreshObjectsThatAreNotNeededInSyncContext:(nonnull NSManagedObjectContext *)managedObjectContext;
-
 @end
 
 
@@ -217,7 +210,6 @@ NS_ASSUME_NONNULL_END
 - (void)removeHiddenMessagesObject:(nonnull ZMMessage *)value;
 - (void)addHiddenMessages:(nonnull NSSet<ZMMessage *> *)values;
 - (void)removeHiddenMessages:(nonnull NSSet<ZMMessage *> *)values;
-
 - (void)addAllMessagesObject:(nonnull ZMMessage *)value;
 - (void)removeAllMessagesObject:(nonnull ZMMessage *)value;
 - (void)addAllMessages:(nonnull NSSet<ZMMessage *> *)values;

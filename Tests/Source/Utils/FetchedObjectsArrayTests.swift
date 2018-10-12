@@ -35,7 +35,7 @@ public class FetchedObjectsArrayTests: ZMBaseManagedObjectTest {
         let conversation = createConversation()
         
         (0...20).forEach { i in
-            conversation.appendMessage(withText: "\(i)")
+            conversation.append(text: "\(i)")
         }
         
         // Fetch request
@@ -58,7 +58,7 @@ public class FetchedObjectsArrayTests: ZMBaseManagedObjectTest {
         let conversation = createConversation()
         
         (0...10).forEach { i in
-            conversation.appendMessage(withText: "\(i)")
+            conversation.append(text: "\(i)")
         }
         
         // Fetch request
@@ -76,7 +76,7 @@ public class FetchedObjectsArrayTests: ZMBaseManagedObjectTest {
         // and when
         
         (11...20).forEach { i in
-            conversation.appendMessage(withText: "\(i)")
+            conversation.append(text: "\(i)")
         }
         try uiMOC.save()
         // THEN
@@ -91,7 +91,7 @@ public class FetchedObjectsArrayTests: ZMBaseManagedObjectTest {
         let conversation = createConversation()
         
         let messages: [NSManagedObject] = (0...10).map { i in
-            return conversation.appendMessage(withText: "\(i)") as! NSManagedObject
+            return conversation.append(text: "\(i)") as! NSManagedObject
         }
         
         // Fetch request

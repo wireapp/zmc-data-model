@@ -35,22 +35,36 @@ class ClientMessageTests_ZMImageOwner: BaseZMClientMessageTests {
             originalURLString: "example.com/article/original",
             permanentURLString: "http://www.example.com/article/1",
             resolvedURLString: "http://www.example.com/article/1",
-            offset: 12
+            offset: 5
         )
         article.title = "title"
         article.summary = "tile"
-        let text = "sample text"
+        let mention = Mention(range: NSRange(location: 0, length: 4), user: user1)
+        let text = ZMText.text(with: "@joe example.com/article/original", mentions: [mention], linkPreviews: [article.protocolBuffer])
         var genericMessage : ZMGenericMessage!
         switch contentType{
         case .textMessage:
-            genericMessage = ZMGenericMessage.message(text: text, linkPreview: article.protocolBuffer, nonce: nonce)
+            genericMessage = ZMGenericMessage.message(content: text, nonce: nonce)
         case .editMessage:
-            genericMessage = ZMGenericMessage(editMessage: UUID.create(), newText: text, linkPreview: article.protocolBuffer, nonce: nonce)
+            genericMessage = ZMGenericMessage.message(content: ZMMessageEdit.edit(with: text, replacingMessageId: UUID.create()), nonce: nonce)
         }
         clientMessage.add(genericMessage.data())
         clientMessage.visibleInConversation = conversation
         clientMessage.sender = selfUser
         return clientMessage
+    }
+    
+    func testThatItKeepsMentionsWhenSettingImageData() {
+        // given
+        let clientMessage = insertMessageWithLinkPreview(contentType: .textMessage)
+        let imageData = mediumJPEGData()
+        
+        // when
+        let properties = ZMIImageProperties(size: CGSize(width: 42, height: 12), length: UInt(imageData.count), mimeType: "image/jpeg")
+        clientMessage.setImageData(imageData, for: .medium, properties: properties)
+        
+        // then
+        XCTAssertEqual(clientMessage.mentions.count, 1)
     }
     
     func testThatItCachesAndEncryptsTheMediumImage_TextMessage() {
