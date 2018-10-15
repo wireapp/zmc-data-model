@@ -4,6 +4,7 @@ resources:
     type: github
     name: wireapp/wire-ios-shared-resources
     ref: refs/heads/feature/azure
+    endpoint: github.com
 
 jobs:
 - template: azure/build-and-test.yml@wire-ios-shared-resources
