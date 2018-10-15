@@ -1,0 +1,9 @@
+resources:
+  repositories:
+  - repository: wire-ios-shared-resources
+    type: github
+    name: wireapp/wire-ios-shared-resources
+    ref: refs/heads/feature/azure
+
+jobs:
+- template: azure/build-and-test.yml@wire-ios-shared-resources
