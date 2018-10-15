@@ -24,10 +24,10 @@ import Foundation
 
 @objc public class LoginCredentials: NSObject, Codable {
 
-    public let emailAddress: String?
-    public let phoneNumber: String?
-    public let hasPassword: Bool
-    public let usesCompanyLogin: Bool
+    @objc public let emailAddress: String?
+    @objc public let phoneNumber: String?
+    @objc public let hasPassword: Bool
+    @objc public let usesCompanyLogin: Bool
 
     public init(emailAddress: String?, phoneNumber: String?, hasPassword: Bool, usesCompanyLogin: Bool) {
         self.emailAddress = emailAddress
