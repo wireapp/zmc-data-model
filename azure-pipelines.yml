@@ -15,4 +15,4 @@ resources:
 steps:
 - template: azure/build-and-test.yml@wire-ios-shared-resources
   parameters:
-    branch: "$resources_branch"
+    branch: "$(resources_branch)"
