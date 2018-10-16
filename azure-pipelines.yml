@@ -1,9 +1,6 @@
 pool:
    vmImage: "macOS 10.13"
 
-variables:
-  resources_branch: "feature/azure"
-
 resources:
   repositories:
   - repository: wire-ios-shared-resources
@@ -15,4 +12,4 @@ resources:
 steps:
 - template: azure/build-and-test.yml@wire-ios-shared-resources
   parameters:
-    branch: $(resources_branch)
+    branch: feature/azure
