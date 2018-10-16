@@ -1,6 +1,3 @@
-pool:
-   vmImage: "macOS 10.13"
-
 resources:
   repositories:
   - repository: wire-ios-shared-resources
@@ -9,7 +6,11 @@ resources:
     ref: refs/heads/feature/azure
     endpoint: wireapp
 
-steps:
-- template: azure/build-and-test.yml@wire-ios-shared-resources
-  parameters:
-    branch: feature/azure
+jobs:
+  - job: Test
+    pool:
+      vmImage: "macOS 10.13"
+    steps:
+    - template: azure/build-and-test.yml@wire-ios-shared-resources
+      parameters:
+        branch: feature/azure
