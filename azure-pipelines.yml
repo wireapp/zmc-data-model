@@ -1,13 +1,18 @@
 pool:
-   vmImage: 'macOS 10.13'
+   vmImage: "macOS 10.13"
+
+variables:
+  resources_branch: "feature/azure"
 
 resources:
   repositories:
   - repository: wire-ios-shared-resources
     type: github
     name: wireapp/wire-ios-shared-resources
-    ref: refs/heads/feature/azure
+    ref: "refs/heads/$(resources_branch)"
     endpoint: wireapp
 
 steps:
 - template: azure/build-and-test.yml@wire-ios-shared-resources
+  parameters:
+    branch: "$resources_branch"
