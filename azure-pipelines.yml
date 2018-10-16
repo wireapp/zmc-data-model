@@ -11,6 +11,6 @@ jobs:
     pool:
       vmImage: "macOS 10.13"
     steps:
-    - template: azure/build-and-test/build-and-test.yml@wire-ios-shared-resources
+    - template: Azure/build-and-test/build-and-test.yml@wire-ios-shared-resources
       parameters:
         branch: feature/azure
