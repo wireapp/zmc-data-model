@@ -7,10 +7,4 @@ resources:
     endpoint: wireapp
 
 jobs:
-  - job: Test
-    pool:
-      vmImage: "macOS 10.13"
-    steps:
-    - template: Azure/build-and-test/build-and-test.yml@wire-ios-shared-resources
-      parameters:
-        branch: feature/azure
+  - template: Azure/framework-pipelines.yml@wire-ios-shared-resources
