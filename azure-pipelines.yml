@@ -9,10 +9,10 @@ resources:
   - repository: wire-ios-shared-resources
     type: github
     name: wireapp/wire-ios-shared-resources
-    ref: "refs/heads/$(resources_branch)"
+    ref: refs/heads/$(resources_branch)
     endpoint: wireapp
 
 steps:
 - template: azure/build-and-test.yml@wire-ios-shared-resources
   parameters:
-    branch: "$(resources_branch)"
+    branch: $(resources_branch)
