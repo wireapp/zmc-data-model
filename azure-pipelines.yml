@@ -3,14 +3,13 @@ pool:
 
 variables:
   resources_branch: "feature/azure"
-  full_branch: "refs/heads/$(resources_branch)"
 
 resources:
   repositories:
   - repository: wire-ios-shared-resources
     type: github
     name: wireapp/wire-ios-shared-resources
-    ref: $(full_branch)
+    ref: refs/heads/feature/azure
     endpoint: wireapp
 
 steps:
