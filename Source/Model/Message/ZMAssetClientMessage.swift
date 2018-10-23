@@ -64,7 +64,7 @@ import Foundation
         add(ZMGenericMessage.message(content: metadata.asset, nonce: nonce, expiresAfter: timeout))
     }
     
-    public override var hashOfContent: Data! {
+    public override var hashOfContent: Data? {
         guard let serverTimestamp = serverTimestamp else { return nil }
         
         return genericAssetMessage?.hashOfContent(with: serverTimestamp)

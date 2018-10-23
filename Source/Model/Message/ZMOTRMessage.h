@@ -31,9 +31,6 @@ extern NSString * const DeliveredKey;
 @property (nonatomic, readonly) NSSet *missingRecipients;
 @property (nonatomic, readonly) NSString *dataSetDebugInformation;
 
-/// SHA-256 hash of the message content (text, image, location, ...)
-@property (nonatomic, readonly) NSData *hashOfContent;
-
 - (void)missesRecipient:(UserClient *)recipient;
 - (void)missesRecipients:(NSSet<UserClient *> *)recipients;
 - (void)doesNotMissRecipient:(UserClient *)recipient;
