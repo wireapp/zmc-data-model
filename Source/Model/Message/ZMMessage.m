@@ -84,6 +84,8 @@ NSString * const ZMSystemMessageMessageTimerKey = @"messageTimer";
 NSString * const ZMSystemMessageRelevantForConversationStatusKey = @"relevantForConversationStatus";
 NSString * const ZMSystemMessageAllTeamUsersAddedKey = @"allTeamUsersAdded";
 NSString * const ZMSystemMessageNumberOfGuestsAddedKey = @"numberOfGuestsAdded";
+NSString * const ZMMessageRepliesKey = @"replies";
+NSString * const ZMMessageQuoteKey = @"quote";
 
 
 @interface ZMMessage ()
@@ -127,6 +129,8 @@ NSString * const ZMSystemMessageNumberOfGuestsAddedKey = @"numberOfGuestsAdded";
 @dynamic confirmations;
 @dynamic isObfuscated;
 @dynamic normalizedText;
+@dynamic replies;
+@dynamic quote;
 
 - (instancetype)initWithNonce:(NSUUID *)nonce managedObjectContext:(NSManagedObjectContext *)managedObjectContext
 {

@@ -60,6 +60,8 @@ extern NSString * _Nonnull const ZMMessageConfirmationKey;
 extern NSString * _Nonnull const ZMMessageCachedCategoryKey;
 extern NSString * _Nonnull const ZMMessageSystemMessageClientsKey;
 extern NSString * _Nonnull const ZMMessageDeliveryStateKey;
+extern NSString * _Nonnull const ZMMessageRepliesKey;
+extern NSString * _Nonnull const ZMMessageQuoteKey;
 
 @interface ZMMessage : ZMManagedObject
 
@@ -180,6 +182,9 @@ inManagedObjectContext:(NSManagedObjectContext * _Nonnull)moc;
 
 @property (nonatomic) NSSet <Reaction *> * _Nonnull reactions;
 @property (nonatomic, readonly) NSSet<ZMMessageConfirmation*> * _Nonnull confirmations;
+
+@property (nonatomic) NSSet<ZMMessage*> * _Nullable replies;
+@property (nonatomic) ZMMessage * _Nullable quote;
 
 - (void)setExpirationDate;
 - (void)removeExpirationDate;
