@@ -691,10 +691,12 @@ NSString * const ZMMessageQuoteKey = @"quote";
                              ZMMessageDurationKey,
                              ZMMessageChildMessagesKey,
                              ZMMessageParentMessageKey,
+                             ZMMessageRepliesKey,
+                             ZMMessageQuoteKey,
                              ZMSystemMessageMessageTimerKey,
                              ZMSystemMessageRelevantForConversationStatusKey,
                              ZMSystemMessageAllTeamUsersAddedKey,
-                             ZMSystemMessageNumberOfGuestsAddedKey
+                             ZMSystemMessageNumberOfGuestsAddedKey,
                              ];
         ignoredKeys = [keys setByAddingObjectsFromArray:newKeys];
     });
