@@ -49,12 +49,6 @@ NSString * const DeliveredKey = @"delivered";
     return [keys setByAddingObjectsFromArray:@[DeliveredKey, ZMMessageIsExpiredKey]];
 }
 
-//- (NSData *)hashOfContent
-//{
-//    NSAssert(FALSE, @"Subclasses should override this method: [%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
-//    return nil;
-//}
-
 - (void)missesRecipient:(UserClient *)recipient
 {
     [self missesRecipients:[NSSet setWithObject:recipient]];
