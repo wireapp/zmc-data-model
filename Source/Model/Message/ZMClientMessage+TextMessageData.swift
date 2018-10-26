@@ -41,6 +41,13 @@ extension ZMClientMessage: ZMTextMessageData {
         return ZMMessage(nonce: quotedMessageId, managedObjectContext: moc)
     }
     
+    public var isQuotingSelf: Bool{
+        return quote?.sender?.isSelfUser ?? false
+    }
+    
+    public var hasQuote: Bool {
+        return quote != nil
+    }
     
     public var messageText: String? {
         return genericMessage?.textData?.content.removingExtremeCombiningCharacters

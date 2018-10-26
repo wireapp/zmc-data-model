@@ -105,6 +105,12 @@ typedef NS_ENUM(int16_t, ZMSystemMessageType) {
 /// Request link preview image to be downloaded
 - (void)requestLinkPreviewImageDownload;
 
+/// Detect if user replies to a message sent from himself
+@property (nonatomic, readonly) BOOL isQuotingSelf;
+
+/// Check if message has a quote
+@property (nonatomic, readonly) BOOL hasQuote;
+
 @end
 
 

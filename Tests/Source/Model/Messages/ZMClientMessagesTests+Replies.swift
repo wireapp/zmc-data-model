@@ -25,7 +25,6 @@ class ZMClientMessagesTests_Replies: BaseZMClientMessageTests {
         let zmText = ZMText.text(with: text, mentions: [], linkPreviews: [], quote: quote)
         let message = ZMClientMessage(nonce: UUID(), managedObjectContext: uiMOC)
         message.add(ZMGenericMessage.message(content: zmText).data())
-        quote?.replies?.insert(message)
         return message
     }
     
@@ -34,7 +33,6 @@ class ZMClientMessagesTests_Replies: BaseZMClientMessageTests {
         let message = createMessage(text: "That's fine", quote: quotedMessage)
         
         XCTAssertEqual(message.quote, quotedMessage)
-        XCTAssertTrue(quotedMessage.replies?.contains(message) ?? false)
     }
     
 }

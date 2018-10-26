@@ -508,7 +508,7 @@
     existingMessage.senderClientID = selfClient.remoteIdentifier;
     
     ZMLinkPreview *linkPreview = [ZMLinkPreview linkPreviewWithOriginalURL:@"http://www.sunet.se" permanentURL:@"http://www.sunet.se" offset:0 title:@"Test" summary:nil imageAsset:nil];
-    ZMGenericMessage *modifiedMessage = [ZMGenericMessage messageWithContent:[ZMText textWith:initialText mentions:@[] linkPreviews:@[linkPreview]] nonce:nonce];
+    ZMGenericMessage *modifiedMessage = [ZMGenericMessage messageWithContent:[ZMText textWith:initialText mentions:@[] linkPreviews:@[linkPreview] quote:nil] nonce:nonce];
     
     NSDictionary *data = @{ @"sender" : selfClient.remoteIdentifier, @"recipient": selfClient.remoteIdentifier, @"text": modifiedMessage.data.base64String };
     NSDictionary *payload = [self payloadForMessageInConversation:conversation type:EventConversationAddOTRMessage data:data time:[NSDate date] fromUser:self.selfUser];
@@ -547,7 +547,7 @@
     existingMessage.senderClientID = selfClient.remoteIdentifier;
     
     ZMLinkPreview *linkPreview = [ZMLinkPreview linkPreviewWithOriginalURL:@"http://www.sunet.se" permanentURL:@"http://www.sunet.se" offset:0 title:@"Test" summary:nil imageAsset:nil];
-    ZMGenericMessage *modifiedMessage = [ZMGenericMessage messageWithContent:[ZMText textWith:initialText mentions:@[] linkPreviews:@[linkPreview]] nonce:nonce timeout:3600];
+    ZMGenericMessage *modifiedMessage = [ZMGenericMessage messageWithContent:[ZMText textWith:initialText mentions:@[] linkPreviews:@[linkPreview] quote:nil] nonce:nonce timeout:3600];
     
     NSDictionary *data = @{ @"sender" : selfClient.remoteIdentifier, @"recipient": selfClient.remoteIdentifier, @"text": modifiedMessage.data.base64String };
     NSDictionary *payload = [self payloadForMessageInConversation:conversation type:EventConversationAddOTRMessage data:data time:[NSDate date] fromUser:self.selfUser];

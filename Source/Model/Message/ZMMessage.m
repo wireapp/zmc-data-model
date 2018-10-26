@@ -710,8 +710,6 @@ NSString * const ZMMessageQuoteKey = @"quote";
 @implementation ZMTextMessage
 
 @dynamic text;
-@dynamic quote;
-@dynamic replies;
 
 + (NSString *)entityName;
 {
@@ -785,6 +783,26 @@ NSString * const ZMMessageQuoteKey = @"quote";
 - (NSArray<Mention *> *)mentions
 {
     return @[];
+}
+
+- (ZMMessage *)quote
+{
+    return nil;
+}
+
+-(NSArray<ZMMessage *> *)replies
+{
+    return @[];
+}
+
+-(BOOL)hasQuote
+{
+    return NO;
+}
+
+-(BOOL)isQuotingSelf
+{
+    return NO;
 }
 
 @end
