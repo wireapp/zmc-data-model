@@ -129,8 +129,6 @@ NSString * const ZMMessageQuoteKey = @"quote";
 @dynamic confirmations;
 @dynamic isObfuscated;
 @dynamic normalizedText;
-@dynamic replies;
-@dynamic quote;
 
 - (instancetype)initWithNonce:(NSUUID *)nonce managedObjectContext:(NSManagedObjectContext *)managedObjectContext
 {
@@ -785,6 +783,26 @@ NSString * const ZMMessageQuoteKey = @"quote";
 - (NSArray<Mention *> *)mentions
 {
     return @[];
+}
+
+- (ZMMessage *)quote
+{
+    return nil;
+}
+
+-(NSArray<ZMMessage *> *)replies
+{
+    return @[];
+}
+
+-(BOOL)hasQuote
+{
+    return NO;
+}
+
+-(BOOL)isQuotingSelf
+{
+    return NO;
 }
 
 @end

@@ -27,6 +27,28 @@ fileprivate extension NSRange {
 @objc
 extension ZMClientMessage: ZMTextMessageData {
     
+    public var replies: [ZMMessage]? {
+        /// TODO
+        return []
+    }
+    
+    public var quote: ZMMessage? {
+        guard let proto = genericMessage?.textData?.quote,
+            let moc = managedObjectContext,
+            let quotedMessageId = UUID(uuidString: proto.quotedMessageId)
+        else { return nil}
+        
+        return ZMMessage(nonce: quotedMessageId, managedObjectContext: moc)
+    }
+    
+    public var isQuotingSelf: Bool{
+        return quote?.sender?.isSelfUser ?? false
+    }
+    
+    public var hasQuote: Bool {
+        return quote != nil
+    }
+    
     public var messageText: String? {
         return genericMessage?.textData?.content.removingExtremeCombiningCharacters
     }
