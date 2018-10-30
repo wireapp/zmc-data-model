@@ -168,6 +168,10 @@ extension ZMKnock: EphemeralMessageContentType {
 @objc
 extension ZMText: EphemeralMessageContentType {
     
+    public static func text(with message: String, mentions: [Mention] = [], linkPreviews: [ZMLinkPreview] = []) -> ZMText {
+        return text(with: message, mentions: mentions, linkPreviews: linkPreviews, quoteMessageId: nil)
+    }
+    
     public static func text(with message: String, mentions: [Mention] = [], linkPreviews: [ZMLinkPreview] = [], quoteMessageId: String? = nil) -> ZMText {
         let builder = ZMTextBuilder()
                 
