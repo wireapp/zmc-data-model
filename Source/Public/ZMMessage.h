@@ -90,7 +90,6 @@ typedef NS_ENUM(int16_t, ZMSystemMessageType) {
 @property (nonatomic, readonly, nullable) NSString *messageText;
 @property (nonatomic, readonly, nullable) LinkPreview *linkPreview;
 @property (nonatomic, readonly, nonnull) NSArray<Mention *> *mentions;
-@property (nonatomic, readonly, nullable) NSArray<ZMMessage*> *replies;
 @property (nonatomic, readonly, nullable) ZMMessage *quote;
 
 /// Returns true if the link preview will have an image

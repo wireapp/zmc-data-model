@@ -790,9 +790,9 @@ NSString * const ZMMessageQuoteKey = @"quote";
     return nil;
 }
 
--(NSArray<ZMMessage *> *)replies
+-(NSSet<ZMMessage *> *)replies
 {
-    return @[];
+    return [NSSet set];
 }
 
 -(BOOL)hasQuote

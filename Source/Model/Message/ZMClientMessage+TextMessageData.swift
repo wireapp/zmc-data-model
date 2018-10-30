@@ -27,19 +27,7 @@ fileprivate extension NSRange {
 @objc
 extension ZMClientMessage: ZMTextMessageData {
     
-    public var replies: [ZMMessage]? {
-        /// TODO
-        return []
-    }
-    
-    public var quote: ZMMessage? {
-        guard let proto = genericMessage?.textData?.quote,
-            let moc = managedObjectContext,
-            let quotedMessageId = UUID(uuidString: proto.quotedMessageId)
-        else { return nil}
-        
-        return ZMMessage(nonce: quotedMessageId, managedObjectContext: moc)
-    }
+    @NSManaged public var quote: ZMMessage?
     
     public var isQuotingSelf: Bool{
         return quote?.sender?.isSelfUser ?? false
