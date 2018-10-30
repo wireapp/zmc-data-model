@@ -56,7 +56,7 @@ extension ZMConversation {
         let message = appendClientMessage(with: clientMessage)!
         message.linkPreviewState = fetchLinkPreview ? .waitingToBeProcessed : .done
         message.quote = replyToMessage
-        replyToMessage?.mutableSetValue(forKey: ZMMessageRepliesKey).add(message)
+        
         if let managedObjectContext = managedObjectContext {
             NotificationInContext(name: ZMConversation.clearTypingNotificationName,
                                   context: managedObjectContext.notificationContext,
