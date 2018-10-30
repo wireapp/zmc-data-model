@@ -168,16 +168,16 @@ extension ZMKnock: EphemeralMessageContentType {
 @objc
 extension ZMText: EphemeralMessageContentType {
     
-    public static func text(with message: String, mentions: [Mention] = [], linkPreviews: [ZMLinkPreview] = [], quote: ZMClientMessage? = nil) -> ZMText {
+    public static func text(with message: String, mentions: [Mention] = [], linkPreviews: [ZMLinkPreview] = [], quoteMessageId: String? = nil) -> ZMText {
         let builder = ZMTextBuilder()
                 
         builder.setContent(message)
         builder.setMentionsArray(mentions.compactMap(ZMMention.mention))
         builder.setLinkPreviewArray(linkPreviews)
         
-        if let quote = quote {
+        if let quote = quoteMessageId {
             let quoteBuilder = ZMQuoteBuilder()
-            quoteBuilder.setQuotedMessageId(quote.genericMessage?.messageId)
+            quoteBuilder.setQuotedMessageId(quote)
             builder.setQuote(quoteBuilder)
         }
         

@@ -33,11 +33,18 @@ extension ZMConversation {
         return appendClientMessage(with: ZMGenericMessage.message(content: ZMKnock.knock(), nonce: nonce, expiresAfter: messageDestructionTimeoutValue))
     }
     
-    @discardableResult @objc(appendText:mentions:fetchLinkPreview:nonce:)
-    public func append(text: String, mentions: [Mention] = [], fetchLinkPreview: Bool = true, nonce: UUID = UUID()) -> ZMConversationMessage? {
+    @discardableResult @objc(appendText:mentions:replyingToMessage:fetchLinkPreview:nonce:)
+    public func append(text: String,
+                       mentions: [Mention] = [],
+                       replyingTo replyToMessage: ZMClientMessage? = nil,
+                       fetchLinkPreview: Bool = true,
+                       nonce: UUID = UUID()) -> ZMConversationMessage? {
+        
         guard !(text as NSString).zmHasOnlyWhitespaceCharacters() else { return nil }
         
-        let message = appendClientMessage(with: ZMGenericMessage.message(content: ZMText.text(with: text, mentions: mentions, linkPreviews: []), nonce: nonce, expiresAfter: messageDestructionTimeoutValue))
+        let textContent = ZMText.text(with: text, mentions: mentions, linkPreviews: [], quoteMessageId: replyToMessage?.genericMessage?.messageId)
+        let clientMessage = ZMGenericMessage.message(content: textContent, nonce: nonce, expiresAfter: messageDestructionTimeoutValue)
+        let message = appendClientMessage(with: clientMessage)
         message?.linkPreviewState = fetchLinkPreview ? .waitingToBeProcessed : .done
         
         if let managedObjectContext = managedObjectContext {

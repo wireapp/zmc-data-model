@@ -194,7 +194,7 @@ NSString * const ReactionsKey = @"reactions";
         
         
         NSUUID *nonce = [NSUUID createUUID];
-        ZMGenericMessage *textMessage = [ZMGenericMessage messageWithContent:[ZMText textWith:self.name mentions:@[] linkPreviews:@[] quote:nil] nonce:nonce];
+        ZMGenericMessage *textMessage = [ZMGenericMessage messageWithContent:[ZMText textWith:self.name mentions:@[] linkPreviews:@[] quoteMessageId:nil] nonce:nonce];
         ZMClientMessage *msg = [[ZMClientMessage alloc] initWithNonce:nonce managedObjectContext:self.syncMOC];
         [msg addData:textMessage.data];
         

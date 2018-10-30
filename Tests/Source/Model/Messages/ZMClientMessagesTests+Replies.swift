@@ -21,8 +21,8 @@ import XCTest
 
 class ZMClientMessagesTests_Replies: BaseZMClientMessageTests {
     
-    func createMessage(text: String, quote: ZMClientMessage?) -> ZMClientMessage {
-        let zmText = ZMText.text(with: text, mentions: [], linkPreviews: [], quote: quote)
+    func createMessage(text: String, quote: String?) -> ZMClientMessage {
+        let zmText = ZMText.text(with: text, mentions: [], linkPreviews: [], quoteMessageId: quote)
         let message = ZMClientMessage(nonce: UUID(), managedObjectContext: uiMOC)
         message.add(ZMGenericMessage.message(content: zmText).data())
         return message
@@ -30,7 +30,7 @@ class ZMClientMessagesTests_Replies: BaseZMClientMessageTests {
     
     func testQuoteIsReturned() {
         let quotedMessage = createMessage(text: "I have a proposal", quote: nil)
-        let message = createMessage(text: "That's fine", quote: quotedMessage)
+        let message = createMessage(text: "That's fine", quote: quotedMessage.genericMessage?.messageId)
         
         XCTAssertEqual(message.quote, quotedMessage)
     }
