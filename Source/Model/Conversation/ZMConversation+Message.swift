@@ -33,6 +33,15 @@ extension ZMConversation {
         return appendClientMessage(with: ZMGenericMessage.message(content: ZMKnock.knock(), nonce: nonce, expiresAfter: messageDestructionTimeoutValue))
     }
     
+    @discardableResult @objc(appendText:mentions:fetchLinkPreview:nonce:)
+    public func append(text: String,
+                       mentions: [Mention] = [],
+                       fetchLinkPreview: Bool = true,
+                       nonce: UUID = UUID()) -> ZMConversationMessage? {
+        
+        return append(text: text, mentions: mentions, replyingTo: nil, fetchLinkPreview: fetchLinkPreview, nonce: nonce)
+    }
+    
     @discardableResult @objc(appendText:mentions:replyingToMessage:fetchLinkPreview:nonce:)
     public func append(text: String,
                        mentions: [Mention] = [],
