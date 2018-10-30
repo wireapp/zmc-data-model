@@ -21,16 +21,10 @@ import XCTest
 
 class ZMClientMessagesTests_Replies: BaseZMClientMessageTests {
     
-    func createMessage(text: String, quote: String?) -> ZMClientMessage {
-        let zmText = ZMText.text(with: text, mentions: [], linkPreviews: [], quoteMessageId: quote)
-        let message = ZMClientMessage(nonce: UUID(), managedObjectContext: uiMOC)
-        message.add(ZMGenericMessage.message(content: zmText).data())
-        return message
-    }
-    
     func testQuoteIsReturned() {
-        let quotedMessage = createMessage(text: "I have a proposal", quote: nil)
-        let message = createMessage(text: "That's fine", quote: quotedMessage.genericMessage?.messageId)
+        let quotedMessage = conversation.append(text: "I have a proposal", mentions: [], replyingTo: nil, fetchLinkPreview: false, nonce: UUID()) as! ZMClientMessage
+        
+        let message = conversation.append(text: "That's fine", mentions: [], replyingTo: quotedMessage, fetchLinkPreview: false, nonce: UUID()) as! ZMTextMessageData
         
         XCTAssertEqual(message.quote, quotedMessage)
     }

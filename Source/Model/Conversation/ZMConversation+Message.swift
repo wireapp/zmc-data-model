@@ -53,9 +53,10 @@ extension ZMConversation {
         
         let textContent = ZMText.text(with: text, mentions: mentions, linkPreviews: [], quoteMessageId: replyToMessage?.genericMessage?.messageId)
         let clientMessage = ZMGenericMessage.message(content: textContent, nonce: nonce, expiresAfter: messageDestructionTimeoutValue)
-        let message = appendClientMessage(with: clientMessage)
-        message?.linkPreviewState = fetchLinkPreview ? .waitingToBeProcessed : .done
-        
+        let message = appendClientMessage(with: clientMessage)!
+        message.linkPreviewState = fetchLinkPreview ? .waitingToBeProcessed : .done
+        message.quote = replyToMessage
+        replyToMessage?.mutableSetValue(forKey: "replies").add(message)
         if let managedObjectContext = managedObjectContext {
             NotificationInContext(name: ZMConversation.clearTypingNotificationName,
                                   context: managedObjectContext.notificationContext,
