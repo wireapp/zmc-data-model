@@ -380,7 +380,7 @@
 
 - (ZMUpdateEvent *)createMessageEditUpdateEventWithOldNonce:(NSUUID *)oldNonce newNonce:(NSUUID *)newNonce conversationID:(NSUUID*)conversationID senderID:(NSUUID *)senderID newText:(NSString *)newText
 {
-    ZMGenericMessage *genericMessage = [ZMGenericMessage messageWithContent:[ZMMessageEdit editWith:[ZMText textWith:newText mentions:@[] linkPreviews:@[] quoteMessageId:nil] replacingMessageId:oldNonce] nonce:newNonce];
+    ZMGenericMessage *genericMessage = [ZMGenericMessage messageWithContent:[ZMMessageEdit editWith:[ZMText textWith:newText mentions:@[] linkPreviews:@[] replyingTo:nil] replacingMessageId:oldNonce] nonce:newNonce];
     
     NSDictionary *payload = @{
                    @"conversation": conversationID.transportString,
@@ -397,7 +397,7 @@
 
 - (ZMUpdateEvent *)createTextAddedEventWithNonce:(NSUUID *)nonce conversationID:(NSUUID*)conversationID senderID:(NSUUID *)senderID
 {
-    ZMGenericMessage *genericMessage = [ZMGenericMessage messageWithContent:[ZMText textWith:@"Yeah!" mentions:@[] linkPreviews:@[] quoteMessageId:nil] nonce:nonce];
+    ZMGenericMessage *genericMessage = [ZMGenericMessage messageWithContent:[ZMText textWith:@"Yeah!" mentions:@[] linkPreviews:@[] replyingTo:nil] nonce:nonce];
     
     NSDictionary *payload = @{
                               @"conversation": conversationID.transportString,

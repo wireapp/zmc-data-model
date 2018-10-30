@@ -1820,7 +1820,7 @@
     message.sender = sender;
     [message markAsSent];
     
-    ZMGenericMessage *genericMessage = [ZMGenericMessage messageWithContent:[ZMMessageEdit editWith:[ZMText textWith:@"Edited Test Message" mentions:@[] linkPreviews:@[] quoteMessageId:nil] replacingMessageId:message.nonce] nonce:NSUUID.createUUID];
+    ZMGenericMessage *genericMessage = [ZMGenericMessage messageWithContent:[ZMMessageEdit editWith:[ZMText textWith:@"Edited Test Message" mentions:@[] linkPreviews:@[] replyingTo:nil] replacingMessageId:message.nonce] nonce:NSUUID.createUUID];
     NSDictionary *payload = @{
                               @"conversation": conversation.remoteIdentifier.transportString,
                               @"from": message.sender.remoteIdentifier.transportString,
