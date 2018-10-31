@@ -739,28 +739,6 @@ NSString * const ZMMessageQuoteKey = @"quote";
     return nil;
 }
 
-- (void)removeMessageClearingSender:(BOOL)clearingSender
-{
-    self.text = nil;
-    [super removeMessageClearingSender:clearingSender];
-}
-
-- (ZMDeliveryState)deliveryState
-{
-    return ZMDeliveryStateDelivered;
-}
-
-- (void)fetchLinkPreviewImageDataWithQueue:(dispatch_queue_t)queue completionHandler:(void (^)(NSData *))completionHandler
-{
-    NOT_USED(queue);
-    NOT_USED(completionHandler);
-}
-
-- (void)requestLinkPreviewImageDownload
-{
-    
-}
-
 - (NSArray<Mention *> *)mentions
 {
     return @[];
@@ -785,6 +763,36 @@ NSString * const ZMMessageQuoteKey = @"quote";
 {
     return NO;
 }
+
+- (void)removeMessageClearingSender:(BOOL)clearingSender
+{
+    self.text = nil;
+    [super removeMessageClearingSender:clearingSender];
+}
+
+- (ZMDeliveryState)deliveryState
+{
+    return ZMDeliveryStateDelivered;
+}
+
+- (void)fetchLinkPreviewImageDataWithQueue:(dispatch_queue_t)queue completionHandler:(void (^)(NSData *))completionHandler
+{
+    NOT_USED(queue);
+    NOT_USED(completionHandler);
+}
+
+- (void)requestLinkPreviewImageDownload
+{
+    
+}
+
+- (void)editText:(NSString *)text mentions:(NSArray<Mention *> *)mentions fetchLinkPreview:(BOOL)fetchLinkPreview
+{
+    NOT_USED(text);
+    NOT_USED(mentions);
+    NOT_USED(fetchLinkPreview);
+}
+
 
 @end
 
