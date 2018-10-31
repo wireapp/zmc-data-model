@@ -413,7 +413,7 @@
 }
 
 
-- (void)checkThatItHidesOldMessageAndClearsItsContentWithSameSender:(BOOL)sameSender shouldHide:(BOOL)shouldHide
+- (void)checkThatItEditsMessageForSameSender:(BOOL)sameSender shouldEdit:(BOOL)shouldEdit
 {
     // given
     NSString *oldText = @"Hallo";
@@ -437,89 +437,28 @@
     WaitForAllGroupsToBeEmpty(0.5);
     
     // then
-    if (shouldHide) {
-        XCTAssertNil(message.textMessageData.messageText);
-        XCTAssertEqualObjects(message.nonce, oldNonce);
-        XCTAssertNil(message.visibleInConversation);
-        XCTAssertEqual(message.hiddenInConversation, conversation);
-
-        ZMClientMessage *clientMessage = (ZMClientMessage *)message;
-        XCTAssertNil(clientMessage.genericMessage);
-        XCTAssertEqual(clientMessage.dataSet.count, 0lu);
-        XCTAssertNil(message.textMessageData);
-        XCTAssertNotNil(message.sender);
-        
+    if (shouldEdit) {
+        XCTAssertEqualObjects(message.textMessageData.messageText, newText);
+        XCTAssertNotEqualObjects(message.nonce, oldNonce);
         XCTAssertTrue(message.reactions.isEmpty);
-        XCTAssertEqual(conversation.messages.count, 1lu);
-        ZMMessage *editedMessage = conversation.messages.firstObject;
-
-        XCTAssertTrue(editedMessage.reactions.isEmpty);
-        XCTAssertEqualObjects(editedMessage.textMessageData.messageText, newText);
+        XCTAssertEqual(message.visibleInConversation, conversation);
+        XCTAssertNil(message.hiddenInConversation);
     } else {
-        XCTAssertNotNil(message.textMessageData.messageText);
+        XCTAssertEqualObjects(message.textMessageData.messageText, oldText);
         XCTAssertEqualObjects(message.nonce, oldNonce);
         XCTAssertEqual(message.visibleInConversation, conversation);
         XCTAssertNil(message.hiddenInConversation);
     }
 }
 
-- (void)testThatItHidesOldMessageAndClearsItsContent_SameSender
+- (void)testThatEditsMessageWhenSameSender
 {
-    [self checkThatItHidesOldMessageAndClearsItsContentWithSameSender:YES shouldHide:YES];
+    [self checkThatItEditsMessageForSameSender:YES shouldEdit:YES];
 }
 
-- (void)testThatItHidesOldMessageAndClearsItsContent_DifferentSender
+- (void)testThatDoesntEditMessageWhenSenderIsDifferent
 {
-    [self checkThatItHidesOldMessageAndClearsItsContentWithSameSender:NO shouldHide:NO];
-}
-
-- (void)checkThatItInsertsANewMessageWithSameSender:(BOOL)sameSender shouldInsert:(BOOL)shouldInsert
-{
-    // given
-    NSString *oldText = @"Hallo";
-    NSString *newText = @"Hello";
-    NSUUID *senderID = sameSender ? self.selfUser.remoteIdentifier : [NSUUID createUUID];
-    
-    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    conversation.remoteIdentifier = [NSUUID createUUID];
-    ZMMessage *message = (id) [conversation appendMessageWithText:oldText];
-    
-    ZMUpdateEvent *updateEvent = [self createMessageEditUpdateEventWithOldNonce:message.nonce newNonce:[NSUUID createUUID] conversationID:conversation.remoteIdentifier senderID:senderID newText:newText];
-    NSUUID *newNonce = updateEvent.messageNonce;
-    
-    // when
-    __block ZMClientMessage *newMessage;
-    [self performPretendingUiMocIsSyncMoc:^{
-        newMessage = (id)[ZMClientMessage messageUpdateResultFromUpdateEvent:updateEvent inManagedObjectContext:self.uiMOC prefetchResult:nil].message;
-    }];
-    WaitForAllGroupsToBeEmpty(0.5);
-    
-    // then
-    if (shouldInsert) {
-        XCTAssertNotNil(newMessage);
-        XCTAssertEqualObjects(newMessage.textMessageData.messageText, newText);
-        XCTAssertEqualObjects(newMessage.nonce, newNonce);
-        XCTAssertEqual(newMessage.visibleInConversation, conversation);
-        XCTAssertNil(newMessage.hiddenInConversation);
-
-        ZMClientMessage *clientMessage = (ZMClientMessage *)message;
-        XCTAssertNil(clientMessage.genericMessage);
-        XCTAssertEqual(clientMessage.dataSet.count, 0lu);
-        XCTAssertNil(message.textMessageData);
-        XCTAssertNotNil(message.sender);
-    } else {
-        XCTAssertNil(newMessage);
-    }
-}
-
-- (void)testThatItInsertsANewMessage_SameSender
-{
-    [self checkThatItInsertsANewMessageWithSameSender:YES shouldInsert:YES];
-}
-
-- (void)testThatItInsertsANewMessage_DifferentSender
-{
-    [self checkThatItInsertsANewMessageWithSameSender:NO shouldInsert:NO];
+    [self checkThatItEditsMessageForSameSender:NO shouldEdit:NO];
 }
 
 - (void)testThatItDoesNotInsertAMessageWithANonceBelongingToAHiddenMessage
