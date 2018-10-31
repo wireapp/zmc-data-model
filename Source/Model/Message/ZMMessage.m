@@ -335,6 +335,7 @@ NSString * const ZMMessageQuoteKey = @"quote";
 {
     self.hiddenInConversation = self.conversation;
     self.visibleInConversation = nil;
+    self.replies = [[NSSet alloc] init];
     [self clearAllReactions];
 
     if (clearingSender) {
