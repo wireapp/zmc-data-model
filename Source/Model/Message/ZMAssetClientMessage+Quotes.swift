@@ -16,26 +16,12 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-
 import Foundation
 
-extension ZMOTRMessage {
+extension ZMAssetClientMessage {
     
-    @objc
-    func updateQuoteRelationships() {
-        // Should be overridden in subclasses
-    }
-        
-    func establishRelationshipsForInsertedQuote(_ quote: ZMQuote) {
-        
-        guard let managedObjectContext = managedObjectContext,
-              let conversation = conversation,
-              let quotedMessageId = UUID(uuidString: quote.quotedMessageId),
-              let quotedMessage = ZMOTRMessage.fetch(withNonce: quotedMessageId, for: conversation, in: managedObjectContext) else { return }
-        
-        if quotedMessage.hashOfContent == quote.quotedMessageSha256 {
-            quotedMessage.replies.insert(self)
-        }
+    override func updateQuoteRelationships() {
+        // Asset messages don't support quotes at the moment
     }
     
 }
