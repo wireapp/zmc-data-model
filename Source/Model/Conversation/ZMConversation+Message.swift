@@ -45,17 +45,17 @@ extension ZMConversation {
     @discardableResult @objc(appendText:mentions:replyingToMessage:fetchLinkPreview:nonce:)
     public func append(text: String,
                        mentions: [Mention] = [],
-                       replyingTo replyToMessage: ZMClientMessage? = nil,
+                       replyingTo quotedMessage: ZMConversationMessage? = nil,
                        fetchLinkPreview: Bool = true,
                        nonce: UUID = UUID()) -> ZMConversationMessage? {
         
         guard !(text as NSString).zmHasOnlyWhitespaceCharacters() else { return nil }
         
-        let textContent = ZMText.text(with: text, mentions: mentions, linkPreviews: [], quoteMessageId: replyToMessage?.genericMessage?.messageId)
+        let textContent = ZMText.text(with: text, mentions: mentions, linkPreviews: [], replyingTo: quotedMessage as? ZMOTRMessage)
         let clientMessage = ZMGenericMessage.message(content: textContent, nonce: nonce, expiresAfter: messageDestructionTimeoutValue)
         let message = appendClientMessage(with: clientMessage)!
         message.linkPreviewState = fetchLinkPreview ? .waitingToBeProcessed : .done
-        message.quote = replyToMessage
+        message.quote = quotedMessage as? ZMMessage
         
         if let managedObjectContext = managedObjectContext {
             NotificationInContext(name: ZMConversation.clearTypingNotificationName,

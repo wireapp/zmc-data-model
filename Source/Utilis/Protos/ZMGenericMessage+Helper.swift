@@ -167,21 +167,18 @@ extension ZMKnock: EphemeralMessageContentType {
 
 @objc
 extension ZMText: EphemeralMessageContentType {
-    
-    public static func text(with message: String, mentions: [Mention] = [], linkPreviews: [ZMLinkPreview] = []) -> ZMText {
-        return text(with: message, mentions: mentions, linkPreviews: linkPreviews, quoteMessageId: nil)
-    }
-    
-    public static func text(with message: String, mentions: [Mention] = [], linkPreviews: [ZMLinkPreview] = [], quoteMessageId: String? = nil) -> ZMText {
+        
+    public static func text(with message: String, mentions: [Mention] = [], linkPreviews: [ZMLinkPreview] = [], replyingTo quotedMessage: ZMOTRMessage? = nil) -> ZMText {
         let builder = ZMTextBuilder()
                 
         builder.setContent(message)
         builder.setMentionsArray(mentions.compactMap(ZMMention.mention))
         builder.setLinkPreviewArray(linkPreviews)
         
-        if let quote = quoteMessageId {
+        if let quotedMessage = quotedMessage, let quotedMessageNonce = quotedMessage.nonce {
             let quoteBuilder = ZMQuoteBuilder()
-            quoteBuilder.setQuotedMessageId(quote)
+            quoteBuilder.setQuotedMessageId(quotedMessageNonce.transportString())
+            quoteBuilder.setQuotedMessageSha256(quotedMessage.hashOfContent)
             builder.setQuote(quoteBuilder)
         }
         
