@@ -65,6 +65,7 @@
         XCTAssertEqualObjects(newMessage.serverTimestamp, message.serverTimestamp);
         XCTAssertEqual(newMessage.visibleInConversation, conversation);
         XCTAssertEqualObjects(newMessage.textMessageData.messageText, newText);
+        XCTAssertEqualObjects(newMessage.normalizedText, newText.lowercaseString);
         XCTAssertEqualObjects(newMessage.genericMessage.edited.replacingMessageId, originalNonce.transportString);
         XCTAssertNotEqualObjects(newMessage.nonce, originalNonce);
 

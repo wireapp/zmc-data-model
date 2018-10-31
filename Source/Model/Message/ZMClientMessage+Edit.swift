@@ -35,6 +35,7 @@ extension ZMClientMessage {
         
         setTransientUUID(nonce, forKey: "nonce") // TODO do properly
         add(ZMGenericMessage.message(content: messageEdit.text, nonce: nonce).data())
+        updateNormalizedText()
         self.updatedTimestamp = updateEvent.timeStamp()
         self.reactions.removeAll()
         return true
