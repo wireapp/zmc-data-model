@@ -20,6 +20,11 @@ import Foundation
 
 extension ZMClientMessage {
     
+    /// Apply a message edit update
+    ///
+    /// - parameter messageEdit: Message edit update
+    /// - parameter updateEvent: Update event which delivered the message edit update
+    /// - Returns: true if edit was succesfully applied
     @objc
     func processMessageEdit(_ messageEdit: ZMMessageEdit, from updateEvent: ZMUpdateEvent) -> Bool {
         guard let nonce = updateEvent.messageNonce(),

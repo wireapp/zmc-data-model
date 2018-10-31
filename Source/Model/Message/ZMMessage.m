@@ -445,25 +445,6 @@ NSString * const ZMMessageQuoteKey = @"quote";
     }
 }
 
-+ (ZMMessage *)clearedMessageForRemotelyEditedMessage:(ZMGenericMessage *)genericEditMessage inConversation:(ZMConversation *)conversation senderID:(NSUUID *)senderID inManagedObjectContext:(NSManagedObjectContext *)moc;
-{
-    if (!genericEditMessage.hasEdited) {
-        return nil;
-    }
-    NSUUID *messageID = [NSUUID uuidWithTransportString:genericEditMessage.edited.replacingMessageId];
-    ZMMessage *message = [ZMMessage fetchMessageWithNonce:messageID forConversation:conversation inManagedObjectContext:moc];
-    
-    // Only the sender of the original message can edit it
-    if (message == nil  || message.isZombieObject || ![senderID isEqual:message.sender.remoteIdentifier]) {
-        return nil;
-    }
-
-    // We do not want to clear the sender in case of an edit, as the message will still be visible
-    [message removeMessageClearingSender:NO];
-    return message;
-}
-
-
 - (NSUUID *)nonceFromPostPayload:(NSDictionary *)payload
 {
     ZMUpdateEventType eventType = [ZMUpdateEvent updateEventTypeForEventTypeString:[payload optionalStringForKey:@"type"]];
