@@ -346,6 +346,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
             ZMConversationLastReadLocalTimestampKey,
             ZMConversationInternalEstimatedUnreadCountKey,
             ZMConversationInternalEstimatedUnreadSelfMentionCountKey,
+            ZMConversationInternalEstimatedUnreadSelfReplyCountKey,
             ZMConversationIsArchivedKey,
             ZMConversationMutedStatusKey,
             LocalMessageDestructionTimeoutKey,

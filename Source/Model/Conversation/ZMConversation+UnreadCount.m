@@ -31,6 +31,7 @@
 #import <WireDataModel/WireDataModel-Swift.h>
 
 NSString *const ZMConversationInternalEstimatedUnreadSelfMentionCountKey = @"internalEstimatedUnreadSelfMentionCount";
+NSString *const ZMConversationInternalEstimatedUnreadSelfReplyCountKey = @"internalEstimatedUnreadSelfReplyCount";
 NSString *const ZMConversationInternalEstimatedUnreadCountKey = @"internalEstimatedUnreadCount";
 NSString *const ZMConversationLastUnreadKnockDateKey = @"lastUnreadKnockDate";
 NSString *const ZMConversationLastUnreadMissedCallDateKey = @"lastUnreadMissedCallDate";
@@ -89,6 +90,7 @@ NSString *const ZMConversationLastReadLocalTimestampKey = @"lastReadLocalTimesta
 
 @dynamic internalEstimatedUnreadCount;
 @dynamic internalEstimatedUnreadSelfMentionCount;
+@dynamic internalEstimatedUnreadSelfReplyCount;
 @dynamic hasUnreadUnsentMessage;
 
 + (NSUInteger)unreadConversationCountInContext:(NSManagedObjectContext *)moc;
@@ -154,6 +156,15 @@ NSString *const ZMConversationLastReadLocalTimestampKey = @"lastReadLocalTimesta
     [self willChangeValueForKey:ZMConversationInternalEstimatedUnreadSelfMentionCountKey];
     [self setPrimitiveValue:@(internalEstimatedUnreadSelfMentionCount) forKey:ZMConversationInternalEstimatedUnreadSelfMentionCountKey];
     [self didChangeValueForKey:ZMConversationInternalEstimatedUnreadSelfMentionCountKey];
+}
+
+- (void)setInternalEstimatedUnreadSelfReplyCount:(int64_t)internalEstimatedUnreadSelfReplyCount
+{
+    RequireString(self.managedObjectContext.zm_isSyncContext, "internalEstimatedUnreadSelfReplyCount should only be set from the sync context");
+    
+    [self willChangeValueForKey:ZMConversationInternalEstimatedUnreadSelfReplyCountKey];
+    [self setPrimitiveValue:@(internalEstimatedUnreadSelfReplyCount) forKey:ZMConversationInternalEstimatedUnreadSelfReplyCountKey];
+    [self didChangeValueForKey:ZMConversationInternalEstimatedUnreadSelfReplyCountKey];
 }
 
 - (ZMConversationListIndicator)unreadListIndicator;
