@@ -135,7 +135,7 @@ extension ZMConversation {
             if let status = mutedStatus {
                 var statusFlags = MutedMessageTypes(rawValue: status)
                 if legacyFlag != 0 {
-                    statusFlags.formUnion(.nonMentions)
+                    statusFlags.formUnion(.regular)
                 }
                 else {
                     statusFlags = MutedMessageTypes.none
@@ -144,7 +144,7 @@ extension ZMConversation {
                 self.mutedStatus = statusFlags.rawValue
             }
             else {
-                self.mutedStatus = (legacyFlag == 0) ? MutedMessageTypes.none.rawValue : MutedMessageTypes.nonMentions.rawValue
+                self.mutedStatus = (legacyFlag == 0) ? MutedMessageTypes.none.rawValue : MutedMessageTypes.regular.rawValue
             }
         }
         else if let status = mutedStatus {
