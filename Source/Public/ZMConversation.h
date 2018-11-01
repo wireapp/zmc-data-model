@@ -51,6 +51,7 @@ typedef NS_ENUM(int16_t, ZMConversationListIndicator) {
     ZMConversationListIndicatorInvalid = 0,
     ZMConversationListIndicatorNone,
     ZMConversationListIndicatorUnreadSelfMention,
+    ZMConversationListIndicatorUnreadSelfReply,
     ZMConversationListIndicatorUnreadMessages,
     ZMConversationListIndicatorKnock,
     ZMConversationListIndicatorMissedCall,
