@@ -169,6 +169,7 @@ NSString *const ZMConversationLastReadLocalTimestampKey = @"lastReadLocalTimesta
 
 - (ZMConversationListIndicator)unreadListIndicator;
 {
+    // TODO: Add case for unread reply
     if (self.hasUnreadUnsentMessage) {
         return ZMConversationListIndicatorExpiredMessage;
     } if (self.estimatedUnreadSelfMentionCount > 0) {

@@ -319,6 +319,7 @@ extension ZMConversation {
         updateLastUnreadMissedCall(lastMissedCallDate)
         internalEstimatedUnreadCount = unreadCount
         internalEstimatedUnreadSelfMentionCount = unreadSelfMentionCount
+        // TODO: reply count
     }
     
     /// Returns the first unread message in a converation. If the first unread message is child message of system message the parent message will be returned.
