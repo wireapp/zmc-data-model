@@ -107,7 +107,7 @@ class ZMConversationTests_Silencing: ZMConversationTestsBase {
         selfUser.remoteIdentifier = UUID()
         selfUser.teamIdentifier = UUID()
         
-        let conversation = archivedConversation(with: .nonMentions)
+        let conversation = archivedConversation(with: .regular)
         
         // WHEN
         let mention = Mention(range: NSRange(location: 0, length: 9), user: selfUser)
@@ -119,7 +119,7 @@ class ZMConversationTests_Silencing: ZMConversationTestsBase {
         
         // THEN
         XCTAssertFalse(conversation.isArchived)
-        XCTAssertEqual(conversation.mutedMessageTypes, .nonMentions)
+        XCTAssertEqual(conversation.mutedMessageTypes, .regular)
     }
 
     func testThatAppendingAMentionSelfMessageInAnArchivedFullyMutedConversationDoesNotUnarchiveIt() {
