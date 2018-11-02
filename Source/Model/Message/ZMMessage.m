@@ -445,25 +445,6 @@ NSString * const ZMMessageQuoteKey = @"quote";
     }
 }
 
-+ (ZMMessage *)clearedMessageForRemotelyEditedMessage:(ZMGenericMessage *)genericEditMessage inConversation:(ZMConversation *)conversation senderID:(NSUUID *)senderID inManagedObjectContext:(NSManagedObjectContext *)moc;
-{
-    if (!genericEditMessage.hasEdited) {
-        return nil;
-    }
-    NSUUID *messageID = [NSUUID uuidWithTransportString:genericEditMessage.edited.replacingMessageId];
-    ZMMessage *message = [ZMMessage fetchMessageWithNonce:messageID forConversation:conversation inManagedObjectContext:moc];
-    
-    // Only the sender of the original message can edit it
-    if (message == nil  || message.isZombieObject || ![senderID isEqual:message.sender.remoteIdentifier]) {
-        return nil;
-    }
-
-    // We do not want to clear the sender in case of an edit, as the message will still be visible
-    [message removeMessageClearingSender:NO];
-    return message;
-}
-
-
 - (NSUUID *)nonceFromPostPayload:(NSDictionary *)payload
 {
     ZMUpdateEventType eventType = [ZMUpdateEvent updateEventTypeForEventTypeString:[payload optionalStringForKey:@"type"]];
@@ -758,28 +739,6 @@ NSString * const ZMMessageQuoteKey = @"quote";
     return nil;
 }
 
-- (void)removeMessageClearingSender:(BOOL)clearingSender
-{
-    self.text = nil;
-    [super removeMessageClearingSender:clearingSender];
-}
-
-- (ZMDeliveryState)deliveryState
-{
-    return ZMDeliveryStateDelivered;
-}
-
-- (void)fetchLinkPreviewImageDataWithQueue:(dispatch_queue_t)queue completionHandler:(void (^)(NSData *))completionHandler
-{
-    NOT_USED(queue);
-    NOT_USED(completionHandler);
-}
-
-- (void)requestLinkPreviewImageDownload
-{
-    
-}
-
 - (NSArray<Mention *> *)mentions
 {
     return @[];
@@ -804,6 +763,36 @@ NSString * const ZMMessageQuoteKey = @"quote";
 {
     return NO;
 }
+
+- (void)removeMessageClearingSender:(BOOL)clearingSender
+{
+    self.text = nil;
+    [super removeMessageClearingSender:clearingSender];
+}
+
+- (ZMDeliveryState)deliveryState
+{
+    return ZMDeliveryStateDelivered;
+}
+
+- (void)fetchLinkPreviewImageDataWithQueue:(dispatch_queue_t)queue completionHandler:(void (^)(NSData *))completionHandler
+{
+    NOT_USED(queue);
+    NOT_USED(completionHandler);
+}
+
+- (void)requestLinkPreviewImageDownload
+{
+    
+}
+
+- (void)editText:(NSString *)text mentions:(NSArray<Mention *> *)mentions fetchLinkPreview:(BOOL)fetchLinkPreview
+{
+    NOT_USED(text);
+    NOT_USED(mentions);
+    NOT_USED(fetchLinkPreview);
+}
+
 
 @end
 

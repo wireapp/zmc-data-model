@@ -1854,12 +1854,12 @@
     ZMMessage *message = (id)[conversation appendMessageWithText:@"Test Message"];
     message.sender = self.selfUser;
     [message markAsSent];
-    ZMMessage *newMessage = (id)[ZMMessage edit:message newText:@"Edited Test Message" mentions:@[] fetchLinkPreview:YES];
+    [message.textMessageData editText:@"Edited Test Message" mentions:@[] fetchLinkPreview:YES];
 
     WaitForAllGroupsToBeEmpty(0.5);
     
     // then
-    XCTAssertEqualObjects(conversation.lastEditableMessage, newMessage);
+    XCTAssertEqualObjects(conversation.lastEditableMessage, message);
 }
 
 - (void)testThatItReturnsMessageIfLastMessageIsTextAndSentBySelfUser;
