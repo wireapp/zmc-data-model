@@ -34,7 +34,7 @@ extension ZMClientMessage: ZMTextMessageData {
     }
     
     public var hasQuote: Bool {
-        return quote != nil
+        return genericMessage?.text.hasQuote() ?? false
     }
     
     public var messageText: String? {
