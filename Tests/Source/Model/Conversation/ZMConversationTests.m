@@ -771,6 +771,21 @@
     XCTAssertEqualObjects(conversation.draftMessage.text, originalValue);
 }
 
+- (void)testThatItSavesQuotesNonce
+{
+    // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMMessage *message = [[ZMMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
+    
+    // when
+    conversation.draftMessage = [[DraftMessage alloc] initWithText:@"" mentions:@[] quote:message];
+    
+    // then
+    NSUUID *draftNonce = conversation.draftMessage.quote.nonce;
+    NSUUID *messageNonce = message.nonce;
+    XCTAssertEqualObjects(draftNonce, messageNonce);
+}
+    
 - (void)addNotification:(NSNotification *)note
 {
     [self.receivedNotifications addObject:note];
