@@ -230,7 +230,7 @@
 
 - (void)testThatWeCanSetAttributesOnConversation
 {
-    [self checkConversationAttributeForKey:@"draftMessage" value:[[DraftMessage alloc] initWithText:@"My draft message text" mentions:@[]]];
+    [self checkConversationAttributeForKey:@"draftMessage" value:[[DraftMessage alloc] initWithText:@"My draft message text" mentions:@[] quote:nil]];
     [self checkConversationAttributeForKey:ZMConversationUserDefinedNameKey value:@"Foo"];
     [self checkConversationAttributeForKey:@"normalizedUserDefinedName" value:@"Foo"];
     [self checkConversationAttributeForKey:@"conversationType" value:@(1)];
@@ -764,13 +764,28 @@
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     
     // when
-    conversation.draftMessage = [[DraftMessage alloc] initWithText:mutableValue mentions:@[]];
+    conversation.draftMessage = [[DraftMessage alloc] initWithText:mutableValue mentions:@[] quote:nil];
     [mutableValue appendString:@".uk"];
     
     // then
     XCTAssertEqualObjects(conversation.draftMessage.text, originalValue);
 }
 
+- (void)testThatItSavesQuotesNonce
+{
+    // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMMessage *message = [[ZMMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
+    
+    // when
+    conversation.draftMessage = [[DraftMessage alloc] initWithText:@"" mentions:@[] quote:message];
+    
+    // then
+    NSUUID *draftNonce = conversation.draftMessage.quote.nonce;
+    NSUUID *messageNonce = message.nonce;
+    XCTAssertEqualObjects(draftNonce, messageNonce);
+}
+    
 - (void)addNotification:(NSNotification *)note
 {
     [self.receivedNotifications addObject:note];
@@ -2005,7 +2020,7 @@
 {
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    conversation.draftMessage = [[DraftMessage alloc] initWithText:@"This is a test" mentions:@[]];
+    conversation.draftMessage = [[DraftMessage alloc] initWithText:@"This is a test" mentions:@[] quote:nil];
     
     XCTAssertTrue(conversation.hasDraftMessage);
     
