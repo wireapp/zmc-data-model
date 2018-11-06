@@ -45,13 +45,13 @@ public struct MutedMessageTypes: OptionSet {
     /// None of the messages are muted.
     public static let none = MutedMessageTypes(rawValue: MutedMessageOptionValue.none.rawValue)
 
-    /// All messages, including mentions, are muted.
+    /// All messages, including mentions and replies, are muted.
     public static let all: MutedMessageTypes = [.regular, .mentionsAndReplies]
     
     /// Only regular messages (no mentions nor replies) are muted.
     public static let regular = MutedMessageTypes(rawValue: MutedMessageOptionValue.regular.rawValue)
     
-    /// Only mentions and replis are muted. Only used to check the bits in the bitmask.
+    /// Only mentions and replies are muted. Only used to check the bits in the bitmask.
     /// Please do not set this as the value on the conversation.
     public static let mentionsAndReplies = MutedMessageTypes(rawValue: MutedMessageOptionValue.mentionsAndReplies.rawValue)
 }
