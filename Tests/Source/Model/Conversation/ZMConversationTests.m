@@ -2681,6 +2681,33 @@
     WaitForAllGroupsToBeEmpty(0.5);
 }
 
+- (void)testThatConversationListIndicatorIsUnreadReplyWhenItHasUnreadSelfReply
+{
+    // given
+    [self.syncMOC performGroupedBlockAndWait:^{
+        ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
+        [self simulateUnreadSelfReplyCount:2 forConversation:conversation];
+
+        // then
+        XCTAssertEqual(conversation.conversationListIndicator, ZMConversationListIndicatorUnreadSelfReply);
+    }];
+    WaitForAllGroupsToBeEmpty(0.5);
+}
+
+- (void)testThatConversationListIndicatorIsUnreadMentionWhenItHasUnreadSelfMentionAndUnreadSelfReply
+{
+    // given
+    [self.syncMOC performGroupedBlockAndWait:^{
+        ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
+        [self simulateUnreadSelfMentionCount:2 forConversation:conversation];
+        [self simulateUnreadSelfReplyCount:2 forConversation:conversation];
+
+        // then
+        XCTAssertEqual(conversation.conversationListIndicator, ZMConversationListIndicatorUnreadSelfMention);
+    }];
+    WaitForAllGroupsToBeEmpty(0.5);
+}
+
 - (void)testThatConversationListIndicatorIsUnreadMessageWhenItHasUnread
 {
     // given
