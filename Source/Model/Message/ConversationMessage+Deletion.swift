@@ -81,7 +81,7 @@ extension ZMClientMessage {
             return false
         }
                 
-        return (genericMessage.hasEdited() || genericMessage.hasText()) && !isEphemeral && (deliveryState == .sent || deliveryState == .delivered || deliveryState == .failedToSend)
+        return genericMessage.hasEdited() || genericMessage.hasText() && !isEphemeral && (deliveryState == .sent || deliveryState == .delivered)
     }
 }
 
