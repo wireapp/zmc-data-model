@@ -23,19 +23,21 @@ import Foundation
 extension ZMOTRMessage {
 
     private static let dayThreshold = 7
-
-    @objc(shouldConfirmMessage:)
-    static func shouldConfirm(_ message: ZMMessage) -> Bool {
-        precondition(nil != message.serverTimestamp, "Can not decide whether to confirm message without timestamp")
-        return _shouldConfirm(message)
+    
+    @objc
+    var needsToBeConfirmed: Bool {
+        return needsToBeConfirmedAtCurrentDate()
     }
-
-    private static func _shouldConfirm(_ message: ZMMessage, currentDate: Date = .init()) -> Bool {
-        guard let timestamp = message.serverTimestamp else { return true }
-        let calendar = Calendar.current
-        guard let days = calendar.dateComponents([.day], from: timestamp, to: currentDate).day else { return true }
-        return days <= dayThreshold
+    
+    func needsToBeConfirmedAtCurrentDate(_ currentDate: Date = Date()) -> Bool {
+        guard let conversation = conversation, conversation.conversationType == .oneOnOne,
+              let sender = sender, !sender.isSelfUser,
+              let serverTimestamp = serverTimestamp,
+              let daysElapsed = Calendar.current.dateComponents([.day], from: serverTimestamp, to: currentDate).day
+        else { return false }
+        
+        return daysElapsed <= ZMOTRMessage.dayThreshold
     }
-
+    
 }
 

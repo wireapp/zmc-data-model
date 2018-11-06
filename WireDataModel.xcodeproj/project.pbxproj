@@ -19,6 +19,7 @@
 		164A55D320F3AF6700AE62A6 /* ZMSearchUserTests+ProfileImages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 164A55D220F3AF6700AE62A6 /* ZMSearchUserTests+ProfileImages.swift */; };
 		165124D221886EDB006A3C75 /* ZMOTRMessage+Quotes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 165124D121886EDB006A3C75 /* ZMOTRMessage+Quotes.swift */; };
 		165124D42188B613006A3C75 /* ZMClientMessage+Quotes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 165124D32188B613006A3C75 /* ZMClientMessage+Quotes.swift */; };
+		165124D62188CF66006A3C75 /* ZMClientMessage+Editing.swift in Sources */ = {isa = PBXBuildFile; fileRef = 165124D52188CF66006A3C75 /* ZMClientMessage+Editing.swift */; };
 		165124D82189AE90006A3C75 /* ZMAssetClientMessage+Quotes.swift in Sources */ = {isa = PBXBuildFile; fileRef = 165124D72189AE90006A3C75 /* ZMAssetClientMessage+Quotes.swift */; };
 		1651F9BE1D3554C800A9FAE8 /* ZMClientMessageTests+TextMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1651F9BD1D3554C800A9FAE8 /* ZMClientMessageTests+TextMessage.swift */; };
 		165911551DF054AD007FA847 /* ZMConversation+Predicates.swift in Sources */ = {isa = PBXBuildFile; fileRef = 165911541DF054AD007FA847 /* ZMConversation+Predicates.swift */; };
@@ -533,6 +534,7 @@
 		164A55D220F3AF6700AE62A6 /* ZMSearchUserTests+ProfileImages.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMSearchUserTests+ProfileImages.swift"; sourceTree = "<group>"; };
 		165124D121886EDB006A3C75 /* ZMOTRMessage+Quotes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMOTRMessage+Quotes.swift"; sourceTree = "<group>"; };
 		165124D32188B613006A3C75 /* ZMClientMessage+Quotes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMClientMessage+Quotes.swift"; sourceTree = "<group>"; };
+		165124D52188CF66006A3C75 /* ZMClientMessage+Editing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMClientMessage+Editing.swift"; sourceTree = "<group>"; };
 		165124D72189AE90006A3C75 /* ZMAssetClientMessage+Quotes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMAssetClientMessage+Quotes.swift"; sourceTree = "<group>"; };
 		1651F9BD1D3554C800A9FAE8 /* ZMClientMessageTests+TextMessage.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZMClientMessageTests+TextMessage.swift"; sourceTree = "<group>"; };
 		165911541DF054AD007FA847 /* ZMConversation+Predicates.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZMConversation+Predicates.swift"; sourceTree = "<group>"; };
@@ -1440,6 +1442,7 @@
 				54D809FB1F681D6400B2CCB4 /* ZMClientMessage+LinkPreview.swift */,
 				54363A001D7876200048FD7D /* ZMClientMessage+Encryption.swift */,
 				165124D32188B613006A3C75 /* ZMClientMessage+Quotes.swift */,
+				165124D52188CF66006A3C75 /* ZMClientMessage+Editing.swift */,
 				BFD2E7971CBE796600BF195A /* ZMGenericMessage+UpdateEvent.h */,
 				BFD2E7981CBE796600BF195A /* ZMGenericMessage+UpdateEvent.m */,
 				F9A705F81CAEE01D00C2F5FE /* ZMGenericMessage+External.h */,
@@ -2518,6 +2521,7 @@
 				BF3493F21EC3623200B0C314 /* ZMUser+Teams.swift in Sources */,
 				541E4F951CBD182100D82D69 /* FileAssetCache.swift in Sources */,
 				165911551DF054AD007FA847 /* ZMConversation+Predicates.swift in Sources */,
+				165124D62188CF66006A3C75 /* ZMClientMessage+Editing.swift in Sources */,
 				165D3A2D1E1D47AB0052E654 /* ZMCallState.swift in Sources */,
 				F9A706731CAEE01D00C2F5FE /* AssetEncryption.swift in Sources */,
 				F9FD75731E2E6A2100B4558B /* ConversationListObserverCenter.swift in Sources */,
