@@ -21,7 +21,16 @@ import Foundation
 extension ZMClientMessage {
     
     override func updateQuoteRelationships() {
-        guard let quote = genericMessage?.text?.quote else { return }
+        let quote: ZMQuote
+        if self.isEphemeral, let newQuote = genericMessage?.ephemeral?.text?.quote {
+            quote = newQuote
+        }
+        else if !self.isEphemeral, let newQuote = genericMessage?.text?.quote {
+            quote = newQuote
+        }
+        else {
+            return
+        }
         
         establishRelationshipsForInsertedQuote(quote)
     }
