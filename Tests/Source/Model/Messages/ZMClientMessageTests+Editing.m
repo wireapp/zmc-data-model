@@ -576,6 +576,7 @@
     message.sender = sender;
     message.nonce = oldNonce;
 
+    NSString *oldIdentifier = message.nonpersistedObjectIdentifer;
     ZMUpdateEvent *updateEvent = [self createMessageEditUpdateEventWithOldNonce:message.nonce newNonce:[NSUUID createUUID] conversationID:conversation.remoteIdentifier senderID:sender.remoteIdentifier newText:newText];
 
     // when
@@ -588,7 +589,7 @@
 
     // then
     XCTAssertNotEqualObjects(oldNonce, newMessage.nonce);
-    XCTAssertEqualObjects(message.nonpersistedObjectIdentifer, newMessage.nonpersistedObjectIdentifer);
+    XCTAssertEqualObjects(oldIdentifier, newMessage.nonpersistedObjectIdentifer);
 }
 
 @end
