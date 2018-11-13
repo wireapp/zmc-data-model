@@ -40,12 +40,6 @@ import Foundation
         guard let other = object as? DraftMessage else { return false }
         return (text, mentions, quote) == (other.text, other.mentions, other.quote)
     }
-    
-    public func fetchQuote(in conversation: ZMConversation) -> ZMMessage? {
-        guard let nonce = quote?.nonce,
-            let context = conversation.managedObjectContext else { return nil }
-        return ZMMessage.fetch(withNonce: nonce, for: conversation, in: context)
-    }
 
 }
 
@@ -137,6 +131,12 @@ fileprivate struct StorableQuote: Codable {
             }
         }
 
+    }
+    
+    public func fetchQuoteFromDraftMessage() -> ZMMessage? {
+        guard let nonce = draftMessage?.quote?.nonce,
+            let context = managedObjectContext else { return nil }
+        return ZMMessage.fetch(withNonce: nonce, for: self, in: context)
     }
 
 }
