@@ -30,6 +30,8 @@ class ZMAssetClientMessageTests_Ephemeral : BaseZMAssetClientMessageTests {
     }
     
     override func tearDown() {
+        BackgroundActivityFactory.shared.activityManager = nil
+
         syncMOC.performGroupedBlockAndWait {
             self.syncMOC.zm_teardownMessageObfuscationTimer()
         }
