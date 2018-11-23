@@ -56,9 +56,7 @@ class BaseZMClientMessageTests : BaseZMMessageTests {
     
     override func setUp() {
         super.setUp()
-        BackgroundActivityFactory.shared.activityManager = UIApplication.shared
-        BackgroundActivityFactory.shared.resume()
-
+        
         self.syncMOC.performGroupedBlockAndWait {
             self.syncSelfUser = ZMUser.selfUser(in: self.syncMOC)
             
@@ -130,8 +128,6 @@ class BaseZMClientMessageTests : BaseZMMessageTests {
     }
     
     override func tearDown() {
-        BackgroundActivityFactory.shared.activityManager = nil
-
         syncMOC.performGroupedBlockAndWait {
             self.syncMOC.setPersistentStoreMetadata(nil as String?, key: "PersistedClientId")
         }
