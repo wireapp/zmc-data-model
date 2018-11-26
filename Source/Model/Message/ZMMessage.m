@@ -964,6 +964,7 @@ NSString * const ZMMessageQuoteKey = @"quote";
             case ZMSystemMessageTypeDecryptionFailed_RemoteIdentityChanged:
             case ZMSystemMessageTypeTeamMemberLeave:
             case ZMSystemMessageTypeMissedCall:
+            case ZMSystemMessageTypeReadReceiptSettingChanged:
                 return YES;
             case ZMSystemMessageTypeInvalid:
             case ZMSystemMessageTypeConversationNameChanged:
