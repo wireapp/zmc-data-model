@@ -31,6 +31,14 @@ public enum ZMDeliveryState : UInt {
 }
 
 @objc
+public protocol ReadReceipt {
+    
+    var user: ZMUser { get }
+    var serverTimestamp: Date { get }
+    
+}
+
+@objc
 public protocol ZMConversationMessage : NSObjectProtocol {
     
     /// Unique identifier for the message
@@ -49,6 +57,9 @@ public protocol ZMConversationMessage : NSObjectProtocol {
     /// messages sent from this device. In any other case, it will be
     /// ZMDeliveryStateDelivered
     var deliveryState: ZMDeliveryState { get }
+    
+    /// List of recipients who have read the message.
+    var readReceipts: [ReadReceipt] { get }
     
     /// The textMessageData of the message which also contains potential link previews. If the message has no text, it will be nil
     var textMessageData : ZMTextMessageData? { get }
@@ -141,6 +152,10 @@ extension ZMMessage {
 
 extension ZMMessage : ZMConversationMessage {
     @NSManaged public var replies: Set<ZMMessage>
+    
+    public var readReceipts: [ReadReceipt] {
+        return [] // TODO jacob return confirmations filtered by type .read
+    }
 
     public var objectIdentifier: String {
         return nonpersistedObjectIdentifer!
