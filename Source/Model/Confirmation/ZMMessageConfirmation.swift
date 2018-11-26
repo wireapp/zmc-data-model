@@ -34,9 +34,10 @@ import CoreData
 }
 
 @objc(ZMMessageConfirmation) @objcMembers
-open class ZMMessageConfirmation: ZMManagedObject {
-
+open class ZMMessageConfirmation: ZMManagedObject, ReadReceipt {
+    
     @NSManaged open var type: MessageConfirmationType
+    @NSManaged open var serverTimestamp: Date
     @NSManaged open var message: ZMMessage
     @NSManaged open var user: ZMUser
 

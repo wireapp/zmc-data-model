@@ -523,6 +523,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		16030DAE21AC536700F8032E /* zmessaging2.58.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = zmessaging2.58.0.xcdatamodel; sourceTree = "<group>"; };
 		161541B91E27EBD400AC2FFB /* ZMConversation+Calling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZMConversation+Calling.swift"; sourceTree = "<group>"; };
 		16168139207B982800BCF33A /* zmessaging2.46.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = zmessaging2.46.0.xcdatamodel; sourceTree = "<group>"; };
 		1621E59120E62BD2006B2D17 /* ZMConversationTests+Silencing.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMConversationTests+Silencing.swift"; sourceTree = "<group>"; };
@@ -2927,6 +2928,7 @@
 		F189988C1E7BE03800E579A2 /* zmessaging.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				16030DAE21AC536700F8032E /* zmessaging2.58.0.xcdatamodel */,
 				EEEE60EC218B393E0032C249 /* zmessaging2.57.0.xcdatamodel */,
 				7CAE54512180B59800177A8E /* zmessaging2.56.0.xcdatamodel */,
 				16626495216763EE00300F45 /* zmessaging2.55.0.xcdatamodel */,
@@ -2974,7 +2976,7 @@
 				F18998A41E7BE03800E579A2 /* zmessaging2.8.xcdatamodel */,
 				F18998A51E7BE03800E579A2 /* zmessaging2.9.xcdatamodel */,
 			);
-			currentVersion = EEEE60EC218B393E0032C249 /* zmessaging2.57.0.xcdatamodel */;
+			currentVersion = 16030DAE21AC536700F8032E /* zmessaging2.58.0.xcdatamodel */;
 			path = zmessaging.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
