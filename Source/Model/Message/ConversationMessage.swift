@@ -34,7 +34,7 @@ public enum ZMDeliveryState : UInt {
 public protocol ReadReceipt {
     
     var user: ZMUser { get }
-    var serverTimestamp: Date { get }
+    var serverTimestamp: Date? { get }
     
 }
 
@@ -154,7 +154,7 @@ extension ZMMessage : ZMConversationMessage {
     @NSManaged public var replies: Set<ZMMessage>
     
     public var readReceipts: [ReadReceipt] {
-        return [] // TODO jacob return confirmations filtered by type .read
+        return confirmations.filter({ $0.type == .read }).sorted(by: { a, b in  a.serverTimestamp > b.serverTimestamp })
     }
 
     public var objectIdentifier: String {
