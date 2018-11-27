@@ -613,3 +613,47 @@ extension ZMUserTests {
         XCTAssertEqual(round(sut.expiresAfter), 0)
     }
 }
+
+// MARK: - Self user tests
+extension ZMUserTests {
+    func testThatItIsPossibleToSetEnableReadReceipts() {
+        // GIVEN
+        let sut = ZMUser.selfUser(in: uiMOC)
+        // WHEN
+        sut.enableReadReceipts = true
+        // THEN
+        XCTAssertEqual(sut.enableReadReceipts, true)
+    }
+    
+    func testThatItIsPossibleToSetEnableReadReceipts_andReset() {
+        // GIVEN
+        let sut = ZMUser.selfUser(in: uiMOC)
+        // WHEN
+        sut.enableReadReceipts = true
+        // THEN
+        XCTAssertEqual(sut.enableReadReceipts, true)
+        // AND WHEN
+        sut.enableReadReceipts = false
+        // THEN
+        XCTAssertEqual(sut.enableReadReceipts, false)
+    }
+    
+    func testThatItUpdatesOtherContextForEnableReadReceipts() {
+        // GIVEN
+        let sut = ZMUser.selfUser(in: uiMOC)
+        // WHEN
+        sut.enableReadReceipts = true
+        self.uiMOC.saveOrRollback()
+        
+        // THEN
+        
+        self.syncMOC.performGroupedBlock {
+            let syncSelfUser = ZMUser.selfUser(in: self.syncMOC)
+
+            XCTAssertEqual(syncSelfUser.enableReadReceipts, true)
+        }
+        
+        XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+    }
+}
+
