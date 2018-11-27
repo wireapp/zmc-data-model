@@ -82,6 +82,7 @@ static NSString *const ProviderIdentifierKey = @"providerIdentifier";
 NSString *const AvailabilityKey = @"availability";
 static NSString *const ExpiresAtKey = @"expiresAt";
 static NSString *const UsesCompanyLoginKey = @"usesCompanyLogin";
+NSString *const EnableReadReceiptsKey = @"EnableReadReceipts";
 
 static NSString *const TeamIdentifierDataKey = @"teamIdentifier_data";
 static NSString *const TeamIdentifierKey = @"teamIdentifier";
@@ -869,6 +870,22 @@ static NSString *const TeamIdentifierKey = @"teamIdentifier";
     [self didChangeValueForKey:EmailAddressKey];
     
     self.normalizedEmailAddress = [self.emailAddress normalizedEmailaddress];
+}
+
+- (void)setEnableReadReceipts:(BOOL)enableReadReceipts
+{
+    NSAssert(self.isSelfUser, @"setEnableReadReceipts called for non-self user");
+    [self.managedObjectContext setPersistentStoreMetadata:@(enableReadReceipts) forKey:EnableReadReceiptsKey];
+}
+
+- (BOOL)enableReadReceipts
+{
+    NSAssert(self.isSelfUser, @"enableReadReceipts called for non-self user");
+    id value = [self.managedObjectContext persistentStoreMetadataForKey:EnableReadReceiptsKey];
+    if (nil != value && [value respondsToSelector:@selector(boolValue)]) {
+        return [value boolValue];
+    }
+    return NO;
 }
 
 @end
