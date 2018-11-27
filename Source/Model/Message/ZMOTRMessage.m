@@ -79,11 +79,14 @@ NSString * const DeliveredKey = @"delivered";
     else if (self.delivered == NO) {
         return ZMDeliveryStatePending;
     }
-    else if (self.confirmations.count == 0){
-        return ZMDeliveryStateSent;
+    else if (self.readReceipts.count > 0) {
+        return ZMDeliveryStateRead;
+    }
+    else if (self.confirmations.count > 0){
+        return ZMDeliveryStateDelivered;
     }
     else {
-        return ZMDeliveryStateDelivered;
+        return ZMDeliveryStateSent;
     }
 }
 
@@ -176,8 +179,7 @@ NSString * const DeliveredKey = @"delivered";
         
         [ZMMessage addReaction:message.reaction senderID:updateEvent.senderUUID conversation:conversation inManagedObjectContext:moc];
     } else if (message.hasConfirmation) {
-        ZMUser *sender = [ZMUser userWithRemoteID:updateEvent.senderUUID createIfNeeded:YES inContext:moc];
-        NOT_USED([ZMMessageConfirmation createOrUpdateMessageConfirmation:message conversation:conversation sender:sender]);
+        [ZMMessageConfirmation createMessageMessageConfirmations:message.confirmation conversation:conversation updateEvent:updateEvent];
     } else if (message.hasEdited) {
         NSUUID *editedMessageId = [NSUUID uuidWithTransportString:message.edited.replacingMessageId];
         ZMClientMessage *editedMessage = [ZMClientMessage fetchMessageWithNonce:editedMessageId forConversation:conversation inManagedObjectContext:moc prefetchResult:prefetchResult];

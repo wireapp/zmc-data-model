@@ -1840,8 +1840,7 @@ extension ZMAssetClientMessageTests {
             message.expire()
         }
         if state == .delivered {
-            let genericMessage = ZMGenericMessage.message(content: ZMConfirmation.confirm(messageId: message.nonce!), nonce: UUID.create())
-            _ = ZMMessageConfirmation.createOrUpdateMessageConfirmation(genericMessage, conversation: message.conversation!, sender: message.sender!)
+            _ = ZMMessageConfirmation(type: .delivered, message: message, sender: message.sender!, serverTimestamp: Date(), managedObjectContext: message.managedObjectContext!)
             message.managedObjectContext?.saveOrRollback()
         }
     }
