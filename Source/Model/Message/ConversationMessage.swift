@@ -154,7 +154,7 @@ extension ZMMessage : ZMConversationMessage {
     @NSManaged public var replies: Set<ZMMessage>
     
     public var readReceipts: [ReadReceipt] {
-        return confirmations.filter({ $0.type == .read }).sorted(by: { a, b in  a.serverTimestamp > b.serverTimestamp })
+        return confirmations.filter({ $0.type == .read }).sorted(by: { a, b in  a.serverTimestamp < b.serverTimestamp })
     }
 
     public var objectIdentifier: String {
