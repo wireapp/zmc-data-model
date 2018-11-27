@@ -27,7 +27,8 @@ public enum ZMDeliveryState : UInt {
     case pending = 1
     case sent = 2
     case delivered = 3
-    case failedToSend = 4
+    case read = 4
+    case failedToSend = 5
 }
 
 @objc

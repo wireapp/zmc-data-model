@@ -79,11 +79,14 @@ NSString * const DeliveredKey = @"delivered";
     else if (self.delivered == NO) {
         return ZMDeliveryStatePending;
     }
-    else if (self.confirmations.count == 0){
-        return ZMDeliveryStateSent;
+    else if (self.readReceipts.count > 0) {
+        return ZMDeliveryStateRead;
+    }
+    else if (self.confirmations.count > 0){
+        return ZMDeliveryStateDelivered;
     }
     else {
-        return ZMDeliveryStateDelivered;
+        return ZMDeliveryStateSent;
     }
 }
 

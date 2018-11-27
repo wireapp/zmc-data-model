@@ -181,6 +181,31 @@ extension ZMMessageTests_Confirmation {
     
     // MARK: Read receipts
     
+    func testThatItUpdatesTheDeliveryStatus_WhenItReceivesReadConfirmation() {
+        // given
+        let conversation = ZMConversation.insertNewObject(in:uiMOC)
+        conversation.remoteIdentifier = .create()
+        
+        let sut = conversation.append(text: "foo") as! ZMClientMessage
+        sut.markAsSent()
+        XCTAssertTrue(self.uiMOC.saveOrRollback())
+        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        
+        XCTAssertEqual(sut.deliveryState, ZMDeliveryState.sent)
+        
+        // when
+        // other user sends confirmation
+        let updateEvent = createMessageReadConfirmationUpdateEvent([sut.nonce!], conversationID: conversation.remoteIdentifier!)
+        performPretendingUiMocIsSyncMoc {
+            ZMOTRMessage.messageUpdateResult(from: updateEvent, in: self.uiMOC, prefetchResult: nil)
+        }
+        XCTAssertTrue(uiMOC.saveOrRollback())
+        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        
+        // then
+        XCTAssertEqual(sut.deliveryState, ZMDeliveryState.read)
+    }
+    
     func testThatItAddsDeliveryReceipt_WhenItReceivesReadConfirmation(){
         // given
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
