@@ -211,6 +211,7 @@ NSString * const DeliveredKey = @"delivered";
             clientMessage = [[messageClass alloc] initWithNonce:nonce managedObjectContext:moc];
             clientMessage.senderClientID = updateEvent.senderClientID;
             clientMessage.serverTimestamp = updateEvent.timeStamp;
+            clientMessage.expectsReadConfirmation = conversation.hasReadReceiptsEnabled;
             isNewMessage = YES;
         } else if (![clientMessage.senderClientID isEqualToString:updateEvent.senderClientID]) {
             return nil;
