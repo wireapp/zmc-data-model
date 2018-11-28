@@ -22,7 +22,7 @@ extension ZMConversation {
     
     /// Confirm unread received messages as read.
     ///
-    /// - parameter before: unread messages received earlier than this timestamp will be confirmed as read.
+    /// - parameter until: unread messages received up until this timestamp will be confirmed as read.
     @discardableResult
     func confirmUnreadMessagesAsRead(until timestamp: Date) -> [ZMClientMessage] {
         
