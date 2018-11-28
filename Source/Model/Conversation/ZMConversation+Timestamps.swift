@@ -354,6 +354,10 @@ extension ZMConversation {
         return unreadMessagesIncludingInvisible().filter(ZMMessage.isVisible)
     }
     
+    internal func unreadMessages(until timestamp: Date = .distantFuture) -> [ZMMessage] {
+        return unreadMessagesIncludingInvisible(until: timestamp).filter(ZMMessage.isVisible)
+    }
+    
     internal func unreadMessagesIncludingInvisible(until timestamp: Date = Date.distantFuture) -> [ZMMessage] {
         guard let managedObjectContext = managedObjectContext else { return [] }
         

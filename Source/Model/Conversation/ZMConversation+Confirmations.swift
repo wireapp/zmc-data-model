@@ -27,10 +27,10 @@ extension ZMConversation {
     func confirmUnreadMessagesAsRead(until timestamp: Date) -> [ZMClientMessage] {
         
         // TODO jacob only include confirmed messages which has been flagged as needing read confirmation
-        let unreadMessages: [ZMMessage]! = unreadMessagesIncludingInvisible(until: timestamp).filter({ $0.visibleInConversation != nil && $0.isNormal })
+        let unreadMessagesSentByOthers = unreadMessages(until: timestamp).filter({ $0.isNormal })
         var confirmationMessages: [ZMClientMessage] = []
         
-        for messages in unreadMessages.partition(by: \.sender).values {
+        for messages in unreadMessagesSentByOthers.partition(by: \.sender).values {
             guard !messages.isEmpty else { continue }
             
             let confirmation = ZMConfirmation.confirm(messages: messages.compactMap(\.nonce), type: .READ)
