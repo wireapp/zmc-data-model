@@ -42,6 +42,7 @@
         <attribute name="clearedTimeStamp" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="conversationType" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="draftMessageData" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="hasReadReceiptsEnabled" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="hasUnreadUnsentMessage" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="internalEstimatedUnreadCount" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="internalEstimatedUnreadSelfMentionCount" optional="YES" attributeType="Integer 64" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
@@ -108,6 +109,7 @@
     <entity name="Message" representedClassName="ZMMessage" isAbstract="YES" syncable="YES">
         <attribute name="cachedCategory" optional="YES" attributeType="Integer 32" defaultValueString="0" usesScalarValueType="YES" syncable="YES"/>
         <attribute name="destructionDate" optional="YES" attributeType="Date" usesScalarValueType="NO" indexed="YES" syncable="YES"/>
+        <attribute name="expectsReadConfirmation" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="expirationDate" optional="YES" attributeType="Date" usesScalarValueType="NO" indexed="YES" versionHashModifier="add index" syncable="YES"/>
         <attribute name="isExpired" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="isObfuscated" optional="YES" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
@@ -251,12 +253,12 @@
         <element name="AssetClientMessage" positionX="9" positionY="153" width="128" height="225"/>
         <element name="ClientMessage" positionX="9" positionY="153" width="128" height="105"/>
         <element name="Connection" positionX="0" positionY="0" width="128" height="165"/>
-        <element name="Conversation" positionX="0" positionY="0" width="128" height="615"/>
+        <element name="Conversation" positionX="0" positionY="0" width="128" height="630"/>
         <element name="GenericMessageData" positionX="18" positionY="162" width="128" height="90"/>
         <element name="ImageMessage" positionX="0" positionY="0" width="128" height="165"/>
         <element name="KnockMessage" positionX="0" positionY="0" width="128" height="45"/>
         <element name="Member" positionX="18" positionY="162" width="128" height="135"/>
-        <element name="Message" positionX="0" positionY="0" width="128" height="345"/>
+        <element name="Message" positionX="0" positionY="0" width="128" height="360"/>
         <element name="MessageConfirmation" positionX="9" positionY="153" width="128" height="105"/>
         <element name="Reaction" positionX="18" positionY="162" width="128" height="105"/>
         <element name="Session" positionX="9" positionY="153" width="128" height="60"/>

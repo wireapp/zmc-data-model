@@ -104,7 +104,7 @@ extension ZMMessageTests_Confirmation {
         let message = conversation.append(text: "foo") as! ZMClientMessage
         
         // when
-        let sut = message.confirmReception()!
+        let sut = message.confirmDelivery()!
         
         // then
         XCTAssertNil(sut.expirationDate)
@@ -155,7 +155,7 @@ extension ZMMessageTests_Confirmation {
         
         // when
         let sut = insertMessage(conversation, fromSender: remoteUser)
-        let _ = sut.message?.confirmReception()
+        let _ = sut.message?.confirmDelivery()
         // then
         XCTAssertTrue(sut.needsConfirmation)
         guard let hiddenMessage = conversation.hiddenMessages.lastObject as? ZMClientMessage else {

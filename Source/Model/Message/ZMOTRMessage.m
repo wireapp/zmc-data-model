@@ -119,6 +119,12 @@ NSString * const DeliveredKey = @"delivered";
     [super resend];
 }
 
+- (ZMGenericMessage *)genericMessage
+{
+    NSAssert(FALSE, @"Subclasses should override this method: [%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
+    return nil;
+}
+
 - (void)updateWithGenericMessage:(__unused ZMGenericMessage *)message updateEvent:(__unused ZMUpdateEvent *)updateEvent initialUpdate:(__unused BOOL)initialUpdate
 {
     NSAssert(FALSE, @"Subclasses should override this method: [%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
@@ -185,7 +191,7 @@ NSString * const DeliveredKey = @"delivered";
         ZMClientMessage *editedMessage = [ZMClientMessage fetchMessageWithNonce:editedMessageId forConversation:conversation inManagedObjectContext:moc prefetchResult:prefetchResult];
         if ([editedMessage processMessageEdit:message.edited from:updateEvent]) {
             [editedMessage updateCategoryCache];
-            return [[MessageUpdateResult alloc] initWithMessage:editedMessage needsConfirmation:editedMessage.needsToBeConfirmed wasInserted:YES];
+            return [[MessageUpdateResult alloc] initWithMessage:editedMessage needsConfirmation:editedMessage.needsDeliveryConfirmation wasInserted:YES];
         }
     } else if ([conversation shouldAddEvent:updateEvent] && !(message.hasClientAction || message.hasCalling || message.hasAvailability)) {
         NSUUID *nonce = [NSUUID uuidWithTransportString:message.messageId];
@@ -227,7 +233,7 @@ NSString * const DeliveredKey = @"delivered";
         [clientMessage updateCategoryCache];
         [conversation resortMessagesWithUpdatedMessage:clientMessage];
         
-        return [[MessageUpdateResult alloc] initWithMessage:clientMessage needsConfirmation:clientMessage.needsToBeConfirmed wasInserted:isNewMessage];
+        return [[MessageUpdateResult alloc] initWithMessage:clientMessage needsConfirmation:clientMessage.needsDeliveryConfirmation wasInserted:isNewMessage];
     }
     
     return nil;
