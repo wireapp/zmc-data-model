@@ -31,6 +31,6 @@
 @property (nonatomic) ZMAccentColor accentColorValue;
 @property (nonatomic, copy, readonly) NSString *emailAddress;
 @property (nonatomic, copy, readonly) NSString *phoneNumber;
-@property (nonatomic) BOOL enableReadReceipts;
+@property (nonatomic) BOOL readReceiptsEnabled;
 
 @end

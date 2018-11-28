@@ -30,7 +30,7 @@
 extern NSString * __nonnull const SessionObjectIDKey;
 extern NSString * __nonnull const UserClientsKey;
 extern NSString * __nonnull const AvailabilityKey;
-extern NSString * __nonnull const EnableReadReceiptsKey;
+extern NSString * __nonnull const ReadReceiptsEnabledKey;
 
 @interface ZMUser (Internal)
 
@@ -84,7 +84,7 @@ extern NSString * __nonnull const EnableReadReceiptsKey;
 @property (nonatomic) ZMAccentColor accentColorValue;
 
 - (void)setHandle:(NSString * __nullable)handle;
-
+- (void)setReadReceiptsEnabled:(BOOL)readReceiptsEnabled remote:(BOOL)isRemote;
 @end
 
 
