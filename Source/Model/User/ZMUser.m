@@ -874,14 +874,14 @@ static NSString *const TeamIdentifierKey = @"teamIdentifier";
 
 - (void)setReadReceiptsEnabled:(BOOL)readReceiptsEnabled
 {
-    [self setReadReceiptsEnabled:readReceiptsEnabled remote:NO];
+    [self setReadReceiptsEnabled:readReceiptsEnabled synchronize:YES];
 }
 
-- (void)setReadReceiptsEnabled:(BOOL)readReceiptsEnabled remote:(BOOL)isRemote
+- (void)setReadReceiptsEnabled:(BOOL)readReceiptsEnabled synchronize:(BOOL)synchronize
 {
     NSAssert(self.isSelfUser, @"setReadReceiptsEnabled called for non-self user");
     [self.managedObjectContext setPersistentStoreMetadata:@(readReceiptsEnabled) forKey:ReadReceiptsEnabledKey];
-    if (!isRemote) {
+    if (synchronize) {
         [self setLocallyModifiedKeys:[NSSet setWithObject:ReadReceiptsEnabledKey]];
     }
 }
