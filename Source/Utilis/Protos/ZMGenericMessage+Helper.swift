@@ -20,6 +20,7 @@
 @objc
 public protocol MessageContentType: NSObjectProtocol {
     func setContent(on builder: ZMGenericMessageBuilder)
+    func expectsReadConfirmation() -> Bool
 }
 
 @objc
@@ -370,6 +371,10 @@ extension ZMEphemeral: MessageContentType {
         return nil
     }
     
+    public func expectsReadConfirmation() -> Bool {
+        return content?.expectsReadConfirmation() ?? false
+    }
+    
 }
 
 
@@ -395,6 +400,7 @@ extension ZMLocation: EphemeralMessageContentType {
     public func setEphemeralContent(on builder: ZMEphemeralBuilder) {
         builder.setLocation(self)
     }
+        
 }
 
 extension ZMExternal: MessageContentType {
@@ -412,6 +418,10 @@ extension ZMExternal: MessageContentType {
     
     public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setExternal(self)
+    }
+    
+    public func expectsReadConfirmation() -> Bool {
+        return false
     }
     
 }
@@ -493,6 +503,10 @@ extension ZMImageAsset: EphemeralMessageContentType {
     
     public func setEphemeralContent(on builder: ZMEphemeralBuilder) {
         builder.setImage(self)
+    }
+    
+    public func expectsReadConfirmation() -> Bool {
+        return false
     }
     
 }
@@ -658,6 +672,10 @@ extension ZMAvailability: MessageContentType {
         builder.setAvailability(self)
     }
     
+    public func expectsReadConfirmation() -> Bool {
+        return false
+    }
+    
 }
 
 @objc
@@ -673,6 +691,10 @@ extension ZMMessageDelete: MessageContentType {
     
     public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setDeleted(self)
+    }
+    
+    public func expectsReadConfirmation() -> Bool {
+        return false
     }
     
 }
@@ -692,6 +714,11 @@ extension ZMMessageHide: MessageContentType {
     public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setHidden(self)
     }
+    
+    public func expectsReadConfirmation() -> Bool {
+        return false
+    }
+    
 }
 
 @objc
@@ -710,6 +737,10 @@ extension ZMMessageEdit: MessageContentType {
         builder.setEdited(self)
     }
     
+    public func expectsReadConfirmation() -> Bool {
+        return false
+    }
+    
 }
 
 @objc
@@ -726,6 +757,10 @@ extension ZMReaction: MessageContentType {
     
     public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setReaction(self)
+    }
+    
+    public func expectsReadConfirmation() -> Bool {
+        return false
     }
     
 }
@@ -761,6 +796,10 @@ extension ZMConfirmation: MessageContentType {
         builder.setConfirmation(self)
     }
     
+    public func expectsReadConfirmation() -> Bool {
+        return false
+    }
+    
 }
 
 @objc
@@ -787,12 +826,20 @@ extension ZMLastRead: MessageContentType {
         builder.setLastRead(self)
     }
     
+    public func expectsReadConfirmation() -> Bool {
+        return false
+    }
+    
 }
 
 extension ZMCleared: MessageContentType {
     
     public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setCleared(self)
+    }
+    
+    public func expectsReadConfirmation() -> Bool {
+        return false
     }
     
 }
@@ -809,6 +856,10 @@ extension ZMCalling: MessageContentType {
     
     public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setCalling(self)
+    }
+    
+    public func expectsReadConfirmation() -> Bool {
+        return false
     }
     
 }
