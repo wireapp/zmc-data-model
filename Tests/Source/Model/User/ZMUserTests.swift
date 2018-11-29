@@ -655,5 +655,29 @@ extension ZMUserTests {
         
         XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
     }
+    
+    func testThatItSetsModifiedKeysForEnableReadReceipts() {
+        // GIVEN
+        let sut = ZMUser.selfUser(in: uiMOC)
+        sut.resetLocallyModifiedKeys(Set())
+        
+        // WHEN
+        sut.readReceiptsEnabled = true
+
+        // THEN
+        XCTAssertEqual(sut.modifiedKeys, Set([ReadReceiptsEnabledKey]))
+    }
+    
+    func testThatItDoesNotSetModifiedKeysForEnableReadReceipts() {
+        // GIVEN
+        let sut = ZMUser.selfUser(in: uiMOC)
+        sut.resetLocallyModifiedKeys(Set())
+        
+        // WHEN
+        sut.setReadReceiptsEnabled(true, synchronize: false)
+        
+        // THEN
+        XCTAssertEqual(sut.modifiedKeys, nil)
+    }
 }
 
