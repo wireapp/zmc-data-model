@@ -256,7 +256,7 @@ class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
         assertThatItSendsANotificationToDownloadTheImageWhenRequestImageDownloadIsCalled(preview)
     }
     
-    func assertThatItSendsANotificationToDownloadTheImageWhenRequestImageDownloadIsCalled(_ preview: LinkPreview, line: UInt = #line) {
+    func assertThatItSendsANotificationToDownloadTheImageWhenRequestImageDownloadIsCalled(_ preview: WireLinkPreview.LinkPreview, line: UInt = #line) {
         
         // given
         let nonce = UUID.create()
