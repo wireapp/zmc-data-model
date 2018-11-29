@@ -35,11 +35,14 @@ class ZMConversationTests_Confirmations: ZMConversationTestsBase {
         let message3 = conversation.append(text: "text3") as! ZMClientMessage
         let message4 = conversation.append(text: "text4") as! ZMClientMessage
         
+        [message1, message2, message3, message4].forEach({ $0.expectsReadConfirmation = true })
+        
         message1.sender = user2
         message2.sender = user1
         message3.sender = user2
         message4.sender = user1
         
+        conversation.conversationType = .group
         conversation.lastReadServerTimeStamp = message1.serverTimestamp
         
         // when
@@ -70,10 +73,13 @@ class ZMConversationTests_Confirmations: ZMConversationTestsBase {
         let message2 = conversation.append(text: "text2") as! ZMClientMessage
         let message3 = conversation.append(text: "text3") as! ZMClientMessage
         
+        [message1, message2, message3].forEach({ $0.expectsReadConfirmation = true })
+        
         message1.sender = user1
         message2.sender = user1
         message3.sender = user2
         
+        conversation.conversationType = .group
         conversation.lastReadServerTimeStamp = .distantPast
         
         // when

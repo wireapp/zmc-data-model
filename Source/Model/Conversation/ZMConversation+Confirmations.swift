@@ -20,17 +20,18 @@ import Foundation
 
 extension ZMConversation {
     
+    @NSManaged @objc dynamic var hasReadReceiptsEnabled: Bool
+    
     /// Confirm unread received messages as read.
     ///
     /// - parameter until: unread messages received up until this timestamp will be confirmed as read.
     @discardableResult
     func confirmUnreadMessagesAsRead(until timestamp: Date) -> [ZMClientMessage] {
         
-        // TODO jacob only include confirmed messages which has been flagged as needing read confirmation
-        let unreadMessagesSentByOthers = unreadMessages(until: timestamp).filter({ $0.isNormal })
+        let unreadMessagesNeedingConfirmation = unreadMessages(until: timestamp).filter({ $0.needsReadConfirmation })
         var confirmationMessages: [ZMClientMessage] = []
         
-        for messages in unreadMessagesSentByOthers.partition(by: \.sender).values {
+        for messages in unreadMessagesNeedingConfirmation.partition(by: \.sender).values {
             guard !messages.isEmpty else { continue }
             
             let confirmation = ZMConfirmation.confirm(messages: messages.compactMap(\.nonce), type: .READ)
