@@ -131,7 +131,6 @@
 		5EFE9C0F2126D3FA007932A6 /* NormalizationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EFE9C0E2126D3FA007932A6 /* NormalizationResult.swift */; };
 		7C7AF812201892FA00D0A3BE /* UTType+MIMEType.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C7AF811201892FA00D0A3BE /* UTType+MIMEType.swift */; };
 		7C88C5352182FBD90037DD03 /* ZMClientMessagesTests+Replies.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7C88C5312182F6150037DD03 /* ZMClientMessagesTests+Replies.swift */; };
-		7CAE54582180C52C00177A8E /* store2-55-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 7CAE54572180C52C00177A8E /* store2-55-0.wiredatabase */; };
 		7CBC3FC120177C3C008D06E4 /* RasterImages+Protobuf.swift in Sources */ = {isa = PBXBuildFile; fileRef = 7CBC3FC020177C3C008D06E4 /* RasterImages+Protobuf.swift */; };
 		8704676B21513DE900C628D7 /* ZMOTRMessage+Unarchive.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8704676A21513DE900C628D7 /* ZMOTRMessage+Unarchive.swift */; };
 		871DD79F2084A316006B1C56 /* BatchDeleteTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 871DD79E2084A316006B1C56 /* BatchDeleteTests.swift */; };
@@ -156,6 +155,9 @@
 		87C1C267207F921A0083BF6B /* store2-46-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 87C1C266207F92190083BF6B /* store2-46-0.wiredatabase */; };
 		87D9CCE91F27606200AA4388 /* NSManagedObjectContext+TearDown.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87D9CCE81F27606200AA4388 /* NSManagedObjectContext+TearDown.swift */; };
 		87DF59C01F729FDA00C7B406 /* ZMMovedIndexTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 87DF59BF1F729FDA00C7B406 /* ZMMovedIndexTests.swift */; };
+		87F7288C21B02E2A000ED371 /* store2-55-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 87F7288721B02DD7000ED371 /* store2-55-0.wiredatabase */; };
+		87F7288D21B02E2A000ED371 /* store2-56-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 87F7288821B02DD7000ED371 /* store2-56-0.wiredatabase */; };
+		87F7288E21B02E2A000ED371 /* store2-57-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 87F7288621B02DD6000ED371 /* store2-57-0.wiredatabase */; };
 		87FFC71A20DBF2820005076E /* store2-47-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 87FFC71920DBF2820005076E /* store2-47-0.wiredatabase */; };
 		BF0D07FB1E4C7B7A00B934EB /* TextSearchQueryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF0D07F91E4C7B1100B934EB /* TextSearchQueryTests.swift */; };
 		BF103F9D1F0112F30047FDE5 /* ManagedObjectObserver.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF103F9C1F0112F30047FDE5 /* ManagedObjectObserver.swift */; };
@@ -234,7 +236,6 @@
 		D5FA30D12063FD3A00716618 /* VersionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = D5FA30D02063FD3A00716618 /* VersionTests.swift */; };
 		EEA9C5071F3C9F3500DC39EC /* PersistentStorageInitialization.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA9C5061F3C9F3500DC39EC /* PersistentStorageInitialization.swift */; };
 		EEE83B4A1FBB496B00FC0296 /* ZMMessageTimerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEE83B491FBB496B00FC0296 /* ZMMessageTimerTests.swift */; };
-		EEEE60EF218B4AEE0032C249 /* store2-56-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = EEEE60ED218B49F10032C249 /* store2-56-0.wiredatabase */; };
 		EF18C7E61F9E4F8A0085A832 /* ZMUser+Filename.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF18C7E51F9E4F8A0085A832 /* ZMUser+Filename.swift */; };
 		EF2CBDA720061E2D0004F65E /* ServiceUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF2CBDA620061E2D0004F65E /* ServiceUser.swift */; };
 		EF451EA620066E5A005C12F1 /* store2-40-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = EF451EA520066E53005C12F1 /* store2-40-0.wiredatabase */; };
@@ -656,7 +657,6 @@
 		7C7AF811201892FA00D0A3BE /* UTType+MIMEType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UTType+MIMEType.swift"; sourceTree = "<group>"; };
 		7C88C5312182F6150037DD03 /* ZMClientMessagesTests+Replies.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZMClientMessagesTests+Replies.swift"; sourceTree = "<group>"; };
 		7CAE54512180B59800177A8E /* zmessaging2.56.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = zmessaging2.56.0.xcdatamodel; sourceTree = "<group>"; };
-		7CAE54572180C52C00177A8E /* store2-55-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; path = "store2-55-0.wiredatabase"; sourceTree = "<group>"; };
 		7CBC3FC020177C3C008D06E4 /* RasterImages+Protobuf.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "RasterImages+Protobuf.swift"; sourceTree = "<group>"; };
 		8702B0EA20527F47006B60B9 /* zmessaging2.44.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = zmessaging2.44.0.xcdatamodel; sourceTree = "<group>"; };
 		8702B0EB20529C78006B60B9 /* store2-43-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; name = "store2-43-0.wiredatabase"; path = "Tests/Resources/store2-43-0.wiredatabase"; sourceTree = SOURCE_ROOT; };
@@ -686,6 +686,9 @@
 		87C1C266207F92190083BF6B /* store2-46-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; name = "store2-46-0.wiredatabase"; path = "Tests/Resources/store2-46-0.wiredatabase"; sourceTree = SOURCE_ROOT; };
 		87D9CCE81F27606200AA4388 /* NSManagedObjectContext+TearDown.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "NSManagedObjectContext+TearDown.swift"; sourceTree = "<group>"; };
 		87DF59BF1F729FDA00C7B406 /* ZMMovedIndexTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZMMovedIndexTests.swift; sourceTree = "<group>"; };
+		87F7288621B02DD6000ED371 /* store2-57-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; name = "store2-57-0.wiredatabase"; path = "Tests/Resources/store2-57-0.wiredatabase"; sourceTree = SOURCE_ROOT; };
+		87F7288721B02DD7000ED371 /* store2-55-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; name = "store2-55-0.wiredatabase"; path = "Tests/Resources/store2-55-0.wiredatabase"; sourceTree = SOURCE_ROOT; };
+		87F7288821B02DD7000ED371 /* store2-56-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; name = "store2-56-0.wiredatabase"; path = "Tests/Resources/store2-56-0.wiredatabase"; sourceTree = SOURCE_ROOT; };
 		87FFC71920DBF2820005076E /* store2-47-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; name = "store2-47-0.wiredatabase"; path = "Tests/Resources/store2-47-0.wiredatabase"; sourceTree = SOURCE_ROOT; };
 		BF0D07F91E4C7B1100B934EB /* TextSearchQueryTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextSearchQueryTests.swift; sourceTree = "<group>"; };
 		BF103F9C1F0112F30047FDE5 /* ManagedObjectObserver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ManagedObjectObserver.swift; sourceTree = "<group>"; };
@@ -771,7 +774,6 @@
 		EEA9C5061F3C9F3500DC39EC /* PersistentStorageInitialization.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PersistentStorageInitialization.swift; sourceTree = "<group>"; };
 		EEE83B491FBB496B00FC0296 /* ZMMessageTimerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMMessageTimerTests.swift; sourceTree = "<group>"; };
 		EEEE60EC218B393E0032C249 /* zmessaging2.57.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = zmessaging2.57.0.xcdatamodel; sourceTree = "<group>"; };
-		EEEE60ED218B49F10032C249 /* store2-56-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; path = "store2-56-0.wiredatabase"; sourceTree = "<group>"; };
 		EF18C7E51F9E4F8A0085A832 /* ZMUser+Filename.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMUser+Filename.swift"; sourceTree = "<group>"; };
 		EF2CBDA620061E2D0004F65E /* ServiceUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceUser.swift; sourceTree = "<group>"; };
 		EF2CBDA8200627940004F65E /* zmessaging2.41.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = zmessaging2.41.0.xcdatamodel; sourceTree = "<group>"; };
@@ -2086,8 +2088,9 @@
 		F9C9A83D1CAEDBC40039E10C /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				EEEE60ED218B49F10032C249 /* store2-56-0.wiredatabase */,
-				7CAE54572180C52C00177A8E /* store2-55-0.wiredatabase */,
+				87F7288721B02DD7000ED371 /* store2-55-0.wiredatabase */,
+				87F7288821B02DD7000ED371 /* store2-56-0.wiredatabase */,
+				87F7288621B02DD6000ED371 /* store2-57-0.wiredatabase */,
 				166264A22167B48000300F45 /* store2-54-0.wiredatabase */,
 				8767E8622163B2C000390F75 /* store2-53-0.wiredatabase */,
 				BF5AF286215156EE00449D43 /* store2-52-0.wiredatabase */,
@@ -2317,12 +2320,13 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				EEEE60EF218B4AEE0032C249 /* store2-56-0.wiredatabase in Resources */,
+				87F7288D21B02E2A000ED371 /* store2-56-0.wiredatabase in Resources */,
 				BF735CFF1E70626F003BC61F /* store2-27-0.wiredatabase in Resources */,
 				F9A706F61CAEE31800C2F5FE /* 1900x1500.jpg in Resources */,
 				EF9A47012109FCAE00085102 /* store2-50-0.wiredatabase in Resources */,
 				BF421B311EF4015E0079533A /* store2-30-0.wiredatabase in Resources */,
 				F9A706FA1CAEE32A00C2F5FE /* ExternalMessageTextFixture.txt in Resources */,
+				87F7288C21B02E2A000ED371 /* store2-55-0.wiredatabase in Resources */,
 				5495BC431E019F1B004253ED /* audio.m4a in Resources */,
 				BF6ACFFB21060F7200FD762B /* store2-48-0.wiredatabase in Resources */,
 				54829DAE1DE6F7BA009100D3 /* store1-25.wiredatabase in Resources */,
@@ -2333,6 +2337,7 @@
 				16E7DA281FD9973B0065B6A6 /* store2-39-0.wiredatabase in Resources */,
 				F9A706FD1CAEE32A00C2F5FE /* medium.jpg in Resources */,
 				F9A706F91CAEE32A00C2F5FE /* EncryptedBase64EncondedExternalMessageTestFixture.txt in Resources */,
+				87F7288E21B02E2A000ED371 /* store2-57-0.wiredatabase in Resources */,
 				54829DB11DE6F7BA009100D3 /* store2-3.wiredatabase in Resources */,
 				54829DB61DE6F7BA009100D3 /* store2-8.wiredatabase in Resources */,
 				F9A707031CAEE32E00C2F5FE /* tiny.jpg in Resources */,
@@ -2343,7 +2348,6 @@
 				54829DAF1DE6F7BA009100D3 /* store1-27.wiredatabase in Resources */,
 				BFC183E2210F57EA00601E5D /* store2-51-0.wiredatabase in Resources */,
 				EF9A46FF2109FC3A00085102 /* store2-49-0.wiredatabase in Resources */,
-				7CAE54582180C52C00177A8E /* store2-55-0.wiredatabase in Resources */,
 				87C1C264207F889D0083BF6B /* store2-45-0.wiredatabase in Resources */,
 				54829DB41DE6F7BA009100D3 /* store2-6.wiredatabase in Resources */,
 				F9A706FE1CAEE32A00C2F5FE /* not_animated.gif in Resources */,
