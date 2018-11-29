@@ -616,33 +616,33 @@ extension ZMUserTests {
 
 // MARK: - Self user tests
 extension ZMUserTests {
-    func testThatItIsPossibleToSetEnableReadReceipts() {
+    func testThatItIsPossibleToSetReadReceiptsEnabled() {
         // GIVEN
         let sut = ZMUser.selfUser(in: uiMOC)
         // WHEN
-        sut.enableReadReceipts = true
+        sut.readReceiptsEnabled = true
         // THEN
-        XCTAssertEqual(sut.enableReadReceipts, true)
+        XCTAssertEqual(sut.readReceiptsEnabled, true)
     }
     
-    func testThatItIsPossibleToSetEnableReadReceipts_andReset() {
+    func testThatItIsPossibleToSetReadReceiptsEnabled_andReset() {
         // GIVEN
         let sut = ZMUser.selfUser(in: uiMOC)
         // WHEN
-        sut.enableReadReceipts = true
+        sut.readReceiptsEnabled = true
         // THEN
-        XCTAssertEqual(sut.enableReadReceipts, true)
+        XCTAssertEqual(sut.readReceiptsEnabled, true)
         // AND WHEN
-        sut.enableReadReceipts = false
+        sut.readReceiptsEnabled = false
         // THEN
-        XCTAssertEqual(sut.enableReadReceipts, false)
+        XCTAssertEqual(sut.readReceiptsEnabled, false)
     }
     
     func testThatItUpdatesOtherContextForEnableReadReceipts() {
         // GIVEN
         let sut = ZMUser.selfUser(in: uiMOC)
         // WHEN
-        sut.enableReadReceipts = true
+        sut.readReceiptsEnabled = true
         self.uiMOC.saveOrRollback()
         
         // THEN
@@ -650,10 +650,34 @@ extension ZMUserTests {
         self.syncMOC.performGroupedBlock {
             let syncSelfUser = ZMUser.selfUser(in: self.syncMOC)
 
-            XCTAssertEqual(syncSelfUser.enableReadReceipts, true)
+            XCTAssertEqual(syncSelfUser.readReceiptsEnabled, true)
         }
         
         XCTAssertTrue(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+    }
+    
+    func testThatItSetsModifiedKeysForEnableReadReceipts() {
+        // GIVEN
+        let sut = ZMUser.selfUser(in: uiMOC)
+        sut.resetLocallyModifiedKeys(Set())
+        
+        // WHEN
+        sut.readReceiptsEnabled = true
+
+        // THEN
+        XCTAssertEqual(sut.modifiedKeys, Set([ReadReceiptsEnabledKey]))
+    }
+    
+    func testThatItDoesNotSetModifiedKeysForEnableReadReceipts() {
+        // GIVEN
+        let sut = ZMUser.selfUser(in: uiMOC)
+        sut.resetLocallyModifiedKeys(Set())
+        
+        // WHEN
+        sut.setReadReceiptsEnabled(true, synchronize: false)
+        
+        // THEN
+        XCTAssertEqual(sut.modifiedKeys, nil)
     }
 }
 
