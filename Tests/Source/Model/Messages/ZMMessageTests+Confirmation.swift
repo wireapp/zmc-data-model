@@ -18,18 +18,128 @@
 
 import WireTesting
 
+@testable import WireDataModel
+
 class ZMMessageTests_Confirmation: BaseZMClientMessageTests {
 }
 
-// MARK: - Adding confirmation locally
+// MARK: - Sending confirmation messages
 
 extension ZMMessageTests_Confirmation {
     
-    func checkThatItInsertsAConfirmationMessageWhenItReceivesAMessage(_ conversationType: ZMConversationType,
-                                                                      shouldSendConfirmation: Bool,
-                                                                      timestamp: Date = .init(),
-                                                                      file: StaticString = #file,
-                                                                      line: UInt = #line ) {
+    // MARK: Read receipts
+    
+    func testThatMessageExpectsReadConfirmation_InAGroup_WhenConversationHasReadReceiptsEnabled() {
+        // given
+        let user = createUser(in: uiMOC)
+        let conversation = createConversation(in: uiMOC)
+        conversation.hasReadReceiptsEnabled = true
+        
+        // when
+        let message = insertMessage(conversation, fromSender: user, timestamp: Date()).message as! ZMClientMessage
+        
+        // then
+        XCTAssertTrue(message.expectsReadConfirmation)
+        XCTAssertTrue(message.needsReadConfirmation)
+    }
+    
+    func testThatMessageDoesntExpectReadConfirmation_InAGroup_WhenConversationHasReadReceiptsDisabled() {
+        // given
+        let user = createUser(in: uiMOC)
+        let conversation = createConversation(in: uiMOC)
+        conversation.hasReadReceiptsEnabled = false
+        
+        // when
+        let message = insertMessage(conversation, fromSender: user, timestamp: Date()).message as! ZMClientMessage
+        
+        // then
+        XCTAssertFalse(message.expectsReadConfirmation)
+        XCTAssertFalse(message.needsReadConfirmation)
+    }
+    
+    func testThatMessageDoesntExpectReadConfirmation_InAGroup_ForMessagesSentBySelfUser() {
+        // given
+        let conversation = createConversation(in: uiMOC)
+        conversation.hasReadReceiptsEnabled = true
+        
+        // when
+        let message = insertMessage(conversation, fromSender: ZMUser.selfUser(in: uiMOC), timestamp: Date()).message as! ZMClientMessage
+        
+        // then
+        XCTAssertFalse(message.expectsReadConfirmation)
+        XCTAssertFalse(message.needsReadConfirmation)
+    }
+    
+    func testThatMessageDoesntExpectReadConfirmation_InAOneToOne__WhenConversationHasReadReceiptsEnabled() {
+        // given
+        let conversation = createConversation(in: uiMOC)
+        conversation.hasReadReceiptsEnabled = true
+        conversation.conversationType = .oneOnOne
+        
+        // when
+        let message = insertMessage(conversation, fromSender: ZMUser.selfUser(in: uiMOC), timestamp: Date()).message as! ZMClientMessage
+        
+        // then
+        XCTAssertFalse(message.expectsReadConfirmation)
+    }
+    
+    func testThatMessageNeedsReadConfirmation_InAOneToOne_WhenSelfUserHasReadReceiptsEnabled() {
+        // given
+        let user = createUser(in: uiMOC)
+        let conversation = createConversation(in: uiMOC)
+        conversation.conversationType = .oneOnOne
+        
+        // enable read receipts for self user
+        ZMUser.selfUser(in: uiMOC).enableReadReceipts = true
+        
+        // insert message which expects read confirmation
+        let message = insertMessage(conversation, fromSender: user, timestamp: Date()).message as! ZMClientMessage
+        message.genericMessage?.setExpectsReadConfirmation(true)?.data().apply(message.add)
+
+        // then
+        XCTAssertTrue(message.needsReadConfirmation)
+    }
+    
+    func testThatMessageDoesntNeedsReadConfirmation_InAOneToOne_WhenSelfUserHasReadReceiptsDisabled() {
+        // given
+        let user = createUser(in: uiMOC)
+        let conversation = createConversation(in: uiMOC)
+        conversation.conversationType = .oneOnOne
+        
+        // disabled read receipts for self user
+        ZMUser.selfUser(in: uiMOC).enableReadReceipts = false
+        
+        // insert message which expects read confirmation
+        let message = insertMessage(conversation, fromSender: user, timestamp: Date()).message as! ZMClientMessage
+        message.genericMessage?.setExpectsReadConfirmation(true)?.data().apply(message.add)
+        
+        // then
+        XCTAssertFalse(message.needsReadConfirmation)
+    }
+    
+    func testThatMessageDoesntNeedsReadConfirmation_InAOneToOne_WhenSelfUserHasReadReceiptsEnabledButMessageDoesntExpectReadConfirmation() {
+        // given
+        let user = createUser(in: uiMOC)
+        let conversation = createConversation(in: uiMOC)
+        conversation.conversationType = .oneOnOne
+        
+        // enable read receipts for self user
+        ZMUser.selfUser(in: uiMOC).enableReadReceipts = true
+        
+        // insert message which doesn't expect read confirmation
+        let message = insertMessage(conversation, fromSender: user, timestamp: Date()).message as! ZMClientMessage
+        
+        // then
+        XCTAssertFalse(message.needsReadConfirmation)
+    }
+    
+    // MARK: Delivery receipts
+    
+    func checkThatItInsertsADeliveryConfirmationMessageWhenItReceivesAMessage(_ conversationType: ZMConversationType,
+                                                                              shouldSendConfirmation: Bool,
+                                                                              timestamp: Date = .init(),
+                                                                              file: StaticString = #file,
+                                                                              line: UInt = #line ) {
         // given
         let user = ZMUser.insertNewObject(in: uiMOC)
         user.remoteIdentifier = UUID.create()
@@ -55,21 +165,21 @@ extension ZMMessageTests_Confirmation {
     }
     
     func testThatIt_Inserts_AConfirmationMessageWhenItReceivesAMessageInA_OneOnOne_Conversation(){
-        checkThatItInsertsAConfirmationMessageWhenItReceivesAMessage(.oneOnOne, shouldSendConfirmation:true)
+        checkThatItInsertsADeliveryConfirmationMessageWhenItReceivesAMessage(.oneOnOne, shouldSendConfirmation:true)
     }
     
     func testThatIt_DoesNotInsert_AConfirmationMessageWhenItReceivesAMessageInA_Group_Conversation(){
-        checkThatItInsertsAConfirmationMessageWhenItReceivesAMessage(.group, shouldSendConfirmation:false)
+        checkThatItInsertsADeliveryConfirmationMessageWhenItReceivesAMessage(.group, shouldSendConfirmation:false)
     }
 
     func testThatIt_DoesNotInsert_AConfirmationMessageWhenItReceivesAMessageOlderThan7Days() {
         guard let olderDate = Calendar.current.date(byAdding: .init(day: -8), to: Date()) else { return XCTFail("No date") }
-        checkThatItInsertsAConfirmationMessageWhenItReceivesAMessage(.group, shouldSendConfirmation: false, timestamp: olderDate)
+        checkThatItInsertsADeliveryConfirmationMessageWhenItReceivesAMessage(.group, shouldSendConfirmation: false, timestamp: olderDate)
     }
 
     func testThatIt_DoesInsert_AConfirmationMessageWhenItReceivesAMessageNotOlderThan7Days() {
         guard let olderDate = Calendar.current.date(byAdding: .init(day: -7), to: Date()) else { return XCTFail("No date") }
-        checkThatItInsertsAConfirmationMessageWhenItReceivesAMessage(.group, shouldSendConfirmation: false, timestamp: olderDate)
+        checkThatItInsertsADeliveryConfirmationMessageWhenItReceivesAMessage(.group, shouldSendConfirmation: false, timestamp: olderDate)
     }
     
     func testThatItDoesNotRequiresAConfirmationMessageIfTheMessageWasSentByTheSelfUser(){
@@ -175,7 +285,7 @@ extension ZMMessageTests_Confirmation {
 
 }
 
-// MARK: - Receiving confirmation remotely
+// MARK: - Receiving confirmation messages
 
 extension ZMMessageTests_Confirmation {
     

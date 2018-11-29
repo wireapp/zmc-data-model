@@ -208,11 +208,15 @@ NSString * const DeliveredKey = @"delivered";
         
         BOOL isNewMessage = NO;
         if (clientMessage == nil) {
+            isNewMessage = YES;
+            
             clientMessage = [[messageClass alloc] initWithNonce:nonce managedObjectContext:moc];
             clientMessage.senderClientID = updateEvent.senderClientID;
             clientMessage.serverTimestamp = updateEvent.timeStamp;
-            clientMessage.expectsReadConfirmation = conversation.hasReadReceiptsEnabled;
-            isNewMessage = YES;
+            
+            if (![updateEvent.senderUUID isEqual:selfUser.remoteIdentifier] && conversation.conversationType == ZMConversationTypeGroup) {
+                clientMessage.expectsReadConfirmation = conversation.hasReadReceiptsEnabled;
+            }
         } else if (![clientMessage.senderClientID isEqualToString:updateEvent.senderClientID]) {
             return nil;
         }

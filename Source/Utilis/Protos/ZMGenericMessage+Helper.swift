@@ -21,6 +21,7 @@
 public protocol MessageContentType: NSObjectProtocol {
     func setContent(on builder: ZMGenericMessageBuilder)
     func expectsReadConfirmation() -> Bool
+    func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType?
 }
 
 @objc
@@ -145,6 +146,18 @@ public extension ZMGenericMessage {
         return builder.buildAndValidate()
     }
     
+    public func setExpectsReadConfirmation(_ value: Bool) -> ZMGenericMessage? {
+        guard let builder = toBuilder() else { return nil }
+        
+        if hasEphemeral(), let content = ephemeral?.updateExpectsReadConfirmation(value) {
+            content.setContent(on: builder)
+        } else if let content = content?.updateExpectsReadConfirmation(value) {
+            content.setContent(on: builder)
+        }
+        
+        return builder.buildAndValidate()
+    }
+    
 }
 
 @objc
@@ -162,6 +175,12 @@ extension ZMKnock: EphemeralMessageContentType {
     
     public func setEphemeralContent(on builder: ZMEphemeralBuilder) {
         builder.setKnock(self)
+    }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        let builder = toBuilder()
+        builder?.setExpectsReadConfirmation(value)
+        return builder?.build()
     }
     
 }
@@ -192,6 +211,12 @@ extension ZMText: EphemeralMessageContentType {
     
     public func setEphemeralContent(on builder: ZMEphemeralBuilder) {
         builder.setText(self)
+    }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        let builder = toBuilder()
+        builder?.setExpectsReadConfirmation(value)
+        return builder?.build()
     }
     
     public func applyEdit(from text: ZMText) -> ZMText {
@@ -341,7 +366,7 @@ extension ZMGenericMessage {
 }
 
 extension ZMEphemeral: MessageContentType {
-    
+
     public static func ephemeral(content: EphemeralMessageContentType, expiresAfter timeout: TimeInterval) -> ZMEphemeral {
         let builder = ZMEphemeralBuilder()
         
@@ -355,6 +380,10 @@ extension ZMEphemeral: MessageContentType {
         builder.setEphemeral(self)
     }
     
+    public var ephemeralContent: EphemeralMessageContentType? {
+        return content as? EphemeralMessageContentType
+    }
+
     public var content: MessageContentType? {
         if hasText() {
             return text
@@ -373,6 +402,12 @@ extension ZMEphemeral: MessageContentType {
     
     public func expectsReadConfirmation() -> Bool {
         return content?.expectsReadConfirmation() ?? false
+    }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        let builder = toBuilder()!
+        (content?.updateExpectsReadConfirmation(value) as? EphemeralMessageContentType)?.setEphemeralContent(on: builder)
+        return builder.build()
     }
     
 }
@@ -400,6 +435,12 @@ extension ZMLocation: EphemeralMessageContentType {
     public func setEphemeralContent(on builder: ZMEphemeralBuilder) {
         builder.setLocation(self)
     }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        let builder = toBuilder()
+        builder?.setExpectsReadConfirmation(value)
+        return builder?.build()
+    }
         
 }
 
@@ -422,6 +463,10 @@ extension ZMExternal: MessageContentType {
     
     public func expectsReadConfirmation() -> Bool {
         return false
+    }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        return nil
     }
     
 }
@@ -493,6 +538,12 @@ extension ZMAsset: EphemeralMessageContentType {
         builder.setAsset(self)
     }
     
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        let builder = toBuilder()
+        builder?.setExpectsReadConfirmation(value)
+        return builder?.build()
+    }
+    
 }
 
 extension ZMImageAsset: EphemeralMessageContentType {
@@ -507,6 +558,10 @@ extension ZMImageAsset: EphemeralMessageContentType {
     
     public func expectsReadConfirmation() -> Bool {
         return false
+    }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        return nil
     }
     
 }
@@ -676,6 +731,10 @@ extension ZMAvailability: MessageContentType {
         return false
     }
     
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        return nil
+    }
+    
 }
 
 @objc
@@ -695,6 +754,10 @@ extension ZMMessageDelete: MessageContentType {
     
     public func expectsReadConfirmation() -> Bool {
         return false
+    }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        return nil
     }
     
 }
@@ -719,6 +782,10 @@ extension ZMMessageHide: MessageContentType {
         return false
     }
     
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        return nil
+    }
+    
 }
 
 @objc
@@ -741,6 +808,10 @@ extension ZMMessageEdit: MessageContentType {
         return false
     }
     
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        return nil
+    }
+    
 }
 
 @objc
@@ -761,6 +832,10 @@ extension ZMReaction: MessageContentType {
     
     public func expectsReadConfirmation() -> Bool {
         return false
+    }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        return nil
     }
     
 }
@@ -800,6 +875,10 @@ extension ZMConfirmation: MessageContentType {
         return false
     }
     
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        return nil
+    }
+    
 }
 
 @objc
@@ -830,6 +909,10 @@ extension ZMLastRead: MessageContentType {
         return false
     }
     
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        return nil
+    }
+    
 }
 
 extension ZMCleared: MessageContentType {
@@ -840,6 +923,10 @@ extension ZMCleared: MessageContentType {
     
     public func expectsReadConfirmation() -> Bool {
         return false
+    }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        return nil
     }
     
 }
@@ -860,6 +947,10 @@ extension ZMCalling: MessageContentType {
     
     public func expectsReadConfirmation() -> Bool {
         return false
+    }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        return nil
     }
     
 }
