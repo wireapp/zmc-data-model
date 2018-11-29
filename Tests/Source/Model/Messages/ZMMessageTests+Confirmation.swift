@@ -89,8 +89,7 @@ extension ZMMessageTests_Confirmation {
         let conversation = createConversation(in: uiMOC)
         conversation.conversationType = .oneOnOne
         
-        // enable read receipts for self user
-        ZMUser.selfUser(in: uiMOC).enableReadReceipts = true
+        ZMUser.selfUser(in: uiMOC).readReceiptsEnabled = true
         
         // insert message which expects read confirmation
         let message = insertMessage(conversation, fromSender: user, timestamp: Date()).message as! ZMClientMessage
@@ -106,8 +105,7 @@ extension ZMMessageTests_Confirmation {
         let conversation = createConversation(in: uiMOC)
         conversation.conversationType = .oneOnOne
         
-        // disabled read receipts for self user
-        ZMUser.selfUser(in: uiMOC).enableReadReceipts = false
+        ZMUser.selfUser(in: uiMOC).readReceiptsEnabled = false
         
         // insert message which expects read confirmation
         let message = insertMessage(conversation, fromSender: user, timestamp: Date()).message as! ZMClientMessage
@@ -123,8 +121,7 @@ extension ZMMessageTests_Confirmation {
         let conversation = createConversation(in: uiMOC)
         conversation.conversationType = .oneOnOne
         
-        // enable read receipts for self user
-        ZMUser.selfUser(in: uiMOC).enableReadReceipts = true
+        ZMUser.selfUser(in: uiMOC).readReceiptsEnabled = true
         
         // insert message which doesn't expect read confirmation
         let message = insertMessage(conversation, fromSender: user, timestamp: Date()).message as! ZMClientMessage

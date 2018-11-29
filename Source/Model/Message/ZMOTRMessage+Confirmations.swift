@@ -28,7 +28,7 @@ extension ZMOTRMessage {
         guard let conversation = conversation, let managedObjectContext = managedObjectContext else { return false }
         
         if conversation.conversationType == .oneOnOne {
-            return genericMessage?.content?.expectsReadConfirmation() == true && ZMUser.selfUser(in: managedObjectContext).enableReadReceipts
+            return genericMessage?.content?.expectsReadConfirmation() == true && ZMUser.selfUser(in: managedObjectContext).readReceiptsEnabled
         } else if conversation.conversationType == .group {
             return expectsReadConfirmation
         }
