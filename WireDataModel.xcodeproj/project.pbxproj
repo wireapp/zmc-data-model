@@ -270,6 +270,8 @@
 		F1FDF2FC21B1567900E037A1 /* ZMClientMessage+Underlying.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FDF2FB21B1567900E037A1 /* ZMClientMessage+Underlying.swift */; };
 		F1FDF2FE21B1572500E037A1 /* ZMGenericMessageData.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FDF2FD21B1572500E037A1 /* ZMGenericMessageData.swift */; };
 		F1FDF30021B1580400E037A1 /* GenericMessage+Utils.swift in Sources */ = {isa = PBXBuildFile; fileRef = F1FDF2FF21B1580400E037A1 /* GenericMessage+Utils.swift */; };
+		F1FDF30221B17AD700E037A1 /* SwiftProtobuf.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F1FDF30121B17AD700E037A1 /* SwiftProtobuf.framework */; };
+		F1FDF30321B17AE100E037A1 /* SwiftProtobuf.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F1FDF30121B17AD700E037A1 /* SwiftProtobuf.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		F90D99A51E02DC6B00034070 /* AssetCollectionBatched.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90D99A41E02DC6B00034070 /* AssetCollectionBatched.swift */; };
 		F90D99A81E02E22900034070 /* AssetCollectionBatchedTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F90D99A61E02E22400034070 /* AssetCollectionBatchedTests.swift */; };
 		F91EAAC61D885D7B0010ACBE /* video.mp4 in Resources */ = {isa = PBXBuildFile; fileRef = F91EAAC41D885D720010ACBE /* video.mp4 */; };
@@ -517,6 +519,7 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				F1FDF30321B17AE100E037A1 /* SwiftProtobuf.framework in Embed Frameworks */,
 				878B823220A1C7D1007455CA /* HTMLString.framework in Embed Frameworks */,
 				F9A707361CAEE3FA00C2F5FE /* ocmock.framework in Embed Frameworks */,
 				BF76998C1D3500F0009C378B /* Ono.framework in Embed Frameworks */,
@@ -835,6 +838,7 @@
 		F1FDF2FB21B1567900E037A1 /* ZMClientMessage+Underlying.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMClientMessage+Underlying.swift"; sourceTree = "<group>"; };
 		F1FDF2FD21B1572500E037A1 /* ZMGenericMessageData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMGenericMessageData.swift; sourceTree = "<group>"; };
 		F1FDF2FF21B1580400E037A1 /* GenericMessage+Utils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GenericMessage+Utils.swift"; sourceTree = "<group>"; };
+		F1FDF30121B17AD700E037A1 /* SwiftProtobuf.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftProtobuf.framework; path = Carthage/Build/iOS/SwiftProtobuf.framework; sourceTree = "<group>"; };
 		F90D99A41E02DC6B00034070 /* AssetCollectionBatched.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetCollectionBatched.swift; sourceTree = "<group>"; };
 		F90D99A61E02E22400034070 /* AssetCollectionBatchedTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AssetCollectionBatchedTests.swift; sourceTree = "<group>"; };
 		F91EAAC41D885D720010ACBE /* video.mp4 */ = {isa = PBXFileReference; lastKnownFileType = file; name = video.mp4; path = Tests/Resources/video.mp4; sourceTree = SOURCE_ROOT; };
@@ -1147,6 +1151,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				F1FDF30221B17AD700E037A1 /* SwiftProtobuf.framework in Frameworks */,
 				16F5F16E1E4215DC0062F0AE /* libPhoneNumberiOS.framework in Frameworks */,
 				F9A707351CAEE3FA00C2F5FE /* ocmock.framework in Frameworks */,
 				F9A707321CAEE3C900C2F5FE /* WireSystem.framework in Frameworks */,
@@ -1981,6 +1986,7 @@
 		F9C9A6701CAD779E0039E10C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				F1FDF30121B17AD700E037A1 /* SwiftProtobuf.framework */,
 				878B822F20A1C7AF007455CA /* HTMLString.framework */,
 				54CF1D9C1E939F84003D18E8 /* WireCryptobox.framework */,
 				54CF1D9D1E939F84003D18E8 /* WireLinkPreview.framework */,
