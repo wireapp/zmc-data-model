@@ -36,7 +36,7 @@ class ZMClientMessagesTests_Replies: BaseZMClientMessageTests {
         let replyMessage = ZMGenericMessage.message(content: ZMText.text(with: "I agree", replyingTo: quotedMessage))
         let data = ["sender": NSString.createAlphanumerical(), "text": replyMessage.data()?.base64EncodedString()]
         let payload = payloadForMessage(in: conversation, type: EventConversationAddOTRMessage, data: data)!
-        let event = ZMUpdateEvent(fromEventStreamPayload: payload, uuid: nil)
+        let event = ZMUpdateEvent(fromEventStreamPayload: payload, uuid: nil)!
         
         // when
         var sut: ZMClientMessage! = nil
@@ -56,7 +56,7 @@ class ZMClientMessagesTests_Replies: BaseZMClientMessageTests {
         let replyMessage = ZMGenericMessage.message(content: ZMEphemeral.ephemeral(content: ZMText.text(with: "I agree", replyingTo: quotedMessage), expiresAfter: 1000))
         let data = ["sender": NSString.createAlphanumerical(), "text": replyMessage.data()?.base64EncodedString()]
         let payload = payloadForMessage(in: conversation, type: EventConversationAddOTRMessage, data: data)!
-        let event = ZMUpdateEvent(fromEventStreamPayload: payload, uuid: nil)
+        let event = ZMUpdateEvent(fromEventStreamPayload: payload, uuid: nil)!
         
         // when
         var sut: ZMClientMessage! = nil
