@@ -173,16 +173,3 @@ typedef NS_ENUM(int16_t, ZMFileTransferState) {
     ZMFileTransferStateUnavailable
 };
 
-
-#pragma mark - ZMLocationMessageData
-
-@protocol ZMLocationMessageData <NSObject>
-
-@property (nonatomic, readonly) float longitude;
-@property (nonatomic, readonly) float latitude;
-
-@property (nonatomic, readonly, nullable) NSString *name; // nil if not specified
-@property (nonatomic, readonly) int32_t zoomLevel; // 0 if not specified
-
-@end
-

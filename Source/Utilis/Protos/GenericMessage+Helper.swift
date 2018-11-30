@@ -42,6 +42,33 @@ public extension GenericMessage {
     }
 }
 
+extension GenericMessage {
+    var locationData: Location? {
+        guard let content = content else { return nil }
+        switch content {
+        case .location(let data):
+            return data
+        case .ephemeral(let data):
+            return data.location
+        default:
+            return nil
+        }        
+    }
+    
+    var imageAssetData : ImageAsset? {
+        guard let content = content else { return nil }
+        switch content {
+        case .image(let data):
+            return data
+        case .ephemeral(let data):
+            return data.image
+        default:
+            return nil
+        }        
+    }
+
+}
+
 extension Ephemeral: MessageCapable {
     
     public static func ephemeral(content: EphemeralMessageCapable, expiresAfter timeout: TimeInterval) -> Ephemeral {
