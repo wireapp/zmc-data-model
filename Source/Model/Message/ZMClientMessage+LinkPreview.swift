@@ -43,13 +43,13 @@ import WireLinkPreview
         }
     }
     
-    public var linkPreview: WireLinkPreview.LinkPreview? {
+    public var linkPreview: LinkMetadata? {
         
         guard let linkPreview = self.firstZMLinkPreview else { return nil }
         if linkPreview.hasTweet() {
-            return TwitterStatus(protocolBuffer: linkPreview)
+            return TwitterStatusMetadata(protocolBuffer: linkPreview)
         } else {
-            return WireLinkPreview.Article(protocolBuffer: linkPreview)
+            return ArticleMetadata(protocolBuffer: linkPreview)
         }
     }
     

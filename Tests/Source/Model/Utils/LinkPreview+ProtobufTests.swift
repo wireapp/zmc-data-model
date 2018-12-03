@@ -106,7 +106,7 @@ class LinkPreview_ProtobufTests: XCTestCase {
         
         // when
         let protos = builder.build()!
-        let preview = TwitterStatus(protocolBuffer: protos)
+        let preview = TwitterStatusMetadata(protocolBuffer: protos)
         
         // then
         XCTAssertEqual(preview.message, "title")

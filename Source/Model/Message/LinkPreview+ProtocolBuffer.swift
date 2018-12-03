@@ -20,9 +20,9 @@
 import Foundation
 import WireLinkPreview
 
-extension WireLinkPreview.LinkPreview {
+extension LinkMetadata {
     
-    public convenience init(protocolBuffer: WireProtos.LinkPreview) {
+    public convenience init(protocolBuffer: LinkPreview) {
         self.init(originalURLString: protocolBuffer.url,
                   permanentURLString: protocolBuffer.permanentURL,
                   resolvedURLString: protocolBuffer.permanentURL,
@@ -60,7 +60,7 @@ extension ZMLinkPreview {
     }
 }
 
-extension WireLinkPreview.Article {
+extension ArticleMetadata {
     
     public convenience init(protocolBuffer: ZMLinkPreview) {
         self.init(originalURLString: protocolBuffer.url,
@@ -85,7 +85,7 @@ extension WireLinkPreview.Article {
     }
 }
 
-extension TwitterStatus {
+extension TwitterStatusMetadata {
     
     public convenience init(protocolBuffer: ZMLinkPreview) {
         self.init(originalURLString: protocolBuffer.url,
