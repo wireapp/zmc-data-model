@@ -44,4 +44,22 @@ extension ZMConversation {
         return confirmationMessages
     }
     
+    @discardableResult @objc
+    public func appendMessageReceiptModeChangedMessage(fromUser user: ZMUser, timestamp: Date) -> ZMSystemMessage {
+        let (message, _) = appendSystemMessage(
+            type: .receiptModeChanged,
+            sender: user,
+            users: [],
+            clients: nil,
+            timestamp: timestamp
+        )
+        
+        if isArchived && mutedMessageTypes == .none {
+            isArchived = false
+        }
+        
+        managedObjectContext?.enqueueDelayedSave()
+        return message
+    }
+    
 }
