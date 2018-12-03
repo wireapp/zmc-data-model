@@ -34,7 +34,7 @@ class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
         let nonce = UUID()
         let clientMessage = ZMClientMessage(nonce: nonce, managedObjectContext: uiMOC)
 
-        let article = Article(
+        let article = ArticleMetadata(
             originalURLString: "www.example.com/article/original",
             permanentURLString: "http://www.example.com/article/1",
             resolvedURLString: "http://www.example.com/article/1",
@@ -58,7 +58,7 @@ class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
         let nonce = UUID()
         let clientMessage = ZMClientMessage(nonce: nonce, managedObjectContext: uiMOC)
 
-        let article = Article(
+        let article = ArticleMetadata(
             originalURLString: "example.com/article/original",
             permanentURLString: "http://www.example.com/article/1",
             resolvedURLString: "http://www.example.com/article/1",
@@ -129,7 +129,7 @@ class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
         let nonce = UUID.create()
         let clientMessage = ZMClientMessage(nonce: nonce, managedObjectContext: uiMOC)
 
-        let article = Article(
+        let article = ArticleMetadata(
             originalURLString: "example.com/article/original",
             permanentURLString: "http://www.example.com/article/1",
             resolvedURLString: "http://www.example.com/article/1",
@@ -156,7 +156,7 @@ class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
         let nonce = UUID()
         let clientMessage = ZMClientMessage(nonce: nonce, managedObjectContext: uiMOC)
 
-        let article = Article(originalURLString: "example.com/article/original",
+        let article = ArticleMetadata(originalURLString: "example.com/article/original",
                               permanentURLString: "http://www.example.com/article/1",
                               resolvedURLString: "http://www.example.com/article/1",
                               offset: 12)
@@ -242,7 +242,7 @@ class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
     
     func testThatItSendsANotificationToDownloadTheImageWhenRequestImageDownloadIsCalledAndItHasAAssetID_Article() {
         // given
-        let preview = Article(
+        let preview = ArticleMetadata(
             originalURLString: "example.com/article/original",
             permanentURLString: "http://www.example.com/article/1",
             resolvedURLString: "http://www.example.com/article/1",
