@@ -966,6 +966,7 @@ NSString * const ZMMessageExpectReadConfirmationKey = @"expectsReadConfirmation"
             case ZMSystemMessageTypeMissedCall:
             case ZMSystemMessageTypeReadReceiptsEnabled:
             case ZMSystemMessageTypeReadReceiptsDisabled:
+            case ZMSystemMessageTypeReadReceiptsOn:
                 return YES;
             case ZMSystemMessageTypeInvalid:
             case ZMSystemMessageTypeConversationNameChanged:

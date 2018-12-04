@@ -58,7 +58,19 @@ extension ZMConversation {
             isArchived = false
         }
         
-        managedObjectContext?.enqueueDelayedSave()
+        return message
+    }
+    
+    @discardableResult @objc
+    public func appendMessageReceiptModeIsOnMessage(timestamp: Date) -> ZMSystemMessage {
+        let (message, _) = appendSystemMessage(
+            type: .readReceiptsOn,
+            sender: creator,
+            users: [],
+            clients: nil,
+            timestamp: timestamp
+        )
+        
         return message
     }
     
