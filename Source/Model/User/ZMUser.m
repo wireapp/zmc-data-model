@@ -880,22 +880,6 @@ static NSString *const TeamIdentifierKey = @"teamIdentifier";
     self.normalizedEmailAddress = [self.emailAddress normalizedEmailaddress];
 }
 
-- (void)setReadReceiptsEnabled:(BOOL)readReceiptsEnabled
-{
-    [self setReadReceiptsEnabled:readReceiptsEnabled synchronize:YES];
-}
-
-- (void)setReadReceiptsEnabled:(BOOL)readReceiptsEnabled synchronize:(BOOL)synchronize
-{
-    [self willChangeValueForKey:ReadReceiptsEnabledKey];
-    NSAssert(self.isSelfUser, @"setReadReceiptsEnabled called for non-self user");
-    [self setPrimitiveValue:@(readReceiptsEnabled) forKey:ReadReceiptsEnabledKey];
-    if (synchronize) {
-        [self setLocallyModifiedKeys:[NSSet setWithObject:ReadReceiptsEnabledKey]];
-    }
-    [self didChangeValueForKey:ReadReceiptsEnabledKey];
-}
-
 @end
 
 

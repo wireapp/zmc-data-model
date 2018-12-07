@@ -663,21 +663,26 @@ extension ZMUserTests {
         
         // WHEN
         sut.readReceiptsEnabled = true
+        
+        uiMOC.saveOrRollback()
 
         // THEN
         XCTAssertEqual(sut.modifiedKeys, Set([ReadReceiptsEnabledKey]))
     }
     
     func testThatItDoesNotSetModifiedKeysForEnableReadReceipts() {
-        // GIVEN
-        let sut = ZMUser.selfUser(in: uiMOC)
-        sut.resetLocallyModifiedKeys(Set())
-        
-        // WHEN
-        sut.setReadReceiptsEnabled(true, synchronize: false)
-        
-        // THEN
-        XCTAssertEqual(sut.modifiedKeys, nil)
+        self.syncMOC.performGroupedAndWait { _ in
+            // GIVEN
+            let sut = ZMUser.selfUser(in: self.syncMOC)
+            sut.resetLocallyModifiedKeys(Set())
+            
+            // WHEN
+            sut.readReceiptsEnabled = true
+            self.syncMOC.saveOrRollback()
+
+            // THEN
+            XCTAssertEqual(sut.modifiedKeys, nil)
+        }
     }
     
     func testThatItSavesValueOfReadReceiptsEnabled() {
