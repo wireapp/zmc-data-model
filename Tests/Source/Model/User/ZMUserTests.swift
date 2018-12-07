@@ -679,5 +679,15 @@ extension ZMUserTests {
         // THEN
         XCTAssertEqual(sut.modifiedKeys, nil)
     }
+    
+    func testThatItSavesValueOfReadReceiptsEnabled() {
+        // GIVEN
+        let user = ZMUser.selfUser(in: uiMOC)
+        // WHEN
+        user.readReceiptsEnabled = true
+        uiMOC.saveOrRollback()
+        // THEN
+        XCTAssert(user.readReceiptsEnabled)
+    }
 }
 
