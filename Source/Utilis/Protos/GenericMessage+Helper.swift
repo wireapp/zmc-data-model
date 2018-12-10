@@ -61,7 +61,12 @@ extension GenericMessage {
         case .image(let data):
             return data
         case .ephemeral(let data):
-            return data.image
+            switch data.content {
+            case .image(let data)?:
+                return data
+            default:
+                return nil
+            }
         default:
             return nil
         }        
