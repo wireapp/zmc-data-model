@@ -49,7 +49,12 @@ extension GenericMessage {
         case .location(let data):
             return data
         case .ephemeral(let data):
-            return data.location
+            switch data.content {
+            case .location(let data)?:
+                return data
+            default:
+                return nil
+            }
         default:
             return nil
         }        
