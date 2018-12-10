@@ -113,6 +113,10 @@ public protocol ZMConversationMessage : NSObjectProtocol {
     /// At this point the genericMessage content is already cleared. You should receive a notification that the content was cleared
     var isObfuscated : Bool { get }
 
+    /// Returns true if the message is an ephemeral message that was sent by the receiver and the obfuscation timer already fired, causing the deletion of the asset.
+    /// At this point the genericMessage content is already cleared. You should receive a notification that the content was cleared
+    var isHiddenInConversation : Bool { get }
+
     /// Returns the date when a ephemeral message will be destructed or `nil` if th message is not ephemeral
     var destructionDate: Date? { get }
     
@@ -205,6 +209,10 @@ extension ZMMessage : ZMConversationMessage {
             syncConversation.calculateLastUnreadMessages()
             syncContext.saveOrRollback()
         }
+    }
+    
+    public var isHiddenInConversation: Bool {
+        return self.hiddenInConversation != nil
     }
 }
 
