@@ -245,12 +245,15 @@ NSString * const DeliveredKey = @"delivered";
 }
 
 -(void)updateWithPostPayload:(NSDictionary *)payload updatedKeys:(NSSet *)updatedKeys {
+
     NSDate *timestamp = [payload dateForKey:@"time"];
     if (timestamp == nil) {
         ZMLogWarn(@"No time in message post response from backend.");
     } else if( ! [timestamp isEqualToDate:self.serverTimestamp]) {
         self.expectsReadConfirmation = self.conversation.hasReadReceiptsEnabled;
     }
+    
+    [super updateWithPostPayload:payload updatedKeys:updatedKeys];
 }
 
 @end
