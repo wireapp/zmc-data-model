@@ -31,8 +31,8 @@ import Foundation
 public class UnregisteredUser {
 
     public enum Credentials: Equatable {
-        case phone(number: String)
-        case email(address: String, password: String)
+        case phone(String)
+        case email(String)
     }
 
     public var credentials: Credentials?
@@ -41,6 +41,7 @@ public class UnregisteredUser {
     public var accentColorValue: ZMAccentColor?
     public var acceptedTermsOfService: Bool?
     public var marketingConsent: Bool?
+    public var password: String?
 
     /**
      * Creates an empty unregistered user.
@@ -50,12 +51,25 @@ public class UnregisteredUser {
 
     /// Whether the user is complete and can be registered.
     public var isComplete: Bool {
+        let passwordStepFinished = needsPassword ? password != nil : true
+
         return credentials != nil
             && verificationCode != nil
             && name != nil
             && accentColorValue != nil
             && acceptedTermsOfService != nil
             && marketingConsent != nil
+            && passwordStepFinished
+    }
+
+    /// Whether the user needs a password.
+    public var needsPassword: Bool {
+        switch credentials {
+        case .phone?:
+            return false
+        default:
+            return password == nil
+        }
     }
 
 }
@@ -71,6 +85,7 @@ extension UnregisteredUser: Equatable {
             && lhs.accentColorValue == rhs.accentColorValue
             && lhs.acceptedTermsOfService == rhs.acceptedTermsOfService
             && lhs.marketingConsent == rhs.marketingConsent
+            && lhs.password == rhs.password
     }
 
 }
