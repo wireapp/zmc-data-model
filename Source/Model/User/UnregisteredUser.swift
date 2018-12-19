@@ -30,12 +30,7 @@ import Foundation
 
 public class UnregisteredUser {
 
-    public enum Credentials: Equatable {
-        case phone(String)
-        case email(String)
-    }
-
-    public var credentials: Credentials?
+    public var credentials: UnverifiedCredentials?
     public var verificationCode: String?
     public var name: String?
     public var accentColorValue: ZMAccentColor?
