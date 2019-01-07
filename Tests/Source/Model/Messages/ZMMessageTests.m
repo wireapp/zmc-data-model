@@ -39,6 +39,20 @@ NSString * const IsExpiredKey = @"isExpired";
 NSString * const ReactionsKey = @"reactions";
 
 @implementation BaseZMMessageTests : ModelObjectsTests
+
+- (void)setUp
+{
+    [super setUp];
+    BackgroundActivityFactory.sharedFactory.activityManager = UIApplication.sharedApplication;
+    [BackgroundActivityFactory.sharedFactory resume];
+}
+
+- (void)tearDown
+{
+    BackgroundActivityFactory.sharedFactory.activityManager = nil;
+    [super tearDown];
+}
+
 @end
 
 @interface ZMMessageTests : BaseZMMessageTests
@@ -194,7 +208,7 @@ NSString * const ReactionsKey = @"reactions";
         
         
         NSUUID *nonce = [NSUUID createUUID];
-        ZMGenericMessage *textMessage = [ZMGenericMessage messageWithContent:[ZMText textWith:self.name mentions:@[] linkPreviews:@[]] nonce:nonce];
+        ZMGenericMessage *textMessage = [ZMGenericMessage messageWithContent:[ZMText textWith:self.name mentions:@[] linkPreviews:@[] replyingTo:nil] nonce:nonce];
         ZMClientMessage *msg = [[ZMClientMessage alloc] initWithNonce:nonce managedObjectContext:self.syncMOC];
         [msg addData:textMessage.data];
         
@@ -380,7 +394,7 @@ NSString * const ReactionsKey = @"reactions";
                             @(ZMUpdateEventTypeConversationAssetAdd),
                             @(ZMUpdateEventTypeConversationKnock),
                             ];
-    for(NSUInteger evt = 0; evt < ZMUpdateEventType_LAST; ++evt) {
+    for(NSUInteger evt = 0; evt <= ZMUpdateEventTypeUserPropertiesDelete; ++evt) {
         XCTAssertEqual([ZMMessage doesEventTypeGenerateMessage:evt], [validTypes containsObject:@(evt)]);
     }
 }
@@ -794,7 +808,7 @@ NSString * const ReactionsKey = @"reactions";
         @(ZMUpdateEventTypeConversationRename)
     ];
     
-    for(NSUInteger evt = 0; evt < ZMUpdateEventType_LAST; ++evt) {
+    for(NSUInteger evt = 0; evt <= ZMUpdateEventTypeUserPropertiesDelete; ++evt) {
         XCTAssertEqual([ZMSystemMessage doesEventTypeGenerateSystemMessage:evt], [validTypes containsObject:@(evt)]);
     }
 }
@@ -919,7 +933,7 @@ NSString * const ReactionsKey = @"reactions";
 
 - (void)testThatItDoesNotGenerateSystemMessagesFromUpdateEventsOfTheWrongType
 {
-    for(NSUInteger evt = 0; evt < ZMUpdateEventType_LAST; ++evt)
+    for(NSUInteger evt = 0; evt <= ZMUpdateEventTypeUserPropertiesDelete; ++evt)
     {
         if( ! [ZMSystemMessage doesEventTypeGenerateSystemMessage:evt] ) {
             [self checkThatUpdateEventTypeDoesNotGenerateMessage:evt];
@@ -1559,6 +1573,46 @@ NSString * const ReactionsKey = @"reactions";
     
     // then
     XCTAssertTrue(removed);
+}
+
+- (void)testThatRepliesAreRemoved
+{
+    // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    conversation.remoteIdentifier = [NSUUID createUUID];
+    
+    ZMClientMessage *message1 = (ZMClientMessage *)[conversation appendMessageWithText:@"Test"];
+    ZMClientMessage *message2 = (ZMClientMessage *)[conversation appendText:@"Test 2" mentions:@[] replyingToMessage:message1 fetchLinkPreview:NO nonce:NSUUID.createUUID];
+    XCTAssertEqualObjects(message2.quote, message1);
+    XCTAssertFalse(message1.replies.isEmpty);
+    
+    // when
+    [message1 removeMessageClearingSender:YES];
+    [self.uiMOC saveOrRollback];
+    
+    // then
+    XCTAssertTrue(message1.replies.isEmpty);
+    XCTAssertNil(message2.quote);
+}
+
+- (void)testThatQuotesAreRemoved
+{
+    // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    conversation.remoteIdentifier = [NSUUID createUUID];
+    
+    ZMClientMessage *message1 = (ZMClientMessage *)[conversation appendMessageWithText:@"Test"];
+    ZMClientMessage *message2 = (ZMClientMessage *)[conversation appendText:@"Test 2" mentions:@[] replyingToMessage:message1 fetchLinkPreview:NO nonce:NSUUID.createUUID];
+    XCTAssertEqualObjects(message2.quote, message1);
+    XCTAssertFalse(message1.replies.isEmpty);
+    
+    // when
+    [message2 removeMessageClearingSender:YES];
+    [self.uiMOC saveOrRollback];
+    
+    // then
+    XCTAssertTrue(message1.replies.isEmpty);
+    XCTAssertNil(message2.quote);
 }
 
 - (void)testThatAMessageIsRemovedWhenAskForDeletionWithMessageHide;

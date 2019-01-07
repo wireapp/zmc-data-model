@@ -74,6 +74,53 @@ extension ClientMessageTests_OTR {
         }
     }
     
+    func testThatCorruptedClientsReceiveBogusPayload() {
+        self.syncMOC.performGroupedBlockAndWait {
+            
+            //given
+            let message = self.syncConversation.append(text: self.name, fetchLinkPreview: true, nonce: UUID.create()) as! ZMClientMessage
+            self.syncUser3Client1.failedToEstablishSession = true
+            
+            //when
+            guard let dataAndStrategy = message.encryptedMessagePayloadData() else {
+                XCTFail()
+                return
+            }
+            
+            //then
+            guard let createdMessage = ZMNewOtrMessage.builder()!.merge(from: dataAndStrategy.data).build()! as? ZMNewOtrMessage else { return XCTFail() }
+            guard let userEntry = createdMessage.recipients.first(where: { self.syncUser3.userId().isEqual($0.user) }) else { return XCTFail() }
+            
+            XCTAssertEqual(userEntry.clients.count, 1)
+            XCTAssertEqual(userEntry.clients.first?.text, ZMFailedToCreateEncryptedMessagePayloadString.data(using: .utf8))
+            XCTAssertFalse(self.syncUser3Client1.failedToEstablishSession)
+        }
+    }
+    
+    func testThatCorruptedClientsReceiveBogusPayloadWhenSentAsExternal() {
+        self.syncMOC.performGroupedBlockAndWait {
+            
+            //given
+            let messageRequiringExternal = self.textMessageRequiringExternalMessage(6)
+            let message = self.syncConversation.append(text: messageRequiringExternal) as! ZMClientMessage
+            self.syncUser3Client1.failedToEstablishSession = true
+            
+            //when
+            guard let dataAndStrategy = message.encryptedMessagePayloadData() else {
+                XCTFail()
+                return
+            }
+            
+            //then
+            guard let createdMessage = ZMNewOtrMessage.builder()!.merge(from: dataAndStrategy.data).build()! as? ZMNewOtrMessage else { return XCTFail() }
+            guard let userEntry = createdMessage.recipients.first(where: { self.syncUser3.userId().isEqual($0.user) }) else { return XCTFail() }
+            
+            XCTAssertEqual(userEntry.clients.count, 1)
+            XCTAssertEqual(userEntry.clients.first?.text, ZMFailedToCreateEncryptedMessagePayloadString.data(using: .utf8))
+            XCTAssertFalse(self.syncUser3Client1.failedToEstablishSession)
+        }
+    }
+    
     func testThatItCreatesPayloadDataForTextMessage() {
         self.syncMOC.performGroupedBlockAndWait {
             
@@ -223,18 +270,17 @@ extension ClientMessageTests_OTR {
         }
     }
 
-    func testThatItCreatesPayloadForExternalMessage() {
-        
-        syncMOC.performGroupedBlockAndWait {
+    func testThatItCreatesPayloadForZMClearedMessages() {
+        self.syncMOC.performGroupedBlockAndWait {
             // given
-            let message = self.syncConversation.append(text: self.name, fetchLinkPreview: true, nonce: UUID.create()) as! ZMClientMessage
+            self.syncConversation.clearedTimeStamp = Date()
+            self.syncConversation.remoteIdentifier = UUID()
+            guard let message = ZMConversation.appendSelfConversation(withClearedOf: self.syncConversation) else { return XCTFail() }
             
-            //when
+            self.expectedRecipients = [self.syncSelfUser.remoteIdentifier!.transportString(): [self.syncSelfClient2.remoteIdentifier!]]
+            
             // when
-            guard let payloadAndStrategy = message.encryptedMessagePayloadData() else {
-                XCTFail()
-                return
-            }
+            guard let payloadAndStrategy = message.encryptedMessagePayloadData() else { return XCTFail() }
             
             // then
             self.assertMessageMetadata(payloadAndStrategy.data)
@@ -272,7 +318,7 @@ extension ClientMessageTests_OTR {
             
             textMessage.sender = self.syncUser1
             textMessage.senderClientID = senderID
-            let confirmationMessage = textMessage.confirmReception()
+            let confirmationMessage = textMessage.confirmDelivery()
             
             //when
             guard let payloadAndStrategy = confirmationMessage?.encryptedMessagePayloadData()
@@ -321,7 +367,7 @@ extension ClientMessageTests_OTR {
             
             textMessage.sender = self.syncUser1
             textMessage.senderClientID = senderID
-            let confirmationMessage = textMessage.confirmReception()
+            let confirmationMessage = textMessage.confirmDelivery()
             
             //when
             guard let _ = confirmationMessage?.encryptedMessagePayloadData()
@@ -348,7 +394,7 @@ extension ClientMessageTests_OTR {
             
             self.syncMOC.saveOrRollback()
             
-            let confirmationMessage = clientmessage.confirmReception()
+            let confirmationMessage = clientmessage.confirmDelivery()
 
             //when
             guard let _ = confirmationMessage?.encryptedMessagePayloadData()
@@ -371,7 +417,7 @@ extension ClientMessageTests_OTR {
             
             self.syncMOC.saveOrRollback()
             
-            let confirmationMessage = clientmessage.confirmReception()
+            let confirmationMessage = clientmessage.confirmDelivery()
 
             //when
             guard let _ = confirmationMessage?.encryptedMessagePayloadData()

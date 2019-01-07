@@ -64,6 +64,12 @@ import Foundation
         add(ZMGenericMessage.message(content: metadata.asset, nonce: nonce, expiresAfter: timeout))
     }
     
+    public override var hashOfContent: Data? {
+        guard let serverTimestamp = serverTimestamp else { return nil }
+        
+        return genericAssetMessage?.hashOfContent(with: serverTimestamp)
+    }
+    
     public override func prepareForDeletion() {
         super.prepareForDeletion()
         self.dataSet.map { $0 as! ZMGenericMessageData } .forEach {
@@ -208,9 +214,12 @@ import Foundation
         self.transferState = .failedUpload
         
         // When we expire an asset message because the conversation degraded we do not want to send
-        // a `NOT UPLOADED` message. In all other cases we do want to sent a `NOT UPLOADED` 
-        // message to let the reveicers know we stopped uploading.
-        if self.uploadState == .uploadingPlaceholder {
+        // a `NOT UPLOADED` message. In all other cases we do want to sent a `NOT UPLOADED` message
+        // to let the receivers know we stopped uploading, except for images for which we don't send
+        // placeholders.
+        if isImage {
+            self.uploadState = .uploadingFailed
+        } else if self.uploadState == .uploadingPlaceholder {
             self.uploadState = .done
         } else {
             self.didFailToUploadFileData()
@@ -269,6 +278,7 @@ import Foundation
         if shouldUpdate {
             if let serverTimestamp = (payload as NSDictionary).date(forKey: "time") {
                 self.serverTimestamp = serverTimestamp
+                self.expectsReadConfirmation = self.conversation?.hasReadReceiptsEnabled ?? false
             }
             conversation?.updateTimestampsAfterUpdatingMessage(self)
         }

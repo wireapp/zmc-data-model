@@ -536,10 +536,10 @@ class ConversationListObserverTests : NotificationDispatcherTestBase {
         }
     }
     
-    func testThatItDoesNotNotifyObserversWhenTheOnlyChangeIsAnInsertedMessage()
+    func testThatItNotifiesObserversWhenTheOnlyChangeIsAnInsertedMessage()
     {
         // given
-        let conversation =  ZMConversation.insertNewObject(in:self.uiMOC)
+        let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
         conversation.lastReadServerTimeStamp = Date()
         conversation.conversationType = .group
         
@@ -553,7 +553,31 @@ class ConversationListObserverTests : NotificationDispatcherTestBase {
         self.uiMOC.saveOrRollback()
         
         // then
-        XCTAssertEqual(testObserver.changes.count, 0)
+        XCTAssertEqual(testObserver.changes.count, 1)
+    }
+    
+    func testThatItNotifiesObserversForMessageChangesAfterPostingANewMessage()
+    {
+        // given
+        let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
+        conversation.lastReadServerTimeStamp = Date()
+        conversation.conversationType = .group
+        self.uiMOC.saveOrRollback()
+        
+        let conversationList = ZMConversation.conversationsExcludingArchived(in: self.uiMOC)
+        self.token = ConversationListChangeInfo.add(observer: testObserver, for: conversationList, managedObjectContext: self.uiMOC)
+        
+        // when
+        let message = conversation.append(text: "hello")
+        self.uiMOC.saveOrRollback()
+        
+        guard let user = conversation.activeParticipants.firstObject as? ZMUser else { XCTFail(); return }
+        
+        message?.textMessageData?.editText(user.displayName, mentions: [Mention(range: NSRange(location: 0, length: user.displayName.count), user: user)], fetchLinkPreview: false)
+        self.uiMOC.saveOrRollback()
+        
+        // then
+        XCTAssertEqual(testObserver.changes.count, 1)
     }
     
     func testThatItNotifiesObserversWhenTheUserInOneOnOneConversationGetsBlocked()

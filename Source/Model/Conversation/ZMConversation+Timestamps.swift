@@ -135,7 +135,7 @@ extension ZMConversation {
             if let status = mutedStatus {
                 var statusFlags = MutedMessageTypes(rawValue: status)
                 if legacyFlag != 0 {
-                    statusFlags.formUnion(.nonMentions)
+                    statusFlags.formUnion(.regular)
                 }
                 else {
                     statusFlags = MutedMessageTypes.none
@@ -144,7 +144,7 @@ extension ZMConversation {
                 self.mutedStatus = statusFlags.rawValue
             }
             else {
-                self.mutedStatus = (legacyFlag == 0) ? MutedMessageTypes.none.rawValue : MutedMessageTypes.nonMentions.rawValue
+                self.mutedStatus = (legacyFlag == 0) ? MutedMessageTypes.none.rawValue : MutedMessageTypes.regular.rawValue
             }
         }
         else if let status = mutedStatus {
@@ -275,6 +275,7 @@ extension ZMConversation {
     @objc
     func savePendingLastRead() {
         guard let timestamp = pendingLastReadServerTimestamp else { return }
+        confirmUnreadMessagesAsRead(until: timestamp)
         updateLastRead(timestamp, synchronize: false)
         pendingLastReadServerTimestamp = nil
         lastReadTimestampUpdateCounter = 0
@@ -296,11 +297,12 @@ extension ZMConversation {
     func calculateLastUnreadMessages() {
         guard let managedObjectContext = managedObjectContext, managedObjectContext.zm_isSyncContext else { return } // We only calculate unread message on the sync MOC
         
-        let messages = unreadMessagesIncludingInvisible.filter(ZMMessage.isVisible)
+        let messages = unreadMessagesIncludingInvisible().filter(ZMMessage.isVisible)
         var lastKnockDate: Date? = nil
         var lastMissedCallDate: Date? = nil
         var unreadCount: Int64 = 0
         var unreadSelfMentionCount: Int64 = 0
+        var unreadSelfReplyCount: Int64 = 0
         
         for message in messages {
             if message.isKnock {
@@ -311,8 +313,13 @@ extension ZMConversation {
                 lastMissedCallDate = message.serverTimestamp
             }
             
-            if let textMessageData = message.textMessageData, textMessageData.isMentioningSelf {
-                unreadSelfMentionCount += 1
+            if let textMessageData = message.textMessageData {
+                if textMessageData.isMentioningSelf {
+                    unreadSelfMentionCount += 1
+                }
+                if textMessageData.isQuotingSelf {
+                    unreadSelfReplyCount += 1
+                }
             }
             
             if message.shouldGenerateUnreadCount() {
@@ -324,6 +331,7 @@ extension ZMConversation {
         updateLastUnreadMissedCall(lastMissedCallDate)
         internalEstimatedUnreadCount = unreadCount
         internalEstimatedUnreadSelfMentionCount = unreadSelfMentionCount
+        internalEstimatedUnreadSelfReplyCount = unreadSelfReplyCount
     }
     
     /// Returns the first unread message in a converation. If the first unread message is child message of system message the parent message will be returned.
@@ -337,7 +345,7 @@ extension ZMConversation {
             }
         }
         
-        return unreadMessagesIncludingInvisible.lazy.map(replaceChildWithParent).filter({ $0.visibleInConversation != nil }).first(where: { $0.shouldGenerateUnreadCount() })
+        return unreadMessagesIncludingInvisible().lazy.map(replaceChildWithParent).filter({ $0.visibleInConversation != nil }).first(where: { $0.shouldGenerateUnreadCount() })
     }
     
     // Returns first unread message mentioning the self user
@@ -348,11 +356,28 @@ extension ZMConversation {
     /// Returns all unread messages. This may contain unread child messages of a system message which aren't directly visible in the conversation.
     @objc
     public var unreadMessages: [ZMConversationMessage] {
-        return unreadMessagesIncludingInvisible.filter(ZMMessage.isVisible)
+        return unreadMessagesIncludingInvisible().filter(ZMMessage.isVisible)
     }
     
-    fileprivate var unreadMessagesIncludingInvisible: [ZMMessage] {
-        return unreadMessagesIncludingInvisible(order: .ascending).filter(\.messageIsRelevantForConversationStatus)
+    internal func unreadMessages(until timestamp: Date = .distantFuture) -> [ZMMessage] {
+        return unreadMessagesIncludingInvisible(until: timestamp).filter(ZMMessage.isVisible)
+    }
+    
+    internal func unreadMessagesIncludingInvisible(until timestamp: Date = Date.distantFuture) -> [ZMMessage] {
+        guard let managedObjectContext = managedObjectContext else { return [] }
+        
+        let lastReadServerTimestamp = lastReadServerTimeStamp ?? Date.distantPast
+        let selfUser = ZMUser.selfUser(in: managedObjectContext)
+        let fetchRequest = NSFetchRequest<ZMMessage>(entityName: ZMMessage.entityName())
+        fetchRequest.predicate = NSPredicate(format: "(%K == %@ OR %K == %@) AND %K != %@ AND %K > %@ AND %K <= %@",
+                                             ZMMessageConversationKey, self,
+                                             ZMMessageHiddenInConversationKey, self,
+                                             ZMMessageSenderKey, selfUser,
+                                             ZMMessageServerTimestampKey, lastReadServerTimestamp as NSDate,
+                                             ZMMessageServerTimestampKey, timestamp as NSDate)
+        fetchRequest.sortDescriptors = ZMMessage.defaultSortDescriptors()
+        
+        return managedObjectContext.fetchOrAssert(request: fetchRequest).filter(\.messageIsRelevantForConversationStatus)
     }
     
     fileprivate func lastUnreadMessage(olderOrEqualThan date: Date) -> ZMMessage? {

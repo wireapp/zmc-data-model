@@ -32,7 +32,7 @@ extension ZMMessage {
     
     static func appendReaction(_ unicodeValue: String?, toMessage message: ZMConversationMessage) -> ZMClientMessage? {
         guard let message = message as? ZMMessage, let context = message.managedObjectContext, let messageID = message.nonce else { return nil }
-        guard message.deliveryState == ZMDeliveryState.sent || message.deliveryState == ZMDeliveryState.delivered else { return nil }
+        guard message.isSent else { return nil }
         
         let emoji = unicodeValue ?? ""
         let genericMessage = ZMGenericMessage.message(content: ZMReaction(emoji: emoji, messageID: messageID))    
@@ -83,9 +83,16 @@ extension ZMMessage {
     }
 
     @objc public func clearAllReactions() {
+        let oldReactions = self.reactions
         reactions.removeAll()
         guard let moc = managedObjectContext else { return }
-        reactions.forEach(moc.delete)
+        oldReactions.forEach(moc.delete)
     }
     
+    @objc public func clearConfirmations() {
+        let oldConfirmations = self.confirmations
+        mutableSetValue(forKey: ZMMessageConfirmationKey).removeAllObjects()
+        guard let moc = managedObjectContext else { return }
+        oldConfirmations.forEach(moc.delete)
+    }
 }

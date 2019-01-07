@@ -90,6 +90,7 @@ static NSString *const VoiceChannelStateKey = @"voiceChannelState";
 
 static NSString *const LocalMessageDestructionTimeoutKey = @"localMessageDestructionTimeout";
 static NSString *const SyncedMessageDestructionTimeoutKey = @"syncedMessageDestructionTimeout";
+static NSString *const HasReadReceiptsEnabledKey = @"hasReadReceiptsEnabled";
 
 static NSString *const LanguageKey = @"language";
 
@@ -189,6 +190,11 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 - (NSUInteger)estimatedUnreadSelfMentionCount
 {
     return (unsigned long)self.internalEstimatedUnreadSelfMentionCount;
+}
+
+- (NSUInteger)estimatedUnreadSelfReplyCount
+{
+    return (unsigned long)self.internalEstimatedUnreadSelfReplyCount;
 }
 
 + (NSSet *)keyPathsForValuesAffectingEstimatedUnreadCount
@@ -354,6 +360,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
             ZMConversationLastReadLocalTimestampKey,
             ZMConversationInternalEstimatedUnreadCountKey,
             ZMConversationInternalEstimatedUnreadSelfMentionCountKey,
+            ZMConversationInternalEstimatedUnreadSelfReplyCountKey,
             ZMConversationIsArchivedKey,
             ZMConversationMutedStatusKey,
             LocalMessageDestructionTimeoutKey,
@@ -368,7 +375,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
             TeamRemoteIdentifierDataKey,
             AccessModeStringsKey,
             AccessRoleStringKey,
-            LanguageKey
+            LanguageKey,
+            HasReadReceiptsEnabledKey,
         };
         
         NSSet *additionalKeys = [NSSet setWithObjects:KeysIgnoredForTrackingModifications count:(sizeof(KeysIgnoredForTrackingModifications) / sizeof(*KeysIgnoredForTrackingModifications))];
@@ -422,12 +430,29 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
                                                         inTeam:(nullable Team *)team
                                                    allowGuests:(BOOL)allowGuests
 {
+    return [self insertGroupConversationIntoUserSession:session
+                                       withParticipants:participants
+                                                   name:name
+                                                 inTeam:team
+                                            allowGuests:allowGuests
+                                           readReceipts:NO];
+}
+
+
++ (nonnull instancetype)insertGroupConversationIntoUserSession:(nonnull id<ZMManagedObjectContextProvider> )session
+                                              withParticipants:(nonnull NSArray<ZMUser *> *)participants
+                                                          name:(nullable NSString*)name
+                                                        inTeam:(nullable Team *)team
+                                                   allowGuests:(BOOL)allowGuests
+                                                  readReceipts:(BOOL)readReceipts
+{
     VerifyReturnNil(session != nil);
     return [self insertGroupConversationIntoManagedObjectContext:session.managedObjectContext
                                                 withParticipants:participants
                                                             name:name
                                                           inTeam:team
-                                                     allowGuests:allowGuests];
+                                                     allowGuests:allowGuests
+                                                    readReceipts:readReceipts];
 }
 
 + (instancetype)existingOneOnOneConversationWithUser:(ZMUser *)otherUser inUserSession:(id<ZMManagedObjectContextProvider>)session;
@@ -827,6 +852,22 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
                                                                   inTeam:(nullable Team *)team
                                                              allowGuests:(BOOL)allowGuests
 {
+    return [self insertGroupConversationIntoManagedObjectContext:moc
+                                                withParticipants:participants
+                                                            name:name
+                                                          inTeam:team
+                                                     allowGuests:allowGuests
+                                                    readReceipts:NO];
+}
+
+
++ (nullable instancetype)insertGroupConversationIntoManagedObjectContext:(nonnull NSManagedObjectContext *)moc
+                                                        withParticipants:(nonnull NSArray <ZMUser *>*)participants
+                                                                    name:(nullable NSString *)name
+                                                                  inTeam:(nullable Team *)team
+                                                             allowGuests:(BOOL)allowGuests
+                                                            readReceipts:(BOOL)readReceipts
+{
     ZMUser *selfUser = [ZMUser selfUserInContext:moc];
 
     if (nil != team && !selfUser.canCreateConversation) {
@@ -841,6 +882,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     conversation.userDefinedName = name;
     if (nil != team) {
         conversation.allowGuests = allowGuests;
+        conversation.hasReadReceiptsEnabled = readReceipts;
     }
     
     for (ZMUser *participant in participants) {
@@ -954,7 +996,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     
     ZMSystemMessage *systemMessage = [[ZMSystemMessage alloc] initWithNonce:[NSUUID UUID] managedObjectContext:self.managedObjectContext];
     systemMessage.systemMessageType = ZMSystemMessageTypeNewConversation;
-    systemMessage.sender = [ZMUser selfUserInContext:self.managedObjectContext];
     systemMessage.sender = self.creator;
     systemMessage.text = self.userDefinedName;
     systemMessage.users = self.activeParticipants.set;
@@ -969,6 +1010,10 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     systemMessage.serverTimestamp = [ZMConversation newConversationMessageTimestamp];
     
     [self appendMessage:systemMessage];
+    
+    if (self.hasReadReceiptsEnabled) {
+        [self appendMessageReceiptModeIsOnMessageWithTimestamp:[NSDate dateWithTimeIntervalSinceReferenceDate:1]];
+    }
 }
 
 + (NSDate *)newConversationMessageTimestamp

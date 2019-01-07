@@ -20,6 +20,8 @@
 @objc
 public protocol MessageContentType: NSObjectProtocol {
     func setContent(on builder: ZMGenericMessageBuilder)
+    func expectsReadConfirmation() -> Bool
+    func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType?
 }
 
 @objc
@@ -30,8 +32,7 @@ public protocol EphemeralMessageContentType: MessageContentType {
 @objc public extension ZMGenericMessage {
 
     var v3_isImage: Bool {
-        guard let original = assetData?.original else { return false }
-        return original.hasRasterImage && original.hasValidImageSize
+        return assetData?.original.hasRasterImage ?? false
     }
 
     var v3_uploadedAssetId: String? {
@@ -144,7 +145,19 @@ public extension ZMGenericMessage {
 
         return builder.buildAndValidate()
     }
-
+    
+    @objc public func setExpectsReadConfirmation(_ value: Bool) -> ZMGenericMessage? {
+        guard let builder = toBuilder() else { return nil }
+        
+        if hasEphemeral(), let content = ephemeral?.updateExpectsReadConfirmation(value) {
+            content.setContent(on: builder)
+        } else if let content = content?.updateExpectsReadConfirmation(value) {
+            content.setContent(on: builder)
+        }
+        
+        return builder.buildAndValidate()
+    }
+    
 }
 
 @objc
@@ -164,17 +177,30 @@ extension ZMKnock: EphemeralMessageContentType {
         builder.setKnock(self)
     }
     
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        let builder = toBuilder()
+        builder?.setExpectsReadConfirmation(value)
+        return builder?.build()
+    }
+    
 }
 
 @objc
 extension ZMText: EphemeralMessageContentType {
-    
-    public static func text(with message: String, mentions: [Mention] = [], linkPreviews: [ZMLinkPreview] = []) -> ZMText {
+        
+    public static func text(with message: String, mentions: [Mention] = [], linkPreviews: [ZMLinkPreview] = [], replyingTo quotedMessage: ZMOTRMessage? = nil) -> ZMText {
         let builder = ZMTextBuilder()
                 
         builder.setContent(message)
         builder.setMentionsArray(mentions.compactMap(ZMMention.mention))
         builder.setLinkPreviewArray(linkPreviews)
+        
+        if let quotedMessage = quotedMessage, let quotedMessageNonce = quotedMessage.nonce {
+            let quoteBuilder = ZMQuoteBuilder()
+            quoteBuilder.setQuotedMessageId(quotedMessageNonce.transportString())
+            quoteBuilder.setQuotedMessageSha256(quotedMessage.hashOfContent)
+            builder.setQuote(quoteBuilder)
+        }
         
         return builder.build()
     }
@@ -185,6 +211,38 @@ extension ZMText: EphemeralMessageContentType {
     
     public func setEphemeralContent(on builder: ZMEphemeralBuilder) {
         builder.setText(self)
+    }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        let builder = toBuilder()
+        builder?.setExpectsReadConfirmation(value)
+        return builder?.build()
+    }
+    
+    public func applyEdit(from text: ZMText) -> ZMText {
+        guard let builder = text.toBuilder() else { return self }
+        
+        // Transfer read receipt expectation
+        builder.setExpectsReadConfirmation(expectsReadConfirmation())
+        
+        // We always keep the quote from the original message
+        if hasQuote() {
+            builder.setQuote(self.quote)
+        } else {
+            builder.clearQuote()
+        }
+        
+        return builder.build()
+    }
+    
+    public func updateLinkPeview(from text: ZMText) -> ZMText {
+        guard let builder = self.toBuilder() else { return self }
+        
+        if let linkPreview = text.linkPreview, linkPreview.count > 0 {
+            builder.setLinkPreviewArray(text.linkPreview)
+        }
+        
+        return builder.build()
     }
     
 }
@@ -216,6 +274,42 @@ extension ZMGenericMessage {
             return previews.compactMap { $0 }
         }
         return []
+    }
+    
+    public var content: MessageContentType? {
+        if hasEphemeral() {
+            return ephemeral.content
+        } else if hasText() {
+            return text
+        } else if hasAsset() {
+            return asset
+        } else if hasImage() {
+            return image
+        } else if hasKnock() {
+            return knock
+        } else if hasEdited() {
+            return edited
+        } else if hasHidden() {
+            return hidden
+        } else if hasCleared() {
+            return cleared
+        } else if hasDeleted() {
+            return deleted
+        } else if hasAvailability() {
+            return availability
+        } else if hasReaction() {
+            return reaction
+        } else if hasLocation() {
+            return location
+        } else if hasCalling() {
+            return  calling
+        } else if hasConfirmation() {
+            return confirmation
+        } else if hasExternal() {
+            return external
+        }
+        
+       return nil
     }
     
     // Accessor helpers for ephemeral images
@@ -275,7 +369,7 @@ extension ZMGenericMessage {
 }
 
 extension ZMEphemeral: MessageContentType {
-    
+
     public static func ephemeral(content: EphemeralMessageContentType, expiresAfter timeout: TimeInterval) -> ZMEphemeral {
         let builder = ZMEphemeralBuilder()
         
@@ -287,6 +381,36 @@ extension ZMEphemeral: MessageContentType {
     
     public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setEphemeral(self)
+    }
+    
+    public var ephemeralContent: EphemeralMessageContentType? {
+        return content as? EphemeralMessageContentType
+    }
+
+    public var content: MessageContentType? {
+        if hasText() {
+            return text
+        } else if hasAsset() {
+            return asset
+        } else if hasImage() {
+            return image
+        } else if hasKnock() {
+            return knock
+        } else if hasLocation() {
+            return location
+        }
+        
+        return nil
+    }
+    
+    public func expectsReadConfirmation() -> Bool {
+        return content?.expectsReadConfirmation() ?? false
+    }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        let builder = toBuilder()!
+        (content?.updateExpectsReadConfirmation(value) as? EphemeralMessageContentType)?.setEphemeralContent(on: builder)
+        return builder.build()
     }
     
 }
@@ -314,6 +438,13 @@ extension ZMLocation: EphemeralMessageContentType {
     public func setEphemeralContent(on builder: ZMEphemeralBuilder) {
         builder.setLocation(self)
     }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        let builder = toBuilder()
+        builder?.setExpectsReadConfirmation(value)
+        return builder?.build()
+    }
+        
 }
 
 extension ZMExternal: MessageContentType {
@@ -331,6 +462,14 @@ extension ZMExternal: MessageContentType {
     
     public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setExternal(self)
+    }
+    
+    public func expectsReadConfirmation() -> Bool {
+        return false
+    }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        return nil
     }
     
 }
@@ -372,19 +511,6 @@ public extension ZMNewOtrMessage {
     
 }
 
-public extension ZMOtrAssetMeta {
-    
-    @objc public static func otrAssetMeta(withSender sender: UserClient, nativePush: Bool, inline: Bool, recipients: [ZMUserEntry]) -> ZMOtrAssetMeta {
-        let builder = ZMOtrAssetMeta.builder()!
-        builder.setNativePush(nativePush)
-        builder.setIsInline(inline)
-        builder.setSender(sender.clientId)
-        builder.setRecipientsArray(recipients)
-        return builder.build()
-    }
-    
-}
-
 @objc
 extension ZMAsset: EphemeralMessageContentType {
     
@@ -402,6 +528,12 @@ extension ZMAsset: EphemeralMessageContentType {
         builder.setAsset(self)
     }
     
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        let builder = toBuilder()
+        builder?.setExpectsReadConfirmation(value)
+        return builder?.build()
+    }
+    
 }
 
 extension ZMImageAsset: EphemeralMessageContentType {
@@ -412,6 +544,14 @@ extension ZMImageAsset: EphemeralMessageContentType {
     
     public func setEphemeralContent(on builder: ZMEphemeralBuilder) {
         builder.setImage(self)
+    }
+    
+    public func expectsReadConfirmation() -> Bool {
+        return false
+    }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        return nil
     }
     
 }
@@ -577,6 +717,14 @@ extension ZMAvailability: MessageContentType {
         builder.setAvailability(self)
     }
     
+    public func expectsReadConfirmation() -> Bool {
+        return false
+    }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        return nil
+    }
+    
 }
 
 @objc
@@ -592,6 +740,14 @@ extension ZMMessageDelete: MessageContentType {
     
     public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setDeleted(self)
+    }
+    
+    public func expectsReadConfirmation() -> Bool {
+        return false
+    }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        return nil
     }
     
 }
@@ -611,6 +767,15 @@ extension ZMMessageHide: MessageContentType {
     public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setHidden(self)
     }
+    
+    public func expectsReadConfirmation() -> Bool {
+        return false
+    }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        return nil
+    }
+    
 }
 
 @objc
@@ -629,6 +794,14 @@ extension ZMMessageEdit: MessageContentType {
         builder.setEdited(self)
     }
     
+    public func expectsReadConfirmation() -> Bool {
+        return false
+    }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        return nil
+    }
+    
 }
 
 @objc
@@ -645,6 +818,14 @@ extension ZMReaction: MessageContentType {
     
     public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setReaction(self)
+    }
+    
+    public func expectsReadConfirmation() -> Bool {
+        return false
+    }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        return nil
     }
     
 }
@@ -680,6 +861,14 @@ extension ZMConfirmation: MessageContentType {
         builder.setConfirmation(self)
     }
     
+    public func expectsReadConfirmation() -> Bool {
+        return false
+    }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        return nil
+    }
+    
 }
 
 @objc
@@ -706,12 +895,28 @@ extension ZMLastRead: MessageContentType {
         builder.setLastRead(self)
     }
     
+    public func expectsReadConfirmation() -> Bool {
+        return false
+    }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        return nil
+    }
+    
 }
 
 extension ZMCleared: MessageContentType {
     
     public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setCleared(self)
+    }
+    
+    public func expectsReadConfirmation() -> Bool {
+        return false
+    }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        return nil
     }
     
 }
@@ -728,6 +933,14 @@ extension ZMCalling: MessageContentType {
     
     public func setContent(on builder: ZMGenericMessageBuilder) {
         builder.setCalling(self)
+    }
+    
+    public func expectsReadConfirmation() -> Bool {
+        return false
+    }
+    
+    public func updateExpectsReadConfirmation(_ value: Bool) -> MessageContentType? {
+        return nil
     }
     
 }

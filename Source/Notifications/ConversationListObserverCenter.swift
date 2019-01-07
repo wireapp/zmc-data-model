@@ -89,6 +89,8 @@ public class ConversationListObserverCenter : NSObject, ZMConversationObserver, 
     public func objectsDidChange(changes: [ClassIdentifier : [ObjectChangeInfo]]) {
         if let convChanges = changes[ZMConversation.classIdentifier] as? [ConversationChangeInfo] {
             convChanges.forEach{conversationDidChange($0)}
+        } else if let messageChanges = changes[ZMClientMessage.classIdentifier] as? [MessageChangeInfo] {
+            messageChanges.forEach {messagesDidChange($0)}
         }
         let inserted = insertedConversations
         let deleted = deletedConversations
@@ -100,11 +102,21 @@ public class ConversationListObserverCenter : NSObject, ZMConversationObserver, 
         }
     }
     
+    /// Handles updated messages that could be visible in the conversation list
+    private func messagesDidChange(_ changes: MessageChangeInfo) {
+        guard let conversation = changes.message.conversation, changes.genericMessageChanged else { return }
+        
+        let changeInfo = ConversationChangeInfo(object: conversation)
+        changeInfo.changedKeys.insert(#keyPath(ZMConversation.allMessages))
+        conversationDidChange(changeInfo)
+    }
+    
     /// Handles updated conversations, updates lists and notifies observers
     public func conversationDidChange(_ changes: ConversationChangeInfo) {
         guard    changes.nameChanged              || changes.connectionStateChanged  || changes.isArchivedChanged
               || changes.mutedMessageTypesChanged || changes.lastModifiedDateChanged || changes.conversationListIndicatorChanged
               || changes.clearedChanged           || changes.securityLevelChanged    || changes.teamChanged
+              || changes.messagesChanged
         else { return }
         zmLog.debug("conversationDidChange with changes \(changes.customDebugDescription)")
         forwardToSnapshots{$0.processConversationChanges(changes)}

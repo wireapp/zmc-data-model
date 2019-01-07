@@ -39,6 +39,7 @@ static NSString *const ConversationInfoTeamIdKey = @"team";
 static NSString *const ConversationInfoAccessModeKey = @"access";
 static NSString *const ConversationInfoAccessRoleKey = @"access_role";
 static NSString *const ConversationInfoMessageTimer = @"message_timer";
+static NSString *const ConversationInfoReceiptMode = @"receipt_mode";
 
 NSString *const ZMConversationInfoOTRMutedValueKey = @"otr_muted";
 NSString *const ZMConversationInfoOTRMutedStatusValueKey = @"otr_muted_status";
@@ -108,6 +109,18 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
     NSUUID *teamId = [transportData optionalUuidForKey:ConversationInfoTeamIdKey];
     if (nil != teamId) {
         [self updateTeamWithIdentifier:teamId];
+    }
+    
+    NSNumber *receiptMode = [transportData optionalNumberForKey:ConversationInfoReceiptMode];
+    if (nil != receiptMode) {
+        BOOL enabled = receiptMode.intValue > 0;
+        BOOL receiptModeChanged = !self.hasReadReceiptsEnabled && enabled;
+        self.hasReadReceiptsEnabled = enabled;
+        
+        // We only want insert a system message if this is an existing conversation (non empty)
+        if (receiptModeChanged && self.recentMessages.count > 0) {
+            [self appendMessageReceiptModeIsOnMessageWithTimestamp:[NSDate date]];
+        }
     }
     
     self.accessModeStrings = [transportData optionalArrayForKey:ConversationInfoAccessModeKey];

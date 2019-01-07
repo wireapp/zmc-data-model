@@ -53,7 +53,8 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
             "createdRemotelyChanged",
             "allowGuestsChanged",
             "destructionTimeoutChanged",
-            "languageChanged"
+            "languageChanged",
+            "hasReadReceiptsEnabledChanged"
         ]
     }
     
@@ -582,7 +583,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         
         // when
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
-                                                     modifier: { conversation, _ in conversation.mutedMessageTypes = .nonMentions },
+                                                     modifier: { conversation, _ in conversation.mutedMessageTypes = .regular },
                                                      expectedChangedField: "mutedMessageTypesChanged" ,
                                                      expectedChangedKeys: ["mutedStatus"])
         
@@ -760,6 +761,21 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         
         // then
         XCTAssertEqual(observer.notifications.count, 0)
+    }
+    
+    func testThatItSendsUpdateForReadReceiptsEnabled() {
+        // given
+        let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
+        conversation.conversationType = .group
+        self.uiMOC.saveOrRollback()
+        
+        // when
+        self.checkThatItNotifiesTheObserverOfAChange(conversation,
+                                                     modifier: { conversation, _ in
+                                                        conversation.hasReadReceiptsEnabled = true
+        },
+                                                     expectedChangedFields: ["hasReadReceiptsEnabledChanged"],
+                                                     expectedChangedKeys: ["hasReadReceiptsEnabled"])
     }
 }
 

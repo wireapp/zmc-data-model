@@ -23,8 +23,9 @@
 @class ZMUser;
 @class ZMConversation;
 @class UserClient;
-@class LinkPreview;
+@class LinkMetadata;
 @class Mention;
+@class ZMMessage;
 
 @protocol ZMImageMessageData;
 @protocol ZMSystemMessageData;
@@ -79,7 +80,10 @@ typedef NS_ENUM(int16_t, ZMSystemMessageType) {
     ZMSystemMessageTypeMessageDeletedForEveryone,
     ZMSystemMessageTypePerformedCall,
     ZMSystemMessageTypeTeamMemberLeave,
-    ZMSystemMessageTypeMessageTimerUpdate
+    ZMSystemMessageTypeMessageTimerUpdate,
+    ZMSystemMessageTypeReadReceiptsEnabled,
+    ZMSystemMessageTypeReadReceiptsDisabled,
+    ZMSystemMessageTypeReadReceiptsOn
 };
 
 
@@ -87,8 +91,9 @@ typedef NS_ENUM(int16_t, ZMSystemMessageType) {
 @protocol ZMTextMessageData <NSObject>
 
 @property (nonatomic, readonly, nullable) NSString *messageText;
-@property (nonatomic, readonly, nullable) LinkPreview *linkPreview;
+@property (nonatomic, readonly, nullable) LinkMetadata *linkPreview;
 @property (nonatomic, readonly, nonnull) NSArray<Mention *> *mentions;
+@property (nonatomic, readonly, nullable) ZMMessage *quote;
 
 /// Returns true if the link preview will have an image
 @property (nonatomic, readonly) BOOL linkPreviewHasImage;
@@ -96,11 +101,20 @@ typedef NS_ENUM(int16_t, ZMSystemMessageType) {
 /// Unique identifier for imageData. Returns nil there's not imageData associated with the message.
 @property (nonatomic, readonly, nullable) NSString *linkPreviewImageCacheKey;
 
+/// Detect if user replies to a message sent from himself
+@property (nonatomic, readonly) BOOL isQuotingSelf;
+
+/// Check if message has a quote
+@property (nonatomic, readonly) BOOL hasQuote;
+
 /// Fetch linkpreview image data from disk on the given queue
 - (void)fetchLinkPreviewImageDataWithQueue:(dispatch_queue_t _Nonnull )queue completionHandler:(void (^_Nonnull)(NSData * _Nullable imageData))completionHandler;
 
 /// Request link preview image to be downloaded
 - (void)requestLinkPreviewImageDownload;
+
+/// Edit the text content
+- (void)editText:(NSString * _Nonnull)text mentions:(NSArray<Mention *> * _Nonnull)mentions fetchLinkPreview:(BOOL)fetchLinkPreview;
 
 @end
 
@@ -161,17 +175,4 @@ typedef NS_ENUM(int16_t, ZMFileTransferState) {
     /// File is not available on the backend anymore.
     ZMFileTransferStateUnavailable
 };
-
-
-#pragma mark - ZMLocationMessageData
-
-@protocol ZMLocationMessageData <NSObject>
-
-@property (nonatomic, readonly) float longitude;
-@property (nonatomic, readonly) float latitude;
-
-@property (nonatomic, readonly, nullable) NSString *name; // nil if not specified
-@property (nonatomic, readonly) int32_t zoomLevel; // 0 if not specified
-
-@end
 

@@ -32,7 +32,7 @@
 @class ZMConversationList;
 @class ZMFileMetadata;
 @class ZMLocationData;
-@class LinkPreview;
+@class LinkMetadata;
 @class Team;
 
 @protocol ZMConversationMessage;
@@ -51,6 +51,7 @@ typedef NS_ENUM(int16_t, ZMConversationListIndicator) {
     ZMConversationListIndicatorInvalid = 0,
     ZMConversationListIndicatorNone,
     ZMConversationListIndicatorUnreadSelfMention,
+    ZMConversationListIndicatorUnreadSelfReply,
     ZMConversationListIndicatorUnreadMessages,
     ZMConversationListIndicatorKnock,
     ZMConversationListIndicatorMissedCall,
@@ -75,6 +76,7 @@ extern NSString * _Null_unspecified const ZMIsDimmedKey; ///< Specifies that a r
 @property (nonatomic, readonly) BOOL isPendingConnectionConversation;
 @property (nonatomic, readonly) NSUInteger estimatedUnreadCount;
 @property (nonatomic, readonly) NSUInteger estimatedUnreadSelfMentionCount;
+@property (nonatomic, readonly) NSUInteger estimatedUnreadSelfReplyCount;
 @property (nonatomic, readonly) ZMConversationListIndicator conversationListIndicator;
 @property (nonatomic, readonly) BOOL hasDraftMessage;
 @property (nonatomic, nullable) Team *team;
@@ -110,6 +112,14 @@ extern NSString * _Null_unspecified const ZMIsDimmedKey; ///< Specifies that a r
                                                           name:(nullable NSString*)name
                                                         inTeam:(nullable Team *)team
                                                    allowGuests:(BOOL)allowGuests;
+
+/// Insert a new group conversation with name into the user session
++ (nonnull instancetype)insertGroupConversationIntoUserSession:(nonnull id<ZMManagedObjectContextProvider> )session
+                                              withParticipants:(nonnull NSArray<ZMUser *> *)participants
+                                                          name:(nullable NSString*)name
+                                                        inTeam:(nullable Team *)team
+                                                   allowGuests:(BOOL)allowGuests
+                                                  readReceipts:(BOOL)readReceipts;
 
 /// If that conversation exists, it is returned, @c nil otherwise.
 + (nullable instancetype)existingOneOnOneConversationWithUser:(nonnull ZMUser *)otherUser inUserSession:(nonnull id<ZMManagedObjectContextProvider> )session;

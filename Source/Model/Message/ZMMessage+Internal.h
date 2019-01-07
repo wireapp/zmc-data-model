@@ -60,6 +60,9 @@ extern NSString * _Nonnull const ZMMessageConfirmationKey;
 extern NSString * _Nonnull const ZMMessageCachedCategoryKey;
 extern NSString * _Nonnull const ZMMessageSystemMessageClientsKey;
 extern NSString * _Nonnull const ZMMessageDeliveryStateKey;
+extern NSString * _Nonnull const ZMMessageRepliesKey;
+extern NSString * _Nonnull const ZMMessageQuoteKey;
+extern NSString * _Nonnull const ZMMessageConfirmationKey;
 
 @interface ZMMessage : ZMManagedObject
 
@@ -96,14 +99,6 @@ extern NSString * _Nonnull const ZMMessageDeliveryStateKey;
            senderID:(NSUUID * _Nonnull)senderID
        conversation:(ZMConversation * _Nonnull)conversation
 inManagedObjectContext:(NSManagedObjectContext * _Nonnull)moc;
-
-/// Clears the content of a message for a ZMEditMessage
-/// Returns NO when the message was not found
-/// or if the sender of the ZMEditMessage is not the same as the sender of the original message
-+ (ZMMessage * _Nullable)clearedMessageForRemotelyEditedMessage:(ZMGenericMessage * _Nonnull)genericEditMessage
-                                                 inConversation:(ZMConversation * _Nonnull)conversation
-                                                       senderID:(NSUUID * _Nonnull)senderID
-                                         inManagedObjectContext:(NSManagedObjectContext * _Nonnull)moc;
 
 @end
 
@@ -178,6 +173,7 @@ inManagedObjectContext:(NSManagedObjectContext * _Nonnull)moc;
 @property (nonatomic, readonly) BOOL isExpired;
 @property (nonatomic, readonly) NSDate * _Nullable expirationDate;
 @property (nonatomic, readonly) BOOL isObfuscated;
+@property (nonatomic, readonly) BOOL needsReadConfirmation;
 @property (nonatomic) NSString * _Nullable normalizedText;
 
 @property (nonatomic) NSSet <Reaction *> * _Nonnull reactions;
@@ -189,11 +185,6 @@ inManagedObjectContext:(NSManagedObjectContext * _Nonnull)moc;
 
 /// Sets a flag to mark the message as being delivered to the backend
 - (void)markAsSent;
-
-
-/// Inserts and returns a ZMConfirmation message into the conversation that is sent back to the sender
-- (ZMClientMessage * __nullable)confirmReception;
-
 
 + (instancetype _Nullable)fetchMessageWithNonce:(NSUUID * _Nullable)nonce
                       forConversation:(ZMConversation * _Nonnull)conversation

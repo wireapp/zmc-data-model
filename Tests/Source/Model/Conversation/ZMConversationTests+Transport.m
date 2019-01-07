@@ -44,7 +44,8 @@
                                     silencedStatus:silencedStatus
                                             teamID:nil
                                         accessMode:@[]
-                                        accessRole:@"non_activated"];
+                                        accessRole:@"non_activated"
+                                       receiptMode:0];
 }
 
 - (NSDictionary *)payloadForMetaDataOfConversation:(ZMConversation *)conversation
@@ -60,7 +61,8 @@
                                     silencedStatus:@(MutedMessageOptionValueAll)
                                             teamID:nil
                                         accessMode:@[]
-                                        accessRole:@"non_activated"];
+                                        accessRole:@"non_activated"
+                                       receiptMode:0];
 }
 
 - (NSDictionary *)payloadForMetaDataOfConversation:(ZMConversation *)conversation
@@ -74,6 +76,7 @@
                                             teamID:(NSUUID *)teamID
                                         accessMode:(NSArray<NSString *> *)accessMode
                                         accessRole:(NSString *)accessRole
+                                       receiptMode:(NSInteger)receiptMode
 {
     NSMutableArray *others = [NSMutableArray array];
     for (NSUUID *uuid in activeUserIDs) {
@@ -102,6 +105,7 @@
                               @"team": [teamID transportString] ?: [NSNull null],
                               @"access": accessMode,
                               @"access_role": accessRole,
+                              @"receipt_mode": @(receiptMode)
                               };
     return  payload;
 }
@@ -138,7 +142,7 @@
         XCTAssertTrue(conversation.isArchived);
         XCTAssertEqualWithAccuracy([conversation.archivedChangedTimestamp timeIntervalSince1970], [archivedDate timeIntervalSince1970], 1.0);
 
-        XCTAssertTrue(conversation.isOnlyMentions);
+        XCTAssertTrue(conversation.isOnlyMentionsAndReplies);
         XCTAssertEqualWithAccuracy([conversation.silencedChangedTimestamp timeIntervalSince1970], [silencedDate timeIntervalSince1970], 1.0);
 
         XCTAssertEqualObjects(conversation.creator.remoteIdentifier, [payload[@"creator"] UUID]);
@@ -255,7 +259,7 @@
         XCTAssertTrue(conversation.isArchived);
         XCTAssertEqualWithAccuracy([conversation.archivedChangedTimestamp timeIntervalSince1970], [archivedDate timeIntervalSince1970], 1.0);
         
-        XCTAssertTrue(conversation.isOnlyMentions);
+        XCTAssertTrue(conversation.isOnlyMentionsAndReplies);
         XCTAssertEqualWithAccuracy([conversation.silencedChangedTimestamp timeIntervalSince1970], [silencedDate timeIntervalSince1970], 1.0);
         
         XCTAssertEqualObjects(conversation.creator.remoteIdentifier, [payload[@"creator"] UUID]);
@@ -295,7 +299,7 @@
         XCTAssertTrue(conversation.isArchived);
         XCTAssertEqualWithAccuracy([conversation.archivedChangedTimestamp timeIntervalSince1970], [archivedDate timeIntervalSince1970], 1.0);
         
-        XCTAssertTrue(conversation.isOnlyMentions);
+        XCTAssertTrue(conversation.isOnlyMentionsAndReplies);
         XCTAssertEqualWithAccuracy([conversation.silencedChangedTimestamp timeIntervalSince1970], [silencedDate timeIntervalSince1970], 1.0);
         
         XCTAssertEqualObjects(conversation.creator.remoteIdentifier, [payload[@"creator"] UUID]);
@@ -375,7 +379,7 @@
         
         XCTAssertFalse(conversation.isArchived);
         XCTAssertFalse(conversation.isFullyMuted);
-        XCTAssertFalse(conversation.isOnlyMentions);
+        XCTAssertFalse(conversation.isOnlyMentionsAndReplies);
     }];
 }
 
@@ -425,7 +429,8 @@
                                                         silencedStatus:@(MutedMessageOptionValueAll)
                                                                 teamID:teamID
                                                             accessMode:@[]
-                                                            accessRole:@"non_activated"];
+                                                            accessRole:@"non_activated"
+                                                           receiptMode:0];
 
         // when
         [conversation updateWithTransportData:payload serverTimeStamp:serverTimestamp];
@@ -450,7 +455,7 @@
         
         XCTAssertFalse(conversation.isArchived);
         XCTAssertFalse(conversation.isFullyMuted);
-        XCTAssertFalse(conversation.isOnlyMentions);
+        XCTAssertFalse(conversation.isOnlyMentionsAndReplies);
     }];
 }
 
@@ -477,7 +482,8 @@
                                                         silencedStatus:@(MutedMessageOptionValueAll)
                                                                 teamID:team.remoteIdentifier
                                                             accessMode:@[]
-                                                            accessRole:@"non_activated"];
+                                                            accessRole:@"non_activated"
+                                                           receiptMode:0];
 
         // when
         [conversation updateWithTransportData:payload serverTimeStamp:serverTimestamp];
@@ -504,7 +510,7 @@
         
         XCTAssertFalse(conversation.isArchived);
         XCTAssertFalse(conversation.isFullyMuted);
-        XCTAssertFalse(conversation.isOnlyMentions);
+        XCTAssertFalse(conversation.isOnlyMentionsAndReplies);
     }];
 }
 
@@ -530,7 +536,8 @@
                                                         silencedStatus:@(MutedMessageOptionValueAll)
                                                                 teamID:nil
                                                             accessMode:@[]
-                                                            accessRole:@"non_activated"];
+                                                            accessRole:@"non_activated"
+                                                           receiptMode:0];
 
         // when
         [conversation updateWithTransportData:payload serverTimeStamp:serverTimestamp];
@@ -552,7 +559,7 @@
         XCTAssertNil(conversation.team);
         XCTAssertFalse(conversation.isArchived);
         XCTAssertFalse(conversation.isFullyMuted);
-        XCTAssertFalse(conversation.isOnlyMentions);
+        XCTAssertFalse(conversation.isOnlyMentionsAndReplies);
     }];
 }
 
@@ -577,7 +584,8 @@
                                                         silencedStatus:@(MutedMessageOptionValueAll)
                                                                 teamID:nil
                                                             accessMode:@[@"invite", @"code"]
-                                                            accessRole:@"non_activated"];
+                                                            accessRole:@"non_activated"
+                                                           receiptMode:0];
         
         // when
         [conversation updateWithTransportData:payload serverTimeStamp:serverTimestamp];
@@ -611,7 +619,8 @@
                                                         silencedStatus:@(MutedMessageOptionValueAll)
                                                                 teamID:nil
                                                             accessMode:@[]
-                                                            accessRole:@"team"];
+                                                            accessRole:@"team"
+                                                           receiptMode:0];
         
         // when
         [conversation updateWithTransportData:payload serverTimeStamp:serverTimestamp];
@@ -621,6 +630,104 @@
         XCTAssertEqual(conversation.accessRoleString, @"team");
         BOOL arraysEqual = [conversation.accessModeStrings isEqual:@[]];
         XCTAssertTrue(arraysEqual);
+    }];
+}
+
+- (void)testThatItUpdatesItselfFromTransportDataWithReceiptMode
+{
+    [self.syncMOC performGroupedBlockAndWait:^{
+        // given
+        ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
+        NSDate *serverTimestamp = [NSDate date];
+        NSUUID *uuid = NSUUID.createUUID;
+        conversation.remoteIdentifier = uuid;
+        
+        NSUUID *user1UUID = [NSUUID createUUID];
+        
+        NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation
+                                                      conversationType:ZMConvTypeGroup
+                                                         activeUserIDs:@[user1UUID]
+                                                            isArchived:NO
+                                                           archivedRef:nil
+                                                            isSilenced:NO
+                                                           silencedRef:nil
+                                                        silencedStatus:@(MutedMessageOptionValueAll)
+                                                                teamID:nil
+                                                            accessMode:@[]
+                                                            accessRole:@"team"
+                                                           receiptMode:1];
+        
+        // when
+        [conversation updateWithTransportData:payload serverTimeStamp:serverTimestamp];
+        
+        // then
+        XCTAssertTrue(conversation.hasReadReceiptsEnabled);
+    }];
+}
+
+- (void)testThatItDoesntInsertReadReceiptSystemMessageTransportDataWithReceiptModeForNewConversation
+{
+    [self.syncMOC performGroupedBlockAndWait:^{
+        // given
+        ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
+        NSDate *serverTimestamp = [NSDate date];
+        NSUUID *uuid = NSUUID.createUUID;
+        conversation.remoteIdentifier = uuid;
+        
+        NSUUID *user1UUID = [NSUUID createUUID];
+        
+        NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation
+                                                      conversationType:ZMConvTypeGroup
+                                                         activeUserIDs:@[user1UUID]
+                                                            isArchived:NO
+                                                           archivedRef:nil
+                                                            isSilenced:NO
+                                                           silencedRef:nil
+                                                        silencedStatus:@(MutedMessageOptionValueAll)
+                                                                teamID:nil
+                                                            accessMode:@[]
+                                                            accessRole:@"team"
+                                                           receiptMode:1];
+        
+        // when
+        [conversation updateWithTransportData:payload serverTimeStamp:serverTimestamp];
+        
+        // then
+        XCTAssertEqual(conversation.allMessages.count, 0);
+    }];
+}
+
+- (void)testThatItInsertReadReceiptSystemMessageTransportDataWithReceiptModeForExistingConversation
+{
+    [self.syncMOC performGroupedBlockAndWait:^{
+        // given
+        ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
+        NSDate *serverTimestamp = [NSDate date];
+        NSUUID *uuid = NSUUID.createUUID;
+        conversation.remoteIdentifier = uuid;
+        [conversation appendMessageWithText:@"hello"];
+        
+        NSUUID *user1UUID = [NSUUID createUUID];
+        
+        NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation
+                                                      conversationType:ZMConvTypeGroup
+                                                         activeUserIDs:@[user1UUID]
+                                                            isArchived:NO
+                                                           archivedRef:nil
+                                                            isSilenced:NO
+                                                           silencedRef:nil
+                                                        silencedStatus:@(MutedMessageOptionValueAll)
+                                                                teamID:nil
+                                                            accessMode:@[]
+                                                            accessRole:@"team"
+                                                           receiptMode:1];
+        
+        // when
+        [conversation updateWithTransportData:payload serverTimeStamp:serverTimestamp];
+        
+        // then
+        ZMSystemMessage *systemMessage = (ZMSystemMessage *)conversation.recentMessages.lastObject;
+        XCTAssertEqual(systemMessage.systemMessageType, ZMSystemMessageTypeReadReceiptsOn);
     }];
 }
 

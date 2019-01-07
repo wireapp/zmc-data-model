@@ -60,10 +60,6 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
 
 @end
 
-@interface ZMClientMessage (ZMLocationMessageData) <ZMLocationMessageData>
-
-@end
-
 @implementation ZMClientMessage
 
 @dynamic updatedTimestamp;
@@ -91,6 +87,15 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     for (ZMGenericMessageData *messageData in self.dataSet) {
         [messageData.managedObjectContext deleteObject:messageData];
     }
+}
+
+- (NSData *)hashOfContent
+{
+    if (self.serverTimestamp == nil) {
+        return nil;
+    }
+    
+    return [self.genericMessage hashOfContentWith:self.serverTimestamp];
 }
 
 - (void)addData:(NSData *)data
@@ -185,19 +190,17 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
 
 + (NSSet *)keyPathsForValuesAffectingGenericMessage
 {
-    return [NSSet setWithObject:ClientMessageDataSetKey];
+    return [NSSet setWithObjects:ClientMessageDataSetKey, [ClientMessageDataSetKey stringByAppendingString:@".data"], nil];
 }
 
-- (void)updateWithGenericMessage:(ZMGenericMessage *)message updateEvent:(ZMUpdateEvent *__unused)updateEvent initialUpdate:(BOOL)initialUpdate
-{
-    if (!initialUpdate
-        && (message.text != nil && (message.text.linkPreview.count == 0 || ![self.messageText isEqualToString:message.text.content]))
-        && (message.ephemeral.text != nil && (message.ephemeral.text.linkPreview.count == 0 || ![self.messageText isEqualToString:message.ephemeral.text.content]))) {
-        return; // We only update client messages if the update contains a link preview and the content didn't change
+- (void)updateWithGenericMessage:(ZMGenericMessage *)message updateEvent:(ZMUpdateEvent *)updateEvent initialUpdate:(BOOL)initialUpdate
+{ 
+    if (initialUpdate) {
+        [self addData:message.data];
+        [self updateNormalizedText];
+    } else {
+        [self applyLinkPreviewUpdate:message from:updateEvent];
     }
-    
-    [self addData:message.data];
-    [self updateNormalizedText];
 }
 
 - (void)deleteContent
@@ -209,6 +212,7 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     self.dataSet = [NSOrderedSet orderedSet];
     self.normalizedText = nil;
     self.genericMessage = nil;
+    self.quote = nil;
 }
 
 - (void)removeMessageClearingSender:(BOOL)clearingSender
@@ -220,16 +224,10 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
 - (void)expire
 {
     if (self.genericMessage.hasEdited) {
-        // Fetch original message
-        NSUUID *originalID = [NSUUID uuidWithTransportString:self.genericMessage.edited.replacingMessageId];
-        ZMMessage *originalMessage = [ZMMessage fetchMessageWithNonce:originalID forConversation:self.conversation inManagedObjectContext:self.managedObjectContext];
-        
         // Replace the nonce with the original
         // This way if we get a delete from a different device while we are waiting for the response it will delete this message
+        NSUUID *originalID = [NSUUID uuidWithTransportString:self.genericMessage.edited.replacingMessageId];
         self.nonce = originalID;
-        
-        // delete the original message - we do not care about the old one anymore
-        [self.managedObjectContext deleteObject:originalMessage];
     }
     [super expire];
 }
@@ -237,7 +235,8 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
 - (void)resend
 {
     if (self.genericMessage.hasEdited) {
-        NOT_USED([ZMMessage edit:self newText:self.textMessageData.messageText mentions:self.textMessageData.mentions fetchLinkPreview:YES]); // TODO jacob why can't we just resend the message?
+        // Re-apply the edit since we've restored the orignal nonce when the message expired
+        [self editText:self.textMessageData.messageText mentions:self.textMessageData.mentions fetchLinkPreview:YES];
     } else {
         [super resend];
     }
@@ -269,14 +268,6 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     return nil;
 }
 
-- (id<ZMLocationMessageData>)locationMessageData
-{
-    if (self.genericMessage.locationData != nil) {
-        return self;
-    }
-    return nil;
-}
-
 - (void)updateWithPostPayload:(NSDictionary *)payload updatedKeys:(__unused NSSet *)updatedKeys
 {
     // we don't want to update the conversation if the message is a confirmation message
@@ -299,9 +290,6 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
         if (serverTimestamp != nil) {
             self.updatedTimestamp = serverTimestamp;
         }
-        NSUUID *originalID = [NSUUID uuidWithTransportString:self.genericMessage.edited.replacingMessageId];
-        ZMMessage *original = [ZMMessage fetchMessageWithNonce:originalID forConversation:self.conversation inManagedObjectContext:self.managedObjectContext];
-        [original removeMessageClearingSender:NO];
     } else {
         [super updateWithPostPayload:payload updatedKeys:nil];
     }
@@ -352,34 +340,6 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
 @implementation ZMClientMessage (ZMKnockMessage)
 
 @end
-
-#pragma mark - ZMLocationMessageData
-
-@implementation ZMClientMessage (ZMLocationMessageData)
-
-- (float)latitude
-{
-    return self.genericMessage.locationData.latitude;
-}
-
-- (float)longitude
-{
-    return self.genericMessage.locationData.longitude;
-}
-
-- (NSString *)name
-{
-    return self.genericMessage.locationData.name.stringByRemovingExtremeCombiningCharacters;
-}
-
-- (int32_t)zoomLevel
-{
-    return self.genericMessage.locationData.zoom ?: 0;
-}
-
-@end
-
-
 
 @implementation ZMClientMessage (Ephemeral)
 

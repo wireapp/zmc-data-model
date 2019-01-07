@@ -43,6 +43,10 @@ extension ZMAssetClientMessage {
         return Set([#keyPath(ZMOTRMessage.dataSet), #keyPath(ZMOTRMessage.dataSet)+".data"])
     }
     
+    public override var genericMessage: ZMGenericMessage? {
+        return genericAssetMessage
+    }
+    
     /// The generic asset message that is constructed by merging
     /// all generic messages from the dataset that contain an asset
     public var genericAssetMessage: ZMGenericMessage? {
@@ -158,7 +162,7 @@ extension ZMAssetClientMessage {
         return isFileMessage ? self : nil
     }
     
-    public override func update(with message: ZMGenericMessage!, updateEvent: ZMUpdateEvent!, initialUpdate: Bool) {
+    public override func update(with message: ZMGenericMessage, updateEvent: ZMUpdateEvent, initialUpdate: Bool) {
         self.add(message)
         
         let eventData = ((updateEvent.payload["data"]) as? [String: Any]) ?? [:]
@@ -200,8 +204,7 @@ extension ZMAssetClientMessage {
         // V2, we do not set the thumbnail assetId in case there is one in the protobuf, 
         // then we can access it directly for V3
         
-        if let assetData = message.assetData,
-            assetData.preview.hasRemote() && !assetData.hasUploaded() {
+        if let assetData = message.assetData, assetData.preview.hasRemote() {
             
             if !assetData.preview.remote.hasAssetId() {
                 if let thumbnailId = eventData["id"] as? String {

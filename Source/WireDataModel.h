@@ -70,3 +70,5 @@
 #import <WireDataModel/ZMMessageTimer.h>
 #import <WireDataModel/NSPredicate+ZMSearch.h>
 #import <WireDataModel/ZMTestSession.h>
+
+#import <WireDataModel/ZMPropertyNormalizationResult.h>

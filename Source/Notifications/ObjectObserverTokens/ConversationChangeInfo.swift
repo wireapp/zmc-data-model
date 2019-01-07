@@ -40,7 +40,8 @@ extension ZMConversation : ObjectInSnapshot {
                     #keyPath(ZMConversation.remoteIdentifier),
                     #keyPath(ZMConversation.localMessageDestructionTimeout),
                     #keyPath(ZMConversation.syncedMessageDestructionTimeout),
-                    #keyPath(ZMConversation.language)
+                    #keyPath(ZMConversation.language),
+                    #keyPath(ZMConversation.hasReadReceiptsEnabled)
             ])
     }
 
@@ -127,25 +128,32 @@ extension ZMConversation : ObjectInSnapshot {
                 changedKeysContain(keys: #keyPath(ZMConversation.syncedMessageDestructionTimeout))
     }
     
+    public var hasReadReceiptsEnabledChanged : Bool {
+        return changedKeysContain(keys: #keyPath(ZMConversation.hasReadReceiptsEnabled))
+    }
+    
     public var conversation : ZMConversation { return self.object as! ZMConversation }
     
     public override var description : String { return self.debugDescription }
     public override var debugDescription : String {
-        return "allMessagesChanged: \(messagesChanged)," +
-        "participantsChanged: \(participantsChanged)," +
-        "nameChanged: \(nameChanged)," +
-        "unreadCountChanged: \(unreadCountChanged)," +
-        "lastModifiedDateChanged: \(lastModifiedDateChanged)," +
-        "connectionStateChanged: \(connectionStateChanged)," +
-        "isArchivedChanged: \(isArchivedChanged)," +
-        "mutedMessageTypesChanged: \(mutedMessageTypesChanged)," +
-        "conversationListIndicatorChanged \(conversationListIndicatorChanged)," +
-        "clearedChanged \(clearedChanged)," +
-        "securityLevelChanged \(securityLevelChanged)," +
-        "teamChanged \(teamChanged)" +
-        "createdRemotelyChanged \(createdRemotelyChanged)" +
-        "destructionTimeoutChanged \(destructionTimeoutChanged)" +
-        "languageChanged \(languageChanged)"
+
+        return ["allMessagesChanged: \(messagesChanged)",
+                "participantsChanged: \(participantsChanged)",
+                "nameChanged: \(nameChanged)",
+                "unreadCountChanged: \(unreadCountChanged)",
+                "lastModifiedDateChanged: \(lastModifiedDateChanged)",
+                "connectionStateChanged: \(connectionStateChanged)",
+                "isArchivedChanged: \(isArchivedChanged)",
+                "mutedMessageTypesChanged: \(mutedMessageTypesChanged)",
+                "conversationListIndicatorChanged \(conversationListIndicatorChanged)",
+                "clearedChanged \(clearedChanged)",
+                "securityLevelChanged \(securityLevelChanged)",
+                "teamChanged \(teamChanged)",
+                "createdRemotelyChanged \(createdRemotelyChanged)",
+                "destructionTimeoutChanged \(destructionTimeoutChanged)",
+                "languageChanged \(languageChanged)",
+                "hasReadReceiptsEnabledChanged \(hasReadReceiptsEnabledChanged)",
+            ].joined(separator: ", ")
     }
     
     public required init(object: NSObject) {

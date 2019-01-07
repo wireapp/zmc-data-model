@@ -82,6 +82,9 @@ static NSString *const ProviderIdentifierKey = @"providerIdentifier";
 NSString *const AvailabilityKey = @"availability";
 static NSString *const ExpiresAtKey = @"expiresAt";
 static NSString *const UsesCompanyLoginKey = @"usesCompanyLogin";
+NSString *const ReadReceiptsEnabledKey = @"readReceiptsEnabled";
+NSString *const NeedsPropertiesUpdateKey = @"needsPropertiesUpdate";
+NSString *const ReadReceiptsEnabledChangedRemotelyKey = @"readReceiptsEnabledChangedRemotely";
 
 static NSString *const TeamIdentifierDataKey = @"teamIdentifier_data";
 static NSString *const TeamIdentifierKey = @"teamIdentifier";
@@ -417,7 +420,9 @@ static NSString *const TeamIdentifierKey = @"teamIdentifier";
                                            ProviderIdentifierKey,
                                            ExpiresAtKey,
                                            TeamIdentifierDataKey,
-                                           UsesCompanyLoginKey
+                                           UsesCompanyLoginKey,
+                                           NeedsPropertiesUpdateKey,
+                                           ReadReceiptsEnabledChangedRemotelyKey
                                            ]];
         keys = [ignoredKeys copy];
     });
@@ -522,6 +527,8 @@ static NSString *const TeamIdentifierKey = @"teamIdentifier";
     return color;
 }
 
+// NB: This method is called with **partial** user info and @c authoritative set to false, when the update payload
+// is received from the notification stream.
 - (void)updateWithTransportData:(NSDictionary *)transportData authoritative:(BOOL)authoritative
 {
     NSDictionary *serviceData = transportData[@"service"];
@@ -537,9 +544,11 @@ static NSString *const TeamIdentifierKey = @"teamIdentifier";
         }
     }
     
-    NSDictionary *ssoData = [transportData optionalDictionaryForKey:@"sso_id"];
-    self.usesCompanyLogin = nil != ssoData;
-
+    if ([transportData optionalDictionaryForKey:@"sso_id"] || authoritative) {
+        NSDictionary *ssoData = [transportData optionalDictionaryForKey:@"sso_id"];
+        self.usesCompanyLogin = nil != ssoData;
+    }
+    
     NSUUID *remoteID = [transportData[@"id"] UUID];
     if (self.remoteIdentifier == nil) {
         self.remoteIdentifier = remoteID;
@@ -559,7 +568,9 @@ static NSString *const TeamIdentifierKey = @"teamIdentifier";
         self.handle = handle;
     }
     
-    self.teamIdentifier = [transportData optionalUuidForKey:@"team"];
+    if ([transportData objectForKey:@"team"] || authoritative) {
+        self.teamIdentifier = [transportData optionalUuidForKey:@"team"];
+    }
     
     NSString *email = [transportData optionalStringForKey:@"email"];
     if ([transportData objectForKey:@"email"] || authoritative) {
@@ -840,6 +851,10 @@ static NSString *const TeamIdentifierKey = @"teamIdentifier";
 
 
 @implementation ZMUser (Editable)
+
+@dynamic readReceiptsEnabled;
+@dynamic needsPropertiesUpdate;
+@dynamic readReceiptsEnabledChangedRemotely;
 
 - (void)setHandle:(NSString *)aHandle {
     [self willChangeValueForKey:HandleKey];

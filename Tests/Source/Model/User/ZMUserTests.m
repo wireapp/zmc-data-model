@@ -275,6 +275,23 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     XCTAssert(user.usesCompanyLogin);
 }
 
+- (void)testThatItUpdatesSSODataOnAnExistingUserWhenRefetchingUser
+{
+    // given
+    NSUUID *uuid = [NSUUID createUUID];
+    ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
+    
+    NSMutableDictionary *payload = [self samplePayloadForUserID:uuid];
+    payload[@"sso_id"] = @{@"tenant": @"some-xml"};
+    
+    // when
+    [user updateWithTransportData:payload authoritative:NO];
+    [user updateWithTransportData:[self samplePayloadForUserID:uuid] authoritative:NO];
+
+    // then
+    XCTAssert(user.usesCompanyLogin);
+}
+
 - (void)testThatItUpdatesSSODataOnAnExistingUser_NoSSOData
 {
     // given
@@ -1188,7 +1205,8 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
                                             @"mediumRemoteIdentifier_data",
                                             @"name",
                                             @"phoneNumber",
-                                            @"availability"]];
+                                            @"availability",
+                                            @"readReceiptsEnabled"]];
     
     // when
     ZMUser *user = [ZMUser selfUserInContext:self.uiMOC];
