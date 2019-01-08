@@ -384,7 +384,7 @@ extension ZMConversation {
         return unreadMessagesIncludingInvisible(fetchLimit: 1, before: date, order: .descending).first
     }
     
-    enum Order {
+    fileprivate enum Order {
         case ascending
         case descending
     }
@@ -420,7 +420,7 @@ extension ZMConversation {
         return allMessages
     }
     
-    enum MessageTypeKey: String {
+    fileprivate enum MessageTypeKey: String {
         case visible = "visibleInConversation"
         case hidden = "hiddenInConversation"
     }
