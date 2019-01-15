@@ -68,7 +68,7 @@ ZM_EMPTY_ASSERTING_INIT()
 - (void)startTimerForMessageIfNeeded:(ZMMessage*)message fireDate:(NSDate *)fireDate userInfo:(NSDictionary *)userInfo
 {
     if ( ![self isTimerRunningForMessage:message] ) {
-        BackgroundActivity *bgActivity = [BackgroundActivityFactory.sharedFactory startBackgroundActivityWithName:@"MessageTimer"];
+        BackgroundActivity *bgActivity = [BackgroundActivityFactory.sharedFactory startBackgroundActivityWithName:[NSString stringWithFormat:@"MessageTimer: %lx", message.hash]];
 
         if (!bgActivity) {
             return;
