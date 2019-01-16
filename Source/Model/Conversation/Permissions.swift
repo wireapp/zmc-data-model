@@ -41,6 +41,8 @@ public struct Permissions: OptionSet {
     public static let setMemberPermissions     = Permissions(rawValue: 0x1000)
 
     // MARK: - Common Combined Values
+
+    public static let partner: Permissions = [.createConversation, .getTeamConversations]
     public static let member: Permissions = [.createConversation, .deleteConversation, .addConversationMember, .removeConversationMember, .getTeamConversations, .getMemberPermissions]
     public static let admin: Permissions  = [.member, .addTeamMember, .removeTeamMember, .setTeamData, .setMemberPermissions]
     public static let owner: Permissions  = [.admin, .getBilling, .setBilling, .deleteTeam]
@@ -88,11 +90,12 @@ extension Permissions: Hashable {
 
 
 @objc public enum PermissionsObjC: Int {
-    case none = 0, member, admin, owner
+    case none = 0, member, admin, owner, partner
 
     var permissions: Permissions {
         switch self {
         case .none: return Permissions(rawValue: 0)
+        case .partner: return .partner
         case .member: return .member
         case .admin: return .admin
         case .owner: return .owner

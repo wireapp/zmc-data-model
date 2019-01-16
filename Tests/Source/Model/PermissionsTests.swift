@@ -63,6 +63,17 @@ class PermissionsTests: BaseZMClientMessageTests {
         XCTAssertEqual(Permissions.member, [.createConversation, .deleteConversation, .addConversationMember, .removeConversationMember, .getMemberPermissions, .getTeamConversations])
     }
 
+    func testPartnerPermissions() {
+        // given
+        let permissions: Permissions = [
+            .createConversation,
+            .getTeamConversations
+        ]
+
+        // then
+        XCTAssertEqual(Permissions.partner, permissions)
+    }
+
     func testAdminPermissions() {
         // given
         let adminPermissions: Permissions = [
@@ -90,6 +101,7 @@ class PermissionsTests: BaseZMClientMessageTests {
 
     func testThatItCreatesPermissionsFromPayload() {
         XCTAssertEqual(Permissions(rawValue: 5), [.createConversation, .addTeamMember])
+        XCTAssertEqual(Permissions(rawValue: 0x401), .partner)
         XCTAssertEqual(Permissions(rawValue: 1587), .member)
         XCTAssertEqual(Permissions(rawValue: 5951), .admin)
         XCTAssertEqual(Permissions(rawValue: 8191), .owner)
@@ -102,6 +114,7 @@ class PermissionsTests: BaseZMClientMessageTests {
     // MARK: - Objective-C Interoperability
 
     func testThatItCreatesTheCorrectSwiftPermissions() {
+        XCTAssertEqual(PermissionsObjC.partner.permissions, .partner)
         XCTAssertEqual(PermissionsObjC.member.permissions, .member)
         XCTAssertEqual(PermissionsObjC.admin.permissions, .admin)
         XCTAssertEqual(PermissionsObjC.owner.permissions, .owner)
