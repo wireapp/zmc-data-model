@@ -24,7 +24,6 @@
 #import "ZMMessageTimer.h"
 #import "ZMMessage+Internal.h"
 
-static NSString *ZMLogTag = @"ephemeral";
 
 @interface ZMMessageTimer () <ZMTimerClient>
 
@@ -74,8 +73,6 @@ ZM_EMPTY_ASSERTING_INIT()
         if (!bgActivity) {
             return;
         }
-        
-        ZMLogDebug(@"Starting timer for message %lx", message.hash);
 
         __weak ZMMessageTimer *weakSelf = self;
         bgActivity.expirationHandler = ^{
@@ -105,8 +102,7 @@ ZM_EMPTY_ASSERTING_INIT()
     
     NSManagedObjectContext *strongMoc = self.moc;
     RequireString(strongMoc != nil, "MOC is nil");
-    ZMLogDebug(@"Timer fired for message %lx", message.hash);
-
+    
     [strongMoc performGroupedBlock:^{
         
         if (message == nil || message.isZombieObject) {
@@ -130,7 +126,6 @@ ZM_EMPTY_ASSERTING_INIT()
     if(timer == nil) {
         return;
     }
-    ZMLogDebug(@"Stopping timer for message %lx", message.hash);
     
     [timer cancel];
     [self removeTimerForMessage:message];
@@ -159,8 +154,6 @@ ZM_EMPTY_ASSERTING_INIT()
 
 - (void)tearDown;
 {
-    ZMLogDebug(@"Tearing down message timer: %@", self);
-
     for (ZMTimer *timer in self.objectToTimerMap.objectEnumerator) {
         [timer cancel];
         [self endBackgroundActivityForTimer:timer];
