@@ -47,7 +47,7 @@ class MemberTests: BaseTeamTests {
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.1))
 
         // then
-        XCTAssertEqual(user.permissions, .member)
+        XCTAssertEqual(user.teamRole.permissions, .member)
     }
 
     func testThatItReturnsIfAUserIsMemberOfATeam() {
@@ -104,7 +104,7 @@ class MemberTests: BaseTeamTests {
         XCTAssertTrue(user.isTeamMember)
         XCTAssertEqual(user.team, team)
         XCTAssertTrue(user.hasTeam)
-        XCTAssertEqual(user.permissions, .member)
+        XCTAssertEqual(user.teamRole.permissions, .member)
     }
 
     func testThatItReturnsExistingMemberOfAUserInATeam() {

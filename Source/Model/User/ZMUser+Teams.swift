@@ -28,12 +28,16 @@ public extension ZMUser {
         return membership?.team
     }
     
+    public var teamRole: TeamRole {
+        return TeamRole(rawPermissions: permissions?.rawValue ?? 0)
+    }
+    
+    private var permissions: Permissions? {
+        return membership?.permissions
+    }
+    
     @objc static func keyPathsForValuesAffectingTeam() -> Set<String> {
          return [#keyPath(ZMUser.membership)]
-    }
-
-    public var permissions: Permissions? {
-        return membership?.permissions
     }
 
     @objc(canAddUserToConversation:)
