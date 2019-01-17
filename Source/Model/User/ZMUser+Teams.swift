@@ -28,6 +28,10 @@ public extension ZMUser {
         return membership?.team
     }
     
+    public var teamRole: TeamRole {
+        return TeamRole(rawPermissions: membership?.permissions.rawValue ?? 0)
+    }
+    
     @objc static func keyPathsForValuesAffectingTeam() -> Set<String> {
          return [#keyPath(ZMUser.membership)]
     }
