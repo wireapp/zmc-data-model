@@ -126,6 +126,18 @@ extension Permissions: Hashable {
         case .owner:   return .owner
         }
     }
+    
+    /// Returns true if the role encompasses the given role.
+    /// E.g An admin is a member, but a member is not an admin.
+    func isA(role: TeamRole) -> Bool {
+        return hasPermissions(role.permissions)
+    }
+    
+    
+    /// Returns true if the role contains (all) the permissions.
+    func hasPermissions(_ permissions: Permissions) -> Bool {
+        return self.permissions.isSuperset(of: permissions)
+    }
 }
 
 extension Member {

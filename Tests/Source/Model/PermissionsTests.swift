@@ -111,7 +111,7 @@ class PermissionsTests: BaseZMClientMessageTests {
         XCTAssertEqual(Permissions(rawValue: 0), [])
     }
 
-    // MARK: - Objective-C Interoperability
+    // MARK: - TeamRole (Objective-C Interoperability)
 
     func testThatItCreatesTheCorrectSwiftPermissions() {
         XCTAssertEqual(TeamRole.partner.permissions, .partner)
@@ -131,4 +131,35 @@ class PermissionsTests: BaseZMClientMessageTests {
         XCTAssertEqual(member.permissions, .admin)
     }
 
+    func testTeamRoleIsARelationships() {
+        XCTAssert(TeamRole.none.isA(role: .none))
+        XCTAssertFalse(TeamRole.none.isA(role: .partner))
+        XCTAssertFalse(TeamRole.none.isA(role: .member))
+        XCTAssertFalse(TeamRole.none.isA(role: .admin))
+        XCTAssertFalse(TeamRole.none.isA(role: .owner))
+        
+        XCTAssert(TeamRole.partner.isA(role: .none))
+        XCTAssert(TeamRole.partner.isA(role: .partner))
+        XCTAssertFalse(TeamRole.partner.isA(role: .member))
+        XCTAssertFalse(TeamRole.partner.isA(role: .admin))
+        XCTAssertFalse(TeamRole.partner.isA(role: .owner))
+        
+        XCTAssert(TeamRole.member.isA(role: .none))
+        XCTAssert(TeamRole.member.isA(role: .partner))
+        XCTAssert(TeamRole.member.isA(role: .member))
+        XCTAssertFalse(TeamRole.member.isA(role: .admin))
+        XCTAssertFalse(TeamRole.member.isA(role: .owner))
+        
+        XCTAssert(TeamRole.admin.isA(role: .none))
+        XCTAssert(TeamRole.admin.isA(role: .partner))
+        XCTAssert(TeamRole.admin.isA(role: .member))
+        XCTAssert(TeamRole.admin.isA(role: .admin))
+        XCTAssertFalse(TeamRole.admin.isA(role: .owner))
+        
+        XCTAssert(TeamRole.owner.isA(role: .none))
+        XCTAssert(TeamRole.owner.isA(role: .partner))
+        XCTAssert(TeamRole.owner.isA(role: .member))
+        XCTAssert(TeamRole.owner.isA(role: .admin))
+        XCTAssert(TeamRole.owner.isA(role: .owner))
+    }
 }
