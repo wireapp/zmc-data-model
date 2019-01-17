@@ -42,8 +42,13 @@ public struct Permissions: OptionSet {
 
     // MARK: - Common Combined Values
 
+    // It is currently guaranteed (verbally) that the BE will return the raw value
+    // corresponding to one of these four bitmasks (roles). This is necessary
+    // to establish a bijective mapping between these four bitmasks and the four
+    // cases of the TeamRole enum.
+    
     public static let partner: Permissions = [.createConversation, .getTeamConversations]
-    public static let member: Permissions = [.createConversation, .deleteConversation, .addConversationMember, .removeConversationMember, .getTeamConversations, .getMemberPermissions]
+    public static let member: Permissions = [.partner, .deleteConversation, .addConversationMember, .removeConversationMember, .getMemberPermissions]
     public static let admin: Permissions  = [.member, .addTeamMember, .removeTeamMember, .setTeamData, .setMemberPermissions]
     public static let owner: Permissions  = [.admin, .getBilling, .setBilling, .deleteTeam]
 
@@ -88,25 +93,44 @@ extension Permissions: Hashable {
 
 // MARK: - Objective-C Interoperability
 
-
-@objc public enum PermissionsObjC: Int {
-    case none = 0, member, admin, owner, partner
-
+/// Represents a collection of individual `Permissions` options to allow
+/// for Objective C compatibility. For most intents and purposes we are
+/// only interested in the role of a user in determining various logic for
+/// specific users.
+///
+@objc public enum TeamRole: Int {
+    case none, partner, member, admin, owner
+    
+    init(rawPermissions: Int64) {
+        switch rawPermissions {
+        case Permissions.partner.rawValue:
+            self = .partner
+        case Permissions.member.rawValue:
+            self = .member
+        case Permissions.admin.rawValue:
+            self = .admin
+        case Permissions.owner.rawValue:
+            self = .owner
+        default:
+            self = .none
+        }
+    }
+    
+    /// The permissions granted to this role.
     var permissions: Permissions {
         switch self {
-        case .none: return Permissions(rawValue: 0)
+        case .none:    return Permissions(rawValue: 0)
         case .partner: return .partner
-        case .member: return .member
-        case .admin: return .admin
-        case .owner: return .owner
+        case .member:  return .member
+        case .admin:   return .admin
+        case .owner:   return .owner
         }
     }
 }
 
 extension Member {
-
-    @objc public func setPermissionsObjC(_ permissionsObjC: PermissionsObjC) {
-        permissions = permissionsObjC.permissions
-    }
     
+    @objc public func setTeamRole(_ role: TeamRole) {
+        permissions = role.permissions
+    }
 }
