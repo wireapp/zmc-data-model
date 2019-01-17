@@ -101,7 +101,7 @@ extension Permissions: Hashable {
 @objc public enum TeamRole: Int {
     case none, partner, member, admin, owner
     
-    init(rawPermissions: Int64) {
+    public init(rawPermissions: Int64) {
         switch rawPermissions {
         case Permissions.partner.rawValue:
             self = .partner
@@ -117,7 +117,7 @@ extension Permissions: Hashable {
     }
     
     /// The permissions granted to this role.
-    var permissions: Permissions {
+    public var permissions: Permissions {
         switch self {
         case .none:    return Permissions(rawValue: 0)
         case .partner: return .partner
@@ -129,13 +129,13 @@ extension Permissions: Hashable {
     
     /// Returns true if the role encompasses the given role.
     /// E.g An admin is a member, but a member is not an admin.
-    func isA(role: TeamRole) -> Bool {
+    public func isA(role: TeamRole) -> Bool {
         return hasPermissions(role.permissions)
     }
     
     
     /// Returns true if the role contains (all) the permissions.
-    func hasPermissions(_ permissions: Permissions) -> Bool {
+    public func hasPermissions(_ permissions: Permissions) -> Bool {
         return self.permissions.isSuperset(of: permissions)
     }
 }
