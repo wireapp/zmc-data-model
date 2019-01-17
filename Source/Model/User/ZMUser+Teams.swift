@@ -29,10 +29,10 @@ public extension ZMUser {
     }
     
     public var teamRole: TeamRole {
-        return TeamRole(rawPermissions: membership?.permissions.rawValue ?? 0)
+        return TeamRole(rawPermissions: permissions?.rawValue ?? 0)
     }
     
-    var permissions: Permissions? {
+    private var permissions: Permissions? {
         return membership?.permissions
     }
     
