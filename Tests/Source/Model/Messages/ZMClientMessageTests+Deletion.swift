@@ -291,7 +291,7 @@ extension ZMClientMessageTests_Deletion {
         XCTAssertTrue(uiMOC.saveOrRollback())
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
-        XCTAssertEqual(conversation.messages.count, 0)
+        XCTAssertEqual(conversation.recentMessages.count, 0)
     }
     
     func testThatItDoesNotInsertASystemMessageWhenAMessageIsDeletedForEveryoneLocally() {
@@ -307,7 +307,7 @@ extension ZMClientMessageTests_Deletion {
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
-        XCTAssertEqual(conversation.messages.count, 0)
+        XCTAssertEqual(conversation.recentMessages.count, 0)
     }
 }
 
@@ -331,8 +331,8 @@ extension ZMClientMessageTests_Deletion {
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
-        XCTAssertEqual(conversation.messages.count, 1)
-        if let systemMessage = conversation.messages.lastObject as? ZMSystemMessage , systemMessage.systemMessageType == .messageDeletedForEveryone {
+        XCTAssertEqual(conversation.recentMessages.count, 1)
+        if let systemMessage = conversation.recentMessages.last as? ZMSystemMessage , systemMessage.systemMessageType == .messageDeletedForEveryone {
             return XCTFail()
         }
     }
@@ -357,7 +357,7 @@ extension ZMClientMessageTests_Deletion {
         // then
         assertDeletedContent(ofMessage: sut as! ZMOTRMessage, inConversation: conversation)
         // No system message as the selfUser was the sender
-        XCTAssertEqual(conversation.messages.count, 0)
+        XCTAssertEqual(conversation.recentMessages.count, 0)
         // A deletion should not update the lastModified date
         XCTAssertEqual(conversation.lastModifiedDate, lastModified)
     }
@@ -411,12 +411,12 @@ extension ZMClientMessageTests_Deletion {
         
         // then
         assertDeletedContent(ofMessage: message, inConversation: conversation)
-        XCTAssertEqual(conversation.messages.count, 1)
+        XCTAssertEqual(conversation.recentMessages.count, 1)
 
         // A deletion should not update the lastModified date
         XCTAssertEqual(conversation.lastModifiedDate, lastModified)
         
-        guard let systemMessage = conversation.messages.lastObject as? ZMSystemMessage , systemMessage.systemMessageType == .messageDeletedForEveryone else {
+        guard let systemMessage = conversation.recentMessages.last as? ZMSystemMessage , systemMessage.systemMessageType == .messageDeletedForEveryone else {
             return XCTFail()
         }
         
@@ -458,7 +458,7 @@ extension ZMClientMessageTests_Deletion {
         assertDeletedContent(ofMessage: sut as! ZMOTRMessage, inConversation: conversation)
 
         // No system message as the selfUser was the sender
-        XCTAssertEqual(conversation.messages.count, 0)
+        XCTAssertEqual(conversation.recentMessages.count, 0)
         // A deletion should not update the lastModified date
         XCTAssertEqual(conversation.lastModifiedDate, lastModified)
     }
@@ -473,8 +473,8 @@ extension ZMClientMessageTests_Deletion {
         conversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: 1000))
         let sut = conversation.append(text: "foo") as! ZMClientMessage
         sut.sender = user1
-        _ = uiMOC.zm_messageDeletionTimer.startDeletionTimer(message: sut, timeout: 1000)
-        XCTAssertTrue(uiMOC.zm_messageDeletionTimer.isTimerRunning(for: sut))
+        _ = uiMOC.zm_messageDeletionTimer?.startDeletionTimer(message: sut, timeout: 1000)
+        XCTAssertEqual(uiMOC.zm_messageDeletionTimer?.isTimerRunning(for: sut), true)
         XCTAssertTrue(sut.isEphemeral)
         XCTAssertTrue(uiMOC.saveOrRollback())
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
@@ -489,7 +489,7 @@ extension ZMClientMessageTests_Deletion {
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
-        XCTAssertFalse(uiMOC.zm_messageDeletionTimer.isTimerRunning(for: sut))
+        XCTAssertEqual(uiMOC.zm_messageDeletionTimer?.isTimerRunning(for: sut), false)
         
         // teardown
         uiMOC.zm_teardownMessageDeletionTimer()
