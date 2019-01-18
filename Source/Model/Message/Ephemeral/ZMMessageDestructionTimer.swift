@@ -33,7 +33,7 @@ public extension NSManagedObjectContext {
     
     @objc public var zm_messageObfuscationTimer : ZMMessageDestructionTimer? {
         precondition(zm_isSyncContext, "MessageObfuscationTimer should be started only on the syncContext")
-
+        
         return userInfo[MessageObfuscationTimerKey] as? ZMMessageDestructionTimer
     }
     
@@ -44,7 +44,7 @@ public extension NSManagedObjectContext {
             log.debug("Obfuscation timer already exists, skipping")
             return 
         }
-        
+
         userInfo[MessageObfuscationTimerKey] = ZMMessageDestructionTimer(managedObjectContext: self)
         log.debug("creating obfuscation timer")
     }
