@@ -47,10 +47,10 @@ public struct Permissions: OptionSet {
     // to establish a bijective mapping between these four bitmasks and the four
     // cases of the TeamRole enum.
     
-    public static let partner: Permissions = [.createConversation, .getTeamConversations]
-    public static let member: Permissions = [.partner, .deleteConversation, .addRemoveConversationMember, .modifyConversationMetaData, .getMemberPermissions]
-    public static let admin: Permissions  = [.member, .addTeamMember, .removeTeamMember, .setTeamData, .setMemberPermissions]
-    public static let owner: Permissions  = [.admin, .getBilling, .setBilling, .deleteTeam]
+    public static let collaborator: Permissions = [.createConversation, .getTeamConversations]
+    public static let member:       Permissions = [.collaborator, .deleteConversation, .addRemoveConversationMember, .modifyConversationMetaData, .getMemberPermissions]
+    public static let admin:        Permissions = [.member, .addTeamMember, .removeTeamMember, .setTeamData, .setMemberPermissions]
+    public static let owner:        Permissions = [.admin, .getBilling, .setBilling, .deleteTeam]
 
 }
 
@@ -99,12 +99,12 @@ extension Permissions: Hashable {
 /// specific users.
 ///
 @objc public enum TeamRole: Int {
-    case none, partner, member, admin, owner
+    case none, collaborator, member, admin, owner
     
     public init(rawPermissions: Int64) {
         switch rawPermissions {
-        case Permissions.partner.rawValue:
-            self = .partner
+        case Permissions.collaborator.rawValue:
+            self = .collaborator
         case Permissions.member.rawValue:
             self = .member
         case Permissions.admin.rawValue:
@@ -119,11 +119,11 @@ extension Permissions: Hashable {
     /// The permissions granted to this role.
     public var permissions: Permissions {
         switch self {
-        case .none:    return Permissions(rawValue: 0)
-        case .partner: return .partner
-        case .member:  return .member
-        case .admin:   return .admin
-        case .owner:   return .owner
+        case .none:         return Permissions(rawValue: 0)
+        case .collaborator: return .collaborator
+        case .member:       return .member
+        case .admin:        return .admin
+        case .owner:        return .owner
         }
     }
     
