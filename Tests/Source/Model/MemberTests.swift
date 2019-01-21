@@ -174,14 +174,14 @@ extension MemberTests {
 
             let payload: [String: Any] = [
                 "user": user.remoteIdentifier!.transportString(),
-                "permissions": ["self": 33, "copy": 0]
+                "permissions": ["self": 17, "copy": 0]
             ]
 
             // when
             member.updatePermissions(with: payload)
 
             // then
-            XCTAssertEqual(member.permissions, [.createConversation, .removeConversationMember])
+            XCTAssertEqual(member.permissions, [.createConversation, .addRemoveConversationMember])
         }
     }
 

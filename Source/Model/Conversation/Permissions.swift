@@ -26,19 +26,19 @@ public struct Permissions: OptionSet {
     }
 
     // MARK: - Base Values
-    public static let createConversation       = Permissions(rawValue: 0x0001)
-    public static let deleteConversation       = Permissions(rawValue: 0x0002)
-    public static let addTeamMember            = Permissions(rawValue: 0x0004)
-    public static let removeTeamMember         = Permissions(rawValue: 0x0008)
-    public static let addConversationMember    = Permissions(rawValue: 0x0010)
-    public static let removeConversationMember = Permissions(rawValue: 0x0020)
-    public static let getBilling               = Permissions(rawValue: 0x0040)
-    public static let setBilling               = Permissions(rawValue: 0x0080)
-    public static let setTeamData              = Permissions(rawValue: 0x0100)
-    public static let getMemberPermissions     = Permissions(rawValue: 0x0200)
-    public static let getTeamConversations     = Permissions(rawValue: 0x0400)
-    public static let deleteTeam               = Permissions(rawValue: 0x0800)
-    public static let setMemberPermissions     = Permissions(rawValue: 0x1000)
+    public static let createConversation          = Permissions(rawValue: 0x0001)
+    public static let deleteConversation          = Permissions(rawValue: 0x0002)
+    public static let addTeamMember               = Permissions(rawValue: 0x0004)
+    public static let removeTeamMember            = Permissions(rawValue: 0x0008)
+    public static let addRemoveConversationMember = Permissions(rawValue: 0x0010)
+    public static let modifyConversationMetaData  = Permissions(rawValue: 0x0020)
+    public static let getBilling                  = Permissions(rawValue: 0x0040)
+    public static let setBilling                  = Permissions(rawValue: 0x0080)
+    public static let setTeamData                 = Permissions(rawValue: 0x0100)
+    public static let getMemberPermissions        = Permissions(rawValue: 0x0200)
+    public static let getTeamConversations        = Permissions(rawValue: 0x0400)
+    public static let deleteTeam                  = Permissions(rawValue: 0x0800)
+    public static let setMemberPermissions        = Permissions(rawValue: 0x1000)
 
     // MARK: - Common Combined Values
 
@@ -48,7 +48,7 @@ public struct Permissions: OptionSet {
     // cases of the TeamRole enum.
     
     public static let partner: Permissions = [.createConversation, .getTeamConversations]
-    public static let member: Permissions = [.partner, .deleteConversation, .addConversationMember, .removeConversationMember, .getMemberPermissions]
+    public static let member: Permissions = [.partner, .deleteConversation, .addRemoveConversationMember, .modifyConversationMetaData, .getMemberPermissions]
     public static let admin: Permissions  = [.member, .addTeamMember, .removeTeamMember, .setTeamData, .setMemberPermissions]
     public static let owner: Permissions  = [.admin, .getBilling, .setBilling, .deleteTeam]
 
@@ -65,8 +65,8 @@ extension Permissions: CustomDebugStringConvertible {
         .deleteConversation: "DeleteConversation",
         .addTeamMember: "AddTeamMember",
         .removeTeamMember: "RemoveTeamMember",
-        .addConversationMember: "AddConversationMember",
-        .removeConversationMember: "RemoveConversationMember",
+        .addRemoveConversationMember: "AddRemoveConversationMember",
+        .modifyConversationMetaData: "ModifyConversationMetaData",
         .getMemberPermissions: "GetMemberPermissions",
         .getTeamConversations: "GetTeamConversations",
         .getBilling : "GetBilling",

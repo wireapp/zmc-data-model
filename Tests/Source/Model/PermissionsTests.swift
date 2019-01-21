@@ -28,8 +28,8 @@ class PermissionsTests: BaseZMClientMessageTests {
         .deleteConversation,
         .addTeamMember,
         .removeTeamMember,
-        .addConversationMember,
-        .removeConversationMember,
+        .addRemoveConversationMember,
+        .modifyConversationMetaData,
         .getMemberPermissions,
         .getTeamConversations,
         .getBilling,
@@ -48,8 +48,8 @@ class PermissionsTests: BaseZMClientMessageTests {
         XCTAssertFalse(sut.contains(.deleteConversation))
         XCTAssertFalse(sut.contains(.addTeamMember))
         XCTAssertFalse(sut.contains(.removeTeamMember))
-        XCTAssertFalse(sut.contains(.addConversationMember))
-        XCTAssertFalse(sut.contains(.removeConversationMember))
+        XCTAssertFalse(sut.contains(.addRemoveConversationMember))
+        XCTAssertFalse(sut.contains(.modifyConversationMetaData))
         XCTAssertFalse(sut.contains(.getMemberPermissions))
         XCTAssertFalse(sut.contains(.getTeamConversations))
         XCTAssertFalse(sut.contains(.getBilling))
@@ -60,7 +60,7 @@ class PermissionsTests: BaseZMClientMessageTests {
     }
 
     func testMemberPermissions() {
-        XCTAssertEqual(Permissions.member, [.createConversation, .deleteConversation, .addConversationMember, .removeConversationMember, .getMemberPermissions, .getTeamConversations])
+        XCTAssertEqual(Permissions.member, [.createConversation, .deleteConversation, .addRemoveConversationMember, .modifyConversationMetaData, .getMemberPermissions, .getTeamConversations])
     }
 
     func testPartnerPermissions() {
@@ -79,8 +79,8 @@ class PermissionsTests: BaseZMClientMessageTests {
         let adminPermissions: Permissions = [
             .createConversation,
             .deleteConversation,
-            .addConversationMember,
-            .removeConversationMember,
+            .addRemoveConversationMember,
+            .modifyConversationMetaData,
             .getMemberPermissions,
             .getTeamConversations,
             .addTeamMember,
