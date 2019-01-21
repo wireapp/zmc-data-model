@@ -26,6 +26,7 @@ public struct Permissions: OptionSet {
     }
 
     // MARK: - Base Values
+    public static let none                        = Permissions(rawValue: 0x0000)
     public static let createConversation          = Permissions(rawValue: 0x0001)
     public static let deleteConversation          = Permissions(rawValue: 0x0002)
     public static let addTeamMember               = Permissions(rawValue: 0x0004)
@@ -119,7 +120,7 @@ extension Permissions: Hashable {
     /// The permissions granted to this role.
     public var permissions: Permissions {
         switch self {
-        case .none:         return Permissions(rawValue: 0)
+        case .none:         return .none
         case .collaborator: return .collaborator
         case .member:       return .member
         case .admin:        return .admin

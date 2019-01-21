@@ -41,7 +41,7 @@ class PermissionsTests: BaseZMClientMessageTests {
 
     func testThatDefaultValueDoesNotHaveAnyPermissions() {
         // given
-        let sut = Permissions(rawValue: 0)
+        let sut = Permissions.none
 
         // then
         XCTAssertFalse(sut.contains(.createConversation))
@@ -108,7 +108,7 @@ class PermissionsTests: BaseZMClientMessageTests {
     }
 
     func testThatItCreatesEmptyPermissionsFromEmptyPayload() {
-        XCTAssertEqual(Permissions(rawValue: 0), [])
+        XCTAssertEqual(Permissions.none, [])
     }
 
     // MARK: - TeamRole (Objective-C Interoperability)
