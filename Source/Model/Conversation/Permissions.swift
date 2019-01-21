@@ -26,19 +26,20 @@ public struct Permissions: OptionSet {
     }
 
     // MARK: - Base Values
-    public static let createConversation       = Permissions(rawValue: 0x0001)
-    public static let deleteConversation       = Permissions(rawValue: 0x0002)
-    public static let addTeamMember            = Permissions(rawValue: 0x0004)
-    public static let removeTeamMember         = Permissions(rawValue: 0x0008)
-    public static let addConversationMember    = Permissions(rawValue: 0x0010)
-    public static let removeConversationMember = Permissions(rawValue: 0x0020)
-    public static let getBilling               = Permissions(rawValue: 0x0040)
-    public static let setBilling               = Permissions(rawValue: 0x0080)
-    public static let setTeamData              = Permissions(rawValue: 0x0100)
-    public static let getMemberPermissions     = Permissions(rawValue: 0x0200)
-    public static let getTeamConversations     = Permissions(rawValue: 0x0400)
-    public static let deleteTeam               = Permissions(rawValue: 0x0800)
-    public static let setMemberPermissions     = Permissions(rawValue: 0x1000)
+    public static let none                        = Permissions(rawValue: 0x0000)
+    public static let createConversation          = Permissions(rawValue: 0x0001)
+    public static let deleteConversation          = Permissions(rawValue: 0x0002)
+    public static let addTeamMember               = Permissions(rawValue: 0x0004)
+    public static let removeTeamMember            = Permissions(rawValue: 0x0008)
+    public static let addRemoveConversationMember = Permissions(rawValue: 0x0010)
+    public static let modifyConversationMetaData  = Permissions(rawValue: 0x0020)
+    public static let getBilling                  = Permissions(rawValue: 0x0040)
+    public static let setBilling                  = Permissions(rawValue: 0x0080)
+    public static let setTeamData                 = Permissions(rawValue: 0x0100)
+    public static let getMemberPermissions        = Permissions(rawValue: 0x0200)
+    public static let getTeamConversations        = Permissions(rawValue: 0x0400)
+    public static let deleteTeam                  = Permissions(rawValue: 0x0800)
+    public static let setMemberPermissions        = Permissions(rawValue: 0x1000)
 
     // MARK: - Common Combined Values
 
@@ -47,10 +48,10 @@ public struct Permissions: OptionSet {
     // to establish a bijective mapping between these four bitmasks and the four
     // cases of the TeamRole enum.
     
-    public static let partner: Permissions = [.createConversation, .getTeamConversations]
-    public static let member: Permissions = [.partner, .deleteConversation, .addConversationMember, .removeConversationMember, .getMemberPermissions]
-    public static let admin: Permissions  = [.member, .addTeamMember, .removeTeamMember, .setTeamData, .setMemberPermissions]
-    public static let owner: Permissions  = [.admin, .getBilling, .setBilling, .deleteTeam]
+    public static let collaborator: Permissions = [.createConversation, .getTeamConversations]
+    public static let member:       Permissions = [.collaborator, .deleteConversation, .addRemoveConversationMember, .modifyConversationMetaData, .getMemberPermissions]
+    public static let admin:        Permissions = [.member, .addTeamMember, .removeTeamMember, .setTeamData, .setMemberPermissions]
+    public static let owner:        Permissions = [.admin, .getBilling, .setBilling, .deleteTeam]
 
 }
 
@@ -65,8 +66,8 @@ extension Permissions: CustomDebugStringConvertible {
         .deleteConversation: "DeleteConversation",
         .addTeamMember: "AddTeamMember",
         .removeTeamMember: "RemoveTeamMember",
-        .addConversationMember: "AddConversationMember",
-        .removeConversationMember: "RemoveConversationMember",
+        .addRemoveConversationMember: "AddRemoveConversationMember",
+        .modifyConversationMetaData: "ModifyConversationMetaData",
         .getMemberPermissions: "GetMemberPermissions",
         .getTeamConversations: "GetTeamConversations",
         .getBilling : "GetBilling",
@@ -99,12 +100,12 @@ extension Permissions: Hashable {
 /// specific users.
 ///
 @objc public enum TeamRole: Int {
-    case none, partner, member, admin, owner
+    case none, collaborator, member, admin, owner
     
     public init(rawPermissions: Int64) {
         switch rawPermissions {
-        case Permissions.partner.rawValue:
-            self = .partner
+        case Permissions.collaborator.rawValue:
+            self = .collaborator
         case Permissions.member.rawValue:
             self = .member
         case Permissions.admin.rawValue:
@@ -119,11 +120,11 @@ extension Permissions: Hashable {
     /// The permissions granted to this role.
     public var permissions: Permissions {
         switch self {
-        case .none:    return Permissions(rawValue: 0)
-        case .partner: return .partner
-        case .member:  return .member
-        case .admin:   return .admin
-        case .owner:   return .owner
+        case .none:         return .none
+        case .collaborator: return .collaborator
+        case .member:       return .member
+        case .admin:        return .admin
+        case .owner:        return .owner
         }
     }
     

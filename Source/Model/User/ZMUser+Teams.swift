@@ -43,13 +43,13 @@ public extension ZMUser {
     @objc(canAddUserToConversation:)
     public func canAddUser(to conversation: ZMConversation) -> Bool {
         guard !isGuest(in: conversation), conversation.isSelfAnActiveMember else { return false }
-        return permissions?.contains(.addConversationMember) ?? true
+        return permissions?.contains(.addRemoveConversationMember) ?? true
     }
 
     @objc(canRemoveUserFromConversation:)
     public func canRemoveUser(from conversation: ZMConversation) -> Bool {
         guard !isGuest(in: conversation), conversation.isSelfAnActiveMember else { return false }
-        return permissions?.contains(.removeConversationMember) ?? true
+        return permissions?.contains(.addRemoveConversationMember) ?? true
     }
 
     @objc public var canCreateConversation: Bool {
