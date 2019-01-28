@@ -1060,36 +1060,6 @@ NSString * const ZMMessageExpectReadConfirmationKey = @"expectsReadConfirmation"
 
 @implementation ZMMessage (Ephemeral)
 
-
-- (BOOL)startDestructionIfNeeded
-{
-    if (self.destructionDate != nil || !self.isEphemeral) {
-        return NO;
-    }
-    BOOL isSelfUser = self.sender.isSelfUser;
-    if (isSelfUser && self.managedObjectContext.zm_isSyncContext) {
-        self.destructionDate = [NSDate dateWithTimeIntervalSinceNow:self.deletionTimeout];
-        ZMMessageDestructionTimer *timer = self.managedObjectContext.zm_messageObfuscationTimer;
-        if (timer != nil) { 
-            [timer startObfuscationTimerWithMessage:self timeout:self.deletionTimeout];
-            return YES;
-        } else {
-            return NO;
-        }
-    }
-    else if (!isSelfUser && self.managedObjectContext.zm_isUserInterfaceContext){
-        ZMMessageDestructionTimer *timer = self.managedObjectContext.zm_messageDeletionTimer;
-        if (timer != nil) { 
-            NSTimeInterval matchedTimeInterval = [timer startDeletionTimerWithMessage:self timeout:self.deletionTimeout];
-            self.destructionDate = [NSDate dateWithTimeIntervalSinceNow:matchedTimeInterval];
-            return YES;
-        } else {
-            return NO;
-        }
-    }
-    return NO;
-}
-
 - (void)obfuscate;
 {
     ZMLogDebug(@"obfuscating message %@", self.nonce.transportString);
