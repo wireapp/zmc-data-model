@@ -504,7 +504,9 @@ extension ZMClientMessageTests_Deletion {
             // self sends ephemeral
             let sut = self.syncConversation.append(text: "foo") as! ZMClientMessage
             sut.sender = self.syncSelfUser
-            XCTAssertTrue(sut.startDestructionIfNeeded())
+
+            XCTAssertEqual(sut.deliveryState, .pending)
+            XCTAssertFalse(sut.startDestructionIfNeeded())
             XCTAssertNotNil(sut.destructionDate)
             
             // when self deletes the ephemeral

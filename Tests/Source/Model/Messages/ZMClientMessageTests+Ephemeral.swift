@@ -467,7 +467,8 @@ extension ZMClientMessageTests_Ephemeral {
             
             // when
             // start timer
-            XCTAssertTrue(message.startDestructionIfNeeded())
+            XCTAssertEqual(message.deliveryState, .pending)
+            XCTAssertFalse(message.startDestructionIfNeeded())
             XCTAssertNotNil(message.destructionDate)
     
             // stop app (timer stops)
