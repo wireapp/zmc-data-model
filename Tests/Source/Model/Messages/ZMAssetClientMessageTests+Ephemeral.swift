@@ -430,8 +430,8 @@ extension ZMAssetClientMessageTests_Ephemeral {
         let timeout : TimeInterval = 0.1
         conversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: timeout))
         
-        let fileMetadata = self.addFile()
-        let message = conversation.append(file: fileMetadata) as! ZMAssetClientMessage
+        let (message, fileMetadata) = createFileMessage()
+
         conversation.conversationType = .oneOnOne
         message.sender = ZMUser.insertNewObject(in: uiMOC)
         message.sender?.remoteIdentifier = UUID.create()
@@ -441,7 +441,6 @@ extension ZMAssetClientMessageTests_Ephemeral {
         XCTAssertTrue(message.genericAssetMessage!.assetData!.hasUploaded())
         
         // when
-        XCTAssertNotEqual(message.deliveryState, .pending)
         XCTAssertTrue(message.startDestructionIfNeeded())
         XCTAssertEqual(self.deletionTimer?.runningTimersCount, 1)
         
@@ -491,23 +490,31 @@ extension ZMAssetClientMessageTests_Ephemeral {
         let newTimer = self.deletionTimer?.timer(for: message)
         XCTAssertNotEqual(oldTimer, newTimer)
     }
-    
+
+    private func createFileMessage() -> (ZMAssetClientMessage, ZMFileMetadata) {
+        let fileMetadata = addFile()
+        let message = conversation.append(file: fileMetadata) as! ZMAssetClientMessage
+        message.sender = ZMUser.insertNewObject(in: self.uiMOC)
+        message.sender?.remoteIdentifier = UUID.create()
+
+        message.add(ZMGenericMessage.message(content: ZMAsset.asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
+        message.delivered = true
+
+        XCTAssertNotEqual(message.deliveryState, .pending)
+        XCTAssertTrue(message.genericAssetMessage!.assetData!.hasUploaded())
+
+        return (message, fileMetadata)
+    }
+
     func testThatItDoesNotExtendTheDeletionTimerWhenNewDateIsEarlier() {
         var oldTimer: ZMTimer?
-        var message: ZMAssetClientMessage!
-        
+
         // given
         self.conversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: 10))
         
         // send file
-        let fileMetadata = self.addFile()
-        message = self.conversation.append(file: fileMetadata) as? ZMAssetClientMessage
-        message.sender = ZMUser.insertNewObject(in: self.uiMOC)
-        message.sender?.remoteIdentifier = UUID.create()
-        
-        message.add(ZMGenericMessage.message(content: ZMAsset.asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
-        XCTAssertTrue(message.genericAssetMessage!.assetData!.hasUploaded())
-        
+        let (message, _) = createFileMessage()
+
         // check a timer was started
         XCTAssertTrue(message.startDestructionIfNeeded())
         oldTimer = self.deletionTimer?.timer(for: message)
