@@ -105,7 +105,6 @@ NSString * const ZMMessageExpectReadConfirmationKey = @"expectsReadConfirmation"
 
 @property (nonatomic) BOOL isExpired;
 @property (nonatomic) NSDate *expirationDate;
-@property (nonatomic) NSDate *destructionDate;
 @property (nonatomic) BOOL isObfuscated;
 
 @end

@@ -56,10 +56,11 @@ extension ZMAssetClientMessage {
         }
     }
     
-    @discardableResult @objc public override func startDestructionIfNeeded() -> Bool {
-        
+    @discardableResult @objc
+    public override func startDestructionIfNeeded() -> Bool {
+
         let isSelfUser = self.sender?.isSelfUser ?? false
-        
+
         if !isSelfUser {
             if self.imageMessageData != nil && !self.hasDownloadedImage {
                 return false
@@ -70,7 +71,13 @@ extension ZMAssetClientMessage {
                 }
             }
         }
-        
+
+        if deliveryState == .pending,
+            isEphemeral {
+            destructionDate = Date(timeIntervalSinceNow: deletionTimeout)
+            return false
+        }
+
         // This method is called after receiving the response but before updating the
         // uploadState, which means a state of fullAsset corresponds to the asset upload being done.
         if isSelfUser,

@@ -167,7 +167,7 @@ inManagedObjectContext:(NSManagedObjectContext * _Nonnull)moc;
 
 @property (nonatomic) NSString * _Nullable senderClientID;
 @property (nonatomic) NSUUID * _Nullable nonce;
-@property (nonatomic, readonly) NSDate * _Nullable destructionDate;
+@property (nonatomic) NSDate * _Nullable destructionDate;
 
 @property (nonatomic, readonly) BOOL isUnreadMessage;
 @property (nonatomic, readonly) BOOL isExpired;
