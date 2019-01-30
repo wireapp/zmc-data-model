@@ -248,9 +248,9 @@ extension ZMConversation {
             hasUnreadUnsentMessage = false
         }
         
-        guard let messageTimestamp = message.serverTimestampIncludingChildMessages,
-            let unreadTimestamp = lastUnreadMessage(olderOrEqualThan: messageTimestamp)?.serverTimestamp else { return }
-        enqueueUpdateLastRead(unreadTimestamp)
+        guard let messageTimestamp = message.serverTimestampIncludingChildMessages else { return }
+        
+        enqueueUpdateLastRead(messageTimestamp)
     }
     
     /// Update the last read timestamp.
@@ -378,10 +378,6 @@ extension ZMConversation {
         fetchRequest.sortDescriptors = ZMMessage.defaultSortDescriptors()
         
         return managedObjectContext.fetchOrAssert(request: fetchRequest).filter(\.messageIsRelevantForConversationStatus)
-    }
-    
-    fileprivate func lastUnreadMessage(olderOrEqualThan date: Date) -> ZMMessage? {
-        return unreadMessagesIncludingInvisible(fetchLimit: 1, before: date, order: .descending).first
     }
     
     fileprivate enum Order {
