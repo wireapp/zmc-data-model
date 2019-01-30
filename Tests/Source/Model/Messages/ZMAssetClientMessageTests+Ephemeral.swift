@@ -436,9 +436,12 @@ extension ZMAssetClientMessageTests_Ephemeral {
         message.sender = ZMUser.insertNewObject(in: uiMOC)
         message.sender?.remoteIdentifier = UUID.create()
         message.add(ZMGenericMessage.message(content: ZMAsset.asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
+        message.delivered = true
+
         XCTAssertTrue(message.genericAssetMessage!.assetData!.hasUploaded())
         
         // when
+        XCTAssertNotEqual(message.deliveryState, .pending)
         XCTAssertTrue(message.startDestructionIfNeeded())
         XCTAssertEqual(self.deletionTimer?.runningTimersCount, 1)
         
