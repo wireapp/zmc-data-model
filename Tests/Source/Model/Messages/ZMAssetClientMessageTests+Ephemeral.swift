@@ -19,7 +19,7 @@
 import Foundation
 @testable import WireDataModel
 
-class ZMAssetClientMessageTests_Ephemeral : BaseZMAssetClientMessageTests {
+final class ZMAssetClientMessageTests_Ephemeral : BaseZMAssetClientMessageTests {
     
     override func setUp() {
         super.setUp()
@@ -461,20 +461,13 @@ extension ZMAssetClientMessageTests_Ephemeral {
     
     func testThatItExtendsTheDeletionTimer() {
         var oldTimer: ZMTimer?
-        var message: ZMAssetClientMessage!
-        
+
         // given
         self.conversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: 10))
         
         // send file
-        let fileMetadata = self.addFile()
-        message = self.conversation.append(file: fileMetadata) as? ZMAssetClientMessage
-        message.sender = ZMUser.insertNewObject(in: self.uiMOC)
-        message.sender?.remoteIdentifier = UUID.create()
-        
-        message.add(ZMGenericMessage.message(content: ZMAsset.asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
-        XCTAssertTrue(message.genericAssetMessage!.assetData!.hasUploaded())
-        
+        let (message, _) = createFileMessage()
+
         // check a timer was started
         XCTAssertTrue(message.startDestructionIfNeeded())
         oldTimer = self.deletionTimer?.timer(for: message)
