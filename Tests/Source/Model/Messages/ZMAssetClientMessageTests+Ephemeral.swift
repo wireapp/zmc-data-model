@@ -50,36 +50,20 @@ final class ZMAssetClientMessageTests_Ephemeral : BaseZMAssetClientMessageTests 
     var deletionTimer : ZMMessageDestructionTimer? {
         return uiMOC.zm_messageDeletionTimer
     }
+}
 
-    func appendFileMessage() -> ZMAssetClientMessage {
-        let fileMetadata = self.addFile()
-        let message = self.syncConversation.append(file: fileMetadata) as! ZMAssetClientMessage
+// MARK: Sending
+extension ZMAssetClientMessageTests_Ephemeral {
+
+    private func appendFileMessageToSyncConversation() -> ZMAssetClientMessage {
+        let fileMetadata = addFile()
+        let message = syncConversation.append(file: fileMetadata) as! ZMAssetClientMessage
         message.uploadState = .uploadingFullAsset
         message.delivered = true
 
         return message
     }
 
-    private func createFileMessage() -> (ZMAssetClientMessage, ZMFileMetadata) {
-        let fileMetadata = addFile()
-        let message = conversation.append(file: fileMetadata) as! ZMAssetClientMessage
-        message.sender = ZMUser.insertNewObject(in: self.uiMOC)
-        message.sender?.remoteIdentifier = UUID.create()
-
-        message.add(ZMGenericMessage.message(content: ZMAsset.asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
-        message.delivered = true
-
-        XCTAssertNotEqual(message.deliveryState, .pending)
-        XCTAssertTrue(message.genericAssetMessage!.assetData!.hasUploaded())
-
-        return (message, fileMetadata)
-    }
-
-}
-
-// MARK: Sending
-extension ZMAssetClientMessageTests_Ephemeral {
-    
     func testThatItInsertsAnEphemeralMessageForAssets(){
         // given
         conversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: 10))
@@ -247,7 +231,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
             self.syncConversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: 10))
             
             // send file
-            message = self.appendFileMessage()
+            message = self.appendFileMessageToSyncConversation()
             message.update(withPostPayload: [:], updatedKeys: Set([#keyPath(ZMAssetClientMessage.uploadState)]))
             
             // check a timer was started
@@ -277,7 +261,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
             self.syncConversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: 10))
             
             // send file
-            message = self.appendFileMessage()
+            message = self.appendFileMessageToSyncConversation()
             message.update(withPostPayload: [:], updatedKeys: Set([#keyPath(ZMAssetClientMessage.uploadState)]))
 
             // check a timer was started
@@ -302,7 +286,22 @@ extension ZMAssetClientMessageTests_Ephemeral {
 // MARK: Receiving
 
 extension ZMAssetClientMessageTests_Ephemeral {
-    
+
+
+    private func createFileMessage() -> (ZMAssetClientMessage, ZMFileMetadata) {
+        let fileMetadata = addFile()
+        let message = conversation.append(file: fileMetadata) as! ZMAssetClientMessage
+        message.sender = ZMUser.insertNewObject(in: uiMOC)
+        message.sender?.remoteIdentifier = UUID.create()
+
+        message.add(ZMGenericMessage.message(content: ZMAsset.asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
+        message.delivered = true
+
+        XCTAssertNotEqual(message.deliveryState, .pending)
+        XCTAssertTrue(message.genericAssetMessage!.assetData!.hasUploaded())
+
+        return (message, fileMetadata)
+    }
     
     func testThatItStartsATimerForImageAssetMessagesIfTheMessageIsAMessageOfTheOtherUser(){
         // given
@@ -442,15 +441,9 @@ extension ZMAssetClientMessageTests_Ephemeral {
         let timeout : TimeInterval = 0.1
         conversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: timeout))
         
-        let (message, fileMetadata) = createFileMessage()
+        let (message, _) = createFileMessage()
 
         conversation.conversationType = .oneOnOne
-        message.sender = ZMUser.insertNewObject(in: uiMOC)
-        message.sender?.remoteIdentifier = UUID.create()
-        message.add(ZMGenericMessage.message(content: ZMAsset.asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
-        message.delivered = true
-
-        XCTAssertTrue(message.genericAssetMessage!.assetData!.hasUploaded())
         
         // when
         XCTAssertTrue(message.startDestructionIfNeeded())
