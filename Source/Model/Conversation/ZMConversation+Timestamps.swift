@@ -239,11 +239,8 @@ extension ZMConversation {
     public func markMessagesAsRead(until message: ZMConversationMessage) {
         if let currentTimestamp = lastReadServerTimeStamp,
            let messageTimestamp = message.serverTimestamp,
-           message.sender?.isSelfUser == false,
            currentTimestamp.compare(messageTimestamp) == .orderedDescending {
             // Current last read timestamp is newer than message we are marking as read
-            // OR
-            // Messages sent by the self user are always considered read
             return
         }
         // Any unsent unread message is cleared when entering a conversation
