@@ -248,7 +248,6 @@ extension ZMConversation {
             hasUnreadUnsentMessage = false
         }
         
-        // If the message has timestamp
         guard let messageTimestamp = message.serverTimestampIncludingChildMessages,
               let unreadTimestamp = message.isSent ? messageTimestamp : unreadMessagesIncludingInvisible(until: messageTimestamp).last?.serverTimestamp else { return }
         
