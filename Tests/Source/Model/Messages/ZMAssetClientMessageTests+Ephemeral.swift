@@ -127,10 +127,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         self.syncMOC.performGroupedBlockAndWait {
             // given
             self.syncConversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: 10))
-            let fileMetadata = self.addFile()
-            let message = self.syncConversation.append(file: fileMetadata) as! ZMAssetClientMessage
-            message.uploadState = .uploadingFullAsset
-            message.delivered = true
+            let message = self.appendFileMessageToSyncConversation()
 
             // when
             message.update(withPostPayload: [:], updatedKeys: Set([#keyPath(ZMAssetClientMessage.uploadState)]))
@@ -444,7 +441,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         let (message, _) = createFileMessage()
 
         conversation.conversationType = .oneOnOne
-        
+
         // when
         XCTAssertTrue(message.startDestructionIfNeeded())
         XCTAssertEqual(self.deletionTimer?.runningTimersCount, 1)
