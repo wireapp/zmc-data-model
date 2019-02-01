@@ -187,6 +187,10 @@ NS_ASSUME_NONNULL_END
 
 @interface ZMConversation (ParticipantsInternal)
 
+// More efficient way of getting participants that skips sorting them
+
+- (nonnull NSSet<ZMUser *> *)unorderedActiveParticipants;
+
 - (void)internalAddParticipants:(nonnull NSSet<ZMUser *> *)participants;
 - (void)internalRemoveParticipants:(nonnull NSSet<ZMUser *> *)participants sender:(nonnull ZMUser *)sender;
 
