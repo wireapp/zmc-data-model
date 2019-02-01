@@ -215,7 +215,7 @@ extension ZMGenericMessage {
 
         let hasRestrictions: Bool = {
             if conversation.connectedUser != nil { return recipientUsers.count != 2 }
-            return recipientUsers.count != conversation.unorderedActiveParticipants().count
+            return recipientUsers.count != conversation.activeParticipants.count
         }()
 
         let strategy : MissingClientsStrategy = hasRestrictions ? .ignoreAllMissingClientsNotFromUsers(users: recipientUsers)

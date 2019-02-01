@@ -206,7 +206,7 @@ extension ConversationChangeInfo {
     
     /// Users that caused the conversation to degrade
     @objc public var usersThatCausedConversationToDegrade : Set<ZMUser> {
-        let untrustedParticipants = self.conversation.unorderedActiveParticipants().filter { user -> Bool in
+        let untrustedParticipants = self.conversation.activeParticipants.filter { user -> Bool in
             return !user.trusted()
         }
         return Set(untrustedParticipants)

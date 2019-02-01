@@ -265,12 +265,34 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     self._recentMessagesFetcher = nil;
 }
 
--(NSOrderedSet *)activeParticipants
+
+
+-(NSSet <ZMUser *> *)activeParticipants
 {
-    NSSet *activeParticipants = [self unorderedActiveParticipants];
     
-    NSArray *sortedParticipants = [self sortedUsers:activeParticipants];
-    return [NSOrderedSet orderedSetWithArray:sortedParticipants];
+    NSMutableSet *activeParticipants = [NSMutableSet set];
+    
+    if (self.internalConversationType != ZMConversationTypeGroup) {
+        [activeParticipants addObject:[ZMUser selfUserInContext:self.managedObjectContext]];
+        if (self.connectedUser != nil) {
+            [activeParticipants addObject:self.connectedUser];
+        }
+    }
+    else if(self.isSelfAnActiveMember) {
+        [activeParticipants addObject:[ZMUser selfUserInContext:self.managedObjectContext]];
+        [activeParticipants unionSet:[self.lastServerSyncedActiveParticipants set]];
+    }
+    else
+    {
+        [activeParticipants unionSet:[self.lastServerSyncedActiveParticipants set]];
+    }
+    
+    return activeParticipants;
+}
+
+-(NSArray <ZMUser *> *)sortedActiveParticipants
+{
+    return [self sortedUsers:[self activeParticipants]];
 }
 
 - (NSArray *)sortedUsers:(NSSet *)users
@@ -880,7 +902,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
     
     NSMutableSet *allClients = [NSMutableSet set];
-    for (ZMUser *user in conversation.unorderedActiveParticipants) {
+    for (ZMUser *user in conversation.activeParticipants) {
         [allClients unionSet:user.clients];
     }
     
@@ -987,9 +1009,9 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     systemMessage.systemMessageType = ZMSystemMessageTypeNewConversation;
     systemMessage.sender = self.creator;
     systemMessage.text = self.userDefinedName;
-    systemMessage.users = self.unorderedActiveParticipants;
+    systemMessage.users = self.activeParticipants;
     
-    [systemMessage updateNewConversationSystemMessageIfNeededWithUsers:self.unorderedActiveParticipants
+    [systemMessage updateNewConversationSystemMessageIfNeededWithUsers:self.activeParticipants
                                                                context:self.managedObjectContext
                                                           conversation:self];
 
@@ -1113,28 +1135,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 
 @implementation ZMConversation (ParticipantsInternal)
-
-- (NSSet <ZMUser *> *)unorderedActiveParticipants
-{
-    NSMutableSet *activeParticipants = [NSMutableSet set];
-    
-    if (self.internalConversationType != ZMConversationTypeGroup) {
-        [activeParticipants addObject:[ZMUser selfUserInContext:self.managedObjectContext]];
-        if (self.connectedUser != nil) {
-            [activeParticipants addObject:self.connectedUser];
-        }
-    }
-    else if(self.isSelfAnActiveMember) {
-        [activeParticipants addObject:[ZMUser selfUserInContext:self.managedObjectContext]];
-        [activeParticipants unionSet:[self.lastServerSyncedActiveParticipants set]];
-    }
-    else
-    {
-        [activeParticipants unionSet:[self.lastServerSyncedActiveParticipants set]];
-    }
-    
-    return activeParticipants;
-}
 
 + (NSSet<UserClient *>*)clientsOfUsers:(NSSet<ZMUser *> *)users
 {
