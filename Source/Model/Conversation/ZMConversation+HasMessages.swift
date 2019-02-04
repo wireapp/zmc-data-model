@@ -18,7 +18,7 @@
 
 import Foundation
 
-public extension ZMConversation {
+@objc public extension ZMConversation {
     
     /// Specifies whether the conversation has content.
     ///
@@ -26,7 +26,7 @@ public extension ZMConversation {
     /// requests, however it does not guarantee the validity of the result. Use
     /// this in when the need for permformance outweighs the need for accuracy.
     ///
-    public var estimatedHasMessages: Bool {
+    @objc public var estimatedHasMessages: Bool {
         // If we haven't read any messages, then we don't have any.
         guard let lastRead = lastReadServerTimeStamp else { return false }
         
