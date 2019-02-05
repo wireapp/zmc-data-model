@@ -315,6 +315,7 @@ NSString * const ZMMessageExpectReadConfirmationKey = @"expectsReadConfirmation"
         ZMLogError(@"Sender is nil or from a different context than message. \n Sender is zombie %@: %@ \n Message: %@", @(sender.isZombieObject), sender, self);
     }
     
+    [self updateQuoteRelationships];
     [conversation updateTimestampsAfterUpdatingMessage:self];
 }
 
