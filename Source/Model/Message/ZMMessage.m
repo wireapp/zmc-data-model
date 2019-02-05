@@ -1054,6 +1054,11 @@ NSString * const ZMMessageExpectReadConfirmationKey = @"expectsReadConfirmation"
     return onlyOneUser && isSender;
 }
 
+- (void)updateQuoteRelationships
+{
+    // System messages don't support quotes at the moment
+}
+
 @end
 
 
