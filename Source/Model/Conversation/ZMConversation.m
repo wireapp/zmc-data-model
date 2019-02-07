@@ -116,8 +116,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @property (nonatomic) ZMConversationType conversationType;
 @property (nonatomic, readonly) ZMConversationType internalConversationType;
 
-@property (nonatomic) NSMutableOrderedSet *unreadTimeStamps;
-
 @property (nonatomic) NSTimeInterval lastReadTimestampSaveDelay;
 @property (nonatomic) int64_t lastReadTimestampUpdateCounter;
 @property (nonatomic) BOOL internalIsArchived;
@@ -165,7 +163,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @synthesize pendingLastReadServerTimestamp;
 @synthesize lastReadTimestampSaveDelay;
 @synthesize lastReadTimestampUpdateCounter;
-@synthesize unreadTimeStamps;
 @synthesize _recentMessagesFetcher;
 
 - (BOOL)isArchived
@@ -265,9 +262,12 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     self._recentMessagesFetcher = nil;
 }
 
--(NSOrderedSet *)activeParticipants
+
+
+-(NSSet <ZMUser *> *)activeParticipants
 {
-    NSMutableOrderedSet *activeParticipants = [NSMutableOrderedSet orderedSet];
+    
+    NSMutableSet *activeParticipants = [NSMutableSet set];
     
     if (self.internalConversationType != ZMConversationTypeGroup) {
         [activeParticipants addObject:[ZMUser selfUserInContext:self.managedObjectContext]];
@@ -277,18 +277,22 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
     else if(self.isSelfAnActiveMember) {
         [activeParticipants addObject:[ZMUser selfUserInContext:self.managedObjectContext]];
-        [activeParticipants unionOrderedSet:self.lastServerSyncedActiveParticipants];
+        [activeParticipants unionSet:[self.lastServerSyncedActiveParticipants set]];
     }
     else
     {
-        [activeParticipants unionOrderedSet:self.lastServerSyncedActiveParticipants];
+        [activeParticipants unionSet:[self.lastServerSyncedActiveParticipants set]];
     }
-   
-    NSArray *sortedParticipants = [self sortedUsers:activeParticipants];
-    return [NSOrderedSet orderedSetWithArray:sortedParticipants];
+    
+    return activeParticipants;
 }
 
-- (NSArray *)sortedUsers:(NSOrderedSet *)users
+-(NSArray <ZMUser *> *)sortedActiveParticipants
+{
+    return [self sortedUsers:[self activeParticipants]];
+}
+
+- (NSArray *)sortedUsers:(NSSet *)users
 {
     NSSortDescriptor *nameDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"normalizedName" ascending:YES];
     NSArray *sortedUser = [users sortedArrayUsingDescriptors:@[nameDescriptor]];
@@ -1002,9 +1006,9 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     systemMessage.systemMessageType = ZMSystemMessageTypeNewConversation;
     systemMessage.sender = self.creator;
     systemMessage.text = self.userDefinedName;
-    systemMessage.users = self.activeParticipants.set;
+    systemMessage.users = self.activeParticipants;
     
-    [systemMessage updateNewConversationSystemMessageIfNeededWithUsers:self.activeParticipants.set
+    [systemMessage updateNewConversationSystemMessageIfNeededWithUsers:self.activeParticipants
                                                                context:self.managedObjectContext
                                                           conversation:self];
 
@@ -1234,18 +1238,26 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 {
     NSMutableArray *conversationsToKeep = [NSMutableArray array];
     NSMutableSet *usersToKeep = [NSMutableSet set];
+    NSMutableSet *messagesToKeep = [NSMutableSet set];
     
     // make sure that the Set is not mutated while being enumerated
     NSSet *registeredObjects = managedObjectContext.registeredObjects;
     
     // gather objects to keep
     for(NSManagedObject *obj in registeredObjects) {
-        if(!obj.isFault && [obj isKindOfClass:ZMConversation.class]) {
-            ZMConversation *conversation = (ZMConversation *)obj;
-            
-            if(conversation.shouldNotBeRefreshed) {
-                [conversationsToKeep addObject:conversation];
-                [usersToKeep unionSet:conversation.lastServerSyncedActiveParticipants.set];
+        if (!obj.isFault) {
+            if ([obj isKindOfClass:ZMConversation.class]) {
+                ZMConversation *conversation = (ZMConversation *)obj;
+                
+                if(conversation.shouldNotBeRefreshed) {
+                    [conversationsToKeep addObject:conversation];
+                    [usersToKeep unionSet:conversation.lastServerSyncedActiveParticipants.set];
+                }
+            } else if ([obj isKindOfClass:ZMOTRMessage.class]) {
+                ZMOTRMessage *message = (ZMOTRMessage *)obj;
+                if (![message hasFaultForRelationshipNamed:ZMMessageMissingRecipientsKey] && !message.missingRecipients.isEmpty) {
+                    [messagesToKeep addObject:obj];
+                }
             }
         }
     }
@@ -1263,6 +1275,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
             
             if ((isConversation && [conversationsToKeep indexOfObjectIdenticalTo:obj] != NSNotFound) ||
                 (isUser && [usersToKeep.allObjects indexOfObjectIdenticalTo:obj] != NSNotFound) ||
+                (isMessage && [messagesToKeep.allObjects indexOfObjectIdenticalTo:obj] != NSNotFound) ||
                 !isOfTypeToBeRefreshed) {
                 continue;
             }
