@@ -345,10 +345,10 @@ extension ZMUser {
         removeFromAllConversations(at: timestamp)
     }
     
-    /// Remove user from all conversations he is a participant of
+    /// Remove user from all group conversations he is a participant of
     fileprivate func removeFromAllConversations(at timestamp: Date) {
         lastServerSyncedActiveConversations.forEach {
-            guard let conversation = $0 as? ZMConversation else { return }
+            guard let conversation = $0 as? ZMConversation, conversation.conversationType == .group else { return }
             
             if isTeamMember && conversation.team == team {
                 conversation.appendTeamMemberRemovedSystemMessage(user: self, at: timestamp)
