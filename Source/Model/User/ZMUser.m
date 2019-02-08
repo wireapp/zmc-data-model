@@ -70,6 +70,7 @@ static NSString *const HandleKey = @"handle";
 static NSString *const ImageMediumDataKey = @"imageMediumData";
 static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
 static NSString *const SystemMessagesKey = @"systemMessages";
+static NSString *const isAccountDeletedKey = @"isAccountDeleted";
 static NSString *const ShowingUserAddedKey = @"showingUserAdded";
 static NSString *const ShowingUserRemovedKey = @"showingUserRemoved";
 NSString *const UserClientsKey = @"clients";
@@ -425,6 +426,7 @@ static NSString *const ManagedByKey = @"managedBy";
                                            UsesCompanyLoginKey,
                                            NeedsPropertiesUpdateKey,
                                            ReadReceiptsEnabledChangedRemotelyKey,
+                                           isAccountDeletedKey,
                                            ManagedByKey
                                            ]];
         keys = [ignoredKeys copy];

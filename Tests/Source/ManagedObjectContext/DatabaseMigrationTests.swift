@@ -325,7 +325,9 @@ class DatabaseMigrationTests: DatabaseBaseTest {
             let userClientCount = try! directory.uiContext.count(for: UserClient.sortedFetchRequest()!)
             let assetClientMessagesCount = try! directory.uiContext.count(for: ZMAssetClientMessage.sortedFetchRequest()!)
             let messages = directory.uiContext.executeFetchRequestOrAssert(ZMMessage.sortedFetchRequest()!)! as! [ZMMessage]
+            let users = directory.uiContext.fetchOrAssert(request: NSFetchRequest<ZMUser>(entityName: ZMUser.entityName()))
             
+    
             let userFetchRequest = ZMUser.sortedFetchRequest()!
             userFetchRequest.resultType = .dictionaryResultType
             userFetchRequest.propertiesToFetch = self.userPropertiesToFetch
@@ -338,6 +340,7 @@ class DatabaseMigrationTests: DatabaseBaseTest {
             XCTAssertEqual(systemMessageCount, 21)
             XCTAssertEqual(connectionCount, 16)
             XCTAssertEqual(userClientCount, 12)
+            
             if storeFile == "2-53-0" {
                 let silencedConversations = ((directory.uiContext.executeFetchRequestOrAssert(ZMConversation.sortedFetchRequest()!)) as! [ZMConversation]).filter { conversation in
                     return conversation.mutedStatus != 0
@@ -349,6 +352,10 @@ class DatabaseMigrationTests: DatabaseBaseTest {
             XCTAssertNotNil(userDictionaries)
             XCTAssertEqual(userDictionaries.count, 22)
             XCTAssertEqual(Array(userDictionaries[0..<3]) as NSArray, DatabaseMigrationTests.userDictionaryFixture2_25_1 as NSArray)
+            users.forEach({
+                XCTAssertFalse($0.isAccountDeleted)
+            })
+            
             XCTAssertGreaterThan(messages.count, 0)
             messages.forEach {
                 XCTAssertNil($0.normalizedText)
