@@ -116,8 +116,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @property (nonatomic) ZMConversationType conversationType;
 @property (nonatomic, readonly) ZMConversationType internalConversationType;
 
-@property (nonatomic) NSMutableOrderedSet *unreadTimeStamps;
-
 @property (nonatomic) NSTimeInterval lastReadTimestampSaveDelay;
 @property (nonatomic) int64_t lastReadTimestampUpdateCounter;
 @property (nonatomic) BOOL internalIsArchived;
@@ -165,7 +163,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @synthesize pendingLastReadServerTimestamp;
 @synthesize lastReadTimestampSaveDelay;
 @synthesize lastReadTimestampUpdateCounter;
-@synthesize unreadTimeStamps;
 @synthesize _recentMessagesFetcher;
 
 - (BOOL)isArchived
@@ -938,6 +935,10 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 {
     NSUUID *selfUserID = [ZMConversation selfConversationIdentifierInContext:managedObjectContext];
     return [ZMConversation conversationWithRemoteID:selfUserID createIfNeeded:NO inContext:managedObjectContext];
+}
+
+- (BOOL)hasBeenModifiedSinceSlowSync {
+    return self.lastServerTimeStamp != nil && self.lastServerTimeStamp.timeIntervalSince1970 != 0;
 }
 
 - (ZMClientMessage *)appendClientMessageWithGenericMessage:(ZMGenericMessage *)genericMessage

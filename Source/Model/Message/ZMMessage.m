@@ -315,6 +315,7 @@ NSString * const ZMMessageExpectReadConfirmationKey = @"expectsReadConfirmation"
         ZMLogError(@"Sender is nil or from a different context than message. \n Sender is zombie %@: %@ \n Message: %@", @(sender.isZombieObject), sender, self);
     }
     
+    [self updateQuoteRelationships];
     [conversation updateTimestampsAfterUpdatingMessage:self];
 }
 
@@ -1028,8 +1029,10 @@ NSString * const ZMMessageExpectReadConfirmationKey = @"expectsReadConfirmation"
             ZMUser *selfUser = [ZMUser selfUserInContext:self.managedObjectContext];
             return [self.users containsObject:selfUser] && !self.sender.isSelfUser;
         }
+        case ZMSystemMessageTypeNewConversation:
+            return !self.sender.isSelfUser && self.conversation.hasBeenModifiedSinceSlowSync;
         case ZMSystemMessageTypeMissedCall:
-            return YES;
+            return self.relevantForConversationStatus;
         default:
             return NO;
     }
@@ -1051,6 +1054,11 @@ NSString * const ZMMessageExpectReadConfirmationKey = @"expectsReadConfirmation"
     BOOL onlyOneUser = self.users.count == 1;
     BOOL isSender = [self.users containsObject:self.sender];
     return onlyOneUser && isSender;
+}
+
+- (void)updateQuoteRelationships
+{
+    // System messages don't support quotes at the moment
 }
 
 @end

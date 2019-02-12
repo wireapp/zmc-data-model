@@ -106,6 +106,10 @@ NS_ASSUME_NONNULL_END
 
 @property (nonatomic) BOOL internalIsArchived;
 
+/// Returns true if the conversation have been changed since it was created by the slow sync or if it was
+/// created from an update event.
+@property (nonatomic) BOOL hasBeenModifiedSinceSlowSync;
+
 @property (nonatomic, nullable) NSDate *pendingLastReadServerTimestamp;
 @property (nonatomic, nullable) NSDate *lastServerTimeStamp;
 @property (nonatomic, nullable) NSDate *lastReadServerTimeStamp;
@@ -125,10 +129,6 @@ NS_ASSUME_NONNULL_END
 @property (nonatomic, copy, nullable) NSString *normalizedUserDefinedName;
 @property (nonatomic) NSTimeInterval lastReadTimestampSaveDelay;
 @property (nonatomic) int64_t lastReadTimestampUpdateCounter;
-
-/// unreadTimeStamps is created on didAwakeFromFetch:
-/// updated when messages are inserted and the lastReadServerTimeStamp changes
-@property (nonatomic, nullable) NSMutableOrderedSet *unreadTimeStamps;
 
 /**
     Appends the given message in the conversation.
