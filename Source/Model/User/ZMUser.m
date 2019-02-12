@@ -425,7 +425,6 @@ static NSString *const ManagedByKey = @"managedBy";
                                            UsesCompanyLoginKey,
                                            NeedsPropertiesUpdateKey,
                                            ReadReceiptsEnabledChangedRemotelyKey,
-                                           isAccountDeletedKey,
                                            ManagedByKey
                                            ]];
         keys = [ignoredKeys copy];
