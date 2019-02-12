@@ -70,6 +70,7 @@ static NSString *const HandleKey = @"handle";
 static NSString *const ImageMediumDataKey = @"imageMediumData";
 static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
 static NSString *const SystemMessagesKey = @"systemMessages";
+static NSString *const isAccountDeletedKey = @"isAccountDeleted";
 static NSString *const ShowingUserAddedKey = @"showingUserAdded";
 static NSString *const ShowingUserRemovedKey = @"showingUserRemoved";
 NSString *const UserClientsKey = @"clients";
@@ -88,6 +89,8 @@ NSString *const ReadReceiptsEnabledChangedRemotelyKey = @"readReceiptsEnabledCha
 
 static NSString *const TeamIdentifierDataKey = @"teamIdentifier_data";
 static NSString *const TeamIdentifierKey = @"teamIdentifier";
+
+static NSString *const ManagedByKey = @"managedBy";
 
 @interface ZMBoxedSelfUser : NSObject
 
@@ -380,6 +383,7 @@ static NSString *const TeamIdentifierKey = @"teamIdentifier";
 @dynamic showingUserAdded;
 @dynamic showingUserRemoved;
 @dynamic createdTeams;
+@dynamic managedBy;
 
 - (NSSet *)keysTrackedForLocalModifications
 {
@@ -422,7 +426,9 @@ static NSString *const TeamIdentifierKey = @"teamIdentifier";
                                            TeamIdentifierDataKey,
                                            UsesCompanyLoginKey,
                                            NeedsPropertiesUpdateKey,
-                                           ReadReceiptsEnabledChangedRemotelyKey
+                                           ReadReceiptsEnabledChangedRemotelyKey,
+                                           isAccountDeletedKey,
+                                           ManagedByKey
                                            ]];
         keys = [ignoredKeys copy];
     });
@@ -561,6 +567,11 @@ static NSString *const TeamIdentifierKey = @"teamIdentifier";
     NSString *name = [transportData optionalStringForKey:@"name"];
     if (name != nil || authoritative) {
         self.name = name;
+    }
+    
+    NSString *managedBy = [transportData optionalStringForKey:@"managed_by"];
+    if (managedBy != nil || authoritative) {
+        self.managedBy = managedBy;
     }
     
     NSString *handle = [transportData optionalStringForKey:@"handle"];
