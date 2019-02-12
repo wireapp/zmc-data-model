@@ -383,6 +383,7 @@ static NSString *const ManagedByKey = @"managedBy";
 @dynamic showingUserAdded;
 @dynamic showingUserRemoved;
 @dynamic createdTeams;
+@dynamic managedBy;
 
 - (NSSet *)keysTrackedForLocalModifications
 {
