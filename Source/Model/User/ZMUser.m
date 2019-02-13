@@ -147,7 +147,7 @@ static NSString *const ManagedByKey = @"managedBy";
 @property (nonatomic, copy) NSData *imageSmallProfileData;
 @property (nonatomic, copy) NSString *phoneNumber;
 @property (nonatomic, copy) NSString *normalizedEmailAddress;
-
+@property (nullable, nonatomic) NSString *managedBy;
 @property (nonatomic, readonly) UserClient *selfClient;
 
 @end
@@ -200,6 +200,7 @@ static NSString *const ManagedByKey = @"managedBy";
 @dynamic clients;
 @dynamic handle;
 @dynamic addressBookEntry;
+@dynamic managedBy;
 
 - (UserClient *)selfClient
 {
@@ -252,6 +253,10 @@ static NSString *const ManagedByKey = @"managedBy";
 {
     NSUUID *uuid = self.localSmallProfileRemoteIdentifier;
     return uuid.UUIDString ?: @"";
+}
+
+- (BOOL) managedByWire {
+    return [self.managedBy isEqualToString:@"wire"];
 }
 
 - (NSString *)displayName;
@@ -383,7 +388,6 @@ static NSString *const ManagedByKey = @"managedBy";
 @dynamic showingUserAdded;
 @dynamic showingUserRemoved;
 @dynamic createdTeams;
-@dynamic managedBy;
 
 - (NSSet *)keysTrackedForLocalModifications
 {
