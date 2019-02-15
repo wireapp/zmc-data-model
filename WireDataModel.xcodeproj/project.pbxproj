@@ -663,6 +663,7 @@
 		5E0FB2002051493700FD9867 /* Set+Filter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Set+Filter.swift"; sourceTree = "<group>"; };
 		5E0FB214205176B400FD9867 /* Set+ServiceUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Set+ServiceUser.swift"; sourceTree = "<group>"; };
 		5E36B45D21CA5BBA00B7063B /* UnverifiedCredentials.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnverifiedCredentials.swift; sourceTree = "<group>"; };
+		5E4BA9F32216F4B400F938A8 /* zmessaging2.63.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = zmessaging2.63.0.xcdatamodel; sourceTree = "<group>"; };
 		5E67168D2174B9AF00522E61 /* LoginCredentials.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCredentials.swift; sourceTree = "<group>"; };
 		5E771F372080BB0000575629 /* PBMessage+Validation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PBMessage+Validation.swift"; sourceTree = "<group>"; };
 		5E771F392080C40B00575629 /* PBMessageValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBMessageValidationTests.swift; sourceTree = "<group>"; };
@@ -2977,6 +2978,7 @@
 		F189988C1E7BE03800E579A2 /* zmessaging.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				5E4BA9F32216F4B400F938A8 /* zmessaging2.63.0.xcdatamodel */,
 				7CBC42EA2211CE900037E716 /* zmessaging2.62.0.xcdatamodel */,
 				168E96C4220B445000FC92FA /* zmessaging2.61.0.xcdatamodel */,
 				87890A1821E348F500E19A42 /* zmessaging2.60.0.xcdatamodel */,
@@ -3029,7 +3031,7 @@
 				F18998A41E7BE03800E579A2 /* zmessaging2.8.xcdatamodel */,
 				F18998A51E7BE03800E579A2 /* zmessaging2.9.xcdatamodel */,
 			);
-			currentVersion = 7CBC42EA2211CE900037E716 /* zmessaging2.62.0.xcdatamodel */;
+			currentVersion = 5E4BA9F32216F4B400F938A8 /* zmessaging2.63.0.xcdatamodel */;
 			path = zmessaging.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
