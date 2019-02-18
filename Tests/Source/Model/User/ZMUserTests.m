@@ -1325,7 +1325,7 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
 }
 
 
--(NSString*)managedByString:(ZMUser*)user {
+-(NSString *)managedByString:(ZMUser *)user {
     return user.managedByWire ? ManagedByWire : ManagedByScim;
 }
 
