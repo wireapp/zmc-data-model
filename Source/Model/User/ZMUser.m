@@ -91,6 +91,7 @@ static NSString *const TeamIdentifierDataKey = @"teamIdentifier_data";
 static NSString *const TeamIdentifierKey = @"teamIdentifier";
 
 static NSString *const ManagedByKey = @"managedBy";
+static NSString *const ExtendedMetadataKey = @"extendedMetadata";
 
 @interface ZMBoxedSelfUser : NSObject
 
@@ -388,6 +389,7 @@ static NSString *const ManagedByKey = @"managedBy";
 @dynamic showingUserAdded;
 @dynamic showingUserRemoved;
 @dynamic createdTeams;
+@dynamic extendedMetadata;
 
 - (NSSet *)keysTrackedForLocalModifications
 {

@@ -69,6 +69,9 @@ public protocol UserType: NSObjectProtocol {
     var previewImageData: Data? { get }
     var completeImageData: Data? { get }
     
+    /// The extended metadata for this user, provided by SCIM.
+    var extendedMetadata: [[String: String]]? { get }
+    
     func requestPreviewProfileImage()
     func requestCompleteProfileImage()
     
@@ -91,4 +94,3 @@ public protocol UserType: NSObjectProtocol {
     var managedByWire: Bool { get }
     
 }
-
