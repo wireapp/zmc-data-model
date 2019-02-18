@@ -87,5 +87,8 @@ public protocol UserType: NSObjectProtocol {
     /// You should stop from observing the searchUser and start observing the user from there on
     func connect(message: String)
     
+    /// Determines whether the user profile is managed by Wire or other services (SCIM)
+    var managedByWire: Bool { get }
+    
 }
 
