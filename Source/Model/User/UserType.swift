@@ -44,7 +44,7 @@ public protocol UserType: NSObjectProtocol {
     var isSelfUser: Bool { get }
     
     /// The availability of the user
-    var availability: Availability { get }
+    var availability: Availability { get set }
     
     /// The name of the team the user belongs to.
     var teamName: String? { get }
