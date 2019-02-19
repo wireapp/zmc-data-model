@@ -241,6 +241,10 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         }
     }
     
+    public var expiresAfter: TimeInterval {
+        return user?.expiresAfter ?? 0
+    }
+    
     public var connectionRequestMessage: String? {
         get {
             if let user = user {

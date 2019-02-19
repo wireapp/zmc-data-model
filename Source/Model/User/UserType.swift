@@ -60,6 +60,9 @@ public protocol UserType: NSObjectProtocol {
     
     var accentColorValue: ZMAccentColor { get }
     
+    /// The time remaining before the user expires.
+    var expiresAfter: TimeInterval { get }
+    
     /// Message text if there's a pending connection request
     var connectionRequestMessage: String? { get }
     
