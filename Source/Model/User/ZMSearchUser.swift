@@ -178,10 +178,18 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         }
     }
     
+    public var availability: Availability {
+        return user?.availability ?? .none
+    }
+    
     public var isSelfUser: Bool {
         guard let user = user else { return false }
         
         return user.isSelfUser
+    }
+    
+    public var teamName: String? {
+        return user?.teamName
     }
     
     public var isTeamMember: Bool {

@@ -40,6 +40,10 @@ extension ZMUser: UserType {
         return selfUserTeamID == otherUserTeamID
     }
     
+    public var teamName: String? {
+        return team?.name
+    }
+    
     public var previewImageData: Data? {
         return imageSmallProfileData
     }
