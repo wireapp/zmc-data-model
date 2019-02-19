@@ -271,6 +271,10 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         return user?.extendedMetadata
     }
     
+    public func canAccessCompanyInformation(of otherUser: UserType) -> Bool {
+        return user?.canAccessCompanyInformation(of: otherUser) ?? false
+    }
+    
     public override func isEqual(_ object: Any?) -> Bool {
         guard let otherSearchUser = object as? ZMSearchUser else { return false }
         

@@ -28,6 +28,18 @@ extension ZMUser: UserType {
         return _isGuest(in: conversation)
     }
     
+    public func canAccessCompanyInformation(of user: UserType) -> Bool {
+        guard
+            let otherUser = user as? ZMUser,
+            let otherUserTeamID = otherUser.team?.remoteIdentifier,
+            let selfUserTeamID = self.team?.remoteIdentifier
+        else {
+            return false
+        }
+        
+        return selfUserTeamID == otherUserTeamID
+    }
+    
     public var previewImageData: Data? {
         return imageSmallProfileData
     }

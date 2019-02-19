@@ -92,5 +92,8 @@ public protocol UserType: NSObjectProtocol {
     
     /// Determines whether the user profile is managed by Wire or other services (SCIM)
     var managedByWire: Bool { get }
+
+    /// Whether the user can access the private company information of the other given user.
+    func canAccessCompanyInformation(of user: UserType) -> Bool
     
 }
