@@ -209,6 +209,10 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         return providerIdentifier != nil
     }
     
+    public var readReceiptsEnabled: Bool {
+        return user?.readReceiptsEnabled ?? false
+    }
+    
     public var managedByWire: Bool {
         return user?.managedByWire ?? false
     }

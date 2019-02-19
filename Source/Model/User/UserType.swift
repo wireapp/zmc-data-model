@@ -78,6 +78,9 @@ public protocol UserType: NSObjectProtocol {
     var previewImageData: Data? { get }
     var completeImageData: Data? { get }
     
+    /// Whether read receipts are enabled for this user.
+    var readReceiptsEnabled: Bool { get }
+    
     /// The extended metadata for this user, provided by SCIM.
     var extendedMetadata: [[String: String]]? { get }
     
