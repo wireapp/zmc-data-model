@@ -179,7 +179,8 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
     }
     
     public var availability: Availability {
-        return user?.availability ?? .none
+        get { return user?.availability ?? .none }
+        set { user?.availability = newValue }
     }
     
     public var isSelfUser: Bool {
