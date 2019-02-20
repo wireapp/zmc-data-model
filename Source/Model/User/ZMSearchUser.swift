@@ -253,6 +253,10 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
             }
         }
     }
+
+    public var isWirelessUser: Bool {
+        return user?.isWirelessUser ?? false
+    }
     
     public var expiresAfter: TimeInterval {
         return user?.expiresAfter ?? 0

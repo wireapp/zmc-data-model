@@ -65,6 +65,9 @@ public protocol UserType: NSObjectProtocol {
     var isAccountDeleted: Bool { get }
     
     var accentColorValue: ZMAccentColor { get }
+
+    /// Whether the user is a wireless user.
+    var isWirelessUser: Bool { get }
     
     /// The time remaining before the user expires.
     var expiresAfter: TimeInterval { get }
