@@ -54,13 +54,13 @@ static NSString* ZMLogTag ZM_UNUSED = @"NSManagedObjectContext";
 // the persistent store coordinator.
 //
 
+static BackgroundActivity *delayedSaveActivity = nil;
 
 @interface NSManagedObjectContext (CleanUp)
 
 - (void)refreshUnneededObjects;
 
 @end
-
 
 
 @implementation NSManagedObjectContext (zmessaging)
@@ -346,6 +346,15 @@ static NSString* ZMLogTag ZM_UNUSED = @"NSManagedObjectContext";
         return;
     }
     
+    if (self.pendingSaveCounter == 0) {
+        delayedSaveActivity = [[BackgroundActivityFactory sharedFactory] startBackgroundActivityWithName:@"Delayed save"];
+        // Not being able to create activity means we are being shut down, let's save immediately
+        if (delayedSaveActivity == nil) {
+            [self saveOrRollback];
+            return;
+        }
+    }
+    
     // Delay function (not to scale):
     //       ^
     //       │
@@ -430,9 +439,11 @@ static NSString* ZMLogTag ZM_UNUSED = @"NSManagedObjectContext";
     [secondaryGroup notifyOnQueue:dispatch_get_global_queue(0, 0) block:^{
         [self performGroupedBlock:^{
             NSInteger const c2 = --self.pendingSaveCounter;
+            BOOL didSave = NO;
             if (c2 == 0) {
                 ZMLogDebug(@"Calling -saveOrRollback (%d)", myCount);
                 [self saveOrRollback];
+                didSave = YES;
             } else {
                 ZMLogDebug(@"Not calling -saveOrRollback (%d)", myCount);
             }
@@ -440,6 +451,10 @@ static NSString* ZMLogTag ZM_UNUSED = @"NSManagedObjectContext";
                 [group leave];
             }
             [self leaveAllGroups:otherGroups];
+            if (delayedSaveActivity) {
+                [[BackgroundActivityFactory sharedFactory] endBackgroundActivity:delayedSaveActivity];
+                delayedSaveActivity = nil;
+            }
         }];
     }];
 }
