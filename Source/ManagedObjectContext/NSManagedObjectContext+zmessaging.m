@@ -333,6 +333,20 @@ static BackgroundActivity *delayedSaveActivity = nil;
     }
     return NO;
 }
+    
+- (BOOL)startActivity
+{
+    delayedSaveActivity = [[BackgroundActivityFactory sharedFactory] startBackgroundActivityWithName:@"Delayed save"];
+    return delayedSaveActivity != nil;
+}
+    
+- (void)stopActivity
+{
+    if (delayedSaveActivity != nil) {
+        [[BackgroundActivityFactory sharedFactory] endBackgroundActivity:delayedSaveActivity];
+        delayedSaveActivity = nil;
+    }
+}
 
 - (void)enqueueDelayedSaveWithGroup:(ZMSDispatchGroup *)group;
 {
@@ -343,16 +357,12 @@ static BackgroundActivity *delayedSaveActivity = nil;
     if ([self saveIfTooManyChanges] ||
         [self saveIfDelayIsTooLong])
     {
+        [self stopActivity];
         return;
     }
     
     if (self.pendingSaveCounter == 0) {
-        delayedSaveActivity = [[BackgroundActivityFactory sharedFactory] startBackgroundActivityWithName:@"Delayed save"];
-        // Not being able to create activity means we are being shut down, let's save immediately
-        if (delayedSaveActivity == nil) {
-            [self saveOrRollback];
-            return;
-        }
+        [self startActivity];
     }
     
     // Delay function (not to scale):
@@ -451,9 +461,8 @@ static BackgroundActivity *delayedSaveActivity = nil;
                 [group leave];
             }
             [self leaveAllGroups:otherGroups];
-            if (didSave && delayedSaveActivity != nil) {
-                [[BackgroundActivityFactory sharedFactory] endBackgroundActivity:delayedSaveActivity];
-                delayedSaveActivity = nil;
+            if (didSave) {
+                [self stopActivity];
             }
         }];
     }];
