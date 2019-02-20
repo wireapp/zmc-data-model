@@ -451,7 +451,7 @@ static BackgroundActivity *delayedSaveActivity = nil;
                 [group leave];
             }
             [self leaveAllGroups:otherGroups];
-            if (delayedSaveActivity) {
+            if (didSave && delayedSaveActivity != nil) {
                 [[BackgroundActivityFactory sharedFactory] endBackgroundActivity:delayedSaveActivity];
                 delayedSaveActivity = nil;
             }
