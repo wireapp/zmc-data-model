@@ -60,6 +60,21 @@ public protocol UserType: NSObjectProtocol {
     
     /// Is YES if we can send a connection request to this user.
     var isConnected: Bool { get }
+
+    /// Whether the user is blocked.
+    var isBlocked: Bool { get }
+
+    /// Whether the user is expired.
+    var isExpired: Bool { get }
+
+    /// Whether the user is pending connection approval from the self user.
+    var isPendingApprovalBySelfUser: Bool { get }
+
+    /// Whether the user is pending connection approval from another user.
+    var isPendingApprovalByOtherUser: Bool { get }
+
+    /// Whether the user can be connected by the self user.
+    var canBeConnected: Bool { get }
     
     /// Wheater the account of the user is deleted
     var isAccountDeleted: Bool { get }
@@ -108,7 +123,18 @@ public protocol UserType: NSObjectProtocol {
     /// Determines whether the user profile is managed by Wire or other services (SCIM)
     var managedByWire: Bool { get }
 
+    /// Whether the user can create conversations.
+    var canCreateConversation: Bool { get }
+
     /// Whether the user can access the private company information of the other given user.
     func canAccessCompanyInformation(of user: UserType) -> Bool
-    
+
+    /// Whether the user can add another user to the conversation.
+    @objc(canAddUserToConversation:)
+    func canAddUser(to conversation: ZMConversation) -> Bool
+
+    /// Whether the user can remove another user from the conversation.
+    @objc(canRemoveUserFromConversation:)
+    func canRemoveUser(from conversation: ZMConversation) -> Bool
+
 }

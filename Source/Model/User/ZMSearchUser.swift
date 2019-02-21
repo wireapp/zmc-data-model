@@ -237,6 +237,18 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
             internalIsConnected = newValue
         }
     }
+
+    public var isBlocked: Bool {
+        return user?.isBlocked == true
+    }
+
+    public var isExpired: Bool {
+        return user?.isExpired == true
+    }
+
+    public var isPendingApprovalBySelfUser: Bool {
+        return user?.isPendingApprovalBySelfUser == true
+    }
     
     public var isAccountDeleted: Bool {
         guard let user = user else { return false }
@@ -294,6 +306,18 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
     
     public func canAccessCompanyInformation(of otherUser: UserType) -> Bool {
         return user?.canAccessCompanyInformation(of: otherUser) ?? false
+    }
+
+    public var canCreateConversation: Bool {
+        return user?.canCreateConversation ?? false
+    }
+
+    public func canAddUser(to conversation: ZMConversation) -> Bool {
+        return user?.canAddUser(to: conversation) == true
+    }
+
+    public func canRemoveUser(from conversation: ZMConversation) -> Bool {
+        return user?.canRemoveUser(from: conversation) == true
     }
     
     public override func isEqual(_ object: Any?) -> Bool {
