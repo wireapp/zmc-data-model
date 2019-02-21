@@ -160,21 +160,7 @@ extension ZMAssetClientMessage {
         
         let eventData = ((updateEvent.payload["data"]) as? [String: Any]) ?? [:]
         
-        if let imageAssetData = message.imageAssetData {
-            if imageAssetData.tag == "medium", let uuid = eventData["id"] as? String {
-                self.assetId = UUID(uuidString: uuid)
-            }
-            
-            if let inlinedDataString = eventData["data"] as? String,
-                let inlinedData = Data(base64Encoded: inlinedDataString)
-            {
-                _ = self.updateMessage(imageData: inlinedData, for: .preview)
-                return
-            }
-        }
-        
-        if let assetData = message.assetData, assetData.hasUploaded()
-        {
+        if let assetData = message.assetData, assetData.hasUploaded() {
             if assetData.uploaded.hasAssetId() { // V3, we directly access the protobuf for the assetId
                 self.version = 3
                 self.updateTransferState(.uploaded, synchronize: false)

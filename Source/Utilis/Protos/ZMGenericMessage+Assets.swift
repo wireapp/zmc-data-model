@@ -118,8 +118,12 @@ import Foundation
         let builder = ZMAssetPreview.builder()!
         builder.setSize(size)
         builder.setMimeType(mimeType)
-        builder.setRemote(remoteData)
         builder.setImage(imageMetadata)
+        
+        if let remoteData = remoteData {
+            builder.setRemote(remoteData)
+        }
+        
         return builder.build()
     }
     

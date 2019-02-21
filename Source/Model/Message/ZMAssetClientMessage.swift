@@ -153,7 +153,7 @@ import Foundation
                 hasEncryptionKeys = true
             }
         } else if self.imageMessageData != nil {
-            if let imageAsset = self.genericMessage(for: .medium)?.imageAssetData, imageAsset.hasOtrKey() {
+            if let imageAsset = mediumGenericMessage?.imageAssetData, imageAsset.hasOtrKey() {
                 hasEncryptionKeys = true
             }
         }
@@ -164,12 +164,6 @@ import Foundation
     /// The asset endpoint version used to generate this message
     /// values lower than 3 represent an enpoint version of 2
     @NSManaged public var version: Int16
-
-    // The image metaData if if this `ZMAssetClientMessage` represents an image
-    // or `nil` otherwise
-    public var imageAssetStorage: ImageAssetStorage {
-        return self
-    }
     
     /// Used to associate and persist the task identifier of the `NSURLSessionTask`
     /// with the upload or download of the file data. Can be used to verify that the
@@ -308,7 +302,6 @@ extension ZMAssetClientMessage {
 @objc public enum AssetProcessingState: Int16 {
     case done = 0
     case preprocessing
-    case encrypting // TODO jacob remove this step?
     case uploading
 }
 
@@ -420,17 +413,6 @@ struct CacheAsset: Asset {
         owner.add(updatedGenericMessage)
     }
     
-    func skipPreprocessing() {
-        guard let data = original else { return }
-        
-        switch type {
-        case .file:
-            break
-        case .thumbnail, .image:
-            cache.storeAssetData(owner, format: .medium, encrypted: false, data: data)
-        }
-    }
-    
     func encrypt() {
         guard let genericMessage = owner.genericMessage else { return }
         
@@ -480,12 +462,8 @@ extension ZMAssetClientMessage: AssetMessage {
     public var processingState: AssetProcessingState {
         let assets = self.assets
         
-        if assets.filter({$0.needsPreprocessing && !$0.hasPreprocessed}).count > 0 {
+        if assets.filter({$0.needsPreprocessing && !$0.hasPreprocessed || !$0.hasEncrypted}).count > 0 {
             return .preprocessing
-        }
-        
-        if assets.filter({!$0.hasEncrypted}).count > 0 {
-            return .encrypting
         }
         
         if assets.filter({!$0.isUploaded}).count > 0 {
@@ -522,7 +500,6 @@ public protocol Asset {
     func updateWithAssetId(_ assetId: String, token: String?)
     func updateWithPreprocessedData(_ preprocessedImageData: Data, imageProperties: ZMIImageProperties)
     func encrypt()
-    func skipPreprocessing()
     
 }
 

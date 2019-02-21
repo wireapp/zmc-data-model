@@ -46,10 +46,7 @@ private let zmLog = ZMSLog(tag: "AssetV3")
     
     @objc(fetchImageDataWithQueue:completionHandler:)
     func fetchImageData(with queue: DispatchQueue!, completionHandler: ((Data?) -> Void)!)
-
-    // Image preprocessing
-    var requiredImageFormats: NSOrderedSet { get }
-    func processAddedImage(format: ZMImageFormat, properties: ZMIImageProperties, keys: ZMImageAssetEncryptionKeys)
+    
 }
 
 
@@ -71,7 +68,6 @@ private let zmLog = ZMSLog(tag: "AssetV3")
     }
     
     fileprivate let assetClientMessage: ZMAssetClientMessage
-    private let assetStorage: ImageAssetStorage
     fileprivate let moc: NSManagedObjectContext
 
     fileprivate var isImage: Bool {
@@ -81,7 +77,6 @@ private let zmLog = ZMSLog(tag: "AssetV3")
     public init?(with message: ZMAssetClientMessage) {
         guard message.version == 3 else { return nil }
         assetClientMessage = message
-        assetStorage = message.imageAssetStorage
         moc = message.managedObjectContext!
     }
 
@@ -181,21 +176,6 @@ extension V3Asset: AssetProxyType {
         } else {
             return zmLog.info("Called \(#function) on a v3 asset that doesn't represent an image or has a preview")
         }
-    }
-
-    public var requiredImageFormats: NSOrderedSet {
-        return NSOrderedSet(object: ZMImageFormat.medium.rawValue)
-    }
-
-    public func processAddedImage(format: ZMImageFormat, properties: ZMIImageProperties, keys: ZMImageAssetEncryptionKeys) {
-        guard format == .medium, let sha256 = keys.sha256 else { return zmLog.error("Tried to process non-medium v3 image for \(assetClientMessage)") }
-        guard let nonce = assetClientMessage.nonce else { return zmLog.error("Tried to process image message without nonce: \(assetClientMessage)") }
-        
-        let original = ZMAsset.asset(originalWithImageSize: properties.size, mimeType: properties.mimeType, size: UInt64(properties.length))
-        let uploaded = ZMAsset.asset(withUploadedOTRKey: keys.otrKey, sha256: sha256)
-        
-        assetClientMessage.add(ZMGenericMessage.message(content: original, nonce: nonce, expiresAfter: assetClientMessage.deletionTimeout))
-        assetClientMessage.add(ZMGenericMessage.message(content: uploaded, nonce: nonce, expiresAfter: assetClientMessage.deletionTimeout))
     }
     
 }
