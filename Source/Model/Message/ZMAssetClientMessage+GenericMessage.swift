@@ -62,13 +62,6 @@ extension ZMAssetClientMessage {
     
     public func add(_ genericMessage: ZMGenericMessage) {
         _ = self.mergeWithExistingData(data: genericMessage.data())
-        
-        if (self.mediumGenericMessage?.imageAssetData?.otrKey.count ?? 0) > 0
-            && (self.previewGenericMessage?.imageAssetData?.width ?? 0) > 0
-            && self.deliveryState == .pending
-        {
-            self.uploadState = .uploadingPlaceholder
-        }
     }
     
     func mergeWithExistingData(data: Data) -> ZMGenericMessageData? {
@@ -184,20 +177,19 @@ extension ZMAssetClientMessage {
         {
             if assetData.uploaded.hasAssetId() { // V3, we directly access the protobuf for the assetId
                 self.version = 3
-                self.transferState = .uploaded
+                self.updateTransferState(.uploaded, synchronize: false)
             } else if let assetId = (eventData["id"] as? String).flatMap({ UUID(uuidString: $0) })  { // V2
                 self.assetId = assetId
-                self.transferState = .uploaded
+                self.updateTransferState(.uploaded, synchronize: false)
             }
         }
         
         if let assetData = message.assetData, assetData.hasNotUploaded(), self.transferState != .uploaded {
             switch assetData.notUploaded {
             case .CANCELLED:
-                self.transferState = .cancelledUpload
                 self.managedObjectContext?.delete(self)
             case .FAILED:
-                self.transferState = .failedUpload
+                self.updateTransferState(.uploadingFailed, synchronize: false)
             }
         }
         

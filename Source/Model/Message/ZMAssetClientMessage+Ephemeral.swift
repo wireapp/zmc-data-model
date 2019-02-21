@@ -61,7 +61,7 @@ extension ZMAssetClientMessage {
         let isSelfUser = self.sender?.isSelfUser ?? false
         
         if !isSelfUser {
-            if self.imageMessageData != nil && !self.hasDownloadedImage {
+            if self.imageMessageData != nil && !self.hasDownloadedFile {
                 return false
             } else if self.fileMessageData != nil {
                 if !(self.genericAssetMessage?.assetData?.hasUploaded() ?? false)
@@ -71,15 +71,6 @@ extension ZMAssetClientMessage {
             }
         }
         
-        // This method is called after receiving the response but before updating the
-        // uploadState, which means a state of fullAsset corresponds to the asset upload being done.
-        if isSelfUser,
-            let moc = self.managedObjectContext,
-            let selfClient = ZMUser.selfUser(in: moc).selfClient(),
-            self.senderClientID == selfClient.remoteIdentifier,
-            self.uploadState != .uploadingFullAsset {
-            return false
-        }
         return super.startDestructionIfNeeded()
     }
     

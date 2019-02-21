@@ -85,7 +85,7 @@ extension String {
     }
 
     public var previewData: Data? {
-        if nil != assetClientMessage.fileMessageData, assetClientMessage.hasDownloadedImage {
+        if assetClientMessage.hasDownloadedPreview {
             // File preview data
             return imageData(for: .original) ?? imageData(for: .medium)
         }
@@ -128,14 +128,17 @@ extension String {
 
 extension V2Asset: AssetProxyType {
 
-    public var hasDownloadedImage: Bool {
-        guard assetClientMessage.imageMessageData != nil || assetClientMessage.fileMessageData != nil else { return false }
+    public var hasDownloadedPreview: Bool {
+        guard assetClientMessage.fileMessageData != nil else { return false }
         return hasImageData(for: .medium) || hasImageData(for: .original)
     }
 
     public var hasDownloadedFile: Bool {
-        guard assetClientMessage.fileMessageData != nil else { return false }
-        return moc.zm_fileAssetCache.hasDataOnDisk(assetClientMessage, encrypted: false)
+        if assetClientMessage.imageMessageData != nil {
+            return hasImageData(for: .medium) || hasImageData(for: .original)
+        } else {
+            return moc.zm_fileAssetCache.hasDataOnDisk(assetClientMessage, encrypted: false)
+        }
     }
 
     public var fileURL: URL? {
@@ -156,12 +159,15 @@ extension V2Asset: AssetProxyType {
 
     public func requestFileDownload() {
         guard assetClientMessage.fileMessageData != nil else { return }
-        assetClientMessage.transferState = hasDownloadedFile ? .downloaded : .downloading
+        guard !assetClientMessage.objectID.isTemporaryID, let moc = self.moc.zm_userInterface else { return }
+        NotificationInContext(name: ZMAssetClientMessage.assetDownloadNotificationName, context: moc.notificationContext, object: assetClientMessage.objectID).post()
     }
 
-    public func requestImageDownload() {
+    public func requestPreviewDownload() {
         guard !assetClientMessage.objectID.isTemporaryID, let moc = self.moc.zm_userInterface else { return }
-        NotificationInContext(name: ZMAssetClientMessage.imageDownloadNotificationName, context: moc.notificationContext, object: assetClientMessage.objectID).post()
+        if assetClientMessage.genericAssetMessage?.assetData?.hasPreview() == true {
+            NotificationInContext(name: ZMAssetClientMessage.imageDownloadNotificationName, context: moc.notificationContext, object: assetClientMessage.objectID).post()
+        }
     }
 
     public var requiredImageFormats: NSOrderedSet {

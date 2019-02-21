@@ -41,7 +41,6 @@ import Foundation
         
         add(message)
         preprocessedSize = ZMImagePreprocessor.sizeOfPrerotatedImage(with: imageData)
-        uploadState = .uploadingFullAsset
         transferState = .uploading
         version = 3
     }
@@ -57,8 +56,6 @@ import Foundation
         self.init(nonce: nonce, managedObjectContext: managedObjectContext)
         
         transferState = .uploading
-        uploadState = .uploadingPlaceholder
-        delivered = false
         version = 3
         
         add(ZMGenericMessage.message(content: metadata.asset, nonce: nonce, expiresAfter: timeout))
@@ -109,36 +106,40 @@ import Foundation
         return originalSize
     }
     
-    /// Currend download / upload progress
+    /// Current download / upload progress
     @NSManaged public var progress: Float
     
-    /// File transfer state
-    @NSManaged public var transferState: ZMFileTransferState
-
-    /// Upload state
-    @objc public var uploadState: AssetUploadState {
-        get {
-            let key = #keyPath(ZMAssetClientMessage.uploadState)
-            self.willAccessValue(forKey: key)
-            let value = (self.primitiveValue(forKey: key) as? Int16) ?? 0
-            self.didAccessValue(forKey: key)
-            return AssetUploadState(rawValue: value) ?? .done
-        }
-        set {
-            let key = #keyPath(ZMAssetClientMessage.uploadState)
-            self.willChangeValue(forKey: key)
-            self.setPrimitiveValue(newValue.rawValue, forKey: key)
-            self.didChangeValue(forKey: key)
-            self.setLocallyModifiedKeys(Set([key]))
+    /// True if we are current in the process of downloading the asset
+    @NSManaged public var isDownloading: Bool
+    
+    /// State of the file transfer from the uploader's perspective
+    @NSManaged public private(set) var transferState: AssetTransferState
+    
+    public func updateTransferState(_ transferState: AssetTransferState, synchronize: Bool) {
+        self.transferState = transferState
+        
+        if synchronize {
+            setLocallyModifiedKeys([#keyPath(ZMAssetClientMessage.transferState)])
         }
     }
     
-    /// Whether the image was downloaded
-    @objc public var hasDownloadedImage: Bool {
-        return self.asset?.hasDownloadedImage ?? false
+    /// Download state
+    public var downloadState: AssetDownloadState {
+        if hasDownloadedFile {
+            return .downloaded
+        } else if isDownloading {
+            return .downloading
+        } else {
+            return .unavailable
+        }
     }
     
-    /// Whether the file was downloaded
+    /// Whether the image preview has been downloaded
+    @objc public var hasDownloadedPreview: Bool {
+        return self.asset?.hasDownloadedPreview ?? false
+    }
+    
+    /// Whether the file has been downloaded
     @objc public var hasDownloadedFile: Bool {
         return self.asset?.hasDownloadedFile ?? false
     }
@@ -209,81 +210,25 @@ import Foundation
     public override func expire() {
         super.expire()
         
-        guard !self.delivered && self.transferState == .uploading else { return }
-
-        self.transferState = .failedUpload
-        
-        // When we expire an asset message because the conversation degraded we do not want to send
-        // a `NOT UPLOADED` message. In all other cases we do want to sent a `NOT UPLOADED` message
-        // to let the receivers know we stopped uploading, except for images for which we don't send
-        // placeholders.
-        if isImage {
-            self.uploadState = .uploadingFailed
-        } else if self.uploadState == .uploadingPlaceholder {
-            self.uploadState = .done
-        } else {
-            self.didFailToUploadFileData()
-        }
-
-    }
-    
-    public override func markAsSent() {
-        super.markAsSent()
-        setObfuscationTimerIfNeeded()
-    }
-    
-    func setObfuscationTimerIfNeeded() {
-        guard self.isEphemeral else {
-            return
-        }
-        
-        startDestructionIfNeeded()
+        updateTransferState(.uploadingFailed, synchronize: false)
     }
     
     public override func resend() {
-        if self.v3_isImage {
-            self.uploadState = .uploadingFullAsset
-        } else {
-            self.uploadState = .uploadingPlaceholder
-        }
-        
         self.transferState = .uploading
         self.progress = 0
-        self.removeNotUploaded()
-        
+
         super.resend()
     }
     
-    private func removeNotUploaded() {
-        for data in self.dataSet.array.map({ $0 as! ZMGenericMessageData }) {
-            if let assetData = data.genericMessage?.assetData,
-                assetData.hasNotUploaded() {
-                data.asset = nil
-                self.managedObjectContext?.delete(data)
-                self.cachedGenericAssetMessage = nil
-                return
-            }
-        }
-    }
-        
     public override func update(withPostPayload payload: [AnyHashable : Any], updatedKeys: Set<AnyHashable>?) {
-        guard let updatedKeys = updatedKeys,
-            updatedKeys.contains(#keyPath(ZMAssetClientMessage.uploadState))
-        else { return }
-        
-        let shouldUpdate = self.uploadState == .uploadingPlaceholder
-            || (self.uploadState == .uploadingFullAsset && self.v3_isImage)
-        
-        
-        if shouldUpdate {
-            if let serverTimestamp = (payload as NSDictionary).date(forKey: "time") {
-                self.serverTimestamp = serverTimestamp
-                self.expectsReadConfirmation = self.conversation?.hasReadReceiptsEnabled ?? false
-            }
-            conversation?.updateTimestampsAfterUpdatingMessage(self)
+        if let serverTimestamp = (payload as NSDictionary).date(forKey: "time") {
+            self.serverTimestamp = serverTimestamp
+            self.expectsReadConfirmation = self.conversation?.hasReadReceiptsEnabled ?? false
         }
+        conversation?.updateTimestampsAfterUpdatingMessage(self)
         
-        _ = self.startDestructionIfNeeded()
+        // NOTE: Calling super since this is method overriden to handle special cases when receiving an asset
+        super.startDestructionIfNeeded()
     }
     
     // Private implementation
@@ -325,10 +270,10 @@ extension ZMAssetClientMessage {
             .union([
                 #keyPath(ZMAssetClientMessage.assetID_data),
                 #keyPath(ZMAssetClientMessage.preprocessedSize_data),
-                #keyPath(ZMAssetClientMessage.hasDownloadedImage),
+                #keyPath(ZMAssetClientMessage.hasDownloadedPreview),
                 #keyPath(ZMAssetClientMessage.hasDownloadedFile),
                 #keyPath(ZMAssetClientMessage.dataSet),
-                #keyPath(ZMAssetClientMessage.transferState),
+                #keyPath(ZMAssetClientMessage.downloadState),
                 #keyPath(ZMAssetClientMessage.progress),
                 #keyPath(ZMAssetClientMessage.associatedTaskIdentifier_data),
                 #keyPath(ZMAssetClientMessage.version)
@@ -347,12 +292,237 @@ extension ZMAssetClientMessage {
     case thumbnail = 3
 }
 
-@objc public enum AssetUploadState: Int16 {
-    case done = 0
-    case uploadingPlaceholder = 1
-    case uploadingThumbnail = 2
-    case uploadingFullAsset = 3
-    case uploadingFailed = 4
+@objc public enum AssetDownloadState: Int16 {
+    case unavailable = 0
+    case downloaded
+    case downloading
 }
 
+@objc public enum AssetTransferState: Int16 {
+    case uploading = 0
+    case uploaded
+    case uploadingFailed
+    case uploadingCancelled
+}
+
+@objc public enum AssetProcessingState: Int16 {
+    case done = 0
+    case preprocessing
+    case encrypting // TODO jacob remove this step?
+    case uploading
+}
+
+struct CacheAsset: Asset {
+    
+    enum AssetType {
+        case image, file, thumbnail
+    }
+    
+    var owner: ZMAssetClientMessage
+    var type: AssetType
+    var cache: FileAssetCache
+    
+    var needsPreprocessing: Bool {
+        switch type {
+        case .file:
+            return false
+        case .image, .thumbnail:
+            return true
+        }
+    }
+    
+    var hasOriginal: Bool {
+        if case .file = type  {
+            return cache.hasDataOnDisk(owner, encrypted: false)
+        } else {
+            return cache.hasDataOnDisk(owner, format: .original, encrypted: false)
+        }
+    }
+    
+    var original: Data? {
+        if case .file = type  {
+            return cache.assetData(owner, encrypted: false)
+        } else {
+            return cache.assetData(owner, format: .original, encrypted: false)
+        }
+    }
+    
+    var hasPreprocessed: Bool {
+        guard needsPreprocessing else { return false }
+        
+        return cache.hasDataOnDisk(owner, format: .medium, encrypted: false)
+    }
+    
+    var preprocessed: Data? {
+        guard needsPreprocessing else { return nil }
+        
+        return cache.assetData(owner, format: .medium, encrypted: false)
+    }
+    
+    var hasEncrypted: Bool {
+        if needsPreprocessing {
+            return cache.hasDataOnDisk(owner, format: .medium, encrypted: true)
+        } else {
+            return cache.hasDataOnDisk(owner, encrypted: true)
+        }
+    }
+    
+    var encrypted: Data? {
+        if needsPreprocessing {
+            return cache.assetData(owner, format: .medium, encrypted: true)
+        } else {
+            return cache.assetData(owner, encrypted: true)
+        }
+    }
+    
+    var isUploaded: Bool {
+        guard let genericMessage = owner.genericMessage else { return false }
+        
+        switch type {
+        case .thumbnail:
+            return genericMessage.asset.preview.remote.hasAssetId()
+        case .file, .image:
+            return genericMessage.asset.uploaded.hasAssetId()
+        }
+        
+    }
+    
+    func updateWithAssetId(_ assetId: String, token: String?) {
+        guard let genericMessage = owner.genericMessage else { return }
+        
+        var updatedGenericMessage: ZMGenericMessage
+        switch type {
+        case .thumbnail:
+            updatedGenericMessage = genericMessage.updatedPreview(withAssetId: assetId, token: token)!
+        case .image, .file:
+            updatedGenericMessage = genericMessage.updatedUploaded(withAssetId: assetId, token: token)!
+        }
+        
+        owner.add(updatedGenericMessage)
+    }
+    
+    func updateWithPreprocessedData(_ preprocessedImageData: Data, imageProperties: ZMIImageProperties) {
+        guard needsPreprocessing else { return }
+        guard let genericMessage = owner.genericMessage else { return }
+        
+        cache.storeAssetData(owner, format: .medium, encrypted: false, data: preprocessedImageData)
+        
+        var updatedGenericMessage: ZMGenericMessage
+        switch (type) {
+        case .file:
+            return
+        case .image:
+            updatedGenericMessage = genericMessage.updatedAssetOriginal(withImageProperties: imageProperties)!
+        case .thumbnail:
+            updatedGenericMessage = genericMessage.updatedAssetPreview(withImageProperties: imageProperties)!
+        }
+        
+        owner.add(updatedGenericMessage)
+    }
+    
+    func skipPreprocessing() {
+        guard let data = original else { return }
+        
+        switch type {
+        case .file:
+            break
+        case .thumbnail, .image:
+            cache.storeAssetData(owner, format: .medium, encrypted: false, data: data)
+        }
+    }
+    
+    func encrypt() {
+        guard let genericMessage = owner.genericMessage else { return }
+        
+        var updatedGenericMessage: ZMGenericMessage
+        switch type {
+        case .file:
+            let keys = cache.encryptFileAndComputeSHA256Digest(owner)!
+            updatedGenericMessage = genericMessage.updatedAsset(withUploadedOTRKey: keys.otrKey, sha256: keys.sha256!)!
+        case .image:
+            let keys = cache.encryptImageAndComputeSHA256Digest(owner, format: .medium)!
+            updatedGenericMessage = genericMessage.updatedAsset(withUploadedOTRKey: keys.otrKey, sha256: keys.sha256!)!
+        case .thumbnail:
+            let keys = cache.encryptImageAndComputeSHA256Digest(owner, format: .medium)!
+            updatedGenericMessage = genericMessage.updatedAssetPreview(withUploadedOTRKey: keys.otrKey, sha256: keys.sha256!)!
+        }
+        
+        owner.add(updatedGenericMessage)
+    }
+    
+}
+
+
+extension ZMAssetClientMessage: AssetMessage {
+    
+    public var assets: [Asset] {
+        guard let cache = managedObjectContext?.zm_fileAssetCache else { return [] }
+        
+        var assets: [Asset] = []
+        
+        if isFile {
+            if cache.hasDataOnDisk(self, encrypted: false) {
+                assets.append(CacheAsset(owner: self, type: .file, cache: cache))
+            }
+            
+            if cache.hasDataOnDisk(self, format: .original, encrypted: false) {
+                assets.append(CacheAsset(owner: self, type: .thumbnail, cache: cache))
+            }
+        } else {
+            if cache.hasDataOnDisk(self, format: .original, encrypted: false) {
+                assets.append(CacheAsset(owner: self, type: .image, cache: cache))
+            }
+        }
+        
+        return assets
+    }
+    
+    public var processingState: AssetProcessingState {
+        let assets = self.assets
+        
+        if assets.filter({$0.needsPreprocessing && !$0.hasPreprocessed}).count > 0 {
+            return .preprocessing
+        }
+        
+        if assets.filter({!$0.hasEncrypted}).count > 0 {
+            return .encrypting
+        }
+        
+        if assets.filter({!$0.isUploaded}).count > 0 {
+            return .uploading
+        }
+        
+        return .done
+    }
+    
+}
+
+
+public protocol AssetMessage {
+    
+    var assets: [Asset] { get }
+    var processingState: AssetProcessingState { get }
+        
+}
+
+public protocol Asset {
+    
+    var hasOriginal: Bool { get }
+    var original: Data?  { get }
+    
+    var needsPreprocessing: Bool { get }
+    var hasPreprocessed: Bool { get }
+    var preprocessed: Data? { get }
+    
+    var hasEncrypted: Bool { get }
+    var encrypted: Data? { get }
+    
+    var isUploaded: Bool { get }
+    
+    func updateWithAssetId(_ assetId: String, token: String?)
+    func updateWithPreprocessedData(_ preprocessedImageData: Data, imageProperties: ZMIImageProperties)
+    func encrypt()
+    func skipPreprocessing()
+    
+}
 

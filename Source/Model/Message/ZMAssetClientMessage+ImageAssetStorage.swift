@@ -88,7 +88,7 @@ extension ZMAssetClientMessage: ImageAssetStorage {
         let preview = ZMAssetPreview.preview(withSize: UInt64(imageData.count),
                                              mimeType: properties?.mimeType ?? "",
                                              remoteData: remoteData,
-                                             imageMetaData: imageMetadata)
+                                             imageMetadata: imageMetadata)
         let builder = ZMAsset.builder()!
         builder.setPreview(preview)
         let asset = builder.build()!
