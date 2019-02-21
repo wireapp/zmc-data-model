@@ -46,6 +46,7 @@ static NSString * const TimeOfLastSaveKey = @"ZMTimeOfLastSave";
 static NSString * const FirstEnqueuedSaveKey = @"ZMTimeOfLastSave";
 static NSString * const FailedToEstablishSessionStoreKey = @"FailedToEstablishSessionStoreKey";
 static NSString * const DisplayNameGeneratorKey = @"DisplayNameGeneratorKey";
+static NSString * const DelayedSaveActivityKey = @"DelayedSaveActivityKey";
 
 static NSString* ZMLogTag ZM_UNUSED = @"NSManagedObjectContext";
 //
@@ -54,14 +55,32 @@ static NSString* ZMLogTag ZM_UNUSED = @"NSManagedObjectContext";
 // the persistent store coordinator.
 //
 
-static BackgroundActivity *delayedSaveActivity = nil;
-
 @interface NSManagedObjectContext (CleanUp)
 
 - (void)refreshUnneededObjects;
 
 @end
 
+@interface NSManagedObjectContext (Background)
+
+
+@property (nonatomic, strong) BackgroundActivity *delayedSaveActivity;
+
+@end
+
+@implementation NSManagedObjectContext (Background)
+
+- (BackgroundActivity *)delayedSaveActivity
+{
+    return self.userInfo[DelayedSaveActivityKey];
+}
+
+- (void)setDelayedSaveActivity:(BackgroundActivity *)delayedSaveActivity
+{
+    self.userInfo[DelayedSaveActivityKey] = delayedSaveActivity;
+}
+
+@end
 
 @implementation NSManagedObjectContext (zmessaging)
 
@@ -336,15 +355,15 @@ static BackgroundActivity *delayedSaveActivity = nil;
     
 - (BOOL)startActivity
 {
-    delayedSaveActivity = [[BackgroundActivityFactory sharedFactory] startBackgroundActivityWithName:@"Delayed save"];
-    return delayedSaveActivity != nil;
+    self.delayedSaveActivity = [[BackgroundActivityFactory sharedFactory] startBackgroundActivityWithName:@"Delayed save"];
+    return self.delayedSaveActivity != nil;
 }
     
 - (void)stopActivity
 {
-    if (delayedSaveActivity != nil) {
-        [[BackgroundActivityFactory sharedFactory] endBackgroundActivity:delayedSaveActivity];
-        delayedSaveActivity = nil;
+    if (self.delayedSaveActivity != nil) {
+        [[BackgroundActivityFactory sharedFactory] endBackgroundActivity:self.delayedSaveActivity];
+        self.delayedSaveActivity = nil;
     }
 }
 
