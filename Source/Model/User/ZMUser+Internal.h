@@ -88,6 +88,8 @@ extern NSString * __nonnull const ReadReceiptsEnabledKey;
 - (void)setHandle:(NSString * __nullable)handle;
 @property (nonatomic) BOOL needsPropertiesUpdate;
 @property (nonatomic) BOOL readReceiptsEnabledChangedRemotely;
+@property (nonatomic) BOOL needsRichProfileUpdate;
+
 @end
 
 

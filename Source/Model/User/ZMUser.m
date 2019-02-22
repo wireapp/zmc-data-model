@@ -877,6 +877,7 @@ static NSString *const ExtendedMetadataKey = @"extendedMetadata";
 @dynamic readReceiptsEnabled;
 @dynamic needsPropertiesUpdate;
 @dynamic readReceiptsEnabledChangedRemotely;
+@dynamic needsRichProfileUpdate;
 
 - (void)setHandle:(NSString *)aHandle {
     [self willChangeValueForKey:HandleKey];
