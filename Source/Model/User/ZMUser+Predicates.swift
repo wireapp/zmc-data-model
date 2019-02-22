@@ -74,6 +74,9 @@ extension ZMUser {
         return NSPredicate(format: "(%K IN (%@))", #keyPath(ZMUser.connection.status), connectionStatuses)
     }
 
+    public static func predicateForUsersToUpdateRichProfile() -> NSPredicate {
+        return NSPredicate(format: "(%K == YES)", #keyPath(ZMUser.needsRichProfileUpdate))
+    }
 }
 
 fileprivate extension String {
