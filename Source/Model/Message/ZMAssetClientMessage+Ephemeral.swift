@@ -58,17 +58,10 @@ extension ZMAssetClientMessage {
     
     @discardableResult @objc public override func startDestructionIfNeeded() -> Bool {
         
-        let isSelfUser = self.sender?.isSelfUser ?? false
-        
-        if !isSelfUser {
-            if self.imageMessageData != nil && !self.hasDownloadedFile {
-                return false
-            } else if self.fileMessageData != nil {
-                if !(self.genericAssetMessage?.assetData?.hasUploaded() ?? false)
-                    && !(self.genericAssetMessage?.assetData?.hasNotUploaded() ?? false) {
-                    return false
-                }
-            }
+        if self.imageMessageData != nil && !self.hasDownloadedFile {
+            return false
+        } else if self.fileMessageData != nil  && self.genericAssetMessage?.assetData?.hasUploaded() == false && self.genericAssetMessage?.assetData?.hasNotUploaded() == false {
+            return false
         }
         
         return super.startDestructionIfNeeded()

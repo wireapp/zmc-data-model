@@ -113,7 +113,7 @@ import Foundation
     @NSManaged public var isDownloading: Bool
     
     /// State of the file transfer from the uploader's perspective
-    @NSManaged public private(set) var transferState: AssetTransferState
+    @NSManaged public internal(set) var transferState: AssetTransferState
     
     public func updateTransferState(_ transferState: AssetTransferState, synchronize: Bool) {
         self.transferState = transferState
@@ -207,6 +207,19 @@ import Foundation
         updateTransferState(.uploadingFailed, synchronize: false)
     }
     
+    public override func markAsSent() {
+        super.markAsSent()
+        setObfuscationTimerIfNeeded()
+    }
+    
+    func setObfuscationTimerIfNeeded() {
+        guard self.isEphemeral else {
+            return
+        }
+        
+        startDestructionIfNeeded()
+    }
+    
     public override func resend() {
         self.transferState = .uploading
         self.progress = 0
@@ -215,12 +228,13 @@ import Foundation
     }
     
     public override func update(withPostPayload payload: [AnyHashable : Any], updatedKeys: Set<AnyHashable>?) {
-        if let serverTimestamp = (payload as NSDictionary).date(forKey: "time") {
+        if let serverTimestamp = (payload as NSDictionary).optionalDate(forKey: "time") {
             self.serverTimestamp = serverTimestamp
             self.expectsReadConfirmation = self.conversation?.hasReadReceiptsEnabled ?? false
         }
-        conversation?.updateTimestampsAfterUpdatingMessage(self)
         
+        conversation?.updateTimestampsAfterUpdatingMessage(self)
+
         // NOTE: Calling super since this is method overriden to handle special cases when receiving an asset
         super.startDestructionIfNeeded()
     }
@@ -314,6 +328,12 @@ struct CacheAsset: Asset {
     var owner: ZMAssetClientMessage
     var type: AssetType
     var cache: FileAssetCache
+    
+    init(owner: ZMAssetClientMessage, type: AssetType, cache: FileAssetCache) {
+        self.owner = owner
+        self.type = type
+        self.cache = cache
+    }
     
     var needsPreprocessing: Bool {
         switch type {
@@ -416,20 +436,25 @@ struct CacheAsset: Asset {
     func encrypt() {
         guard let genericMessage = owner.genericMessage else { return }
         
-        var updatedGenericMessage: ZMGenericMessage
+        var updatedGenericMessage: ZMGenericMessage?
         switch type {
         case .file:
-            let keys = cache.encryptFileAndComputeSHA256Digest(owner)!
-            updatedGenericMessage = genericMessage.updatedAsset(withUploadedOTRKey: keys.otrKey, sha256: keys.sha256!)!
+            if let keys = cache.encryptFileAndComputeSHA256Digest(owner) {
+                updatedGenericMessage = genericMessage.updatedAsset(withUploadedOTRKey: keys.otrKey, sha256: keys.sha256!)!
+            }
         case .image:
-            let keys = cache.encryptImageAndComputeSHA256Digest(owner, format: .medium)!
-            updatedGenericMessage = genericMessage.updatedAsset(withUploadedOTRKey: keys.otrKey, sha256: keys.sha256!)!
+            if let keys = cache.encryptImageAndComputeSHA256Digest(owner, format: .medium) {
+                updatedGenericMessage = genericMessage.updatedAsset(withUploadedOTRKey: keys.otrKey, sha256: keys.sha256!)!
+            }
         case .thumbnail:
-            let keys = cache.encryptImageAndComputeSHA256Digest(owner, format: .medium)!
-            updatedGenericMessage = genericMessage.updatedAssetPreview(withUploadedOTRKey: keys.otrKey, sha256: keys.sha256!)!
+            if let keys = cache.encryptImageAndComputeSHA256Digest(owner, format: .medium) {
+                updatedGenericMessage = genericMessage.updatedAssetPreview(withUploadedOTRKey: keys.otrKey, sha256: keys.sha256!)!
+            }
         }
         
-        owner.add(updatedGenericMessage)
+        if let updatedGenericMessage = updatedGenericMessage {
+            owner.add(updatedGenericMessage)
+        }
     }
     
 }

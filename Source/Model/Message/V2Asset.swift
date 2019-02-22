@@ -56,7 +56,7 @@ extension String {
     }
 
     public var imageMessageData: ZMImageMessageData? {
-        guard assetClientMessage.mediumGenericMessage != nil else { return nil }
+        guard assetClientMessage.mediumGenericMessage != nil || assetClientMessage.previewGenericMessage != nil else { return nil }
         
         return self
     }
@@ -155,9 +155,14 @@ extension V2Asset: AssetProxyType {
     }
 
     public func requestFileDownload() {
-        guard assetClientMessage.fileMessageData != nil else { return }
+        guard assetClientMessage.fileMessageData != nil || assetClientMessage.imageMessageData != nil else { return }
         guard !assetClientMessage.objectID.isTemporaryID, let moc = self.moc.zm_userInterface else { return }
-        NotificationInContext(name: ZMAssetClientMessage.assetDownloadNotificationName, context: moc.notificationContext, object: assetClientMessage.objectID).post()
+        
+        if assetClientMessage.imageMessageData != nil {
+            NotificationInContext(name: ZMAssetClientMessage.imageDownloadNotificationName, context: moc.notificationContext, object: assetClientMessage.objectID).post()
+        } else {
+            NotificationInContext(name: ZMAssetClientMessage.assetDownloadNotificationName, context: moc.notificationContext, object: assetClientMessage.objectID).post()
+        }
     }
 
     public func requestPreviewDownload() {

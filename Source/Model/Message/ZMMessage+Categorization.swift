@@ -180,7 +180,7 @@ extension ZMMessage {
             return .none
         }
         var category = MessageCategory.file
-        if let asset = self as? ZMAssetClientMessage, asset.transferState == .uploadingFailed {
+        if let asset = self as? ZMAssetClientMessage, asset.transferState.isOne(of: [.uploadingFailed, .uploadingCancelled]) {
             category.update(with: .excludedFromCollection)
         }
         if fileData.isAudio {
