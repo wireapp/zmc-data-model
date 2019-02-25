@@ -93,6 +93,8 @@ static NSString *const TeamIdentifierKey = @"teamIdentifier";
 static NSString *const ManagedByKey = @"managedBy";
 static NSString *const ExtendedMetadataKey = @"extendedMetadata";
 
+static NSString *const RichProfileKey = @"richProfile";
+
 @interface ZMBoxedSelfUser : NSObject
 
 @property (nonatomic, weak) ZMUser *selfUser;
@@ -434,7 +436,8 @@ static NSString *const ExtendedMetadataKey = @"extendedMetadata";
                                            NeedsPropertiesUpdateKey,
                                            ReadReceiptsEnabledChangedRemotelyKey,
                                            isAccountDeletedKey,
-                                           ManagedByKey
+                                           ManagedByKey,
+                                           RichProfileKey
                                            ]];
         keys = [ignoredKeys copy];
     });

@@ -50,7 +50,6 @@ extension ZMUser {
                 self.willChangeValue(forKey: Keys.RichProfile)
                 primitiveRichProfile = try? JSONEncoder().encode(newValue)
                 self.didChangeValue(forKey: Keys.RichProfile)
-                setLocallyModifiedKeys([Keys.RichProfile])
             }
         }
     }
