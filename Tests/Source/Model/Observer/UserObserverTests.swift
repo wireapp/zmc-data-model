@@ -540,7 +540,7 @@ extension UserObserverTests {
     func testThatItNotifiesTheObserverOfRichProfileChanged() {
         // given
         let user = ZMUser.selfUser(in: uiMOC)
-        let richProfile = [ZMUser.RichProfileField(type: "type", value: "value")]
+        let richProfile = [UserRichProfileField(type: "type", value: "value")]
         
         // when
         self.checkThatItNotifiesTheObserverOfAChange(user,

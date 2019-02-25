@@ -133,7 +133,6 @@ extension NSManagedObjectContext
 
 @objc
 public class ZMSearchUser: NSObject, UserType, UserConnectionType {
-    
     public var providerIdentifier: String?
     public var summary: String?
     public var assetKeys: SearchUserAssetKeys?
@@ -298,6 +297,10 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         } else {
             return internalCompleteImageData
         }
+    }
+    
+    public var richProfile: [UserRichProfileField] {
+        return user?.richProfile ?? []
     }
     
     public var extendedMetadata: [[String : String]]? {
