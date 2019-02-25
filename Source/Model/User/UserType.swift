@@ -101,6 +101,7 @@ public protocol UserType: NSObjectProtocol {
     
     /// The extended metadata for this user, provided by SCIM.
     var richProfile: [UserRichProfileField] { get }
+    var needsRichProfileUpdate: Bool { get set }
     
     func requestPreviewProfileImage()
     func requestCompleteProfileImage()
