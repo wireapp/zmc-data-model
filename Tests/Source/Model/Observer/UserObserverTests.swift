@@ -39,6 +39,7 @@ class UserObserverTests : NotificationDispatcherTestBase {
         case Availability = "availabilityChanged"
         case ReadReceiptsEnabled = "readReceiptsEnabledChanged"
         case ReadReceiptsEnabledChangedRemotely = "readReceiptsEnabledChangedRemotelyChanged"
+        case RichProfile = "richProfileChanged"
     }
     
     let userInfoChangeKeys: [UserInfoChangeKey] = UserInfoChangeKey.allCases
@@ -534,6 +535,18 @@ extension UserObserverTests {
                                                      modifier: { $0.readReceiptsEnabledChangedRemotely = true },
                                                      expectedChangedField: .ReadReceiptsEnabledChangedRemotely)
     }
+    
+    func testThatItNotifiesTheObserverOfRichProfileChanged() {
+        // given
+        let user = ZMUser.selfUser(in: uiMOC)
+        let richProfile = [ZMUser.RichProfileField(type: "type", value: "value")]
+        
+        // when
+        self.checkThatItNotifiesTheObserverOfAChange(user,
+                                                     modifier: { $0.richProfile = richProfile },
+                                                     expectedChangedField: .RichProfile)
+    }
+
     
 }
 

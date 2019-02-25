@@ -18,6 +18,10 @@
 
 import Foundation
 
+public enum ZMUserKeys {
+    public static let RichProfile = "richProfile"
+}
+
 extension ZMUser {
     public struct RichProfileField: Codable, Equatable {
         public var type: String
@@ -35,21 +39,21 @@ extension ZMUser {
     @NSManaged private  var primitiveRichProfile: Data?
     public var richProfile: [RichProfileField] {
         get {
-            self.willAccessValue(forKey: Keys.RichProfile)
+            self.willAccessValue(forKey: ZMUserKeys.RichProfile)
             let fields: [RichProfileField]
             if let data = primitiveRichProfile {
                 fields = (try? JSONDecoder().decode([RichProfileField].self, from:data)) ?? []
             } else {
                 fields = []
             }
-            self.didAccessValue(forKey: Keys.RichProfile)
+            self.didAccessValue(forKey: ZMUserKeys.RichProfile)
             return fields
         }
         set {
             if newValue != richProfile {
-                self.willChangeValue(forKey: Keys.RichProfile)
+                self.willChangeValue(forKey: ZMUserKeys.RichProfile)
                 primitiveRichProfile = try? JSONEncoder().encode(newValue)
-                self.didChangeValue(forKey: Keys.RichProfile)
+                self.didChangeValue(forKey: ZMUserKeys.RichProfile)
             }
         }
     }
