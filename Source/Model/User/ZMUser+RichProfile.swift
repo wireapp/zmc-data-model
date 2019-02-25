@@ -22,6 +22,10 @@ extension ZMUser {
     public struct RichProfileField: Codable, Equatable {
         public var type: String
         public var value: String
+        public init(type: String, value: String) {
+            self.type = type
+            self.value = value
+        }
     }
     
     private enum Keys {
