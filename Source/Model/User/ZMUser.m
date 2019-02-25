@@ -391,7 +391,6 @@ static NSString *const RichProfileKey = @"richProfile";
 @dynamic showingUserAdded;
 @dynamic showingUserRemoved;
 @dynamic createdTeams;
-@dynamic extendedMetadata;
 
 - (NSSet *)keysTrackedForLocalModifications
 {

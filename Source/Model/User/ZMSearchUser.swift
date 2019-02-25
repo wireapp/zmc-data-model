@@ -303,10 +303,6 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         return user?.richProfile ?? []
     }
     
-    public var extendedMetadata: [[String : String]]? {
-        return user?.extendedMetadata
-    }
-    
     public func canAccessCompanyInformation(of otherUser: UserType) -> Bool {
         return user?.canAccessCompanyInformation(of: otherUser) ?? false
     }
