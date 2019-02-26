@@ -276,6 +276,8 @@
 		F16378511E5C805100898F84 /* ZMConversationSecurityLevel.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16378501E5C805100898F84 /* ZMConversationSecurityLevel.swift */; };
 		F16F8EBF2063E9CC009A9D6F /* StorageStackBackupTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F16F8EBE2063E9CC009A9D6F /* StorageStackBackupTests.swift */; };
 		F179B5DA2062B77300C13DFD /* StorageStack+Backup.swift in Sources */ = {isa = PBXBuildFile; fileRef = F179B5D92062B77300C13DFD /* StorageStack+Backup.swift */; };
+		F188A8992225492400BA53A5 /* store2-63-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = F188A8982225492400BA53A5 /* store2-63-0.wiredatabase */; };
+		F188A89B2225698C00BA53A5 /* store2-64-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = F188A89A2225698C00BA53A5 /* store2-64-0.wiredatabase */; };
 		F18998831E7AC6D900E579A2 /* ZMUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18998821E7AC6D900E579A2 /* ZMUser.swift */; };
 		F18998861E7AEECF00E579A2 /* ZMUserTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F18998841E7AEEC900E579A2 /* ZMUserTests.swift */; };
 		F189988B1E7AF80500E579A2 /* store2-28-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = F189988A1E7AF80500E579A2 /* store2-28-0.wiredatabase */; };
@@ -838,6 +840,8 @@
 		F16378501E5C805100898F84 /* ZMConversationSecurityLevel.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZMConversationSecurityLevel.swift; sourceTree = "<group>"; };
 		F16F8EBE2063E9CC009A9D6F /* StorageStackBackupTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StorageStackBackupTests.swift; sourceTree = "<group>"; };
 		F179B5D92062B77300C13DFD /* StorageStack+Backup.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "StorageStack+Backup.swift"; sourceTree = "<group>"; };
+		F188A8982225492400BA53A5 /* store2-63-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; path = "store2-63-0.wiredatabase"; sourceTree = "<group>"; };
+		F188A89A2225698C00BA53A5 /* store2-64-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; path = "store2-64-0.wiredatabase"; sourceTree = "<group>"; };
 		F18998821E7AC6D900E579A2 /* ZMUser.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZMUser.swift; sourceTree = "<group>"; };
 		F18998841E7AEEC900E579A2 /* ZMUserTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ZMUserTests.swift; sourceTree = "<group>"; };
 		F18998871E7AF0BE00E579A2 /* ZMUserTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZMUserTests.h; sourceTree = "<group>"; };
@@ -2117,6 +2121,8 @@
 		F9C9A83D1CAEDBC40039E10C /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				F188A89A2225698C00BA53A5 /* store2-64-0.wiredatabase */,
+				F188A8982225492400BA53A5 /* store2-63-0.wiredatabase */,
 				5E4BA9F42216FF4000F938A8 /* store2-62-0.wiredatabase */,
 				7CFB77352212C45E00B27972 /* store2-61-0.wiredatabase */,
 				874387B921E6404F00901B0F /* store2-59-0.wiredatabase */,
@@ -2360,6 +2366,7 @@
 				F9A706FA1CAEE32A00C2F5FE /* ExternalMessageTextFixture.txt in Resources */,
 				87F7288C21B02E2A000ED371 /* store2-55-0.wiredatabase in Resources */,
 				5495BC431E019F1B004253ED /* audio.m4a in Resources */,
+				F188A89B2225698C00BA53A5 /* store2-64-0.wiredatabase in Resources */,
 				BF6ACFFB21060F7200FD762B /* store2-48-0.wiredatabase in Resources */,
 				54829DAE1DE6F7BA009100D3 /* store1-25.wiredatabase in Resources */,
 				87FFC71A20DBF2820005076E /* store2-47-0.wiredatabase in Resources */,
@@ -2395,6 +2402,7 @@
 				BF491CD71F0402F80055EE44 /* store2-31-0.wiredatabase in Resources */,
 				D5D65A0D2074C97800D7F3C3 /* store2-44-0.wiredatabase in Resources */,
 				BF8EDC741E53182F00DA6C40 /* store2-25-0.wiredatabase in Resources */,
+				F188A8992225492400BA53A5 /* store2-63-0.wiredatabase in Resources */,
 				BF8E024D1E606846003310E1 /* store2-26-0.wiredatabase in Resources */,
 				54829DB51DE6F7BA009100D3 /* store2-7.wiredatabase in Resources */,
 				F91EAAC61D885D7B0010ACBE /* video.mp4 in Resources */,
