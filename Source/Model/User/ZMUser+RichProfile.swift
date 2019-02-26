@@ -25,7 +25,7 @@ public enum ZMUserKeys {
 @objc public class UserRichProfileField: NSObject, Codable {
     public var type: String
     public var value: String
-    public init(type: String, value: String) {
+    @objc public init(type: String, value: String) {
         self.type = type
         self.value = value
     }
