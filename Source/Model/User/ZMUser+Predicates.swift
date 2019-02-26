@@ -88,9 +88,7 @@ fileprivate extension String {
     
     func strippingLeadingAtSign() -> String {
         guard hasPrefix("@") else { return self }
-        var copy = self
-        copy.remove(at: startIndex)
-        return copy
+        return String(dropFirst())
     }
     
 }
