@@ -299,6 +299,16 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         }
     }
     
+    public var needsRichProfileUpdate: Bool {
+        get {
+            return user?.needsRichProfileUpdate ?? false
+        }
+        set {
+            user?.needsRichProfileUpdate = newValue
+        }
+    }
+
+    
     public var richProfile: [UserRichProfileField] {
         return user?.richProfile ?? []
     }
