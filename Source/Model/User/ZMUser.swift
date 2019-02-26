@@ -28,6 +28,22 @@ extension ZMUser: UserType {
         return _isGuest(in: conversation)
     }
     
+    public func canAccessCompanyInformation(of user: UserType) -> Bool {
+        guard
+            let otherUser = user as? ZMUser,
+            let otherUserTeamID = otherUser.team?.remoteIdentifier,
+            let selfUserTeamID = self.team?.remoteIdentifier
+        else {
+            return false
+        }
+        
+        return selfUserTeamID == otherUserTeamID
+    }
+    
+    public var teamName: String? {
+        return team?.name
+    }
+    
     public var previewImageData: Data? {
         return imageSmallProfileData
     }
@@ -118,80 +134,6 @@ extension ZMUser: ServiceUser {
 public extension Notification.Name {
     static let userDidRequestPreviewAsset = Notification.Name("UserDidRequestPreviewAsset")
     static let userDidRequestCompleteAsset = Notification.Name("UserDidRequestCompleteAsset")
-}
-
-extension ZMUser {
-
-    /// Retrieves all users (excluding bots), having ZMConnectionStatusAccepted connection statuses.
-    @objc static var predicateForConnectedNonBotUsers: NSPredicate {
-        return predicateForUsers(withSearch: "", connectionStatuses: [ZMConnectionStatus.accepted.rawValue])
-    }
-    
-    /// Retrieves connected users with name or handle matching search string
-    ///
-    /// - Parameter query: search string
-    /// - Returns: predicate having search query and ZMConnectionStatusAccepted connection statuses
-    @objc(predicateForConnectedUsersWithSearchString:)
-    public static func predicateForConnectedUsers(withSearch query: String) -> NSPredicate {
-        return predicateForUsers(withSearch: query, connectionStatuses: [ZMConnectionStatus.accepted.rawValue])
-    }
-    
-    /// Retrieves all users with name or handle matching search string
-    ///
-    /// - Parameter query: search string
-    /// - Returns: predicate having search query
-    public static func predicateForAllUsers(withSearch query: String) -> NSPredicate {
-        return predicateForUsers(withSearch: query, connectionStatuses: nil)
-    }
-    
-    /// Retrieves users with name or handle matching search string, having one of given connection statuses
-    ///
-    /// - Parameters:
-    ///   - query: search string
-    ///   - connectionStatuses: an array of connections status of the users. E.g. for connected users it is [ZMConnectionStatus.accepted.rawValue]
-    /// - Returns: predicate having search query and supplied connection statuses
-    @objc(predicateForUsersWithSearchString:connectionStatusInArray:)
-    public static func predicateForUsers(withSearch query: String, connectionStatuses: [Int16]? ) -> NSPredicate {
-        var allPredicates = [[NSPredicate]]()
-        if let statuses = connectionStatuses {
-            allPredicates.append([predicateForUsers(withConnectionStatuses: statuses)])
-        }
-
-        let normalizedQuery = query.normalizedAndTrimmed()
-
-        if !normalizedQuery.isEmpty {
-            let namePredicate = NSPredicate(formatDictionary: [#keyPath(ZMUser.normalizedName) : "%K MATCHES %@"], matchingSearch: normalizedQuery)
-            let normalizedHandle = normalizedQuery.strippingLeadingAtSign()
-            let handlePredicate = NSPredicate(format: "%K BEGINSWITH %@", #keyPath(ZMUser.handle), normalizedHandle)
-            allPredicates.append([namePredicate, handlePredicate].compactMap {$0})
-        }
-        
-        let orPredicates = allPredicates.map { NSCompoundPredicate(orPredicateWithSubpredicates: $0) }
-        
-        return NSCompoundPredicate(andPredicateWithSubpredicates: orPredicates)
-    }
-    
-    @objc(predicateForUsersWithConnectionStatusInArray:)
-    public static func predicateForUsers(withConnectionStatuses connectionStatuses: [Int16]) -> NSPredicate {
-        return NSPredicate(format: "(%K IN (%@))", #keyPath(ZMUser.connection.status), connectionStatuses)
-    }
-
-}
-
-fileprivate extension String {
-
-    func normalizedAndTrimmed() -> String {
-        guard let normalized = self.normalizedForSearch() as String? else { return "" }
-        return normalized.trimmingCharacters(in: .whitespaces)
-    }
-
-    func strippingLeadingAtSign() -> String {
-        guard hasPrefix("@") else { return self }
-        var copy = self
-        copy.remove(at: startIndex)
-        return copy
-    }
-
 }
 
 extension ZMUser {
