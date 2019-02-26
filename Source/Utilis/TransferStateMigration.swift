@@ -51,7 +51,7 @@ struct TransferStateMigration {
         
         let transferStateKey = "transferState"
         let fetchRequest = NSFetchRequest<ZMAssetClientMessage>(entityName: ZMAssetClientMessage.entityName())
-        fetchRequest.predicate = NSPredicate(format: "\(transferStateKey) IN %@", LegacyTransferState.casesRequiringMigration)
+        fetchRequest.predicate = NSPredicate(format: "\(transferStateKey) IN %@", LegacyTransferState.casesRequiringMigration.map(\.rawValue))
         
         let assetMessages = moc.fetchOrAssert(request: fetchRequest)
         
