@@ -157,15 +157,10 @@ extension ZMAssetClientMessage {
     
     public override func update(with message: ZMGenericMessage, updateEvent: ZMUpdateEvent, initialUpdate: Bool) {
         self.add(message)
-        
-        let eventData = ((updateEvent.payload["data"]) as? [String: Any]) ?? [:]
+        self.version = 3 // We only support receiving V3 assets
         
         if let assetData = message.assetData, assetData.hasUploaded() {
-            if assetData.uploaded.hasAssetId() { // V3, we directly access the protobuf for the assetId
-                self.version = 3
-                self.updateTransferState(.uploaded, synchronize: false)
-            } else if let assetId = (eventData["id"] as? String).flatMap({ UUID(uuidString: $0) })  { // V2
-                self.assetId = assetId
+            if assetData.uploaded.hasAssetId() {
                 self.updateTransferState(.uploaded, synchronize: false)
             }
         }
@@ -177,24 +172,6 @@ extension ZMAssetClientMessage {
             case .FAILED:
                 self.updateTransferState(.uploadingFailed, synchronize: false)
             }
-        }
-        
-        // V2, we do not set the thumbnail assetId in case there is one in the protobuf, 
-        // then we can access it directly for V3
-        
-        if let assetData = message.assetData, assetData.preview.hasRemote() {
-            
-            if !assetData.preview.remote.hasAssetId() {
-                if let thumbnailId = eventData["id"] as? String {
-                    self.fileMessageData?.thumbnailAssetID = thumbnailId
-                }
-            } else {
-                self.version = 3
-            }
-        }
-        
-        if let assetData = message.assetData, assetData.original.hasRasterImage {
-            self.version = 3
         }
     }
 }
