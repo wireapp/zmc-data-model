@@ -393,9 +393,9 @@ struct CacheAsset: Asset {
         
         switch type {
         case .thumbnail:
-            return genericMessage.asset.preview.remote.hasAssetId()
+            return genericMessage.assetData?.preview.remote.hasAssetId() ?? false
         case .file, .image:
-            return genericMessage.asset.uploaded.hasAssetId()
+            return genericMessage.assetData?.uploaded.hasAssetId() ?? false
         }
         
     }
