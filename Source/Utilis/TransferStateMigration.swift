@@ -20,7 +20,7 @@ import Foundation
 
 struct TransferStateMigration {
     
-    fileprivate enum LegacyTransferState: Int {
+    internal enum LegacyTransferState: Int, CaseIterable {
         case uploading = 0
         case uploaded
         case downloading
@@ -31,7 +31,7 @@ struct TransferStateMigration {
         case unvailable
         
         static var casesRequiringMigration: [LegacyTransferState] {
-            return [.downloading, .downloaded, .failedUpload, .cancelledUpload, .failedDownloaded, .unvailable]
+            return LegacyTransferState.allCases.filter({ $0 != .uploading && $0 != .uploaded})
         }
         
         func migrate() -> AssetTransferState {
@@ -56,7 +56,10 @@ struct TransferStateMigration {
         let assetMessages = moc.fetchOrAssert(request: fetchRequest)
         
         for assetMessage in assetMessages {
-            guard let legacyTransferState = assetMessage.primitiveValue(forKey: transferStateKey) as? LegacyTransferState else { continue }
+            guard let rawLegacyTransferState = assetMessage.primitiveValue(forKey: transferStateKey) as? Int,
+                  let legacyTransferState = LegacyTransferState(rawValue: rawLegacyTransferState)
+            else { continue }
+            
             assetMessage.setPrimitiveValue(legacyTransferState.migrate().rawValue, forKey: transferStateKey)
         }
     }
