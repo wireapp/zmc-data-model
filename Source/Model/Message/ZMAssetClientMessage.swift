@@ -418,6 +418,14 @@ struct CacheAsset: Asset {
         }
         
         owner.add(updatedGenericMessage)
+        
+        // Now that we've stored the assetId when can safely delete the encrypted data
+        switch type {
+        case .file:
+            cache.deleteAssetData(owner, encrypted: true)
+        case .image, .thumbnail:
+            cache.deleteAssetData(owner, format: .medium, encrypted: true)
+        }
     }
     
     func updateWithPreprocessedData(_ preprocessedImageData: Data, imageProperties: ZMIImageProperties) {
