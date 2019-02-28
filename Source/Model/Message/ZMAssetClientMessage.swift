@@ -204,7 +204,9 @@ import Foundation
     public override func expire() {
         super.expire()
         
-        updateTransferState(.uploadingFailed, synchronize: false)
+        if transferState != .uploaded {
+            transferState = .uploadingFailed
+        }
     }
     
     public override func markAsSent() {
@@ -221,8 +223,12 @@ import Foundation
     }
     
     public override func resend() {
-        self.transferState = .uploading
+        if transferState != .uploaded {
+            transferState = .uploading
+        }
+        
         self.progress = 0
+        setLocallyModifiedKeys(Set(arrayLiteral: #keyPath(ZMAssetClientMessage.transferState))) // TODO jacob hacky
 
         super.resend()
     }
