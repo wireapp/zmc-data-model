@@ -515,29 +515,53 @@ extension ZMAssetClientMessage: AssetMessage {
 }
 
 
+/// Exposes all the assets which are contained within a message
 public protocol AssetMessage {
     
+    /// List of assets which the message contains.
+    ///
+    /// NOTE: The order of this list needs to be stable.
     var assets: [Asset] { get }
+    
+    /// Summary of the processing state for the assets
     var processingState: AssetProcessingState { get }
         
 }
 
+/// Represent a single asset like file, thumbnail, image and image preview.
 public protocol Asset {
     
+    /// True if the original unprocessed data is available on disk
     var hasOriginal: Bool { get }
+    
+    /// Original unprocessed data
     var original: Data?  { get }
     
+    /// True if this asset needs image processing
     var needsPreprocessing: Bool { get }
+    
+    // /// If the preprocessed data is available on disk
     var hasPreprocessed: Bool { get }
+    
+    // Preprocessed data
     var preprocessed: Data? { get }
     
+    /// True if the encrypted data is available on disk
     var hasEncrypted: Bool { get }
+    
+    /// Encrypted data
     var encrypted: Data? { get }
     
+    /// True if the encrypted data has been uploaded to the backend
     var isUploaded: Bool { get }
     
+    /// Update the asset with the asset id and token received from the backend
     func updateWithAssetId(_ assetId: String, token: String?)
+    
+    /// Update the asset with preprocessed image data
     func updateWithPreprocessedData(_ preprocessedImageData: Data, imageProperties: ZMIImageProperties)
+    
+    /// Encrypt the original or preprocessed data
     func encrypt()
     
 }
