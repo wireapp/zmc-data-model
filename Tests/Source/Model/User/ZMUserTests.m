@@ -838,7 +838,7 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     XCTAssertNil(user.emailAddress);
 }
 
-- (void)testThatItSetsManagedByAsWire
+- (void)testThatNilManagedByIsConsideredAsManagedByWire
 {
     // given
     NSUUID *uuid = [NSUUID createUUID];
@@ -846,13 +846,13 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     user.remoteIdentifier = uuid;
     
     NSMutableDictionary *payload = [self samplePayloadForUserID:uuid];
-    [payload setObject:ManagedByWire forKey:@"managed_by"];
+    [payload removeObjectForKey:@"managed_by"];
     
     // when
     [user updateWithTransportData:payload authoritative:NO];
     
     // then
-    XCTAssertEqual([self managedByString:user], ManagedByWire);
+    XCTAssertTrue(user.managedByWire);
 }
 
 - (void)testThatItSetsManagedByAsScim
