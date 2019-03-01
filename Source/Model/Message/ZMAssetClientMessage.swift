@@ -540,7 +540,7 @@ public protocol Asset {
     /// True if this asset needs image processing
     var needsPreprocessing: Bool { get }
     
-    // /// If the preprocessed data is available on disk
+    /// If the preprocessed data is available on disk
     var hasPreprocessed: Bool { get }
     
     // Preprocessed data
