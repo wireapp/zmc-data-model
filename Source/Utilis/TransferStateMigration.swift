@@ -60,7 +60,7 @@ struct TransferStateMigration {
                   let legacyTransferState = LegacyTransferState(rawValue: rawLegacyTransferState)
             else { continue }
             
-            assetMessage.setPrimitiveValue(legacyTransferState.migrate().rawValue, forKey: transferStateKey)
+            assetMessage.transferState = legacyTransferState.migrate()
         }
     }
 }
