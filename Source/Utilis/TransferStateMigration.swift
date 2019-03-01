@@ -28,20 +28,13 @@ struct TransferStateMigration {
         case failedUpload
         case cancelledUpload
         case failedDownloaded
-        case unvailable
-        
-        static var casesRequiringMigration: [LegacyTransferState] {
-            return LegacyTransferState.allCases.filter({ $0 != .uploading && $0 != .uploaded})
-        }
-        
-        func migrate() -> AssetTransferState {
-            switch self {
-            case .uploading: return .uploading
-            case .uploaded, .downloading, .downloaded, .failedDownloaded, .unvailable: return .uploaded
-            case .failedUpload: return .uploadingFailed
-            case .cancelledUpload: return .uploadingCancelled
-            }
-        }
+        case unavailable
+                
+        static var migrationMappings: [(AssetTransferState, [LegacyTransferState])] = [
+            (.uploaded, [.downloading, .downloaded, .failedDownloaded, .unavailable]),
+            (.uploadingFailed, [.failedUpload]),
+            (.uploadingCancelled, [.cancelledUpload]),
+        ]
     }
     
     /// When we simplified our asset uploading we replaced ZMFileTransferState with AssetTransferState, which
@@ -50,17 +43,18 @@ struct TransferStateMigration {
     static func migrateLegacyTransferState(in moc: NSManagedObjectContext) {
         
         let transferStateKey = "transferState"
-        let fetchRequest = NSFetchRequest<ZMAssetClientMessage>(entityName: ZMAssetClientMessage.entityName())
-        fetchRequest.predicate = NSPredicate(format: "\(transferStateKey) IN %@", LegacyTransferState.casesRequiringMigration.map(\.rawValue))
         
-        let assetMessages = moc.fetchOrAssert(request: fetchRequest)
-        
-        for assetMessage in assetMessages {
-            guard let rawLegacyTransferState = assetMessage.primitiveValue(forKey: transferStateKey) as? Int,
-                  let legacyTransferState = LegacyTransferState(rawValue: rawLegacyTransferState)
-            else { continue }
+        for (newValue, legacyValues) in LegacyTransferState.migrationMappings {
+            let batchUpdateRequest = NSBatchUpdateRequest(entityName: ZMAssetClientMessage.entityName())
+            batchUpdateRequest.predicate = NSPredicate(format: "\(transferStateKey) IN %@", legacyValues.map(\.rawValue))
+            batchUpdateRequest.propertiesToUpdate = [transferStateKey: newValue.rawValue]
+            batchUpdateRequest.resultType = .updatedObjectsCountResultType
             
-            assetMessage.transferState = legacyTransferState.migrate()
+            do {
+                try moc.execute(batchUpdateRequest)
+            } catch {
+                fatalError("Failed to perform batch update: \(error)")
+            }
         }
     }
 }
