@@ -130,7 +130,7 @@ import Foundation
         } else if isDownloading {
             return .downloading
         } else {
-            return .unavailable
+            return .remote
         }
     }
     
@@ -307,7 +307,7 @@ extension ZMAssetClientMessage {
 }
 
 @objc public enum AssetDownloadState: Int16 {
-    case unavailable = 0
+    case remote = 0
     case downloaded
     case downloading
 }
