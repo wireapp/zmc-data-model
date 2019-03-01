@@ -838,6 +838,23 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     XCTAssertNil(user.emailAddress);
 }
 
+- (void)testThatItSetsManagedByAsWire
+{
+    // given
+    NSUUID *uuid = [NSUUID createUUID];
+    ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
+    user.remoteIdentifier = uuid;
+    
+    NSMutableDictionary *payload = [self samplePayloadForUserID:uuid];
+    [payload setObject:ManagedByWire forKey:@"managed_by"];
+    
+    // when
+    [user updateWithTransportData:payload authoritative:NO];
+    
+    // then
+    XCTAssertEqual([self managedByString:user], ManagedByWire);
+}
+
 - (void)testThatNilManagedByIsConsideredAsManagedByWire
 {
     // given
