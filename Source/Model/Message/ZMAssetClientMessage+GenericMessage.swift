@@ -157,7 +157,7 @@ extension ZMAssetClientMessage {
     
     public override func update(with message: ZMGenericMessage, updateEvent: ZMUpdateEvent, initialUpdate: Bool) {
         self.add(message)
-        self.version = 3 // We only support receiving V3 assets
+        self.version = 3 // We assume received assets are V3 since backend no longer supports sending V2 assets.
         
         if let assetData = message.assetData, assetData.hasUploaded() {
             if assetData.uploaded.hasAssetId() {
