@@ -42,6 +42,10 @@ struct TransferStateMigration {
     /// which doesn't have a valid tranferState any more.
     static func migrateLegacyTransferState(in moc: NSManagedObjectContext) {
         
+        guard moc.persistentStoreCoordinator?.persistentStores.first?.type == NSSQLiteStoreType else {
+            return // batch update requests are only supported on sql stores
+        }
+        
         let transferStateKey = "transferState"
         
         for (newValue, legacyValues) in LegacyTransferState.migrationMappings {
