@@ -163,19 +163,7 @@ extension ZMAssetClientMessageTests {
         // then
         XCTAssertEqual(sut.transferState, .uploadingFailed)
     }
-    
-    func testThatDeliveredIsUpdated_WhenExpired() { // TODO jacob
-        // given
-        let sut = appendFileMessage(to: conversation)!
-        XCTAssertEqual(sut.transferState, .uploading)
         
-        // when
-        sut.expire()
-        
-        // then
-        XCTAssertEqual(sut.transferState, .uploadingFailed)
-    }
-    
     func testThatTransferStateIsNotUpdated_WhenExpired_IfAlreadyUploaded() {
         // given
         let sut = appendFileMessage(to: conversation)!
