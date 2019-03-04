@@ -228,7 +228,7 @@ import Foundation
         }
         
         self.progress = 0
-        setLocallyModifiedKeys(Set(arrayLiteral: #keyPath(ZMAssetClientMessage.transferState))) // TODO jacob hacky
+        setLocallyModifiedKeys(Set(arrayLiteral: #keyPath(ZMAssetClientMessage.transferState)))
 
         super.resend()
     }
