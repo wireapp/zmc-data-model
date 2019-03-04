@@ -29,11 +29,18 @@ struct TransferStateMigration {
         case cancelledUpload
         case failedDownloaded
         case unavailable
-                
-        static var migrationMappings: [(AssetTransferState, [LegacyTransferState])] = [
-            (.uploaded, [.downloading, .downloaded, .failedDownloaded, .unavailable]),
-            (.uploadingFailed, [.failedUpload]),
-            (.uploadingCancelled, [.cancelledUpload]),
+        
+        // This mapping describes how to migrate from the legacy transferState to the new transferState,
+        // which only contains a subset of the legacy cases. This means that we will have a many-to-one mapping.
+        //
+        // Observe that:
+        // - We don't have any overlapping cases between the mappings.
+        // - The order of the mappings are significant since we peform the migration using multiple batch
+        //   updates, which will result in a field being migrated multiple times if done in the wrong order.
+        static var migrationMappings: [(from: [LegacyTransferState], to: AssetTransferState)] = [
+            (from: [.downloading, .downloaded, .failedDownloaded, .unavailable], to: .uploaded),
+            (from: [.failedUpload], to: .uploadingFailed),
+            (from: [.cancelledUpload], to: .uploadingCancelled),
         ]
     }
     
@@ -48,7 +55,7 @@ struct TransferStateMigration {
         
         let transferStateKey = "transferState"
         
-        for (newValue, legacyValues) in LegacyTransferState.migrationMappings {
+        for (legacyValues, newValue) in LegacyTransferState.migrationMappings {
             let batchUpdateRequest = NSBatchUpdateRequest(entityName: ZMAssetClientMessage.entityName())
             batchUpdateRequest.predicate = NSPredicate(format: "\(transferStateKey) IN %@", legacyValues.map(\.rawValue))
             batchUpdateRequest.propertiesToUpdate = [transferStateKey: newValue.rawValue]
