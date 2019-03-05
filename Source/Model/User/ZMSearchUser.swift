@@ -132,7 +132,7 @@ extension NSManagedObjectContext
 
 
 @objc
-public class  ZMSearchUser: NSObject, UserType, UserConnectionType {
+public class ZMSearchUser: NSObject, UserType, UserConnectionType {
     public var providerIdentifier: String?
     public var summary: String?
     public var assetKeys: SearchUserAssetKeys?
