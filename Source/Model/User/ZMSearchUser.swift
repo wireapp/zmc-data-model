@@ -132,7 +132,7 @@ extension NSManagedObjectContext
 
 
 @objc
-public class ZMSearchUser: NSObject, UserType, UserConnectionType {
+public class  ZMSearchUser: NSObject, UserType, UserConnectionType {
     public var providerIdentifier: String?
     public var summary: String?
     public var assetKeys: SearchUserAssetKeys?
@@ -210,6 +210,10 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
     
     public var readReceiptsEnabled: Bool {
         return user?.readReceiptsEnabled ?? false
+    }
+    
+    public var activeConversations: Set<ZMConversation> {
+        return user?.activeConversations ?? Set()
     }
     
     public var managedByWire: Bool {
