@@ -49,13 +49,11 @@ fileprivate enum AssetType: String {
     case image
 }
 
-/// Either we have assetKeys (Strings) or old style legacy UUIDs.
 public enum SearchUserAssetKeys {
+    
     case asset(preview: String?, complete: String?)
-    case legacy(small: UUID?, medium: UUID?)
     
     init?(payload: [String: Any]) {
-        // V3
         if let assetsPayload = payload[ResponseKey.assets.rawValue] as? [[String : Any]], assetsPayload.count > 0 {
             var smallKey: String?, completeKey: String?
             
@@ -74,26 +72,6 @@ public enum SearchUserAssetKeys {
             
             if nil != smallKey || nil != completeKey {
                 self = .asset(preview: smallKey, complete: completeKey)
-                return
-            }
-        }
-            // Legacy
-        else if let pictures = payload[ResponseKey.pictures.rawValue] as? [[String : Any]] {
-            var smallId: UUID?, mediumId: UUID?
-            
-            for pictureData in pictures {
-                guard let info = (pictureData[ResponseKey.pictureInfo.rawValue] as? [String : Any]),
-                    let tag = (info[ResponseKey.pictureTag.rawValue] as? String).flatMap(ImageTag.init),
-                    let uuid = (pictureData[ResponseKey.id.rawValue] as? String).flatMap(UUID.init) else { continue }
-                
-                switch tag {
-                case .smallProfile: smallId = uuid
-                case .medium: mediumId = uuid
-                }
-            }
-            
-            if smallId != nil || mediumId != nil {
-                self = .legacy(small: smallId, medium: mediumId)
                 return
             }
         }

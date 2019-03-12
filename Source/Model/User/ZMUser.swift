@@ -246,17 +246,12 @@ extension ZMUser {
         setLocallyModifiedKeys([ZMUser.previewProfileAssetIdentifierKey, ZMUser.completeProfileAssetIdentifierKey])
     }
     
-    @objc public func updateAssetData(with assets: NSArray?, hasLegacyImages: Bool, authoritative: Bool) {
+    @objc public func updateAssetData(with assets: NSArray?, authoritative: Bool) {
         guard !hasLocalModifications(forKeys: [ZMUser.previewProfileAssetIdentifierKey, ZMUser.completeProfileAssetIdentifierKey]) else { return }
         guard let assets = assets as? [[String : String]], !assets.isEmpty else {
             if authoritative {
                 previewProfileAssetIdentifier = nil
                 completeProfileAssetIdentifier = nil
-                // Deleting image data only if we don't have V2 profile image as well
-                if !hasLegacyImages {
-                    imageSmallProfileData = nil
-                    imageMediumData = nil
-                }
             }
             return
         }
@@ -266,12 +261,10 @@ extension ZMUser {
                 case .preview:
                     if key.stringValue != previewProfileAssetIdentifier {
                         previewProfileAssetIdentifier = key.stringValue
-                        imageSmallProfileData = nil
                     }
                 case .complete:
                     if key.stringValue != completeProfileAssetIdentifier {
                         completeProfileAssetIdentifier = key.stringValue
-                        imageMediumData = nil
                     }
                 }
             }

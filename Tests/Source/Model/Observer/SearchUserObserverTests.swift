@@ -83,8 +83,8 @@ class SearchUserObserverTests : NotificationDispatcherTestBase, ZMManagedObjectC
         self.token = UserChangeInfo.add(observer: testObserver, for:searchUser, managedObjectContext: self.uiMOC)
         
         // when
-        user.smallProfileRemoteIdentifier = UUID.create()
-        user.imageSmallProfileData = self.verySmallJPEGData()
+        user.previewProfileAssetIdentifier = UUID.create().transportString()
+        user.setImage(data: verySmallJPEGData(), size: .preview)
         self.uiMOC.saveOrRollback()
         
         // then
