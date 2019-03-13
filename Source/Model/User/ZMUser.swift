@@ -118,15 +118,6 @@ public struct AssetKey {
     public static var allSizes: [ProfileImageSize] {
         return [.preview, .complete]
     }
-    
-    internal var userKeyPath: String {
-        switch self {
-        case .preview:
-            return #keyPath(ZMUser.imageSmallProfileData)
-        case .complete:
-            return #keyPath(ZMUser.imageMediumData)
-        }
-    }
 }
 
 extension ProfileImageSize: CustomDebugStringConvertible {
@@ -182,15 +173,16 @@ extension ZMUser {
     
     @objc(setImageData:size:)
     public func setImage(data: Data?, size: ProfileImageSize) {
-        let key = size.userKeyPath
-        willChangeValue(forKey: key)
         guard let imageData = data else {
             managedObjectContext?.zm_userImageCache?.removeAllUserImages(self)
             return
         }
         managedObjectContext?.zm_userImageCache?.setUserImage(self, imageData: imageData, size: size)
-        didChangeValue(forKey: key)
-        managedObjectContext?.saveOrRollback()
+        
+        if let uiContext = managedObjectContext?.zm_userInterface {
+            let changedKey = size == .preview ? #keyPath(ZMUser.previewImageData) : #keyPath(ZMUser.completeImageData)
+            NotificationDispatcher.notifyNonCoreDataChanges(objectID: objectID, changedKeys: [changedKey], uiContext: uiContext)
+        }
     }
     
     public func imageData(for size: ProfileImageSize, queue: DispatchQueue, completion: @escaping (_ imageData: Data?) -> Void) {

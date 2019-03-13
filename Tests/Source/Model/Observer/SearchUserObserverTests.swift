@@ -85,7 +85,7 @@ class SearchUserObserverTests : NotificationDispatcherTestBase, ZMManagedObjectC
         // when
         user.previewProfileAssetIdentifier = UUID.create().transportString()
         user.setImage(data: verySmallJPEGData(), size: .preview)
-        self.uiMOC.saveOrRollback()
+        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5)) 
         
         // then
         XCTAssertEqual(testObserver.receivedChangeInfo.count, 1)

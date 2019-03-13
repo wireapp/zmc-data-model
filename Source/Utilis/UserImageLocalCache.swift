@@ -114,13 +114,11 @@ extension NSManagedObjectContext
             let stored = setImage(inCache: smallUserImageCache, cacheKey: key, data: imageData)
             if stored {
                 log.info("Setting [\(user.displayName)] preview image [\(imageData)] cache key: \(String(describing: key))")
-                usersWithChangedSmallImage.append(user.objectID)
             }
         case .complete:
             let stored = setImage(inCache: largeUserImageCache, cacheKey: key, data: imageData)
             if stored {
                 log.info("Setting [\(user.displayName)] complete image [\(imageData)] cache key: \(String(describing: key))")
-                usersWithChangedLargeImage.append(user.objectID)
             }
         }
     }
@@ -165,9 +163,6 @@ extension NSManagedObjectContext
         }
     }
     
-    var usersWithChangedSmallImage : [NSManagedObjectID] = []
-    var usersWithChangedLargeImage : [NSManagedObjectID] = []
-
 }
 
 public extension UserImageLocalCache {
