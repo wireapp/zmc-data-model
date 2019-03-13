@@ -184,41 +184,22 @@ extension ZMUser {
     public func setImage(data: Data?, size: ProfileImageSize) {
         let key = size.userKeyPath
         willChangeValue(forKey: key)
-        if isSelfUser {
-            setPrimitiveValue(data, forKey: key)
-        } else {
-            guard let imageData = data else {
-                managedObjectContext?.zm_userImageCache?.removeAllUserImages(self)
-                return
-            }
-            managedObjectContext?.zm_userImageCache?.setUserImage(self, imageData: imageData, size: size)
+        guard let imageData = data else {
+            managedObjectContext?.zm_userImageCache?.removeAllUserImages(self)
+            return
         }
+        managedObjectContext?.zm_userImageCache?.setUserImage(self, imageData: imageData, size: size)
         didChangeValue(forKey: key)
         managedObjectContext?.saveOrRollback()
     }
     
     public func imageData(for size: ProfileImageSize, queue: DispatchQueue, completion: @escaping (_ imageData: Data?) -> Void) {
-        if isSelfUser {
-            let imageData = self.imageData(for: size)
-            
-            queue.async {
-                completion(imageData)
-            }
-        } else {
-            managedObjectContext?.zm_userImageCache?.userImage(self, size: size, queue: queue, completion: completion)
-        }
+        managedObjectContext?.zm_userImageCache?.userImage(self, size: size, queue: queue, completion: completion)
     }
     
     @objc(imageDataforSize:)
     public func imageData(for size: ProfileImageSize) -> Data? {
-        if isSelfUser {
-            willAccessValue(forKey: size.userKeyPath)
-            let value = primitiveValue(forKey: size.userKeyPath) as? Data
-            didAccessValue(forKey: size.userKeyPath)
-            return value
-        } else {
-            return managedObjectContext?.zm_userImageCache?.userImage(self, size: size)
-        }
+        return managedObjectContext?.zm_userImageCache?.userImage(self, size: size)
     }
     
     public static var previewImageDownloadFilter: NSPredicate {

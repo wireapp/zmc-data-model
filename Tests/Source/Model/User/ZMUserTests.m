@@ -476,7 +476,7 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     XCTAssertLessThanOrEqual(user.accentColorValue, ZMAccentColorMax);
 }
 
-- (void)testThatItDoesPersistMediumImageDataForNotSelfUserToCache
+- (void)testThatItDoesPersistCompleteImageDataToCache
 {
     // given
     ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
@@ -497,7 +497,7 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     XCTAssertEqualObjects(imageData, extractedData);
 }
 
-- (void)testThatItDoesPersistSmallImageDataForNotSelfUserToCache
+- (void)testThatItDoesPersistPreviewImageDataToCache
 {
     // given
     ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
@@ -518,65 +518,14 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     XCTAssertEqualObjects(imageData, extractedData);
 }
 
-- (void)testThatItDoesNotStoreMediumImageDataInCacheForSelfUser
-{
-    // given
-    ZMUser *user = [ZMUser selfUserInContext:self.uiMOC];
-    user.remoteIdentifier = [NSUUID createUUID];
-//    user.mediumRemoteIdentifier = [NSUUID createUUID];
-    NSData *imageData = [self verySmallJPEGData];
-    [user setImageData:imageData size:ProfileImageSizeComplete];
-    XCTAssertEqualObjects(user.imageMediumData, imageData);
-    
-    [self.syncMOC performGroupedBlockAndWait:^{
-        [self.syncMOC saveOrRollback];
-    }];
-    
-    //when
-    NSData* extractedData = [self.uiMOC.zm_userImageCache userImage:user size:ProfileImageSizeComplete];
-    
-    //then
-    XCTAssertNil(extractedData);
-}
-
-- (void)testProfileImageCanBeFetchedAsynchrounouslyForSelfUser
-{
-    // given
-    NSData *imageData = [self verySmallJPEGData];
-    ZMUser *user = [ZMUser selfUserInContext:self.uiMOC];
-    user.remoteIdentifier = [NSUUID createUUID];
-    [user setImageData:imageData size:ProfileImageSizeComplete];
-    [user setImageData:imageData size:ProfileImageSizePreview];
-
-    [self.syncMOC performGroupedBlockAndWait:^{
-        [self.syncMOC saveOrRollback];
-    }];
-    
-    // expect
-    XCTestExpectation *previewDataArrived = [self expectationWithDescription:@"preview image data arrived"];
-    XCTestExpectation *completeDataArrived = [self expectationWithDescription:@"complete image data arrived"];
-    
-    // when
-    [user imageDataFor:ProfileImageSizePreview queue:dispatch_get_global_queue(QOS_CLASS_BACKGROUND, 0) completion:^(NSData *imageDataResult) {
-        XCTAssertEqual(imageDataResult, imageData);
-        [previewDataArrived fulfill];
-    }];
-    
-    [user imageDataFor:ProfileImageSizeComplete queue:dispatch_get_global_queue(QOS_CLASS_BACKGROUND, 0) completion:^(NSData *imageDataResult) {
-        XCTAssertEqual(imageDataResult, imageData);
-        [completeDataArrived fulfill];
-    }];
-    XCTAssertTrue([self waitForCustomExpectationsWithTimeout:0.5]);
-}
-
-- (void)testProfileImageCanBeFetchedAsynchrounouslyForOtherUsers
+- (void)testProfileImageCanBeFetchedAsynchrounously
 {
     // given
     NSData *imageData = [self verySmallJPEGData];
     ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     user.remoteIdentifier = [NSUUID createUUID];
     user.completeProfileAssetIdentifier = @"123";
-    user.previewProfileAssetIdentifier = @"123";
+    user.previewProfileAssetIdentifier = @"321";
     [user setImageData:imageData size:ProfileImageSizeComplete];
     [user setImageData:imageData size:ProfileImageSizePreview];
     
