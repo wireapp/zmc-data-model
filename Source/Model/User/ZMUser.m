@@ -188,8 +188,6 @@ static NSString *const NeedsRichProfileUpdateKey = @"needsRichProfileUpdate";
 
 @dynamic accentColorValue;
 @dynamic emailAddress;
-@dynamic imageMediumData;
-@dynamic imageSmallProfileData;
 @dynamic name;
 @dynamic normalizedEmailAddress;
 @dynamic normalizedName;
