@@ -49,14 +49,14 @@ fileprivate enum AssetType: String {
     case image
 }
 
-public enum SearchUserAssetKeys {
+public struct SearchUserAssetKeys {
     
-    case asset(preview: String?, complete: String?)
-    
+    let preview: String?
+    let complete: String?
+        
     init?(payload: [String: Any]) {
         if let assetsPayload = payload[ResponseKey.assets.rawValue] as? [[String : Any]], assetsPayload.count > 0 {
-            var smallKey: String?, completeKey: String?
-            
+            var previewKey: String?, completeKey: String?
             
             for asset in assetsPayload {
                 guard let size = (asset[ResponseKey.assetSize.rawValue] as? String).flatMap(AssetSize.init),
@@ -65,13 +65,14 @@ public enum SearchUserAssetKeys {
                     type == .image else { continue }
                 
                 switch size {
-                case .preview: smallKey = key
+                case .preview: previewKey = key
                 case .complete: completeKey = key
                 }
             }
             
-            if nil != smallKey || nil != completeKey {
-                self = .asset(preview: smallKey, complete: completeKey)
+            if nil != previewKey || nil != completeKey {
+                preview = previewKey
+                complete = completeKey
                 return
             }
         }
