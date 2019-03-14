@@ -51,8 +51,8 @@ fileprivate enum AssetType: String {
 
 public struct SearchUserAssetKeys {
     
-    let preview: String?
-    let complete: String?
+    public let preview: String?
+    public let complete: String?
         
     init?(payload: [String: Any]) {
         if let assetsPayload = payload[ResponseKey.assets.rawValue] as? [[String : Any]], assetsPayload.count > 0 {
