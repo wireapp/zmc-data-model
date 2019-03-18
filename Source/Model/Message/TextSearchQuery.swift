@@ -183,7 +183,7 @@ public class TextSearchQuery: NSObject {
         self.conversation = conversation
         self.conversationRemoteIdentifier = conversation.remoteIdentifier!
         self.originalQuery = query
-        self.queryStrings = query.normalizedForSearch().components(separatedBy: .whitespacesAndNewlines).filter { TextSearchQuery.isValid(query: $0) }
+        self.queryStrings = query.normalizedForSearch().components(separatedBy: .whitespacesAndNewlines).filter(TextSearchQuery.isValid)
         self.delegate = delegate
         self.fetchConfiguration = configuration
     }
