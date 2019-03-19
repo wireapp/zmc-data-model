@@ -76,6 +76,10 @@ extension ZMClientMessage: ZMTextMessageData {
         self.linkPreviewState = fetchLinkPreview ? .waitingToBeProcessed : .done
         self.delivered = false
     }
+
+    public func detectLinks() -> [URL] {
+        return messageText.map(NSDataDetector.detectLinks) ?? []
+    }
         
 }
 

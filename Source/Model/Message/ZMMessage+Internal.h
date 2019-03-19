@@ -32,6 +32,7 @@
 @class ZMMessageConfirmation;
 @class ZMReaction;
 @class ZMClientMessage;
+@class ZMLinkAttachment;
 
 @protocol UserClientType;
 
@@ -63,6 +64,8 @@ extern NSString * _Nonnull const ZMMessageDeliveryStateKey;
 extern NSString * _Nonnull const ZMMessageRepliesKey;
 extern NSString * _Nonnull const ZMMessageQuoteKey;
 extern NSString * _Nonnull const ZMMessageConfirmationKey;
+extern NSString * _Nonnull const ZMMessageLinkAttachmentsKey;
+extern NSString * _Nonnull const ZMMessageNeedsLinkAttachmentsUpdateKey;
 
 @interface ZMMessage : ZMManagedObject
 
@@ -174,6 +177,7 @@ inManagedObjectContext:(NSManagedObjectContext * _Nonnull)moc;
 @property (nonatomic, readonly) NSDate * _Nullable expirationDate;
 @property (nonatomic, readonly) BOOL isObfuscated;
 @property (nonatomic, readonly) BOOL needsReadConfirmation;
+@property (nonatomic) BOOL needsLinkAttachmentsUpdate;
 @property (nonatomic) NSString * _Nullable normalizedText;
 
 @property (nonatomic) NSSet <Reaction *> * _Nonnull reactions;

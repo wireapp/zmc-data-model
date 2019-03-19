@@ -87,6 +87,8 @@ NSString * const ZMSystemMessageNumberOfGuestsAddedKey = @"numberOfGuestsAdded";
 NSString * const ZMMessageRepliesKey = @"replies";
 NSString * const ZMMessageQuoteKey = @"quote";
 NSString * const ZMMessageExpectReadConfirmationKey = @"expectsReadConfirmation";
+NSString * const ZMMessageLinkAttachmentsKey = @"linkAttachments";
+NSString * const ZMMessageNeedsLinkAttachmentsUpdateKey = @"needsLinkAttachmentsUpdate";
 
 
 @interface ZMMessage ()
@@ -131,6 +133,7 @@ NSString * const ZMMessageExpectReadConfirmationKey = @"expectsReadConfirmation"
 @dynamic isObfuscated;
 @dynamic normalizedText;
 @dynamic delivered;
+@dynamic needsLinkAttachmentsUpdate;
 
 - (instancetype)initWithNonce:(NSUUID *)nonce managedObjectContext:(NSManagedObjectContext *)managedObjectContext
 {
@@ -260,6 +263,7 @@ NSString * const ZMMessageExpectReadConfirmationKey = @"expectsReadConfirmation"
 {
     [super awakeFromInsert];
     self.serverTimestamp = [self dateIgnoringNanoSeconds];
+    self.linkAttachments = @[];
 }
 
 - (NSDate *)dateIgnoringNanoSeconds
@@ -686,6 +690,8 @@ NSString * const ZMMessageExpectReadConfirmationKey = @"expectsReadConfirmation"
                              ZMSystemMessageNumberOfGuestsAddedKey,
                              DeliveredKey,
                              ZMMessageExpectReadConfirmationKey,
+                             ZMMessageLinkAttachmentsKey,
+                             ZMMessageNeedsLinkAttachmentsUpdateKey
                              ];
         ignoredKeys = [keys setByAddingObjectsFromArray:newKeys];
     });
@@ -798,6 +804,14 @@ NSString * const ZMMessageExpectReadConfirmationKey = @"expectsReadConfirmation"
     NOT_USED(fetchLinkPreview);
 }
 
+- (NSArray<NSURL *> *)detectLinks
+{
+    if (self.text) {
+        return [NSDataDetector detectLinksInText:self.text];
+    } else {
+        return @[];
+    }
+}
 
 @end
 

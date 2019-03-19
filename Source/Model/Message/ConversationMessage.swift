@@ -135,6 +135,9 @@ public protocol ZMConversationMessage : NSObjectProtocol {
 
     /// An in-memory identifier for tracking the message during its life cycle.
     var objectIdentifier: String { get }
+
+    /// The links attached to the message.
+    var linkAttachments: [ZMLinkAttachment] { get set }
 }
 
 public extension Equatable where Self : ZMConversationMessage { }
@@ -171,6 +174,7 @@ extension ZMMessage {
 // MARK:- Conversation Message protocol implementation
 
 extension ZMMessage : ZMConversationMessage {
+    @NSManaged public var linkAttachments: [ZMLinkAttachment]
     @NSManaged public var replies: Set<ZMMessage>
     
     public var readReceipts: [ReadReceipt] {
