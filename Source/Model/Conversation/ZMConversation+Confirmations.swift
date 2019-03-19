@@ -44,6 +44,21 @@ extension ZMConversation {
         return confirmationMessages
     }
     
+    @discardableResult
+    func confirmMessagesAsDelivered() -> [ZMClientMessage] {
+        
+        let deliveredMessages = messagesThatNeedDeliveryReceipts()
+        var confirmationMessages: [ZMClientMessage] = []
+        
+        let confirmation = ZMConfirmation.confirm(messages: deliveredMessages.compactMap(\.nonce), type: .DELIVERED)
+            
+        if let confirmationMessage = append(message: confirmation, hidden: true) {
+            confirmationMessages.append(confirmationMessage)
+        }
+        
+        return confirmationMessages
+    }
+    
     @discardableResult @objc
     public func appendMessageReceiptModeChangedMessage(fromUser user: ZMUser, timestamp: Date, enabled: Bool) -> ZMSystemMessage {
         let message = appendSystemMessage(

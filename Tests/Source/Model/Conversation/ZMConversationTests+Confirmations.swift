@@ -90,4 +90,38 @@ class ZMConversationTests_Confirmations: ZMConversationTestsBase {
         XCTAssertEqual(confirmMessages[0].genericMessage?.confirmation.firstMessageId, message1.nonce?.transportString())
         XCTAssertEqual(confirmMessages[0].genericMessage?.confirmation.moreMessageIds as! [String], [message2.nonce!.transportString()])
     }
+    
+    func testThatConfirmSentMessagesAsDelivered() {
+        // given
+        let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
+        
+        let user1 = createUser()!
+        let user2 = createUser()!
+        
+        let message1 = conversation.append(text: "text1") as! ZMClientMessage
+        let message2 = conversation.append(text: "text2") as! ZMClientMessage
+        let message3 = conversation.append(text: "text3") as! ZMClientMessage
+        
+        [message1, message2, message3].forEach({ $0.markAsSent() })
+        
+        message1.sender = user1
+        message2.sender = user1
+        message3.sender = user2
+        
+        conversation.conversationType = .group
+        conversation.lastReadServerTimeStamp = .distantPast
+        
+        // when
+        let confirmMessages = conversation.confirmMessagesAsDelivered()
+        
+        // then
+        XCTAssertEqual(confirmMessages.count, 1)
+        
+        let confirmation = confirmMessages[0].genericMessage?.confirmation
+        XCTAssertNotNil(confirmation)
+        XCTAssertEqual(confirmation?.type, ZMConfirmationType.DELIVERED)
+        XCTAssertEqual(confirmation?.firstMessageId, message1.nonce?.transportString())
+        XCTAssertEqual(confirmation?.moreMessageIds as! [String],
+                       [message2.nonce!.transportString(), message3.nonce?.transportString()])
+    }
 }

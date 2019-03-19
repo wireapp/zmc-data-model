@@ -277,6 +277,7 @@ extension ZMConversation {
     func savePendingLastRead() {
         guard let timestamp = pendingLastReadServerTimestamp else { return }
         confirmUnreadMessagesAsRead(until: timestamp)
+        confirmMessagesAsDelivered()
         updateLastRead(timestamp, synchronize: false)
         pendingLastReadServerTimestamp = nil
         lastReadTimestampUpdateCounter = 0
@@ -379,6 +380,24 @@ extension ZMConversation {
         fetchRequest.sortDescriptors = ZMMessage.defaultSortDescriptors()
         
         return managedObjectContext.fetchOrAssert(request: fetchRequest).filter({ $0.shouldGenerateUnreadCount() })
+    }
+    
+    internal func messagesThatNeedDeliveryReceipts() -> [ZMMessage] {
+        guard let managedObjectContext = managedObjectContext else { return [] }
+        
+        let selfUser = ZMUser.selfUser(in: managedObjectContext)
+        let fetchRequest = NSFetchRequest<ZMMessage>(entityName: ZMMessage.entityName())
+        fetchRequest.predicate = NSPredicate(format: "(%K == %@ OR %K == %@) AND %K != %@",
+                                             ZMMessageConversationKey, self,
+                                             ZMMessageHiddenInConversationKey, self,
+                                             ZMMessageSenderKey, selfUser)
+        fetchRequest.sortDescriptors = ZMMessage.defaultSortDescriptors()
+        
+        let results = managedObjectContext.fetchOrAssert(request: fetchRequest)
+        let filteredResults = results.filter({
+            $0.deliveryState != .delivered && $0.deliveryState != .read
+        })
+        return filteredResults
     }
     
 }
