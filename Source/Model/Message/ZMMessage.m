@@ -263,7 +263,6 @@ NSString * const ZMMessageNeedsLinkAttachmentsUpdateKey = @"needsLinkAttachments
 {
     [super awakeFromInsert];
     self.serverTimestamp = [self dateIgnoringNanoSeconds];
-    self.linkAttachments = @[];
 }
 
 - (NSDate *)dateIgnoringNanoSeconds
@@ -629,6 +628,11 @@ NSString * const ZMMessageNeedsLinkAttachmentsUpdateKey = @"needsLinkAttachments
     }];
     NSPredicate *noncePredicate = [NSPredicate predicateWithFormat:@"%K IN %@", noncesData];
     return [NSCompoundPredicate andPredicateWithSubpredicates:@[conversationPredicate, noncePredicate]];
+}
+
++ (NSPredicate *)predicateForMessagesThatNeedsToUpdateLinkAttachments
+{
+    return [NSPredicate predicateWithFormat:@"(%K == YES)", ZMMessageNeedsLinkAttachmentsUpdateKey];
 }
 
 @end

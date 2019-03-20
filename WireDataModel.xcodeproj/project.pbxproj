@@ -129,9 +129,8 @@
 		5E67168E2174B9AF00522E61 /* LoginCredentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E67168D2174B9AF00522E61 /* LoginCredentials.swift */; };
 		5E771F382080BB0000575629 /* PBMessage+Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E771F372080BB0000575629 /* PBMessage+Validation.swift */; };
 		5E771F3B2080C42300575629 /* PBMessageValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E771F392080C40B00575629 /* PBMessageValidationTests.swift */; };
-		5E9EA4A32240ECD200D401B2 /* ZMLinkAttachment.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9EA4A22240ECD200D401B2 /* ZMLinkAttachment.swift */; };
 		5E9EA4A52240F13400D401B2 /* NSDataDetector+URL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9EA4A42240F13400D401B2 /* NSDataDetector+URL.swift */; };
-		5E9EA4A9224112FE00D401B2 /* LinkDetectionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9EA4A8224112FE00D401B2 /* LinkDetectionTests.swift */; };
+		5E9EA4B322413FA200D401B2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5E9EA4B222413FA200D401B2 /* LaunchScreen.storyboard */; };
 		5EDDC7A62088CE3B00B24850 /* ZMConversation+Invalid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EDDC7A52088CE3B00B24850 /* ZMConversation+Invalid.swift */; };
 		5EFE9C062125CD3F007932A6 /* UnregisteredUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EFE9C052125CD3F007932A6 /* UnregisteredUser.swift */; };
 		5EFE9C092126BF9D007932A6 /* ZMPropertyNormalizationResult.h in Headers */ = {isa = PBXBuildFile; fileRef = 5EFE9C072126BF9D007932A6 /* ZMPropertyNormalizationResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -678,9 +677,8 @@
 		5E771F372080BB0000575629 /* PBMessage+Validation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PBMessage+Validation.swift"; sourceTree = "<group>"; };
 		5E771F392080C40B00575629 /* PBMessageValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBMessageValidationTests.swift; sourceTree = "<group>"; };
 		5E9EA49F223FEA7F00D401B2 /* zmessaging2.65.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = zmessaging2.65.0.xcdatamodel; sourceTree = "<group>"; };
-		5E9EA4A22240ECD200D401B2 /* ZMLinkAttachment.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMLinkAttachment.swift; sourceTree = "<group>"; };
 		5E9EA4A42240F13400D401B2 /* NSDataDetector+URL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSDataDetector+URL.swift"; sourceTree = "<group>"; };
-		5E9EA4A8224112FE00D401B2 /* LinkDetectionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LinkDetectionTests.swift; sourceTree = "<group>"; };
+		5E9EA4B222413FA200D401B2 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		5EDDC7A52088CE3B00B24850 /* ZMConversation+Invalid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMConversation+Invalid.swift"; sourceTree = "<group>"; };
 		5EFE9C052125CD3F007932A6 /* UnregisteredUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnregisteredUser.swift; sourceTree = "<group>"; };
 		5EFE9C072126BF9D007932A6 /* ZMPropertyNormalizationResult.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZMPropertyNormalizationResult.h; sourceTree = "<group>"; };
@@ -1213,7 +1211,6 @@
 				F9AB00281F0D2BE40037B437 /* FileManager+FileLocationTests.swift */,
 				87DF59BF1F729FDA00C7B406 /* ZMMovedIndexTests.swift */,
 				F19550372040628000338E91 /* ZMUpdateEvent+Helper.swift */,
-				5E9EA4A8224112FE00D401B2 /* LinkDetectionTests.swift */,
 			);
 			path = Utils;
 			sourceTree = "<group>";
@@ -1531,7 +1528,6 @@
 				F93666FC1D78274D00E15420 /* MessageUpdateResult.swift */,
 				BFABEB8B1E647054003BE9F3 /* GenericMessageScheduleNotification.swift */,
 				CE4EDC0A1D6DC2D2002A20AA /* ConversationMessage+Reaction.swift */,
-				5E9EA4A22240ECD200D401B2 /* ZMLinkAttachment.swift */,
 			);
 			path = Message;
 			sourceTree = "<group>";
@@ -2123,6 +2119,7 @@
 				F9C9A81D1CAEDA330039E10C /* AppDelegate.m */,
 				F9C9A8231CAEDA330039E10C /* Info.plist */,
 				F9C9A8241CAEDA330039E10C /* main.m */,
+				5E9EA4B222413FA200D401B2 /* LaunchScreen.storyboard */,
 			);
 			name = WireDataModelTestHost;
 			path = Tests/WireDataModelTestTarget;
@@ -2325,13 +2322,15 @@
 					};
 					F9C9A5051CAD5DF10039E10C = {
 						CreatedOnToolsVersion = 7.2;
+						DevelopmentTeam = W5KEQBF9B5;
 						LastSwiftMigration = 1000;
 						TestTargetID = F9C9A7F21CAED9510039E10C;
 					};
 					F9C9A7F21CAED9510039E10C = {
 						CreatedOnToolsVersion = 7.2;
+						DevelopmentTeam = W5KEQBF9B5;
 						LastSwiftMigration = 0800;
-						ProvisioningStyle = Manual;
+						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -2431,6 +2430,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				F9A708651CAEF9BD00C2F5FE /* Default-568h@2x.png in Resources */,
+				5E9EA4B322413FA200D401B2 /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2460,7 +2460,7 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
-			shellScript = "/usr/local/bin/carthage copy-frameworks";
+			shellScript = "/usr/local/bin/carthage copy-frameworks\n";
 		};
 /* End PBXShellScriptBuildPhase section */
 
@@ -2644,7 +2644,6 @@
 				F9FD75781E2F9A0600B4558B /* SearchUserObserverCenter.swift in Sources */,
 				54F6CEAB1CE2972200A1276D /* ZMAssetClientMessage+Download.swift in Sources */,
 				F9B71F221CB264EF001DB03F /* ZMConversation.m in Sources */,
-				5E9EA4A32240ECD200D401B2 /* ZMLinkAttachment.swift in Sources */,
 				8767E85B216391DF00390F75 /* ZMConversation+Mute.swift in Sources */,
 				F18998A61E7BE03800E579A2 /* zmessaging.xcdatamodeld in Sources */,
 				F920AE501E3FA285001BC14F /* DisplayNameGenerator.swift in Sources */,
@@ -2763,7 +2762,6 @@
 				F9A7083D1CAEEB7500C2F5FE /* ModelObjectsTests.m in Sources */,
 				F9B71F921CB2BEF4001DB03F /* BaseClientMessageTests.swift in Sources */,
 				F963E9861D9D485900098AD3 /* ZMClientMessageTests+Ephemeral.swift in Sources */,
-				5E9EA4A9224112FE00D401B2 /* LinkDetectionTests.swift in Sources */,
 				BFB3BA731E28D38F0032A84F /* SharedObjectStoreTests.swift in Sources */,
 				BF7D9C491D90286700949267 /* MessagingTest+UUID.swift in Sources */,
 				F929C1721E40D6530018ADA4 /* ZMUserDisplayNameGeneratorTest.m in Sources */,
@@ -2927,6 +2925,8 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F9C9A67D1CAD7A790039E10C /* ios-test-target.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				DEVELOPMENT_TEAM = W5KEQBF9B5;
 				INFOPLIST_FILE = "$(SRCROOT)/Tests/Resources/Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = com.wire.WireDataModelTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -2953,9 +2953,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F9C9A67C1CAD7A790039E10C /* ios-test-host.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = W5KEQBF9B5;
 				INFOPLIST_FILE = "$(SRCROOT)/Tests/WireDataModelTestTarget/Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = com.wire.WireDataModelTestTarget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Debug;
 		};
@@ -2963,9 +2967,13 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F9C9A67C1CAD7A790039E10C /* ios-test-host.xcconfig */;
 			buildSettings = {
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				CODE_SIGN_STYLE = Automatic;
+				DEVELOPMENT_TEAM = W5KEQBF9B5;
 				INFOPLIST_FILE = "$(SRCROOT)/Tests/WireDataModelTestTarget/Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = com.wire.WireDataModelTestTarget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Release;
 		};

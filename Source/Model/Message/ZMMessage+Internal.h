@@ -232,6 +232,9 @@ inManagedObjectContext:(NSManagedObjectContext * _Nonnull)moc;
 /// Predicate to select messages that are part of a conversation
 + (NSPredicate * _Nonnull)predicateForMessageInConversation:(ZMConversation * _Nonnull)conversation withNonces:(NSSet <NSUUID *>*  _Nonnull)nonces;
 
+/// Predicate to select messages whose link attachments need to be updated.
++ (NSPredicate * _Nonnull)predicateForMessagesThatNeedsToUpdateLinkAttachments;
+
 @end
 
 

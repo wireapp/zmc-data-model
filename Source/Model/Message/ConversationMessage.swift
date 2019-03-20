@@ -18,6 +18,7 @@
 
 
 import Foundation
+import WireLinkPreview
 
 private var zmLog = ZMSLog(tag: "Message")
 
@@ -137,7 +138,10 @@ public protocol ZMConversationMessage : NSObjectProtocol {
     var objectIdentifier: String { get }
 
     /// The links attached to the message.
-    var linkAttachments: [ZMLinkAttachment] { get set }
+    var linkAttachments: [LinkAttachment] { get set }
+
+    /// Used to trigger link attachments update for this message.
+    var needsLinkAttachmentsUpdate: Bool { get set }
 }
 
 public extension Equatable where Self : ZMConversationMessage { }
@@ -174,7 +178,7 @@ extension ZMMessage {
 // MARK:- Conversation Message protocol implementation
 
 extension ZMMessage : ZMConversationMessage {
-    @NSManaged public var linkAttachments: [ZMLinkAttachment]
+    @NSManaged public var linkAttachments: [LinkAttachment]
     @NSManaged public var replies: Set<ZMMessage>
     
     public var readReceipts: [ReadReceipt] {
