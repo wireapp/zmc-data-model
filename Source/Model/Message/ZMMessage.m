@@ -133,7 +133,6 @@ NSString * const ZMMessageNeedsLinkAttachmentsUpdateKey = @"needsLinkAttachments
 @dynamic isObfuscated;
 @dynamic normalizedText;
 @dynamic delivered;
-@dynamic needsLinkAttachmentsUpdate;
 
 - (instancetype)initWithNonce:(NSUUID *)nonce managedObjectContext:(NSManagedObjectContext *)managedObjectContext
 {

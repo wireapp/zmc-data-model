@@ -177,7 +177,6 @@ inManagedObjectContext:(NSManagedObjectContext * _Nonnull)moc;
 @property (nonatomic, readonly) NSDate * _Nullable expirationDate;
 @property (nonatomic, readonly) BOOL isObfuscated;
 @property (nonatomic, readonly) BOOL needsReadConfirmation;
-@property (nonatomic) BOOL needsLinkAttachmentsUpdate;
 @property (nonatomic) NSString * _Nullable normalizedText;
 
 @property (nonatomic) NSSet <Reaction *> * _Nonnull reactions;

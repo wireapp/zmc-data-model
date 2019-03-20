@@ -179,6 +179,7 @@ extension ZMMessage {
 
 extension ZMMessage : ZMConversationMessage {
     @NSManaged public var linkAttachments: [LinkAttachment]
+    @NSManaged public var needsLinkAttachmentsUpdate: Bool
     @NSManaged public var replies: Set<ZMMessage>
     
     public var readReceipts: [ReadReceipt] {
