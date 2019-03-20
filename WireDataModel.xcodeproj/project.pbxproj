@@ -3077,7 +3077,7 @@
 				F18998A41E7BE03800E579A2 /* zmessaging2.8.xcdatamodel */,
 				F18998A51E7BE03800E579A2 /* zmessaging2.9.xcdatamodel */,
 			);
-			currentVersion = F14B7AFB22200CEF00458624 /* zmessaging2.64.0.xcdatamodel */;
+			currentVersion = 5E9EA49F223FEA7F00D401B2 /* zmessaging2.65.0.xcdatamodel */;
 			path = zmessaging.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
