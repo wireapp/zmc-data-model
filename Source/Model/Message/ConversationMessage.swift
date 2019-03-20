@@ -138,7 +138,7 @@ public protocol ZMConversationMessage : NSObjectProtocol {
     var objectIdentifier: String { get }
 
     /// The links attached to the message.
-    var linkAttachments: [LinkAttachment] { get set }
+    var linkAttachments: [LinkAttachment]? { get set }
 
     /// Used to trigger link attachments update for this message.
     var needsLinkAttachmentsUpdate: Bool { get set }
@@ -178,7 +178,7 @@ extension ZMMessage {
 // MARK:- Conversation Message protocol implementation
 
 extension ZMMessage : ZMConversationMessage {
-    @NSManaged public var linkAttachments: [LinkAttachment]
+    @NSManaged public var linkAttachments: [LinkAttachment]?
     @NSManaged public var needsLinkAttachmentsUpdate: Bool
     @NSManaged public var replies: Set<ZMMessage>
     
