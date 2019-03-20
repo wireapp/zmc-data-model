@@ -808,15 +808,6 @@ NSString * const ZMMessageNeedsLinkAttachmentsUpdateKey = @"needsLinkAttachments
     NOT_USED(fetchLinkPreview);
 }
 
-- (NSArray<NSURL *> *)detectLinks
-{
-    if (self.text) {
-        return [NSDataDetector detectLinksInText:self.text];
-    } else {
-        return @[];
-    }
-}
-
 @end
 
 

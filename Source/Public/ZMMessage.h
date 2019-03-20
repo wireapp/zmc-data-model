@@ -116,9 +116,6 @@ typedef NS_ENUM(int16_t, ZMSystemMessageType) {
 /// Edit the text content
 - (void)editText:(NSString * _Nonnull)text mentions:(NSArray<Mention *> * _Nonnull)mentions fetchLinkPreview:(BOOL)fetchLinkPreview;
 
-/// Returns the list of links in the text message.
-- (NSArray<NSURL *> * _Nonnull)detectLinks;
-
 @end
 
 

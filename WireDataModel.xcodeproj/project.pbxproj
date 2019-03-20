@@ -129,8 +129,6 @@
 		5E67168E2174B9AF00522E61 /* LoginCredentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E67168D2174B9AF00522E61 /* LoginCredentials.swift */; };
 		5E771F382080BB0000575629 /* PBMessage+Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E771F372080BB0000575629 /* PBMessage+Validation.swift */; };
 		5E771F3B2080C42300575629 /* PBMessageValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E771F392080C40B00575629 /* PBMessageValidationTests.swift */; };
-		5E9EA4A52240F13400D401B2 /* NSDataDetector+URL.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9EA4A42240F13400D401B2 /* NSDataDetector+URL.swift */; };
-		5E9EA4B322413FA200D401B2 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 5E9EA4B222413FA200D401B2 /* LaunchScreen.storyboard */; };
 		5EDDC7A62088CE3B00B24850 /* ZMConversation+Invalid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EDDC7A52088CE3B00B24850 /* ZMConversation+Invalid.swift */; };
 		5EFE9C062125CD3F007932A6 /* UnregisteredUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EFE9C052125CD3F007932A6 /* UnregisteredUser.swift */; };
 		5EFE9C092126BF9D007932A6 /* ZMPropertyNormalizationResult.h in Headers */ = {isa = PBXBuildFile; fileRef = 5EFE9C072126BF9D007932A6 /* ZMPropertyNormalizationResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -677,8 +675,6 @@
 		5E771F372080BB0000575629 /* PBMessage+Validation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PBMessage+Validation.swift"; sourceTree = "<group>"; };
 		5E771F392080C40B00575629 /* PBMessageValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBMessageValidationTests.swift; sourceTree = "<group>"; };
 		5E9EA49F223FEA7F00D401B2 /* zmessaging2.65.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = zmessaging2.65.0.xcdatamodel; sourceTree = "<group>"; };
-		5E9EA4A42240F13400D401B2 /* NSDataDetector+URL.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSDataDetector+URL.swift"; sourceTree = "<group>"; };
-		5E9EA4B222413FA200D401B2 /* LaunchScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = LaunchScreen.storyboard; sourceTree = "<group>"; };
 		5EDDC7A52088CE3B00B24850 /* ZMConversation+Invalid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMConversation+Invalid.swift"; sourceTree = "<group>"; };
 		5EFE9C052125CD3F007932A6 /* UnregisteredUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnregisteredUser.swift; sourceTree = "<group>"; };
 		5EFE9C072126BF9D007932A6 /* ZMPropertyNormalizationResult.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZMPropertyNormalizationResult.h; sourceTree = "<group>"; };
@@ -1670,7 +1666,6 @@
 				5EFE9C072126BF9D007932A6 /* ZMPropertyNormalizationResult.h */,
 				5EFE9C082126BF9D007932A6 /* ZMPropertyNormalizationResult.m */,
 				5EFE9C0E2126D3FA007932A6 /* NormalizationResult.swift */,
-				5E9EA4A42240F13400D401B2 /* NSDataDetector+URL.swift */,
 			);
 			name = Utilis;
 			path = Source/Utilis;
@@ -2119,7 +2114,6 @@
 				F9C9A81D1CAEDA330039E10C /* AppDelegate.m */,
 				F9C9A8231CAEDA330039E10C /* Info.plist */,
 				F9C9A8241CAEDA330039E10C /* main.m */,
-				5E9EA4B222413FA200D401B2 /* LaunchScreen.storyboard */,
 			);
 			name = WireDataModelTestHost;
 			path = Tests/WireDataModelTestTarget;
@@ -2328,9 +2322,7 @@
 					};
 					F9C9A7F21CAED9510039E10C = {
 						CreatedOnToolsVersion = 7.2;
-						DevelopmentTeam = W5KEQBF9B5;
 						LastSwiftMigration = 0800;
-						ProvisioningStyle = Automatic;
 					};
 				};
 			};
@@ -2430,7 +2422,6 @@
 			buildActionMask = 2147483647;
 			files = (
 				F9A708651CAEF9BD00C2F5FE /* Default-568h@2x.png in Resources */,
-				5E9EA4B322413FA200D401B2 /* LaunchScreen.storyboard in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2589,7 +2580,6 @@
 				F9A706811CAEE01D00C2F5FE /* ZMMessage.m in Sources */,
 				F9B71F2B1CB264EF001DB03F /* ZMConversation+Transport.m in Sources */,
 				54E3EE491F61AB6F00A261E3 /* ImageAssetStorage.swift in Sources */,
-				5E9EA4A52240F13400D401B2 /* NSDataDetector+URL.swift in Sources */,
 				165DC52121491D8700090B7B /* ZMClientMessage+TextMessageData.swift in Sources */,
 				F93666FD1D78274D00E15420 /* MessageUpdateResult.swift in Sources */,
 				541D1B331F1F8D660078C1F2 /* StorageStack.swift in Sources */,
@@ -2953,13 +2943,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F9C9A67C1CAD7A790039E10C /* ios-test-host.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = W5KEQBF9B5;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "$(SRCROOT)/Tests/WireDataModelTestTarget/Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = com.wire.WireDataModelTestTarget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Debug;
 		};
@@ -2967,13 +2954,10 @@
 			isa = XCBuildConfiguration;
 			baseConfigurationReference = F9C9A67C1CAD7A790039E10C /* ios-test-host.xcconfig */;
 			buildSettings = {
-				CODE_SIGN_IDENTITY = "iPhone Developer";
-				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = W5KEQBF9B5;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = "$(SRCROOT)/Tests/WireDataModelTestTarget/Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = com.wire.WireDataModelTestTarget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				PROVISIONING_PROFILE_SPECIFIER = "";
 			};
 			name = Release;
 		};
