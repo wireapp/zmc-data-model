@@ -32,7 +32,6 @@
 @class ZMMessageConfirmation;
 @class ZMReaction;
 @class ZMClientMessage;
-@class ZMLinkAttachment;
 
 @protocol UserClientType;
 
