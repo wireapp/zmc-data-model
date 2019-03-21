@@ -52,6 +52,20 @@ extension ZMUser: UserType {
         return imageMediumData
     }
     
+    public var activeConversations: Set<ZMConversation> {
+        if isSelfUser {
+            guard let managedObjectContext = managedObjectContext else { return Set() }
+            
+            let fetchRequest = NSFetchRequest<ZMConversation>(entityName: ZMConversation.entityName())
+            fetchRequest.predicate = ZMConversation.predicateForConversationsWhereSelfUserIsActive()
+            var result = Set(managedObjectContext.fetchOrAssert(request: fetchRequest))
+            result.remove(ZMConversation.selfConversation(in: managedObjectContext))
+            return result
+        } else {
+            return lastServerSyncedActiveConversations.set as? Set<ZMConversation> ?? Set()
+        }
+    }
+    
 }
 
 public struct AssetKey {
@@ -103,15 +117,6 @@ public struct AssetKey {
     
     public static var allSizes: [ProfileImageSize] {
         return [.preview, .complete]
-    }
-    
-    internal var userKeyPath: String {
-        switch self {
-        case .preview:
-            return #keyPath(ZMUser.imageSmallProfileData)
-        case .complete:
-            return #keyPath(ZMUser.imageMediumData)
-        }
     }
 }
 
@@ -168,43 +173,25 @@ extension ZMUser {
     
     @objc(setImageData:size:)
     public func setImage(data: Data?, size: ProfileImageSize) {
-        let key = size.userKeyPath
-        willChangeValue(forKey: key)
-        if isSelfUser {
-            setPrimitiveValue(data, forKey: key)
-        } else {
-            guard let imageData = data else {
-                managedObjectContext?.zm_userImageCache?.removeAllUserImages(self)
-                return
-            }
-            managedObjectContext?.zm_userImageCache?.setUserImage(self, imageData: imageData, size: size)
+        guard let imageData = data else {
+            managedObjectContext?.zm_userImageCache?.removeAllUserImages(self)
+            return
         }
-        didChangeValue(forKey: key)
-        managedObjectContext?.saveOrRollback()
+        managedObjectContext?.zm_userImageCache?.setUserImage(self, imageData: imageData, size: size)
+        
+        if let uiContext = managedObjectContext?.zm_userInterface {
+            let changedKey = size == .preview ? #keyPath(ZMUser.previewImageData) : #keyPath(ZMUser.completeImageData)
+            NotificationDispatcher.notifyNonCoreDataChanges(objectID: objectID, changedKeys: [changedKey], uiContext: uiContext)
+        }
     }
     
     public func imageData(for size: ProfileImageSize, queue: DispatchQueue, completion: @escaping (_ imageData: Data?) -> Void) {
-        if isSelfUser {
-            let imageData = self.imageData(for: size)
-            
-            queue.async {
-                completion(imageData)
-            }
-        } else {
-            managedObjectContext?.zm_userImageCache?.userImage(self, size: size, queue: queue, completion: completion)
-        }
+        managedObjectContext?.zm_userImageCache?.userImage(self, size: size, queue: queue, completion: completion)
     }
     
     @objc(imageDataforSize:)
     public func imageData(for size: ProfileImageSize) -> Data? {
-        if isSelfUser {
-            willAccessValue(forKey: size.userKeyPath)
-            let value = primitiveValue(forKey: size.userKeyPath) as? Data
-            didAccessValue(forKey: size.userKeyPath)
-            return value
-        } else {
-            return managedObjectContext?.zm_userImageCache?.userImage(self, size: size)
-        }
+        return managedObjectContext?.zm_userImageCache?.userImage(self, size: size)
     }
     
     public static var previewImageDownloadFilter: NSPredicate {
@@ -232,17 +219,12 @@ extension ZMUser {
         setLocallyModifiedKeys([ZMUser.previewProfileAssetIdentifierKey, ZMUser.completeProfileAssetIdentifierKey])
     }
     
-    @objc public func updateAssetData(with assets: NSArray?, hasLegacyImages: Bool, authoritative: Bool) {
+    @objc public func updateAssetData(with assets: NSArray?, authoritative: Bool) {
         guard !hasLocalModifications(forKeys: [ZMUser.previewProfileAssetIdentifierKey, ZMUser.completeProfileAssetIdentifierKey]) else { return }
         guard let assets = assets as? [[String : String]], !assets.isEmpty else {
             if authoritative {
                 previewProfileAssetIdentifier = nil
                 completeProfileAssetIdentifier = nil
-                // Deleting image data only if we don't have V2 profile image as well
-                if !hasLegacyImages {
-                    imageSmallProfileData = nil
-                    imageMediumData = nil
-                }
             }
             return
         }
@@ -252,12 +234,10 @@ extension ZMUser {
                 case .preview:
                     if key.stringValue != previewProfileAssetIdentifier {
                         previewProfileAssetIdentifier = key.stringValue
-                        imageSmallProfileData = nil
                     }
                 case .complete:
                     if key.stringValue != completeProfileAssetIdentifier {
                         completeProfileAssetIdentifier = key.stringValue
-                        imageMediumData = nil
                     }
                 }
             }

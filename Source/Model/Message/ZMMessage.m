@@ -240,6 +240,7 @@ NSString * const ZMMessageNeedsLinkAttachmentsUpdateKey = @"needsLinkAttachments
 - (void)markAsSent
 {
     self.isExpired = NO;
+    [self removeExpirationDate];
 }
 
 - (BOOL)needsReadConfirmation {
