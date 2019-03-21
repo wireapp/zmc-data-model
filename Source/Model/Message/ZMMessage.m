@@ -629,7 +629,7 @@ NSString * const ZMMessageNeedsLinkAttachmentsUpdateKey = @"needsLinkAttachments
     return [NSCompoundPredicate andPredicateWithSubpredicates:@[conversationPredicate, noncePredicate]];
 }
 
-+ (NSPredicate *)predicateForMessagesThatNeedsToUpdateLinkAttachments
++ (NSPredicate *)predicateForMessagesThatNeedToUpdateLinkAttachments
 {
     return [NSPredicate predicateWithFormat:@"(%K == YES)", ZMMessageNeedsLinkAttachmentsUpdateKey];
 }

@@ -231,7 +231,7 @@ inManagedObjectContext:(NSManagedObjectContext * _Nonnull)moc;
 + (NSPredicate * _Nonnull)predicateForMessageInConversation:(ZMConversation * _Nonnull)conversation withNonces:(NSSet <NSUUID *>*  _Nonnull)nonces;
 
 /// Predicate to select messages whose link attachments need to be updated.
-+ (NSPredicate * _Nonnull)predicateForMessagesThatNeedsToUpdateLinkAttachments;
++ (NSPredicate * _Nonnull)predicateForMessagesThatNeedToUpdateLinkAttachments;
 
 @end
 
