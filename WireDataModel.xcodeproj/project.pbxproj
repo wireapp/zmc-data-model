@@ -136,7 +136,7 @@
 		5E771F382080BB0000575629 /* PBMessage+Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E771F372080BB0000575629 /* PBMessage+Validation.swift */; };
 		5E771F3B2080C42300575629 /* PBMessageValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E771F392080C40B00575629 /* PBMessageValidationTests.swift */; };
 		5E9EA4D62242942900D401B2 /* ZMClientMessageTests+LinkAttachments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9EA4D52242942900D401B2 /* ZMClientMessageTests+LinkAttachments.swift */; };
-		5E9EA4D82243A60300D401B2 /* store2-65-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 5E9EA4D72243A60300D401B2 /* store2-65-0.wiredatabase */; };
+		5E9EA4DB2243ADA400D401B2 /* store2-69-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 5E9EA4DA2243ADA400D401B2 /* store2-69-0.wiredatabase */; };
 		5EDDC7A62088CE3B00B24850 /* ZMConversation+Invalid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EDDC7A52088CE3B00B24850 /* ZMConversation+Invalid.swift */; };
 		5EFE9C062125CD3F007932A6 /* UnregisteredUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EFE9C052125CD3F007932A6 /* UnregisteredUser.swift */; };
 		5EFE9C092126BF9D007932A6 /* ZMPropertyNormalizationResult.h in Headers */ = {isa = PBXBuildFile; fileRef = 5EFE9C072126BF9D007932A6 /* ZMPropertyNormalizationResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -692,9 +692,9 @@
 		5E67168D2174B9AF00522E61 /* LoginCredentials.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginCredentials.swift; sourceTree = "<group>"; };
 		5E771F372080BB0000575629 /* PBMessage+Validation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PBMessage+Validation.swift"; sourceTree = "<group>"; };
 		5E771F392080C40B00575629 /* PBMessageValidationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PBMessageValidationTests.swift; sourceTree = "<group>"; };
-		5E9EA49F223FEA7F00D401B2 /* zmessaging2.65.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = zmessaging2.65.0.xcdatamodel; sourceTree = "<group>"; };
 		5E9EA4D52242942900D401B2 /* ZMClientMessageTests+LinkAttachments.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMClientMessageTests+LinkAttachments.swift"; sourceTree = "<group>"; };
-		5E9EA4D72243A60300D401B2 /* store2-65-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; path = "store2-65-0.wiredatabase"; sourceTree = "<group>"; };
+		5E9EA4D92243AC3900D401B2 /* zmessaging2.69.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = zmessaging2.69.0.xcdatamodel; sourceTree = "<group>"; };
+		5E9EA4DA2243ADA400D401B2 /* store2-69-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; path = "store2-69-0.wiredatabase"; sourceTree = "<group>"; };
 		5EDDC7A52088CE3B00B24850 /* ZMConversation+Invalid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMConversation+Invalid.swift"; sourceTree = "<group>"; };
 		5EFE9C052125CD3F007932A6 /* UnregisteredUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UnregisteredUser.swift; sourceTree = "<group>"; };
 		5EFE9C072126BF9D007932A6 /* ZMPropertyNormalizationResult.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ZMPropertyNormalizationResult.h; sourceTree = "<group>"; };
@@ -2145,6 +2145,7 @@
 		F9C9A83D1CAEDBC40039E10C /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				5E9EA4DA2243ADA400D401B2 /* store2-69-0.wiredatabase */,
 				1661673E22394E2A00779AE3 /* store2-68-0.wiredatabase */,
 				166166CC22366C7A00779AE3 /* store2-67-0.wiredatabase */,
 				16B75F69222EEE4000DCAFF2 /* store2-66-0.wiredatabase */,
@@ -2377,6 +2378,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5E9EA4DB2243ADA400D401B2 /* store2-69-0.wiredatabase in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -3035,6 +3037,7 @@
 		F189988C1E7BE03800E579A2 /* zmessaging.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				5E9EA4D92243AC3900D401B2 /* zmessaging2.69.0.xcdatamodel */,
 				1661673D22394B9400779AE3 /* zmessaging2.68.0.xcdatamodel */,
 				166166C92236669C00779AE3 /* zmessaging2.67.0.xcdatamodel */,
 				16B75F52222ED23500DCAFF2 /* zmessaging2.66.0.xcdatamodel */,
@@ -3093,7 +3096,7 @@
 				F18998A41E7BE03800E579A2 /* zmessaging2.8.xcdatamodel */,
 				F18998A51E7BE03800E579A2 /* zmessaging2.9.xcdatamodel */,
 			);
-			currentVersion = 1661673D22394B9400779AE3 /* zmessaging2.68.0.xcdatamodel */;
+			currentVersion = 5E9EA4D92243AC3900D401B2 /* zmessaging2.69.0.xcdatamodel */;
 			path = zmessaging.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
