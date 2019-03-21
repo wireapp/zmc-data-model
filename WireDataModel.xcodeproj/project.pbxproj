@@ -136,7 +136,7 @@
 		5E771F382080BB0000575629 /* PBMessage+Validation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E771F372080BB0000575629 /* PBMessage+Validation.swift */; };
 		5E771F3B2080C42300575629 /* PBMessageValidationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E771F392080C40B00575629 /* PBMessageValidationTests.swift */; };
 		5E9EA4D62242942900D401B2 /* ZMClientMessageTests+LinkAttachments.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E9EA4D52242942900D401B2 /* ZMClientMessageTests+LinkAttachments.swift */; };
-		5E9EA4DB2243ADA400D401B2 /* store2-69-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 5E9EA4DA2243ADA400D401B2 /* store2-69-0.wiredatabase */; };
+		5E9EA4DC2243AE4E00D401B2 /* store2-69-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 5E9EA4DA2243ADA400D401B2 /* store2-69-0.wiredatabase */; };
 		5EDDC7A62088CE3B00B24850 /* ZMConversation+Invalid.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EDDC7A52088CE3B00B24850 /* ZMConversation+Invalid.swift */; };
 		5EFE9C062125CD3F007932A6 /* UnregisteredUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EFE9C052125CD3F007932A6 /* UnregisteredUser.swift */; };
 		5EFE9C092126BF9D007932A6 /* ZMPropertyNormalizationResult.h in Headers */ = {isa = PBXBuildFile; fileRef = 5EFE9C072126BF9D007932A6 /* ZMPropertyNormalizationResult.h */; settings = {ATTRIBUTES = (Public, ); }; };
@@ -2378,7 +2378,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5E9EA4DB2243ADA400D401B2 /* store2-69-0.wiredatabase in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2446,6 +2445,7 @@
 				16A9E354220CAB790062CFCD /* store2-60-0.wiredatabase in Resources */,
 				EF451EA620066E5A005C12F1 /* store2-40-0.wiredatabase in Resources */,
 				54829DB21DE6F7BA009100D3 /* store2-4.wiredatabase in Resources */,
+				5E9EA4DC2243AE4E00D401B2 /* store2-69-0.wiredatabase in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

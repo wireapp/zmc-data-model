@@ -74,6 +74,7 @@ extension ZMClientMessage: ZMTextMessageData {
         self.updatedTimestamp = Date()
         self.reactions.removeAll()
         self.linkPreviewState = fetchLinkPreview ? .waitingToBeProcessed : .done
+        self.needsLinkAttachmentsUpdate = fetchLinkPreview
         self.delivered = false
     }
         
