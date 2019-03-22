@@ -40,6 +40,7 @@
 - (void)setUp {
     [super setUp];
     self.dispatcher = [[NotificationDispatcher alloc] initWithManagedObjectContext:self.uiMOC];
+    self.dispatcher.isDisabled = NO;
 }
 
 - (void)tearDown {
@@ -56,6 +57,7 @@
     c2.conversationType = ZMConversationTypeOneOnOne;
     ZMConversation *c3 = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     c3.conversationType = ZMConversationTypeGroup;
+    XCTAssert([self.uiMOC saveOrRollback]);
     
     // then
     NSArray *list = [ZMConversation conversationsIncludingArchivedInContext:self.uiMOC];
@@ -73,6 +75,7 @@
     c2.conversationType = ZMConversationTypeOneOnOne;
     ZMConversation *c3 = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     c3.conversationType = ZMConversationTypeGroup;
+    XCTAssert([self.uiMOC saveOrRollback]);
     
     // then
     NSArray *list = [ZMConversation conversationsIncludingArchivedInContext:self.uiMOC];
@@ -91,6 +94,7 @@
     ZMConversation *c3 = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     c3.conversationType = ZMConversationTypeGroup;
     c3.isArchived = YES;
+    XCTAssert([self.uiMOC saveOrRollback]);
     
     // then
     NSArray *list = [ZMConversation archivedConversationsInContext:self.uiMOC];
@@ -108,6 +112,7 @@
     connection.conversation = c2;
     connection.to = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     connection.status = ZMConnectionStatusIgnored;
+    XCTAssert([self.uiMOC saveOrRollback]);
     
     // then
     NSArray *list = [ZMConversation conversationsIncludingArchivedInContext:self.uiMOC];
@@ -128,6 +133,7 @@
     c4.conversationType = ZMConversationTypeOneOnOne;
     c4.connection = [ZMConnection insertNewObjectInManagedObjectContext:self.uiMOC];
     c4.connection.status = ZMConnectionStatusBlocked;
+    XCTAssert([self.uiMOC saveOrRollback]);
     
     // then
     NSArray *list = [ZMConversation conversationsExcludingArchivedInContext:self.uiMOC];
@@ -148,6 +154,7 @@
     ZMConversation *c3 = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     c3.conversationType = ZMConversationTypeGroup;
     c3.lastModifiedDate = [c1.lastModifiedDate dateByAddingTimeInterval:-10];
+    XCTAssert([self.uiMOC saveOrRollback]);
     
     // then
     NSArray *list = [ZMConversation conversationsIncludingArchivedInContext:self.uiMOC];
@@ -164,6 +171,8 @@
     c1.lastModifiedDate = [c1.lastModifiedDate dateByAddingTimeInterval:10];
     
     NSArray *list = [ZMConversation conversationsIncludingArchivedInContext:self.uiMOC];
+    XCTAssert([self.uiMOC saveOrRollback]);
+    
     ConversationListChangeObserver *obs = [[ConversationListChangeObserver alloc] initWithConversationList:(ZMConversationList *)list managedObjectContext:self.uiMOC];
     ZMConversation *c2;
     
@@ -174,6 +183,7 @@
         c2 = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
         c2.conversationType = ZMConversationTypeGroup;
         c2.lastModifiedDate = [c1.lastModifiedDate dateByAddingTimeInterval:-20];
+        XCTAssert([self.uiMOC saveOrRollback]);
         WaitForAllGroupsToBeEmpty(0.5);
         
         // then changes are not forwarded
@@ -250,6 +260,7 @@
     ZMConversation *c3 = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     c3.conversationType = ZMConversationTypeGroup;
     c3.lastModifiedDate = [c1.lastModifiedDate dateByAddingTimeInterval:-10];
+    XCTAssert([self.uiMOC saveOrRollback]);
     
     // then
     ZMConversationList *list = [ZMConversation conversationsIncludingArchivedInContext:self.uiMOC];
@@ -313,6 +324,7 @@
     conversation.connection = [ZMConnection insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.connection.status = ZMConnectionStatusSent;
     conversation.connection.to = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
+    XCTAssert([self.uiMOC saveOrRollback]);
     
     // then
     ZMConversationList *list = [ZMConversation conversationsIncludingArchivedInContext:self.uiMOC];
@@ -343,6 +355,7 @@
     conversation.connection = [ZMConnection insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.connection.status = ZMConnectionStatusPending;
     conversation.connection.to = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
+    XCTAssert([self.uiMOC saveOrRollback]);
     
     // then
     ZMConversationList *normalList = [ZMConversation conversationsExcludingArchivedInContext:self.uiMOC];
@@ -415,6 +428,7 @@
     conversation2.connection = [ZMConnection insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation2.connection.status = ZMConnectionStatusPending;
     conversation2.connection.to = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
+    XCTAssert([self.uiMOC saveOrRollback]);
     
     // then
     ZMConversationList *normalList = [ZMConversation conversationsExcludingArchivedInContext:self.uiMOC];
@@ -456,6 +470,7 @@
     conversation.connection = [ZMConnection insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.connection.status = ZMConnectionStatusAccepted;
     conversation.connection.to = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
+    XCTAssert([self.uiMOC saveOrRollback]);
     
     // then
     ZMConversationList *normalList = [ZMConversation conversationsExcludingArchivedInContext:self.uiMOC];
@@ -491,8 +506,8 @@
     c1.lastModifiedDate = [NSDate date];
     ZMMessage *message = (id)[c1 appendMessageWithText:@"message"];
     message.serverTimestamp = [NSDate date];
-    
     c1.lastServerTimeStamp = message.serverTimestamp;
+    XCTAssert([self.uiMOC saveOrRollback]);
     
     ZMConversationList *activeList = [ZMConversation conversationsExcludingArchivedInContext:self.uiMOC];
     ZMConversationList *archivedList = [ZMConversation archivedConversationsInContext:self.uiMOC];
@@ -533,6 +548,7 @@
     ZMMessage *message2 = (id)[c2 appendMessageWithText:@"message 2"];
     message2.serverTimestamp = [NSDate date];
     c2.lastServerTimeStamp = message2.serverTimestamp;
+    XCTAssert([self.uiMOC saveOrRollback]);
 
     NSSet *conversations = [NSSet setWithArray:@[c1, c2]];
     ZMConversationList *activeList = [ZMConversation conversationsExcludingArchivedInContext:self.uiMOC];
@@ -579,6 +595,7 @@
     c1.lastServerTimeStamp = message.serverTimestamp;
     
     [c1 clearMessageHistory];
+    XCTAssert([self.uiMOC saveOrRollback]);
 
     ZMConversationList *activeList = [ZMConversation conversationsExcludingArchivedInContext:self.uiMOC];
     ZMConversationList *archivedList = [ZMConversation archivedConversationsInContext:self.uiMOC];
