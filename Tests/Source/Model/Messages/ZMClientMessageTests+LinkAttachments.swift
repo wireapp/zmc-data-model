@@ -27,9 +27,8 @@ class ZMClientMessageTests_LinkAttachments: BaseZMClientMessageTests {
 
         let message1 = conversation.append(text: "Hello world") as! ZMMessage
         message1.sender = sender
-        message1.needsLinkAttachmentsUpdate = true
 
-        let message2 = conversation.append(text: "Hello world") as! ZMMessage
+        let message2 = conversation.append(text: "Hello world", fetchLinkPreview: false) as! ZMMessage
         message2.sender = sender
         uiMOC.saveOrRollback()
 
@@ -55,8 +54,6 @@ class ZMClientMessageTests_LinkAttachments: BaseZMClientMessageTests {
                                                          permalink: URL(string: "https://www.youtube.com/watch?v=hyTNGkBSjyo")!,
                                                          thumbnails: [thumbnail],
                                                          originalRange: NSRange(location: 20, length: 43))
-
-        attachment.imageCache[thumbnail] = Data()
 
         var message: ZMClientMessage? = conversation.append(text: "Hello world", nonce: nonce) as? ZMClientMessage
         message?.sender = sender
