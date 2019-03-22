@@ -41,7 +41,7 @@ extension ZMClientMessage {
         self.nonce = nonce
         self.updatedTimestamp = updateEvent.timeStamp()
         self.reactions.removeAll()
-        self.needsLinkAttachmentsUpdate = true
+        self.linkAttachments = nil
         
         return true
     }

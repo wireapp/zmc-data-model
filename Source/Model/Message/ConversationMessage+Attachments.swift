@@ -35,5 +35,4 @@ extension ZMConversationMessage {
         }
     }
 
-
 }
