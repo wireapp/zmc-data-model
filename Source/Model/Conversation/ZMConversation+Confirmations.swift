@@ -43,7 +43,7 @@ extension ZMConversation {
         
         return confirmationMessages
     }
-    
+    /*
     @discardableResult
     func confirmMessagesAsDelivered() -> [ZMClientMessage] {
         
@@ -57,7 +57,56 @@ extension ZMConversation {
         }
         
         return confirmationMessages
+    }*/
+    
+    
+    public static func confirmDeliveredMessages(_ messages: NSMutableSet, in conversations: NSMutableSet, with managedObjectContext: NSManagedObjectContext) {
+        
+        for conversationID in conversations {
+            guard let conversationID = conversationID as? UUID,
+                let convo = ZMConversation(remoteID: conversationID, createIfNeeded: false, in: managedObjectContext)
+                else { continue }
+
+            convo.appendConfirmationMessage(for: messages, in: managedObjectContext)
+        }
     }
+    
+    func appendConfirmationMessage(for messages: NSMutableSet, in managedObjectContext: NSManagedObjectContext) {
+        guard messages.count > 0 else { return }
+        
+        var deliveredMessages: [ZMMessage] = []
+        
+        for messageID in messages {
+            guard let messageID = messageID as? UUID,
+                let message = ZMMessage.fetch(withNonce: messageID, for: self, in: managedObjectContext)
+                else { continue }
+            deliveredMessages.append(message)
+        }
+        
+        appendClientMessage(with:
+            ZMGenericMessage.message(content:
+                ZMConfirmation.confirm(messages: deliveredMessages.compactMap(\.nonce), type: .DELIVERED)),
+                            expires: false,
+                            hidden: true)
+    }
+    
+    /*
+    internal func messagesThatNeedDeliveryReceipts(nonces: [Any]) -> [ZMMessage] {
+        
+        var messages: [ZMMessage] = []
+        
+        for item in nonces {
+            guard let item = item as? UUID else { continue }
+            let message = ZMMessage(nonce: item, managedObjectContext: syncMOC)
+            
+            if message.deliveryState != .delivered && message.deliveryState != .read {
+                messages.append(message)
+            }
+        }
+        
+        return messages
+    }*/
+    
     
     @discardableResult @objc
     public func appendMessageReceiptModeChangedMessage(fromUser user: ZMUser, timestamp: Date, enabled: Bool) -> ZMSystemMessage {
