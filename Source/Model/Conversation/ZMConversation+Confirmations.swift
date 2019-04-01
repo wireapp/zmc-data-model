@@ -66,7 +66,10 @@ extension ZMConversation {
             }
         }
         
-        _ = append(message: ZMConfirmation.confirm(messages: deliveredMessages, type: .DELIVERED), hidden: true)
+        if deliveredMessages.count > 0 {
+            _ = append(message: ZMConfirmation.confirm(messages: deliveredMessages, type: .DELIVERED), hidden: true)
+        }
+        
     }
     
     @discardableResult @objc
