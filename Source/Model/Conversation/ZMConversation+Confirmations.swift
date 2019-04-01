@@ -61,7 +61,9 @@ extension ZMConversation {
         for messageID in messages {
             guard let message = ZMMessage.fetch(withNonce: messageID, for: self, in: managedObjectContext)
                 else { continue }
-            if message.deliveryState != .delivered && message.deliveryState != .read {
+            if message.deliveryState != .delivered
+                && message.deliveryState != .read
+                && message.sender?.isSelfUser == false {
                 deliveredMessages.append(messageID)
             }
         }
