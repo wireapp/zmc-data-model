@@ -32,7 +32,6 @@ final class ZMConversationListTests_Teams: ZMBaseManagedObjectTest {
         team = createTeam()
         otherTeam = createTeam()
         dispatcher = NotificationDispatcher(managedObjectContext: uiMOC)
-        dispatcher.isDisabled = false
     }
 
     override func tearDown() {

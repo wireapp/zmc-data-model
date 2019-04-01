@@ -40,7 +40,6 @@
 - (void)setUp {
     [super setUp];
     self.dispatcher = [[NotificationDispatcher alloc] initWithManagedObjectContext:self.uiMOC];
-    self.dispatcher.isDisabled = NO;
 }
 
 - (void)tearDown {

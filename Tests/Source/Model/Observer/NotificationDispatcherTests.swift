@@ -58,7 +58,6 @@ extension ObjectChangeInfo {
         super.setUp()
         conversationObserver = ConversationObserver()
         sut = NotificationDispatcher(managedObjectContext: uiMOC)
-        sut.isDisabled = false
         NotificationCenter.default.addObserver(self, selector: #selector(NotificationDispatcherTestBase.contextDidMerge(_:)), name: Notification.Name.NSManagedObjectContextDidSave, object: syncMOC)
         mergeNotifications = []
     }

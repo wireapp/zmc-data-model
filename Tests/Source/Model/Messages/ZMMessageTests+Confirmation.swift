@@ -531,7 +531,6 @@ extension ZMMessageTests_Confirmation {
     func testThatItSendsOutNotificationsForTheDeliveryStatusChange(){
         // given
         let dispatcher = NotificationDispatcher(managedObjectContext: uiMOC)
-        dispatcher.isDisabled = false
         
         defer {
             dispatcher.tearDown()

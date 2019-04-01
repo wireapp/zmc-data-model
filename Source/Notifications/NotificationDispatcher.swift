@@ -118,8 +118,6 @@ extension ZMManagedObject {
  * Observes changes to observeable entities (messages, users, conversations, ...) by listening to managed object context
  * save notifications or by us manually telling it about non-core data changes. The `NotificationDispatcher` only observes
  * objects on the main (UI) mananged object context.
- *
- *  NOTE: the `NotificationDispatcher` is disabled by default after creation.
  */
 @objcMembers public class NotificationDispatcher : NSObject {
 
@@ -153,7 +151,7 @@ extension ZMManagedObject {
         return !isDisabled && !isInBackground
     }
     
-    private var isObserving : Bool = false {
+    private var isObserving : Bool = true {
         didSet {
             guard oldValue != isObserving else { return }
             
@@ -168,7 +166,7 @@ extension ZMManagedObject {
     }
     
     /// If `isDisabled` is true no change notifications will be generated
-    @objc public var isDisabled: Bool = true {
+    @objc public var isDisabled: Bool = false {
         didSet {
             isObserving = shouldStartObserving
         }
