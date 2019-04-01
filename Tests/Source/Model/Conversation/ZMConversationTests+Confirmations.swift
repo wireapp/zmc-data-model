@@ -94,6 +94,7 @@ class ZMConversationTests_Confirmations: ZMConversationTestsBase {
     func testThatConfirmSentMessagesAsDelivered() {
         // given
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
+        conversation.remoteIdentifier = UUID.create()
         
         let user1 = createUser()!
         let user2 = createUser()!
@@ -109,19 +110,97 @@ class ZMConversationTests_Confirmations: ZMConversationTestsBase {
         message3.sender = user2
         
         conversation.conversationType = .group
-        conversation.lastReadServerTimeStamp = .distantPast
         
         // when
-        let confirmMessages = conversation.confirmMessagesAsDelivered()
+        
+        let messagesUUIDs: [UUID] = [message1.nonce!, message2.nonce!, message3.nonce!]
+        let conversationsUUIDs: [UUID] = [conversation.remoteIdentifier!]
+        
+        ZMConversation.confirmDeliveredMessages(messagesUUIDs,
+                                                in: conversationsUUIDs,
+                                                with: self.uiMOC)
         
         // then
-        XCTAssertEqual(confirmMessages.count, 1)
+        guard let lastMessage = (conversation.hiddenMessages.first as? ZMClientMessage)?.genericMessage else { XCTFail(); return }
+        XCTAssertNotNil(lastMessage.confirmation)
+        XCTAssertEqual(lastMessage.confirmation.firstMessageId, message1.nonce!.transportString())
+        XCTAssertEqual(lastMessage.confirmation.moreMessageIds(at: 0), message2.nonce!.transportString())
+        XCTAssertEqual(lastMessage.confirmation.moreMessageIds(at: 1), message3.nonce!.transportString())
+    }
+    
+    func testThatConfirmedMessagesAreNotMarkedAsConfirmed() {
+        // given
+        let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
+        conversation.remoteIdentifier = UUID.create()
         
-        let confirmation = confirmMessages[0].genericMessage?.confirmation
-        XCTAssertNotNil(confirmation)
-        XCTAssertEqual(confirmation?.type, ZMConfirmationType.DELIVERED)
-        XCTAssertEqual(confirmation?.firstMessageId, message1.nonce?.transportString())
-        XCTAssertEqual(confirmation?.moreMessageIds as! [String],
-                       [message2.nonce!.transportString(), message3.nonce?.transportString()])
+        let user1 = createUser()!
+        let user2 = createUser()!
+        
+        let message1 = conversation.append(text: "text1") as! ZMClientMessage
+        let message2 = conversation.append(text: "text2") as! ZMClientMessage
+        [message1, message2].forEach({ $0.markAsSent() })
+        
+        message1.sender = user1
+        message2.sender = user2
+        
+        conversation.conversationType = .group
+        
+        // when
+        
+        let confirmation = ZMMessageConfirmation(type: .delivered, message: message1, sender: user1, serverTimestamp: Date(), managedObjectContext: uiMOC)
+        message1.mutableSetValue(forKey: "confirmations").add(confirmation)
+        
+        let messagesUUIDs: [UUID] = [message1.nonce!, message2.nonce!]
+        let conversationsUUIDs: [UUID] = [conversation.remoteIdentifier!]
+        
+        ZMConversation.confirmDeliveredMessages(messagesUUIDs,
+                                                in: conversationsUUIDs,
+                                                with: self.uiMOC)
+        
+        // then
+        XCTAssertEqual(message1.deliveryState, ZMDeliveryState.delivered)
+        XCTAssertEqual(message1.confirmations.count, 1)
+        guard let lastMessage = (conversation.hiddenMessages.first as? ZMClientMessage)?.genericMessage else { XCTFail(); return }
+        XCTAssertNotNil(lastMessage.confirmation)
+        XCTAssertEqual(lastMessage.confirmation.firstMessageId, message2.nonce!.transportString())
+        XCTAssertNil(lastMessage.confirmation.moreMessageIds)
+    }
+    
+    func testThatReadMessagesAreNotMarkedAsConfirmed() {
+        // given
+        let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
+        conversation.remoteIdentifier = UUID.create()
+        
+        let user1 = createUser()!
+        let user2 = createUser()!
+        
+        let message1 = conversation.append(text: "text1") as! ZMClientMessage
+        let message2 = conversation.append(text: "text2") as! ZMClientMessage
+        [message1, message2].forEach({ $0.markAsSent() })
+        
+        message1.sender = user1
+        message2.sender = user2
+        
+        conversation.conversationType = .group
+        
+        // when
+        
+        let confirmation = ZMMessageConfirmation(type: .read, message: message1, sender: user1, serverTimestamp: Date(), managedObjectContext: uiMOC)
+        message1.mutableSetValue(forKey: "confirmations").add(confirmation)
+        
+        let messagesUUIDs: [UUID] = [message1.nonce!, message2.nonce!]
+        let conversationsUUIDs: [UUID] = [conversation.remoteIdentifier!]
+        
+        ZMConversation.confirmDeliveredMessages(messagesUUIDs,
+                                                in: conversationsUUIDs,
+                                                with: self.uiMOC)
+        
+        // then
+        XCTAssertEqual(message1.deliveryState, ZMDeliveryState.read)
+        XCTAssertEqual(message1.confirmations.count, 1)
+        guard let lastMessage = (conversation.hiddenMessages.first as? ZMClientMessage)?.genericMessage else { XCTFail(); return }
+        XCTAssertNotNil(lastMessage.confirmation)
+        XCTAssertEqual(lastMessage.confirmation.firstMessageId, message2.nonce!.transportString())
+        XCTAssertNil(lastMessage.confirmation.moreMessageIds)
     }
 }

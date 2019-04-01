@@ -44,36 +44,29 @@ extension ZMConversation {
         return confirmationMessages
     }
     
-    public static func confirmDeliveredMessages(_ messages: NSMutableSet, in conversations: NSMutableSet, with managedObjectContext: NSManagedObjectContext) {
+    public static func confirmDeliveredMessages(_ messages: [UUID], in conversations: [UUID], with managedObjectContext: NSManagedObjectContext) {
         
         for conversationID in conversations {
-            guard let conversationID = conversationID as? UUID,
-                let convo = ZMConversation(remoteID: conversationID, createIfNeeded: false, in: managedObjectContext)
+            guard let convo = ZMConversation(remoteID: conversationID, createIfNeeded: false, in: managedObjectContext)
                 else { continue }
 
             convo.appendConfirmationMessage(for: messages, in: managedObjectContext)
         }
     }
     
-    func appendConfirmationMessage(for messages: NSMutableSet, in managedObjectContext: NSManagedObjectContext) {
+    private func appendConfirmationMessage(for messages: [UUID], in managedObjectContext: NSManagedObjectContext) {
         guard messages.count > 0 else { return }
         
         var deliveredMessages: [UUID] = []
-        
         for messageID in messages {
-            guard let messageID = messageID as? UUID,
-                let message = ZMMessage.fetch(withNonce: messageID, for: self, in: managedObjectContext)
+            guard let message = ZMMessage.fetch(withNonce: messageID, for: self, in: managedObjectContext)
                 else { continue }
             if message.deliveryState != .delivered && message.deliveryState != .read {
                 deliveredMessages.append(messageID)
             }
         }
         
-        appendClientMessage(with:
-            ZMGenericMessage.message(content:
-                ZMConfirmation.confirm(messages: deliveredMessages, type: .DELIVERED)),
-                            expires: false,
-                            hidden: true)
+        _ = append(message: ZMConfirmation.confirm(messages: deliveredMessages, type: .DELIVERED), hidden: true)
     }
     
     @discardableResult @objc
