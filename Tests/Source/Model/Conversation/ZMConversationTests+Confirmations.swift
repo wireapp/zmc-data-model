@@ -109,14 +109,14 @@ class ZMConversationTests_Confirmations: ZMConversationTestsBase {
         message2.sender = user1
         message3.sender = user2
         
-        conversation.conversationType = .group
+        conversation.conversationType = .oneOnOne
         
         // when
         
         let messagesUUIDs: [UUID] = [message1.nonce!, message2.nonce!, message3.nonce!]
         let conversationsUUIDs: [UUID] = [conversation.remoteIdentifier!]
         
-        ZMConversation.confirmDeliveredMessages(messagesUUIDs,
+        _ = ZMConversation.confirmDeliveredMessages(messagesUUIDs,
                                                 in: conversationsUUIDs,
                                                 with: self.uiMOC)
         
@@ -148,15 +148,15 @@ class ZMConversationTests_Confirmations: ZMConversationTestsBase {
         message1.sender = user1
         message2.sender = user2
         
-        conversation1.conversationType = .group
-        conversation2.conversationType = .group
+        conversation1.conversationType = .oneOnOne
+        conversation2.conversationType = .oneOnOne
         
         // when
         
         let messagesUUIDs: [UUID] = [message1.nonce!, message2.nonce!]
         let conversationsUUIDs: [UUID] = [conversation1.remoteIdentifier!, conversation2.remoteIdentifier!]
         
-        ZMConversation.confirmDeliveredMessages(messagesUUIDs,
+        _ = ZMConversation.confirmDeliveredMessages(messagesUUIDs,
                                                 in: conversationsUUIDs,
                                                 with: self.uiMOC)
         
@@ -185,7 +185,7 @@ class ZMConversationTests_Confirmations: ZMConversationTestsBase {
         message1.sender = user1
         message2.sender = user2
         
-        conversation.conversationType = .group
+        conversation.conversationType = .oneOnOne
         
         // when
         
@@ -195,7 +195,7 @@ class ZMConversationTests_Confirmations: ZMConversationTestsBase {
         let messagesUUIDs: [UUID] = [message1.nonce!, message2.nonce!]
         let conversationsUUIDs: [UUID] = [conversation.remoteIdentifier!]
         
-        ZMConversation.confirmDeliveredMessages(messagesUUIDs,
+        _ = ZMConversation.confirmDeliveredMessages(messagesUUIDs,
                                                 in: conversationsUUIDs,
                                                 with: self.uiMOC)
         
@@ -223,7 +223,7 @@ class ZMConversationTests_Confirmations: ZMConversationTestsBase {
         message1.sender = user1
         message2.sender = user2
         
-        conversation.conversationType = .group
+        conversation.conversationType = .oneOnOne
         
         // when
         
@@ -233,7 +233,7 @@ class ZMConversationTests_Confirmations: ZMConversationTestsBase {
         let messagesUUIDs: [UUID] = [message1.nonce!, message2.nonce!]
         let conversationsUUIDs: [UUID] = [conversation.remoteIdentifier!]
         
-        ZMConversation.confirmDeliveredMessages(messagesUUIDs,
+        _ = ZMConversation.confirmDeliveredMessages(messagesUUIDs,
                                                 in: conversationsUUIDs,
                                                 with: self.uiMOC)
         

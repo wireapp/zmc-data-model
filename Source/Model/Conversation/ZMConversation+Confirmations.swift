@@ -44,34 +44,32 @@ extension ZMConversation {
         return confirmationMessages
     }
     
-    public static func confirmDeliveredMessages(_ messages: [UUID], in conversations: [UUID], with managedObjectContext: NSManagedObjectContext) {
+    public static func confirmDeliveredMessages(_ messages: [UUID], in conversations: [UUID], with managedObjectContext: NSManagedObjectContext) -> [ZMMessage] {
         
+        var confirmationMessages: [ZMMessage] = []
         for conversationID in conversations {
-            guard let convo = ZMConversation(remoteID: conversationID, createIfNeeded: false, in: managedObjectContext)
+            guard let convo = ZMConversation(remoteID: conversationID, createIfNeeded: false, in: managedObjectContext),
+                let confirmation = convo.appendConfirmationMessage(for: messages, in: managedObjectContext)
                 else { continue }
-
-            convo.appendConfirmationMessage(for: messages, in: managedObjectContext)
+            confirmationMessages.append(confirmation)
         }
+        
+        return confirmationMessages
     }
     
-    private func appendConfirmationMessage(for messages: [UUID], in managedObjectContext: NSManagedObjectContext) {
-        guard messages.count > 0 else { return }
+    private func appendConfirmationMessage(for messages: [UUID], in managedObjectContext: NSManagedObjectContext) -> ZMMessage? {
+        guard messages.count > 0 else { return nil }
         
         var deliveredMessages: [UUID] = []
         for messageID in messages {
-            guard let message = ZMMessage.fetch(withNonce: messageID, for: self, in: managedObjectContext)
+            guard let message = ZMOTRMessage.fetch(withNonce: messageID, for: self, in: managedObjectContext),
+                      message.needsDeliveryConfirmation
                 else { continue }
-            if message.deliveryState != .delivered
-                && message.deliveryState != .read
-                && message.sender?.isSelfUser == false {
-                deliveredMessages.append(messageID)
-            }
+            deliveredMessages.append(messageID)
         }
         
-        if deliveredMessages.count > 0 {
-            _ = append(message: ZMConfirmation.confirm(messages: deliveredMessages, type: .DELIVERED), hidden: true)
-        }
-        
+        guard deliveredMessages.count > 0 else { return nil }
+        return append(message: ZMConfirmation.confirm(messages: deliveredMessages, type: .DELIVERED), hidden: true)
     }
     
     @discardableResult @objc
