@@ -102,8 +102,8 @@ class ZMConversationTests_Confirmations: ZMConversationTestsBase {
         let message1 = conversation.append(text: "text1") as! ZMClientMessage
         let message2 = conversation.append(text: "text2") as! ZMClientMessage
         let message3 = conversation.append(text: "text3") as! ZMClientMessage
-        
-        [message1, message2, message3].forEach({ $0.markAsSent() })
+        let messages = [message1, message2, message3]
+        messages.forEach({ $0.markAsSent() })
         
         message1.sender = user1
         message2.sender = user1
@@ -113,19 +113,24 @@ class ZMConversationTests_Confirmations: ZMConversationTestsBase {
         
         // when
         
-        let messagesUUIDs: [UUID] = [message1.nonce!, message2.nonce!, message3.nonce!]
-        let conversationsUUIDs: [UUID] = [conversation.remoteIdentifier!]
+        let messagesUUIDs: Set<UUID> = [message1.nonce!, message2.nonce!, message3.nonce!]
+        let conversationsUUIDs: Set<UUID> = [conversation.remoteIdentifier!]
         
         _ = ZMConversation.confirmDeliveredMessages(messagesUUIDs,
                                                 in: conversationsUUIDs,
                                                 with: self.uiMOC)
         
         // then
+        var nonces = Set(messagesUUIDs.map { $0.transportString() })
         guard let lastMessage = (conversation.hiddenMessages.first as? ZMClientMessage)?.genericMessage else { XCTFail(); return }
         XCTAssertNotNil(lastMessage.confirmation)
-        XCTAssertEqual(lastMessage.confirmation.firstMessageId, message1.nonce!.transportString())
-        XCTAssertEqual(lastMessage.confirmation.moreMessageIds(at: 0), message2.nonce!.transportString())
-        XCTAssertEqual(lastMessage.confirmation.moreMessageIds(at: 1), message3.nonce!.transportString())
+        
+        // Verifies that first message ID is in the set of added nonces
+        XCTAssertNotNil(nonces.remove(at: nonces.firstIndex(of: lastMessage.confirmation!.firstMessageId!)!))
+        // Verifies that other nonces are included in the "moreMessageIds" array
+        XCTAssertTrue(nonces.isSubset(of: lastMessage.confirmation!.moreMessageIds as! [String]))
+        
+        XCTAssertEqual(lastMessage.confirmation.moreMessageIds?.count, 2)
     }
     
     func testThatItConfirmsMessagesOnMultipleConversationsAsDelivered() {
@@ -153,8 +158,8 @@ class ZMConversationTests_Confirmations: ZMConversationTestsBase {
         
         // when
         
-        let messagesUUIDs: [UUID] = [message1.nonce!, message2.nonce!]
-        let conversationsUUIDs: [UUID] = [conversation1.remoteIdentifier!, conversation2.remoteIdentifier!]
+        let messagesUUIDs: Set<UUID> = [message1.nonce!, message2.nonce!]
+        let conversationsUUIDs: Set<UUID> = [conversation1.remoteIdentifier!, conversation2.remoteIdentifier!]
         
         _ = ZMConversation.confirmDeliveredMessages(messagesUUIDs,
                                                 in: conversationsUUIDs,
@@ -164,10 +169,12 @@ class ZMConversationTests_Confirmations: ZMConversationTestsBase {
         guard let lastMessageC1 = (conversation1.hiddenMessages.first as? ZMClientMessage)?.genericMessage else { XCTFail(); return }
         XCTAssertNotNil(lastMessageC1.confirmation)
         XCTAssertEqual(lastMessageC1.confirmation.firstMessageId, message1.nonce!.transportString())
+        XCTAssertNil(lastMessageC1.confirmation.moreMessageIds)
         
         guard let lastMessageC2 = (conversation2.hiddenMessages.first as? ZMClientMessage)?.genericMessage else { XCTFail(); return }
         XCTAssertNotNil(lastMessageC2.confirmation)
         XCTAssertEqual(lastMessageC2.confirmation.firstMessageId, message2.nonce!.transportString())
+        XCTAssertNil(lastMessageC2.confirmation.moreMessageIds)
     }
     
     func testThatConfirmedMessagesAreNotMarkedAsConfirmed() {
@@ -192,8 +199,8 @@ class ZMConversationTests_Confirmations: ZMConversationTestsBase {
         let confirmation = ZMMessageConfirmation(type: .delivered, message: message1, sender: user1, serverTimestamp: Date(), managedObjectContext: uiMOC)
         message1.mutableSetValue(forKey: "confirmations").add(confirmation)
         
-        let messagesUUIDs: [UUID] = [message1.nonce!, message2.nonce!]
-        let conversationsUUIDs: [UUID] = [conversation.remoteIdentifier!]
+        let messagesUUIDs: Set<UUID> = [message1.nonce!, message2.nonce!]
+        let conversationsUUIDs: Set<UUID> = [conversation.remoteIdentifier!]
         
         _ = ZMConversation.confirmDeliveredMessages(messagesUUIDs,
                                                 in: conversationsUUIDs,
@@ -230,8 +237,8 @@ class ZMConversationTests_Confirmations: ZMConversationTestsBase {
         let confirmation = ZMMessageConfirmation(type: .read, message: message1, sender: user1, serverTimestamp: Date(), managedObjectContext: uiMOC)
         message1.mutableSetValue(forKey: "confirmations").add(confirmation)
         
-        let messagesUUIDs: [UUID] = [message1.nonce!, message2.nonce!]
-        let conversationsUUIDs: [UUID] = [conversation.remoteIdentifier!]
+        let messagesUUIDs: Set<UUID> = [message1.nonce!, message2.nonce!]
+        let conversationsUUIDs: Set<UUID> = [conversation.remoteIdentifier!]
         
         _ = ZMConversation.confirmDeliveredMessages(messagesUUIDs,
                                                 in: conversationsUUIDs,

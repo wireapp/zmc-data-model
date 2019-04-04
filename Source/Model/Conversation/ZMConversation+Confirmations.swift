@@ -44,12 +44,12 @@ extension ZMConversation {
         return confirmationMessages
     }
     
-    public static func confirmDeliveredMessages(_ messages: [UUID], in conversations: [UUID], with managedObjectContext: NSManagedObjectContext) -> [ZMMessage] {
-        
+    public static func confirmDeliveredMessages(_ messages: Set<UUID>, in conversations: Set<UUID>, with managedObjectContext: NSManagedObjectContext) -> [ZMMessage] {
+        guard let conversationObjects = ZMConversation.fetchObjects(withRemoteIdentifiers: conversations, in: managedObjectContext) as? Set<ZMConversation> else { return [] }
         var confirmationMessages: [ZMMessage] = []
-        for conversationID in conversations {
-            guard let convo = ZMConversation(remoteID: conversationID, createIfNeeded: false, in: managedObjectContext),
-                let confirmation = convo.appendConfirmationMessage(for: messages, in: managedObjectContext)
+        
+        for conversation in conversationObjects {
+            guard let confirmation = conversation.appendConfirmationMessage(for: messages, in: managedObjectContext)
                 else { continue }
             confirmationMessages.append(confirmation)
         }
@@ -57,16 +57,11 @@ extension ZMConversation {
         return confirmationMessages
     }
     
-    private func appendConfirmationMessage(for messages: [UUID], in managedObjectContext: NSManagedObjectContext) -> ZMMessage? {
-        guard messages.count > 0 else { return nil }
+    private func appendConfirmationMessage(for messages: Set<UUID>, in managedObjectContext: NSManagedObjectContext) -> ZMMessage? {
+        guard let messageObjects = ZMOTRMessage.fetchObjects(withRemoteIdentifiers: messages, in: managedObjectContext) as? Set<ZMOTRMessage>
+            else { return nil }
         
-        var deliveredMessages: [UUID] = []
-        for messageID in messages {
-            guard let message = ZMOTRMessage.fetch(withNonce: messageID, for: self, in: managedObjectContext),
-                      message.needsDeliveryConfirmation
-                else { continue }
-            deliveredMessages.append(messageID)
-        }
+        let deliveredMessages = messageObjects.filter { $0.conversation == self && $0.needsDeliveryConfirmation }.compactMap(\.nonce)
         
         guard deliveredMessages.count > 0 else { return nil }
         return append(message: ZMConfirmation.confirm(messages: deliveredMessages, type: .DELIVERED), hidden: true)
