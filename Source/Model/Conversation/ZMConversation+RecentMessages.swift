@@ -67,13 +67,19 @@ extension ZMConversation {
         managedObjectContext?.processPendingChanges()
     }
     
-    @objc public var lastMessage: ZMMessage? {
+    @objc public func lastMessages(limit: Int = 50) -> [ZMMessage] {
+        guard let managedObjectContext = managedObjectContext else { return [] }
+        
         let fetchRequest = NSFetchRequest<ZMMessage>(entityName: ZMMessage.entityName())
-        fetchRequest.fetchLimit = 1
+        fetchRequest.fetchLimit = limit
         fetchRequest.predicate = NSPredicate(format: "%K == %@", #keyPath(ZMMessage.visibleInConversation), self)
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: #keyPath(ZMMessage.serverTimestamp), ascending: false)]
         
-        return self.managedObjectContext?.fetchOrAssert(request: fetchRequest).first
+        return managedObjectContext.fetchOrAssert(request: fetchRequest)
+    }
+    
+    @objc public var lastMessage: ZMMessage? {
+        return lastMessages(limit: 1).first
     }
     
     public func lastMessageSent(by user: ZMUser) -> ZMMessage? {

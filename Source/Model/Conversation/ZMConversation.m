@@ -601,13 +601,13 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 - (ZMMessage *)lastEditableMessage;
 {
     __block ZMMessage *result;
-    [self.recentMessages enumerateObjectsWithOptions:NSEnumerationReverse
-                                    usingBlock:^(ZMMessage *message, NSUInteger ZM_UNUSED idx, BOOL *stop) {
-                                            if ([message isEditableMessage]) {
-                                                result = message;
-                                                *stop = YES;
-                                            }
-                                    }];
+    [[self lastMessagesWithLimit:50] enumerateObjectsWithOptions:NSEnumerationReverse
+                                                      usingBlock:^(ZMMessage *message, NSUInteger ZM_UNUSED idx, BOOL *stop) {
+                                                          if ([message isEditableMessage]) {
+                                                              result = message;
+                                                              *stop = YES;
+                                                          }
+                                                      }];
     return result;
 }
 
@@ -636,10 +636,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (BOOL)canMarkAsUnread
 {
-    if (self.recentMessages.count == 0) {
-        return NO;
-    }
-    
     if (self.estimatedUnreadCount > 0) {
         return NO;
     }
@@ -653,19 +649,13 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (ZMMessage *)lastMessageCanBeMarkedUnread
 {
-    NSUInteger lastMessageIndexCanBeMarkedUnread = [self.recentMessages indexOfObjectWithOptions:NSEnumerationReverse
-                                                                                     passingTest:^BOOL(ZMMessage *message, NSUInteger idx, BOOL *stop) {
-        NOT_USED(idx);
-        NOT_USED(stop);
-        return message.canBeMarkedUnread;
-    }];
+    for (ZMMessage *message in [[self lastMessagesWithLimit:50] reverseObjectEnumerator]) {
+        if (message.canBeMarkedUnread) {
+            return message;
+        }
+    }
     
-    if (lastMessageIndexCanBeMarkedUnread != NSNotFound) {
-        return self.recentMessages[self.recentMessages.count - lastMessageIndexCanBeMarkedUnread - 1];
-    }
-    else {
-        return nil;
-    }
+    return nil;
 }
 
 - (void)markAsUnread
