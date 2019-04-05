@@ -127,8 +127,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @property (nonatomic) NSDate *archivedChangedTimestamp;
 @property (nonatomic) NSDate *silencedChangedTimestamp;
 
-@property (nonatomic) id _recentMessagesFetcher;
-
 @end
 
 /// Declaration of properties implemented (automatically) by Core Data
@@ -163,7 +161,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @synthesize pendingLastReadServerTimestamp;
 @synthesize lastReadTimestampSaveDelay;
 @synthesize lastReadTimestampUpdateCounter;
-@synthesize _recentMessagesFetcher;
 
 - (BOOL)isArchived
 {
@@ -255,14 +252,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         }];
     }
 }
-
-- (void)willTurnIntoFault
-{
-    [super willTurnIntoFault];
-    self._recentMessagesFetcher = nil;
-}
-
-
 
 -(NSSet <ZMUser *> *)activeParticipants
 {
@@ -992,8 +981,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     message.visibleInConversation = self;
     
     [self addAllMessagesObject:message];
-    [self updateMessageFetcher];
-    
     [self updateTimestampsAfterInsertingMessage:message];
 }
 
