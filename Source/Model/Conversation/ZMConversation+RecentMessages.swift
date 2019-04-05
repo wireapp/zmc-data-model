@@ -67,6 +67,7 @@ extension ZMConversation {
         managedObjectContext?.processPendingChanges()
     }
     
+    /// Returns a list of the most recent messages in the conversation, ordered from most recent to oldest.
     @objc public func lastMessages(limit: Int = 50) -> [ZMMessage] {
         guard let managedObjectContext = managedObjectContext else { return [] }
         
@@ -78,10 +79,12 @@ extension ZMConversation {
         return managedObjectContext.fetchOrAssert(request: fetchRequest)
     }
     
+    /// Returns the most recent message in the conversation.
     @objc public var lastMessage: ZMMessage? {
         return lastMessages(limit: 1).first
     }
     
+    /// Returns the most recent message sent by a particular user in the conversation.
     public func lastMessageSent(by user: ZMUser) -> ZMMessage? {
         let fetchRequest = NSFetchRequest<ZMMessage>(entityName: ZMMessage.entityName())
         fetchRequest.fetchLimit = 1

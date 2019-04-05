@@ -601,13 +601,13 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 - (ZMMessage *)lastEditableMessage;
 {
     __block ZMMessage *result;
-    [[self lastMessagesWithLimit:50] enumerateObjectsWithOptions:NSEnumerationReverse
-                                                      usingBlock:^(ZMMessage *message, NSUInteger ZM_UNUSED idx, BOOL *stop) {
-                                                          if ([message isEditableMessage]) {
-                                                              result = message;
-                                                              *stop = YES;
-                                                          }
-                                                      }];
+    [[self lastMessagesWithLimit:50] enumerateObjectsUsingBlock:^(ZMMessage * _Nonnull message, NSUInteger idx, BOOL * _Nonnull stop) {
+        NOT_USED(idx);
+        if ([message isEditableMessage]) {
+            result = message;
+            *stop = YES;
+        }
+    }];
     return result;
 }
 
@@ -649,7 +649,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 - (ZMMessage *)lastMessageCanBeMarkedUnread
 {
-    for (ZMMessage *message in [[self lastMessagesWithLimit:50] reverseObjectEnumerator]) {
+    for (ZMMessage *message in [self lastMessagesWithLimit:50]) {
         if (message.canBeMarkedUnread) {
             return message;
         }
