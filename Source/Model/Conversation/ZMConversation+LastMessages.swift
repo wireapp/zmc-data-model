@@ -19,6 +19,25 @@
 import Foundation
 
 extension ZMConversation {
+    public var visibleMessagesPredicate: NSPredicate? {
+        var allPredicates: [NSPredicate] = []
+        
+        if let clearedTimeStamp = self.clearedTimeStamp {
+            // This must filter out:
+            // 1. Messages that are older than clearedTimeStamp.
+            // 2. But NOT the messages that are pending, i.e. still can be uploaded.
+            let deliveryIsPendingPredicate = NSPredicate(format: "%K == NO AND %K == NO", #keyPath(ZMMessage.isExpired), #keyPath(ZMOTRMessage.delivered))
+            let messageIsNotCleared = NSPredicate(format: "%K > %@", #keyPath(ZMMessage.serverTimestamp), clearedTimeStamp as CVarArg)
+            allPredicates.append(NSCompoundPredicate(orPredicateWithSubpredicates: [deliveryIsPendingPredicate, messageIsNotCleared]))
+        }
+        
+        allPredicates.append(NSPredicate(format: "%K == %@", #keyPath(ZMMessage.visibleInConversation), self))
+        
+        return NSCompoundPredicate(andPredicateWithSubpredicates: allPredicates)
+    }
+}
+
+extension ZMConversation {
 
     /// Returns a list of the most recent messages in the conversation, ordered from most recent to oldest.
     @objc public func lastMessages(limit: Int = 256) -> [ZMMessage] {
