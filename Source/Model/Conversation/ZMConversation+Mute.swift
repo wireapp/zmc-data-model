@@ -59,6 +59,7 @@ public struct MutedMessageTypes: OptionSet {
 public extension ZMConversation {
     @NSManaged @objc public var mutedStatus: Int32
     
+    /// Returns an option set of messages types which should be muted
     public var mutedMessageTypes: MutedMessageTypes {
         get {
             guard let managedObjectContext = self.managedObjectContext else {
@@ -66,14 +67,13 @@ public extension ZMConversation {
             }
             
             let selfUser = ZMUser.selfUser(in: managedObjectContext)
-            let conversationMutedMessageTypes: MutedMessageTypes
-            if selfUser.hasTeam {
-                conversationMutedMessageTypes = MutedMessageTypes(rawValue: mutedStatus)
-            } else {
-                conversationMutedMessageTypes = mutedStatus == MutedMessageOptionValue.none.rawValue ? MutedMessageTypes.none : MutedMessageTypes.all
-            }
             
-            return selfUser.mutedMessagesTypes.union(conversationMutedMessageTypes)
+            if selfUser.hasTeam {
+                return MutedMessageTypes(rawValue: mutedStatus)
+            }
+            else {
+                return mutedStatus == MutedMessageOptionValue.none.rawValue ? MutedMessageTypes.none : MutedMessageTypes.all
+            }
         }
         set {
             guard let managedObjectContext = self.managedObjectContext else {
@@ -93,6 +93,19 @@ public extension ZMConversation {
                 let lastServerTimestamp = self.lastServerTimeStamp {
                 updateMuted(lastServerTimestamp, synchronize: true)
             }
+        }
+    }
+    
+    /// Returns an option set of messages types which should be muted when also considering the
+    /// the availability status of the self user.
+    public var mutedMessageTypesIncludingAvailability: MutedMessageTypes {
+        get {
+            guard let managedObjectContext = self.managedObjectContext else {
+                return .none
+            }
+            
+            let selfUser = ZMUser.selfUser(in: managedObjectContext)
+            return selfUser.mutedMessagesTypes.union(mutedMessageTypes)
         }
     }
 }
@@ -123,7 +136,7 @@ extension ZMConversationMessage {
             return true
         }
         
-        if conversation.mutedMessageTypes == .none {
+        if conversation.mutedMessageTypesIncludingAvailability == .none {
             return false
         }
         
@@ -131,7 +144,7 @@ extension ZMConversationMessage {
             return true
         }
         
-        if conversation.mutedMessageTypes == .regular && (textMessageData.isMentioningSelf || textMessageData.isQuotingSelf) {
+        if conversation.mutedMessageTypesIncludingAvailability == .regular && (textMessageData.isMentioningSelf || textMessageData.isQuotingSelf) {
             return false
         }
         else {
