@@ -95,6 +95,12 @@ NSString *const ZMConversationLastReadLocalTimestampKey = @"lastReadLocalTimesta
 
 + (NSUInteger)unreadConversationCountInContext:(NSManagedObjectContext *)moc;
 {
+    Availability availability = [ZMUser selfUserInContext:moc].availability;
+    
+    if (availability == AvailabilityAway) {
+        return 0;
+    }
+    
     NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:[ZMConversation entityName]];
     request.predicate = [self predicateForConversationConsideredUnread];
     

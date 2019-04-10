@@ -66,13 +66,14 @@ public extension ZMConversation {
             }
             
             let selfUser = ZMUser.selfUser(in: managedObjectContext)
-            
+            let conversationMutedMessageTypes: MutedMessageTypes
             if selfUser.hasTeam {
-                return MutedMessageTypes(rawValue: mutedStatus)
+                conversationMutedMessageTypes = MutedMessageTypes(rawValue: mutedStatus)
+            } else {
+                conversationMutedMessageTypes = mutedStatus == MutedMessageOptionValue.none.rawValue ? MutedMessageTypes.none : MutedMessageTypes.all
             }
-            else {
-                return mutedStatus == MutedMessageOptionValue.none.rawValue ? MutedMessageTypes.none : MutedMessageTypes.all
-            }
+            
+            return selfUser.mutedMessagesTypes.union(conversationMutedMessageTypes)
         }
         set {
             guard let managedObjectContext = self.managedObjectContext else {
@@ -96,7 +97,23 @@ public extension ZMConversation {
     }
 }
 
+extension ZMUser {
+    
+    var mutedMessagesTypes: MutedMessageTypes {
+        switch availability {
+        case .available, .none:
+            return .none
+        case .busy:
+            return .regular
+        case .away:
+            return .all
+        }
+    }
+    
+}
+
 extension ZMConversationMessage {
+    
     public var isSilenced: Bool {
         guard let conversation = self.conversation else {
             return false
@@ -121,4 +138,5 @@ extension ZMConversationMessage {
             return true
         }
     }
+    
 }

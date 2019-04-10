@@ -2422,7 +2422,7 @@
 
 @end
 
-@implementation ZMConversationTests (UnreadCountIncludingSilenced)
+@implementation ZMConversationTests (UnreadCount)
 
 - (void)testThatItDoesNotCountExcludedConversationWithUnreadMessagesAsUnread
 {
@@ -2456,11 +2456,6 @@
     }];
 }
 
-@end
-
-
-@implementation ZMConversationTests (ObjectIds)
-
 - (void)testThatItCountsConversationsWithUnreadMessagesAsUnread_IfItHasUnread
 {
     // given
@@ -2477,6 +2472,23 @@
     }];
 }
 
+- (void)testThatItDoesNotCountConversationsWithUnreadMessagesAsUnread_IfAvailabilityIsAway
+{
+    // given
+    
+    [self.syncMOC performGroupedBlockAndWait:^{
+        [[ZMUser selfUserInContext:self.syncMOC] setAvailability:AvailabilityAway];
+        
+        XCTAssertEqual([ZMConversation unreadConversationCountInContext:self.syncMOC], 0lu);
+        [self insertConversationWithUnread:YES];
+        
+        // when
+        XCTAssert([self.syncMOC saveOrRollback]);
+        
+        //then
+        XCTAssertEqual([ZMConversation unreadConversationCountInContext:self.syncMOC], 0lu);
+    }];
+}
 
 - (void)testThatItDoesNotCountConversationsWithUnreadMessagesAsUnread_IfItHasNoUnread
 {
