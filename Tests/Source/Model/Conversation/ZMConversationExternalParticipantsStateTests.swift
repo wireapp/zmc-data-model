@@ -54,31 +54,31 @@ class ZMConversationExternalParticipantsStateTests: BaseTeamTests {
 
     func testOneToOneCases() {
         // Personal Users
-        assertMatrixRow(.oneOnOne, selfUser: .personal, otherUsers: [.personal], expectedResult: .none)
-        assertMatrixRow(.oneOnOne, selfUser: .personal, otherUsers: [.memberOfHostingTeam], expectedResult: .none)
+        assertMatrixRow(.oneOnOne, selfUser: .personal, otherUsers: [.personal], expectedResult: [])
+        assertMatrixRow(.oneOnOne, selfUser: .personal, otherUsers: [.memberOfHostingTeam], expectedResult: [])
 
         // Team
-        assertMatrixRow(.oneOnOne, selfUser: .memberOfHostingTeam, otherUsers: [.memberOfHostingTeam], expectedResult: .none)
-        assertMatrixRow(.oneOnOne, selfUser: .memberOfHostingTeam, otherUsers: [.personal], expectedResult: .none)
-        assertMatrixRow(.oneOnOne, selfUser: .memberOfHostingTeam, otherUsers: [.service], expectedResult: .none)
+        assertMatrixRow(.oneOnOne, selfUser: .memberOfHostingTeam, otherUsers: [.memberOfHostingTeam], expectedResult: [])
+        assertMatrixRow(.oneOnOne, selfUser: .memberOfHostingTeam, otherUsers: [.personal], expectedResult: [])
+        assertMatrixRow(.oneOnOne, selfUser: .memberOfHostingTeam, otherUsers: [.service], expectedResult: [])
     }
 
     func testGroupCases() {
         // None
-        assertMatrixRow(.group, selfUser: .personal, otherUsers: [.personal], expectedResult: .none)
-        assertMatrixRow(.group, selfUser: .personal, otherUsers: [.memberOfHostingTeam], expectedResult: .none)
-        assertMatrixRow(.group, selfUser: .memberOfHostingTeam, otherUsers: [.memberOfHostingTeam], expectedResult: .none)
-        assertMatrixRow(.group, selfUser: .memberOfHostingTeam, otherUsers: [.service], expectedResult: .none)
+        assertMatrixRow(.group, selfUser: .personal, otherUsers: [.personal], expectedResult: [])
+        assertMatrixRow(.group, selfUser: .personal, otherUsers: [.memberOfHostingTeam], expectedResult: [])
+        assertMatrixRow(.group, selfUser: .memberOfHostingTeam, otherUsers: [.memberOfHostingTeam], expectedResult: [])
+        assertMatrixRow(.group, selfUser: .memberOfHostingTeam, otherUsers: [.service], expectedResult: [])
 
         // Only Guests
-        assertMatrixRow(.group, selfUser: .memberOfHostingTeam, otherUsers: [.personal], expectedResult: .onlyGuests)
+        assertMatrixRow(.group, selfUser: .memberOfHostingTeam, otherUsers: [.personal], expectedResult: [.visibleGuests])
 
         // Only Services
-        assertMatrixRow(.group, selfUser: .memberOfHostingTeam, otherUsers: [.memberOfHostingTeam, .service], expectedResult: .onlyServices)
-        assertMatrixRow(.group, selfUser: .personal, otherUsers: [.memberOfHostingTeam, .service], expectedResult: .onlyServices)
+        assertMatrixRow(.group, selfUser: .memberOfHostingTeam, otherUsers: [.memberOfHostingTeam, .service], expectedResult: [.visibleServices])
+        assertMatrixRow(.group, selfUser: .personal, otherUsers: [.memberOfHostingTeam, .service], expectedResult: [.visibleServices])
 
         // Guests and Services
-        assertMatrixRow(.group, selfUser: .memberOfHostingTeam, otherUsers: [.personal, .service], expectedResult: .guestsAndServices)
+        assertMatrixRow(.group, selfUser: .memberOfHostingTeam, otherUsers: [.personal, .service], expectedResult: [.visibleGuests, .visibleServices])
     }
 
     // MARK: - Helpers
@@ -90,7 +90,7 @@ class ZMConversationExternalParticipantsStateTests: BaseTeamTests {
         return conversation
     }
 
-    func assertMatrixRow(_ conversationType: ZMConversationType, selfUser selfUserType: RelativeUserState, otherUsers: [RelativeUserState], expectedResult: ZMConversationExternalParticipantsState, file: StaticString = #file, line: UInt = #line) {
+    func assertMatrixRow(_ conversationType: ZMConversationType, selfUser selfUserType: RelativeUserState, otherUsers: [RelativeUserState], expectedResult: ZMConversation.ExternalParticipantsState, file: StaticString = #file, line: UInt = #line) {
         let conversation = createConversationWithSelfUser()
         conversation.conversationType = conversationType
 

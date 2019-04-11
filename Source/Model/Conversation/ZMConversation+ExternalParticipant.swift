@@ -18,43 +18,36 @@
 
 import Foundation
 
-/**
- * Represents the possible state of external participants in a conversation.
- */
+extension ZMConversation {
 
-@objc public enum ZMConversationExternalParticipantsState: Int, CustomStringConvertible {
-    /// All the conversation members are connected.
-    case none
+    static let externalParticipantsStateKey = "externalParticipantsState"
 
-    /// The conversation contains guests.
-    case onlyGuests
+    /**
+     * Represents the possible state of external participants in a conversation.
+     */
 
-    /// The conversation contains services.
-    case onlyServices
+    public struct ExternalParticipantsState: OptionSet {
+        /// The conversation contains guests that we should warn the self user about.
+        public static let visibleGuests = ExternalParticipantsState(rawValue: 1 << 0)
 
-    /// The conversation contains both guests and services.
-    case guestsAndServices
+        /// The conversation contains services that we should warn the self user about.
+        public static let visibleServices = ExternalParticipantsState(rawValue: 1 << 1)
 
-    public var description: String {
-        switch self {
-        case .none: return "none"
-        case .onlyGuests: return "onlyGuests"
-        case .onlyServices: return "onlyServices"
-        case .guestsAndServices: return "guestsAndServices"
+        public let rawValue: Int
+
+        public init(rawValue: Int) {
+            self.rawValue = rawValue
         }
     }
-}
-
-extension ZMConversation {
 
     @objc class func keyPathsForValuesAffectingExternalParticipantsState() -> Set<String> {
         return ["lastServerSyncedActiveParticipants.isServiceUser", "lastServerSyncedActiveParticipants.hasTeam"]
     }
 
     /// The state of external participants in the conversation.
-    @objc public var externalParticipantsState: ZMConversationExternalParticipantsState {
+    public var externalParticipantsState: ExternalParticipantsState {
         // Exception 1) We don't consider guests/services as external participants in 1:1 conversations
-        guard conversationType == .group else { return .none }
+        guard conversationType == .group else { return [] }
 
         // Exception 2) If there is only one user in the group and it's a service, we don't consider it as external
         let participants = self.activeParticipants
@@ -62,7 +55,7 @@ extension ZMConversation {
         let otherUsers = participants.subtracting([selfUser])
 
         if otherUsers.count == 1, otherUsers.first!.isServiceUser {
-            return .none
+            return []
         }
 
         // Calculate the external participants state
@@ -85,10 +78,10 @@ extension ZMConversation {
         }
 
         switch (areGuestsPresent, areServicesPresent) {
-        case (false, false): return .none
-        case (true, false): return .onlyGuests
-        case (false, true): return .onlyServices
-        case (true, true): return .guestsAndServices
+        case (false, false): return []
+        case (true, false): return [.visibleGuests]
+        case (false, true): return [.visibleServices]
+        case (true, true): return [.visibleGuests, .visibleServices]
         }
     }
 

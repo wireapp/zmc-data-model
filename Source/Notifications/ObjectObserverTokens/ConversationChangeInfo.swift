@@ -42,7 +42,7 @@ extension ZMConversation : ObjectInSnapshot {
                     #keyPath(ZMConversation.syncedMessageDestructionTimeout),
                     #keyPath(ZMConversation.language),
                     #keyPath(ZMConversation.hasReadReceiptsEnabled),
-                    #keyPath(ZMConversation.externalParticipantsState)
+                    ZMConversation.externalParticipantsStateKey
             ])
     }
 
@@ -134,7 +134,7 @@ extension ZMConversation : ObjectInSnapshot {
     }
 
     public var externalParticipantsStateChanged: Bool {
-        return changedKeysContain(keys: #keyPath(ZMConversation.externalParticipantsState))
+        return changedKeysContain(keys: ZMConversation.externalParticipantsStateKey)
     }
     
     public var conversation : ZMConversation { return self.object as! ZMConversation }
