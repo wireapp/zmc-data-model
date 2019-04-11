@@ -92,4 +92,14 @@ extension ZMConversation {
         }
     }
 
+    /// Returns whether an services are present, regardless of the display rules.
+    public var areServicesPresent: Bool {
+        return activeParticipants.any(\.isServiceUser)
+    }
+
+    /// Returns whether guests are present, regardless of the display rules.
+    public var areGuestsPresent: Bool {
+        return activeParticipants.any { $0.isGuest(in: self) }
+    }
+
 }
