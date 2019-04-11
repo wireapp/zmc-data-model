@@ -60,29 +60,22 @@ extension ZMConversation {
 
         // Calculate the external participants state
         let canDisplayGuests = selfUser.team != nil
-
-        var areServicesPresent: Bool = false
-        var areGuestsPresent: Bool = false
+        var state = ExternalParticipantsState()
 
         for user in otherUsers {
             if user.isServiceUser {
-                areServicesPresent = true
+                state.insert(.visibleServices)
             } else if canDisplayGuests && user.isGuest(in: self) {
-                areGuestsPresent = true
+                state.insert(.visibleGuests)
             }
 
             // Early exit to avoid going through all users if we can avoid it
-            if areServicesPresent && (areGuestsPresent || !canDisplayGuests) {
+            if state.contains(.visibleServices) && (state.contains(.visibleGuests) || !canDisplayGuests) {
                 break
             }
         }
 
-        switch (areGuestsPresent, areServicesPresent) {
-        case (false, false): return []
-        case (true, false): return [.visibleGuests]
-        case (false, true): return [.visibleServices]
-        case (true, true): return [.visibleGuests, .visibleServices]
-        }
+        return state
     }
 
     /// Returns whether an services are present, regardless of the display rules.
