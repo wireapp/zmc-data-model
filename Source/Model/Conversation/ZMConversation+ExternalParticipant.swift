@@ -48,7 +48,7 @@ import Foundation
 extension ZMConversation {
 
     @objc class func keyPathsForValuesAffectingExternalParticipantsState() -> Set<String> {
-        return ["lastServerSyncedActiveParticipants.isServiceUser", "lastServerSyncedActiveParticipants.membership"]
+        return ["lastServerSyncedActiveParticipants.isServiceUser", "lastServerSyncedActiveParticipants.hasTeam"]
     }
 
     /// The state of external participants in the conversation.
@@ -66,8 +66,7 @@ extension ZMConversation {
         }
 
         // Calculate the external participants state
-        let selfUserTeam = selfUser.team
-        let canDisplayGuests = selfUserTeam != nil && team == selfUserTeam
+        let canDisplayGuests = selfUser.team != nil
 
         var areServicesPresent: Bool = false
         var areGuestsPresent: Bool = false

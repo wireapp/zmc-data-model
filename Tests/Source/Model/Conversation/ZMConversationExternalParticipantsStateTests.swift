@@ -36,25 +36,19 @@ import XCTest
  * | Group             | Personal   | Personal             | None                    |
  * | Group             | Personal   | Team                 | None                    |
  * | Group             | Team       | Team                 | None                    |
- * | Group             | Other Team | Team                 | None                    |
- * | Group             | Other Team | Personal             | None                    |
  * | Group             | Team       | Service              | None                    |
  * | Group             | Team       | Personal             | Only Guests             |
- * | Group             | Team       | Other Team           | Only Guests             |
  * | Group             | Team       | Team & Service       | Only Services           |
- * | Group             | Other Team | Team & Service       | Only Services           |
- * | Group             | Other Team | Personal & Service   | Only Services           |
+ * | Group             | Personal   | Team & Service       | Only Services           |
  * | Group             | Team       | Personal & Service   | Guests & Services       |
- * | Group             | Team       | Other Team & Service | Guests & Services       |
  * +---------------------------------------------------------------------------------+
  */
 
-class ZMConversationExternalParticipantsStateTests: ZMConversationTestsBase {
+class ZMConversationExternalParticipantsStateTests: BaseTeamTests {
 
     enum RelativeUserState {
         case personal
         case memberOfHostingTeam
-        case memberOfOtherTeam
         case service
     }
 
@@ -74,22 +68,17 @@ class ZMConversationExternalParticipantsStateTests: ZMConversationTestsBase {
         assertMatrixRow(.group, selfUser: .personal, otherUsers: [.personal], expectedResult: .none)
         assertMatrixRow(.group, selfUser: .personal, otherUsers: [.memberOfHostingTeam], expectedResult: .none)
         assertMatrixRow(.group, selfUser: .memberOfHostingTeam, otherUsers: [.memberOfHostingTeam], expectedResult: .none)
-        assertMatrixRow(.group, selfUser: .memberOfOtherTeam, otherUsers: [.memberOfHostingTeam], expectedResult: .none)
-        assertMatrixRow(.group, selfUser: .memberOfOtherTeam, otherUsers: [.personal], expectedResult: .none)
         assertMatrixRow(.group, selfUser: .memberOfHostingTeam, otherUsers: [.service], expectedResult: .none)
 
         // Only Guests
         assertMatrixRow(.group, selfUser: .memberOfHostingTeam, otherUsers: [.personal], expectedResult: .onlyGuests)
-        assertMatrixRow(.group, selfUser: .memberOfHostingTeam, otherUsers: [.memberOfOtherTeam], expectedResult: .onlyGuests)
 
         // Only Services
         assertMatrixRow(.group, selfUser: .memberOfHostingTeam, otherUsers: [.memberOfHostingTeam, .service], expectedResult: .onlyServices)
-        assertMatrixRow(.group, selfUser: .memberOfOtherTeam, otherUsers: [.memberOfHostingTeam, .service], expectedResult: .onlyServices)
-        assertMatrixRow(.group, selfUser: .memberOfOtherTeam, otherUsers: [.personal, .service], expectedResult: .onlyServices)
+        assertMatrixRow(.group, selfUser: .personal, otherUsers: [.memberOfHostingTeam, .service], expectedResult: .onlyServices)
 
         // Guests and Services
         assertMatrixRow(.group, selfUser: .memberOfHostingTeam, otherUsers: [.personal, .service], expectedResult: .guestsAndServices)
-        assertMatrixRow(.group, selfUser: .memberOfHostingTeam, otherUsers: [.memberOfOtherTeam, .service], expectedResult: .guestsAndServices)
     }
 
     // MARK: - Helpers
@@ -102,7 +91,6 @@ class ZMConversationExternalParticipantsStateTests: ZMConversationTestsBase {
     }
 
     func assertMatrixRow(_ conversationType: ZMConversationType, selfUser selfUserType: RelativeUserState, otherUsers: [RelativeUserState], expectedResult: ZMConversationExternalParticipantsState, file: StaticString = #file, line: UInt = #line) {
-        // 1) Create the conversation
         let conversation = createConversationWithSelfUser()
         conversation.conversationType = conversationType
 
@@ -114,10 +102,6 @@ class ZMConversationExternalParticipantsStateTests: ZMConversationTestsBase {
             hostingTeam = team
             conversation.team = team
             createMembership(in: uiMOC, user: selfUser, team: team)
-
-        case .memberOfOtherTeam:
-            let otherTeam = createTeam(in: uiMOC)
-            createMembership(in: uiMOC, user: selfUser, team: otherTeam)
 
         case .personal:
             break
@@ -138,12 +122,6 @@ class ZMConversationExternalParticipantsStateTests: ZMConversationTestsBase {
                 let otherTeamUser = createUser(in: uiMOC)
                 conversation.internalAddParticipants([otherTeamUser])
                 createMembership(in: uiMOC, user: otherTeamUser, team: hostingTeam!)
-
-            case .memberOfOtherTeam:
-                let otherTeam = createTeam(in: uiMOC)
-                let otherUser = createUser(in: uiMOC)
-                conversation.internalAddParticipants([otherUser])
-                createMembership(in: uiMOC, user: otherUser, team: otherTeam)
 
             case .personal:
                 let otherUser = createUser(in: uiMOC)
