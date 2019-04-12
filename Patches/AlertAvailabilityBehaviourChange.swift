@@ -27,9 +27,11 @@ struct AvailabilityBehaviourChange {
     static let needsToNotifyAvailabilityBehaviourChangeKey = "needsToNotifyAvailabilityBehaviourChange"
     
     static func notifyAvailabilityBehaviourChange(in moc: NSManagedObjectContext) {
-        switch ZMUser.selfUser(in: moc).availability {
+        let selfUser = ZMUser.selfUser(in: moc)
+        
+        switch selfUser.availability {
         case .away, .busy:
-            NotificationInContext(name: .applicationUpdateDidChangeAvailabilityBehaviour, context: moc.notificationContext).post()
+             selfUser.needsToNotifyAvailabilityBehaviourChange = true
         default:
             break
         }

@@ -88,4 +88,15 @@ extension ZMUser {
         updateAvailability(Availability(availabilityProtobuffer))
     }
     
+    private static let needsToNotifyAvailabilityBehaviourChangeKey = "needsToNotifyAvailabilityBehaviourChange"
+    
+    @objc public var needsToNotifyAvailabilityBehaviourChange: Bool {
+        get {
+            return managedObjectContext?.persistentStoreMetadata(forKey: type(of: self).needsToNotifyAvailabilityBehaviourChangeKey) as? Bool ?? false
+        }
+        set {
+            managedObjectContext?.setPersistentStoreMetadata(newValue, key: type(of: self).needsToNotifyAvailabilityBehaviourChangeKey)
+        }
+    }
+    
 }

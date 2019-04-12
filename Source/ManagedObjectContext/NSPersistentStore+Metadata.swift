@@ -32,6 +32,7 @@ extension String : SwiftPersistableInMetadata {}
 extension Date : SwiftPersistableInMetadata {}
 extension Data : SwiftPersistableInMetadata {}
 extension Array : SwiftPersistableInMetadata {}
+extension Bool : SwiftPersistableInMetadata {}
 
 // TODO: Swift 4
 // extension Array where Element == SwiftPersistableInMetadata: SwiftPersistableInMetadata {}
