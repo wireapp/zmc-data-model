@@ -1211,6 +1211,20 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		1639A81122608FEB00868AB9 /* Patches */ = {
+			isa = PBXGroup;
+			children = (
+				54FB03A01E41E273000E13DC /* PersistedDataPatches.swift */,
+				54FB03A81E41F1B6000E13DC /* PersistedDataPatches+Directory.swift */,
+				54F84CFC1F9950B300ABD7D5 /* DuplicatedEntityRemoval.swift */,
+				F11F3E881FA32463007B6D3D /* InvalidClientsRemoval.swift */,
+				16127CF2220058160020E65C /* InvalidConversationRemoval.swift */,
+				87C1C25E207F7DA80083BF6B /* InvalidGenericMessageDataRemoval.swift */,
+				168413EC2225965500FCB9BC /* TransferStateMigration.swift */,
+			);
+			path = Patches;
+			sourceTree = "<group>";
+		};
 		546D3DE71CE5D22C00A6047F /* Utils */ = {
 			isa = PBXGroup;
 			children = (
@@ -1669,13 +1683,6 @@
 				546D3DE51CE5D0B100A6047F /* RichAssetFileType.swift */,
 				F963E97E1D9C09E700098AD3 /* ZMMessageTimer.h */,
 				F963E97F1D9C09E700098AD3 /* ZMMessageTimer.m */,
-				54FB03A01E41E273000E13DC /* PersistedDataPatches.swift */,
-				54FB03A81E41F1B6000E13DC /* PersistedDataPatches+Directory.swift */,
-				54F84CFC1F9950B300ABD7D5 /* DuplicatedEntityRemoval.swift */,
-				F11F3E881FA32463007B6D3D /* InvalidClientsRemoval.swift */,
-				16127CF2220058160020E65C /* InvalidConversationRemoval.swift */,
-				87C1C25E207F7DA80083BF6B /* InvalidGenericMessageDataRemoval.swift */,
-				168413EC2225965500FCB9BC /* TransferStateMigration.swift */,
 				F9AB00261F0CE5520037B437 /* FileManager+FileLocations.swift */,
 				5E0FB2002051493700FD9867 /* Set+Filter.swift */,
 				5EFE9C072126BF9D007932A6 /* ZMPropertyNormalizationResult.h */,
@@ -2003,6 +2010,7 @@
 		F9C9A4FE1CAD5DF10039E10C /* Source */ = {
 			isa = PBXGroup;
 			children = (
+				1639A81122608FEB00868AB9 /* Patches */,
 				F9A705C91CAEE01D00C2F5FE /* ManagedObjectContext */,
 				F9A705D41CAEE01D00C2F5FE /* Model */,
 				F9A7061B1CAEE01D00C2F5FE /* Notifications */,
