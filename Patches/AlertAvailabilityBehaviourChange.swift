@@ -29,11 +29,13 @@ struct AvailabilityBehaviourChange {
     static func notifyAvailabilityBehaviourChange(in moc: NSManagedObjectContext) {
         let selfUser = ZMUser.selfUser(in: moc)
         
+        guard selfUser.hasTeam else { return }
+        
         switch selfUser.availability {
         case .away, .busy:
-             selfUser.needsToNotifyAvailabilityBehaviourChange = true
+            selfUser.needsToNotifyAvailabilityBehaviourChange = [.alert, .notification]
         default:
-            break
+            selfUser.needsToNotifyAvailabilityBehaviourChange = .alert
         }
         
     }
