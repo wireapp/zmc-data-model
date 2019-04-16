@@ -2472,24 +2472,6 @@
     }];
 }
 
-- (void)testThatItDoesNotCountConversationsWithUnreadMessagesAsUnread_IfAvailabilityIsAway
-{
-    // given
-    
-    [self.syncMOC performGroupedBlockAndWait:^{
-        [[ZMUser selfUserInContext:self.syncMOC] setAvailability:AvailabilityAway];
-        
-        XCTAssertEqual([ZMConversation unreadConversationCountInContext:self.syncMOC], 0lu);
-        [self insertConversationWithUnread:YES];
-        
-        // when
-        XCTAssert([self.syncMOC saveOrRollback]);
-        
-        //then
-        XCTAssertEqual([ZMConversation unreadConversationCountInContext:self.syncMOC], 0lu);
-    }];
-}
-
 - (void)testThatItDoesNotCountConversationsWithUnreadMessagesAsUnread_IfItHasNoUnread
 {
     // give
