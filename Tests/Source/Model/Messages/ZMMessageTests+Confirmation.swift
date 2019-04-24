@@ -176,7 +176,8 @@ extension ZMMessageTests_Confirmation {
         
         // when
         let sut = insertMessage(conversation, fromSender: remoteUser)
-        let _ = sut.confirmDelivery() // TODO jacob remove this method?
+        _ = conversation.append(message: ZMConfirmation.confirm(messageId: sut.nonce!, type: .DELIVERED), hidden: true)
+        
         // then
         guard let hiddenMessage = conversation.hiddenMessages.first as? ZMClientMessage else {
             XCTFail("Did not insert confirmation message.")
