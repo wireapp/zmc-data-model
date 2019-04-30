@@ -516,7 +516,7 @@ extension ZMExternal: MessageContentType {
 
 public extension ZMClientEntry {
     
-    @objc public static func entry(withClient client: UserClient, data: Data) -> ZMClientEntry {
+    @objc static func entry(withClient client: UserClient, data: Data) -> ZMClientEntry {
         let builder = ZMClientEntry.builder()!
         builder.setClient(client.clientId)
         builder.setText(data)
@@ -527,7 +527,7 @@ public extension ZMClientEntry {
 
 public extension ZMUserEntry {
     
-    @objc public static func entry(withUser user: ZMUser, clientEntries: [ZMClientEntry]) -> ZMUserEntry {
+    @objc static func entry(withUser user: ZMUser, clientEntries: [ZMClientEntry]) -> ZMUserEntry {
         let builder = ZMUserEntry.builder()!
         builder.setUser(user.userId())
         builder.setClientsArray(clientEntries)
@@ -538,7 +538,7 @@ public extension ZMUserEntry {
 
 public extension ZMNewOtrMessage {
     
-    @objc public static func message(withSender sender: UserClient, nativePush: Bool, recipients: [ZMUserEntry], blob: Data? = nil) -> ZMNewOtrMessage {
+    @objc static func message(withSender sender: UserClient, nativePush: Bool, recipients: [ZMUserEntry], blob: Data? = nil) -> ZMNewOtrMessage {
         let builder = ZMNewOtrMessage.builder()!
         builder.setNativePush(nativePush)
         builder.setSender(sender.clientId)
@@ -554,7 +554,7 @@ public extension ZMNewOtrMessage {
 @objc
 extension ZMAsset: EphemeralMessageContentType {
     
-    public static func asset(originalWithImageSize imageSize: CGSize, mimeType: String, size: UInt64) -> ZMAsset {
+    static func asset(originalWithImageSize imageSize: CGSize, mimeType: String, size: UInt64) -> ZMAsset {
         let imageMetadata = ZMAssetImageMetaData.imageMetaData(withWidth: Int32(imageSize.width), height: Int32(imageSize.height))
         let original = ZMAssetOriginal.original(withSize: size, mimeType: mimeType, name: nil, imageMetaData: imageMetadata)
         return ZMAsset.asset(withOriginal: original, preview: nil)
