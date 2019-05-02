@@ -142,6 +142,8 @@ public protocol ZMConversationMessage : NSObjectProtocol {
 
     /// Used to trigger link attachments update for this message.
     var needsLinkAttachmentsUpdate: Bool { get set }
+    
+    func refetchLinkAttachmentsIfNeeded()
 }
 
 public extension Equatable where Self : ZMConversationMessage { }
@@ -230,6 +232,10 @@ extension ZMMessage : ZMConversationMessage {
             syncConversation.calculateLastUnreadMessages()
             syncContext.saveOrRollback()
         }
+    }
+    
+    public func refetchLinkAttachmentsIfNeeded() {
+        
     }
 }
 
