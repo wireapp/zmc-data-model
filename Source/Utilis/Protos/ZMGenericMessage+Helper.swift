@@ -599,7 +599,7 @@ extension ZMImageAsset: EphemeralMessageContentType {
 
 public extension ZMArticle {
 
-    @objc public static func article(withPermanentURL permanentURL: String, title: String?, summary: String?, imageAsset: ZMAsset?) -> ZMArticle {
+    @objc static func article(withPermanentURL permanentURL: String, title: String?, summary: String?, imageAsset: ZMAsset?) -> ZMArticle {
         let articleBuilder = ZMArticle.builder()!
         articleBuilder.setPermanentUrl(permanentURL)
         if let title = title {
