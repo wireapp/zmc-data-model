@@ -45,7 +45,13 @@ public protocol TeamType: class {
             guard let data = remoteIdentifier_data else { return nil }
             return UUID(data: data)
         }
-        set { remoteIdentifier_data = newValue.uuidData }
+        set {
+            if let newValue = newValue {
+                remoteIdentifier_data = newValue.uuidData
+            } else {
+                remoteIdentifier_data = nil
+            }
+        }
     }
 
     public override static func entityName() -> String {
