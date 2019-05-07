@@ -50,7 +50,7 @@
     public var remoteIdentifier: UUID? {
         get {
             guard let data = remoteIdentifier_data else { return nil }
-            return UUID(data: UUID)
+            return UUID(data: data)
         }
         set { remoteIdentifier_data = newValue.uuidData }
     }
