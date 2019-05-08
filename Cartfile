@@ -4,4 +4,4 @@ github "wireapp/wire-ios-images" ~> 25.0
 github "wireapp/PINCache" "2.3-swift3.1"
 github "wireapp/wire-ios-transport" ~> 56.0
 github "wireapp/wire-ios-link-preview" ~> 21.0
-github "wireapp/wire-ios-utilities" "feature/uuid-data-conversion"
+github "wireapp/wire-ios-utilities" ~> 31.1.0
