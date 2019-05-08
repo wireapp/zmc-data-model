@@ -46,7 +46,7 @@ public protocol TeamType: class {
             return UUID(data: data)
         }
         set {
-            remoteIdentifier_data = newValue.uuidData
+            remoteIdentifier_data = newValue?.uuidData
         }
     }
 
