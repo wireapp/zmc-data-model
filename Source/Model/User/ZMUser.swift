@@ -28,6 +28,10 @@ extension ZMUser: UserType {
         return _isGuest(in: conversation)
     }
     
+    public var isUnderLegalhold: Bool {
+        return false // TODO jacob stub
+    }
+    
     public func canAccessCompanyInformation(of user: UserType) -> Bool {
         guard
             let otherUser = user as? ZMUser,

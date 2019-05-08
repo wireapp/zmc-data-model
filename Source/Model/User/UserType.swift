@@ -82,6 +82,9 @@ public protocol UserType: NSObjectProtocol {
     /// Wheater the account of the user is deleted
     var isAccountDeleted: Bool { get }
     
+    /// Wheater the user is under legal hold
+    var isUnderLegalhold: Bool { get }
+    
     var accentColorValue: ZMAccentColor { get }
 
     /// Whether the user is a wireless user.
