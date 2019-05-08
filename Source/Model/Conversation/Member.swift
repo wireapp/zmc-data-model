@@ -53,11 +53,7 @@
             return UUID(data: data)
         }
         set {
-            if let newValue = newValue {
-                remoteIdentifier_data = newValue.uuidData
-            } else {
-                remoteIdentifier_data = nil
-            }
+            remoteIdentifier_data = newValue.uuidData
         }
     }
 
