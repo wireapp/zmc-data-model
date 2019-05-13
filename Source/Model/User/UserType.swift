@@ -83,7 +83,7 @@ public protocol UserType: NSObjectProtocol {
     var isAccountDeleted: Bool { get }
     
     /// Wheater the user is under legal hold
-    var isUnderLegalhold: Bool { get }
+    var isUnderLegalHold: Bool { get }
     
     var accentColorValue: ZMAccentColor { get }
 

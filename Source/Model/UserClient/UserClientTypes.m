@@ -21,4 +21,4 @@
 
 NSString * const ZMUserClientTypePermanent = @"permanent";
 NSString * const ZMUserClientTypeTemporary = @"temporary";
-NSString * const ZMUserClientTypeLegalhold = @"legalhold"; // TODO jacob not final spec
+NSString * const ZMUserClientTypeLegalHold = @"legalhold"; // TODO jacob not final spec

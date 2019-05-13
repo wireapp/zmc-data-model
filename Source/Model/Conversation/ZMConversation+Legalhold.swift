@@ -21,7 +21,7 @@ import Foundation
 extension ZMConversation {
     
     /// True if any participant in the conversation is under legal hold
-    var isUnderLegalhold: Bool {
+    var isUnderLegalHold: Bool {
         return false // TODO jacob stub
     }
     
