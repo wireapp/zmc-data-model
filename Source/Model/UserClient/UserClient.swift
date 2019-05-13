@@ -39,6 +39,12 @@ public let ZMUserClientRemoteIdentifierKey = "remoteIdentifier"
 
 private let zmLog = ZMSLog(tag: "UserClient")
 
+public enum DeviceClass: String {
+    case phone = "phone"
+    case desktop = "desktop"
+    case legalhold = "legalhold"
+}
+
 @objcMembers public class UserClient: ZMManagedObject, UserClientType {
     public var activationLatitude: Double {
         get {
@@ -58,7 +64,7 @@ private let zmLog = ZMSLog(tag: "UserClient")
         }
     }
     
-    @NSManaged public var type: String!
+    @NSManaged public var type: String?
     @NSManaged public var label: String?
     @NSManaged public var markedToDelete: Bool
     @NSManaged public var preKeysRangeMax: Int64
@@ -72,7 +78,6 @@ private let zmLog = ZMSLog(tag: "UserClient")
     @NSManaged public var activationAddress: String?
     @NSManaged public var activationDate: Date?
     @NSManaged public var model: String?
-    @NSManaged public var deviceClass: String?
     @NSManaged public var activationLocationLatitude: NSNumber?
     @NSManaged public var activationLocationLongitude: NSNumber?
     @NSManaged public var needsToNotifyUser: Bool
@@ -83,7 +88,35 @@ private let zmLog = ZMSLog(tag: "UserClient")
 
     private enum Keys {
         static let PushToken = "pushToken"
+        static let DeviceClass = "deviceClass"
     }
+    
+    @NSManaged private var primitiveDeviceClass: String?
+    public var deviceClass: DeviceClass? {
+        set {
+            rawDeviceClass = newValue?.rawValue
+        }
+        get {
+            guard let rawDeviceClass = rawDeviceClass else { return nil }
+            
+            return DeviceClass(rawValue: rawDeviceClass)
+        }
+    }
+    private var rawDeviceClass: String? {
+        set {
+            willChangeValue(forKey: Keys.DeviceClass)
+            primitiveDeviceClass = newValue
+            didChangeValue(forKey: Keys.DeviceClass)
+        }
+        get {
+            willAccessValue(forKey: Keys.DeviceClass)
+            let rawDeviceClass = primitiveDeviceClass
+            didAccessValue(forKey: Keys.DeviceClass)
+            
+            return rawDeviceClass
+        }
+    }
+    
 
     @NSManaged private var primitivePushToken: Data?
     public var pushToken: PushToken? {
@@ -318,7 +351,7 @@ public extension UserClient {
         client.type = type
         client.activationAddress = activationAddress
         client.model = model
-        client.deviceClass = deviceClass
+        client.rawDeviceClass = deviceClass
         client.activationDate = activationDate
         client.activationLocationLatitude = latitude
         client.activationLocationLongitude = longitude

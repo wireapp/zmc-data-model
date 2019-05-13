@@ -29,7 +29,7 @@ extension ZMUser: UserType {
     }
     
     public var isUnderLegalhold: Bool {
-        return false // TODO jacob stub
+        return clients.contains(where: { $0.deviceClass == .legalhold })
     }
     
     public func canAccessCompanyInformation(of user: UserType) -> Bool {
