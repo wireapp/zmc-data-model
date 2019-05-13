@@ -21,7 +21,7 @@
 
 extern NSString * const ZMUserClientTypePermanent;
 extern NSString * const ZMUserClientTypeTemporary;
-extern NSString * const ZMUserClientTypeLegalhold;
+extern NSString * const ZMUserClientTypeLegalHold;
 
 @class ZMUser;
 @class Team;

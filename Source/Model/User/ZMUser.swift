@@ -28,7 +28,7 @@ extension ZMUser: UserType {
         return _isGuest(in: conversation)
     }
     
-    public var isUnderLegalhold: Bool {
+    public var isUnderLegalHold: Bool {
         return false // TODO jacob stub
     }
     

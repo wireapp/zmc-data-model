@@ -245,8 +245,8 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         return user.isAccountDeleted
     }
     
-    public var isUnderLegalhold: Bool {
-        return user?.isUnderLegalhold == true
+    public var isUnderLegalHold: Bool {
+        return user?.isUnderLegalHold == true
     }
     
     public var accentColorValue: ZMAccentColor {
