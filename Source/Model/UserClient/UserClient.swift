@@ -348,7 +348,7 @@ public extension UserClient {
         let client = fetchedClient ?? UserClient.insertNewObject(in: context)
 
         client.label = label
-        client.type = type
+        client.type = ZMUserClientType(rawValue: type) 
         client.activationAddress = activationAddress
         client.model = model
         client.rawDeviceClass = deviceClass
