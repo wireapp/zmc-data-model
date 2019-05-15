@@ -19,15 +19,17 @@
 
 @import Foundation;
 
-extern NSString * const ZMUserClientTypePermanent;
-extern NSString * const ZMUserClientTypeTemporary;
-extern NSString * const ZMUserClientTypeLegalHold;
+typedef NSString * ZMUserClientType NS_TYPED_ENUM;
+
+extern ZMUserClientType const ZMUserClientTypePermanent;
+extern ZMUserClientType const ZMUserClientTypeTemporary;
+extern ZMUserClientType const ZMUserClientTypeLegalHold;
 
 @class ZMUser;
 @class Team;
 
 @protocol UserClientType <NSObject>
-@property (nonatomic) NSString *type;
+@property (nonatomic) ZMUserClientType type;
 @property (nonatomic) NSString *label;
 @property (nonatomic) NSString *remoteIdentifier;
 @property (nonatomic) ZMUser *user;

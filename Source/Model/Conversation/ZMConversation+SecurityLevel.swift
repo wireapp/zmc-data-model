@@ -21,9 +21,6 @@ import WireCryptobox
 
 extension ZMConversation {
 
-    /// Whether the conversation is under legal hold.
-    @NSManaged public internal(set) var isUnderLegalHold: Bool
-
     /// Contains current security level of conversation.
     /// Client should check this property to properly annotate conversation.
     @NSManaged public internal(set) var securityLevel: ZMConversationSecurityLevel
@@ -67,8 +64,12 @@ extension ZMConversation {
         let userClients = Set(users.flatMap({ $0.clients }))
         let allClients = userClients.union(userClients)
 
-        // Check legal hold
-        isUnderLegalHold = allClients.contains(where: { $0.type == "legalhold" })
+        // Check legal hold changes
+        if isUnderLegalHold {
+            //
+        } else {
+            // Detect if one of the deleted clients 
+        }
 
         // Check verification
         if securityLevel == .secure {

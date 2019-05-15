@@ -42,7 +42,8 @@ extension ZMConversation : ObjectInSnapshot {
                     #keyPath(ZMConversation.syncedMessageDestructionTimeout),
                     #keyPath(ZMConversation.language),
                     #keyPath(ZMConversation.hasReadReceiptsEnabled),
-                    ZMConversation.externalParticipantsStateKey
+                    ZMConversation.externalParticipantsStateKey,
+                    #keyPath(ZMConversation.isUnderLegalHold)
             ])
     }
 
@@ -135,6 +136,10 @@ extension ZMConversation : ObjectInSnapshot {
 
     public var externalParticipantsStateChanged: Bool {
         return changedKeysContain(keys: ZMConversation.externalParticipantsStateKey)
+    }
+
+    public var legalHoldStatusChanged: Bool {
+        return changedKeysContain(keys: #keyPath(ZMConversation.isUnderLegalHold))
     }
     
     public var conversation : ZMConversation { return self.object as! ZMConversation }

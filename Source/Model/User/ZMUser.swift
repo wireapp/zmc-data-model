@@ -24,7 +24,6 @@ extension ZMUser: UserConnectionType { }
 
 extension ZMUser: UserType {
 
-
     public func isGuest(in conversation: ZMConversation) -> Bool {
         return _isGuest(in: conversation)
     }
@@ -70,7 +69,7 @@ extension ZMUser: UserType {
     // MARK: Legal Hold
 
     @objc public var isUnderLegalHold: Bool {
-        return clients.contains(where: { $0.type == "legalhold" })
+        return clients.contains(where: { $0.type == .legalHold })
     }
 
     @objc class func keyPathsForValuesAffectingIsUnderLegalHold() -> Set<String> {
