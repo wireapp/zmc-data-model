@@ -64,7 +64,7 @@ public enum DeviceClass: String {
         }
     }
     
-    @NSManaged public var type: ZMUserClientType!
+    @NSManaged public var type: ZMUserClientType?
     @NSManaged public var label: String?
     @NSManaged public var markedToDelete: Bool
     @NSManaged public var preKeysRangeMax: Int64

@@ -34,7 +34,7 @@ extension ZMConversation {
     /// If the conversation became trusted, it will trigger UI notification and add system message for all devices verified
     @objc(increaseSecurityLevelIfNeededAfterTrustingClients:)
     public func increaseSecurityLevelIfNeededAfterTrusting(clients: Set<UserClient>) {
-        applySecurityChanges(cause: .verifiedClients(clients))
+         applySecurityChanges(cause: .verifiedClients(clients))
     }
 
     /// Should be called when client is deleted.
@@ -96,7 +96,11 @@ extension ZMConversation {
                 appendNewIsSecureSystemMessage(cause: cause)
                 notifyOnUI(name: ZMConversation.isVerifiedNotificationName)
             } else {
-                securityLevel = .notSecure
+                if case .ignoredClients = cause {
+                    securityLevel = .secureWithIgnored
+                } else {
+                    securityLevel = .notSecure
+                }
             }
         }
     }
