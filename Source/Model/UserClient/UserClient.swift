@@ -342,14 +342,11 @@ public extension UserClient {
         client.type = DeviceType(rawValue: type)
         client.activationAddress = activationAddress
         client.model = model
+        client.deviceClass = deviceClass.map({ DeviceClass(rawValue: $0) })
         client.activationDate = activationDate
         client.activationLocationLatitude = latitude
         client.activationLocationLongitude = longitude
         client.remoteIdentifier = id
-        
-        if let deviceClass = deviceClass {
-            client.deviceClass = DeviceClass(rawValue: deviceClass)
-        }
         
         let selfUser = ZMUser.selfUser(in: context)
         client.user = client.user ?? selfUser
