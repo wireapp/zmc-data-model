@@ -241,21 +241,31 @@ extension ZMConversation {
     }
 
     private func appendLegalHoldDisabledSystemMessageForConversation() {
-
+        appendSystemMessage(type: .legalHoldDisabled,
+                            sender: ZMUser.selfUser(in: self.managedObjectContext!),
+                            users: nil,
+                            clients: nil,
+                            timestamp: timestampAfterLastMessage())
     }
 
     private func appendLegalHoldEnabledSystemMessageIfNeeded(for user: ZMUser) {
         guard user.isUnderLegalHold else { return }
-        self.appendSystemMessage(type: .legalHoldEnabled,
-                                 sender: ZMUser.selfUser(in: self.managedObjectContext!),
-                                 users: [user],
-                                 clients: user.clients,
-                                 timestamp: timestampAfterLastMessage())
+
+        appendSystemMessage(type: .legalHoldEnabled,
+                            sender: ZMUser.selfUser(in: self.managedObjectContext!),
+                            users: [user],
+                            clients: nil,
+                            timestamp: timestampAfterLastMessage())
     }
 
     private func appendLegalHoldDisabledSystemMessageIfNeeded(for user: ZMUser) {
         guard !user.isUnderLegalHold else { return }
 
+        appendSystemMessage(type: .legalHoldDisabled,
+                            sender: ZMUser.selfUser(in: self.managedObjectContext!),
+                            users: [user],
+                            clients: nil,
+                            timestamp: timestampAfterLastMessage())
     }
 }
 
