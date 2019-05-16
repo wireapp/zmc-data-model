@@ -243,13 +243,14 @@ public enum DeviceClass: String {
         }
         // reset the relationship
         self.user = nil
-        // delete the object
-        managedObjectContext?.delete(self)
-        
+
         // increase securityLevel of affected conversations
         if let previousUser = user {
-            conversations.forEach{ $0.increaseSecurityLevelIfNeededAfterRemovingClient(for: Set(arrayLiteral: previousUser)) }
+            conversations.forEach{ $0.increaseSecurityLevelIfNeededAfterRemoving(clients: [previousUser: [self]]) }
         }
+
+        // delete the object
+        managedObjectContext?.delete(self)
     }
     
     /// Checks if there is an existing session with the selfClient

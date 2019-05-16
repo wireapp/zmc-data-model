@@ -1131,7 +1131,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
     
     [self.mutableLastServerSyncedActiveParticipants removeObjectsInArray:otherUsers.allObjects];
-    [self increaseSecurityLevelIfNeededAfterRemovingClientForUsers:otherUsers];
+    [self increaseSecurityLevelIfNeededAfterRemovingUsers:otherUsers];
 }
 
 @dynamic isSelfAnActiveMember;
