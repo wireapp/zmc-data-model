@@ -64,7 +64,7 @@ public enum DeviceClass: String {
         }
     }
     
-    @NSManaged public var type: String?
+    @NSManaged public var type: ZMUserClientType?
     @NSManaged public var label: String?
     @NSManaged public var markedToDelete: Bool
     @NSManaged public var preKeysRangeMax: Int64
@@ -348,7 +348,7 @@ public extension UserClient {
         let client = fetchedClient ?? UserClient.insertNewObject(in: context)
 
         client.label = label
-        client.type = ZMUserClientType(rawValue: type) 
+        client.type = ZMUserClientType(rawValue: type)
         client.activationAddress = activationAddress
         client.model = model
         client.rawDeviceClass = deviceClass

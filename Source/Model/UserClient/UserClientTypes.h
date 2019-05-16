@@ -24,22 +24,3 @@ typedef NSString * ZMUserClientType NS_TYPED_ENUM;
 extern ZMUserClientType const ZMUserClientTypePermanent;
 extern ZMUserClientType const ZMUserClientTypeTemporary;
 extern ZMUserClientType const ZMUserClientTypeLegalHold;
-
-@class ZMUser;
-@class Team;
-
-@protocol UserClientType <NSObject>
-@property (nonatomic) ZMUserClientType type;
-@property (nonatomic) NSString *label;
-@property (nonatomic) NSString *remoteIdentifier;
-@property (nonatomic) ZMUser *user;
-@property (nonatomic) NSString *activationAddress;
-@property (nonatomic) NSDate *activationDate;
-@property (nonatomic) NSString *model;
-@property (nonatomic) NSString *deviceClass;
-@property (nonatomic) double activationLatitude;
-@property (nonatomic) double activationLongitude;
-@property (nonatomic) NSData *fingerprint;
-@property (nonatomic, readonly) BOOL verified;
-- (void)resetSession;
-@end
