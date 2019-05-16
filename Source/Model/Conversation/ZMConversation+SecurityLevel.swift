@@ -112,7 +112,6 @@ extension ZMConversation {
 
             for user in users where user.isUnderLegalHold {
                 isUnderLegalHold = true
-
                 appendLegalHoldEnabledSystemMessageIfNeeded(for: user)
             }
 
