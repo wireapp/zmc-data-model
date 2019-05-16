@@ -129,6 +129,8 @@
 		54FB03AA1E41F204000E13DC /* PersistedDataPatches+Directory.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54FB03A81E41F1B6000E13DC /* PersistedDataPatches+Directory.swift */; };
 		54FB03AD1E41F6C2000E13DC /* PersistedDataPatchesTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54FB03AC1E41F6C2000E13DC /* PersistedDataPatchesTests.swift */; };
 		54FB03AF1E41FC86000E13DC /* NSManagedObjectContext+Patches.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54FB03AE1E41FC86000E13DC /* NSManagedObjectContext+Patches.swift */; };
+		5E055B2C228C736500E91314 /* store2-70-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 5E055B2A228C731800E91314 /* store2-70-0.wiredatabase */; };
+		5E055B2E228C7F1C00E91314 /* ZMConversation+LegalHold.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E055B2D228C7F1C00E91314 /* ZMConversation+LegalHold.swift */; };
 		5E0FB2012051493700FD9867 /* Set+Filter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E0FB2002051493700FD9867 /* Set+Filter.swift */; };
 		5E0FB215205176B400FD9867 /* Set+ServiceUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E0FB214205176B400FD9867 /* Set+ServiceUser.swift */; };
 		5E36B45E21CA5BBA00B7063B /* UnverifiedCredentials.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5E36B45D21CA5BBA00B7063B /* UnverifiedCredentials.swift */; };
@@ -2150,6 +2152,7 @@
 		F9C9A83D1CAEDBC40039E10C /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				5E055B2A228C731800E91314 /* store2-70-0.wiredatabase */,
 				5E9EA4DA2243ADA400D401B2 /* store2-69-0.wiredatabase */,
 				1661673E22394E2A00779AE3 /* store2-68-0.wiredatabase */,
 				166166CC22366C7A00779AE3 /* store2-67-0.wiredatabase */,
@@ -2423,6 +2426,7 @@
 				168413EB222594ED00FCB9BC /* store2-65-0.wiredatabase in Resources */,
 				54829DAF1DE6F7BA009100D3 /* store1-27.wiredatabase in Resources */,
 				BFC183E2210F57EA00601E5D /* store2-51-0.wiredatabase in Resources */,
+				5E055B2C228C736500E91314 /* store2-70-0.wiredatabase in Resources */,
 				EF9A46FF2109FC3A00085102 /* store2-49-0.wiredatabase in Resources */,
 				87C1C264207F889D0083BF6B /* store2-45-0.wiredatabase in Resources */,
 				54829DB41DE6F7BA009100D3 /* store2-6.wiredatabase in Resources */,
@@ -2575,6 +2579,7 @@
 				F9A706831CAEE01D00C2F5FE /* ZMOTRMessage.m in Sources */,
 				165DC51F21491C0400090B7B /* Mention.swift in Sources */,
 				F9A706531CAEE01D00C2F5FE /* NSManagedObjectContext+zmessaging.m in Sources */,
+				5E055B2E228C7F1C00E91314 /* ZMConversation+LegalHold.swift in Sources */,
 				F110503D2220439900F3EB62 /* ZMUser+RichProfile.swift in Sources */,
 				5EFE9C0F2126D3FA007932A6 /* NormalizationResult.swift in Sources */,
 				F9A706571CAEE01D00C2F5FE /* NSNotification+ManagedObjectContextSave.m in Sources */,
