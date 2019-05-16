@@ -19,25 +19,71 @@
 
 @import Foundation;
 
-extern NSString * const ZMUserClientTypePermanent;
-extern NSString * const ZMUserClientTypeTemporary;
-extern NSString * const ZMUserClientTypeLegalHold;
-
 @class ZMUser;
-@class Team;
+
+typedef NSString * ZMUserClientType NS_TYPED_EXTENSIBLE_ENUM NS_SWIFT_NAME(DeviceType);
+
+extern ZMUserClientType const _Nonnull ZMUserClientTypePermanent;
+extern ZMUserClientType const _Nonnull ZMUserClientTypeTemporary;
+extern ZMUserClientType const _Nonnull ZMUserClientTypeLegalHold;
+
+typedef NSString * ZMUserClientDeviceClass NS_TYPED_EXTENSIBLE_ENUM NS_SWIFT_NAME(DeviceClass);
+
+extern ZMUserClientDeviceClass const _Nonnull ZMUserClientDeviceClassPhone;
+extern ZMUserClientDeviceClass const _Nonnull ZMUserClientDeviceClassTablet;
+extern ZMUserClientDeviceClass const _Nonnull ZMUserClientDeviceClassDesktop;
+extern ZMUserClientDeviceClass const _Nonnull ZMUserClientDeviceClassLegalHold;
 
 @protocol UserClientType <NSObject>
-@property (nonatomic) NSString *type;
-@property (nonatomic) NSString *label;
-@property (nonatomic) NSString *remoteIdentifier;
-@property (nonatomic) ZMUser *user;
-@property (nonatomic) NSString *activationAddress;
-@property (nonatomic) NSDate *activationDate;
-@property (nonatomic) NSString *model;
-@property (nonatomic) NSString *deviceClass;
+
+/// Type of client, this information is only available for your own clients
+
+@property (nonatomic, nonnull) ZMUserClientType type;
+
+/// Free-form string decribing the client, this information is only available for your own clients.
+
+@property (nonatomic, nullable) NSString *label;
+
+/// Remote identifier of the client
+
+@property (nonatomic, nullable) NSString *remoteIdentifier;
+
+/// Owner of the client
+
+@property (nonatomic, nullable) ZMUser *user;
+
+/// Estimated address of where the device was activated, , this information is only available for your own clients
+
+@property (nonatomic, nullable) NSString *activationAddress;
+
+/// Date of when the client was activated, this information is only available for your own clients
+
+@property (nonatomic, nullable) NSDate *activationDate;
+
+/// Model of the device, this information is only available for your own clients
+
+@property (nonatomic, nullable) NSString *model;
+
+/// The device class (phone, desktop, ...)
+
+@property (nonatomic, nullable) ZMUserClientDeviceClass deviceClass;
+
+/// Estimated latitude of where the device was activated, this information is only available for your own clients
+
 @property (nonatomic) double activationLatitude;
+
+/// Estimated longitude of where the device was activated, this information is only available for your own clients
+
 @property (nonatomic) double activationLongitude;
-@property (nonatomic) NSData *fingerprint;
+
+/// Unique fingerprint which can be used to identify & verify the client
+
+@property (nonatomic, nullable) NSData *fingerprint;
+
+/// True if the self user has verfied the client
+
 @property (nonatomic, readonly) BOOL verified;
+
 - (void)resetSession;
+
 @end

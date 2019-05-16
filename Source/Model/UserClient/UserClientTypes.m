@@ -19,6 +19,11 @@
 
 #import "UserClientTypes.h"
 
-NSString * const ZMUserClientTypePermanent = @"permanent";
-NSString * const ZMUserClientTypeTemporary = @"temporary";
-NSString * const ZMUserClientTypeLegalHold = @"legalhold"; // TODO jacob not final spec
+ZMUserClientType const ZMUserClientTypePermanent = @"permanent";
+ZMUserClientType const ZMUserClientTypeTemporary = @"temporary";
+ZMUserClientType const ZMUserClientTypeLegalHold = @"legalhold";
+
+ZMUserClientDeviceClass const ZMUserClientDeviceClassPhone = @"phone";
+ZMUserClientDeviceClass const ZMUserClientDeviceClassTablet = @"tablet";
+ZMUserClientDeviceClass const ZMUserClientDeviceClassDesktop = @"desktop";
+ZMUserClientDeviceClass const ZMUserClientDeviceClassLegalHold = @"legalhold";
