@@ -9,14 +9,6 @@
 import XCTest
 
 class ZMConversationTests_Legalhold: ZMConversationTestsBase {
-
-    override func setUp() {
-        // Put setup code here. This method is called before the invocation of each test method in the class.
-    }
-
-    override func tearDown() {
-        // Put teardown code here. This method is called after the invocation of each test method in the class.
-    }
     
     // MARK - Update legal hold on client changes
     
@@ -269,11 +261,66 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
     // MARK - Discovering legal hold
     
     func testThatItExpiresAllPendingMessages_WhenLegalholdIsDiscovered() {
-        
+        syncMOC.performGroupedBlock {
+            // GIVEN
+            let selfUser = ZMUser.selfUser(in: self.syncMOC)
+            let otherUser = ZMUser.insertNewObject(in: self.syncMOC)
+
+            self.createSelfClient(onMOC: self.syncMOC)
+            self.createClient(ofType: .permanent, class: .phone, for: otherUser)
+
+            let conversation = self.createConversation(in: self.syncMOC)
+            conversation.conversationType = .group
+            conversation.internalAddParticipants([selfUser, otherUser])
+
+            XCTAssertFalse(conversation.isUnderLegalHold)
+
+            // WHEN
+            let message = conversation.append(text: "Legal hold is coming") as! ZMOTRMessage
+            message.sender = otherUser
+
+            let legalHoldClient = self.createClient(ofType: .legalHold, class: .legalhold, for: otherUser)
+            conversation.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [legalHoldClient], causedBy: message)
+
+            // THEN
+            XCTAssertTrue(conversation.isUnderLegalHold)
+
+            XCTAssertTrue(message.isExpired)
+            XCTAssertTrue(message.causedSecurityLevelDegradation)
+            XCTAssertEqual(conversation.messagesThatCausedSecurityLevelDegradation, [message])
+        }
     }
     
     func testItResendsAllPreviouslyExpiredMessages_WhenConfirmingLegalholdPresence() {
-        
+        syncMOC.performGroupedBlock {
+            // GIVEN
+            let selfUser = ZMUser.selfUser(in: self.syncMOC)
+            let otherUser = ZMUser.insertNewObject(in: self.syncMOC)
+
+            self.createSelfClient(onMOC: self.syncMOC)
+            self.createClient(ofType: .permanent, class: .phone, for: otherUser)
+
+            let conversation = self.createConversation(in: self.syncMOC)
+            conversation.conversationType = .group
+            conversation.internalAddParticipants([selfUser, otherUser])
+
+            XCTAssertFalse(conversation.isUnderLegalHold)
+
+            // WHEN
+            let message = conversation.append(text: "Legal hold is coming") as! ZMOTRMessage
+            message.sender = otherUser
+
+            let legalHoldClient = self.createClient(ofType: .legalHold, class: .legalhold, for: otherUser)
+            conversation.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [legalHoldClient], causedBy: message)
+
+            conversation.resendMessagesThatCausedConversationSecurityDegradation()
+            // THEN
+            XCTAssertTrue(conversation.isUnderLegalHold)
+
+            XCTAssertFalse(message.isExpired)
+            XCTAssertFalse(message.causedSecurityLevelDegradation)
+            XCTAssertTrue(conversation.messagesThatCausedSecurityLevelDegradation.isEmpty)
+        }
     }
 
     // MARK: - Helpers
