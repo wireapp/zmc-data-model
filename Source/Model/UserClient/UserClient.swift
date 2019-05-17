@@ -58,7 +58,7 @@ private let zmLog = ZMSLog(tag: "UserClient")
         }
     }
     
-    @NSManaged public var type: String!
+    @NSManaged public var type: DeviceType
     @NSManaged public var label: String?
     @NSManaged public var markedToDelete: Bool
     @NSManaged public var preKeysRangeMax: Int64
@@ -72,7 +72,7 @@ private let zmLog = ZMSLog(tag: "UserClient")
     @NSManaged public var activationAddress: String?
     @NSManaged public var activationDate: Date?
     @NSManaged public var model: String?
-    @NSManaged public var deviceClass: String?
+    @NSManaged public var deviceClass: DeviceClass?
     @NSManaged public var activationLocationLatitude: NSNumber?
     @NSManaged public var activationLocationLongitude: NSNumber?
     @NSManaged public var needsToNotifyUser: Bool
@@ -164,6 +164,20 @@ private let zmLog = ZMSLog(tag: "UserClient")
         return NSPredicate(format: "%K == NULL", ZMUserClientRemoteIdentifierKey)
     }
     
+    /// Insert a new client of the local self user.
+    
+    @discardableResult
+    @objc(insertNewSelfClientInManagedObjectContext:selfUser:model:label:)
+    public static func insertNewSelfClient(in managedObjectContext: NSManagedObjectContext, selfUser: ZMUser, model: String, label: String) -> UserClient {
+        let userClient = UserClient.insertNewObject(in: managedObjectContext)
+        userClient.user = selfUser
+        userClient.model = model
+        userClient.label = label
+        userClient.deviceClass = model.hasSuffix("iPad") ? .tablet : .phone
+        
+        return userClient
+    }
+    
     public static func fetchUserClient(withRemoteId remoteIdentifier: String, forUser user:ZMUser, createIfNeeded: Bool) -> UserClient? {
         precondition(!createIfNeeded || user.managedObjectContext!.zm_isSyncContext, "clients can only be created on the syncContext")
         
@@ -193,6 +207,16 @@ private let zmLog = ZMSLog(tag: "UserClient")
         }
         
         return nil
+    }
+    
+    /// Update a user client with a backend payload
+    ///
+    /// If called on a client belonging to the self user this method does nothing.
+    
+    public func update(with payload: [String: Any]) {
+        guard user?.isSelfUser == false, let deviceClass = payload["class"] as? String else { return }
+        
+        self.deviceClass = DeviceClass(rawValue: deviceClass)
     }
 
     /// Resets releationships and ends an exisiting session before deleting the object
@@ -315,10 +339,10 @@ public extension UserClient {
         let client = fetchedClient ?? UserClient.insertNewObject(in: context)
 
         client.label = label
-        client.type = type
+        client.type = DeviceType(rawValue: type)
         client.activationAddress = activationAddress
         client.model = model
-        client.deviceClass = deviceClass
+        client.deviceClass = deviceClass.map({ DeviceClass(rawValue: $0) })
         client.activationDate = activationDate
         client.activationLocationLatitude = latitude
         client.activationLocationLongitude = longitude
