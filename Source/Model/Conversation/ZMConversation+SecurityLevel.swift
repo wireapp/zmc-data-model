@@ -117,7 +117,7 @@ extension ZMConversation {
     }
 
     private func updateSecurityLevel(cause: SecurityChangeCause) {
-        if securityLevel == .secure {
+        if securityLevel == .secure && cause.canCauseSecurityDecrease {
             if !allUsersTrusted {
                 securityLevel = .secureWithIgnored
 
@@ -133,7 +133,7 @@ extension ZMConversation {
             }
         } else {
             // Check if the conversation becomes trusted
-            if allUsersTrusted && allParticipantsHaveClients {
+            if cause.canCauseSecurityIncrease && allUsersTrusted && allParticipantsHaveClients {
                 securityLevel = .secure
                 appendNewIsSecureSystemMessage(cause: cause)
                 notifyOnUI(name: ZMConversation.isVerifiedNotificationName)
@@ -421,6 +421,24 @@ extension ZMConversation {
         case verifiedClients(Set<UserClient>)
         case removedClients([ZMUser: Set<UserClient>])
         case ignoredClients(Set<UserClient>)
+
+        var canCauseSecurityIncrease: Bool {
+            switch self {
+            case .removedUsers, .verifiedClients, .removedClients:
+                return true
+            default:
+                return false
+            }
+        }
+
+        var canCauseSecurityDecrease: Bool {
+            switch self {
+            case .addedUsers, .addedClients, .ignoredClients:
+                return true
+            default:
+                return false
+            }
+        }
     }
     
     fileprivate func appendNewAddedClientSystemMessage(cause: SecurityChangeCause) {
