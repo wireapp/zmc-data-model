@@ -84,6 +84,12 @@ extern ZMUserClientDeviceClass const _Nonnull ZMUserClientDeviceClassLegalHold;
 
 @property (nonatomic, readonly) BOOL verified;
 
+/// Delete the existing session and establish a new one
+
 - (void)resetSession;
+
+/// Retreive the fingerprint from the session, if there's no existing session a new one will be established.
+
+- (void)fetchFingerprintOrPrekeys;
 
 @end
