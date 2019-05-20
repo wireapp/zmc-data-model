@@ -163,7 +163,8 @@ extension ZMConversation : ObjectInSnapshot {
                 "destructionTimeoutChanged \(destructionTimeoutChanged)",
                 "languageChanged \(languageChanged)",
                 "hasReadReceiptsEnabledChanged \(hasReadReceiptsEnabledChanged)",
-                "externalParticipantsStateChanged \(externalParticipantsStateChanged)"
+                "externalParticipantsStateChanged \(externalParticipantsStateChanged)",
+                "legalHoldStatusChanged: \(legalHoldStatusChanged)"
             ].joined(separator: ", ")
     }
     

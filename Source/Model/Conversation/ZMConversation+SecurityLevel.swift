@@ -78,27 +78,20 @@ extension ZMConversation {
     private func updateLegalHoldState(cause: SecurityChangeCause) {
         switch cause {
         case .addedUsers(let users):
-            var isUnderLegalHold = false
-
             for user in users where user.isUnderLegalHold {
                 isUnderLegalHold = true
                 appendLegalHoldEnabledSystemMessageIfNeeded(for: user)
+                expireAllPendingMessagesBecauseOfSecurityLevelDegradation()
             }
-
-            self.isUnderLegalHold = isUnderLegalHold
 
         case .addedClients(let clients, _):
-            var isUnderLegalHold = false
-
             for client in clients.filter({ $0.deviceClass == .legalhold }) {
-                isUnderLegalHold = true
-
                 if let user = client.user {
+                    isUnderLegalHold = true
                     appendLegalHoldEnabledSystemMessageIfNeeded(for: user)
+                    expireAllPendingMessagesBecauseOfSecurityLevelDegradation()
                 }
             }
-
-            self.isUnderLegalHold = isUnderLegalHold
 
         case .removedClients(let userClients):
             for (user, _) in userClients {
@@ -117,8 +110,8 @@ extension ZMConversation {
     }
 
     private func updateSecurityLevel(cause: SecurityChangeCause) {
-        if securityLevel == .secure && cause.canCauseSecurityDecrease {
-            if !allUsersTrusted {
+        if securityLevel == .secure {
+            if !allUsersTrusted && cause.canCauseSecurityDecrease {
                 securityLevel = .secureWithIgnored
 
                 switch cause {
@@ -149,7 +142,7 @@ extension ZMConversation {
 
     /// When a user is removed, we need to check whether the conversation is still under legal hold.
     private func disableLegalHoldIfNeeded() {
-        if !activeParticipants.contains(where: { $0.isUnderLegalHold }) {
+        if isUnderLegalHold, !activeParticipants.contains(where: { $0.isUnderLegalHold }) {
             isUnderLegalHold = false
             appendLegalHoldDisabledSystemMessageForConversation()
         }
@@ -260,7 +253,7 @@ extension ZMConversation {
     }
 
     private func appendLegalHoldDisabledSystemMessageIfNeeded(for user: ZMUser) {
-        guard !user.isUnderLegalHold else { return }
+        guard isUnderLegalHold, !user.isUnderLegalHold else { return }
 
         appendSystemMessage(type: .legalHoldDisabled,
                             sender: ZMUser.selfUser(in: self.managedObjectContext!),

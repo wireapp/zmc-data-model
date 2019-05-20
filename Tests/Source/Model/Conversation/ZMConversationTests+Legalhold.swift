@@ -223,7 +223,7 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
 
             let lastMessage = conversation.lastMessage as? ZMSystemMessage
             XCTAssertTrue(lastMessage?.systemMessageType == .legalHoldDisabled)
-            XCTAssertTrue(lastMessage?.users == [otherUser])
+            XCTAssertEqual(lastMessage?.users, [])
         }
     }
 
@@ -276,8 +276,8 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
             XCTAssertFalse(conversation.isUnderLegalHold)
 
             // WHEN
-            let message = conversation.append(text: "Legal hold is coming") as! ZMOTRMessage
-            message.sender = otherUser
+            let message = conversation.append(text: "Legal hold is coming to town") as! ZMOTRMessage
+            Thread.sleep(forTimeInterval: 0.05)
 
             let legalHoldClient = self.createClient(ofType: .legalHold, class: .legalhold, for: otherUser)
             conversation.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [legalHoldClient], causedBy: message)
@@ -313,7 +313,10 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
             let legalHoldClient = self.createClient(ofType: .legalHold, class: .legalhold, for: otherUser)
             conversation.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [legalHoldClient], causedBy: message)
 
-            conversation.resendMessagesThatCausedConversationSecurityDegradation()
+            self.performPretendingSyncMocIsUiMoc {
+                conversation.resendMessagesThatCausedConversationSecurityDegradation()
+            }
+            
             // THEN
             XCTAssertTrue(conversation.isUnderLegalHold)
 

@@ -84,7 +84,7 @@ extension UserObserverTests {
         XCTAssertEqual(userObserver.notifications.count, changeCount, "Should not have changed further once")
         
         guard let changes = userObserver.notifications.first else { return }
-        changes.checkForExpectedChangeFields(userInfoKeys: userInfoChangeKeys.map{$0.rawValue},
+        changes.checkForExpectedChangeFields(userInfoKeys: Set(userInfoChangeKeys.map{$0.rawValue}),
                                              expectedChangedFields: [expectedChangedField.rawValue])
     }
     
