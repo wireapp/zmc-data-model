@@ -551,7 +551,7 @@ extension UserClientTests {
 // MARK : fetchFingerprintOrPrekeys
 
 extension UserClientTests {
-    
+        
     func testThatItSetsTheUserWhenInsertingANewSelfUserClient(){
         // given
         _ = createSelfClient()
