@@ -85,7 +85,7 @@ extension ZMConversation {
             }
 
         case .addedClients(let clients, _):
-            for client in clients.filter({ $0.deviceClass == .legalhold }) {
+            for client in clients.filter(\.isLegalHoldDevice) {
                 if let user = client.user {
                     isUnderLegalHold = true
                     appendLegalHoldEnabledSystemMessageIfNeeded(for: user)

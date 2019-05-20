@@ -29,7 +29,7 @@ protocol UserClientType {
     /// Date of when the client was activated, this information is only available for your own clients
     var activationDate: Date? { get }
     /// Type of client, this information is only available for your own clients
-    var type: ZMUserClientType? { get }
+    var type: DeviceType? { get }
     /// Model of the device, this information is only available for your own clients
     var model: String? { get }
     /// The device class (phone, desktop, ...)

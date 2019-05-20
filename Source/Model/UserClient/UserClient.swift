@@ -39,12 +39,6 @@ public let ZMUserClientRemoteIdentifierKey = "remoteIdentifier"
 
 private let zmLog = ZMSLog(tag: "UserClient")
 
-public enum DeviceClass: String {
-    case phone = "phone"
-    case desktop = "desktop"
-    case legalhold = "legalhold"
-}
-
 @objcMembers public class UserClient: ZMManagedObject, UserClientType {
     public var activationLatitude: Double {
         get {
@@ -64,7 +58,7 @@ public enum DeviceClass: String {
         }
     }
     
-    @NSManaged public var type: DeviceType
+    @NSManaged public var type: DeviceType?
     @NSManaged public var label: String?
     @NSManaged public var markedToDelete: Bool
     @NSManaged public var preKeysRangeMax: Int64
@@ -92,33 +86,6 @@ public enum DeviceClass: String {
         static let DeviceClass = "deviceClass"
     }
     
-    @NSManaged private var primitiveDeviceClass: String?
-    public var deviceClass: DeviceClass? {
-        set {
-            rawDeviceClass = newValue?.rawValue
-        }
-        get {
-            guard let rawDeviceClass = rawDeviceClass else { return nil }
-            
-            return DeviceClass(rawValue: rawDeviceClass)
-        }
-    }
-    private var rawDeviceClass: String? {
-        set {
-            willChangeValue(forKey: Keys.DeviceClass)
-            primitiveDeviceClass = newValue
-            didChangeValue(forKey: Keys.DeviceClass)
-        }
-        get {
-            willAccessValue(forKey: Keys.DeviceClass)
-            let rawDeviceClass = primitiveDeviceClass
-            didAccessValue(forKey: Keys.DeviceClass)
-            
-            return rawDeviceClass
-        }
-    }
-    
-
     @NSManaged private var primitivePushToken: Data?
     public var pushToken: PushToken? {
         set {
@@ -162,7 +129,11 @@ public enum DeviceClass: String {
     public var activationLocation: CLLocation {
         return CLLocation(latitude: self.activationLocationLatitude as! CLLocationDegrees, longitude: self.activationLocationLongitude as! CLLocationDegrees)
     }
-    
+
+    public var isLegalHoldDevice: Bool {
+        return deviceClass == .legalHold || type == .legalHold
+    }
+
     public override func awakeFromFetch() {
         super.awakeFromFetch()
         
@@ -377,7 +348,7 @@ public extension UserClient {
         client.type = DeviceType(rawValue: type)
         client.activationAddress = activationAddress
         client.model = model
-        client.deviceClass = deviceClass.map(DeviceClass.init)
+        client.deviceClass = deviceClass.map { DeviceClass(rawValue: $0) }
         client.activationDate = activationDate
         client.activationLocationLatitude = latitude
         client.activationLocationLongitude = longitude

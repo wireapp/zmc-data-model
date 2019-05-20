@@ -808,7 +808,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
 
         let legalHoldClient = UserClient.insertNewObject(in: uiMOC)
         legalHoldClient.type = .legalHold
-        legalHoldClient.deviceClass = .legalhold
+        legalHoldClient.deviceClass = .legalHold
 
         uiMOC.saveOrRollback()
 
@@ -834,7 +834,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
 
         let legalHoldClient = UserClient.insertNewObject(in: uiMOC)
         legalHoldClient.type = .legalHold
-        legalHoldClient.deviceClass = .legalhold
+        legalHoldClient.deviceClass = .legalHold
         legalHoldClient.user = user
 
         let normalClient = UserClient.insertNewObject(in: uiMOC)

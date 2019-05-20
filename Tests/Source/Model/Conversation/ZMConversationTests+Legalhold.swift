@@ -19,7 +19,7 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
             XCTAssertFalse(user.isUnderLegalHold)
 
             // WHEN
-            self.createClient(ofType: .legalHold, class: .legalhold, for: user)
+            self.createClient(ofType: .legalHold, class: .legalHold, for: user)
 
             // THEN
             XCTAssertTrue(user.isUnderLegalHold)
@@ -30,7 +30,7 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
         syncMOC.performGroupedBlock {
             // GIVEN
             let user = ZMUser.insertNewObject(in: self.syncMOC)
-            let legalHoldClient = self.createClient(ofType: .legalHold, class: .legalhold, for: user)
+            let legalHoldClient = self.createClient(ofType: .legalHold, class: .legalHold, for: user)
             XCTAssertTrue(user.isUnderLegalHold)
 
             // WHEN
@@ -57,7 +57,7 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
             XCTAssertFalse(conversation.isUnderLegalHold)
 
             // WHEN
-            let legalHoldClient = self.createClient(ofType: .legalHold, class: .legalhold, for: otherUser)
+            let legalHoldClient = self.createClient(ofType: .legalHold, class: .legalHold, for: otherUser)
             conversation.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [legalHoldClient], causedBy: [otherUser])
 
             // THEN
@@ -73,7 +73,7 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
 
             self.createSelfClient(onMOC: self.syncMOC)
             self.createClient(ofType: .permanent, class: .phone, for: otherUser)
-            let legalHoldClient = self.createClient(ofType: .legalHold, class: .legalhold, for: otherUser)
+            let legalHoldClient = self.createClient(ofType: .legalHold, class: .legalHold, for: otherUser)
 
             let conversation = self.createConversation(in: self.syncMOC)
             conversation.conversationType = .group
@@ -99,7 +99,7 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
 
             self.createSelfClient(onMOC: self.syncMOC)
             self.createClient(ofType: .permanent, class: .phone, for: otherUser)
-            self.createClient(ofType: .legalHold, class: .legalhold, for: otherUser)
+            self.createClient(ofType: .legalHold, class: .legalHold, for: otherUser)
 
             let conversation = self.createConversation(in: self.syncMOC)
             conversation.conversationType = .group
@@ -124,7 +124,7 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
 
             self.createSelfClient(onMOC: self.syncMOC)
             self.createClient(ofType: .permanent, class: .phone, for: otherUser)
-            self.createClient(ofType: .legalHold, class: .legalhold, for: otherUser)
+            self.createClient(ofType: .legalHold, class: .legalHold, for: otherUser)
             self.createClient(ofType: .permanent, class: .phone, for: otherUserB)
 
             let conversation = self.createConversation(in: self.syncMOC)
@@ -150,7 +150,7 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
 
             self.createSelfClient(onMOC: self.syncMOC)
             self.createClient(ofType: .permanent, class: .phone, for: otherUser)
-            self.createClient(ofType: .legalHold, class: .legalhold, for: otherUser)
+            self.createClient(ofType: .legalHold, class: .legalHold, for: otherUser)
             self.createClient(ofType: .permanent, class: .phone, for: otherUserB)
 
             let conversation = self.createConversation(in: self.syncMOC)
@@ -185,7 +185,7 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
             XCTAssertFalse(conversation.isUnderLegalHold)
 
             // WHEN
-            let legalHoldClient = self.createClient(ofType: .legalHold, class: .legalhold, for: otherUser)
+            let legalHoldClient = self.createClient(ofType: .legalHold, class: .legalHold, for: otherUser)
             conversation.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [legalHoldClient], causedBy: [otherUser])
 
             // THEN
@@ -206,7 +206,7 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
 
             self.createSelfClient(onMOC: self.syncMOC)
             self.createClient(ofType: .permanent, class: .phone, for: otherUser)
-            let legalHoldClient = self.createClient(ofType: .legalHold, class: .legalhold, for: otherUser)
+            let legalHoldClient = self.createClient(ofType: .legalHold, class: .legalHold, for: otherUser)
             self.createClient(ofType: .permanent, class: .phone, for: otherUserB)
 
             let conversation = self.createConversation(in: self.syncMOC)
@@ -236,7 +236,7 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
 
             self.createSelfClient(onMOC: self.syncMOC)
             self.createClient(ofType: .permanent, class: .phone, for: otherUser)
-            self.createClient(ofType: .legalHold, class: .legalhold, for: otherUser)
+            self.createClient(ofType: .legalHold, class: .legalHold, for: otherUser)
             self.createClient(ofType: .permanent, class: .phone, for: otherUserB)
 
             let conversation = self.createConversation(in: self.syncMOC)
@@ -279,7 +279,7 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
             let message = conversation.append(text: "Legal hold is coming to town") as! ZMOTRMessage
             Thread.sleep(forTimeInterval: 0.05)
 
-            let legalHoldClient = self.createClient(ofType: .legalHold, class: .legalhold, for: otherUser)
+            let legalHoldClient = self.createClient(ofType: .legalHold, class: .legalHold, for: otherUser)
             conversation.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [legalHoldClient], causedBy: message)
 
             // THEN
@@ -310,7 +310,7 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
             let message = conversation.append(text: "Legal hold is coming") as! ZMOTRMessage
             message.sender = otherUser
 
-            let legalHoldClient = self.createClient(ofType: .legalHold, class: .legalhold, for: otherUser)
+            let legalHoldClient = self.createClient(ofType: .legalHold, class: .legalHold, for: otherUser)
             conversation.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [legalHoldClient], causedBy: message)
 
             self.performPretendingSyncMocIsUiMoc {
@@ -329,7 +329,7 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
     // MARK: - Helpers
 
     @discardableResult
-    private func createClient(ofType clientType: ZMUserClientType, class deviceClass: DeviceClass, for user: ZMUser) -> UserClient {
+    private func createClient(ofType clientType: DeviceType, class deviceClass: DeviceClass, for user: ZMUser) -> UserClient {
         let client = UserClient.insertNewObject(in: syncMOC)
         client.type = clientType
         client.deviceClass = deviceClass

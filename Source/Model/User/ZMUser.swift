@@ -69,7 +69,7 @@ extension ZMUser: UserType {
     // MARK: Legal Hold
 
     @objc public var isUnderLegalHold: Bool {
-        return clients.contains(where: { $0.deviceClass == .legalhold })
+        return clients.any(\.isLegalHoldDevice)
     }
 
     @objc class func keyPathsForValuesAffectingIsUnderLegalHold() -> Set<String> {

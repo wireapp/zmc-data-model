@@ -552,7 +552,7 @@ extension UserObserverTests {
 
         let legalHoldClient = UserClient.insertNewObject(in: uiMOC)
         legalHoldClient.type = .legalHold
-        legalHoldClient.deviceClass = .legalhold
+        legalHoldClient.deviceClass = .legalHold
 
         // when
         self.checkThatItNotifiesTheObserverOfAChange(user,
@@ -566,7 +566,7 @@ extension UserObserverTests {
 
         let legalHoldClient = UserClient.insertNewObject(in: uiMOC)
         legalHoldClient.type = .legalHold
-        legalHoldClient.deviceClass = .legalhold
+        legalHoldClient.deviceClass = .legalHold
         legalHoldClient.user = user
 
         let modifier: (ZMUser) -> Void = { _ in
