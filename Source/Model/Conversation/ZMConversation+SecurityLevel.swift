@@ -48,16 +48,16 @@ extension ZMConversation {
             willAccessValue(forKey: #keyPath(legalHoldStatus))
             defer { didAccessValue(forKey: #keyPath(legalHoldStatus)) }
 
-            if let status = (primitiveValue(forKey: #keyPath(legalHoldStatus)) as? Int).flatMap(ZMConversationLegalHoldStatus.init) {
+            if let status = ZMConversationLegalHoldStatus(rawValue: primitiveLegalHoldStatus) {
                 return status
             } else {
-                legalHoldStatus = .disabled
+                primitiveLegalHoldStatus = ZMConversationLegalHoldStatus.disabled.rawValue
                 return .disabled
             }
         }
         set {
             willChangeValue(forKey: #keyPath(legalHoldStatus))
-            setPrimitiveValue(newValue.rawValue, forKey: #keyPath(legalHoldStatus))
+            primitiveLegalHoldStatus = newValue.rawValue
             didChangeValue(forKey: #keyPath(legalHoldStatus))
         }
     }

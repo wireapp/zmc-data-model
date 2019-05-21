@@ -18,7 +18,7 @@
 
 import Foundation
 
-protocol UserClientType {
+@objc public protocol UserClientType {
     
     /// Free-form string decribing the client, this information is only available for your own clients.
     var label: String? { get }
