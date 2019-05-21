@@ -114,6 +114,9 @@ public protocol UserType: NSObjectProtocol {
     /// Conversations the user is a currently a participant of
     var activeConversations: Set<ZMConversation> { get }
     
+    /// All clients belonging to the user
+    var allClients: [UserClientType] { get }
+    
     func requestPreviewProfileImage()
     func requestCompleteProfileImage()
     
