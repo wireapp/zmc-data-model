@@ -78,7 +78,7 @@ extern NSString *const ZMConversationInternalEstimatedUnreadCountKey;
 extern NSString *const ZMConversationLastUnreadKnockDateKey;
 extern NSString *const ZMConversationLastUnreadMissedCallDateKey;
 extern NSString *const ZMConversationLastReadLocalTimestampKey;
-extern NSString *const ZMConversationIsUnderLegalHoldKey;
+extern NSString *const ZMConversationLegalHoldStatusKey;
 
 extern NSString *const SecurityLevelKey;
 

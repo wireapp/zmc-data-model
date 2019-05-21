@@ -54,14 +54,14 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
             conversation.conversationType = .group
             conversation.internalAddParticipants([selfUser, otherUser])
 
-            XCTAssertFalse(conversation.isUnderLegalHold)
+            XCTAssertEqual(conversation.legalHoldStatus, .disabled)
 
             // WHEN
             let legalHoldClient = self.createClient(ofType: .legalHold, class: .legalHold, for: otherUser)
             conversation.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [legalHoldClient], causedBy: [otherUser])
 
             // THEN
-            XCTAssertTrue(conversation.isUnderLegalHold)
+            XCTAssertEqual(conversation.legalHoldStatus, .pendingApproval)
         }
     }
     
@@ -79,13 +79,13 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
             conversation.conversationType = .group
             conversation.internalAddParticipants([selfUser, otherUser])
 
-            XCTAssertTrue(conversation.isUnderLegalHold)
+            XCTAssertEqual(conversation.legalHoldStatus, .pendingApproval)
 
             // WHEN
             legalHoldClient.deleteClientAndEndSession()
 
             // THEN
-            XCTAssertFalse(conversation.isUnderLegalHold)
+            XCTAssertEqual(conversation.legalHoldStatus, .disabled)
         }
     }
     
@@ -105,13 +105,13 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
             conversation.conversationType = .group
             conversation.internalAddParticipants([selfUser])
 
-            XCTAssertFalse(conversation.isUnderLegalHold)
+            XCTAssertEqual(conversation.legalHoldStatus, .disabled)
 
             // WHEN
             conversation.internalAddParticipants([otherUser])
 
             // THEN
-            XCTAssertTrue(conversation.isUnderLegalHold)
+            XCTAssertEqual(conversation.legalHoldStatus, .pendingApproval)
         }
     }
     
@@ -131,13 +131,13 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
             conversation.conversationType = .group
             conversation.internalAddParticipants([selfUser, otherUser, otherUserB])
 
-            XCTAssertTrue(conversation.isUnderLegalHold)
+            XCTAssertEqual(conversation.legalHoldStatus, .pendingApproval)
 
             // WHEN
             conversation.internalRemoveParticipants([otherUser], sender: selfUser)
 
             // THEN
-            XCTAssertFalse(conversation.isUnderLegalHold)
+            XCTAssertEqual(conversation.legalHoldStatus, .disabled)
         }
     }
     
@@ -157,13 +157,13 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
             conversation.conversationType = .group
             conversation.internalAddParticipants([selfUser, otherUser, otherUserB])
 
-            XCTAssertTrue(conversation.isUnderLegalHold)
+            XCTAssertEqual(conversation.legalHoldStatus, .pendingApproval)
 
             // WHEN
             conversation.internalRemoveParticipants([otherUserB], sender: selfUser)
 
             // THEN
-            XCTAssertTrue(conversation.isUnderLegalHold)
+            XCTAssertEqual(conversation.legalHoldStatus, .pendingApproval)
         }
     }
     
@@ -182,14 +182,14 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
             conversation.conversationType = .group
             conversation.internalAddParticipants([selfUser, otherUser])
 
-            XCTAssertFalse(conversation.isUnderLegalHold)
+            XCTAssertEqual(conversation.legalHoldStatus, .disabled)
 
             // WHEN
             let legalHoldClient = self.createClient(ofType: .legalHold, class: .legalHold, for: otherUser)
             conversation.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [legalHoldClient], causedBy: [otherUser])
 
             // THEN
-            XCTAssertTrue(conversation.isUnderLegalHold)
+            XCTAssertEqual(conversation.legalHoldStatus, .pendingApproval)
 
             let lastMessage = conversation.lastMessage as? ZMSystemMessage
             XCTAssertTrue(lastMessage?.systemMessageType == .legalHoldEnabled)
@@ -213,13 +213,13 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
             conversation.conversationType = .group
             conversation.internalAddParticipants([selfUser, otherUser, otherUserB])
 
-            XCTAssertTrue(conversation.isUnderLegalHold)
+            XCTAssertEqual(conversation.legalHoldStatus, .pendingApproval)
 
             // WHEN
             legalHoldClient.deleteClientAndEndSession()
 
             // THEN
-            XCTAssertFalse(conversation.isUnderLegalHold)
+            XCTAssertEqual(conversation.legalHoldStatus, .disabled)
 
             let lastMessage = conversation.lastMessage as? ZMSystemMessage
             XCTAssertTrue(lastMessage?.systemMessageType == .legalHoldDisabled)
@@ -243,13 +243,13 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
             conversation.conversationType = .group
             conversation.internalAddParticipants([selfUser, otherUser, otherUserB])
 
-            XCTAssertTrue(conversation.isUnderLegalHold)
+            XCTAssertEqual(conversation.legalHoldStatus, .pendingApproval)
 
             // WHEN
             conversation.internalRemoveParticipants([otherUser], sender: selfUser)
 
             // THEN
-            XCTAssertFalse(conversation.isUnderLegalHold)
+            XCTAssertEqual(conversation.legalHoldStatus, .disabled)
 
             let lastMessage = conversation.lastMessage as? ZMSystemMessage
             XCTAssertTrue(lastMessage?.systemMessageType == .legalHoldDisabled)
@@ -273,7 +273,7 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
             conversation.conversationType = .group
             conversation.internalAddParticipants([selfUser, otherUser])
 
-            XCTAssertFalse(conversation.isUnderLegalHold)
+            XCTAssertEqual(conversation.legalHoldStatus, .disabled)
 
             // WHEN
             let message = conversation.append(text: "Legal hold is coming to town") as! ZMOTRMessage
@@ -283,7 +283,7 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
             conversation.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [legalHoldClient], causedBy: message)
 
             // THEN
-            XCTAssertTrue(conversation.isUnderLegalHold)
+            XCTAssertEqual(conversation.legalHoldStatus, .pendingApproval)
 
             XCTAssertTrue(message.isExpired)
             XCTAssertTrue(message.causedSecurityLevelDegradation)
@@ -304,7 +304,7 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
             conversation.conversationType = .group
             conversation.internalAddParticipants([selfUser, otherUser])
 
-            XCTAssertFalse(conversation.isUnderLegalHold)
+            XCTAssertEqual(conversation.legalHoldStatus, .disabled)
 
             // WHEN
             let message = conversation.append(text: "Legal hold is coming") as! ZMOTRMessage
@@ -312,13 +312,14 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
 
             let legalHoldClient = self.createClient(ofType: .legalHold, class: .legalHold, for: otherUser)
             conversation.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [legalHoldClient], causedBy: message)
+            XCTAssertEqual(conversation.legalHoldStatus, .pendingApproval)
 
             self.performPretendingSyncMocIsUiMoc {
-                conversation.resendMessagesThatCausedConversationSecurityDegradation()
+                conversation.acknowledgePrivacyWarning(withResendIntend: true)
             }
             
             // THEN
-            XCTAssertTrue(conversation.isUnderLegalHold)
+            XCTAssertEqual(conversation.legalHoldStatus, .enabled)
 
             XCTAssertFalse(message.isExpired)
             XCTAssertFalse(message.causedSecurityLevelDegradation)

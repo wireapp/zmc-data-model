@@ -19,14 +19,58 @@
 import Foundation
 import WireCryptobox
 
+@objc public enum ZMConversationLegalHoldStatus: Int {
+    case disabled = 0
+    case pendingApproval = 1
+    case enabled = 2
+
+    public var denotesEnabledComplianceDevice: Bool {
+        switch self {
+        case .pendingApproval, .enabled:
+            return true
+        case .disabled:
+            return false
+        }
+    }
+}
+
 extension ZMConversation {
 
     /// Contains current security level of conversation.
     /// Client should check this property to properly annotate conversation.
     @NSManaged public internal(set) var securityLevel: ZMConversationSecurityLevel
 
+    @NSManaged private var primitiveLegalHoldStatus: Int
+
     /// Whether the conversation is under legal hold.
-    @NSManaged public internal(set) var isUnderLegalHold: Bool
+    @objc public internal(set) var legalHoldStatus: ZMConversationLegalHoldStatus {
+        get {
+            willAccessValue(forKey: #keyPath(legalHoldStatus))
+            defer { didAccessValue(forKey: #keyPath(legalHoldStatus)) }
+
+            if let status = (primitiveValue(forKey: #keyPath(legalHoldStatus)) as? Int).flatMap(ZMConversationLegalHoldStatus.init) {
+                return status
+            } else {
+                legalHoldStatus = .disabled
+                return .disabled
+            }
+        }
+        set {
+            willChangeValue(forKey: #keyPath(legalHoldStatus))
+            setPrimitiveValue(newValue.rawValue, forKey: #keyPath(legalHoldStatus))
+            didChangeValue(forKey: #keyPath(legalHoldStatus))
+        }
+    }
+
+    /// Whether the conversation is under legal hold.
+    @objc public var isUnderLegalHold: Bool {
+        return legalHoldStatus.denotesEnabledComplianceDevice
+    }
+
+    /// Whether the self user can send messages in this conversation.
+    @objc public var selfUserCanSendMessages: Bool {
+        return !isReadOnly && securityLevel != .secureWithIgnored && legalHoldStatus != .pendingApproval
+    }
 
     // MARK: - Events
 
@@ -79,7 +123,7 @@ extension ZMConversation {
         switch cause {
         case .addedUsers(let users):
             for user in users where user.isUnderLegalHold {
-                isUnderLegalHold = true
+                legalHoldStatus = .pendingApproval
                 appendLegalHoldEnabledSystemMessageIfNeeded(for: user)
                 expireAllPendingMessagesBecauseOfSecurityLevelDegradation()
             }
@@ -87,7 +131,7 @@ extension ZMConversation {
         case .addedClients(let clients, _):
             for client in clients.filter(\.isLegalHoldDevice) {
                 if let user = client.user {
-                    isUnderLegalHold = true
+                    legalHoldStatus = .pendingApproval
                     appendLegalHoldEnabledSystemMessageIfNeeded(for: user)
                     expireAllPendingMessagesBecauseOfSecurityLevelDegradation()
                 }
@@ -142,8 +186,8 @@ extension ZMConversation {
 
     /// When a user is removed, we need to check whether the conversation is still under legal hold.
     private func disableLegalHoldIfNeeded() {
-        if isUnderLegalHold, !activeParticipants.contains(where: { $0.isUnderLegalHold }) {
-            isUnderLegalHold = false
+        if legalHoldStatus.denotesEnabledComplianceDevice, !activeParticipants.contains(where: { $0.isUnderLegalHold }) {
+            legalHoldStatus = .disabled
             appendLegalHoldDisabledSystemMessageForConversation()
         }
     }
@@ -253,7 +297,7 @@ extension ZMConversation {
     }
 
     private func appendLegalHoldDisabledSystemMessageIfNeeded(for user: ZMUser) {
-        guard isUnderLegalHold, !user.isUnderLegalHold else { return }
+        guard legalHoldStatus.denotesEnabledComplianceDevice, !user.isUnderLegalHold else { return }
 
         appendSystemMessage(type: .legalHoldDisabled,
                             sender: ZMUser.selfUser(in: self.managedObjectContext!),
@@ -265,32 +309,31 @@ extension ZMConversation {
 
 // MARK: - Messages resend/expiration
 extension ZMConversation {
-    
-    /// Mark conversation as not secure. This method is expected to be called from the UI context
-    @objc public func makeNotSecure() {
+
+    private func acknowledgePrivacyChanges() {
         precondition(managedObjectContext?.zm_isUserInterfaceContext == true)
-        securityLevel = .notSecure
+
+        // Downgrade the conversation to be unverified
+        if securityLevel == .secureWithIgnored {
+            securityLevel = .notSecure
+        }
+
+        // Accept legal hold
+        if legalHoldStatus == .pendingApproval {
+            legalHoldStatus = .enabled
+        }
+
         managedObjectContext?.saveOrRollback()
     }
-    
-    /// Resend last non sent messages. This method is expected to be called from the UI context
-    @objc public func resendMessagesThatCausedConversationSecurityDegradation() {
-        // Downgrade the conversation to be unverified
-        makeNotSecure()
 
-        // Resend the messages that caused the degradation to happen
+    private func resendPendingMessagesAfterPrivacyChanges() {
         enumerateReverseMessagesThatCausedDegradationUntilFirstSystemMessageOnSyncContext {
             $0.causedSecurityLevelDegradation = false
             $0.resend()
         }
     }
-    
-    /// Reset those that caused degradation. This method is expected to be called from the UI context
-    @objc public func doNotResendMessagesThatCausedDegradation() {
-        // Downgrade the conversation to be unverified
-        makeNotSecure()
 
-        // Leave the messages that caused the degradation to be unverified
+    private func discardPendingMessagesAfterPrivacyChanges() {
         guard let syncMOC = managedObjectContext?.zm_sync else { return }
         syncMOC.performGroupedBlock {
             guard let conversation = (try? syncMOC.existingObject(with: self.objectID)) as? ZMConversation else { return }
@@ -298,7 +341,22 @@ extension ZMConversation {
             syncMOC.saveOrRollback()
         }
     }
-    
+
+    /// Accepts the privacy changes (legal hold and/or degradation) and resend the pending messages.
+    @objc(acknowledgePrivacyWarningWithResendIntend:) public func acknowledgePrivacyWarning(withResendIntend shouldResendMessages: Bool) {
+        acknowledgePrivacyChanges()
+
+        if shouldResendMessages {
+            resendPendingMessagesAfterPrivacyChanges()
+        } else {
+            discardPendingMessagesAfterPrivacyChanges()
+        }
+    }
+
+    @objc public func acknowledgePrivacyChangesButDoNotResendPendingMessages() {
+
+    }
+
     /// Enumerates all messages from newest to oldest and apply a block to all ZMOTRMessage encountered, 
     /// halting the enumeration when a system message for security level degradation is found.
     /// This is executed asychronously on the sync context

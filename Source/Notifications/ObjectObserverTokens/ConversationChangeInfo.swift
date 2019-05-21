@@ -43,7 +43,7 @@ extension ZMConversation : ObjectInSnapshot {
                     #keyPath(ZMConversation.language),
                     #keyPath(ZMConversation.hasReadReceiptsEnabled),
                     ZMConversation.externalParticipantsStateKey,
-                    #keyPath(ZMConversation.isUnderLegalHold)
+                    #keyPath(ZMConversation.legalHoldStatus)
             ])
     }
 
@@ -139,7 +139,7 @@ extension ZMConversation : ObjectInSnapshot {
     }
 
     public var legalHoldStatusChanged: Bool {
-        return changedKeysContain(keys: #keyPath(ZMConversation.isUnderLegalHold))
+        return changedKeysContain(keys: #keyPath(ZMConversation.legalHoldStatus))
     }
     
     public var conversation : ZMConversation { return self.object as! ZMConversation }
@@ -208,12 +208,15 @@ extension ConversationChangeInfo {
 
 /// Conversation degraded
 extension ConversationChangeInfo {
-    
-    /// True if the conversation security level is .secureWithIgnored and we tried to send a message
-    @objc public var didNotSendMessagesBecauseOfConversationSecurityLevel : Bool {
-        return self.securityLevelChanged &&
-            self.conversation.securityLevel == .secureWithIgnored &&
-            !self.conversation.messagesThatCausedSecurityLevelDegradation.isEmpty
+
+    @objc public var causedByConversationPrivacyChange: Bool {
+        if securityLevelChanged {
+            return conversation.securityLevel == .secureWithIgnored && !self.conversation.messagesThatCausedSecurityLevelDegradation.isEmpty
+        } else if legalHoldStatusChanged {
+            return conversation.legalHoldStatus == .pendingApproval && !self.conversation.messagesThatCausedSecurityLevelDegradation.isEmpty
+        }
+
+        return false
     }
     
     /// Users that caused the conversation to degrade

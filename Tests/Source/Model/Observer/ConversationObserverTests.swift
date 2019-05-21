@@ -823,7 +823,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: modifier,
                                                      expectedChangedFields: [#keyPath(ConversationChangeInfo.legalHoldStatusChanged), #keyPath(ConversationChangeInfo.messagesChanged)],
-                                                     expectedChangedKeys: [#keyPath(ZMConversation.isUnderLegalHold), #keyPath(ZMConversation.allMessages)])
+                                                     expectedChangedKeys: [#keyPath(ZMConversation.legalHoldStatus), #keyPath(ZMConversation.allMessages)])
     }
 
     func testThatItNotifiesOfLegalHoldChanges_Disabled() {
@@ -855,7 +855,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: modifier,
                                                      expectedChangedFields: [#keyPath(ConversationChangeInfo.legalHoldStatusChanged), #keyPath(ConversationChangeInfo.messagesChanged)],
-                                                     expectedChangedKeys: [#keyPath(ZMConversation.isUnderLegalHold), #keyPath(ZMConversation.allMessages)])
+                                                     expectedChangedKeys: [#keyPath(ZMConversation.legalHoldStatus), #keyPath(ZMConversation.allMessages)])
     }
 }
 

@@ -153,7 +153,7 @@
     conversation.securityLevel = ZMConversationSecurityLevelSecureWithIgnored;
     
     // when
-    [conversation makeNotSecure];
+    [conversation acknowledgePrivacyWarningWithResendIntend:NO];
     
     // then
     XCTAssertEqual(conversation.securityLevel, ZMConversationSecurityLevelNotSecure);
@@ -724,7 +724,7 @@
     
     // WHEN
     ZMConversation *uiConversation = (ZMConversation *)[self.uiMOC existingObjectWithID:conversation.objectID error:nil];
-    [uiConversation doNotResendMessagesThatCausedDegradation];
+    [uiConversation acknowledgePrivacyWarningWithResendIntend:NO];
     
     [self.syncMOC performGroupedBlockAndWait:^{
         
@@ -755,7 +755,7 @@
     
     // WHEN
     ZMConversation *uiConversation = (ZMConversation *)[self.uiMOC existingObjectWithID:conversation.objectID error:nil];
-    [uiConversation resendMessagesThatCausedConversationSecurityDegradation];
+    [uiConversation acknowledgePrivacyWarningWithResendIntend:YES];
     [self.uiMOC saveOrRollback];
     [self.syncMOC performGroupedBlockAndWait:^{
         [self.syncMOC refreshAllObjects];
@@ -803,7 +803,7 @@
     
     // WHEN
     ZMConversation *uiConversation = (ZMConversation *)[self.uiMOC existingObjectWithID:conversation.objectID error:nil];
-    [uiConversation resendMessagesThatCausedConversationSecurityDegradation];
+    [uiConversation acknowledgePrivacyWarningWithResendIntend:YES];
     
     [self.syncMOC performGroupedBlockAndWait:^{
         

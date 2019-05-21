@@ -578,7 +578,6 @@ public extension UserClient {
     }
 }
 
-
 enum SecurityChangeType {
     case clientTrusted // a client was trusted by the user on this device
     case clientDiscovered // a client was discovered, either by receiving a missing response, a message, or fetching all clients
@@ -700,4 +699,3 @@ extension UserClient {
 
 }
 
- 
