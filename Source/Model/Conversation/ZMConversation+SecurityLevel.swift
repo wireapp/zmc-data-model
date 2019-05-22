@@ -19,7 +19,7 @@
 import Foundation
 import WireCryptobox
 
-@objc public enum ZMConversationLegalHoldStatus: Int {
+@objc public enum ZMConversationLegalHoldStatus: Int16 {
     case disabled = 0
     case pendingApproval = 1
     case enabled = 2
@@ -40,7 +40,7 @@ extension ZMConversation {
     /// Client should check this property to properly annotate conversation.
     @NSManaged public internal(set) var securityLevel: ZMConversationSecurityLevel
 
-    @NSManaged private var primitiveLegalHoldStatus: Int
+    @NSManaged private var primitiveLegalHoldStatus: NSNumber
 
     /// Whether the conversation is under legal hold.
     @objc public internal(set) var legalHoldStatus: ZMConversationLegalHoldStatus {
@@ -48,16 +48,15 @@ extension ZMConversation {
             willAccessValue(forKey: #keyPath(legalHoldStatus))
             defer { didAccessValue(forKey: #keyPath(legalHoldStatus)) }
 
-            if let status = ZMConversationLegalHoldStatus(rawValue: primitiveLegalHoldStatus) {
+            if let status = ZMConversationLegalHoldStatus(rawValue: primitiveLegalHoldStatus.int16Value) {
                 return status
             } else {
-                primitiveLegalHoldStatus = ZMConversationLegalHoldStatus.disabled.rawValue
                 return .disabled
             }
         }
         set {
             willChangeValue(forKey: #keyPath(legalHoldStatus))
-            primitiveLegalHoldStatus = newValue.rawValue
+            primitiveLegalHoldStatus = NSNumber(value: newValue.rawValue)
             didChangeValue(forKey: #keyPath(legalHoldStatus))
         }
     }
