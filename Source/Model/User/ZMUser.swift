@@ -76,6 +76,10 @@ extension ZMUser: UserType {
         return [UserClientsKey]
     }
     
+    public var allClients: [UserClientType] {
+        return Array(clients)
+    }
+    
 }
 
 public struct AssetKey {

@@ -202,6 +202,10 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         return user?.activeConversations ?? Set()
     }
     
+    public var allClients: [UserClientType] {
+        return user?.allClients ?? []
+    }
+    
     public var managedByWire: Bool {
         return user?.managedByWire != false
     }
