@@ -83,8 +83,9 @@ private let zmLog = ZMSLog(tag: "UserClient")
 
     private enum Keys {
         static let PushToken = "pushToken"
+        static let DeviceClass = "deviceClass"
     }
-
+    
     @NSManaged private var primitivePushToken: Data?
     public var pushToken: PushToken? {
         set {
@@ -128,7 +129,11 @@ private let zmLog = ZMSLog(tag: "UserClient")
     public var activationLocation: CLLocation {
         return CLLocation(latitude: self.activationLocationLatitude as! CLLocationDegrees, longitude: self.activationLocationLongitude as! CLLocationDegrees)
     }
-    
+
+    public var isLegalHoldDevice: Bool {
+        return deviceClass == .legalHold || type == .legalHold
+    }
+
     public override func awakeFromFetch() {
         super.awakeFromFetch()
         
@@ -234,13 +239,14 @@ private let zmLog = ZMSLog(tag: "UserClient")
         }
         // reset the relationship
         self.user = nil
-        // delete the object
-        managedObjectContext?.delete(self)
-        
+
         // increase securityLevel of affected conversations
         if let previousUser = user {
-            conversations.forEach{ $0.increaseSecurityLevelIfNeededAfterRemovingClient(for: Set(arrayLiteral: previousUser)) }
+            conversations.forEach{ $0.increaseSecurityLevelIfNeededAfterRemoving(clients: [previousUser: [self]]) }
         }
+
+        // delete the object
+        managedObjectContext?.delete(self)
     }
     
     /// Checks if there is an existing session with the selfClient
@@ -342,7 +348,7 @@ public extension UserClient {
         client.type = DeviceType(rawValue: type)
         client.activationAddress = activationAddress
         client.model = model
-        client.deviceClass = deviceClass.map({ DeviceClass(rawValue: $0) })
+        client.deviceClass = deviceClass.map { DeviceClass(rawValue: $0) }
         client.activationDate = activationDate
         client.activationLocationLatitude = latitude
         client.activationLocationLongitude = longitude
@@ -572,7 +578,6 @@ public extension UserClient {
     }
 }
 
-
 enum SecurityChangeType {
     case clientTrusted // a client was trusted by the user on this device
     case clientDiscovered // a client was discovered, either by receiving a missing response, a message, or fetching all clients
@@ -694,4 +699,3 @@ extension UserClient {
 
 }
 
- 

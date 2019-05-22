@@ -822,7 +822,7 @@ extension UserClientTests {
         self.uiMOC.saveOrRollback()
 
         self.syncMOC.performGroupedBlockAndWait {
-            let syncClient = try? self.syncMOC.existingObject(with: client.objectID) as! UserClient
+            let syncClient = try? self.syncMOC.existingObject(with: client.objectID) as? UserClient
 
             // when
             syncClient?.pushToken = token

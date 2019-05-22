@@ -19,8 +19,6 @@
 
 @import Foundation;
 
-@class ZMUser;
-
 typedef NSString * ZMUserClientType NS_TYPED_EXTENSIBLE_ENUM NS_SWIFT_NAME(DeviceType);
 
 extern ZMUserClientType const _Nonnull ZMUserClientTypePermanent;
@@ -33,63 +31,3 @@ extern ZMUserClientDeviceClass const _Nonnull ZMUserClientDeviceClassPhone;
 extern ZMUserClientDeviceClass const _Nonnull ZMUserClientDeviceClassTablet;
 extern ZMUserClientDeviceClass const _Nonnull ZMUserClientDeviceClassDesktop;
 extern ZMUserClientDeviceClass const _Nonnull ZMUserClientDeviceClassLegalHold;
-
-@protocol UserClientType <NSObject>
-
-/// Type of client, this information is only available for your own clients
-
-@property (nonatomic, nonnull) ZMUserClientType type;
-
-/// Free-form string decribing the client, this information is only available for your own clients.
-
-@property (nonatomic, nullable) NSString *label;
-
-/// Remote identifier of the client
-
-@property (nonatomic, nullable) NSString *remoteIdentifier;
-
-/// Owner of the client
-
-@property (nonatomic, nullable) ZMUser *user;
-
-/// Estimated address of where the device was activated, , this information is only available for your own clients
-
-@property (nonatomic, nullable) NSString *activationAddress;
-
-/// Date of when the client was activated, this information is only available for your own clients
-
-@property (nonatomic, nullable) NSDate *activationDate;
-
-/// Model of the device, this information is only available for your own clients
-
-@property (nonatomic, nullable) NSString *model;
-
-/// The device class (phone, desktop, ...)
-
-@property (nonatomic, nullable) ZMUserClientDeviceClass deviceClass;
-
-/// Estimated latitude of where the device was activated, this information is only available for your own clients
-
-@property (nonatomic) double activationLatitude;
-
-/// Estimated longitude of where the device was activated, this information is only available for your own clients
-
-@property (nonatomic) double activationLongitude;
-
-/// Unique fingerprint which can be used to identify & verify the client
-
-@property (nonatomic, nullable) NSData *fingerprint;
-
-/// True if the self user has verfied the client
-
-@property (nonatomic, readonly) BOOL verified;
-
-/// Delete the existing session and establish a new one
-
-- (void)resetSession;
-
-/// Retreive the fingerprint from the session, if there's no existing session a new one will be established.
-
-- (void)fetchFingerprintOrPrekeys;
-
-@end

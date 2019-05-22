@@ -23,15 +23,11 @@ import WireSystem
 extension ZMUser: UserConnectionType { }
 
 extension ZMUser: UserType {
-    
+
     public func isGuest(in conversation: ZMConversation) -> Bool {
         return _isGuest(in: conversation)
     }
-    
-    public var isUnderLegalHold: Bool {
-        return false // TODO jacob stub
-    }
-    
+
     public func canAccessCompanyInformation(of user: UserType) -> Bool {
         guard
             let otherUser = user as? ZMUser,
@@ -68,6 +64,16 @@ extension ZMUser: UserType {
         } else {
             return lastServerSyncedActiveConversations.set as? Set<ZMConversation> ?? Set()
         }
+    }
+
+    // MARK: Legal Hold
+
+    @objc public var isUnderLegalHold: Bool {
+        return clients.any(\.isLegalHoldDevice)
+    }
+
+    @objc class func keyPathsForValuesAffectingIsUnderLegalHold() -> Set<String> {
+        return [UserClientsKey]
     }
     
     public var allClients: [UserClientType] {
