@@ -58,7 +58,7 @@ private let zmLog = ZMSLog(tag: "UserClient")
         }
     }
     
-    @NSManaged public var type: DeviceType?
+    @NSManaged public var type: DeviceType
     @NSManaged public var label: String?
     @NSManaged public var markedToDelete: Bool
     @NSManaged public var preKeysRangeMax: Int64
