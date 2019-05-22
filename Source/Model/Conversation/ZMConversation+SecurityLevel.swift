@@ -352,10 +352,6 @@ extension ZMConversation {
         }
     }
 
-    @objc public func acknowledgePrivacyChangesButDoNotResendPendingMessages() {
-
-    }
-
     /// Enumerates all messages from newest to oldest and apply a block to all ZMOTRMessage encountered, 
     /// halting the enumeration when a system message for security level degradation is found.
     /// This is executed asychronously on the sync context
