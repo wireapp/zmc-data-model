@@ -47,4 +47,7 @@ import Foundation
     
     /// Delete any existing session with client and establish a new one.
     func resetSession()
+
+    /// Fetches the fingerprint or the prekeys of the device.
+    func fetchFingerprintOrPrekeys()
 }
