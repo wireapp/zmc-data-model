@@ -203,10 +203,51 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
 
             let lastMessage = conversation.lastMessage as? ZMSystemMessage
             XCTAssertTrue(lastMessage?.systemMessageType == .legalHoldEnabled)
-            XCTAssertTrue(lastMessage?.users == [otherUser])
+            XCTAssertEqual(lastMessage?.users, [])
         }
     }
-    
+
+    func testThatLegalholdSystemMessageIsNotInserted_WhenSecondUserUserIsDiscoveredToBeUnderLegalhold() {
+        syncMOC.performGroupedBlock {
+            // GIVEN
+            let selfUser = ZMUser.selfUser(in: self.syncMOC)
+            let otherUser = ZMUser.insertNewObject(in: self.syncMOC)
+            let otherUserB = ZMUser.insertNewObject(in: self.syncMOC)
+
+            self.createSelfClient(onMOC: self.syncMOC)
+            self.createClient(ofType: .permanent, class: .phone, for: otherUser)
+            self.createClient(ofType: .permanent, class: .phone, for: otherUserB)
+
+            let conversation = self.createConversation(in: self.syncMOC)
+            conversation.conversationType = .group
+            conversation.internalAddParticipants([selfUser, otherUser, otherUserB])
+
+            XCTAssertEqual(conversation.legalHoldStatus, .disabled)
+
+            // WHEN
+            let legalHoldClient = self.createClient(ofType: .legalHold, class: .legalHold, for: otherUser)
+            conversation.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [legalHoldClient], causedBy: [otherUser])
+
+            // THEN
+            let legalHoldMessageCount: () -> Int = {
+                conversation.allMessages
+                    .filter { ($0 as? ZMSystemMessage)?.systemMessageType == .legalHoldEnabled }
+                    .count
+            }
+
+            XCTAssertEqual(conversation.legalHoldStatus, .pendingApproval)
+            XCTAssertEqual(legalHoldMessageCount(), 1)
+
+            // WHEN
+            let legalHoldClientB = self.createClient(ofType: .legalHold, class: .legalHold, for: otherUserB)
+            conversation.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [legalHoldClientB], causedBy: [otherUserB])
+
+            // THEN
+            XCTAssertEqual(conversation.legalHoldStatus, .pendingApproval)
+            XCTAssertEqual(legalHoldMessageCount(), 1)
+        }
+    }
+
     func testThatLegalholdSystemMessageIsInserted_WhenUserIsNoLongerUnderLegalhold() {
         syncMOC.performGroupedBlock {
             // GIVEN

@@ -120,30 +120,10 @@ extension ZMConversation {
 
     private func updateLegalHoldState(cause: SecurityChangeCause) {
         switch cause {
-        case .addedUsers(let users):
-            for user in users where user.isUnderLegalHold {
-                legalHoldStatus = .pendingApproval
-                appendLegalHoldEnabledSystemMessageIfNeeded(for: user)
-                expireAllPendingMessagesBecauseOfSecurityLevelDegradation()
-            }
+        case .addedUsers, .addedClients:
+            enableLegalHoldIfNeeded()
 
-        case .addedClients(let clients, _):
-            for client in clients.filter(\.isLegalHoldDevice) {
-                if let user = client.user {
-                    legalHoldStatus = .pendingApproval
-                    appendLegalHoldEnabledSystemMessageIfNeeded(for: user)
-                    expireAllPendingMessagesBecauseOfSecurityLevelDegradation()
-                }
-            }
-
-        case .removedClients(let userClients):
-            for (user, _) in userClients {
-                appendLegalHoldDisabledSystemMessageIfNeeded(for: user)
-            }
-
-            disableLegalHoldIfNeeded()
-
-        case .removedUsers:
+        case .removedClients, .removedUsers:
             disableLegalHoldIfNeeded()
 
         case .verifiedClients, .ignoredClients:
@@ -183,9 +163,18 @@ extension ZMConversation {
         }
     }
 
-    /// When a user is removed, we need to check whether the conversation is still under legal hold.
+    /// Check whether the conversation became under legal hold and disable it if needed.
+    private func enableLegalHoldIfNeeded() {
+        if !legalHoldStatus.denotesEnabledComplianceDevice && activeParticipants.any(\.isUnderLegalHold) {
+            legalHoldStatus = .pendingApproval
+            appendLegalHoldEnabledSystemMessageForConversation()
+            expireAllPendingMessagesBecauseOfSecurityLevelDegradation()
+        }
+    }
+
+    /// Check whether the conversation is still under legal hold and disable it if needed.
     private func disableLegalHoldIfNeeded() {
-        if legalHoldStatus.denotesEnabledComplianceDevice, !activeParticipants.contains(where: { $0.isUnderLegalHold }) {
+        if legalHoldStatus.denotesEnabledComplianceDevice && !activeParticipants.any(\.isUnderLegalHold) {
             legalHoldStatus = .disabled
             appendLegalHoldDisabledSystemMessageForConversation()
         }
@@ -277,6 +266,14 @@ extension ZMConversation {
         needsToBeUpdatedFromBackend = true
     }
 
+    private func appendLegalHoldEnabledSystemMessageForConversation() {
+        appendSystemMessage(type: .legalHoldEnabled,
+                            sender: ZMUser.selfUser(in: self.managedObjectContext!),
+                            users: nil,
+                            clients: nil,
+                            timestamp: timestampAfterLastMessage())
+    }
+
     private func appendLegalHoldDisabledSystemMessageForConversation() {
         appendSystemMessage(type: .legalHoldDisabled,
                             sender: ZMUser.selfUser(in: self.managedObjectContext!),
@@ -285,25 +282,6 @@ extension ZMConversation {
                             timestamp: timestampAfterLastMessage())
     }
 
-    private func appendLegalHoldEnabledSystemMessageIfNeeded(for user: ZMUser) {
-        guard user.isUnderLegalHold else { return }
-
-        appendSystemMessage(type: .legalHoldEnabled,
-                            sender: ZMUser.selfUser(in: self.managedObjectContext!),
-                            users: [user],
-                            clients: nil,
-                            timestamp: timestampAfterLastMessage())
-    }
-
-    private func appendLegalHoldDisabledSystemMessageIfNeeded(for user: ZMUser) {
-        guard legalHoldStatus.denotesEnabledComplianceDevice, !user.isUnderLegalHold else { return }
-
-        appendSystemMessage(type: .legalHoldDisabled,
-                            sender: ZMUser.selfUser(in: self.managedObjectContext!),
-                            users: [user],
-                            clients: nil,
-                            timestamp: timestampAfterLastMessage())
-    }
 }
 
 // MARK: - Messages resend/expiration
