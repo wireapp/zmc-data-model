@@ -153,7 +153,7 @@ extension ZMConversation {
                 securityLevel = .secure
                 appendNewIsSecureSystemMessage(cause: cause)
                 notifyOnUI(name: ZMConversation.isVerifiedNotificationName)
-            } else {
+            } else if securityLevel != .secureWithIgnored {
                 if case .ignoredClients = cause {
                     securityLevel = .secureWithIgnored
                 } else {
@@ -480,6 +480,7 @@ extension ZMConversation {
             addedUsers = users
         case .addedClients(let clients, let message):
             addedClients = clients
+            addedUsers = Set(clients.compactMap(\.user))
             if let message = message, message.conversation == self {
                 timestamp = self.timestamp(before: message)
             }
