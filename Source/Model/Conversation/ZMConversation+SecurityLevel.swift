@@ -133,51 +133,62 @@ extension ZMConversation {
     }
 
     private func updateSecurityLevel(cause: SecurityChangeCause) {
-        if securityLevel == .secure {
-            if !allUsersTrusted && cause.canCauseSecurityDecrease {
-                securityLevel = .secureWithIgnored
+        switch cause {
+        case .addedUsers, .addedClients, .ignoredClients:
+            degradeSecurityLevelIfNeeded(for: cause)
 
-                switch cause {
-                case .addedClients, .addedUsers:
-                    appendNewAddedClientSystemMessage(cause: cause)
-                    expireAllPendingMessagesBecauseOfSecurityLevelDegradation()
-                case .ignoredClients(let clients):
-                    appendIgnoredClientsSystemMessage(ignored: clients)
-                default:
-                    break
-                }
-            }
-        } else {
-            // Check if the conversation becomes trusted
-            if cause.canCauseSecurityIncrease && allUsersTrusted && allParticipantsHaveClients {
-                securityLevel = .secure
-                appendNewIsSecureSystemMessage(cause: cause)
-                notifyOnUI(name: ZMConversation.isVerifiedNotificationName)
-            } else {
-                if case .ignoredClients = cause {
-                    securityLevel = .secureWithIgnored
-                } else {
-                    securityLevel = .notSecure
-                }
-            }
+        case .removedUsers, .removedClients, .verifiedClients:
+            increaseSecurityLevelIfNeeded(for: cause)
+        }
+    }
+
+    private func increaseSecurityLevelIfNeeded(for cause: SecurityChangeCause) {
+        guard securityLevel != .secure && allUsersTrusted && allParticipantsHaveClients else {
+            return
+        }
+
+        securityLevel = .secure
+        appendNewIsSecureSystemMessage(cause: cause)
+        notifyOnUI(name: ZMConversation.isVerifiedNotificationName)
+    }
+
+    private func degradeSecurityLevelIfNeeded(for cause: SecurityChangeCause) {
+        guard securityLevel == .secure && !allUsersTrusted else {
+            return
+        }
+
+        securityLevel = .secureWithIgnored
+
+        switch cause {
+        case .addedClients, .addedUsers:
+            appendNewAddedClientSystemMessage(cause: cause)
+            expireAllPendingMessagesBecauseOfSecurityLevelDegradation()
+        case .ignoredClients(let clients):
+            appendIgnoredClientsSystemMessage(ignored: clients)
+        default:
+            break
         }
     }
 
     /// Check whether the conversation became under legal hold and disable it if needed.
     private func enableLegalHoldIfNeeded() {
-        if !legalHoldStatus.denotesEnabledComplianceDevice && activeParticipants.any(\.isUnderLegalHold) {
-            legalHoldStatus = .pendingApproval
-            appendLegalHoldEnabledSystemMessageForConversation()
-            expireAllPendingMessagesBecauseOfSecurityLevelDegradation()
+        guard !legalHoldStatus.denotesEnabledComplianceDevice && activeParticipants.any(\.isUnderLegalHold) else {
+            return
         }
+
+        legalHoldStatus = .pendingApproval
+        appendLegalHoldEnabledSystemMessageForConversation()
+        expireAllPendingMessagesBecauseOfSecurityLevelDegradation()
     }
 
     /// Check whether the conversation is still under legal hold and disable it if needed.
     private func disableLegalHoldIfNeeded() {
-        if legalHoldStatus.denotesEnabledComplianceDevice && !activeParticipants.any(\.isUnderLegalHold) {
-            legalHoldStatus = .disabled
-            appendLegalHoldDisabledSystemMessageForConversation()
+        guard legalHoldStatus.denotesEnabledComplianceDevice && !activeParticipants.any(\.isUnderLegalHold) else {
+            return
         }
+
+        legalHoldStatus = .disabled
+        appendLegalHoldDisabledSystemMessageForConversation()
     }
 
     // MARK: - Messages
@@ -450,24 +461,6 @@ extension ZMConversation {
         case verifiedClients(Set<UserClient>)
         case removedClients([ZMUser: Set<UserClient>])
         case ignoredClients(Set<UserClient>)
-
-        var canCauseSecurityIncrease: Bool {
-            switch self {
-            case .removedUsers, .verifiedClients, .removedClients:
-                return true
-            default:
-                return false
-            }
-        }
-
-        var canCauseSecurityDecrease: Bool {
-            switch self {
-            case .addedUsers, .addedClients, .ignoredClients:
-                return true
-            default:
-                return false
-            }
-        }
     }
     
     fileprivate func appendNewAddedClientSystemMessage(cause: SecurityChangeCause) {
@@ -480,6 +473,7 @@ extension ZMConversation {
             addedUsers = users
         case .addedClients(let clients, let message):
             addedClients = clients
+            addedUsers = Set(clients.compactMap(\.user))
             if let message = message, message.conversation == self {
                 timestamp = self.timestamp(before: message)
             }
