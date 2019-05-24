@@ -153,7 +153,7 @@ extension ZMConversation {
     }
 
     private func degradeSecurityLevelIfNeeded(for cause: SecurityChangeCause) {
-        guard securityLevel == .secure && !allUsersTrusted && cause.canCauseSecurityDecrease else {
+        guard securityLevel == .secure && !allUsersTrusted else {
             return
         }
 
@@ -461,24 +461,6 @@ extension ZMConversation {
         case verifiedClients(Set<UserClient>)
         case removedClients([ZMUser: Set<UserClient>])
         case ignoredClients(Set<UserClient>)
-
-        var canCauseSecurityIncrease: Bool {
-            switch self {
-            case .removedUsers, .verifiedClients, .removedClients:
-                return true
-            default:
-                return false
-            }
-        }
-
-        var canCauseSecurityDecrease: Bool {
-            switch self {
-            case .addedUsers, .addedClients, .ignoredClients:
-                return true
-            default:
-                return false
-            }
-        }
     }
     
     fileprivate func appendNewAddedClientSystemMessage(cause: SecurityChangeCause) {
