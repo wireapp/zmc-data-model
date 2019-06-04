@@ -244,6 +244,7 @@
         <attribute name="apsDecryptionKey" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="apsVerificationKey" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="deviceClass" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="discoveryDate" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="fingerprint" optional="YES" attributeType="Binary" syncable="YES"/>
         <attribute name="label" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="markedToDelete" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
@@ -286,6 +287,6 @@
         <element name="Team" positionX="9" positionY="153" width="128" height="195"/>
         <element name="TextMessage" positionX="-153" positionY="-117" width="128" height="60"/>
         <element name="User" positionX="-434" positionY="-72" width="128" height="630"/>
-        <element name="UserClient" positionX="9" positionY="153" width="128" height="495"/>
+        <element name="UserClient" positionX="9" positionY="153" width="128" height="510"/>
     </elements>
 </model>

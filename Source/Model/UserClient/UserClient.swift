@@ -71,6 +71,7 @@ private let zmLog = ZMSLog(tag: "UserClient")
     @NSManaged public var numberOfKeysRemaining: Int32
     @NSManaged public var activationAddress: String?
     @NSManaged public var activationDate: Date?
+    @NSManaged public var discoveryDate: Date?
     @NSManaged public var model: String?
     @NSManaged public var deviceClass: DeviceClass?
     @NSManaged public var activationLocationLatitude: NSNumber?
@@ -208,6 +209,7 @@ private let zmLog = ZMSLog(tag: "UserClient")
             newClient.remoteIdentifier = remoteIdentifier
             newClient.user = user
             newClient.needsToBeUpdatedFromBackend = true
+            newClient.discoveryDate = Date()
             // Form reverse relationship
             user.mutableSetValue(forKey: "clients").add(newClient)
             return newClient
