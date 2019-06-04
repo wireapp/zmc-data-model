@@ -477,7 +477,7 @@ extension ZMConversation {
             if let message = message, message.conversation == self {
                 timestamp = self.timestamp(before: message)
             } else {
-                timestamp = clients.compactMap(\.discoveryDate).first
+                timestamp = clients.compactMap(\.discoveryDate).first?.previousNearestTimestamp
             }
         default:
             // unsupported cause
