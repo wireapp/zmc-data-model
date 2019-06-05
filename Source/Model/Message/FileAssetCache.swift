@@ -86,10 +86,6 @@ private struct FileCache : Cache {
             }
         }
 
-        if data == nil {
-            zmLog.error("data is nil for key = \(key)")
-        }
-
         return data
     }
     
