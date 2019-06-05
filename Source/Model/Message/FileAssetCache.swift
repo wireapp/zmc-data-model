@@ -85,7 +85,11 @@ private struct FileCache : Cache {
                 zmLog.error("Failed reading asset data for key = \(key): \(error)")
             }
         }
-        
+
+        if data == nil {
+            zmLog.error("data is nil for key = \(key)")
+        }
+
         return data
     }
     
