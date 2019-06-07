@@ -208,11 +208,11 @@ extension ZMConversation {
         switch statusHint {
         case .ENABLED where !legalHoldStatus.denotesEnabledComplianceDevice:
             legalHoldStatus = .pendingApproval
-            appendLegalHoldEnabledSystemMessageForConversation(afterReceiving: message, at: timestamp)
+            appendLegalHoldEnabledSystemMessageForConversationAfterReceivingMessage(at: timestamp)
             expireAllPendingMessagesBecauseOfSecurityLevelDegradation()
         case .DISABLED where legalHoldStatus.denotesEnabledComplianceDevice:
             legalHoldStatus = .disabled
-            appendLegalHoldDisabledSystemMessageForConversation(afterReceiving: message, at: timestamp)
+            appendLegalHoldDisabledSystemMessageForConversationAfterReceivingMessage(at: timestamp)
         default:
             break
         }
@@ -318,7 +318,7 @@ extension ZMConversation {
                             timestamp: timestamp ?? timestampAfterLastMessage())
     }
 
-    private func appendLegalHoldEnabledSystemMessageForConversation(afterReceiving message: ZMGenericMessage, at timestamp: Date) {
+    private func appendLegalHoldEnabledSystemMessageForConversationAfterReceivingMessage(at timestamp: Date) {
         appendSystemMessage(type: .legalHoldEnabled,
                             sender: ZMUser.selfUser(in: self.managedObjectContext!),
                             users: nil,
@@ -334,7 +334,7 @@ extension ZMConversation {
                             timestamp: timestampAfterLastMessage())
     }
 
-    private func appendLegalHoldDisabledSystemMessageForConversation(afterReceiving message: ZMGenericMessage, at timestamp: Date) {
+    private func appendLegalHoldDisabledSystemMessageForConversationAfterReceivingMessage(at timestamp: Date) {
         appendSystemMessage(type: .legalHoldDisabled,
                             sender: ZMUser.selfUser(in: self.managedObjectContext!),
                             users: nil,
