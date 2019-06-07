@@ -34,7 +34,7 @@ public protocol EphemeralMessageContentType: MessageContentType {
 
 extension MessageContentType {
 
-    /// An optional hint that indicates the state of legal hold on the sender's side<
+    /// An optional hint that indicates the state of legal hold on the sender's side.
     var legalHoldStatusHint: ZMLegalHoldStatus? {
         guard hasLegalHoldStatus() else {
             return nil
