@@ -484,7 +484,7 @@ extension ZMEphemeral: MessageContentType {
     }
 
     public func hasLegalHoldStatus() -> Bool {
-        return false
+        return content?.hasLegalHoldStatus() == true
     }
 
     public var legalHoldStatus: ZMLegalHoldStatus {

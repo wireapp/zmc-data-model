@@ -76,9 +76,9 @@ extension ZMConversation {
     /// Should be called when a message is received.
     /// If the legal hold status hint inside the received message is different than the local status,
     /// we update the local version to match the remote one.
-    @objc(updateSecurityLevelIfNeededAfterReceiving:)
-    public func updateSecurityLevelIfNeededAfterReceiving(message: ZMOTRMessage) {
-        updateLegalHoldIfNeededWithHint(from: message)
+    @objc(updateSecurityLevelIfNeededAfterReceiving:timestamp:)
+    public func updateSecurityLevelIfNeededAfterReceiving(message: ZMGenericMessage, timestamp: Date) {
+        updateLegalHoldIfNeededWithHint(from: message, timestamp: timestamp)
     }
 
     /// Should be called when client is trusted.
@@ -200,19 +200,19 @@ extension ZMConversation {
     }
 
     /// Update the legal hold status based on the hint of a message.
-    private func updateLegalHoldIfNeededWithHint(from message: ZMOTRMessage) {
-        guard let statusHint = message.genericMessage?.content?.legalHoldStatusHint else {
+    private func updateLegalHoldIfNeededWithHint(from message: ZMGenericMessage, timestamp: Date) {
+        guard let statusHint = message.content?.legalHoldStatusHint else {
             return
         }
 
         switch statusHint {
         case .ENABLED where !legalHoldStatus.denotesEnabledComplianceDevice:
             legalHoldStatus = .pendingApproval
-            appendLegalHoldEnabledSystemMessageForConversation(afterReceiving: message)
+            appendLegalHoldEnabledSystemMessageForConversation(afterReceiving: message, at: timestamp)
             expireAllPendingMessagesBecauseOfSecurityLevelDegradation()
         case .DISABLED where legalHoldStatus.denotesEnabledComplianceDevice:
             legalHoldStatus = .disabled
-            appendLegalHoldDisabledSystemMessageForConversation()
+            appendLegalHoldDisabledSystemMessageForConversation(afterReceiving: message, at: timestamp)
         default:
             break
         }
@@ -319,14 +319,12 @@ extension ZMConversation {
                             timestamp: timestamp ?? timestampAfterLastMessage())
     }
 
-    private func appendLegalHoldEnabledSystemMessageForConversation(afterReceiving message: ZMOTRMessage) {
-        let timestamp = message.serverTimestamp
-
+    private func appendLegalHoldEnabledSystemMessageForConversation(afterReceiving message: ZMGenericMessage, at timestamp: Date) {
         appendSystemMessage(type: .legalHoldEnabled,
                             sender: ZMUser.selfUser(in: self.managedObjectContext!),
                             users: nil,
                             clients: nil,
-                            timestamp: timestamp ?? timestampAfterLastMessage())
+                            timestamp: timestamp.previousNearestTimestamp)
     }
 
     private func appendLegalHoldDisabledSystemMessageForConversation() {
@@ -335,6 +333,14 @@ extension ZMConversation {
                             users: nil,
                             clients: nil,
                             timestamp: timestampAfterLastMessage())
+    }
+
+    private func appendLegalHoldDisabledSystemMessageForConversation(afterReceiving message: ZMGenericMessage, at timestamp: Date) {
+        appendSystemMessage(type: .legalHoldDisabled,
+                            sender: ZMUser.selfUser(in: self.managedObjectContext!),
+                            users: nil,
+                            clients: nil,
+                            timestamp: timestamp.previousNearestTimestamp)
     }
 
 }
