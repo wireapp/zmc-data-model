@@ -218,7 +218,6 @@ extension ZMConversation {
         }
     }
 
-
     // MARK: - Messages
 
     /// Creates system message that says that you started using this device, if you were not registered on this device
