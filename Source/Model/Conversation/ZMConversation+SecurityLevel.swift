@@ -73,6 +73,14 @@ extension ZMConversation {
 
     // MARK: - Events
 
+    /// Should be called when a message is received.
+    /// If the legal hold status hint inside the received message is different than the local status,
+    /// we update the local version to match the remote one.
+    @objc(updateSecurityLevelIfNeededAfterReceiving:)
+    public func updateSecurityLevelIfNeededAfterReceiving(message: ZMOTRMessage) {
+        updateLegalHoldIfNeededWithHint(from: message)
+    }
+
     /// Should be called when client is trusted.
     /// If the conversation became trusted, it will trigger UI notification and add system message for all devices verified
     @objc(increaseSecurityLevelIfNeededAfterTrustingClients:)
@@ -191,6 +199,26 @@ extension ZMConversation {
         appendLegalHoldDisabledSystemMessageForConversation()
     }
 
+    /// Update the legal hold status based on the hint of a message.
+    private func updateLegalHoldIfNeededWithHint(from message: ZMOTRMessage) {
+        guard let statusHint = message.genericMessage?.content?.legalHoldStatusHint else {
+            return
+        }
+
+        switch statusHint {
+        case .ENABLED where !legalHoldStatus.denotesEnabledComplianceDevice:
+            legalHoldStatus = .pendingApproval
+            appendLegalHoldEnabledSystemMessageForConversation(afterReceiving: message)
+            expireAllPendingMessagesBecauseOfSecurityLevelDegradation()
+        case .DISABLED where legalHoldStatus.denotesEnabledComplianceDevice:
+            legalHoldStatus = .disabled
+            appendLegalHoldDisabledSystemMessageForConversation()
+        default:
+            break
+        }
+    }
+
+
     // MARK: - Messages
 
     /// Creates system message that says that you started using this device, if you were not registered on this device
@@ -284,6 +312,16 @@ extension ZMConversation {
             timestamp = self.timestamp(before: message)
         }
         
+        appendSystemMessage(type: .legalHoldEnabled,
+                            sender: ZMUser.selfUser(in: self.managedObjectContext!),
+                            users: nil,
+                            clients: nil,
+                            timestamp: timestamp ?? timestampAfterLastMessage())
+    }
+
+    private func appendLegalHoldEnabledSystemMessageForConversation(afterReceiving message: ZMOTRMessage) {
+        let timestamp = message.serverTimestamp
+
         appendSystemMessage(type: .legalHoldEnabled,
                             sender: ZMUser.selfUser(in: self.managedObjectContext!),
                             users: nil,
