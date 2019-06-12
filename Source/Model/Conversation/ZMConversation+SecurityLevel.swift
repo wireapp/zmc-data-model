@@ -43,7 +43,7 @@ extension ZMConversation {
     @NSManaged private var primitiveLegalHoldStatus: NSNumber
     
     /// Indicates that we need verify that our local knowledge of clients matches the clients known to the backend.
-    @NSManaged public internal(set) var needsToVerifyClientsBeforeSendingMessage: Bool
+    @NSManaged public internal(set) var needsToVerifyLegalHold: Bool
 
     /// Whether the conversation is under legal hold.
     @objc public internal(set) var legalHoldStatus: ZMConversationLegalHoldStatus {
@@ -88,7 +88,7 @@ extension ZMConversation {
     @objc(updateSecurityLevelIfNeededAfterFetchingClients)
     public func updateSecurityLevelIfNeededAfterFetchingClients() {
         applySecurityChanges(cause: .verifyLegalHold)
-        needsToVerifyClientsBeforeSendingMessage = false
+        needsToVerifyLegalHold = false
     }
 
     /// Should be called when client is trusted.
@@ -225,12 +225,12 @@ extension ZMConversation {
 
         switch statusHint {
         case .ENABLED where !legalHoldStatus.denotesEnabledComplianceDevice:
-            needsToVerifyClientsBeforeSendingMessage = true
+            needsToVerifyLegalHold = true
             legalHoldStatus = .pendingApproval
             appendLegalHoldEnabledSystemMessageForConversationAfterReceivingMessage(at: timestamp)
             expireAllPendingMessagesBecauseOfSecurityLevelDegradation()
         case .DISABLED where legalHoldStatus.denotesEnabledComplianceDevice:
-            needsToVerifyClientsBeforeSendingMessage = true
+            needsToVerifyLegalHold = true
             legalHoldStatus = .disabled
             appendLegalHoldDisabledSystemMessageForConversationAfterReceivingMessage(at: timestamp)
         default:
