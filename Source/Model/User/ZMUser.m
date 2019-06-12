@@ -812,7 +812,6 @@ static NSString *const LegalHoldRequestKey = @"legalHoldRequest";
 @dynamic needsPropertiesUpdate;
 @dynamic readReceiptsEnabledChangedRemotely;
 @dynamic needsRichProfileUpdate;
-@dynamic hasLegalHoldRequest;
 
 - (void)setHandle:(NSString *)aHandle {
     [self willChangeValueForKey:HandleKey];
