@@ -38,7 +38,7 @@ class UserObserverTests : NotificationDispatcherTestBase {
         case readReceiptsEnabled = "readReceiptsEnabledChanged"
         case readReceiptsEnabledChangedRemotely = "readReceiptsEnabledChangedRemotelyChanged"
         case richProfile = "richProfileChanged"
-        case legalHold = "legalHoldStatusChanged"
+        case legalHoldStatus = "legalHoldStatusChanged"
     }
     
     let userInfoChangeKeys: [UserInfoChangeKey] = UserInfoChangeKey.allCases
@@ -546,6 +546,33 @@ extension UserObserverTests {
                                                      expectedChangedField: .richProfile)
     }
 
+    func testThatItNotifiesTheObserverOfLegalHoldStatusChange_Request() {
+        // given
+        let user = ZMUser.selfUser(in: uiMOC)
+        user.remoteIdentifier = UUID()
+
+        let legalHoldRequest = LegalHoldRequest.mockRequest(for: user)
+
+        // when
+        self.checkThatItNotifiesTheObserverOfAChange(user,
+                                                     modifier: { $0.userDidReceiveLegalHoldRequest(legalHoldRequest) },
+                                                     expectedChangedField: .legalHoldStatus)
+    }
+
+    func testThatItNotifiesTheObserverOfLegalHoldStatusChange_AcceptRequest() {
+        // given
+        let user = ZMUser.selfUser(in: uiMOC)
+        user.remoteIdentifier = UUID()
+
+        let request = LegalHoldRequest.mockRequest(for: user)
+        user.userDidReceiveLegalHoldRequest(request)
+
+        // when
+        self.checkThatItNotifiesTheObserverOfAChange(user,
+                                                     modifier: { $0.userDidAcceptLegalHoldRequest(request) },
+                                                     expectedChangedField: .legalHoldStatus)
+    }
+
     func testThatItNotifiesTheObserverOfLegalHoldStatusChange_Added() {
         // given
         let user = ZMUser.selfUser(in: uiMOC)
@@ -557,7 +584,7 @@ extension UserObserverTests {
         // when
         self.checkThatItNotifiesTheObserverOfAChange(user,
                                                      modifier: { legalHoldClient.user = $0 },
-                                                     expectedChangedField: .legalHold)
+                                                     expectedChangedField: .legalHoldStatus)
     }
 
     func testThatItNotifiesTheObserverOfLegalHoldStatusChange_Removed() {
@@ -578,7 +605,7 @@ extension UserObserverTests {
         // when
         self.checkThatItNotifiesTheObserverOfAChange(user,
                                                      modifier: modifier,
-                                                     expectedChangedField: .legalHold)
+                                                     expectedChangedField: .legalHoldStatus)
     }
 
 }
