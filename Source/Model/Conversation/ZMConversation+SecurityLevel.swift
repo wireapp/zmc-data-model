@@ -88,6 +88,7 @@ extension ZMConversation {
     @objc(updateSecurityLevelIfNeededAfterFetchingClients)
     public func updateSecurityLevelIfNeededAfterFetchingClients() {
         applySecurityChanges(cause: .verifyLegalHold)
+        needsToVerifyClientsBeforeSendingMessage = false
     }
 
     /// Should be called when client is trusted.
