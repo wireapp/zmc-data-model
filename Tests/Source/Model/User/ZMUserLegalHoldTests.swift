@@ -101,11 +101,6 @@ class ZMUserLegalHoldTests: ModelObjectsTests {
 extension LegalHoldRequest {
 
     static func mockRequest(for user: ZMUser) -> LegalHoldRequest {
-        if user.remoteIdentifier == nil {
-            XCTFail()
-            return LegalHoldRequest(requesterIdentifier: UUID(), targetUserIdentifier: UUID(), clientIdentifier: UUID(), lastPrekey: Data())
-        }
-
         return LegalHoldRequest(requesterIdentifier: UUID(), targetUserIdentifier: user.remoteIdentifier!, clientIdentifier: UUID(), lastPrekey: Data())
     }
 
