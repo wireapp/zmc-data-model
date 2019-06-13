@@ -19,6 +19,29 @@
 import Foundation
 
 /**
+ * A protocol for objects that provide the legal hold status for the self user.
+ */
+
+public protocol SelfLegalHoldSubject {
+
+    /// The current legal hold status of the user.
+    var legalHoldStatus: UserLegalHoldStatus { get }
+
+    /// Whether the user needs to acknowledge the current legal hold status.
+    var needsToAcknowledgeLegalHoldStatus: Bool { get }
+
+    /// Call this method when the user received a legal hold request.
+    func userDidReceiveLegalHoldRequest(_ request: LegalHoldRequest)
+
+    /// Call this method when the user accepts a legal hold request.
+    func userDidAcceptLegalHoldRequest(_ request: LegalHoldRequest)
+
+    /// Call this method when the user acknowledges their legal hold status.
+    func acknowledgeLegalHoldStatus()
+
+}
+
+/**
  * Describes the status of legal hold for the user.
  */
 
@@ -88,7 +111,7 @@ extension ZMUserKeys {
     static let legalHoldRequest = "legalHoldRequest"
 }
 
-extension ZMUser {
+extension ZMUser: SelfLegalHoldSubject {
 
     // MARK: - Legal Hold Status
 
