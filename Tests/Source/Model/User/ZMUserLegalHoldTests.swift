@@ -46,6 +46,7 @@ class ZMUserLegalHoldTests: ModelObjectsTests {
 
         // THEN
         XCTAssertEqual(selfUser.legalHoldStatus, .enabled)
+        XCTAssertTrue(selfUser.needsToAcknowledgeLegalHoldStatus)
     }
 
     func testThatLegalHoldStatusIsEnabled_AfterAcceptingRequest() {
@@ -58,6 +59,7 @@ class ZMUserLegalHoldTests: ModelObjectsTests {
 
         // THEN
         XCTAssertEqual(selfUser.legalHoldStatus, .pending(request))
+        XCTAssertTrue(selfUser.needsToAcknowledgeLegalHoldStatus)
     }
 
     func testThatItDoesntClearPendingStatus_AfterAcceptingWrongRequest() {
@@ -86,13 +88,31 @@ class ZMUserLegalHoldTests: ModelObjectsTests {
         let selfUser = ZMUser.selfUser(in: uiMOC)
 
         // WHEN
-        let legalHoldClient = UserClient.insertNewObject(in: uiMOC)
-        legalHoldClient.deviceClass = .legalHold
-        legalHoldClient.type = .legalHold
-        legalHoldClient.user = selfUser
+        UserClient.createMockLegalHoldSelfUserClient(in: uiMOC)
 
         // THEN
         XCTAssertEqual(selfUser.legalHoldStatus, .enabled)
+        XCTAssertTrue(selfUser.needsToAcknowledgeLegalHoldStatus)
+    }
+
+    func testThatLegalHoldStatusIsDisabled_AfterRemovingClient() {
+        // GIVEN
+        let selfUser = ZMUser.selfUser(in: uiMOC)
+
+        let legalHoldClient = UserClient.createMockLegalHoldSelfUserClient(in: uiMOC)
+        XCTAssertEqual(selfUser.legalHoldStatus, .enabled)
+
+        selfUser.acknowledgeLegalHoldStatus()
+        XCTAssertFalse(selfUser.needsToAcknowledgeLegalHoldStatus)
+
+        // WHEN
+        performPretendingUiMocIsSyncMoc {
+            legalHoldClient.deleteClientAndEndSession()
+        }
+
+        // THEN
+        XCTAssertEqual(selfUser.legalHoldStatus, .disabled)
+        XCTAssertTrue(selfUser.needsToAcknowledgeLegalHoldStatus)
     }
 
 }
@@ -102,6 +122,22 @@ extension LegalHoldRequest {
 
     static func mockRequest(for user: ZMUser) -> LegalHoldRequest {
         return LegalHoldRequest(requesterIdentifier: UUID(), targetUserIdentifier: user.remoteIdentifier!, clientIdentifier: UUID(), lastPrekey: Data())
+    }
+
+}
+
+extension UserClient {
+
+    @discardableResult
+    static func createMockLegalHoldSelfUserClient(in moc: NSManagedObjectContext) -> UserClient {
+        let payload: [String: AnyObject] = [
+            "id": NSUUID().transportString() as NSString,
+            "type": DeviceType.legalHold.rawValue as NSString,
+            "class": DeviceType.legalHold.rawValue as NSString,
+            "time": NSDate()
+        ]
+
+        return createOrUpdateSelfUserClient(payload, context: moc)!
     }
 
 }

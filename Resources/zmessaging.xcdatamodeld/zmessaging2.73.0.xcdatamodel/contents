@@ -209,6 +209,7 @@
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="needsPropertiesUpdate" optional="YES" attributeType="Boolean" defaultValueString="YES" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="needsRichProfileUpdate" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="needsToAcknowledgeLegalHoldStatus" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="needsToBeUpdatedFromBackend" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="normalizedEmailAddress" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
         <attribute name="normalizedName" optional="YES" attributeType="String" indexed="YES" syncable="YES"/>
@@ -287,7 +288,7 @@
         <element name="SystemMessage" positionX="0" positionY="0" width="128" height="255"/>
         <element name="Team" positionX="9" positionY="153" width="128" height="195"/>
         <element name="TextMessage" positionX="-153" positionY="-117" width="128" height="60"/>
-        <element name="User" positionX="-434" positionY="-72" width="128" height="645"/>
+        <element name="User" positionX="-434" positionY="-72" width="128" height="660"/>
         <element name="UserClient" positionX="9" positionY="153" width="128" height="510"/>
     </elements>
 </model>

@@ -139,6 +139,7 @@ extension ZMUser {
 
         addLegalHoldClient(from: request)
         legalHoldRequest = nil
+        needsToAcknowledgeLegalHoldStatus = true
     }
 
     private func addLegalHoldClient(from request: LegalHoldRequest) {
@@ -157,6 +158,20 @@ extension ZMUser {
         }
 
         legalHoldRequest = request
+        needsToAcknowledgeLegalHoldStatus = true
+    }
+
+    // MARK: - Status Acknowledgement
+
+    /// Whether the user needs to be notified about a legal hold status change.
+    @NSManaged internal(set) public var needsToAcknowledgeLegalHoldStatus: Bool
+
+    /**
+     * Call this method when the user acknowledged the last legal hold status.
+     */
+
+    public func acknowledgeLegalHoldStatus() {
+        needsToAcknowledgeLegalHoldStatus = false
     }
 
 }

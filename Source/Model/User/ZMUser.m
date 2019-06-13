@@ -88,6 +88,8 @@ static NSString *const RichProfileKey = @"richProfile";
 static NSString *const NeedsRichProfileUpdateKey = @"needsRichProfileUpdate";
 
 static NSString *const LegalHoldRequestKey = @"legalHoldRequest";
+static NSString *const NeedsToAcknowledgeLegalHoldStatusKey = @"needsToAcknowledgeLegalHoldStatus";
+
 
 @interface ZMBoxedSelfUser : NSObject
 
@@ -412,7 +414,8 @@ static NSString *const LegalHoldRequestKey = @"legalHoldRequest";
                                            RichProfileKey,
                                            NeedsRichProfileUpdateKey,
                                            CreatedTeamMembersKey,
-                                           LegalHoldRequestKey
+                                           LegalHoldRequestKey,
+                                           NeedsToAcknowledgeLegalHoldStatusKey
                                            ]];
         keys = [ignoredKeys copy];
     });

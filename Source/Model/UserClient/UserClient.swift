@@ -247,6 +247,7 @@ private let zmLog = ZMSLog(tag: "UserClient")
 
         // increase securityLevel of affected conversations
         if let previousUser = user {
+            previousUser.needsToAcknowledgeLegalHoldStatus = isLegalHoldDevice && previousUser.isSelfUser
             conversations.forEach{ $0.increaseSecurityLevelIfNeededAfterRemoving(clients: [previousUser: [self]]) }
         }
 
@@ -361,6 +362,7 @@ public extension UserClient {
         
         let selfUser = ZMUser.selfUser(in: context)
         client.user = client.user ?? selfUser
+        selfUser.needsToAcknowledgeLegalHoldStatus = client.isLegalHoldDevice
 
         if let selfClient = selfUser.selfClient() {
             if client.remoteIdentifier != selfClient.remoteIdentifier &&
