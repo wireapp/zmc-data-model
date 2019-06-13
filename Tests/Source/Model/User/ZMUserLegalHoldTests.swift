@@ -95,6 +95,19 @@ class ZMUserLegalHoldTests: ModelObjectsTests {
         XCTAssertTrue(selfUser.needsToAcknowledgeLegalHoldStatus)
     }
 
+    func testThatItDoesntClearNotificationFlag_AfterAddingNormalClient() {
+        // GIVEN
+        let selfUser = ZMUser.selfUser(in: uiMOC)
+
+        // WHEN
+        UserClient.createMockLegalHoldSelfUserClient(in: uiMOC)
+        UserClient.createMockPhoneUserClient(in: uiMOC)
+
+        // THEN
+        XCTAssertEqual(selfUser.legalHoldStatus, .enabled)
+        XCTAssertTrue(selfUser.needsToAcknowledgeLegalHoldStatus)
+    }
+
     func testThatLegalHoldStatusIsDisabled_AfterRemovingClient() {
         // GIVEN
         let selfUser = ZMUser.selfUser(in: uiMOC)
@@ -112,6 +125,24 @@ class ZMUserLegalHoldTests: ModelObjectsTests {
 
         // THEN
         XCTAssertEqual(selfUser.legalHoldStatus, .disabled)
+        XCTAssertTrue(selfUser.needsToAcknowledgeLegalHoldStatus)
+    }
+
+    func testThatItDoesntClearNotificationFlag_AfterRemovingNormalClient() {
+        // GIVEN
+        let selfUser = ZMUser.selfUser(in: uiMOC)
+
+        let normalClient = UserClient.createMockPhoneUserClient(in: uiMOC)
+        UserClient.createMockLegalHoldSelfUserClient(in: uiMOC)
+        XCTAssertEqual(selfUser.legalHoldStatus, .enabled)
+
+        // WHEN
+        performPretendingUiMocIsSyncMoc {
+            normalClient.deleteClientAndEndSession()
+        }
+
+        // THEN
+        XCTAssertEqual(selfUser.legalHoldStatus, .enabled)
         XCTAssertTrue(selfUser.needsToAcknowledgeLegalHoldStatus)
     }
 
@@ -133,7 +164,19 @@ extension UserClient {
         let payload: [String: AnyObject] = [
             "id": NSUUID().transportString() as NSString,
             "type": DeviceType.legalHold.rawValue as NSString,
-            "class": DeviceType.legalHold.rawValue as NSString,
+            "class": DeviceClass.legalHold.rawValue as NSString,
+            "time": NSDate()
+        ]
+
+        return createOrUpdateSelfUserClient(payload, context: moc)!
+    }
+
+    @discardableResult
+    static func createMockPhoneUserClient(in moc: NSManagedObjectContext) -> UserClient {
+        let payload: [String: AnyObject] = [
+            "id": NSUUID().transportString() as NSString,
+            "type": DeviceType.permanent.rawValue as NSString,
+            "class": DeviceClass.phone.rawValue as NSString,
             "time": NSDate()
         ]
 
