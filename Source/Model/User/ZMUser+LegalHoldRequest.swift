@@ -62,6 +62,25 @@ public enum UserLegalHoldStatus: Equatable {
 
 public struct LegalHoldRequest: Codable, Hashable {
 
+    /**
+     * Represents a prekey in the legal hold request.
+     */
+
+    public struct Prekey: Codable, Hashable {
+
+        /// The ID of the key.
+        public let id: String
+
+        /// The body of the key.
+        public let key: Data
+
+        public init(id: String, key: Data) {
+            self.id = id
+            self.key = key
+        }
+
+    }
+
     /// The ID of the admin who sent the request.
     public let requesterIdentifier: UUID
 
@@ -69,14 +88,14 @@ public struct LegalHoldRequest: Codable, Hashable {
     public let targetUserIdentifier: UUID
 
     /// The ID of the legal hold client.
-    public let clientIdentifier: UUID
+    public let clientIdentifier: String
 
     /// The last prekey for the legal hold client.
-    public let lastPrekey: Data
+    public let lastPrekey: Prekey
 
     // MARK: Initialization
 
-    public init(requesterIdentifier: UUID, targetUserIdentifier: UUID, clientIdentifier: UUID, lastPrekey: Data) {
+    public init(requesterIdentifier: UUID, targetUserIdentifier: UUID, clientIdentifier: String, lastPrekey: Prekey) {
         self.requesterIdentifier = requesterIdentifier
         self.targetUserIdentifier = targetUserIdentifier
         self.clientIdentifier = clientIdentifier
