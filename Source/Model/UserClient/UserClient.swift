@@ -367,6 +367,7 @@ public extension UserClient {
         client.user = client.user ?? selfUser
 
         if client.isLegalHoldDevice {
+            selfUser.legalHoldRequest = nil
             selfUser.needsToAcknowledgeLegalHoldStatus = true
         }
 

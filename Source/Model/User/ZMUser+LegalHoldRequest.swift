@@ -154,7 +154,7 @@ extension ZMUser: SelfLegalHoldSubject {
 
     @NSManaged private var primitiveLegalHoldRequest: Data?
 
-    private var legalHoldRequest: LegalHoldRequest? {
+    var legalHoldRequest: LegalHoldRequest? {
         get {
             willAccessValue(forKey: ZMUserKeys.legalHoldRequest)
             let value = primitiveLegalHoldRequest.flatMap(LegalHoldRequest.decode)
