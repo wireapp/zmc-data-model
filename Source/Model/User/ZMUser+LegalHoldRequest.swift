@@ -69,12 +69,12 @@ public struct LegalHoldRequest: Codable, Hashable {
     public struct Prekey: Codable, Hashable {
 
         /// The ID of the key.
-        public let id: String
+        public let id: Int
 
         /// The body of the key.
         public let key: Data
 
-        public init(id: String, key: Data) {
+        public init(id: Int, key: Data) {
             self.id = id
             self.key = key
         }
@@ -111,13 +111,13 @@ public struct LegalHoldRequest: Codable, Hashable {
         case lastPrekey = "last_prekey"
     }
 
-    public static func decode(from data: Data) -> LegalHoldRequest? {
+    static func decode(from data: Data) -> LegalHoldRequest? {
         let decoder = JSONDecoder()
         decoder.dataDecodingStrategy = .base64
         return try? decoder.decode(LegalHoldRequest.self, from: data)
     }
 
-    public func encode() -> Data? {
+    func encode() -> Data? {
         let encoder = JSONEncoder()
         encoder.dataEncodingStrategy = .base64
         return try? encoder.encode(self)
