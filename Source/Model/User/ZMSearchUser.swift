@@ -193,6 +193,10 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
     public var isServiceUser: Bool {
         return providerIdentifier != nil
     }
+
+    public var usesCompanyLogin: Bool {
+        return user?.usesCompanyLogin == true
+    }
     
     public var readReceiptsEnabled: Bool {
         return user?.readReceiptsEnabled ?? false

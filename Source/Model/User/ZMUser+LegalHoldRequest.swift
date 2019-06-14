@@ -141,10 +141,10 @@ extension ZMUser: SelfLegalHoldSubject {
 
     /// The current legal hold status for the user.
     public var legalHoldStatus: UserLegalHoldStatus {
-        if let legalHoldRequest = self.legalHoldRequest {
-            return .pending(legalHoldRequest)
-        } else if clients.any(\.isLegalHoldDevice) {
+        if clients.any(\.isLegalHoldDevice) {
             return .enabled
+        } else if let legalHoldRequest = self.legalHoldRequest {
+            return .pending(legalHoldRequest)
         } else {
             return .disabled
         }

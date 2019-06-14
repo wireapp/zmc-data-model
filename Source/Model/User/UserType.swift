@@ -60,6 +60,9 @@ public protocol UserType: NSObjectProtocol {
     
     /// Whether this is a service user (bot)
     var isServiceUser: Bool { get }
+
+    /// Whether this uses uses SSO.
+    var usesCompanyLogin: Bool { get }
     
     /// Is YES if we can send a connection request to this user.
     var isConnected: Bool { get }
@@ -79,7 +82,7 @@ public protocol UserType: NSObjectProtocol {
     /// Whether the user can be connected by the self user.
     var canBeConnected: Bool { get }
     
-    /// Wheater the account of the user is deleted
+    /// Whether the account of the user is deleted
     var isAccountDeleted: Bool { get }
     
     /// Wheater the user is under legal hold
