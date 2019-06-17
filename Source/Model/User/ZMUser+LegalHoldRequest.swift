@@ -18,7 +18,7 @@
 
 import Foundation
 
-private let log = ZMSLog(tag: "legal-hold")
+private let log = ZMSLog(tag: "UserClient")
 
 /**
  * A protocol for objects that provide the legal hold status for the self user.
