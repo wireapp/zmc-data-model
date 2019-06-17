@@ -29,7 +29,7 @@ class ZMUserLegalHoldTests: ModelObjectsTests {
         XCTAssertEqual(selfUser.legalHoldStatus, .disabled)
     }
 
-    func testThatLegalHoldStatusIsEnabled_AfterReceivingRequest() {
+    func testThatLegalHoldStatusIsPending_AfterReceivingRequest() {
         // GIVEN
         let selfUser = ZMUser.selfUser(in: uiMOC)
 
@@ -42,7 +42,7 @@ class ZMUserLegalHoldTests: ModelObjectsTests {
         XCTAssertTrue(selfUser.needsToAcknowledgeLegalHoldStatus)
     }
 
-    func testThatLegalHoldStatusIsPending_AfterAcceptingRequest() {
+    func testThatLegalHoldStatusIsEnabled_AfterAcceptingRequest() {
         // GIVEN
         let selfUser = ZMUser.selfUser(in: uiMOC)
         createSelfClient(onMOC: uiMOC)
