@@ -18,6 +18,8 @@
 
 import Foundation
 
+private let log = ZMSLog(tag: "legal-hold")
+
 /**
  * A protocol for objects that provide the legal hold status for the self user.
  */
@@ -185,7 +187,21 @@ extension ZMUser: SelfLegalHoldSubject {
     }
 
     private func addLegalHoldClient(from request: LegalHoldRequest) {
-        #warning("TODO: Create new UserClient from the request.")
+        guard let moc = self.managedObjectContext, let selfClient = self.selfClient() else { return }
+
+        let legalHoldClient = UserClient.insertNewObject(in: moc)
+        legalHoldClient.type = .legalHold
+        legalHoldClient.deviceClass = .legalHold
+        legalHoldClient.remoteIdentifier = request.clientIdentifier
+        legalHoldClient.user = self
+
+        if !selfClient.establishSessionWithClient(legalHoldClient, usingPreKey: request.lastPrekey.key.base64String()) {
+            log.error("Could not establish session with new legal hold device.")
+        } else {
+            log.info("Established session with legal hold device.")
+        }
+
+        moc.saveOrRollback()
     }
 
     /**

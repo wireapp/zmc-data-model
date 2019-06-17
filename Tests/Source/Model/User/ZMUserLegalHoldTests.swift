@@ -29,27 +29,7 @@ class ZMUserLegalHoldTests: ModelObjectsTests {
         XCTAssertEqual(selfUser.legalHoldStatus, .disabled)
     }
 
-    func testThatLegalHoldStatusIsPending_AfterReceivingRequest() {
-        // GIVEN
-        let selfUser = ZMUser.selfUser(in: uiMOC)
-
-        // WHEN
-        let request = LegalHoldRequest.mockRequest(for: selfUser)
-        selfUser.userDidReceiveLegalHoldRequest(request)
-
-        let legalHoldClient = UserClient.insertNewObject(in: uiMOC)
-        legalHoldClient.deviceClass = .legalHold
-        legalHoldClient.type = .legalHold
-        legalHoldClient.user = selfUser
-
-        selfUser.userDidAcceptLegalHoldRequest(request)
-
-        // THEN
-        XCTAssertEqual(selfUser.legalHoldStatus, .enabled)
-        XCTAssertTrue(selfUser.needsToAcknowledgeLegalHoldStatus)
-    }
-
-    func testThatLegalHoldStatusIsEnabled_AfterAcceptingRequest() {
+    func testThatLegalHoldStatusIsEnabled_AfterReceivingRequest() {
         // GIVEN
         let selfUser = ZMUser.selfUser(in: uiMOC)
 
@@ -59,6 +39,24 @@ class ZMUserLegalHoldTests: ModelObjectsTests {
 
         // THEN
         XCTAssertEqual(selfUser.legalHoldStatus, .pending(request))
+        XCTAssertTrue(selfUser.needsToAcknowledgeLegalHoldStatus)
+    }
+
+    func testThatLegalHoldStatusIsPending_AfterAcceptingRequest() {
+        // GIVEN
+        let selfUser = ZMUser.selfUser(in: uiMOC)
+        createSelfClient(onMOC: uiMOC)
+
+        // WHEN
+        let request = LegalHoldRequest.mockRequest(for: selfUser)
+        selfUser.userDidReceiveLegalHoldRequest(request)
+
+        performPretendingUiMocIsSyncMoc {
+            selfUser.userDidAcceptLegalHoldRequest(request)
+        }
+
+        // THEN
+        XCTAssertEqual(selfUser.legalHoldStatus, .enabled)
         XCTAssertTrue(selfUser.needsToAcknowledgeLegalHoldStatus)
     }
 
