@@ -181,13 +181,18 @@ extension ZMUser: SelfLegalHoldSubject {
             return
         }
 
-        addLegalHoldClient(from: request)
         legalHoldRequest = nil
         needsToAcknowledgeLegalHoldStatus = true
     }
 
-    private func addLegalHoldClient(from request: LegalHoldRequest) {
-        guard let moc = self.managedObjectContext, let selfClient = self.selfClient() else { return }
+    /**
+     * Adds a legal hold client for the user from the specified legal hold request.
+     * - parameter request: The legal hold request that contains the details of the client.
+     * - returns: The created client, if the state is valid.
+     */
+
+    public func addLegalHoldClient(from request: LegalHoldRequest) -> UserClient? {
+        guard let moc = self.managedObjectContext, let selfClient = self.selfClient() else { return nil }
 
         let legalHoldClient = UserClient.insertNewObject(in: moc)
         legalHoldClient.type = .legalHold
@@ -195,11 +200,13 @@ extension ZMUser: SelfLegalHoldSubject {
         legalHoldClient.remoteIdentifier = request.clientIdentifier
         legalHoldClient.user = self
 
-        if !selfClient.establishSessionWithClient(legalHoldClient, usingPreKey: request.lastPrekey.key.base64String()) {
+        guard selfClient.establishSessionWithClient(legalHoldClient, usingPreKey: request.lastPrekey.key.base64String()) else {
             log.error("Could not establish session with new legal hold device.")
-        } else {
-            log.info("Established session with legal hold device.")
+            moc.delete(legalHoldClient)
+            return nil
         }
+
+        return legalHoldClient
     }
 
     /**

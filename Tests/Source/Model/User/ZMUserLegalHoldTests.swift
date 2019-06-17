@@ -52,6 +52,7 @@ class ZMUserLegalHoldTests: ModelObjectsTests {
         selfUser.userDidReceiveLegalHoldRequest(request)
 
         performPretendingUiMocIsSyncMoc {
+            _ = selfUser.addLegalHoldClient(from: request)
             selfUser.userDidAcceptLegalHoldRequest(request)
         }
 
