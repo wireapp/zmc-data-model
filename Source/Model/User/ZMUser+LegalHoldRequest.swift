@@ -200,8 +200,6 @@ extension ZMUser: SelfLegalHoldSubject {
         } else {
             log.info("Established session with legal hold device.")
         }
-
-        moc.saveOrRollback()
     }
 
     /**
