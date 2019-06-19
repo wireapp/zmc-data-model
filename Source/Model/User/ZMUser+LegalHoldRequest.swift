@@ -182,7 +182,6 @@ extension ZMUser: SelfLegalHoldSubject {
         }
 
         legalHoldRequest = nil
-        needsToAcknowledgeLegalHoldStatus = true
     }
 
     /**
