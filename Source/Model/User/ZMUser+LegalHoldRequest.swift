@@ -169,6 +169,7 @@ extension ZMUser: SelfLegalHoldSubject {
     
     public func legalHoldRequestWasCancelled() {
         legalHoldRequest = nil
+        needsToAcknowledgeLegalHoldStatus = false
     }
 
     /**

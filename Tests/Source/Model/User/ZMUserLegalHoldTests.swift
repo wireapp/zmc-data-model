@@ -28,6 +28,20 @@ class ZMUserLegalHoldTests: ModelObjectsTests {
         // THEN
         XCTAssertEqual(selfUser.legalHoldStatus, .disabled)
     }
+    
+    func testThatLegalHoldStatusIsDisabled_AfterCancelingRequest() {
+        // GIVEN
+        let selfUser = ZMUser.selfUser(in: uiMOC)
+        let request = LegalHoldRequest.mockRequest(for: selfUser)
+        selfUser.userDidReceiveLegalHoldRequest(request)
+        
+        // WHEN
+        selfUser.legalHoldRequestWasCancelled()
+        
+        // THEN
+        XCTAssertEqual(selfUser.legalHoldStatus, .disabled)
+        XCTAssertFalse(selfUser.needsToAcknowledgeLegalHoldStatus)
+    }
 
     func testThatLegalHoldStatusIsPending_AfterReceivingRequest() {
         // GIVEN
@@ -60,27 +74,6 @@ class ZMUserLegalHoldTests: ModelObjectsTests {
         XCTAssertEqual(selfUser.legalHoldStatus, .enabled)
         XCTAssertTrue(selfUser.needsToAcknowledgeLegalHoldStatus)
     }
-
-    func testThatItDoesntClearPendingStatus_AfterAcceptingWrongRequest() {
-        // GIVEN
-        let selfUser = ZMUser.selfUser(in: uiMOC)
-
-        let otherUser = ZMUser.insert(in: uiMOC, name: "Bob the Other User")
-        otherUser.remoteIdentifier = UUID()
-
-        // WHEN
-        let selfRequest = LegalHoldRequest.mockRequest(for: selfUser)
-        selfUser.userDidReceiveLegalHoldRequest(selfRequest)
-
-        let otherRequest = LegalHoldRequest.mockRequest(for: otherUser)
-        selfUser.userDidReceiveLegalHoldRequest(otherRequest)
-        selfUser.userDidAcceptLegalHoldRequest(otherRequest)
-
-        // THEN
-        XCTAssertFalse(selfRequest == otherRequest)
-        XCTAssertEqual(selfUser.legalHoldStatus, .pending(selfRequest))
-    }
-
 
     func testThatLegalHoldStatusIsEnabled_AfterAddingClient() {
         // GIVEN
