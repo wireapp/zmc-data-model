@@ -145,7 +145,7 @@ extension LegalHoldRequest {
 
     static func mockRequest(for user: ZMUser) -> LegalHoldRequest {
         let prekey = LegalHoldRequest.Prekey(id: 65535, key: Data(base64Encoded: "pQABARn//wKhAFggHsa0CszLXYLFcOzg8AA//E1+Dl1rDHQ5iuk44X0/PNYDoQChAFgg309rkhG6SglemG6kWae81P1HtQPx9lyb6wExTovhU4cE9g==")!)
-        return LegalHoldRequest(requesterIdentifier: UUID(), targetUserIdentifier: user.remoteIdentifier!, clientIdentifier: "eca3c87cfe28be49", lastPrekey: prekey)
+        return LegalHoldRequest(clientIdentifier: "eca3c87cfe28be49", lastPrekey: prekey)
     }
 
 }
