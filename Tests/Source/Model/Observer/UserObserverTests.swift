@@ -39,6 +39,7 @@ class UserObserverTests : NotificationDispatcherTestBase {
         case readReceiptsEnabledChangedRemotely = "readReceiptsEnabledChangedRemotelyChanged"
         case richProfile = "richProfileChanged"
         case legalHoldStatus = "legalHoldStatusChanged"
+        case isUnderLegalHold = "isUnderLegalHoldChanged"
     }
     
     let userInfoChangeKeys: [UserInfoChangeKey] = UserInfoChangeKey.allCases
@@ -608,6 +609,19 @@ extension UserObserverTests {
                                                      expectedChangedField: .legalHoldStatus)
 
         XCTAssertTrue(user.needsToAcknowledgeLegalHoldStatus)
+    }
+    
+    func testThatItNotifiesTheObserverOfIsUnderLegalHoldChange_DeviceClassIsAssigned() {
+        // given
+        let user = ZMUser.selfUser(in: uiMOC)
+        let client = UserClient.insertNewObject(in: uiMOC)
+        client.remoteIdentifier = "123"
+        client.user = user
+        
+        // when
+        self.checkThatItNotifiesTheObserverOfAChange(user,
+                                                     modifier: { _ in client.deviceClass = .legalHold },
+                                                     expectedChangedField: .isUnderLegalHold)
     }
 
 }
