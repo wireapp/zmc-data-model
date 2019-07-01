@@ -34,10 +34,8 @@ extension ZMConversationTransportTests {
             let lastModifiedDate = currentTime.addingTimeInterval(86400)
             conversation.lastModifiedDate = lastModifiedDate
             let serverTimestamp = currentTime
-            let archivedDate = currentTime
-            let silencedDate = archivedDate.addingTimeInterval(10)
 
-            let payload = self.payloadForMetaData(of: conversation, conversationType: .convTypeGroup, isArchived: true, archivedRef: archivedDate, isSilenced: true, silencedRef: silencedDate, silencedStatus: nil)
+            let payload = self.payloadForMetaData(of: conversation, conversationType: .convTypeGroup, isArchived: true, archivedRef: currentTime, isSilenced: true, silencedRef: currentTime, silencedStatus: nil)
 
             // when
             conversation.update(withTransportData: payload, serverTimeStamp: serverTimestamp)
