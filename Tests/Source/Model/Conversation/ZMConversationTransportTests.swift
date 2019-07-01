@@ -21,7 +21,7 @@ import Foundation
 
 extension ZMConversationTransportTests {
     //final class ConversationTransportTests: ZMConversationTestsBase {
-    func testThatItDoesNotUpdatesLastModifiedDateFromTransportDataIfAlreadyExists() {
+    func testThatItDoesNotUpdatesLastModifiedDateIfAlreadyExists() {
         syncMOC.performGroupedAndWait() {_ in
             // given
             ZMUser.selfUser(in: self.syncMOC).teamIdentifier = UUID()
@@ -31,7 +31,8 @@ extension ZMConversationTransportTests {
             let currentTime = Date()
 
             // assume that the backup date is one day before
-            conversation.lastModifiedDate = currentTime.addingTimeInterval(86400)
+            let lastModifiedDate = currentTime.addingTimeInterval(86400)
+            conversation.lastModifiedDate = lastModifiedDate
             let serverTimestamp = currentTime
             let archivedDate = currentTime
             let silencedDate = archivedDate.addingTimeInterval(10)
@@ -42,10 +43,9 @@ extension ZMConversationTransportTests {
             conversation.update(withTransportData: payload, serverTimeStamp: serverTimestamp)
 
             // then
-
-            XCTAssertEqual(conversation.remoteIdentifier, UUID(uuidString: payload?["id"]! as! String))
-
             XCTAssertEqual(conversation.lastServerTimeStamp, serverTimestamp)
+            XCTAssertEqual(conversation.lastModifiedDate, lastModifiedDate)
             XCTAssertNotEqual(conversation.lastModifiedDate, serverTimestamp)
         }
+    }
 }
