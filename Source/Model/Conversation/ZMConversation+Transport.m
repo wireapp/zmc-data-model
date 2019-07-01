@@ -81,7 +81,7 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
     
     if (serverTimeStamp != nil) {
          // If the lastModifiedDate is non-nil, e.g. restore from backup, do not update the lastModifiedDate
-        if ([self lastModifiedDate] == nil) {
+        if (self.lastModifiedDate == nil) {
             [self updateLastModified:serverTimeStamp];
         }
         [self updateServerModified:serverTimeStamp];
