@@ -342,7 +342,7 @@ extension ZMConversation {
     private func appendLegalHoldEnabledSystemMessageForConversation(cause: SecurityChangeCause) {
         var timestamp : Date?
         
-        if case .addedClients(_, let message) = cause, message?.conversation == self {
+        if case .addedClients(_, let message) = cause, message?.conversation == self, message?.isUpdatingExistingMessage == false {
             timestamp = self.timestamp(before: message)
         }
         
@@ -698,6 +698,15 @@ extension ZMSystemMessage {
         let fetchRequest = ZMSystemMessage.sortedFetchRequest(with: compound)!
         let result = conversation.managedObjectContext!.executeFetchRequestOrAssert(fetchRequest)!
         return result.first as? ZMSystemMessage
+    }
+}
+
+extension ZMOTRMessage {
+    
+    fileprivate var isUpdatingExistingMessage: Bool {
+        guard let genericMessage = genericMessage else { return false }
+        
+        return genericMessage.hasEdited() || genericMessage.hasReaction()
     }
 }
 
