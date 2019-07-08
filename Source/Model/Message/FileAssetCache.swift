@@ -289,7 +289,7 @@ private struct FileCache : Cache {
     public static func cacheKeyForAsset(_ message : ZMConversationMessage, format: ZMImageFormat, encrypted: Bool = false) -> String? {
         return cacheKeyForAsset(message, identifier: StringFromImageFormat(format), encrypted: encrypted)
     }
-    
+
     public static func cacheKeyForAsset(_ message : ZMConversationMessage, identifier: String? = nil, encrypted: Bool = false) -> String? {
         guard let messageId = message.nonce?.transportString(),
               let senderId = message.sender?.remoteIdentifier?.transportString(),
@@ -302,7 +302,23 @@ private struct FileCache : Cache {
         
         return key.data(using: .utf8)?.zmSHA256Digest().zmHexEncodedString()
     }
-    
+
+    // MARK: - Team cache key
+    ///TODO: cache key for team
+    public static func cacheKeyForAsset(for team : Team, format: ZMImageFormat, encrypted: Bool = false) -> String? {
+        return cacheKeyForAsset(for: team, identifier: StringFromImageFormat(format), encrypted: encrypted)
+    }
+
+    public static func cacheKeyForAsset(for team : Team, identifier: String? = nil, encrypted: Bool = false) -> String? {
+        guard let teamID = team.remoteIdentifier?.uuidString else {
+                return nil
+        }
+
+        let key = [teamID, identifier, encrypted ? "encrypted" : nil].compactMap({ $0 }).joined(separator: "_")
+
+        return key.data(using: .utf8)?.zmSHA256Digest().zmHexEncodedString()
+    }
+
 }
 
 // MARK: - Testing
