@@ -24,7 +24,7 @@ public protocol TeamType: class {
     var pictureAssetId: String? { get }
     var pictureAssetKey: String? { get }
     var remoteIdentifier: UUID? { get }
-
+    var imageData: Data? { get set }
 }
 
 
@@ -97,13 +97,14 @@ extension Team {
 
 // MARK: - Logo Image
 extension Team {
-    public func setImage(data: Data?, imageFormat: ZMImageFormat) {
-    }
+    public var imageData: Data? {
+        get {
+            return nil
+//                    return [self.managedObjectContext.zm_fileAssetCache hasDataOnDisk:self format:ZMImageFormatMedium encrypted:NO] || // processed or 
+        }
 
-    public func imageData(for imageFormat: ZMImageFormat) -> Data? {
-    }
+        set {
 
-    func requestImage() {
-
+        }
     }
 }
