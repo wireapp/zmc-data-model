@@ -829,7 +829,7 @@ class ConversationListObserverTests: NotificationDispatcherTestBase {
 
     func testThatItOnlyNotifiesTheObserverIrregardlessOfTheTeam() {
         // given
-        let team = Team.insertNewObject(in: uiMOC)
+        let team = Team.insertNewObject(in: uiMOC) ///TODO: extract
         let teamId = UUID.create()
         team.remoteIdentifier = teamId
         let conversation = ZMConversation.insertNewObject(in: uiMOC)

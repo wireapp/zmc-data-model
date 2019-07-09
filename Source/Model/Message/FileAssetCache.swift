@@ -351,7 +351,7 @@ private struct FileCache : Cache {
 
     public static func cacheKeyForAsset(for team : Team, identifier: String? = nil, encrypted: Bool = false) -> String? {
         guard let teamID = team.remoteIdentifier?.uuidString else {
-                return nil
+            return nil
         }
 
         let key = [teamID, identifier, encrypted ? "encrypted" : nil].compactMap({ $0 }).joined(separator: "_")

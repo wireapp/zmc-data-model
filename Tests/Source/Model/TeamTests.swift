@@ -20,6 +20,54 @@
 import WireTesting
 @testable import WireDataModel
 
+extension Team {
+    static func mockTeam(context: NSManagedObjectContext) -> Team {
+        let team = Team.insertNewObject(in: context)
+        team.remoteIdentifier = UUID()
+
+        return team
+    }
+}
+
+extension TeamTests {
+    func testThatItReturnsCorrectEncryptionTeamLogoResultWithSHA256() {
+
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let sut = FileAssetCache()
+            let team = Team.mockTeam(context: self.syncMOC)
+
+            let userId = UUID.create()
+            let assetId = UUID.create().transportString(), assetKey = UUID.create().transportString()
+            let payload = [
+                "name": "Wire GmbH",
+                "creator": userId.transportString(),
+                "icon": assetId,
+                "icon_key": assetKey
+            ]
+
+            team.update(with: payload)
+
+        let plainData = Data.secureRandomData(ofLength: 500)
+
+        sut.storeAssetData(for: team, format: .medium, encrypted: false, data: plainData)
+
+        // when
+        let result = sut.encryptImageAndComputeSHA256Digest(for: team, format: .medium)
+
+        // then
+        let encryptedData = sut.assetData(for: team, format: .medium, encrypted: true)
+        AssertOptionalNotNil(result, "Result") { result in
+            AssertOptionalNotNil(encryptedData, "Encrypted data") { encryptedData in
+                let decodedData = encryptedData.zmDecryptPrefixedPlainTextIV(key: result.otrKey)
+                XCTAssertEqual(decodedData, plainData)
+                let sha = encryptedData.zmSHA256Digest()
+                XCTAssertEqual(sha, result.sha256)
+            }
+        }
+        }
+    }
+}
 
 class TeamTests: BaseTeamTests {
 
@@ -142,6 +190,24 @@ class TeamTests: BaseTeamTests {
             XCTAssertFalse(guest.isTeamMember)
             XCTAssertFalse(guest.isTeamMember)
     }
+
+//    func createTeam() {
+//        let team = Team.insertNewObject(in: self.syncMOC)
+//        let userId = UUID.create()
+//        let assetId = UUID.create().transportString(), assetKey = UUID.create().transportString()
+//
+//        let payload = [
+//            "name": "Wire GmbH",
+//            "creator": userId.transportString(),
+//            "icon": assetId,
+//            "icon_key": assetKey
+//        ]
+//
+//        // when
+//        team.update(with: payload)
+//    }
+
+    //TODO:
 
     func testThatItUpdatesATeamWithPayload() {
         syncMOC.performGroupedBlockAndWait {

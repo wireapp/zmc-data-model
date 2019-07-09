@@ -105,7 +105,7 @@ extension FileAssetCache {
         guard let plaintextCacheKey = type(of: self).cacheKeyForAsset(for: team, format: format, encrypted: false),
             let encryptedCacheKey = type(of: self).cacheKeyForAsset(for: team, format: format, encrypted: true) else { return nil }
 
-        return self.cache.encryptFileAndComputeSHA256Digest(plaintextCacheKey, encryptedEntryKey: encryptedCacheKey)
+        return cache.encryptFileAndComputeSHA256Digest(plaintextCacheKey, encryptedEntryKey: encryptedCacheKey)
     }
 
     /// Decrypts an encrypted asset in the asset cache to a decrypted version in the cache. Upon completion of the decryption, deletes the encrypted
