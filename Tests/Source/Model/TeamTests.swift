@@ -127,28 +127,28 @@ final class TeamTests: BaseTeamTests {
     }
 
     func testThatItDoesNotReturnGuestsOfOtherTeams() throws {
-            // given
-            let (team1, _) = createTeamAndMember(for: .selfUser(in: uiMOC), with: .member)
-            let (team2, _) = createTeamAndMember(for: .selfUser(in: uiMOC), with: .member)
+        // given
+        let (team1, _) = createTeamAndMember(for: .selfUser(in: uiMOC), with: .member)
+        let (team2, _) = createTeamAndMember(for: .selfUser(in: uiMOC), with: .member)
 
-            // we add actual team members as well
-            createUserAndAddMember(to: team1)
-            let (otherUser, _) = createUserAndAddMember(to: team2)
+        // we add actual team members as well
+        createUserAndAddMember(to: team1)
+        let (otherUser, _) = createUserAndAddMember(to: team2)
 
-            let guest = ZMUser.insertNewObject(in: uiMOC)
+        let guest = ZMUser.insertNewObject(in: uiMOC)
 
-            // when
+        // when
         guard let conversation1 = ZMConversation.insertGroupConversation(into: uiMOC, withParticipants: [guest], in: team1) else { XCTFail(); return }
         guard let conversation2 = ZMConversation.insertGroupConversation(into: uiMOC, withParticipants: [otherUser], in: team2) else { XCTFail(); return }
 
-            // then
-            XCTAssertTrue(guest.isGuest(in: conversation1))
-            XCTAssertFalse(guest.canAddUser(to: conversation1))
-            XCTAssertFalse(guest.isGuest(in: conversation2))
-            XCTAssertFalse(guest.isGuest(in: conversation2))
-            XCTAssertFalse(otherUser.isGuest(in: conversation1))
-            XCTAssertFalse(guest.isTeamMember)
-            XCTAssertFalse(guest.isTeamMember)
+        // then
+        XCTAssertTrue(guest.isGuest(in: conversation1))
+        XCTAssertFalse(guest.canAddUser(to: conversation1))
+        XCTAssertFalse(guest.isGuest(in: conversation2))
+        XCTAssertFalse(guest.isGuest(in: conversation2))
+        XCTAssertFalse(otherUser.isGuest(in: conversation1))
+        XCTAssertFalse(guest.isTeamMember)
+        XCTAssertFalse(guest.isTeamMember)
     }
 
     func testThatItUpdatesATeamWithPayload() {
@@ -362,7 +362,7 @@ final class TeamTests: BaseTeamTests {
 
             team.update(with: payload)
 
-            let plainData = Data.secureRandomData(ofLength: 500)
+            let plainData = self.testData()
 
             sut.storeAssetData(for: team, format: .medium, encrypted: false, data: plainData)
 
@@ -402,6 +402,30 @@ final class TeamTests: BaseTeamTests {
 
             // then
             XCTAssert(data)
+        }
+    }
+
+    func testThatItDeletesAnExistingAssetData() {
+
+        syncMOC.performGroupedBlockAndWait {
+            // given
+            let team = Team.mockTeam(context: self.syncMOC)
+            let sut = FileAssetCache()
+            sut.storeAssetData(for: team,
+                               format: .medium,
+                               encrypted: false,
+                               data: self.testData())
+
+            // when
+            sut.deleteAssetData(for: team,
+                                format: .medium,
+                                encrypted: false)
+            let extractedData = sut.assetData(for: team,
+                                              format: .medium,
+                                              encrypted: false)
+
+            // then
+            XCTAssertNil(extractedData)
         }
     }
 }
