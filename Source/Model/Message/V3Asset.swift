@@ -50,8 +50,7 @@ private let zmLog = ZMSLog(tag: "AssetV3")
 }
 
 
-@objcMembers public class V3Asset: NSObject, ZMImageMessageData {///TODO: Team protocol?
-    ///TODO: team?
+@objcMembers public class V3Asset: NSObject, ZMImageMessageData {
     @objc(fetchImageDataWithQueue:completionHandler:)
     public func fetchImageData(with queue: DispatchQueue, completionHandler: @escaping ((Data?) -> Void)) {
         let cache = moc.zm_fileAssetCache

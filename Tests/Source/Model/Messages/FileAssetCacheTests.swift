@@ -43,7 +43,7 @@ class FileAssetCacheTests: BaseZMMessageTests
     }
     
     fileprivate func testData() -> Data {
-        return Data.secureRandomData(ofLength: 2000);
+        return Data.secureRandomData(ofLength: 2000)
     }
     
 }
@@ -288,51 +288,6 @@ extension FileAssetCacheTests {
         
         // then
         let encryptedData = sut.assetData(message, encrypted: true)
-        AssertOptionalNotNil(result, "Result") { result in
-            AssertOptionalNotNil(encryptedData, "Encrypted data") { encryptedData in
-                let decodedData = encryptedData.zmDecryptPrefixedPlainTextIV(key: result.otrKey)
-                XCTAssertEqual(decodedData, plainData)
-                let sha = encryptedData.zmSHA256Digest()
-                XCTAssertEqual(sha, result.sha256)
-            }
-        }
-    }
-}
-
-// MARK: - Team logo encryption
-extension FileAssetCacheTests {
-
-    func createTeam() -> Team {
-        let team = Team.insertNewObject(in: self.syncMOC)
-        let userId = UUID.create()
-        let assetId = UUID.create().transportString(), assetKey = UUID.create().transportString()
-
-        let payload = [
-            "name": "Wire GmbH",
-            "creator": userId.transportString(),
-            "icon": assetId,
-            "icon_key": assetKey
-        ]
-
-        // when
-        team.update(with: payload)
-
-        return team
-    }
-
-    func testThatItReturnsCorrectEncryptionTeamLogoResultWithSHA256() {
-        // given
-        let sut = FileAssetCache()
-        let team = createTeam()
-        let plainData = Data.secureRandomData(ofLength: 500)
-
-        sut.storeAssetData(for: team, format: .medium, encrypted: true, data: plainData)
-
-        // when
-        let result = sut.encryptImageAndComputeSHA256Digest(for: team , format: .medium)
-
-        // then
-        let encryptedData = sut.assetData(for: team, format: .medium, encrypted: true)
         AssertOptionalNotNil(result, "Result") { result in
             AssertOptionalNotNil(encryptedData, "Encrypted data") { encryptedData in
                 let decodedData = encryptedData.zmDecryptPrefixedPlainTextIV(key: result.otrKey)

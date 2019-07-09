@@ -255,7 +255,10 @@ private struct FileCache : Cache {
     ///   - format: the format of the image
     ///   - encrypted: encrypted or not
     ///   - data: the image data
-    open func storeAssetData(for team : Team, format: ZMImageFormat, encrypted: Bool, data: Data) {
+    open func storeAssetData(for team: Team,
+                             format: ZMImageFormat,
+                             encrypted: Bool,
+                             data: Data) {
         guard let key = type(of: self).cacheKeyForAsset(for: team, format: format, encrypted: encrypted) else { return }
         self.cache.storeAssetData(data, key: key)
     }
