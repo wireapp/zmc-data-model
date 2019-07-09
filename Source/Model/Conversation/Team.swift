@@ -104,6 +104,7 @@ extension Team {
 
         set {
             guard let newValue = newValue else {
+                managedObjectContext?.zm_fileAssetCache.deleteAssetData(for: self, format: .original, encrypted: false)
                 return
             }
 
