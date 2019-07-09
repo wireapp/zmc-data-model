@@ -99,12 +99,15 @@ extension Team {
 extension Team {
     public var imageData: Data? {
         get {
-            return nil
-//                    return [self.managedObjectContext.zm_fileAssetCache hasDataOnDisk:self format:ZMImageFormatMedium encrypted:NO] || // processed or 
+            return managedObjectContext?.zm_fileAssetCache.assetData(for: self, format: .original, encrypted: false)
         }
 
         set {
+            guard let newValue = newValue else {
+                return
+            }
 
+            managedObjectContext?.zm_fileAssetCache.storeAssetData(for: self, format: .original, encrypted: false, data: newValue)
         }
     }
 }
