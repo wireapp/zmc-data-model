@@ -44,8 +44,6 @@ extension Cache {
         return true
     }
 
-    //TODO: test with no sha256Digest
-    
     /// Decrypts an encrypted asset in the asset cache to a decrypted version in the cache. Upon completion of the decryption, deletes the encrypted
     /// original. In case of error (the digest doesn't match, or any other error), deletes the original and does not create a decrypted version.
     /// Returns whether the decryption was successful and the digest matched
