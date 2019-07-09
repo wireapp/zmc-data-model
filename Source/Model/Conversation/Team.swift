@@ -24,7 +24,7 @@ public protocol TeamType: class {
     var pictureAssetId: String? { get }
     var pictureAssetKey: String? { get }
     var remoteIdentifier: UUID? { get }
-
+    var imageData: Data? { get set }
 }
 
 
@@ -92,4 +92,23 @@ extension Team {
         })
     }
     
+}
+
+
+// MARK: - Logo Image
+extension Team {
+    public var imageData: Data? {
+        get {
+            return managedObjectContext?.zm_fileAssetCache.assetData(for: self, format: .medium, encrypted: false)
+        }
+
+        set {
+            guard let newValue = newValue else {
+                managedObjectContext?.zm_fileAssetCache.deleteAssetData(for: self, format: .medium, encrypted: false)
+                return
+            }
+
+            managedObjectContext?.zm_fileAssetCache.storeAssetData(for: self, format: .medium, encrypted: false, data: newValue)
+        }
+    }
 }
