@@ -93,3 +93,17 @@ extension Team {
     }
     
 }
+
+
+// MARK: - Logo Image
+extension Team {
+    public func setImage(data: Data?, imageFormat: ZMImageFormat) {
+    }
+
+    public func imageData(for imageFormat: ZMImageFormat) -> Data? {
+    }
+
+    func requestImage() {
+
+    }
+}
