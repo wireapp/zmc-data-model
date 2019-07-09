@@ -417,11 +417,11 @@ extension FileAssetCacheTests {
             sut.storeAssetData(for: team, format: .medium, encrypted: false, data: plainData)
 
             // when
-            let result = sut.encryptImageAndComputeSHA256Digest(for: team, format: .medium)
+            let encryptionKeys = sut.encryptImageAndComputeSHA256Digest(for: team, format: .medium)
 
             // then
             let encryptedData = sut.assetData(for: team, format: .medium, encrypted: true)
-            AssertOptionalNotNil(result, "Result") { result in
+            AssertOptionalNotNil(encryptionKeys, "Result") { result in
                 AssertOptionalNotNil(encryptedData, "Encrypted data") { encryptedData in
                     let decodedData = encryptedData.zmDecryptPrefixedPlainTextIV(key: result.otrKey)
                     XCTAssertEqual(decodedData, plainData)
@@ -429,6 +429,12 @@ extension FileAssetCacheTests {
                     XCTAssertEqual(sha, result.sha256)
                 }
             }
+
+            // when
+            let decryptResult = sut.decryptImageIfItMatchesDigest(for: team, format: .medium, encryptionKey: encryptionKeys!.otrKey)
+
+            // then
+            XCTAssert(decryptResult)
         }
     }
 

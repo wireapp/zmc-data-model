@@ -20,15 +20,6 @@
 import WireTesting
 @testable import WireDataModel
 
-extension Team {
-    static func mockTeam(context: NSManagedObjectContext) -> Team {
-        let team = Team.insertNewObject(in: context)
-        team.remoteIdentifier = UUID()
-
-        return team
-    }
-}
-
 final class TeamTests: BaseTeamTests {
 
     func testThatItCreatesANewTeamIfThereIsNone() {
