@@ -16,6 +16,9 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
+public extension NSNotification.Name {
+    static let teamDidRequestAsset = Notification.Name("TeamDidRequestAsset")
+}
 
 public protocol TeamType: class {
 
@@ -24,6 +27,7 @@ public protocol TeamType: class {
     var pictureAssetId: String? { get }
     var pictureAssetKey: String? { get }
     var remoteIdentifier: UUID? { get }
+    var imageData: Data? { get set }
 
     func requestImage()
 }
@@ -92,13 +96,32 @@ extension Team {
             return first.user?.normalizedName < second.user?.normalizedName
         })
     }
+}
 
-    func requestImage() {
-        guard let moc = self.managedObjectContext, moc.zm_isUserInterfaceContext, !moc.zm_fileAssetCache.has zm_userImageCache.hasUserImage(self, size: .preview) else { return }
 
-        NotificationInContext(name: .userDidRequestPreviewAsset,
-                              context: moc.notificationContext,
-                              object: self.objectID).post()
+// MARK: - Logo Image
+extension Team {
+    static let defaultLogoFormat = ZMImageFormat.medium
+    public var imageData: Data? {
+        get {
+            return managedObjectContext?.zm_fileAssetCache.assetData(for: self, format: Team.defaultLogoFormat, encrypted: false)
+        }
+
+        set {
+            guard let newValue = newValue else {
+                managedObjectContext?.zm_fileAssetCache.deleteAssetData(for: self, format: Team.defaultLogoFormat, encrypted: false)
+                return
+            }
+
+            managedObjectContext?.zm_fileAssetCache.storeAssetData(for: self, format: Team.defaultLogoFormat, encrypted: false, data: newValue)
+        }
     }
 
+    public func requestImage() {
+        guard let moc = self.managedObjectContext, moc.zm_isUserInterfaceContext, !moc.zm_fileAssetCache.hasDataOnDisk(for: self, format: Team.defaultLogoFormat, encrypted: false) else { return }
+
+        NotificationInContext(name: .teamDidRequestAsset,
+                              context: moc.notificationContext,
+                              object: objectID).post()
+    }
 }
