@@ -33,7 +33,8 @@ public protocol TeamType: class {
 }
 
 
-@objcMembers public class Team: ZMManagedObject, TeamType {
+@objcMembers
+public class Team: ZMManagedObject, TeamType {
 
     @NSManaged public var conversations: Set<ZMConversation>
     @NSManaged public var members: Set<Member>
@@ -102,6 +103,9 @@ extension Team {
 // MARK: - Logo Image
 extension Team {
     static let defaultLogoFormat = ZMImageFormat.medium
+
+    @objc static let pictureAssetIdKey = #keyPath(Team.pictureAssetId)
+
     public var imageData: Data? {
         get {
             return managedObjectContext?.zm_fileAssetCache.assetData(for: self, format: Team.defaultLogoFormat, encrypted: false)
@@ -124,4 +128,14 @@ extension Team {
                               context: moc.notificationContext,
                               object: objectID).post()
     }
+
+    public static var imageDownloadFilter: NSPredicate {
+        let assetIdExists = NSPredicate(format: "(%K != nil)", Team.pictureAssetIdKey)
+        let notCached = NSPredicate() { (team, _) -> Bool in
+            guard let team = team as? Team else { return false }
+            return team.imageData == nil
+        }
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [assetIdExists, notCached])
+    }
+
 }
