@@ -25,6 +25,7 @@ public protocol TeamType: class {
     var pictureAssetKey: String? { get }
     var remoteIdentifier: UUID? { get }
 
+    func requestImage()
 }
 
 
@@ -91,5 +92,13 @@ extension Team {
             return first.user?.normalizedName < second.user?.normalizedName
         })
     }
-    
+
+    func requestImage() {
+        guard let moc = self.managedObjectContext, moc.zm_isUserInterfaceContext, !moc.zm_fileAssetCache.has zm_userImageCache.hasUserImage(self, size: .preview) else { return }
+
+        NotificationInContext(name: .userDidRequestPreviewAsset,
+                              context: moc.notificationContext,
+                              object: self.objectID).post()
+    }
+
 }
