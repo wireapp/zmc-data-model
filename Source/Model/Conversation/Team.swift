@@ -112,6 +112,13 @@ extension Team {
         }
 
         set {
+            defer {
+                if let uiContext = managedObjectContext?.zm_userInterface {
+                    // Notify about a non core data change since the image is persisted in the file cache
+                    NotificationDispatcher.notifyNonCoreDataChanges(objectID: objectID, changedKeys: [#keyPath(Team.imageData)], uiContext: uiContext)
+                }
+            }
+            
             guard let newValue = newValue else {
                 managedObjectContext?.zm_fileAssetCache.deleteAssetData(for: self, format: Team.defaultLogoFormat, encrypted: false)
                 return
