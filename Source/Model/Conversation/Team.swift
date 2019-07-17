@@ -32,7 +32,6 @@ public protocol TeamType: class {
     func requestImage()
 }
 
-
 @objcMembers
 public class Team: ZMManagedObject, TeamType {
 
