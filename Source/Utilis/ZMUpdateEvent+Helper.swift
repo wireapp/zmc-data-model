@@ -30,6 +30,20 @@ extension ZMUpdateEvent {
             return nil
         }
 
-        return (payload as NSDictionary).date(forKey: "time") ///TODO: return nil ??
+        ///TODO: study why the below method return nil
+        //            return (payload as NSDictionary).date(forKey: "time")
+
+        if let timeString = payload[AnyHashable("time")] as? String {
+            let dateFormatter = DateFormatter()
+            dateFormatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ss.SSSZ"
+            let date = dateFormatter.date(from: timeString)
+
+            print(timeString)
+
+
+            return date
+        }
+
+        return nil
     }
 }
