@@ -320,7 +320,7 @@ extension ZMConversation {
         }
 
 
-        if let timeStamp = updateEvent.timeStamp {
+        if let timeStamp = updateEvent.timeStamp() {
             addParticipantIfMissing(user,
                                     at: timeStamp.addingTimeInterval(-0.01))
         } else {

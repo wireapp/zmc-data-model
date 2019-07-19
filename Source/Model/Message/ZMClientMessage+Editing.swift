@@ -39,7 +39,7 @@ extension ZMClientMessage {
         updateNormalizedText()
         
         self.nonce = nonce
-        self.updatedTimestamp = updateEvent.timeStamp
+        self.updatedTimestamp = updateEvent.timeStamp()
         self.reactions.removeAll()
         self.linkAttachments = nil
         

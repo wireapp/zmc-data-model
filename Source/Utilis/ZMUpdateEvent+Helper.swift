@@ -25,7 +25,7 @@ extension ZMUpdateEvent {
     }
 
     @objc
-    var timeStamp: Date? {
+    public func timeStamp() -> Date? {
         if isTransient || type == .userConnection {
             return nil
         }
