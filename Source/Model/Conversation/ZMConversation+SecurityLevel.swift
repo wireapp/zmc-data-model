@@ -324,12 +324,7 @@ extension ZMConversation {
             addParticipantIfMissing(user,
                                     at: timeStamp.addingTimeInterval(-0.01))
         } else {
-            addParticipantIfMissing(user) ///TODO: when liked a 1-1 message, hit this line
-//            {
-//                emoji: ❤️
-//                messageId: 0ee09e11-d8da-448d-8a4c-e970bc178aef
-//                legalHoldStatus: ZMLegalHoldStatusDISABLED
-//            }
+            addParticipantIfMissing(user)
         }
 
     }
