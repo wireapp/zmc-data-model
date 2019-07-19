@@ -23,4 +23,13 @@ extension ZMUpdateEvent {
     public convenience override init() {
         self.init(uuid: nil, payload: ["type": "conversation.create"], transient: false, decrypted: false, source: .download)!
     }
+
+    @objc
+    var timeStamp: Date? {
+        if isTransient || type == .userConnection {
+            return nil
+        }
+
+        return (payload as NSDictionary).date(forKey: "time") ///TODO: return nil ??
+    }
 }

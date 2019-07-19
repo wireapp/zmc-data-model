@@ -67,7 +67,7 @@ open class ZMMessageConfirmation: ZMManagedObject, ReadReceipt {
         guard let managedObjectContext = conversation.managedObjectContext,
               let senderUUID = updateEvent.senderUUID(),
               let sender = ZMUser(remoteID: senderUUID, createIfNeeded: true, in: managedObjectContext),
-              let serverTimestamp = updateEvent.timeStamp(),
+              let serverTimestamp = updateEvent.timeStamp,
               let firstMessageId = confirmation.firstMessageId else { return [] }
         
         let moreMessageIds = confirmation.moreMessageIds as? [String] ?? []

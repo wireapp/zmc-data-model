@@ -26,13 +26,13 @@
 
 @implementation ZMUpdateEvent (WireDataModel)
 
-- (NSDate *)timeStamp
-{
-    if (self.isTransient || self.type == ZMUpdateEventTypeUserConnection) {
-        return nil;
-    }
-    return [self.payload dateForKey:@"time"];
-}
+//- (NSDate *)timeStamp
+//{
+//    if (self.isTransient || self.type == ZMUpdateEventTypeUserConnection) {
+//        return nil;
+//    }
+//    return [self.payload dateForKey:@"time"]; ///TODO: return nil
+//}
 
 - (NSUUID *)senderUUID
 {
