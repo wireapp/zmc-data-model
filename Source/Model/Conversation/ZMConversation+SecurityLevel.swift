@@ -309,6 +309,26 @@ extension ZMConversation {
                                  timestamp: serverTimestamp)
     }
 
+    @objc(addParticipantIfMissingWithUpdateEvent:moc:)
+    public func addParticipantIfMissing(updateEvent: ZMUpdateEvent, moc: NSManagedObjectContext) {
+
+        guard let senderUUID = updateEvent.senderUUID(),
+            let user = ZMUser(remoteID: senderUUID,
+                              createIfNeeded: true,
+                              in: moc) else {
+                                return
+        }
+
+
+        if let timeStamp = updateEvent.timeStamp() {
+            addParticipantIfMissing(user,
+                                    at: timeStamp.addingTimeInterval(-0.01))
+        } else {
+            addParticipantIfMissing(user)
+        }
+
+    }
+
     /// Adds the user to the list of participants if not already present and inserts a .participantsAdded system message
     @objc(addParticipantIfMissing:date:)
     public func addParticipantIfMissing(_ user: ZMUser, at date: Date = Date()) {

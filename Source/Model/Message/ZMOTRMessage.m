@@ -172,9 +172,9 @@ NSString * const DeliveredKey = @"delivered";
         [conversation appendInvalidSystemMessageAt:updateEvent.timeStamp sender:sender];
         return nil;
     }
-    
+
     // Verify sender is part of conversation
-    [conversation addParticipantIfMissing:[ZMUser userWithRemoteID:updateEvent.senderUUID createIfNeeded:YES inContext:moc] date: [updateEvent.timeStamp dateByAddingTimeInterval:-0.01]];
+    [conversation addParticipantIfMissingWithUpdateEvent: updateEvent moc: moc];
 
     // Insert the message
 
