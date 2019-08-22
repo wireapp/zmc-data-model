@@ -1148,27 +1148,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @end
 
 
-@implementation ZMConversation (KeyValueValidation)
-
-- (BOOL)validateUserDefinedName:(NSString **)ioName error:(NSError **)outError
-{
-    BOOL result = [ExtremeCombiningCharactersValidator validateValue:ioName error:outError];
-    if (!result || (outError != nil && *outError != nil)) {
-        return NO;
-    }
-    
-    result &= *ioName == nil || [StringLengthValidator validateValue:ioName
-                                                 minimumStringLength:1
-                                                 maximumStringLength:64
-                                                   maximumByteLength:INT_MAX
-                                                               error:outError];
-
-    return result;
-}
-
-@end
-
-
 @implementation ZMConversation (Connections)
 
 - (NSString *)connectionMessage;
