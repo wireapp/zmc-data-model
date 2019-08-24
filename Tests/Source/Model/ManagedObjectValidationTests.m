@@ -44,6 +44,7 @@
     id value = user.name;
     
     id validator = [OCMockObject mockForClass:[StringLengthValidator class]];
+ 
     [[[validator expect] andForwardToRealObject] validateValue:[OCMArg anyObjectRef]
                                            minimumStringLength:2
                                            maximumStringLength:100

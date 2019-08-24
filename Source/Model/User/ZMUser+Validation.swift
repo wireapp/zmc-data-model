@@ -41,10 +41,13 @@ public extension ZMUser {
             return false
         }
         
-        return mutableName == nil || validate
+        name = mutableName as? String
+        
+        return name == nil || validate
     }
     
-    @objc static func isValid(name: String?) -> Bool {
+    @objc(isValidName:)
+    static func isValid(name: String?) -> Bool {
         var name = name
         return (try? validate(name: &name)) == true
     }
@@ -54,7 +57,9 @@ public extension ZMUser {
     static func validate(accentColor: inout Int?) throws -> Bool {
         var mutableAccentColor: Any? = accentColor
         do {
-            return try ZMAccentColorValidator.validateValue(&mutableAccentColor)
+            let result = try ZMAccentColorValidator.validateValue(&mutableAccentColor)
+            accentColor = mutableAccentColor as? Int
+            return result
         } catch let error {
             throw error
         }
@@ -65,13 +70,16 @@ public extension ZMUser {
     static func validate(emailAddress: inout String?) throws -> Bool {
         var mutableEmailAddress: Any? = emailAddress
         do {
-            return try ZMEmailAddressValidator.validateValue(&mutableEmailAddress)
+            let result = try ZMEmailAddressValidator.validateValue(&mutableEmailAddress)
+            emailAddress = mutableEmailAddress as? String
+            return result
         } catch let error {
             throw error
         }
     }
 
-    @objc static func isValid(emailAddress: String?) -> Bool {
+    @objc(isValidEmailAddress:)
+    static func isValid(emailAddress: String?) -> Bool {
         var emailAddress = emailAddress
         return (try? validate(emailAddress: &emailAddress)) == true
     }
@@ -81,16 +89,19 @@ public extension ZMUser {
     static func validate(password: inout String?) throws -> Bool {
         var mutablePassword: Any? = password
         do {
-            return try StringLengthValidator.validateValue(&mutablePassword,
-                                                           minimumStringLength: 8,
-                                                           maximumStringLength: 120,
-                                                           maximumByteLength: UInt32.max)
+            let result = try StringLengthValidator.validateValue(&mutablePassword,
+                                                                 minimumStringLength: 8,
+                                                                 maximumStringLength: 120,
+                                                                 maximumByteLength: UInt32.max)
+            password = mutablePassword as? String
+            return result
         } catch let error {
             throw error
         }
     }
     
-    @objc static func isValid(password: String?) -> Bool {
+    @objc(isValidPassword:)
+    static func isValid(password: String?) -> Bool {
         var password = password
         return (try? validate(password: &password)) == true
     }
@@ -104,13 +115,16 @@ public extension ZMUser {
         }
         
         do {
-            return try ZMPhoneNumberValidator.validateValue(&mutableNumber)
+            let result = try ZMPhoneNumberValidator.validateValue(&mutableNumber)
+            phoneNumber = mutableNumber as? String
+            return result
         } catch let error {
             throw error
         }
     }
     
-    @objc static func isValid(phoneNumber: String?) -> Bool {
+    @objc(isValidPhoneNumber:)
+    static func isValid(phoneNumber: String?) -> Bool {
         var phoneNumber = phoneNumber
         return (try? validate(phoneNumber: &phoneNumber)) == true
     }
@@ -120,14 +134,18 @@ public extension ZMUser {
     static func validate(phoneVerificationCode: inout String?) throws -> Bool {
         var mutableCode: Any? = phoneVerificationCode
         do {
-            return try StringLengthValidator.validateValue(&mutableCode, minimumStringLength: 8, maximumStringLength: 120, maximumByteLength: UInt32.max)
+            let result = try StringLengthValidator.validateValue(&mutableCode, minimumStringLength: 6, maximumStringLength: 6, maximumByteLength: UInt32.max)
+            phoneVerificationCode = mutableCode as? String
+            return result
         } catch let error {
             throw error
         }
     }
     
-    @objc static func isValid(phoneVerificationCode: String?) -> Bool {
+    @objc(isValidPhoneVerificationCode:)
+    static func isValid(phoneVerificationCode: String?) -> Bool {
         var verificationCode = phoneVerificationCode
-        return (try? validate(phoneVerificationCode: &verificationCode)) == true
+        let result = (try? validate(phoneVerificationCode: &verificationCode))
+        return result == true
     }
 }
