@@ -81,11 +81,11 @@ public extension ZMUser {
     }
     
     @objc var canCreateConversation: Bool {
-        return permissions?.contains(.createConversation) ?? true
+        return permissions?.contains(.member) ?? true
     }
     
     @objc var canCreateService: Bool {
-        return permissions?.contains(.createConversation) ?? false
+        return permissions?.contains(.member) ?? false
     }
     
     func canAccessCompanyInformation(of user: UserType) -> Bool {
