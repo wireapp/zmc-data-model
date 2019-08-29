@@ -28,6 +28,17 @@ public extension ZMUser {
         return membership?.permissions
     }
     
+    @objc(canAddServiceToConversation:)
+    func canAddService(to conversation: ZMConversation) -> Bool {
+        guard !isGuest(in: conversation), conversation.isSelfAnActiveMember else { return false }
+        return permissions?.contains(.addRemoveConversationMember) ?? false
+    }
+    
+    @objc(canRemoveServiceToConversation:)
+    func canRemoveService(to conversation: ZMConversation) -> Bool {
+        return canAddService(to: conversation)
+    }
+    
     @objc(canAddUserToConversation:)
     func canAddUser(to conversation: ZMConversation) -> Bool {
         guard conversation.teamRemoteIdentifier == nil || !isGuest(in: conversation), conversation.isSelfAnActiveMember else { return false }
@@ -36,8 +47,7 @@ public extension ZMUser {
     
     @objc(canRemoveUserFromConversation:)
     func canRemoveUser(from conversation: ZMConversation) -> Bool {
-        guard !isGuest(in: conversation), conversation.isSelfAnActiveMember else { return false }
-        return permissions?.contains(.addRemoveConversationMember) ?? true
+        return canAddUser(to: conversation)
     }
     
     @objc(canModifyReadReceiptSettingsInConversation:)
@@ -72,6 +82,10 @@ public extension ZMUser {
     
     @objc var canCreateConversation: Bool {
         return permissions?.contains(.createConversation) ?? true
+    }
+    
+    @objc var canCreateService: Bool {
+        return permissions?.contains(.createConversation) ?? false
     }
     
     func canAccessCompanyInformation(of user: UserType) -> Bool {

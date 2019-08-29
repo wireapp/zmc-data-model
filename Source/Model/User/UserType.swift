@@ -148,9 +148,20 @@ public protocol UserType: NSObjectProtocol {
     
     /// Whether the user can create conversations.
     var canCreateConversation: Bool { get }
+    
+    /// Whether the user can create services
+    var canCreateService: Bool { get }
 
     /// Whether the user can access the private company information of the other given user.
     func canAccessCompanyInformation(of user: UserType) -> Bool
+    
+    /// Wheather the user can add services to the conversation
+    @objc(canAddServiceToConversation:)
+    func canAddService(to conversation: ZMConversation) -> Bool
+    
+    /// Wheather the user can remove services from the conversation
+    @objc(canRemoveServiceToConversation:)
+    func canRemoveService(to conversation: ZMConversation) -> Bool
 
     /// Whether the user can add another user to the conversation.
     @objc(canAddUserToConversation:)

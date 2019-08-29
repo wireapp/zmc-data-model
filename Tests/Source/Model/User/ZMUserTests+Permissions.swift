@@ -45,15 +45,15 @@ class ZMUserTests_Permissions: ModelObjectsTests {
             member.permissions = permissions
         }
     }
-
-    // MARK: Adding users
     
-    func testThatUserCanAddUsersToAConversation_ByNonTeamUser() {
+    // MARK: Adding & Removing services
+    
+    func testThatUserCantAddOrRemoveServicesToAConversation_ByNonTeamUser() {
         // when & then
         XCTAssert(ZMUser.selfUser(in: uiMOC).canAddUser(to: conversation))
     }
     
-    func testThatUserCantAddUsersToAConversation_ByGuest() {
+    func testThatUserCantAddOrRemoveServicesToAConversation_ByGuest() {
         // when
         conversation.teamRemoteIdentifier = team.remoteIdentifier
         
@@ -61,15 +61,16 @@ class ZMUserTests_Permissions: ModelObjectsTests {
         XCTAssertFalse(ZMUser.selfUser(in: uiMOC).canAddUser(to: conversation))
     }
     
-    func testThatUserCantAddUsersToAConversation_ByInactiveParticipant() {
+    func testThatUserCantAddOrRemoveServicesToAConversation_ByInactiveParticipant() {
         // when
+        makeSelfUserTeamMember(withPermissions: .addRemoveConversationMember)
         conversation.isSelfAnActiveMember = false
         
         // then
         XCTAssertFalse(ZMUser.selfUser(in: uiMOC).canAddUser(to: conversation))
     }
     
-    func testThatUserCantAddUsersToAConversation_ByATeamMemberWithInsufficientPermissions() {
+    func testThatUserCantAddOrRemoveServicesToAConversation_ByATeamMemberWithInsufficientPermissions() {
         // given
         makeSelfUserTeamMember(withPermissions: Permissions.admin.subtracting(.addRemoveConversationMember))
         
@@ -77,51 +78,52 @@ class ZMUserTests_Permissions: ModelObjectsTests {
         XCTAssertFalse(selfUser.canAddUser(to: self.conversation))
     }
     
-    func testThatUserCanAddUsersToAConversation_ByATeamMemberWithSufficientPermissions() {
+    func testThatUserCanAddOrRemoveServicesToAConversation_ByATeamMemberWithSufficientPermissions() {
         // given
         makeSelfUserTeamMember(withPermissions: .addRemoveConversationMember)
         
         // then
         XCTAssertTrue(selfUser.canAddUser(to: self.conversation))
     }
-    
-    // MARK: - Removing users
 
-    func testThatUserCanRemoveUsersFromAConversation_ByNonTeamsUser() {
+    // MARK: Adding & Rmoving users
+    
+    func testThatUserCanAddOrRemoveUsersToAConversation_ByNonTeamUser() {
         // when & then
-        XCTAssert(ZMUser.selfUser(in: uiMOC).canRemoveUser(from: conversation))
+        XCTAssert(ZMUser.selfUser(in: uiMOC).canAddUser(to: conversation))
     }
     
-    func testThatUserCantRemoveUsersFromAConversation_ByGuest() {
+    func testThatUserCantAddOrRemoveUsersToAConversation_ByGuest() {
         // when
         conversation.teamRemoteIdentifier = team.remoteIdentifier
         
         // then
-        XCTAssertFalse(ZMUser.selfUser(in: uiMOC).canRemoveUser(from: conversation))
+        XCTAssertFalse(ZMUser.selfUser(in: uiMOC).canAddUser(to: conversation))
     }
     
-    func testThatUserCantRemoveUsersFromAConversation_ByInactiveParticipant() {
+    func testThatUserCantAddOrRemoveUsersToAConversation_ByInactiveParticipant() {
         // when
+        makeSelfUserTeamMember(withPermissions: .addRemoveConversationMember)
         conversation.isSelfAnActiveMember = false
         
         // then
-        XCTAssertFalse(ZMUser.selfUser(in: uiMOC).canRemoveUser(from: conversation))
+        XCTAssertFalse(ZMUser.selfUser(in: uiMOC).canAddUser(to: conversation))
     }
     
-    func testThatUserCantRemoveUsersFromAConversation_ByTeamMemberWithUnsufficientPermissions() {
+    func testThatUserCantAddOrRemoveUsersToAConversation_ByATeamMemberWithInsufficientPermissions() {
         // given
         makeSelfUserTeamMember(withPermissions: Permissions.admin.subtracting(.addRemoveConversationMember))
         
         // then
-        XCTAssertFalse(selfUser.canRemoveUser(from: self.conversation))
+        XCTAssertFalse(selfUser.canAddUser(to: self.conversation))
     }
     
-    func testThatAUserCanRemoveUsersFromAConversation_ByTeamMemberWithWithSufficientPermissions() {
+    func testThatUserCanAddOrRemoveUsersToAConversation_ByATeamMemberWithSufficientPermissions() {
         // given
         makeSelfUserTeamMember(withPermissions: .addRemoveConversationMember)
         
         // then
-        XCTAssertTrue(selfUser.canRemoveUser(from: self.conversation))
+        XCTAssertTrue(selfUser.canAddUser(to: self.conversation))
     }
     
     // MARK: Guests
@@ -145,6 +147,28 @@ class ZMUserTests_Permissions: ModelObjectsTests {
         
         // then
         XCTAssert(ZMUser.selfUser(in: uiMOC).isGuest(in: conversation))
+    }
+    
+    // MARK: Create services
+    
+    func testThatServiceCantBeCreated_ByNonTeamUser() {
+        XCTAssertFalse(selfUser.canCreateService)
+    }
+    
+    func testThatServiceCanBeCreated_ByTeamMemberWithSufficientPermissions() {
+        // given
+        makeSelfUserTeamMember(withPermissions: .createConversation)
+        
+        // then
+        XCTAssertTrue(selfUser.canCreateService)
+    }
+    
+    func testThatServiceCantBeCreated_ByTeamMemberWithInsufficientPermissions() {
+        // given
+        makeSelfUserTeamMember(withPermissions: Permissions.admin.subtracting(.createConversation))
+        
+        // then
+        XCTAssertFalse(selfUser.canCreateService)
     }
     
     // MARK: Create conversation
