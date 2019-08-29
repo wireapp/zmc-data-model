@@ -21,7 +21,7 @@ import WireTesting
 @testable import WireDataModel
 
 
-class ZMConversationTests_Teams: BaseTeamTests {
+class ZMConversationTests_Teams: ZMConversationTestsBase {
 
     var team: Team!
     var conversation: ZMConversation!
