@@ -334,8 +334,8 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         return user?.canAddService(to: conversation) == true
     }
     
-    public func canRemoveService(to conversation: ZMConversation) -> Bool {
-        return user?.canRemoveService(to: conversation) == true
+    public func canRemoveService(from conversation: ZMConversation) -> Bool {
+        return user?.canRemoveService(from: conversation) == true
     }
 
     public func canAddUser(to conversation: ZMConversation) -> Bool {

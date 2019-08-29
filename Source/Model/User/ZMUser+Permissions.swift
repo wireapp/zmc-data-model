@@ -34,8 +34,8 @@ public extension ZMUser {
         return permissions?.contains(.addRemoveConversationMember) ?? false
     }
     
-    @objc(canRemoveServiceToConversation:)
-    func canRemoveService(to conversation: ZMConversation) -> Bool {
+    @objc(canRemoveServiceFromConversation:)
+    func canRemoveService(from conversation: ZMConversation) -> Bool {
         return canAddService(to: conversation)
     }
     
