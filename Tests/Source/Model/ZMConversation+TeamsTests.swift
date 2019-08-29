@@ -44,13 +44,13 @@ class ZMConversationTests_Teams: BaseTeamTests {
         XCTAssertFalse(ZMUser.selfUser(in: uiMOC).isGuest(in: conversation))
     }
 
-    func testThatItDoesNotReportIsGuestForATeamConversation() {
+    func testThatItReportsIsGuestForANonTeamUserInATeamConversation() {
         // given
         conversation.team = team
         conversation.teamRemoteIdentifier = team.remoteIdentifier
 
         // then
-        XCTAssertFalse(ZMUser.selfUser(in: uiMOC).isGuest(in: conversation))
+        XCTAssertTrue(ZMUser.selfUser(in: uiMOC).isGuest(in: conversation))
     }
 
     func testThatItReportsIsGuestWhenAConversationDoesNotHaveATeam() {
@@ -99,6 +99,7 @@ class ZMConversationTests_Teams: BaseTeamTests {
         self.performPretendingUiMocIsSyncMoc {
             // when
             self.conversation.team = self.team
+            self.conversation.teamRemoteIdentifier = self.team.remoteIdentifier
             let selfUser = ZMUser.selfUser(in: self.uiMOC)
             let member = Member.getOrCreateMember(for: selfUser, in: self.team, context: self.uiMOC)
             member.permissions = .member
@@ -146,6 +147,7 @@ class ZMConversationTests_Teams: BaseTeamTests {
         self.performPretendingUiMocIsSyncMoc {
             // when
             self.conversation.team = self.team
+            self.conversation.teamRemoteIdentifier = self.team.remoteIdentifier
             let selfUser = ZMUser.selfUser(in: self.uiMOC)
             let member = Member.getOrCreateMember(for: self.selfUser, in: self.team, context: self.uiMOC)
             member.permissions = .member
