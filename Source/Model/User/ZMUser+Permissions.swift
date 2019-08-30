@@ -88,6 +88,10 @@ public extension ZMUser {
         return permissions?.contains(.member) ?? false
     }
     
+    @objc var canManageTeam: Bool {
+        return permissions?.contains(.admin) ?? false
+    }
+    
     func canAccessCompanyInformation(of user: UserType) -> Bool {
         guard
             let otherUser = user as? ZMUser,

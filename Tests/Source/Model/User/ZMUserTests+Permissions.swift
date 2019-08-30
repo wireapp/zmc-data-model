@@ -193,6 +193,28 @@ class ZMUserTests_Permissions: ModelObjectsTests {
         XCTAssertFalse(selfUser.canCreateConversation)
     }
     
+    // MARK: Manage team
+    
+    func testThatTeamCantBeManaged_ByNonTeamUser() {
+        XCTAssertFalse(selfUser.canManageTeam)
+    }
+    
+    func testThatTeamCanBeManaged_ByTeamMemberWithSufficientPermissions() {
+        // given
+        makeSelfUserTeamMember(withPermissions: .admin)
+        
+        // then
+        XCTAssertTrue(selfUser.canManageTeam)
+    }
+    
+    func testThatTeamCantBeManaged_ByTeamMemberWithInsufficientPermissions() {
+        // given
+        makeSelfUserTeamMember(withPermissions: .member)
+        
+        // then
+        XCTAssertFalse(selfUser.canManageTeam)
+    }
+    
     // MARK: Access company information
     
     func testThatItAllowsSeeingCompanyInformationBetweenTwoSameTeamUsers() {

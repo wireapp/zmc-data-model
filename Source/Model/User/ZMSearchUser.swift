@@ -330,6 +330,10 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         return user?.canCreateService ?? false
     }
     
+    public var canManageTeam: Bool {
+        return user?.canManageTeam ?? false
+    }
+    
     public func canAddService(to conversation: ZMConversation) -> Bool {
         return user?.canAddService(to: conversation) == true
     }

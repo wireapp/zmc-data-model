@@ -151,6 +151,9 @@ public protocol UserType: NSObjectProtocol {
     
     /// Whether the user can create services
     var canCreateService: Bool { get }
+    
+    /// Wheather the user can administate the team
+    var canManageTeam: Bool { get }
 
     /// Whether the user can access the private company information of the other given user.
     func canAccessCompanyInformation(of user: UserType) -> Bool
