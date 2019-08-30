@@ -18,6 +18,7 @@
 
 @import WireDataModel;
 #import "ZMBaseManagedObjectTest.h"
+#import <WireDataModelTests-Swift.h>
 
 //Integration tests for validation
 
@@ -43,18 +44,10 @@
     user.name = @"Ilya";
     id value = user.name;
     
-    id validator = [OCMockObject mockForClass:[StringLengthValidator class]];
- 
-    [[[validator expect] andForwardToRealObject] validateValue:[OCMArg anyObjectRef]
-                                           minimumStringLength:2
-                                           maximumStringLength:100
-                                             maximumByteLength:INT_MAX
-                                                         error:[OCMArg anyObjectRef]];
-  
+    value = [ManagedObjectValidationTestsUtility validateStringLength:value minimum:2 maximum:100 byteLength:INT_MAX];
+    
     BOOL result = [user validateValue:&value forKey:@"name" error:NULL];
     XCTAssertTrue(result);
-    [validator verify];
-    [validator stopMocking];
 }
 
 - (void)testThatValidationOnNonUIContextAlwaysPass
@@ -64,17 +57,11 @@
         user.name = @"Ilya";
         id value = user.name;
         
-        id validator = [OCMockObject mockForClass:[StringLengthValidator class]];
-        [[[validator reject] andForwardToRealObject] validateValue:[OCMArg anyObjectRef]
-                                               minimumStringLength:2
-                                               maximumStringLength:64
-                                                 maximumByteLength:256
-                                                             error:[OCMArg anyObjectRef]];
-        
+        value = [ManagedObjectValidationTestsUtility validateStringLength:value minimum:2 maximum:64 byteLength:256];
+                 
+                 
         BOOL result = [user validateValue:&value forKey:@"name" error:NULL];
         XCTAssertTrue(result);
-        [validator verify];
-        [validator stopMocking];
     }];
 }
 

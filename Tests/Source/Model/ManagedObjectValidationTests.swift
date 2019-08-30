@@ -16,73 +16,15 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-import WireDataModel
-import OCMock
-//Integration tests for validation
-// TODO
+import Foundation
+@testable import WireDataModel
 
-/*
-class ManagedObjectValidationTests: ZMBaseManagedObjectTest {
+@objc public class ManagedObjectValidationTestsUtility: NSObject {
 
-    override func setUp() {
-        super.setUp()
+    @objc static func validateStringLength(_ string: String, minimum: UInt32, maximum: UInt32, byteLength: UInt32) -> String {
+        var string: Any? = string
+        _ = try? StringLengthValidator.validateValue(&string, minimumStringLength: minimum, maximumStringLength: maximum, maximumByteLength: byteLength)
+        
+        return string as! String
     }
-    
-    override func tearDown() {
-        super.tearDown()
-    }
-    
-    func testThatValidationOnUIContextIsPerformed() {
-        
-        let user = ZMUser.selfUser(in: self.uiMOC)
-        user.name = "Ilya"
-        let value = user.name
-        
-        let validator = OCMockObject.mock(for: StringLengthValidator.self)
- 
-        
-        
-
-        ZMUser *user = [ZMUser selfUserInContext:self.uiMOC];
-        user.name = @"Ilya";
-        id value = user.name;
-        
-        id validator = [OCMockObject mockForClass:[StringLengthValidator class]];
-        [[[validator expect] andForwardToRealObject] validateValue:[OCMArg anyObjectRef]
-            minimumStringLength:2
-            maximumStringLength:100
-            maximumByteLength:INT_MAX
-            error:[OCMArg anyObjectRef]];
-        
-        BOOL result = [user validateValue:&value forKey:@"name" error:NULL];
-        XCTAssertTrue(result);
-        [validator verify];
-        [validator stopMocking];
- 
-    }
-    
-    func testThatValidationOnNonUIContextAlwaysPass() {
- 
-        [self.syncMOC performGroupedBlockAndWait:^{
-            ZMUser *user = [ZMUser selfUserInContext:self.syncMOC];
-            user.name = @"Ilya";
-            id value = user.name;
-            
-            id validator = [OCMockObject mockForClass:[StringLengthValidator class]];
-            [[[validator reject] andForwardToRealObject] validateValue:[OCMArg anyObjectRef]
-            minimumStringLength:2
-            maximumStringLength:64
-            maximumByteLength:256
-            error:[OCMArg anyObjectRef]];
-            
-            BOOL result = [user validateValue:&value forKey:@"name" error:NULL];
-            XCTAssertTrue(result);
-            [validator verify];
-            [validator stopMocking];
-            }];
-
-    }
-    
-    
 }
-*/
