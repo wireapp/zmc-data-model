@@ -165,7 +165,7 @@ class ZMUserTests_Permissions: ModelObjectsTests {
     
     func testThatServiceCantBeCreated_ByTeamMemberWithInsufficientPermissions() {
         // given
-        makeSelfUserTeamMember(withPermissions: Permissions.admin.subtracting(.createConversation))
+        makeSelfUserTeamMember(withPermissions: .partner)
         
         // then
         XCTAssertFalse(selfUser.canCreateService)
@@ -187,7 +187,7 @@ class ZMUserTests_Permissions: ModelObjectsTests {
     
     func testThatConversationCantBeCreated_ByTeamMemberWithInsufficientPermissions() {
         // given
-        makeSelfUserTeamMember(withPermissions: Permissions.admin.subtracting(.createConversation))
+        makeSelfUserTeamMember(withPermissions: .partner)
         
         // then
         XCTAssertFalse(selfUser.canCreateConversation)
