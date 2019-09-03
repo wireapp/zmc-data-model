@@ -23,7 +23,7 @@ import Foundation
 
     @objc static func validateStringLength(_ string: String, minimum: UInt32, maximum: UInt32, byteLength: UInt32) -> String {
         var string: Any? = string
-        _ = try? StringLengthValidator.validateValue(&string, minimumStringLength: minimum, maximumStringLength: maximum, maximumByteLength: byteLength)
+        _ = try? StringLengthValidator.validateStringValue(&string, minimumStringLength: minimum, maximumStringLength: maximum, maximumByteLength: byteLength)
         
         return string as! String
     }

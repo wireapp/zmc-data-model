@@ -27,7 +27,7 @@ public extension ZMUser {
         var mutableName: Any? = name
         
         do {
-            _ = try ExtremeCombiningCharactersValidator.validateValue(&mutableName)
+            _ = try ExtremeCombiningCharactersValidator.validateCharactersValue(&mutableName)
         } catch {
             return false
         }
@@ -36,7 +36,7 @@ public extension ZMUser {
         
         do {
             // The backend limits to 128. We'll fly just a bit below the radar.
-            validate = try StringLengthValidator.validateValue(&mutableName, minimumStringLength: 2, maximumStringLength: 100, maximumByteLength: UInt32.max)
+            validate = try StringLengthValidator.validateStringValue(&mutableName, minimumStringLength: 2, maximumStringLength: 100, maximumByteLength: UInt32.max)
         } catch {
             return false
         }
@@ -77,7 +77,7 @@ public extension ZMUser {
     static func validate(password: inout String?) throws -> Bool {
         var mutablePassword: Any? = password
         do {
-            let result = try StringLengthValidator.validateValue(&mutablePassword,
+            let result = try StringLengthValidator.validateStringValue(&mutablePassword,
                                                                  minimumStringLength: 8,
                                                                  maximumStringLength: 120,
                                                                  maximumByteLength: UInt32.max)
@@ -110,7 +110,7 @@ public extension ZMUser {
     static func validate(phoneVerificationCode: inout String?) throws -> Bool {
         var mutableCode: Any? = phoneVerificationCode
         do {
-            let result = try StringLengthValidator.validateValue(&mutableCode, minimumStringLength: 6, maximumStringLength: 6, maximumByteLength: UInt32.max)
+            let result = try StringLengthValidator.validateStringValue(&mutableCode, minimumStringLength: 6, maximumStringLength: 6, maximumByteLength: UInt32.max)
             phoneVerificationCode = mutableCode as? String
             return result
         } catch let error {
