@@ -46,12 +46,6 @@ public extension ZMUser {
         return name == nil || validate
     }
     
-    @objc(isValidName:)
-    static func isValid(name: String?) -> Bool {
-        var name = name
-        return (try? validate(name: &name)) == true
-    }
-    
     // Accent color
     
     static func validate(accentColor: inout Int?) throws -> Bool {
@@ -77,12 +71,6 @@ public extension ZMUser {
             throw error
         }
     }
-
-    @objc(isValidEmailAddress:)
-    static func isValid(emailAddress: String?) -> Bool {
-        var emailAddress = emailAddress
-        return (try? validate(emailAddress: &emailAddress)) == true
-    }
     
     // Password
     
@@ -98,12 +86,6 @@ public extension ZMUser {
         } catch let error {
             throw error
         }
-    }
-    
-    @objc(isValidPassword:)
-    static func isValid(password: String?) -> Bool {
-        var password = password
-        return (try? validate(password: &password)) == true
     }
     
     // Phone number
@@ -123,12 +105,6 @@ public extension ZMUser {
         }
     }
     
-    @objc(isValidPhoneNumber:)
-    static func isValid(phoneNumber: String?) -> Bool {
-        var phoneNumber = phoneNumber
-        return (try? validate(phoneNumber: &phoneNumber)) == true
-    }
-    
     // Verification code
     
     static func validate(phoneVerificationCode: inout String?) throws -> Bool {
@@ -141,11 +117,5 @@ public extension ZMUser {
             throw error
         }
     }
-    
-    @objc(isValidPhoneVerificationCode:)
-    static func isValid(phoneVerificationCode: String?) -> Bool {
-        var verificationCode = phoneVerificationCode
-        let result = (try? validate(phoneVerificationCode: &verificationCode))
-        return result == true
-    }
 }
+

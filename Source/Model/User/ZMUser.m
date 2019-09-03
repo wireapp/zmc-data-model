@@ -988,6 +988,123 @@ static NSString *const NeedsToAcknowledgeLegalHoldStatusKey = @"needsToAcknowled
 
 @end
 
+
+
+@implementation ZMUser (KeyValueValidation)
+
++ (BOOL)validateName:(NSString **)ioName error:(NSError **)outError
+{
+    [ExtremeCombiningCharactersValidator validateValue:ioName error:outError];
+    if (outError != nil && *outError != nil) {
+        return NO;
+    }
+    
+    // The backend limits to 128. We'll fly just a bit below the radar.
+    return *ioName == nil || [StringLengthValidator validateValue:ioName
+                                              minimumStringLength:2
+                                              maximumStringLength:100
+                                                maximumByteLength:INT_MAX
+                                                            error:outError];
+}
+
++ (BOOL)isValidName:(NSString *)name
+{
+    NSString *value = [name copy];
+    return [self validateName:&value error:nil];
+}
+
++ (BOOL)validateAccentColorValue:(NSNumber **)ioAccent error:(NSError **)outError
+{
+    return [ZMAccentColorValidator validateValue:ioAccent error:outError];
+}
+
++ (BOOL)validateEmailAddress:(NSString **)ioEmailAddress error:(NSError **)outError
+{
+    return [ZMEmailAddressValidator validateValue:ioEmailAddress error:outError];
+}
+
++ (BOOL)isValidEmailAddress:(NSString *)emailAddress
+{
+    NSString *value = [emailAddress copy];
+    return [self validateEmailAddress:&value error:nil];
+}
+
++ (BOOL)validatePassword:(NSString **)ioPassword error:(NSError **)outError
+{
+    return [StringLengthValidator validateValue:ioPassword
+                            minimumStringLength:8
+                            maximumStringLength:120
+                              maximumByteLength:INT_MAX
+                                          error:outError];
+}
+
++ (BOOL)isValidPassword:(NSString *)password
+{
+    NSString *value = [password copy];
+    return [self validatePassword:&value error:nil];
+}
+
++ (BOOL)validatePhoneNumber:(NSString **)ioPhoneNumber error:(NSError **)outError
+{
+    if (ioPhoneNumber == NULL || [*ioPhoneNumber length] < 1) {
+        return NO;
+    }
+    else {
+        return [ZMPhoneNumberValidator validateValue:ioPhoneNumber error:outError];
+    }
+}
+
++ (BOOL)isValidPhoneNumber:(NSString *)phoneNumber
+{
+    NSString *value = [phoneNumber copy];
+    return [self validatePhoneNumber:&value error:nil];
+}
+
++ (BOOL)validatePhoneVerificationCode:(NSString **)ioVerificationCode error:(NSError **)outError
+{
+    return [StringLengthValidator validateValue:ioVerificationCode
+                            minimumStringLength:6
+                            maximumStringLength:6
+                              maximumByteLength:INT_MAX
+                                          error:outError];
+}
+
++ (BOOL)isValidPhoneVerificationCode:(NSString *)phoneVerificationCode
+{
+    NSString *value = [phoneVerificationCode copy];
+    return [self validatePhoneVerificationCode:&value error:nil];
+}
+
+- (BOOL)validateValue:(id *)value forKey:(NSString *)key error:(NSError **)error
+{
+    if (self.isInserted) {
+        // Self user gets inserted, no other users will. Ignore this case.
+        //We does not need to validate selfUser for now, 'cuase it's not setup yet, i.e. it has empty name at this point
+        return YES;
+    }
+    return [super validateValue:value forKey:key error:error];
+}
+
+- (BOOL)validateEmailAddress:(NSString **)ioEmailAddress error:(NSError **)outError
+{
+    return [ZMUser validateEmailAddress:ioEmailAddress error:outError];
+}
+
+- (BOOL)validateName:(NSString **)ioName error:(NSError **)outError
+{
+    return [ZMUser validateName:ioName error:outError];
+}
+
+- (BOOL)validateAccentColorValue:(NSNumber **)ioAccent error:(NSError **)outError
+{
+    return [ZMUser validateAccentColorValue:ioAccent error:outError];
+}
+
+@end
+
+
+
+
 @implementation NSUUID (SelfUser)
 
 - (BOOL)isSelfUserRemoteIdentifierInContext:(NSManagedObjectContext *)moc;

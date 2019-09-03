@@ -2105,7 +2105,7 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     NSString *code = ShortPhoneCode;
     
     // when
-    XCTAssertFalse([ZMUser isValidPhoneVerificationCode:code]);
+    XCTAssertFalse([ZMUser validatePhoneVerificationCode:&code error:nil]);
 }
 
 - (void)testThatItStaticallyDoesNotValidateALongCode
@@ -2114,7 +2114,7 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     NSString *code = LongPhoneCode;
     
     // when
-    XCTAssertFalse([ZMUser isValidPhoneVerificationCode:code]);
+    XCTAssertFalse([ZMUser validatePhoneVerificationCode:&code error:nil]);
 }
 
 - (void)testThatItStaticallyValidatesACodeOfTheRightLength
@@ -2123,7 +2123,7 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     NSString *phone = ValidPhoneCode;
     
     // when
-    XCTAssertTrue([ZMUser isValidPhoneVerificationCode:phone]);
+    XCTAssertTrue([ZMUser validatePhoneVerificationCode:&phone error:nil]);
 }
 
 - (void)testThatItStaticallyDoesNotValidateAnEmptyOrNilCode
@@ -2131,10 +2131,10 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     // given
     NSString *phone = @"";
     // when
-    XCTAssertFalse([ZMUser isValidPhoneVerificationCode:phone]);
+    XCTAssertFalse([ZMUser validatePhoneVerificationCode:&phone error:nil]);
     
     phone = nil;
-    XCTAssertFalse([ZMUser isValidPhoneVerificationCode:phone]);
+    XCTAssertFalse([ZMUser validatePhoneVerificationCode:&phone error:nil]);
 }
 
 - (void)testThatItStaticallyDoesNotValidateEmptyOrNilPhoneNumber
@@ -2143,10 +2143,10 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     NSString *phoneNumber = @"";
     
     //when
-    XCTAssertFalse([ZMUser isValidPhoneNumber:phoneNumber]);
+    XCTAssertFalse([ZMUser validatePhoneNumber:&phoneNumber error:nil]);
     
     phoneNumber = nil;
-    XCTAssertFalse([ZMUser isValidPhoneNumber:phoneNumber]);
+    XCTAssertFalse([ZMUser validatePhoneNumber:&phoneNumber error:nil]);
 }
 
 - (void)testThatItStaticallyDoesValidateValidPhoneNumbers
@@ -2154,7 +2154,7 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     //given
     for (NSString *number in self.validPhoneNumbers) {
         NSString *phoneNumber = number;
-        XCTAssertTrue([ZMUser isValidPhoneNumber:phoneNumber], @"Phone number %@ should be valid", phoneNumber);
+        XCTAssertTrue([ZMUser validatePhoneNumber:&phoneNumber error:nil], @"Phone number %@ should be valid", phoneNumber);
     }
 }
 
@@ -2163,7 +2163,7 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     NSArray *invalidCharactes = @[@"*", @";", @"#", @"[", @"]", @"~"];
     for (NSString *invalidChar in invalidCharactes) {
         NSString *phoneNumber = [ValidPhoneNumber stringByAppendingString:invalidChar];
-        XCTAssertFalse([ZMUser isValidPhoneNumber:phoneNumber], @"Phone number %@ should be invalid", phoneNumber);
+        XCTAssertFalse([ZMUser validatePhoneNumber:&phoneNumber error:nil], @"Phone number %@ should be invalid", phoneNumber);
     }
 }
 
@@ -2171,7 +2171,7 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
 {
     for (NSString *number in self.shortPhoneNumbers) {
         NSString *phoneNumber = number;
-        XCTAssertFalse([ZMUser isValidPhoneNumber:phoneNumber], @"Phone number %@ should be invalid", phoneNumber);
+        XCTAssertFalse([ZMUser validatePhoneNumber:&phoneNumber error:nil], @"Phone number %@ should be invalid", phoneNumber);
     }
 }
 
@@ -2179,7 +2179,7 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
 {
     for (NSString *number in self.longPhoneNumbers) {
         NSString *phoneNumber = number;
-        XCTAssertFalse([ZMUser isValidPhoneNumber:phoneNumber], @"Phone number %@ should be invalid", phoneNumber);
+        XCTAssertFalse([ZMUser validatePhoneNumber:&phoneNumber error:nil], @"Phone number %@ should be invalid", phoneNumber);
     }
 }
 
@@ -2189,7 +2189,7 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     NSString *password = ShortPassword;
     
     // when
-    XCTAssertFalse([ZMUser isValidPassword:password]);
+    XCTAssertFalse([ZMUser validatePassword:&password error:nil]);
 }
 
 - (void)testThatItDoesNotValidateLongPassword
@@ -2198,7 +2198,7 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     NSString *password = LongPassword;
     
     // when
-    XCTAssertFalse([ZMUser isValidPassword:password]);
+    XCTAssertFalse([ZMUser validatePassword:&password error:nil]);
 }
 
 - (void)testThatItValidatesAValidPassword
@@ -2207,7 +2207,7 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     NSString *password = ValidPassword;
     
     // when
-    XCTAssertTrue([ZMUser isValidPassword:password]);
+    XCTAssertTrue([ZMUser validatePassword:&password error:nil]);
 }
 
 
