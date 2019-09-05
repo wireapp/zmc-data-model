@@ -74,6 +74,8 @@
         
         BOOL result = [user validateValue:&value forKey:@"name" error:NULL];
         XCTAssertTrue(result);
+        [validator verify];
+        [validator stopMocking];
     }];
 }
 
