@@ -40,5 +40,21 @@ class ZMMessage_DataRetentionTests: BaseZMMessageTests {
         XCTAssertEqual(matches.count, 1)
         XCTAssertEqual(matches.first?.serverTimestamp, past)
     }
+    
+    func testThatCachedAssetsAreDeleted_WhenMessagesAreDeleted() throws {
+        // GIVEN
+        let sut = createConversation(in: uiMOC)
+        let fileMetadata = createFileMetadata()
+        let message = sut.append(file: fileMetadata)!
+        let cacheKey = FileAssetCache.cacheKeyForAsset(message)!
+        self.uiMOC.zm_fileAssetCache.storeAssetData(message, encrypted: false, data: Data.secureRandomData(ofLength: 100))
+        XCTAssertNotNil(uiMOC.zm_fileAssetCache.assetData(cacheKey))
+        
+        // WHEN
+        try ZMMessage.deleteMessagesOlderThan(Date(), context: uiMOC)
+        
+        // THEN
+        XCTAssertNil(uiMOC.zm_fileAssetCache.assetData(cacheKey))
+    }
 
 }

@@ -25,7 +25,18 @@ extension ZMMessage {
     }
     
     public class func deleteMessagesOlderThan(_ date: Date, context: NSManagedObjectContext) throws {
-        try context.batchDeleteEntities(named: ZMMessage.entityName(), matching: predicateForMessagesOlderThan(date))
+        let predicate = predicateForMessagesOlderThan(date)
+        try deleteCachedAssetsForMessagesMatching(predicate: predicate, in: context)
+        try context.batchDeleteEntities(named: ZMMessage.entityName(), matching: predicate)
+    }
+    
+    private class func deleteCachedAssetsForMessagesMatching(predicate: NSPredicate, in context: NSManagedObjectContext) throws {
+        let fetchRequest = NSFetchRequest<ZMMessage>(entityName: ZMMessage.entityName())
+        fetchRequest.predicate = predicate
+        
+        for message in try context.fetch(fetchRequest) {
+            context.zm_fileAssetCache.deleteAssetData(message)
+        }
     }
     
 }
