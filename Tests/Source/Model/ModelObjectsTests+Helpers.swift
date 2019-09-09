@@ -1,6 +1,6 @@
 //
 // Wire
-// Copyright (C) 2017 Wire Swiss GmbH
+// Copyright (C) 2019 Wire Swiss GmbH
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,13 +16,12 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
+import Foundation
 
-import WireTesting
-@testable import WireDataModel
-
-
-class BaseTeamTests: ZMConversationTestsBase {
-
+extension ModelObjectsTests {
+    
+    // MARK: Users & Teams Members
+    
     @discardableResult func createTeamAndMember(for user: ZMUser, with permissions: Permissions? = nil) -> (Team, Member) {
         let member = Member.insertNewObject(in: uiMOC)
         member.team = .insertNewObject(in: uiMOC)
@@ -33,7 +32,7 @@ class BaseTeamTests: ZMConversationTestsBase {
         }
         return (member.team!, member)
     }
-
+    
     @discardableResult func createUserAndAddMember(to team: Team) -> (ZMUser, Member) {
         let member = Member.insertNewObject(in: uiMOC)
         member.user = .insertNewObject(in: uiMOC)
@@ -41,5 +40,45 @@ class BaseTeamTests: ZMConversationTestsBase {
         member.team = team
         return (member.user!, member)
     }
-
+    
+    // MARK: Files
+    
+    func createFileMetadata(filename: String? = nil) -> ZMFileMetadata {
+        let fileURL: URL
+        
+        if let fileName = filename {
+            fileURL = testURLWithFilename(fileName)
+        } else {
+            fileURL = testURLWithFilename("file.dat")
+        }
+        
+        _ = createTestFile(at: fileURL)
+        
+        return ZMFileMetadata(fileURL: fileURL)
+    }
+    
+    func testURLWithFilename(_ filename: String) -> URL {
+        let documents = NSSearchPathForDirectoriesInDomains(.documentDirectory, .userDomainMask, true).first!
+        let documentsURL = URL(fileURLWithPath: documents)
+        return documentsURL.appendingPathComponent(filename)
+    }
+    
+    func createTestFile(at url: URL) -> Data {
+        let data: Data! = "Some other data".data(using: String.Encoding.utf8)
+        try! data.write(to: url, options: [])
+        return data
+    }
+    
+    func removeTestFile(at url: URL) {
+        do {
+            let fm = FileManager.default
+            if !fm.fileExists(atPath: url.path) {
+                return
+            }
+            try fm.removeItem(at: url)
+        } catch {
+            XCTFail("Error removing file: \(error)")
+        }
+    }
+    
 }
