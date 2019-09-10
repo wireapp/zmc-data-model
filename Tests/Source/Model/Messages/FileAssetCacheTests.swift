@@ -187,6 +187,32 @@ extension FileAssetCacheTests {
         XCTAssertNil(expectedNilData)
         AssertOptionalEqual(expectedNotNilData, expression2: data)
     }
+    
+    func testThatItDeletesAssets_WhenAssetIsOlderThanGivenDate() {
+        let message = createMessageForCaching()
+        let data = testData()
+        let sut = FileAssetCache()
+        sut.storeAssetData(message, encrypted: false, data: data)
+        
+        // when
+        sut.deleteAssetsOlderThan(Date())
+        
+        // then
+        XCTAssertNil(sut.assetData(message, encrypted: false))
+    }
+    
+    func testThatItKeepsAssets_WhenAssetIsNewerThanGivenDate() {
+        let message = createMessageForCaching()
+        let data = testData()
+        let sut = FileAssetCache()
+        sut.storeAssetData(message, encrypted: false, data: data)
+        
+        // when
+        sut.deleteAssetsOlderThan(Date.distantPast)
+        
+        // then
+        XCTAssertNotNil(sut.assetData(message, encrypted: false))
+    }
 }
 
 extension FileAssetCacheTests {

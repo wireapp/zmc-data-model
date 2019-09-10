@@ -170,6 +170,29 @@ private struct FileCache : Cache {
     func wipeCaches() {
         _ = try? FileManager.default.removeItem(at: cacheFolderURL)
     }
+    
+    /// Deletes assets created earlier than the given date
+    ///
+    /// - parameter date: assets earlier than this date will be deleted
+    func deleteAssetsOlderThan(_ date: Date) throws {
+        for expiredAsset in try assetsOlderThan(date) {
+            try FileManager.default.removeItem(at: expiredAsset)
+        }
+    }
+    
+    /// Returns assets created earlier than the given date
+    func assetsOlderThan(_ date: Date) throws -> [URL] {
+        let fileManager = FileManager.default
+        let files = try fileManager.contentsOfDirectory(at: cacheFolderURL, includingPropertiesForKeys: [.creationDateKey], options: [.skipsSubdirectoryDescendants])
+        
+        return try files.filter { (file) -> Bool in
+            let attributes = try fileManager.attributesOfItem(atPath: file.path)
+            
+            guard let creationDate = attributes[.creationDate] as? Date else { return true }
+            
+            return creationDate < date
+        }
+    }
 }
 
 // MARK: - File asset cache
@@ -326,6 +349,14 @@ private struct FileCache : Cache {
         if message.fileMessageData != nil {
             deleteAssetData(message, encrypted: false)
             deleteAssetData(message, encrypted: true)
+        }
+    }
+    
+    public func deleteAssetsOlderThan(_ date: Date) {
+        do {
+            try cache.deleteAssetsOlderThan(date)
+        } catch let error {
+            zmLog.error("Error trying to delete assets older than \(date): \(error)")
         }
     }
 
