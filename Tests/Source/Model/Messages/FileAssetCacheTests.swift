@@ -79,6 +79,21 @@ extension FileAssetCacheTests {
         XCTAssertTrue(sut.hasDataOnDisk(message2, encrypted: true))
     }
     
+    func testThatCreationDateIsLinkedToMessageServerTimestamp() throws {
+        // given
+        let sut = FileAssetCache()
+        let message = createMessageForCaching() as! ZMClientMessage
+        message.serverTimestamp = Date(timeIntervalSinceReferenceDate: 1000)
+        
+        // when
+        sut.storeAssetData(message, encrypted: false, data: "data1_plain".data(using: String.Encoding.utf8)!)
+        
+        // then
+        let attributes = try FileManager.default.attributesOfItem(atPath: sut.accessAssetURL(message)!.path)
+        let creationDate = attributes[.creationDate] as? Date
+        XCTAssertEqual(creationDate, message.serverTimestamp)
+    }
+    
     func testThatHasDataOnDisk() {
         
         // given
