@@ -32,13 +32,21 @@ protocol Cache {
     
     /// Stores the asset data for a given key.
     ///
+    /// - parameter data: Asset data which should be stored
+    /// - parameter key: unique key used to store & retrieve the asset data
+    /// - parameter createdAt: date when the asset data was created
+    ///
     /// This will probably cause I/O
-    func storeAssetData(_ data: Data, key: String)
+    func storeAssetData(_ data: Data, key: String, createdAt: Date)
     
     /// Stores the asset data for a source url that must be a local file.
     ///
+    /// - parameter url: URL pointing to the data which should be stored
+    /// - parameter key: unique key used to store & retrieve the asset data
+    /// - parameter createdAt: date when the asset data was created
+    ///
     /// This will probably cause I/O
-    func storeAssetFromURL(_ url: URL, key: String)
+    func storeAssetFromURL(_ url: URL, key: String, createdAt: Date)
     
     /// Deletes the data for a key.
     func deleteAssetData(_ key: String)

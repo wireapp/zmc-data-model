@@ -89,13 +89,14 @@ private struct FileCache : Cache {
         return data
     }
     
-    func storeAssetData(_ data: Data, key: String) {
+    func storeAssetData(_ data: Data, key: String, createdAt creationDate: Date = Date()) {
         let url = URLForKey(key)
         let coordinator = NSFileCoordinator()
         
         var error : NSError? = nil
         coordinator.coordinate(writingItemAt: url, options: NSFileCoordinator.WritingOptions.forReplacing, error: &error) { (url) in
-            FileManager.default.createFile(atPath: url.path, contents: data, attributes: convertToOptionalFileAttributeKeyDictionary([FileAttributeKey.protectionKey.rawValue : FileProtectionType.completeUntilFirstUserAuthentication]))
+            FileManager.default.createFile(atPath: url.path, contents: data, attributes: [.protectionKey : FileProtectionType.completeUntilFirstUserAuthentication,
+                                                                                          .creationDate : creationDate])
         }
         
         if let error = error {
@@ -103,7 +104,7 @@ private struct FileCache : Cache {
         }
     }
     
-    func storeAssetFromURL(_ fromUrl: URL, key: String) {
+    func storeAssetFromURL(_ fromUrl: URL, key: String, createdAt creationDate: Date = Date()) {
         guard fromUrl.scheme == NSURLFileScheme else { fatal("Can't save remote URL to cache: \(fromUrl)") }
         
         let toUrl = URLForKey(key)
@@ -113,7 +114,8 @@ private struct FileCache : Cache {
         coordinator.coordinate(writingItemAt: toUrl, options: .forReplacing, error: &error) { (url) in
             do {
                 try FileManager.default.copyItem(at: fromUrl, to: url)
-                try FileManager.default.setAttributes([FileAttributeKey.protectionKey : FileProtectionType.completeUntilFirstUserAuthentication], ofItemAtPath: url.path)
+                try FileManager.default.setAttributes([.protectionKey : FileProtectionType.completeUntilFirstUserAuthentication,
+                                                       .creationDate: creationDate], ofItemAtPath: url.path)
             } catch {
                 fatal("Failed to copy from \(url) to \(url), \(error)")
             }
@@ -283,25 +285,25 @@ private struct FileCache : Cache {
                              encrypted: Bool,
                              data: Data) {
         guard let key = type(of: self).cacheKeyForAsset(for: team, format: format, encrypted: encrypted) else { return }
-        self.cache.storeAssetData(data, key: key)
+        self.cache.storeAssetData(data, key: key, createdAt: Date())
     }
 
     /// Sets the image asset data for a given message. This will cause I/O
     open func storeAssetData(_ message : ZMConversationMessage, format: ZMImageFormat, encrypted: Bool, data: Data) {
         guard let key = type(of: self).cacheKeyForAsset(message, format: format, encrypted: encrypted) else { return }
-        self.cache.storeAssetData(data, key: key)
+        self.cache.storeAssetData(data, key: key, createdAt: message.serverTimestamp ?? Date())
     }
     
     /// Sets the asset data for a given message. This will cause I/O
     open func storeAssetData(_ message : ZMConversationMessage, encrypted: Bool, data: Data) {
         guard let key = type(of: self).cacheKeyForAsset(message, encrypted: encrypted) else { return }
-        self.cache.storeAssetData(data, key: key)
+        self.cache.storeAssetData(data, key: key, createdAt: message.serverTimestamp ?? Date())
     }
     
     /// Sets the request data for a given message and returns the asset url. This will cause I/O
     open func storeRequestData(_ message : ZMConversationMessage, data: Data) -> URL? {
         guard let key = type(of: self).cacheKeyForAsset(message, identifier: "request") else { return nil }
-        cache.storeAssetData(data, key: key)
+        cache.storeAssetData(data, key: key, createdAt: message.serverTimestamp ?? Date())
         return accessRequestURL(message)
     }
     
