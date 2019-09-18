@@ -235,16 +235,17 @@
     return session.managedObjectContext.conversationListDirectory.unarchivedConversations;
 }
 
-+ (ZMConversationList *)archivedConversationsInUserSession:(id<ZMManagedObjectContextProvider>)session
++ (ZMConversationList *)archivedConversationsInUserSession:(id<ZMManagedObjectContextProvider>)session ///TODO: move to session's extension?
 {
     VerifyReturnNil(session != nil);
     return session.managedObjectContext.conversationListDirectory.archivedConversations;
 }
 
+///TODO: mark depercated
 + (ZMConversationList *)pendingConnectionConversationsInUserSession:(id<ZMManagedObjectContextProvider>)session
 {
     VerifyReturnNil(session != nil);
-    return session.managedObjectContext.conversationListDirectory.pendingConnectionConversations;
+    return session.managedObjectContext.pendingConnectionConversations;
 }
 
 + (ZMConversationList *)clearedConversationsInUserSession:(id<ZMManagedObjectContextProvider>)session

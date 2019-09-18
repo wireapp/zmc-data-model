@@ -711,9 +711,10 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return moc.conversationListDirectory.unarchivedConversations;
 }
 
+///TODO: make depercated
 + (ZMConversationList *)pendingConversationsInContext:(NSManagedObjectContext *)moc;
 {
-    return moc.conversationListDirectory.pendingConnectionConversations;
+    return moc.pendingConnectionConversations;
 }
 
 - (void)mergeWithExistingConversationWithRemoteID:(NSUUID *)remoteID;
