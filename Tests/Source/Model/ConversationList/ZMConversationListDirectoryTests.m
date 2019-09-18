@@ -138,6 +138,9 @@
     XCTAssertEqualObjects([NSSet setWithArray:list], exepected);
 }
 
+
+///TODO: oneOnOneunarchivedConversations
+
 - (void)testThatItReturnsArchivedConversations;
 {
     // when
@@ -198,6 +201,8 @@
     XCTAssertTrue([directory.allConversationLists containsObject:directory.archivedConversations]);
     XCTAssertTrue([directory.allConversationLists containsObject:directory.pendingConnectionConversations]);
     XCTAssertTrue([directory.allConversationLists containsObject:directory.clearedConversations]);
+
+    ///TODO: oneOnOneunarchivedConversations
 }
 
 @end

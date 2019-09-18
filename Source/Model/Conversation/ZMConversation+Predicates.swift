@@ -105,11 +105,29 @@ extension ZMConversation {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [predicateForConversationsIncludingArchived(), notArchivedPredicate])
     }
 
+    @objc(forOneOnOneConversationsExcludingArchived)
+    class func forOneOnOneConversationsExcludingArchived() -> NSPredicate {
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [forOneOnOneConversations(), predicateForConversationsExcludingArchived()])
+    }
+
+
+    class func forOneOnOneConversations() -> NSPredicate {
+        let predicate = NSPredicate(format: "\(ZMConversationConversationTypeKey) == \(ZMConversationType.oneOnOne.rawValue)")
+
+        return predicate
+    }
+
+    class func forGroupConversations() -> NSPredicate {
+        let predicate = NSPredicate(format: "\(ZMConversationConversationTypeKey) == \(ZMConversationType.group.rawValue)")
+
+        return predicate
+    }
+
     @objc(predicateForSharableConversations)
     class func predicateForSharableConversations() -> NSPredicate {
         let basePredicate = predicateForConversationsIncludingArchived()
         let hasOtherActiveParticipants = NSPredicate(format: "\(ZMConversationLastServerSyncedActiveParticipantsKey).@count > 0")
-        let oneOnOneOrGroupConversation = NSPredicate(format: "\(ZMConversationConversationTypeKey) == \(ZMConversationType.oneOnOne.rawValue) OR \(ZMConversationConversationTypeKey) == \(ZMConversationType.group.rawValue)")
+        let oneOnOneOrGroupConversation = NSCompoundPredicate(orPredicateWithSubpredicates: [forOneOnOneConversations(), forGroupConversations()])
         let selfIsActiveMember = NSPredicate(format: "isSelfAnActiveMember == YES")
         let synced = NSPredicate(format: "\(remoteIdentifierDataKey()!) != NULL")
         

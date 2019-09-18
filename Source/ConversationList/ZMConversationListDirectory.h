@@ -29,6 +29,9 @@
 @interface ZMConversationListDirectory : NSObject
 
 @property (nonatomic, readonly, nonnull) ZMConversationList* unarchivedConversations; ///< archived, not pending
+
+@property (nonatomic, readonly, nonnull) ZMConversationList* oneOnOneunarchivedConversations; ///< archived, not pending, oneOnOne only
+
 @property (nonatomic, readonly, nonnull) ZMConversationList* conversationsIncludingArchived; ///< unarchived, not pending,
 @property (nonatomic, readonly, nonnull) ZMConversationList* archivedConversations; ///< archived, not pending
 @property (nonatomic, readonly, nonnull) ZMConversationList* pendingConnectionConversations; ///< pending

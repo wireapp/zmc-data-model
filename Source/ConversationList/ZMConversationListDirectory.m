@@ -34,6 +34,7 @@ static NSString * const PendingKey = @"Pending";
 @interface ZMConversationListDirectory ()
 
 @property (nonatomic) ZMConversationList* unarchivedConversations;
+@property (nonatomic) ZMConversationList* oneOnOneunarchivedConversations;
 @property (nonatomic) ZMConversationList* conversationsIncludingArchived;
 @property (nonatomic) ZMConversationList* archivedConversations;
 @property (nonatomic) ZMConversationList* pendingConnectionConversations;
@@ -57,6 +58,14 @@ static NSString * const PendingKey = @"Pending";
                                                                          filteringPredicate:ZMConversation.predicateForConversationsExcludingArchived
                                                                                         moc:moc
                                                                                 description:@"unarchivedConversations"];
+
+        self.oneOnOneunarchivedConversations = [[ZMConversationList alloc] initWithAllConversations:allConversations
+                                                                         filteringPredicate:ZMConversation.forOneOnOneConversationsExcludingArchived
+                                                                                        moc:moc
+                                                                                description:@"oneOnOneunarchivedConversations"];
+
+
+
         self.archivedConversations = [[ZMConversationList alloc] initWithAllConversations:allConversations
                                                                        filteringPredicate:ZMConversation.predicateForArchivedConversations
                                                                                       moc:moc
