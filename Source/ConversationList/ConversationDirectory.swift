@@ -19,7 +19,7 @@
 import Foundation
 
 public enum ConversationListType {
-    case archived, unarchived, pending
+    case archived, unarchived, pending, contacts, groups
 }
 
 public struct ConversationDirectoryChangeInfo {
@@ -79,6 +79,10 @@ extension ZMConversationListDirectory: ConversationDirectoryType {
             return unarchivedConversations as! [ZMConversation]
         case .pending:
             return pendingConnectionConversations as! [ZMConversation]
+        case .contacts:
+            return oneToOneConversations as! [ZMConversation]
+        case .groups:
+            return groupConversations as! [ZMConversation]
         }
     }
     
