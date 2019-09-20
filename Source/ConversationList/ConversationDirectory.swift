@@ -23,7 +23,7 @@ public enum ConversationListType {
 }
 
 public struct ConversationDirectoryChangeInfo {
-    var reloaded: Bool
+    public var reloaded: Bool
 }
 
 public protocol ConversationDirectoryObserver {
