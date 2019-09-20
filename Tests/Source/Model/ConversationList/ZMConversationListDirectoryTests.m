@@ -31,7 +31,8 @@
 
 @property (nonatomic) ZMConversation *archivedGroupConversation;
 @property (nonatomic) ZMConversation *archivedOneToOneConversation;
-@property (nonatomic) ZMConversation *pendingConnectionConversation;
+@property (nonatomic) ZMConversation *incomingPendingConnectionConversation;
+@property (nonatomic) ZMConversation *outgoingPendingConnectionConversation;
 @property (nonatomic) ZMConversation *invalidConversation;
 @property (nonatomic) ZMConversation *groupConversation;
 @property (nonatomic) ZMConversation *oneToOneConversation;
@@ -71,11 +72,17 @@
     self.archivedOneToOneConversation.connection.status = ZMConnectionStatusAccepted;
     self.archivedOneToOneConversation.userDefinedName = @"archivedOneToOneConversation";
     
-    self.pendingConnectionConversation = [self createConversation];
-    self.pendingConnectionConversation.conversationType = ZMConversationTypeConnection;
-    self.pendingConnectionConversation.connection = [ZMConnection insertNewObjectInManagedObjectContext:self.uiMOC];
-    self.pendingConnectionConversation.connection.status = ZMConnectionStatusPending;
-    self.pendingConnectionConversation.userDefinedName = @"pendingConnectionConversation";
+    self.incomingPendingConnectionConversation = [self createConversation];
+    self.incomingPendingConnectionConversation.conversationType = ZMConversationTypeConnection;
+    self.incomingPendingConnectionConversation.connection = [ZMConnection insertNewObjectInManagedObjectContext:self.uiMOC];
+    self.incomingPendingConnectionConversation.connection.status = ZMConnectionStatusPending;
+    self.incomingPendingConnectionConversation.userDefinedName = @"incomingPendingConnectionConversation";
+    
+    self.outgoingPendingConnectionConversation = [self createConversation];
+    self.outgoingPendingConnectionConversation.conversationType = ZMConversationTypeConnection;
+    self.outgoingPendingConnectionConversation.connection = [ZMConnection insertNewObjectInManagedObjectContext:self.uiMOC];
+    self.outgoingPendingConnectionConversation.connection.status = ZMConnectionStatusSent;
+    self.outgoingPendingConnectionConversation.userDefinedName = @"outgoingConnectionConversation";
     
     self.groupConversation = [self createConversation];
     self.groupConversation.conversationType = ZMConversationTypeGroup;
@@ -108,7 +115,8 @@
     
     self.invalidConversation = nil;
     self.groupConversation = nil;
-    self.pendingConnectionConversation = nil;
+    self.incomingPendingConnectionConversation = nil;
+    self.outgoingPendingConnectionConversation = nil;
     self.archivedOneToOneConversation = nil;
     self.archivedGroupConversation = nil;
     self.oneToOneConversation = nil;
@@ -122,7 +130,7 @@
 {
     // when
     ZMConversationList *list = self.uiMOC.conversationListDirectory.conversationsIncludingArchived;
-    NSSet *exepected = [NSSet setWithArray:@[self.archivedGroupConversation, self.archivedOneToOneConversation, self.groupConversation, self.oneToOneConversation]];
+    NSSet *exepected = [NSSet setWithArray:@[self.archivedGroupConversation, self.archivedOneToOneConversation, self.groupConversation, self.oneToOneConversation, self.outgoingPendingConnectionConversation]];
     // then
     
     XCTAssertEqualObjects([NSSet setWithArray:list], exepected);
@@ -132,7 +140,7 @@
 {
     // when
     ZMConversationList *list = self.uiMOC.conversationListDirectory.unarchivedConversations;
-    NSSet *exepected = [NSSet setWithArray:@[self.groupConversation, self.oneToOneConversation]];
+    NSSet *exepected = [NSSet setWithArray:@[self.groupConversation, self.oneToOneConversation, self.outgoingPendingConnectionConversation]];
     
     // then
     XCTAssertEqualObjects([NSSet setWithArray:list], exepected);
@@ -152,7 +160,7 @@
 {
     // when
     ZMConversationList *list = self.uiMOC.conversationListDirectory.pendingConnectionConversations;
-    NSSet *exepected = [NSSet setWithArray:@[self.pendingConnectionConversation]];
+    NSSet *exepected = [NSSet setWithArray:@[self.incomingPendingConnectionConversation]];
     
     // then
     XCTAssertEqualObjects([NSSet setWithArray:list], exepected);
@@ -189,6 +197,26 @@
     XCTAssertFalse([[NSSet setWithArray:list] intersectsSet:exepected]);
 }
 
+- (void)testThatItsReturnsGroupConversations
+{
+    // when
+    ZMConversationList *list = self.uiMOC.conversationListDirectory.groupConversations;
+    NSSet *exepected = [NSSet setWithArray:@[self.groupConversation]];
+    
+    // then
+    XCTAssertTrue([[NSSet setWithArray:list] intersectsSet:exepected]);
+}
+
+- (void)testThatItsReturnsOneToOneConversations
+{
+    // when
+    ZMConversationList *list = self.uiMOC.conversationListDirectory.oneToOneConversations;
+    NSSet *exepected = [NSSet setWithArray:@[self.oneToOneConversation, self.outgoingPendingConnectionConversation]];
+    
+    // then
+    XCTAssertTrue([[NSSet setWithArray:list] intersectsSet:exepected]);
+}
+
 - (void)testThatAllListsAreIncluded
 {
     ZMConversationListDirectory *directory = self.uiMOC.conversationListDirectory;
@@ -198,6 +226,8 @@
     XCTAssertTrue([directory.allConversationLists containsObject:directory.archivedConversations]);
     XCTAssertTrue([directory.allConversationLists containsObject:directory.pendingConnectionConversations]);
     XCTAssertTrue([directory.allConversationLists containsObject:directory.clearedConversations]);
+    XCTAssertTrue([directory.allConversationLists containsObject:directory.oneToOneConversations]);
+    XCTAssertTrue([directory.allConversationLists containsObject:directory.groupConversations]);
 }
 
 @end
