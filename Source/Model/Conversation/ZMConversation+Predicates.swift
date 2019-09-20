@@ -105,7 +105,7 @@ extension ZMConversation {
     }
     
     class func predicateForOneToOneConversation() -> NSPredicate {
-        return NSPredicate(format: "\(ZMConversationConversationTypeKey) == \(ZMConversationType.group.rawValue)")
+        return NSPredicate(format: "\(ZMConversationConversationTypeKey) == \(ZMConversationType.oneOnOne.rawValue)")
     }
     
     class func predicateForTeamOneToOneConversation() -> NSPredicate {
