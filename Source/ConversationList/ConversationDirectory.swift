@@ -23,12 +23,10 @@ public enum ConversationListType {
 }
 
 public struct ConversationDirectoryChangeInfo {
-<<<<<<< Updated upstream
+    
     public var reloaded: Bool
-=======
-    var reloaded: Bool
-    var updatedLists: [ConversationListType]
->>>>>>> Stashed changes
+    public var updatedLists: [ConversationListType]
+    
 }
 
 public protocol ConversationDirectoryObserver {
