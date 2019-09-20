@@ -130,40 +130,40 @@
 {
     // when
     ZMConversationList *list = self.uiMOC.conversationListDirectory.conversationsIncludingArchived;
-    NSSet *exepected = [NSSet setWithArray:@[self.archivedGroupConversation, self.archivedOneToOneConversation, self.groupConversation, self.oneToOneConversation, self.outgoingPendingConnectionConversation]];
+    NSSet *expected = [NSSet setWithArray:@[self.archivedGroupConversation, self.archivedOneToOneConversation, self.groupConversation, self.oneToOneConversation, self.outgoingPendingConnectionConversation]];
     // then
     
-    XCTAssertEqualObjects([NSSet setWithArray:list], exepected);
+    XCTAssertEqualObjects([NSSet setWithArray:list], expected);
 }
 
 - (void)testThatItReturnsUnarchivedConversations;
 {
     // when
     ZMConversationList *list = self.uiMOC.conversationListDirectory.unarchivedConversations;
-    NSSet *exepected = [NSSet setWithArray:@[self.groupConversation, self.oneToOneConversation, self.outgoingPendingConnectionConversation]];
+    NSSet *expected = [NSSet setWithArray:@[self.groupConversation, self.oneToOneConversation, self.outgoingPendingConnectionConversation]];
     
     // then
-    XCTAssertEqualObjects([NSSet setWithArray:list], exepected);
+    XCTAssertEqualObjects([NSSet setWithArray:list], expected);
 }
 
 - (void)testThatItReturnsArchivedConversations;
 {
     // when
     ZMConversationList *list = self.uiMOC.conversationListDirectory.archivedConversations;
-    NSSet *exepected = [NSSet setWithArray:@[self.archivedGroupConversation, self.archivedOneToOneConversation]];
+    NSSet *expected = [NSSet setWithArray:@[self.archivedGroupConversation, self.archivedOneToOneConversation]];
     
     // then
-    XCTAssertEqualObjects([NSSet setWithArray:list], exepected);
+    XCTAssertEqualObjects([NSSet setWithArray:list], expected);
 }
 
 - (void)testThatItReturnsPendingConversations;
 {
     // when
     ZMConversationList *list = self.uiMOC.conversationListDirectory.pendingConnectionConversations;
-    NSSet *exepected = [NSSet setWithArray:@[self.incomingPendingConnectionConversation]];
+    NSSet *expected = [NSSet setWithArray:@[self.incomingPendingConnectionConversation]];
     
     // then
-    XCTAssertEqualObjects([NSSet setWithArray:list], exepected);
+    XCTAssertEqualObjects([NSSet setWithArray:list], expected);
 }
 
 - (void)testThatItKeepsReturningTheSameObject
@@ -180,41 +180,41 @@
 {
     // when
     ZMConversationList *list = self.uiMOC.conversationListDirectory.clearedConversations;
-    NSSet *exepected = [NSSet setWithArray:@[self.clearedConversation]];
+    NSSet *expected = [NSSet setWithArray:@[self.clearedConversation]];
     
     // then
-    XCTAssertEqualObjects([NSSet setWithArray:list], exepected);
+    XCTAssertEqualObjects([NSSet setWithArray:list], expected);
 }
 
 - (void)testThatItNotReturnsClearedConversationsIn_ConversationsIncludingArchived
 {
     // when
     ZMConversationList *list = self.uiMOC.conversationListDirectory.conversationsIncludingArchived;
-    NSSet *exepected = [NSSet setWithArray:@[self.clearedConversation]];
+    NSSet *expected = [NSSet setWithArray:@[self.clearedConversation]];
     
     // then
     // cleared conversations should not be included in conversationsIncludingArchived
-    XCTAssertFalse([[NSSet setWithArray:list] intersectsSet:exepected]);
+    XCTAssertFalse([[NSSet setWithArray:list] intersectsSet:expected]);
 }
 
 - (void)testThatItsReturnsGroupConversations
 {
     // when
     ZMConversationList *list = self.uiMOC.conversationListDirectory.groupConversations;
-    NSSet *exepected = [NSSet setWithArray:@[self.groupConversation]];
+    NSSet *expected = [NSSet setWithArray:@[self.groupConversation]];
     
     // then
-    XCTAssertTrue([[NSSet setWithArray:list] intersectsSet:exepected]);
+    XCTAssertEqualObjects([NSSet setWithArray:list], expected);
 }
 
 - (void)testThatItsReturnsOneToOneConversations
 {
     // when
     ZMConversationList *list = self.uiMOC.conversationListDirectory.oneToOneConversations;
-    NSSet *exepected = [NSSet setWithArray:@[self.oneToOneConversation, self.outgoingPendingConnectionConversation]];
+    NSSet *expected = [NSSet setWithArray:@[self.oneToOneConversation, self.outgoingPendingConnectionConversation]];
     
     // then
-    XCTAssertTrue([[NSSet setWithArray:list] intersectsSet:exepected]);
+    XCTAssertEqualObjects([NSSet setWithArray:list], expected);
 }
 
 - (void)testThatAllListsAreIncluded
