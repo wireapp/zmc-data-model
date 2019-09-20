@@ -37,28 +37,6 @@ public protocol FolderType {
     var conversations: [ZMConversation] { get }
 }
 
-enum PredefinedFolder: FolderType {
-    case oneToOne(ZMConversationList), groups(ZMConversationList)
-    
-    var name: String {
-        switch self {
-        case .oneToOne:
-            return "Contacts"
-        case .groups:
-            return "Groups"
-        }
-    }
-    
-    var conversations: [ZMConversation] {
-        switch self {
-        case .oneToOne(let conversations):
-            return conversations as! [ZMConversation]
-        case .groups(let conversations):
-            return conversations as! [ZMConversation]
-        }
-    }
-}
-
 public protocol ConversationDirectoryType {
     
     var folders: [FolderType] { get }
@@ -87,7 +65,7 @@ extension ZMConversationListDirectory: ConversationDirectoryType {
     }
     
     public var folders: [FolderType] {
-        return [PredefinedFolder.groups(groupConversations), PredefinedFolder.oneToOne(oneToOneConversations)]
+        return []
     }
     
     public func addObserver(_ observer: ConversationDirectoryObserver) -> Any {
