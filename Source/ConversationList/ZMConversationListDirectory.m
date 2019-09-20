@@ -42,6 +42,7 @@ static NSString * const PendingKey = @"Pending";
 @property (nonatomic) ZMConversationList* groupConversations;
 
 @property (nonatomic) Team *team;
+@property (nonatomic) NSManagedObjectContext *managedObjectContext;
 
 @end
 
@@ -53,6 +54,8 @@ static NSString * const PendingKey = @"Pending";
 {
     self = [super init];
     if (self) {
+        self.managedObjectContext = moc;
+        
         NSArray *allConversations = [self fetchAllConversations:moc];
 
         self.unarchivedConversations = [[ZMConversationList alloc] initWithAllConversations:allConversations

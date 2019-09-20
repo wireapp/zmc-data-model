@@ -73,7 +73,7 @@ extension ZMConversationListDirectory: ConversationDirectoryType {
     
     public func addObserver(_ observer: ConversationDirectoryObserver) -> Any {
         let observerProxy = ConversationListObserverProxy(observer: observer, directory: self)
-        let token = ConversationListChangeInfo.add(observer: observerProxy, managedObjectContext: nil!)
+        let token = ConversationListChangeInfo.add(observer: observerProxy, managedObjectContext: managedObjectContext)
         return [token, observerProxy]
     }
     
