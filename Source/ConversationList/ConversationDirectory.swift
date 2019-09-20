@@ -23,7 +23,12 @@ public enum ConversationListType {
 }
 
 public struct ConversationDirectoryChangeInfo {
+<<<<<<< Updated upstream
     public var reloaded: Bool
+=======
+    var reloaded: Bool
+    var updatedLists: [ConversationListType]
+>>>>>>> Stashed changes
 }
 
 public protocol ConversationDirectoryObserver {
@@ -69,7 +74,7 @@ extension ZMConversationListDirectory: ConversationDirectoryType {
     }
     
     public func addObserver(_ observer: ConversationDirectoryObserver) -> Any {
-        let observerProxy = ConversationListObserverProxy(observer: observer)
+        let observerProxy = ConversationListObserverProxy(observer: observer, directory: self)
         let token = ConversationListChangeInfo.add(observer: observerProxy, managedObjectContext: nil!)
         return [token, observerProxy]
     }
@@ -79,17 +84,36 @@ extension ZMConversationListDirectory: ConversationDirectoryType {
 fileprivate class ConversationListObserverProxy: NSObject, ZMConversationListObserver, ZMConversationListReloadObserver  {
     
     var observer: ConversationDirectoryObserver
+    var directory: ZMConversationListDirectory
     
-    init(observer: ConversationDirectoryObserver) {
+    init(observer: ConversationDirectoryObserver, directory: ZMConversationListDirectory) {
         self.observer = observer
+        self.directory = directory
     }
     
     func conversationListsDidReload() {
-        observer.conversationDirectoryDidChange(ConversationDirectoryChangeInfo(reloaded: true))
+        observer.conversationDirectoryDidChange(ConversationDirectoryChangeInfo(reloaded: true, updatedLists: []))
     }
     
     func conversationListDidChange(_ changeInfo: ConversationListChangeInfo) {
-        observer.conversationDirectoryDidChange(ConversationDirectoryChangeInfo(reloaded: false))
+        let updatedLists: [ConversationListType]
+        
+        switch changeInfo.conversationList {
+        case directory.oneToOneConversations:
+            updatedLists = [.contacts]
+        case directory.groupConversations:
+            updatedLists = [.groups]
+        case directory.archivedConversations:
+            updatedLists = [.archived]
+        case directory.pendingConnectionConversations:
+            updatedLists = [.pending]
+        case directory.unarchivedConversations:
+            updatedLists = [.unarchived]
+        default:
+            updatedLists = []
+        }
+        
+        observer.conversationDirectoryDidChange(ConversationDirectoryChangeInfo(reloaded: false, updatedLists: updatedLists))
     }
     
 }
