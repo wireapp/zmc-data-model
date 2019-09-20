@@ -100,6 +100,10 @@ extension ZMConversation {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [predicateForConversationsExcludingArchived(), groupConversationPredicate])
     }
     
+    class func predicateForUnconnectedConversations() -> NSPredicate {
+        return NSPredicate(format: "\(ZMConversationConversationTypeKey) == \(ZMConversationType.connection.rawValue)")
+    }
+    
     class func predicateForOneToOneConversation() -> NSPredicate {
         return NSPredicate(format: "\(ZMConversationConversationTypeKey) == \(ZMConversationType.group.rawValue)")
     }
@@ -120,7 +124,8 @@ extension ZMConversation {
     
     @objc(predicateForOneToOneConversations)
     class func predicateForOneToOneConversations() -> NSPredicate {
-        let oneToOneConversationPredicate = NSCompoundPredicate(orPredicateWithSubpredicates: [predicateForOneToOneConversation(), predicateForTeamOneToOneConversation()])
+        // We consider a conversation to be one-to-one if it's of type .oneToOne, is a team 1:1 or an outgoing connection request.
+        let oneToOneConversationPredicate = NSCompoundPredicate(orPredicateWithSubpredicates: [predicateForOneToOneConversation(), predicateForTeamOneToOneConversation(), predicateForUnconnectedConversations()])
         
         return NSCompoundPredicate(andPredicateWithSubpredicates: [predicateForConversationsExcludingArchived(), oneToOneConversationPredicate])
     }
