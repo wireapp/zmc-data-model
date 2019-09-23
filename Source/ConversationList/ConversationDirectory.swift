@@ -73,9 +73,15 @@ extension ZMConversationListDirectory: ConversationDirectoryType {
     
     public func addObserver(_ observer: ConversationDirectoryObserver) -> Any {
         let observerProxy = ConversationListObserverProxy(observer: observer, directory: self)
-        let allConversationsToken = ConversationListChangeInfo.add(observer: observerProxy, for: unarchivedConversations, managedObjectContext: managedObjectContext)
+
+        var tokens:[Any] = []
+        [archivedConversations, unarchivedConversations, pendingConnectionConversations, oneToOneConversations, groupConversations].forEach() {
+            let token = ConversationListChangeInfo.add(observer: observerProxy, for: $0, managedObjectContext: managedObjectContext)
+            tokens.append(token)
+        }
+
         let token = ConversationListChangeInfo.add(observer: observerProxy, managedObjectContext: managedObjectContext)
-        return [allConversationsToken, token, observerProxy]
+        return tokens + [token, observerProxy]
     }
     
 }
