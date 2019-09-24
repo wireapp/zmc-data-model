@@ -26,6 +26,11 @@ public struct ConversationDirectoryChangeInfo {
     
     public var reloaded: Bool
     public var updatedLists: [ConversationListType]
+
+    public init(reloaded: Bool, updatedLists: [ConversationListType]) {
+        self.reloaded = reloaded
+        self.updatedLists = updatedLists
+    }
     
 }
 
