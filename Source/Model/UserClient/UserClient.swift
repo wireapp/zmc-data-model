@@ -168,11 +168,11 @@ public class UserClient: ZMManagedObject, UserClientType {
         return ZMUserClientLabelKey
     }
     
-    public override static func predicateForObjectsThatNeedToBeInsertedUpstream() -> NSPredicate {
+    public override static func predicateForObjectsThatNeedToBeInsertedUpstream() -> NSPredicate? {
         return NSPredicate(format: "%K == NULL", ZMUserClientRemoteIdentifierKey)
     }
 
-    public override static func predicateForObjectsThatNeedToBeUpdatedUpstream() -> NSPredicate {
+    public override static func predicateForObjectsThatNeedToBeUpdatedUpstream() -> NSPredicate? {
         let baseModifiedPredicate = super.predicateForObjectsThatNeedToBeUpdatedUpstream()
         let remoteIdentifierPresentPredicate = NSPredicate(format: "\(ZMUserClientRemoteIdentifierKey) != nil")
         let notDeletedPredicate = NSPredicate(format: "\(ZMUserClientMarkedToDeleteKey) == NO")
