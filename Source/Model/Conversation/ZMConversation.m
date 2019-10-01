@@ -69,13 +69,11 @@ NSString *const ZMConversationSilencedChangedTimeStampKey = @"silencedChangedTim
 NSString *const ZMConversationExternalParticipantsStateKey = @"externalParticipantsState";
 NSString *const ZMConversationLegalHoldStatusKey = @"legalHoldStatus";
 NSString *const ZMConversationNeedsToVerifyLegalHoldKey = @"needsToVerifyLegalHold";
-
 NSString *const ZMNotificationConversationKey = @"ZMNotificationConversationKey";
-
 NSString *const ZMConversationEstimatedUnreadCountKey = @"estimatedUnreadCount";
 NSString *const ZMConversationRemoteIdentifierDataKey = @"remoteIdentifier_data";
-
 NSString *const SecurityLevelKey = @"securityLevel";
+NSString *const LabelsKey = @"labels";
 
 static NSString *const ConnectedUserKey = @"connectedUser";
 static NSString *const CreatorKey = @"creator";
@@ -104,7 +102,6 @@ static NSString *const ArchivedEventIDDataKey = @"archivedEventID_data";
 static NSString *const LastReadEventIDDataKey = @"lastReadEventID_data";
 
 static NSString *const TeamKey = @"team";
-static NSString *const LabelsKey = @"labels";
 
 static NSString *const AccessModeStringsKey = @"accessModeStrings";
 static NSString *const AccessRoleStringKey = @"accessRoleString";

@@ -102,7 +102,7 @@ extension ZMConversation {
     
     @objc(predicateForLabeledConversations:)
     class func predicateForLabeledConversations(_ label: Label) -> NSPredicate {
-        let labelPredicate = NSPredicate(format: "%@ IN labels", label)
+        let labelPredicate = NSPredicate(format: "%@ IN \(LabelsKey)", label)
         
         return NSCompoundPredicate(andPredicateWithSubpredicates: [predicateForConversationsExcludingArchived(), labelPredicate])
     }
