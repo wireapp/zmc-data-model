@@ -365,9 +365,6 @@ extension ZMManagedObject {
             if let knownKeys = self.userChanges[object] {
                 changedKeys = changedKeys.union(knownKeys)
             }
-            
-            print("changedKeys: \(changedKeys) for object \(object.objectID)")
-            
             return changedKeys
         }
         
