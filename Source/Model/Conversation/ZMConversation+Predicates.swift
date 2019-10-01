@@ -100,6 +100,13 @@ extension ZMConversation {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [predicateForConversationsExcludingArchived(), groupConversationPredicate])
     }
     
+    @objc(predicateForLabeledConversations:)
+    class func predicateForLabeledConversations(_ label: Label) -> NSPredicate {
+        let labelPredicate = NSPredicate(format: "%@ IN labels", label)
+        
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [predicateForConversationsExcludingArchived(), labelPredicate])
+    }
+    
     class func predicateForUnconnectedConversations() -> NSPredicate {
         return NSPredicate(format: "\(ZMConversationConversationTypeKey) == \(ZMConversationType.connection.rawValue)")
     }

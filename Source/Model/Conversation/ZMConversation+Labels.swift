@@ -20,6 +20,7 @@ import Foundation
 
 extension ZMConversation {
     
+    @objc
     public var isFavorite: Bool {
         set {
             guard let managedObjectContext = managedObjectContext else { return }
@@ -36,7 +37,8 @@ extension ZMConversation {
             return labels.any({ $0.kind == .favorite })
         }
     }
-        
+    
+    @objc
     public func moveToFolder(_ folder: Label) {
         guard folder.kind == .folder else { return }
         
@@ -44,6 +46,7 @@ extension ZMConversation {
         assignLabel(folder)
     }
     
+    @objc
     public func removeFromFolder() {
         let existingFolders = labels.filter({ $0.kind == .folder })
         labels.subtract(existingFolders)
