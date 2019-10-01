@@ -104,6 +104,7 @@ static NSString *const ArchivedEventIDDataKey = @"archivedEventID_data";
 static NSString *const LastReadEventIDDataKey = @"lastReadEventID_data";
 
 static NSString *const TeamKey = @"team";
+static NSString *const LabelsKey = @"labels";
 
 static NSString *const AccessModeStringsKey = @"accessModeStrings";
 static NSString *const AccessRoleStringKey = @"accessRoleString";
@@ -160,6 +161,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @dynamic archivedChangedTimestamp;
 @dynamic silencedChangedTimestamp;
 @dynamic team;
+@dynamic labels;
 
 @synthesize pendingLastReadServerTimestamp;
 @synthesize lastReadTimestampSaveDelay;
@@ -374,7 +376,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
             LanguageKey,
             HasReadReceiptsEnabledKey,
             ZMConversationLegalHoldStatusKey,
-            ZMConversationNeedsToVerifyLegalHoldKey
+            ZMConversationNeedsToVerifyLegalHoldKey,
+            LabelsKey
         };
         
         NSSet *additionalKeys = [NSSet setWithObjects:KeysIgnoredForTrackingModifications count:(sizeof(KeysIgnoredForTrackingModifications) / sizeof(*KeysIgnoredForTrackingModifications))];
