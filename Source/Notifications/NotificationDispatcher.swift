@@ -39,6 +39,7 @@ extension Notification.Name {
     static let VoiceChannelStateChange = Notification.Name("ZMVoiceChannelStateChangeNotification")
     static let VoiceChannelParticipantStateChange = Notification.Name("ZMVoiceChannelParticipantStateChangeNotification")
     static let TeamChange = Notification.Name("TeamChangeNotification")
+    static let LabelChange = Notification.Name("LabelChangeNotification")
 
     public static let NonCoreDataChangeInManagedObject = Notification.Name("NonCoreDataChangeInManagedObject")
     
@@ -186,7 +187,8 @@ extension ZMManagedObject {
                                            Reaction.classIdentifier,
                                            ZMGenericMessageData.classIdentifier,
                                            Team.classIdentifier,
-                                           Member.classIdentifier]
+                                           Member.classIdentifier,
+                                           Label.classIdentifier]
         self.affectingKeysStore = DependencyKeyStore(classIdentifiers : classIdentifiers)
         self.snapshotCenter = SnapshotCenter(managedObjectContext: managedObjectContext)
         super.init()

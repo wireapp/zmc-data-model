@@ -132,3 +132,17 @@ class TestTeamObserver : NSObject, TeamObserver {
         notifications.append(changeInfo)
     }
 }
+
+class TestLabelObserver: NSObject, LabelObserver {
+    
+    var notifications = [LabelChangeInfo]()
+    
+    func clearNotifications() {
+        notifications = []
+    }
+    
+    func labelDidChange(_ changeInfo: LabelChangeInfo) {
+        notifications.append(changeInfo)
+    }
+    
+}
