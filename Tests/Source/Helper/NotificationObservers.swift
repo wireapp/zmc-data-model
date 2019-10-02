@@ -105,11 +105,7 @@ class ConversationObserver: NSObject, ZMConversationObserver {
     init(conversationList: ZMConversationList, managedObjectContext: NSManagedObjectContext) {
         self.conversationList = conversationList
         super.init()
-        self.token = ConversationListChangeInfo.add(
-            observer: self,
-            for: conversationList,
-            managedObjectContext: managedObjectContext
-        )
+        self.token = ConversationListChangeInfo.addListObserver(self, for: conversationList, managedObjectContext: managedObjectContext)
     }
     
     func conversationListDidChange(_ changeInfo: ConversationListChangeInfo) {
