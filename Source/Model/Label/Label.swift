@@ -71,7 +71,12 @@ public class Label: ZMManagedObject, LabelType {
         return false
     }
     
-    public static func fetchOrCreateFavoriteLabel(in context: NSManagedObjectContext) -> Label {
+    public static func fetchFavoriteLabel(in context: NSManagedObjectContext) -> Label {
+        return fetchOrCreateFavoriteLabel(in: context, create: false)
+    }
+    
+    @discardableResult
+    static func fetchOrCreateFavoriteLabel(in context: NSManagedObjectContext, create: Bool) -> Label {
         
         // Executing a fetch request is quite expensive, because it will _always_ (1) round trip through
         // (1) the persistent store coordinator and the SQLite engine, and (2) touch the file system.
@@ -99,12 +104,20 @@ public class Label: ZMManagedObject, LabelType {
         
         if let label = results.first {
             return label
-        } else {
+        } else if create {
             let label = Label.insertNewObject(in: context)
             label.remoteIdentifier = UUID()
             label.kind = .favorite
             
+            do {
+                try context.save()
+            } catch {
+                fatal("Failure creating favorite label")
+            }
+            
             return label
+        } else {
+            fatal("The favorite label is always expected to exist at all times")
         }
     }
     

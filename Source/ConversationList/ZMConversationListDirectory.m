@@ -97,7 +97,7 @@ static NSString * const PendingKey = @"Pending";
                                                                            description:@"groupConversations"];
         
         self.favoriteConversations = [[ZMConversationList alloc] initWithAllConversations:allConversations
-                                                                       filteringPredicate:[ZMConversation predicateForLabeledConversations:[Label fetchOrCreateFavoriteLabelIn:moc]]
+                                                                       filteringPredicate:[ZMConversation predicateForLabeledConversations:[Label fetchFavoriteLabelIn:moc]]
                                                                                       moc:moc description:@"favorites"];
     }
     return self;

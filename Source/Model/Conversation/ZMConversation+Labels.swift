@@ -25,7 +25,7 @@ extension ZMConversation {
         set {
             guard let managedObjectContext = managedObjectContext else { return }
             
-            let favoriteLabel = Label.fetchOrCreateFavoriteLabel(in: managedObjectContext)
+            let favoriteLabel = Label.fetchFavoriteLabel(in: managedObjectContext)
             
             if newValue {
                 assignLabel(favoriteLabel)
