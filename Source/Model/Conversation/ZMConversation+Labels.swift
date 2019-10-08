@@ -39,6 +39,11 @@ extension ZMConversation {
     }
     
     @objc
+    var folder: LabelType? {
+        return labels.first(where: { $0.kind == .folder })
+    }
+    
+    @objc
     public func moveToFolder(_ folder: LabelType) {
         guard let label = folder as? Label, label.kind == .folder else { return }
         

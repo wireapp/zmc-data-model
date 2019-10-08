@@ -21,6 +21,7 @@ import Foundation
 @objc
 public protocol LabelType: NSObjectProtocol {
     
+    var remoteIdentifier: UUID? { get }
     var kind: Label.Kind { get }
     var name: String? { get }
     
