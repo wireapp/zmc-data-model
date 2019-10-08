@@ -41,6 +41,14 @@ public class Label: ZMManagedObject, LabelType {
     @NSManaged private var remoteIdentifier_data: Data?
     @NSManaged private var type: Int16
     
+    public override var ignoredKeys: Set<AnyHashable>? {
+        var ignoredKeys = super.ignoredKeys
+        
+        _ = ignoredKeys?.insert((#keyPath(Label.type)))
+        
+        return ignoredKeys
+    }
+    
     public var remoteIdentifier: UUID? {
         get {
             guard let data = remoteIdentifier_data else { return nil }
