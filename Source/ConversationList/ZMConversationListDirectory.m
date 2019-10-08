@@ -120,7 +120,7 @@ static NSString * const PendingKey = @"Pending";
 - (NSArray *)fetchAllFolders:(NSManagedObjectContext *)context
 {
     NSFetchRequest *allFoldersRequest = [Label sortedFetchRequest];
-    allFoldersRequest.predicate = [NSPredicate predicateWithFormat:@"type = 0"];
+    allFoldersRequest.predicate = [NSPredicate predicateWithFormat:@"type = 0 AND markedForDeletion = NO"];
     
     NSError *error;
     return [context executeFetchRequest:allFoldersRequest error:&error];

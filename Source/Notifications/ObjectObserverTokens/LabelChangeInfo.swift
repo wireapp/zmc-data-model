@@ -22,7 +22,7 @@ extension Label : ObjectInSnapshot {
     
     static public var observableKeys : Set<String> {
         return [
-            #keyPath(Label.name),
+            #keyPath(Label.name), #keyPath(Label.markedForDeletion)
         ]
     }
     
@@ -51,6 +51,10 @@ extension Label : ObjectInSnapshot {
     
     public var nameChanged : Bool {
         return changedKeys.contains(#keyPath(Label.name))
+    }
+    
+    public var markedForDeletion: Bool {
+        return changedKeys.contains(#keyPath(Label.markedForDeletion))
     }
     
 }

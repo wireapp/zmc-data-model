@@ -36,6 +36,7 @@ public class Label: ZMManagedObject, LabelType {
     
     @NSManaged public var name: String?
     @NSManaged public var conversations: Set<ZMConversation>
+    @NSManaged public private(set) var markedForDeletion: Bool
     
     @NSManaged private var remoteIdentifier_data: Data?
     @NSManaged private var type: Int16
@@ -59,6 +60,10 @@ public class Label: ZMManagedObject, LabelType {
         }
     }
     
+    public func markForDeletion() {
+        markedForDeletion = true
+    }
+    
     public override static func entityName() -> String {
         return "Label"
     }
@@ -68,7 +73,7 @@ public class Label: ZMManagedObject, LabelType {
     }
     
     public override static func isTrackingLocalModifications() -> Bool {
-        return false
+        return true
     }
     
     public static func fetchFavoriteLabel(in context: NSManagedObjectContext) -> Label {

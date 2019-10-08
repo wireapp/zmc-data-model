@@ -50,6 +50,10 @@ extension ZMConversation {
     public func removeFromFolder() {
         let existingFolders = labels.filter({ $0.kind == .folder })
         labels.subtract(existingFolders)
+        
+        for emptyFolder in existingFolders.filter({ $0.conversations.isEmpty} ) {
+            emptyFolder.markForDeletion()
+        }
     }
     
     func assignLabel(_ label: Label) {
