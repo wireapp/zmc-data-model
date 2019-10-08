@@ -80,6 +80,11 @@ public class Label: ZMManagedObject, LabelType {
         return #keyPath(Label.name)
     }
     
+    public override static func predicateForFilteringResults() -> NSPredicate? {
+        return NSPredicate(format: "\(#keyPath(Label.type)) == \(Label.Kind.folder.rawValue) AND \(#keyPath(Label.markedForDeletion)) == NO")
+    }
+    
+    
     public override static func isTrackingLocalModifications() -> Bool {
         return true
     }
