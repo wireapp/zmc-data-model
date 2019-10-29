@@ -23,7 +23,7 @@
 
 @protocol ZMManagedObjectContextProvider <NSObject>
 
-@property (nonatomic, readonly) NSManagedObjectContext *managedObjectContext;
-@property (nonatomic, readonly) NSManagedObjectContext *syncManagedObjectContext;
+@property (nonatomic, readonly, nullable) NSManagedObjectContext *managedObjectContext;
+@property (nonatomic, readonly, nullable) NSManagedObjectContext *syncManagedObjectContext;
 
 @end
