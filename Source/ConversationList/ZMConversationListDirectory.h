@@ -20,7 +20,9 @@
 @import Foundation;
 @import CoreData;
 
-@class Team;
+@protocol LabelType;
+
+@class Label;
 @class ZMConversationList;
 @class ZMSharableConversations;
 @class NSManagedObjectContext;
@@ -28,17 +30,29 @@
 
 @interface ZMConversationListDirectory : NSObject
 
+@property (nonatomic, readonly, nonnull) NSManagedObjectContext *managedObjectContext;
+
 @property (nonatomic, readonly, nonnull) ZMConversationList* unarchivedConversations; ///< archived, not pending
 @property (nonatomic, readonly, nonnull) ZMConversationList* conversationsIncludingArchived; ///< unarchived, not pending,
 @property (nonatomic, readonly, nonnull) ZMConversationList* archivedConversations; ///< archived, not pending
 @property (nonatomic, readonly, nonnull) ZMConversationList* pendingConnectionConversations; ///< pending
-@property (nonatomic, readonly, nonnull) ZMConversationList *clearedConversations; /// conversations with deleted messages (clearedTimestamp is set)
+@property (nonatomic, readonly, nonnull) ZMConversationList* clearedConversations; /// conversations with deleted messages (clearedTimestamp is set)
+@property (nonatomic, readonly, nonnull) ZMConversationList* oneToOneConversations;
+@property (nonatomic, readonly, nonnull) ZMConversationList* groupConversations;
+@property (nonatomic, readonly, nonnull) ZMConversationList* favoriteConversations;
 
-- (nonnull NSArray *)allConversationLists;
+@property (nonatomic, readonly, nonnull) NSMutableDictionary<NSManagedObjectID *, ZMConversationList *> *listsByFolder;
+@property (nonatomic, readonly, nonnull) NSArray<id<LabelType>> *allFolders;
+
+- (nonnull NSArray<ZMConversationList *> *)allConversationLists;
+
+
 
 /// Refetches all conversation lists and resets the snapshots
 /// Call this when the app re-enters the foreground
 - (void)refetchAllListsInManagedObjectContext:(NSManagedObjectContext * _Nonnull)moc;
+- (void)insertFolders:(NSArray<Label *> * _Nonnull)labels;
+- (void)deleteFolders:(NSArray<Label *> * _Nonnull)labels;
 
 @end
 
