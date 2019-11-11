@@ -495,14 +495,14 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         if let user = user {
             user.connect(message: message)
         } else {
-            guard let remoteIdentifier = self.remoteIdentifier else { return }
+            guard let remoteIdentifier = remoteIdentifier,
+                  let syncManagedObjectContext = contextProvider?.syncManagedObjectContext else { return }
             
             let name = self.name
             let accentColorValue = self.accentColorValue
             
-            contextProvider?.syncManagedObjectContext?.performGroupedBlock {
-                guard let context = self.contextProvider?.syncManagedObjectContext,
-                      let user = ZMUser(remoteID: remoteIdentifier, createIfNeeded: true, in: context) else { return }
+            syncManagedObjectContext.performGroupedBlock {
+                guard let user = ZMUser(remoteID: remoteIdentifier, createIfNeeded: true, in: syncManagedObjectContext) else { return }
                 
                 user.name = name
                 user.accentColorValue = accentColorValue
@@ -510,12 +510,15 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
                 
                 let connection = ZMConnection.insertNewSentConnection(to: user)
                 connection?.message = message
-                context.saveOrRollback()
+                syncManagedObjectContext.saveOrRollback()
                 
                 let objectId = user.objectID
-                self.contextProvider?.managedObjectContext?.performGroupedBlock {
-                    self.user = self.contextProvider?.managedObjectContext?.object(with: objectId) as? ZMUser
-                    self.contextProvider?.managedObjectContext?.searchUserObserverCenter.notifyUpdatedSearchUser(self)
+                
+                if let managedObjectContext = self.contextProvider?.managedObjectContext {
+                    managedObjectContext.performGroupedBlock {
+                        self.user = managedObjectContext.object(with: objectId) as? ZMUser
+                        managedObjectContext.searchUserObserverCenter.notifyUpdatedSearchUser(self)
+                    }
                 }
             }
         }
