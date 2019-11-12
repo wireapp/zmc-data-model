@@ -497,13 +497,14 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         } else {
             guard let remoteIdentifier = remoteIdentifier,
                   let syncManagedObjectContext = contextProvider?.syncManagedObjectContext,
-                  let managedObjectContext = contextProvider?.managedObjectContext,
-                  let user = ZMUser(remoteID: remoteIdentifier, createIfNeeded: true, in: syncManagedObjectContext) else { return }
+                  let managedObjectContext = contextProvider?.managedObjectContext else { return }
             
             let name = self.name
             let accentColorValue = self.accentColorValue
             
             syncManagedObjectContext.performGroupedBlock {
+                guard let user = ZMUser(remoteID: remoteIdentifier, createIfNeeded: true, in: syncManagedObjectContext) else { return }
+                
                 user.name = name
                 user.accentColorValue = accentColorValue
                 user.needsToBeUpdatedFromBackend = true
