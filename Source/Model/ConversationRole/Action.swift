@@ -21,15 +21,10 @@ import Foundation
 @objcMembers
 public class Action: ZMManagedObject {
     
-    @NSManaged public var participantRole: ParticipantRole
+    @NSManaged public var role: Role
     @NSManaged public var name: String?
     
     public override static func entityName() -> String {
         return "Action"
     }
-    
-    public override static func isTrackingLocalModifications() -> Bool {
-        return true
-    }
-    
 }

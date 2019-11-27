@@ -21,16 +21,13 @@ import Foundation
 @objcMembers
 public class Role: ZMManagedObject {
     
-    @NSManaged public var action: Action
-    @NSManaged public var participantRole: ParticipantRole
     @NSManaged public var name: String?
-    
+
+    @NSManaged public var actions: Set<Action>
+    @NSManaged public var participantRoles: Set<ParticipantRole>
+    @NSManaged public var team: Team
+
     public override static func entityName() -> String {
         return "Role"
-    }
-    
-    public override static func isTrackingLocalModifications() -> Bool {
-        return true
-    }
-    
+    }    
 }

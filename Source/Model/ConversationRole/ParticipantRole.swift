@@ -18,12 +18,20 @@
 
 import Foundation
 
+public let ZMParticipantRoleRoleValueKey      = "role"
+public let ZMParticipantRoleMarkedToDeleteKey = "markedToDelete"
+public let ZMParticipantRoleMarkedToInsertKey = "markedToInsert"
+
 @objcMembers
 public class ParticipantRole: ZMManagedObject {
     
+    @NSManaged public private(set) var markedForDelete: Bool
+    @NSManaged public private(set) var markedForInsert: Bool
+    
     @NSManaged public var conversation: ZMConversation
     @NSManaged public var user: ZMUser
-            
+    @NSManaged public var role: Role
+
     public override static func entityName() -> String {
         return "ParticipantRole"
     }
@@ -32,4 +40,10 @@ public class ParticipantRole: ZMManagedObject {
         return true
     }
     
+    open override func keysTrackedForLocalModifications() -> Set<String> {
+        return [ZMParticipantRoleRoleValueKey,
+                ZMParticipantRoleMarkedToDeleteKey,
+                ZMParticipantRoleMarkedToInsertKey]
+    }
+
 }
