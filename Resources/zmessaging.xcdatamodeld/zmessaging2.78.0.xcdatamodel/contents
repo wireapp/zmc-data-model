@@ -2,7 +2,7 @@
 <model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14492.1" systemVersion="19B88" minimumToolsVersion="Xcode 4.3" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="2.78.0">
     <entity name="Action" syncable="YES">
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="role" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Role" inverseName="actions" inverseEntity="Role" syncable="YES"/>
+        <relationship name="role" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Role" inverseName="actions" inverseEntity="Role" syncable="YES"/>
     </entity>
     <entity name="AddressBookEntry" representedClassName=".AddressBookEntry" syncable="YES">
         <attribute name="cachedName" optional="YES" attributeType="String" syncable="YES"/>
@@ -79,8 +79,7 @@
         <relationship name="creator" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="conversationsCreated" inverseEntity="User" syncable="YES"/>
         <relationship name="hiddenMessages" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Message" inverseName="hiddenInConversation" inverseEntity="Message" syncable="YES"/>
         <relationship name="labels" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Label" inverseName="conversations" inverseEntity="Label" syncable="YES"/>
-        <relationship name="lastServerSyncedActiveParticipants" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="User" inverseName="lastServerSyncedActiveConversations" inverseEntity="User" syncable="YES"/>
-        <relationship name="participantRoles" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ParticipantRole" inverseName="conversation" inverseEntity="ParticipantRole" syncable="YES"/>
+        <relationship name="participantRoles" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ParticipantRole" inverseName="conversation" inverseEntity="ParticipantRole" syncable="YES"/>
         <relationship name="team" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Team" inverseName="conversations" inverseEntity="Team" syncable="YES"/>
         <compoundIndexes>
             <compoundIndex>
@@ -172,9 +171,11 @@
         <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" syncable="YES"/>
     </entity>
     <entity name="ParticipantRole" syncable="YES">
+        <attribute name="markedForInsert" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="markedToDelete" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
         <relationship name="conversation" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Conversation" inverseName="participantRoles" inverseEntity="Conversation" syncable="YES"/>
-        <relationship name="role" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Role" inverseName="participantRole" inverseEntity="Role" syncable="YES"/>
-        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="participantRole" inverseEntity="User" syncable="YES"/>
+        <relationship name="role" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Role" inverseName="participantRoles" inverseEntity="Role" syncable="YES"/>
+        <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="participantRoles" inverseEntity="User" syncable="YES"/>
     </entity>
     <entity name="Reaction" representedClassName=".Reaction" syncable="YES">
         <attribute name="modifiedKeys" optional="YES" attributeType="Transformable" syncable="YES"/>
@@ -184,8 +185,9 @@
     </entity>
     <entity name="Role" syncable="YES">
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="actions" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Action" inverseName="role" inverseEntity="Action" syncable="YES"/>
-        <relationship name="participantRole" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ParticipantRole" inverseName="role" inverseEntity="ParticipantRole" syncable="YES"/>
+        <relationship name="actions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Action" inverseName="role" inverseEntity="Action" syncable="YES"/>
+        <relationship name="participantRoles" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ParticipantRole" inverseName="role" inverseEntity="ParticipantRole" syncable="YES"/>
+        <relationship name="team" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Team" inverseName="roles" inverseEntity="Team" syncable="YES"/>
     </entity>
     <entity name="Session" representedClassName="ZMSession" syncable="YES">
         <relationship name="selfUser" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" syncable="YES"/>
@@ -217,7 +219,7 @@
         <relationship name="conversations" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Conversation" inverseName="team" inverseEntity="Conversation" syncable="YES"/>
         <relationship name="creator" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="createdTeams" inverseEntity="User" syncable="YES"/>
         <relationship name="members" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Member" inverseName="team" inverseEntity="Member" syncable="YES"/>
-        <relationship name="roles" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Role" syncable="YES"/>
+        <relationship name="roles" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Role" inverseName="team" inverseEntity="Role" syncable="YES"/>
     </entity>
     <entity name="TextMessage" representedClassName="ZMTextMessage" parentEntity="Message" syncable="YES">
         <attribute name="text" optional="YES" attributeType="String" syncable="YES"/>
@@ -259,9 +261,8 @@
         <relationship name="conversationsCreated" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Conversation" inverseName="creator" inverseEntity="Conversation" syncable="YES"/>
         <relationship name="createdTeamMembers" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Member" inverseName="createdBy" inverseEntity="Member" syncable="YES"/>
         <relationship name="createdTeams" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Team" inverseName="creator" inverseEntity="Team" syncable="YES"/>
-        <relationship name="lastServerSyncedActiveConversations" optional="YES" toMany="YES" deletionRule="Nullify" ordered="YES" destinationEntity="Conversation" inverseName="lastServerSyncedActiveParticipants" inverseEntity="Conversation" syncable="YES"/>
         <relationship name="membership" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="Member" inverseName="user" inverseEntity="Member" syncable="YES"/>
-        <relationship name="participantRole" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ParticipantRole" inverseName="user" inverseEntity="ParticipantRole" syncable="YES"/>
+        <relationship name="participantRoles" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="ParticipantRole" inverseName="user" inverseEntity="ParticipantRole" syncable="YES"/>
         <relationship name="reactions" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Reaction" inverseName="users" inverseEntity="Reaction" syncable="YES"/>
         <relationship name="showingUserAdded" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SystemMessage" inverseName="addedUsers" inverseEntity="SystemMessage" syncable="YES"/>
         <relationship name="showingUserRemoved" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="SystemMessage" inverseName="removedUsers" inverseEntity="SystemMessage" syncable="YES"/>
@@ -306,7 +307,7 @@
         <element name="AssetClientMessage" positionX="9" positionY="153" width="128" height="225"/>
         <element name="ClientMessage" positionX="9" positionY="153" width="128" height="105"/>
         <element name="Connection" positionX="0" positionY="0" width="128" height="165"/>
-        <element name="Conversation" positionX="0" positionY="0" width="128" height="690"/>
+        <element name="Conversation" positionX="0" positionY="0" width="128" height="675"/>
         <element name="GenericMessageData" positionX="18" positionY="162" width="128" height="90"/>
         <element name="ImageMessage" positionX="0" positionY="0" width="128" height="165"/>
         <element name="KnockMessage" positionX="0" positionY="0" width="128" height="45"/>
@@ -314,14 +315,14 @@
         <element name="Member" positionX="18" positionY="162" width="128" height="165"/>
         <element name="Message" positionX="0" positionY="0" width="128" height="420"/>
         <element name="MessageConfirmation" positionX="9" positionY="153" width="128" height="105"/>
-        <element name="ParticipantRole" positionX="-207" positionY="54" width="128" height="90"/>
+        <element name="ParticipantRole" positionX="-207" positionY="54" width="128" height="120"/>
         <element name="Reaction" positionX="18" positionY="162" width="128" height="105"/>
-        <element name="Role" positionX="-198" positionY="63" width="128" height="90"/>
+        <element name="Role" positionX="-198" positionY="63" width="128" height="105"/>
         <element name="Session" positionX="9" positionY="153" width="128" height="60"/>
         <element name="SystemMessage" positionX="0" positionY="0" width="128" height="255"/>
         <element name="Team" positionX="9" positionY="153" width="128" height="210"/>
         <element name="TextMessage" positionX="-153" positionY="-117" width="128" height="60"/>
-        <element name="User" positionX="-434" positionY="-72" width="128" height="690"/>
+        <element name="User" positionX="-434" positionY="-72" width="128" height="675"/>
         <element name="UserClient" positionX="9" positionY="153" width="128" height="510"/>
     </elements>
 </model>

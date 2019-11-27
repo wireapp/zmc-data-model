@@ -1081,6 +1081,7 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     // given
     NSSet *expected = [NSSet setWithArray:@[@"accentColorValue",
                                             @"emailAddress",
+                                            @"participantRoles"
                                             @"previewProfileAssetIdentifier",
                                             @"completeProfileAssetIdentifier",
                                             @"name",

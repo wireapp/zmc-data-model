@@ -91,6 +91,7 @@ static NSString *const LegalHoldRequestKey = @"legalHoldRequest";
 static NSString *const NeedsToAcknowledgeLegalHoldStatusKey = @"needsToAcknowledgeLegalHoldStatus";
 
 static NSString *const NeedsToRefetchLabelsKey = @"needsToRefetchLabels";
+static NSString *const ParticipantRolesKey = @"participantRolesKey";
 
 
 @interface ZMBoxedSelfUser : NSObject
