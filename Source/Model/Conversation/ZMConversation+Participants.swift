@@ -70,12 +70,14 @@ extension ZMConversation {
         }
     }///TODO: test
     
+    @objc
     func add(users: [ZMUser], moc: NSManagedObjectContext) {
         users.forEach() { user in
             add(user: user, moc: moc)
         }
     }
     
+    @objc
     func add(user: ZMUser, moc: NSManagedObjectContext) {
         let participantRole = ParticipantRole.create(managedObjectContext: moc, user: user)
         

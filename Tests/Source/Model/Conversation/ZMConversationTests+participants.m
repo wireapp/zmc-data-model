@@ -211,7 +211,7 @@
     
     // then
     NSSet *expectedActiveParticipants = [NSSet setWithObjects:user1, user2, user3, nil];
-    XCTAssertEqualObjects(expectedActiveParticipants, conversation.lastServerSyncedActiveParticipants.set);
+    XCTAssertEqualObjects(expectedActiveParticipants, conversation.lastServerSyncedActiveParticipants);
 }
 
 - (void)testThatActiveParticipantsContainsSelf

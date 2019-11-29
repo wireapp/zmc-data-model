@@ -928,9 +928,9 @@ extension DuplicatedEntityRemovalTests {
             return XCTFail("Both deleted!")
         }
         
-        XCTAssertEqual(convoA.lastServerSyncedActiveParticipants.set, Set([userA]))
-        XCTAssertEqual(convoB.lastServerSyncedActiveParticipants.set, Set([userA, userB, userC]))
-        XCTAssertEqual(convoC.lastServerSyncedActiveParticipants.set, Set([userA, userC]))
+        XCTAssertEqual(convoA.lastServerSyncedActiveParticipants, Set([userA]))
+        XCTAssertEqual(convoB.lastServerSyncedActiveParticipants, Set([userA, userB, userC]))
+        XCTAssertEqual(convoC.lastServerSyncedActiveParticipants, Set([userA, userC]))
         
         XCTAssertTrue(convoA.needsToBeUpdatedFromBackend)
         XCTAssertTrue(convoB.needsToBeUpdatedFromBackend)
