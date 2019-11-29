@@ -69,4 +69,17 @@ extension ZMConversation {
             participantRoles.remove($0)
         }
     }///TODO: test
+    
+    func add(users: [ZMUser], moc: NSManagedObjectContext) {
+        users.forEach() { user in
+            add(user: user, moc: moc)
+        }
+    }
+    
+    func add(user: ZMUser, moc: NSManagedObjectContext) {
+        let participantRole = ParticipantRole.create(managedObjectContext: moc, user: user)
+        
+        participantRoles.insert(participantRole)
+    }
+
 }

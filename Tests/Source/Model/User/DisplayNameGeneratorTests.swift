@@ -206,7 +206,8 @@ extension DisplayNameGeneratorTests {
         
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.conversationType = .group
-        conversation.mutableLastServerSyncedActiveParticipants.addObjects(from: [user1, user2, user3])
+       
+        conversation.add(users: [user1, user2, user3], moc: uiMOC)
 
         // when
         let displayName1 = user1.displayName(in: conversation)
@@ -232,7 +233,7 @@ extension DisplayNameGeneratorTests {
         
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.conversationType = .group
-        conversation.mutableLastServerSyncedActiveParticipants.addObjects(from: [user1, user2])
+        conversation.add(users: [user1, user2], moc:uiMOC)
         
         // when
         let displayName1 = user1.displayName(in: conversation)
@@ -295,7 +296,7 @@ extension DisplayNameGeneratorTests {
         
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.conversationType = .group
-        conversation.mutableLastServerSyncedActiveParticipants.addObjects(from: [user1])
+        conversation.add(users: [user1], moc:uiMOC)
         
         // when
         let displayName1 = user1.displayName(in: conversation)
@@ -336,7 +337,7 @@ extension DisplayNameGeneratorTests {
         
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.conversationType = .group
-        conversation.mutableLastServerSyncedActiveParticipants.addObjects(from: [user1, user2])
+        conversation.add(users: [user1, user2], moc:uiMOC)
         
         XCTAssertEqual(user1.displayName(in: conversation), "Hans")
         XCTAssertEqual(user2.displayName(in: conversation), "Uschi")
@@ -387,7 +388,7 @@ extension DisplayNameGeneratorTests {
         
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.conversationType = .group
-        conversation.mutableLastServerSyncedActiveParticipants.addObjects(from: [user2])
+        conversation.add(users: [user2], moc:uiMOC)
         
         // then
         performIgnoringZMLogError{

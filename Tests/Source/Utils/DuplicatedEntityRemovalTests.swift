@@ -179,7 +179,7 @@ extension DuplicatedEntityRemovalTests {
         conversation.conversationType = .oneOnOne
         let connection = createConnection(to: user1, conversation: conversation)
         user1.connection = connection
-        conversation.mutableLastServerSyncedActiveParticipants.add(user1)
+        conversation.add(user:user1, moc:moc)
         self.moc.saveOrRollback()
         
         // WHEN
@@ -202,7 +202,7 @@ extension DuplicatedEntityRemovalTests {
         conversation.conversationType = .oneOnOne
         let connection = createConnection(to: user2, conversation: conversation)
         user2.connection = connection
-        conversation.mutableLastServerSyncedActiveParticipants.add(user2)
+        conversation.add(user:user2, moc: moc)
         self.moc.saveOrRollback()
         
         // WHEN
@@ -223,10 +223,10 @@ extension DuplicatedEntityRemovalTests {
         user2.remoteIdentifier = user1.remoteIdentifier
         let conversation1 = createConversation()
         conversation1.conversationType = .oneOnOne
-        conversation1.mutableLastServerSyncedActiveParticipants.add(user1)
+        conversation1.add(user:user1, moc:moc)
         let conversation2 = createConversation()
         conversation2.conversationType = .oneOnOne
-        conversation2.mutableLastServerSyncedActiveParticipants.add(user2)
+        conversation2.add(user:user2, moc:moc)
         let connection1 = createConnection(to: user1, conversation: conversation1)
         user1.connection = connection1
         let connection2 = createConnection(to: user2, conversation: conversation2)
@@ -852,42 +852,42 @@ extension DuplicatedEntityRemovalTests {
         let convoA1 = ZMConversation.insertNewObject(in: self.moc)
         convoA1.remoteIdentifier = UUID()
         convoA1.conversationType = .oneOnOne
-        convoA1.mutableLastServerSyncedActiveParticipants.add(userA1)
+        convoA1.add(user:userA1, moc:moc)
         convoA1.creator = userA1
         convoA1.userDefinedName = "convoA1"
         convoA1.needsToBeUpdatedFromBackend = false
         let convoA2 = ZMConversation.insertNewObject(in: self.moc)
         convoA2.remoteIdentifier = convoA1.remoteIdentifier
         convoA2.conversationType = .oneOnOne
-        convoA2.mutableLastServerSyncedActiveParticipants.add(userA2)
+        convoA2.add(user:userA2, moc:moc)
         convoA2.creator = userA2
         convoA2.userDefinedName = "convoA2"
         convoA2.needsToBeUpdatedFromBackend = false
         let convoB1 = ZMConversation.insertNewObject(in: self.moc)
         convoB1.remoteIdentifier = UUID()
         convoB1.conversationType = .group
-        convoB1.mutableLastServerSyncedActiveParticipants.add(userA1)
-        convoB1.mutableLastServerSyncedActiveParticipants.add(userB)
+        convoB1.add(user:userA1, moc:moc)
+        convoB1.add(user:userB, moc:moc)
         convoB1.creator = userB
-        convoB1.mutableLastServerSyncedActiveParticipants.add(userA1) // missing userB
+        convoB1.add(user:userA1, moc:moc) // missing userB
         convoB1.userDefinedName = "convoB1"
         convoB1.needsToBeUpdatedFromBackend = false
         let convoB2 = ZMConversation.insertNewObject(in: self.moc)
         convoB2.remoteIdentifier = convoB1.remoteIdentifier
         convoB2.conversationType = .group
-        convoB2.mutableLastServerSyncedActiveParticipants.add(userC)
-        convoB2.mutableLastServerSyncedActiveParticipants.add(userB)
+        convoB2.add(user:userC, moc:moc)
+        convoB2.add(user:userB, moc:moc)
         convoB2.creator = userB
-        convoB2.mutableLastServerSyncedActiveParticipants.add(userC)
+        convoB2.add(user:userC, moc:moc)
         convoB2.userDefinedName = "convoB2"
         convoB2.needsToBeUpdatedFromBackend = false
         let convoC = ZMConversation.insertNewObject(in: self.moc)
         convoC.remoteIdentifier = UUID()
         convoC.conversationType = .group
-        convoC.mutableLastServerSyncedActiveParticipants.add(userA2)
-        convoC.mutableLastServerSyncedActiveParticipants.add(userC)
+        convoC.add(user:userA2, moc:moc)
+        convoC.add(user:userC, moc:moc)
         convoC.creator = userC
-        convoC.mutableLastServerSyncedActiveParticipants.add(userA2) // missing user C
+        convoC.add(user:userA2, moc:moc) // missing user C
         convoC.userDefinedName = "convoC"
         convoC.needsToBeUpdatedFromBackend = false
 

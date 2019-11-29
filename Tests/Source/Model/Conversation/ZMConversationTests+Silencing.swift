@@ -79,7 +79,7 @@ class ZMConversationTests_Silencing: ZMConversationTestsBase {
         let otherUser = ZMUser.insertNewObject(in: self.uiMOC)
         otherUser.remoteIdentifier = UUID()
         
-        conversation.mutableLastServerSyncedActiveParticipants.add(otherUser)
+        conversation.add(user:otherUser, moc:self.uiMOC)
         
         conversation.isArchived = true
         conversation.mutedMessageTypes = mutedMessageTypes

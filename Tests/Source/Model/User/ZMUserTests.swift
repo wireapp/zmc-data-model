@@ -579,11 +579,11 @@ extension ZMUserTests {
         let sut = createUser(in: uiMOC)
         let conversation1 = createConversation(in: uiMOC)
         conversation1.conversationType = .group
-        conversation1.mutableLastServerSyncedActiveParticipants.add(sut)
+        conversation1.add(user:sut, moc:self.uiMOC)
         
         let conversation2 = createConversation(in: uiMOC)
         conversation2.conversationType = .group
-        conversation2.mutableLastServerSyncedActiveParticipants.add(sut)
+        conversation2.add(user:sut, moc:self.uiMOC)
         
         // when
         sut.markAccountAsDeleted(at: Date())
@@ -627,7 +627,7 @@ extension ZMUserTests {
         // given
         let sut = ZMUser.insertNewObject(in: uiMOC)
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        conversation.mutableLastServerSyncedActiveParticipants.add(sut)
+        conversation.add(user:sut, moc:self.uiMOC)
         
         // then
         XCTAssertEqual(sut.activeConversations, Set(arrayLiteral: conversation))

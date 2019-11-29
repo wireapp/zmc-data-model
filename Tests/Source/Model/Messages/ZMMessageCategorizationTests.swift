@@ -66,7 +66,7 @@ class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
         let otherUser = ZMUser.insertNewObject(in: self.conversation.managedObjectContext!)
         otherUser.remoteIdentifier = UUID.create()
         
-        self.conversation.mutableLastServerSyncedActiveParticipants.addObjects(from: [otherUser])
+        conversation.add(user: otherUser, moc: conversation.managedObjectContext!)
         self.conversation.messageDestructionTimeout = .local(.fiveMinutes)
         let message = self.conversation.append(text: "ramble on!")! as! ZMMessage
         
