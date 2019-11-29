@@ -662,7 +662,7 @@ extension ZMConversation {
         }
         
         let selfUser = ZMUser.selfUser(in: managedObjectContext)
-        return (self.lastServerSyncedActiveParticipants.array as! [ZMUser]).first {
+        return (Array(lastServerSyncedActiveParticipants)).first {
             if $0.isConnected {
                 return false
             }

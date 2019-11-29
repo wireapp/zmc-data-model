@@ -173,7 +173,7 @@ extension ZMConversation {
         self.mutableLastServerSyncedActiveParticipants.union(conversation.mutableLastServerSyncedActiveParticipants)
         
         zmLog.debug("Merged duplicate conversation \(self.remoteIdentifier?.transportString() ?? "N/A")")
-        zmLog.debug("mutableLastServerSyncedActiveParticipants = \(self.mutableLastServerSyncedActiveParticipants.count)")
+        zmLog.debug("mutableLastServerSyncedActiveParticipants = \(self.lastServerSyncedActiveParticipants.count)")
     }
 }
 
