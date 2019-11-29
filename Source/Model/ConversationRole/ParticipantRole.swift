@@ -25,8 +25,8 @@ public let ZMParticipantRoleMarkedToInsertKey = "markedToInsert"
 @objcMembers
 public class ParticipantRole: ZMManagedObject {
     
-    @NSManaged public private(set) var markedForDelete: Bool
-    @NSManaged public private(set) var markedForInsert: Bool
+    @NSManaged public var markedForDelete: Bool
+    @NSManaged public var markedForInsert: Bool
     
     @NSManaged public var conversation: ZMConversation
     @NSManaged public var user: ZMUser

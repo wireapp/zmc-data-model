@@ -255,6 +255,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
 }
 
+///TODO: copy the filter to the new var activeParticipants
 -(NSSet <ZMUser *> *)activeParticipants
 {
     
@@ -1113,8 +1114,10 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
     
     if (otherUsers.count > 0) {
-        NSSet *existingUsers = [self.lastServerSyncedActiveParticipants.set copy];
-        [self.mutableLastServerSyncedActiveParticipants unionOrderedSet:otherUsers];
+        
+        
+        NSSet *existingUsers = [self.lastServerSyncedActiveParticipants copy];
+        [self unionWithUserSet:otherUsers.set moc:self.managedObjectContext];
         
         [otherUsers minusSet:existingUsers];
         if (otherUsers.count > 0) {
@@ -1137,12 +1140,13 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         self.isArchived = sender.isSelfUser;
     }
     
-    [self.mutableLastServerSyncedActiveParticipants minusOrderedSet:otherUsers];
+    ///TODO: participantRoles.remove(otherUsers) unless isInsert == true in Swift
+    [self minusWithUserSet:otherUsers.set];
     [self increaseSecurityLevelIfNeededAfterRemovingUsers:otherUsers.set];
 }
 
 @dynamic isSelfAnActiveMember;
-@dynamic lastServerSyncedActiveParticipants;
+//@dynamic lastServerSyncedActiveParticipants;
 
 @end
 

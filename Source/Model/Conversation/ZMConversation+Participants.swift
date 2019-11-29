@@ -30,4 +30,43 @@ extension ZMConversation {
             }
         })
     }
+    
+    /// union user set to participantRoles
+    ///
+    /// - Parameter users: users to union
+    @objc
+    func union(userSet: Set<ZMUser>, moc: NSManagedObjectContext) {
+        let currentParticipantSet = lastServerSyncedActiveParticipants
+        
+        userSet.forEach() { user in
+            if !currentParticipantSet.contains(user) {
+                let participantRole = ParticipantRole.create(managedObjectContext: moc, user: user)
+                
+                participantRoles.insert(participantRole)
+            }
+
+            ///if mark for delete, flip it
+            if currentParticipantSet.contains(user) {
+                participantRoles.first(where: {$0.markedForDelete})?.markedForDelete = false
+            }
+        }
+    }///TODO: test
+    
+    @objc
+    func minus(userSet: Set<ZMUser>) {
+        
+        var removeArray = [ParticipantRole]()
+        
+        participantRoles.forEach() { participantRole in
+            if userSet.contains(participantRole.user) {
+                if !participantRole.markedForInsert {
+                    removeArray.append(participantRole)
+                }
+            }
+        }
+        
+        removeArray.forEach() {
+            participantRoles.remove($0)
+        }
+    }///TODO: test
 }

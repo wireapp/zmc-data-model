@@ -170,7 +170,7 @@ extension ZMConversation {
         self.mutableMessages.union(conversation.allMessages)
         self.team = self.team ?? conversation.team // I don't want to delete a team just in case it's needed
         self.connection = ZMManagedObject.firstNonNullAndDeleteSecond(self.connection, conversation.connection)
-        self.mutableLastServerSyncedActiveParticipants.union(conversation.mutableLastServerSyncedActiveParticipants)
+        participantRoles = participantRoles.union(conversation.participantRoles)
         
         zmLog.debug("Merged duplicate conversation \(self.remoteIdentifier?.transportString() ?? "N/A")")
         zmLog.debug("mutableLastServerSyncedActiveParticipants = \(self.lastServerSyncedActiveParticipants.count)")
