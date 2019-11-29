@@ -589,8 +589,8 @@ extension ZMUserTests {
         sut.markAccountAsDeleted(at: Date())
         
         // then
-        XCTAssertFalse(conversation1.lastServerSyncedActiveParticipants.contains(sut))
-        XCTAssertFalse(conversation2.lastServerSyncedActiveParticipants.contains(sut))
+        XCTAssertFalse(conversation1.participants.contains(sut))
+        XCTAssertFalse(conversation2.participants.contains(sut))
     }
     
     func testThatUserIsNotRemovedFromTeamOneToOneConversationsWhenAccountIsDeleted() {
@@ -604,7 +604,7 @@ extension ZMUserTests {
         sut.markAccountAsDeleted(at: Date())
         
         // then
-        XCTAssertTrue(teamOneToOneConversation.lastServerSyncedActiveParticipants.contains(sut))
+        XCTAssertTrue(teamOneToOneConversation.participants.contains(sut))
     }
     
 }

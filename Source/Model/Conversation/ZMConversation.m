@@ -267,11 +267,11 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
     else if(self.isSelfAnActiveMember) {
         [activeParticipants addObject:[ZMUser selfUserInContext:self.managedObjectContext]];
-        [activeParticipants unionSet:[self.lastServerSyncedActiveParticipants set]];
+        [activeParticipants unionSet:[self.participants set]];
     }
     else
     {
-        [activeParticipants unionSet:[self.lastServerSyncedActiveParticipants set]];
+        [activeParticipants unionSet:[self.participants set]];
     }
     
     return activeParticipants;
@@ -303,7 +303,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         return self.connection.to;
     }
     else if (self.conversationType == ZMConversationTypeOneOnOne) {
-        return self.lastServerSyncedActiveParticipants.firstObject;
+        return self.participants.firstObject;
     }
     
     return nil;
@@ -525,8 +525,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     // 4. This participant is not a service user (bot).
     if (conversationType == ZMConversationTypeGroup &&
         self.teamRemoteIdentifier != nil &&
-        self.lastServerSyncedActiveParticipants.count == 1 &&
-        !self.lastServerSyncedActiveParticipants.firstObject.isServiceUser &&
+        self.participants.count == 1 &&
+        !self.participants.firstObject.isServiceUser &&
         self.userDefinedName.length == 0) {
         conversationType = ZMConversationTypeOneOnOne;
     }
@@ -1112,7 +1112,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
     
     if (otherUsers.count > 0) {
-        NSSet *existingUsers = [self.lastServerSyncedActiveParticipants.set copy];
+        NSSet *existingUsers = [self.participants.set copy];
         [self.mutableLastServerSyncedActiveParticipants unionOrderedSet:otherUsers];
         
         [otherUsers minusSet:existingUsers];
@@ -1141,7 +1141,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 }
 
 @dynamic isSelfAnActiveMember;
-@dynamic lastServerSyncedActiveParticipants;
 
 @end
 
@@ -1207,7 +1206,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
                 
                 if(conversation.shouldNotBeRefreshed) {
                     [conversationsToKeep addObject:conversation];
-                    [usersToKeep unionSet:conversation.lastServerSyncedActiveParticipants.set];
+                    [usersToKeep unionSet:conversation.participants.set];
                 }
             } else if ([obj isKindOfClass:ZMOTRMessage.class]) {
                 ZMOTRMessage *message = (ZMOTRMessage *)obj;

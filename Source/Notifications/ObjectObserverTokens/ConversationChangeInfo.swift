@@ -31,7 +31,7 @@ extension ZMConversation : ObjectInSnapshot {
                     #keyPath(ZMConversation.displayName),
                     #keyPath(ZMConversation.estimatedUnreadCount),
                     #keyPath(ZMConversation.clearedTimeStamp),
-                    #keyPath(ZMConversation.lastServerSyncedActiveParticipants),
+                    #keyPath(ZMConversation.participantRoles),
                     #keyPath(ZMConversation.isSelfAnActiveMember),
                     #keyPath(ZMConversation.relatedConnectionState),
                     #keyPath(ZMConversation.team),
@@ -74,7 +74,7 @@ extension ZMConversation : ObjectInSnapshot {
     }
 
     public var participantsChanged : Bool {
-        return changedKeysContain(keys: #keyPath(ZMConversation.lastServerSyncedActiveParticipants), #keyPath(ZMConversation.isSelfAnActiveMember))
+        return changedKeysContain(keys: #keyPath(ZMConversation.participantRoles), #keyPath(ZMConversation.isSelfAnActiveMember))
     }
 
     public var nameChanged : Bool {

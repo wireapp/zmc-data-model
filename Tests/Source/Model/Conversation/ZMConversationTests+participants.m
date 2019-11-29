@@ -134,7 +134,7 @@
     
     // then
     NSOrderedSet *expectedActiveParticipants = [NSOrderedSet orderedSetWithObjects:user1, user2, nil];
-    XCTAssertEqualObjects(expectedActiveParticipants, conversation.lastServerSyncedActiveParticipants);
+    XCTAssertEqualObjects(expectedActiveParticipants, conversation.participants);
 }
 
 - (void)testThatItDoesNotUnarchiveTheConversationWhenTheSelfUserIsAddedIfMuted
@@ -211,7 +211,7 @@
     
     // then
     NSSet *expectedActiveParticipants = [NSSet setWithObjects:user1, user2, user3, nil];
-    XCTAssertEqualObjects(expectedActiveParticipants, conversation.lastServerSyncedActiveParticipants.set);
+    XCTAssertEqualObjects(expectedActiveParticipants, conversation.participants.set);
 }
 
 - (void)testThatActiveParticipantsContainsSelf
@@ -244,7 +244,7 @@
     conversation.isSelfAnActiveMember = YES;
     
     // then
-    XCTAssertFalse([conversation.lastServerSyncedActiveParticipants containsObject:selfUser]);
+    XCTAssertFalse([conversation.participants containsObject:selfUser]);
 }
 
 @end

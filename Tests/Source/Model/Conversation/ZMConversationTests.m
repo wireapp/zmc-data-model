@@ -1954,7 +1954,7 @@
     [conversation internalAddParticipants:@[user1, user2]];
     
     XCTAssertTrue(conversation.isSelfAnActiveMember);
-    XCTAssertEqual(conversation.lastServerSyncedActiveParticipants.count, 2u);
+    XCTAssertEqual(conversation.participants.count, 2u);
     XCTAssertEqual(conversation.activeParticipants.count, 3u);
     
     // expect
@@ -1966,7 +1966,7 @@
     
     // then
     XCTAssertTrue(conversation.isSelfAnActiveMember);
-    XCTAssertEqual(conversation.lastServerSyncedActiveParticipants.count, 1u);
+    XCTAssertEqual(conversation.participants.count, 1u);
     XCTAssertEqual(conversation.activeParticipants.count, 2u);
     XCTAssert([self waitForCustomExpectationsWithTimeout:0.5]);
 }
@@ -1984,7 +1984,7 @@
     [conversation internalAddParticipants:@[user1, user2]];
     
     XCTAssertTrue(conversation.isSelfAnActiveMember);
-    XCTAssertEqual(conversation.lastServerSyncedActiveParticipants.count, 2u);
+    XCTAssertEqual(conversation.participants.count, 2u);
     XCTAssertEqual(conversation.activeParticipants.count, 3u);
     
     // expect
@@ -1995,7 +1995,7 @@
     
     // then
     XCTAssertFalse(conversation.isSelfAnActiveMember);
-    XCTAssertEqual(conversation.lastServerSyncedActiveParticipants.count, 2u);
+    XCTAssertEqual(conversation.participants.count, 2u);
     XCTAssertEqual(conversation.activeParticipants.count, 2u);
     XCTAssert([self waitForCustomExpectationsWithTimeout:0.5]);
 }

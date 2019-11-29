@@ -1010,7 +1010,7 @@
     
     // given
     ZMConversation *conversation = [self setupVerifiedConversation];
-    ZMUser *participant = [conversation.lastServerSyncedActiveParticipants firstObject];
+    ZMUser *participant = [conversation.participants firstObject];
     XCTAssertNotNil(participant);
     XCTAssertEqual(conversation.securityLevel, ZMConversationSecurityLevelSecure);
     [participant block];

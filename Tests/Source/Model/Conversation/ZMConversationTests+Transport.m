@@ -372,7 +372,7 @@
         ZMUser *user2 = [ZMUser userWithRemoteID:user2UUID createIfNeeded:NO inContext:self.syncMOC];
         XCTAssertNotNil(user2);
         
-        XCTAssertEqualObjects(conversation.lastServerSyncedActiveParticipants.set, ([NSSet setWithObjects:user1, user2, nil]) );
+        XCTAssertEqualObjects(conversation.participants.set, ([NSSet setWithObjects:user1, user2, nil]) );
         
         XCTAssertFalse(conversation.isArchived);
         XCTAssertFalse(conversation.isFullyMuted);
@@ -446,7 +446,7 @@
         ZMUser *user2 = [ZMUser userWithRemoteID:user2UUID createIfNeeded:NO inContext:self.syncMOC];
         XCTAssertNotNil(user2);
 
-        XCTAssertEqualObjects(conversation.lastServerSyncedActiveParticipants.set, ([NSSet setWithObjects:user1, user2, nil]) );
+        XCTAssertEqualObjects(conversation.participants.set, ([NSSet setWithObjects:user1, user2, nil]) );
         XCTAssertNil(conversation.team);
         XCTAssertEqualObjects(conversation.teamRemoteIdentifier, teamID);
         
@@ -499,7 +499,7 @@
         ZMUser *user2 = [ZMUser userWithRemoteID:user2UUID createIfNeeded:NO inContext:self.syncMOC];
         XCTAssertNotNil(user2);
 
-        XCTAssertEqualObjects(conversation.lastServerSyncedActiveParticipants.set, ([NSSet setWithObjects:user1, user2, nil]) );
+        XCTAssertEqualObjects(conversation.participants.set, ([NSSet setWithObjects:user1, user2, nil]) );
         XCTAssertNotNil(conversation.team);
         XCTAssertFalse(conversation.team.needsToBeUpdatedFromBackend);
         XCTAssertFalse(conversation.team.needsToRedownloadMembers);
@@ -552,7 +552,7 @@
         ZMUser *user2 = [ZMUser userWithRemoteID:user2UUID createIfNeeded:NO inContext:self.syncMOC];
         XCTAssertNotNil(user2);
 
-        XCTAssertEqualObjects(conversation.lastServerSyncedActiveParticipants.set, ([NSSet setWithObjects:user1, user2, nil]) );
+        XCTAssertEqualObjects(conversation.participants.set, ([NSSet setWithObjects:user1, user2, nil]) );
         XCTAssertNil(conversation.team);
         XCTAssertFalse(conversation.isArchived);
         XCTAssertFalse(conversation.isFullyMuted);

@@ -107,9 +107,8 @@ extension ZMUser : SideEffectSource {
             keys.formUnion(keyStore.observableKeysAffectedByValue(ZMUser.entityName(), key: changedKey))
         }
 
-        let otherPartKeys = allChangedKeys.map{"\(#keyPath(ZMConversation.lastServerSyncedActiveParticipants)).\($0)"}
         let selfUserKeys = allChangedKeys.map{"\(#keyPath(ZMConversation.connection)).\(#keyPath(ZMConnection.to)).\($0)"}
-        let mappedKeys = otherPartKeys + selfUserKeys
+        let mappedKeys = selfUserKeys
         var keys = mappedKeys.map{keyStore.observableKeysAffectedByValue(classIdentifier, key: $0)}.reduce(Set()){$0.union($1)}
 
         conversations.forEach {
@@ -128,7 +127,7 @@ extension ZMUser : SideEffectSource {
         guard conversations.count > 0 else { return  [:] }
         
         let classIdentifier = ZMConversation.entityName()
-        let affectedKeys = keyStore.observableKeysAffectedByValue(classIdentifier, key: #keyPath(ZMConversation.lastServerSyncedActiveParticipants))
+        let affectedKeys = keyStore.observableKeysAffectedByValue(classIdentifier, key: #keyPath(ZMConversation.participantRoles))
         return Dictionary(keys: conversations,
                                             repeatedValue: Changes(changedKeys: affectedKeys))
     }
