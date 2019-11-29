@@ -47,7 +47,7 @@ extern NSString *const ZMConversationIsSelfAnActiveMemberKey;
 extern NSString *const ZMConversationMutedStatusKey;
 extern NSString *const ZMConversationAllMessagesKey;
 extern NSString *const ZMConversationHiddenMessagesKey;
-extern NSString *const ZMConversationLastServerSyncedActiveParticipantsKey;
+extern NSString *const ZMConversationParticipantRolesKey;
 extern NSString *const ZMConversationHasUnreadKnock;
 extern NSString *const ZMConversationUserDefinedNameKey;
 extern NSString *const ZMVisibleWindowLowerKey;
