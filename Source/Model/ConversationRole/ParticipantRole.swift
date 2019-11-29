@@ -45,5 +45,14 @@ public class ParticipantRole: ZMManagedObject {
                 ZMParticipantRoleMarkedToDeleteKey,
                 ZMParticipantRoleMarkedToInsertKey]
     }
-
+    
+    @objc
+    static public func create(managedObjectContext: NSManagedObjectContext, user: ZMUser) -> ParticipantRole {
+        let entry = ParticipantRole.insertNewObject(in: managedObjectContext)
+        entry.user = user
+        
+        ///TODO: other flags init value?
+        return entry
+    }
 }
+
