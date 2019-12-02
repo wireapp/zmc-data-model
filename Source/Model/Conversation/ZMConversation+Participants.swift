@@ -23,7 +23,7 @@ extension ZMConversation {
     @objc
     public var lastServerSyncedActiveParticipants: Set<ZMUser> {
         return Set(participantRoles.compactMap {
-            if !$0.markedForDelete && !$0.markedForInsert {
+            if !$0.markedForDeletion && !$0.markedForInsertion {
              return $0.user
             } else {
                 return nil
@@ -47,7 +47,7 @@ extension ZMConversation {
 
             ///if mark for delete, flip it
             if currentParticipantSet.contains(user) {
-                participantRoles.first(where: {$0.markedForDelete})?.markedForDelete = false
+                participantRoles.first(where: {$0.markedForDeletion})?.markedForDeletion = false
             }
         }
     }///TODO: test
@@ -59,7 +59,7 @@ extension ZMConversation {
         
         participantRoles.forEach() { participantRole in
             if userSet.contains(participantRole.user) {
-                if !participantRole.markedForInsert {
+                if !participantRole.markedForInsertion {
                     removeArray.append(participantRole)
                 }
             }
@@ -89,7 +89,11 @@ extension ZMConversation {
         guard let moc = user.managedObjectContext else { return }
         let participantRole = ParticipantRole.create(managedObjectContext: moc, user: user)
         
-        participantRoles.insert(participantRole)
+        participantRole.conversation = self
+//        let ret = participantRoles.insert(participantRole)
+//        print(ret)///TODO: inserted is true, but participantRoles.count is 0?
+//
+//        print("#participantRoles \(participantRoles.count)")
     }
 
 }
