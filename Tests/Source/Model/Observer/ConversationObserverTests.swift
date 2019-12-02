@@ -57,7 +57,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
             "hasReadReceiptsEnabledChanged",
             "externalParticipantsStateChanged",
             "legalHoldStatusChanged"
-        ]
+        ]///TODO: new key?
     }
     
     func checkThatItNotifiesTheObserverOfAChange(_ conversation : ZMConversation,
@@ -95,8 +95,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         
         guard let changes = observer.notifications.first else { return }
         changes.checkForExpectedChangeFields(userInfoKeys: conversationInfoKeys, expectedChangedFields: expectedChangedFields, file: file, line: line)
-        XCTAssertTrue(expectedChangedKeys.isSubset(of: changes.changedKeys), file: file, line: line)
-        
+        XCTAssert(expectedChangedKeys.isSubset(of: changes.changedKeys), "failed: changes.changedKeys = \(changes.changedKeys)", file: file, line: line)
         self.token = nil
     }
     
@@ -309,7 +308,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: { conversation, _ in conversation.add(user:user, moc:self.uiMOC) },
                                                      expectedChangedFields: ["participantsChanged", "nameChanged"],
-                                                     expectedChangedKeys: ["displayName", "lastServerSyncedActiveParticipants"])
+                                                     expectedChangedKeys: ["displayName", "lastServerSyncedActiveParticipants"]) ///TODO: it should also has key PR?
         
     }
     

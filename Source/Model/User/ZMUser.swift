@@ -194,6 +194,11 @@ extension ZMUser {
         }
     }
     
+    @objc
+    func add(conversation: ZMConversation, moc: NSManagedObjectContext) {
+        ParticipantRole.create(managedObjectContext: moc, user: self, conversation: conversation)
+    }
+    
     ///TODO: test
     /// union ZMConversation set to participantRoles
     ///

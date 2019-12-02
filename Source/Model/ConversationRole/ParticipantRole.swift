@@ -47,6 +47,7 @@ public class ParticipantRole: ZMManagedObject {
     }
     
     @objc
+    @discardableResult
     static public func create(managedObjectContext: NSManagedObjectContext,
                               user: ZMUser,
                               conversation: ZMConversation) -> ParticipantRole {

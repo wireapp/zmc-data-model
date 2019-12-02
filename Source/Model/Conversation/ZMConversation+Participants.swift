@@ -40,9 +40,7 @@ extension ZMConversation {
         
         userSet.forEach() { user in
             if !currentParticipantSet.contains(user) {
-                let participantRole = ParticipantRole.create(managedObjectContext: moc, user: user, conversation: self)
-                
-                participantRoles.insert(participantRole)
+                add(user: user, moc: moc)
             }
 
             ///if mark for delete, flip it
@@ -66,7 +64,7 @@ extension ZMConversation {
         }
         
         removeArray.forEach() {
-            participantRoles.remove($0)
+            participantRoles.remove($0) ///FIXME: should not work
         }
     }///TODO: test
     
@@ -79,9 +77,7 @@ extension ZMConversation {
     
     @objc
     func add(user: ZMUser, moc: NSManagedObjectContext) {
-        let participantRole = ParticipantRole.create(managedObjectContext: moc, user: user, conversation: self)
-        
-        participantRoles.insert(participantRole)
+        let _ = ParticipantRole.create(managedObjectContext: moc, user: user, conversation: self)
     }
 
     @objc
