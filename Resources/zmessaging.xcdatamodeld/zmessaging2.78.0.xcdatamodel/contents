@@ -173,6 +173,7 @@
     <entity name="ParticipantRole" representedClassName=".ParticipantRole" syncable="YES">
         <attribute name="markedForDeletion" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="markedForInsertion" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="modifiedKeys" optional="YES" attributeType="Transformable" syncable="YES"/>
         <relationship name="conversation" maxCount="1" deletionRule="Nullify" destinationEntity="Conversation" inverseName="participantRoles" inverseEntity="Conversation" syncable="YES"/>
         <relationship name="role" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Role" inverseName="participantRoles" inverseEntity="Role" syncable="YES"/>
         <relationship name="user" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="participantRoles" inverseEntity="User" syncable="YES"/>
@@ -315,7 +316,7 @@
         <element name="Member" positionX="18" positionY="162" width="128" height="165"/>
         <element name="Message" positionX="0" positionY="0" width="128" height="420"/>
         <element name="MessageConfirmation" positionX="9" positionY="153" width="128" height="105"/>
-        <element name="ParticipantRole" positionX="-207" positionY="54" width="128" height="120"/>
+        <element name="ParticipantRole" positionX="-207" positionY="54" width="128" height="135"/>
         <element name="Reaction" positionX="18" positionY="162" width="128" height="105"/>
         <element name="Role" positionX="-198" positionY="63" width="128" height="105"/>
         <element name="Session" positionX="9" positionY="153" width="128" height="60"/>
