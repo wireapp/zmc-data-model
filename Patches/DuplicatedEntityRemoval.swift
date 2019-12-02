@@ -127,7 +127,9 @@ extension ZMUser {
         }
         self.connection = ZMManagedObject.firstNonNullAndDeleteSecond(self.connection, user.connection)
         self.addressBookEntry = ZMManagedObject.firstNonNullAndDeleteSecond(self.addressBookEntry, user.addressBookEntry)
-        self.lastServerSyncedActiveConversations = self.lastServerSyncedActiveConversations.adding(orderedSet: user.lastServerSyncedActiveConversations)
+       
+        
+        union(conversationSet: user.lastServerSyncedActiveConversations)
         self.conversationsCreated = self.conversationsCreated.union(user.conversationsCreated)
         self.createdTeams = self.createdTeams.union(user.createdTeams)
         self.membership = ZMManagedObject.firstNonNullAndDeleteSecond(self.membership, user.membership)

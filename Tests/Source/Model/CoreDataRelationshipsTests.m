@@ -101,7 +101,7 @@
     id ac = [NSSet setWithArray:@[conversation1, conversation2]];
     XCTAssertEqualObjects(user3.conversations, ac);
 
-    __block NSError *error = nil;
+    __block NSError *error = nil;///TODO: (([self.uiMOC save:&error]) is true) failed: throwing "-[WireDataModel.ParticipantRole modifiedKeys]: unrecognized selector sent to instance 0x6000009c8be0" - Save failed: (null)
     XCTAssertTrue([self.uiMOC save:&error], @"Save failed: %@", error);
     [NSThread sleepForTimeInterval:0.5];
 

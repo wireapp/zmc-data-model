@@ -50,7 +50,7 @@ extension ZMUser: UserType {
             result.remove(ZMConversation.selfConversation(in: managedObjectContext))
             return result
         } else {
-            return lastServerSyncedActiveConversations.set as? Set<ZMConversation> ?? Set()
+            return lastServerSyncedActiveConversations
         }
     }
 
@@ -151,9 +151,6 @@ extension ZMUser {
     @NSManaged public var previewProfileAssetIdentifier: String?
     @NSManaged public var completeProfileAssetIdentifier: String?
     
-    /// Conversation in which the user is active, according to the server
-    @NSManaged var lastServerSyncedActiveConversations: NSOrderedSet
-    
     /// Conversations created by this user
     @NSManaged var conversationsCreated: Set<ZMConversation>
     
@@ -175,6 +172,44 @@ extension ZMUser {
     
     /// If `needsToRefetchLabels` is true we need to refetch the conversation labels (favorites & folders)
     @NSManaged public var needsToRefetchLabels: Bool
+    
+    
+    ///TODO: other new attritubes can be written in Swift
+    
+    /// Conversation in which the user is active, according to the server
+    public var lastServerSyncedActiveConversations: Set<ZMConversation> {
+        
+        return Set(participantRoles.compactMap {
+            if !$0.markedForDeletion && !$0.markedForInsertion { ///TODO: move these check to a participantRole property
+                return $0.conversation
+            } else {
+                return nil
+            }
+        })
+    }
+    
+    ///TODO: test
+    /// union ZMConversation set to participantRoles
+    ///
+    /// - Parameter conversationSet: conversations to union
+    @objc
+    func union(conversationSet: Set<ZMConversation>) {
+        let currentConversationSet = lastServerSyncedActiveConversations
+        
+        conversationSet.forEach() { conversation in
+            if !currentConversationSet.contains(conversation) {
+                let participantRole = ParticipantRole.create(managedObjectContext:  managedObjectContext!, user: self, ///TODO: guard
+                    conversation: conversation)
+                
+                participantRoles.insert(participantRole)
+            }
+            
+            ///if mark for delete, flip it
+            if currentConversationSet.contains(conversation) {
+                participantRoles.first(where: {$0.markedForDeletion})?.markedForDeletion = false
+            }
+        }
+    }
     
     @objc(setImageData:size:)
     public func setImage(data: Data?, size: ProfileImageSize) {

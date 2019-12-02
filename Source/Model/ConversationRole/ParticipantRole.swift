@@ -47,9 +47,12 @@ public class ParticipantRole: ZMManagedObject {
     }
     
     @objc
-    static public func create(managedObjectContext: NSManagedObjectContext, user: ZMUser) -> ParticipantRole {
+    static public func create(managedObjectContext: NSManagedObjectContext,
+                              user: ZMUser,
+                              conversation: ZMConversation) -> ParticipantRole {
         let entry = ParticipantRole.insertNewObject(in: managedObjectContext)
         entry.user = user
+        entry.conversation = conversation
         ///TODO: role is default?
         
         return entry

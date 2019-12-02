@@ -40,7 +40,7 @@ extension ZMConversation {
         
         userSet.forEach() { user in
             if !currentParticipantSet.contains(user) {
-                let participantRole = ParticipantRole.create(managedObjectContext: moc, user: user)
+                let participantRole = ParticipantRole.create(managedObjectContext: moc, user: user, conversation: self)
                 
                 participantRoles.insert(participantRole)
             }
@@ -79,7 +79,7 @@ extension ZMConversation {
     
     @objc
     func add(user: ZMUser, moc: NSManagedObjectContext) {
-        let participantRole = ParticipantRole.create(managedObjectContext: moc, user: user)
+        let participantRole = ParticipantRole.create(managedObjectContext: moc, user: user, conversation: self)
         
         participantRoles.insert(participantRole)
     }
@@ -87,13 +87,8 @@ extension ZMConversation {
     @objc
     func add(user: ZMUser) {
         guard let moc = user.managedObjectContext else { return }
-        let participantRole = ParticipantRole.create(managedObjectContext: moc, user: user)
         
-        participantRole.conversation = self
-//        let ret = participantRoles.insert(participantRole)
-//        print(ret)///TODO: inserted is true, but participantRoles.count is 0?
-//
-//        print("#participantRoles \(participantRoles.count)")
+        add(user: user, moc: moc)
     }
 
 }

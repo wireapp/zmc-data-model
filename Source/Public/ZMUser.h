@@ -43,7 +43,7 @@ extern NSString * _Nonnull const ZMPersistedClientIdKey;
 
 @property (nonatomic, readonly, nullable) NSString *connectionRequestMessage;
 
-@property (nonatomic, readonly) NSSet<ParticipantRole *> * _Nonnull participantRoles;
+@property (nonatomic, nonnull) NSSet<ParticipantRole *> *  participantRoles;
 
 /// The full name
 @property (nonatomic, readonly, nullable) NSString *name;

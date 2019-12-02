@@ -473,6 +473,7 @@ class ConversationListObserverTests: NotificationDispatcherTestBase {
         }
     }
     
+    ///TODO:
     func testThatItNotifiesObserversWhenAUserInAConversationChangesTheirName()
     {
         // given

@@ -1141,7 +1141,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 }
 
 @dynamic isSelfAnActiveMember;
-//@dynamic lastServerSyncedActiveParticipants;
 
 @end
 
