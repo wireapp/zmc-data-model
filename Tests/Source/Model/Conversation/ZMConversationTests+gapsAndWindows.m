@@ -47,7 +47,7 @@
     XCTAssertEqual(fetchedConversation.conversationType, ZMConversationTypeGroup);
     XCTAssertEqualObjects(conversation.objectID, fetchedConversation.objectID);
     
-    NSOrderedSet *expectedParticipants = [NSOrderedSet orderedSetWithObjects:user1, user2, user3, nil];
+    NSSet *expectedParticipants = [NSSet setWithObjects:user1, user2, user3, nil];
     XCTAssertEqualObjects(expectedParticipants, conversation.lastServerSyncedActiveParticipants);
     
 }
@@ -75,7 +75,7 @@
     XCTAssertEqual(fetchedConversation.conversationType, ZMConversationTypeGroup);
     XCTAssertEqualObjects(conversation.objectID, fetchedConversation.objectID);
     
-    NSOrderedSet *expectedParticipants = [NSOrderedSet orderedSetWithObjects:user1, user2, user3, nil];
+    NSSet *expectedParticipants = [NSSet setWithObjects:user1, user2, user3, nil];
     XCTAssertEqualObjects(expectedParticipants, conversation.lastServerSyncedActiveParticipants);
     
 }
@@ -107,7 +107,7 @@
     ZMConversation *fetchedConversation = conversations[0];
     XCTAssertEqualObjects(conversation.objectID, fetchedConversation.objectID);
     
-    NSOrderedSet *expectedParticipants = [NSOrderedSet orderedSetWithObjects:user1, user2, user3, nil];
+    NSSet *expectedParticipants = [NSSet setWithObjects:user1, user2, user3, nil];
     XCTAssertEqualObjects(expectedParticipants, conversation.lastServerSyncedActiveParticipants);
     
 }

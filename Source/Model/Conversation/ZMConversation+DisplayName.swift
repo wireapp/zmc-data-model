@@ -66,14 +66,16 @@ public extension ZMConversation {
         return name
     }
 
+    private var selfUser: ZMUser? {
+        return managedObjectContext.map(ZMUser.selfUser)
+    }
+    
     private func groupDisplayName() -> String? {
         precondition(conversationType == .group)
 
         if let userDefined = userDefinedName, !userDefined.isEmpty {
             return userDefined
         }
-
-        let selfUser = managedObjectContext.map(ZMUser.selfUser)
 
         let activeNames: [String] = lastServerSyncedActiveParticipants.compactMap { (user) -> String? in
             guard user != selfUser &&
@@ -87,7 +89,7 @@ public extension ZMConversation {
     private func oneOnOneDisplayName() -> String? {
         precondition(conversationType == .oneOnOne)
 
-        let other = lastServerSyncedActiveParticipants.first ?? connectedUser
+        let other = lastServerSyncedActiveParticipants.first(where: {$0 != selfUser} ) ?? connectedUser
         if let name = other?.name, !name.isEmpty {
             return name
         } else {

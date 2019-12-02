@@ -1367,7 +1367,7 @@
     [conversation addWithUser:[ZMUser selfUserInContext:self.uiMOC]];
     [self.uiMOC saveOrRollback];
     
-    NSString *expected = @"Foo, Bar";
+    NSString *expected = @"Bar, Foo";
     
     // when
     conversation.userDefinedName = nil;
