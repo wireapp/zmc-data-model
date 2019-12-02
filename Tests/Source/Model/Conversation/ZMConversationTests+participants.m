@@ -133,7 +133,7 @@
     [conversation internalAddParticipants:@[user2]];
     
     // then
-    NSOrderedSet *expectedActiveParticipants = [NSOrderedSet orderedSetWithObjects:user1, user2, nil];
+    NSSet *expectedActiveParticipants = [NSSet setWithObjects:user1, user2, nil];
     XCTAssertEqualObjects(expectedActiveParticipants, conversation.lastServerSyncedActiveParticipants);
 }
 
