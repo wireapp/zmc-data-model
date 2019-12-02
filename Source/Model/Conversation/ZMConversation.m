@@ -398,9 +398,10 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return [NSSet setWithObjects:ZMConversationConversationTypeKey, ZMConversationIsSelfAnActiveMemberKey, nil];
 }
 
+///TODO: check the keys
 + (NSSet *)keyPathsForValuesAffectingDisplayName;
 {
-    return [NSSet setWithObjects:ZMConversationConversationTypeKey, ZMConversationParticipantRolesKey, @"participantRoles.name", @"connection.to.name", @"connection.to.availability", ZMConversationUserDefinedNameKey, nil];
+    return [NSSet setWithObjects:ZMConversationConversationTypeKey, ZMConversationParticipantRolesKey, @"lastServerSyncedActiveParticipants.name", @"connection.to.name", @"connection.to.availability", ZMConversationUserDefinedNameKey, nil];
 }
 
 + (nonnull instancetype)insertGroupConversationIntoUserSession:(nonnull id<ZMManagedObjectContextProvider> )session
@@ -788,7 +789,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return conversation;
 }
 
-///TODO: need to update this NSPredicate, check sameParticipant, participant
 + (instancetype)existingTeamConversationInManagedObjectContext:(NSManagedObjectContext *)moc withParticipant:(ZMUser *)participant team:(Team *)team
 {
     // We consider a conversation being an existing 1:1 team conversation in case the following point are true:
@@ -799,7 +799,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     NSPredicate *sameTeam = [ZMConversation predicateForConversationsInTeam:team];
     NSPredicate *groupConversation = [NSPredicate predicateWithFormat:@"%K == %d", ZMConversationConversationTypeKey, ZMConversationTypeGroup];
     NSPredicate *noUserDefinedName = [NSPredicate predicateWithFormat:@"%K == NULL", ZMConversationUserDefinedNameKey];
-    NSPredicate *sameParticipant = [NSPredicate predicateWithFormat:@"%K.@count == 1 AND %@ IN %K ", ZMConversationParticipantRolesKey, participant, ZMConversationParticipantRolesKey];
+    NSPredicate *sameParticipant = [NSPredicate predicateWithFormat:@"%K.@count == 1 AND any %@ == %K.user ", ZMConversationParticipantRolesKey, participant, ZMConversationParticipantRolesKey];///TODO: update this, participant in ZMConversationParticipantRolesKey.user?
     NSCompoundPredicate *compoundPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[sameTeam, groupConversation,noUserDefinedName, sameParticipant]];
     NSFetchRequest *request = [self sortedFetchRequestWithPredicate:compoundPredicate];
     return [moc executeFetchRequestOrAssert:request].firstObject;
