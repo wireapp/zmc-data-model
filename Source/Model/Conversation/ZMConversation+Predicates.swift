@@ -26,9 +26,11 @@ extension ZMConversation {
         return NSPredicate(format: "\(ZMConversationConversationTypeKey) != \(ZMConversationType.invalid.rawValue) && \(ZMConversationConversationTypeKey) != \(selfType.rawValue)")
     }
 
+    ///TODO: test
     @objc
     public class func predicate(forSearchQuery searchQuery: String) -> NSPredicate! {
-        let formatDict = [ZMConversationParticipantRolesKey: "ANY %K.normalizedName MATCHES %@", ZMNormalizedUserDefinedNameKey: "%K MATCHES %@"]
+        let formatDict = [ZMConversationParticipantRolesKey: "ANY %K.user.normalizedName MATCHES %@",
+                          ZMNormalizedUserDefinedNameKey: "%K MATCHES %@"]
         guard let searchPredicate = NSPredicate(formatDictionary: formatDict, matchingSearch: searchQuery) else { return .none }
         let activeMemberPredicate = NSPredicate(format: "%K == NULL OR %K == YES", ZMConversationClearedTimeStampKey, ZMConversationIsSelfAnActiveMemberKey)
         let basePredicate = NSPredicate(format: "(\(ZMConversationConversationTypeKey) == \(ZMConversationType.group.rawValue))")
