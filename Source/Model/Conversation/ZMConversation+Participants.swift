@@ -84,4 +84,12 @@ extension ZMConversation {
         participantRoles.insert(participantRole)
     }
 
+    @objc
+    func add(user: ZMUser) {
+        guard let moc = user.managedObjectContext else { return }
+        let participantRole = ParticipantRole.create(managedObjectContext: moc, user: user)
+        
+        participantRoles.insert(participantRole)
+    }
+
 }

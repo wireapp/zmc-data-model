@@ -258,8 +258,8 @@
     // when
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.conversationType = ZMConversationTypeGroup;
-    [conversation.mutableLastServerSyncedActiveParticipants addObject:[ZMUser insertNewObjectInManagedObjectContext:self.uiMOC]];
-    [conversation.mutableLastServerSyncedActiveParticipants addObject:[ZMUser insertNewObjectInManagedObjectContext:self.uiMOC]];
+    [conversation addWithUser:[ZMUser insertNewObjectInManagedObjectContext:self.uiMOC] moc:self.uiMOC];
+    [conversation addWithUser:[ZMUser insertNewObjectInManagedObjectContext:self.uiMOC] moc:self.uiMOC];
     
     // then
     XCTAssertNil(conversation.connectedUser);

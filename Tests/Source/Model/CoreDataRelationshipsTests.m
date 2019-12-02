@@ -69,11 +69,11 @@
     conversation1.creator = user1;
     conversation2.creator = user2;
     
-    [conversation1.mutableLastServerSyncedActiveParticipants addObject:user1];
-    [conversation1.mutableLastServerSyncedActiveParticipants addObject:user3];
+    [conversation1 addWithUser:user1];
+    [conversation1 addWithUser:user3];
     
-    [conversation2.mutableLastServerSyncedActiveParticipants addObject:user2];
-    [conversation2.mutableLastServerSyncedActiveParticipants addObject:user3];
+    [conversation2 addWithUser:user2];
+    [conversation2 addWithUser:user3];
     
     // Check that the inverse have been set:
     [self.uiMOC processPendingChanges];

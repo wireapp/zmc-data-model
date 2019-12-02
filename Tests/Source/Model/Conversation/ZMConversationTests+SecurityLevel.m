@@ -393,7 +393,8 @@
     
     UserClient *selfClient = [ZMUser selfUserInContext:moc].selfClient;
     ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:moc];
-    [[conversation mutableLastServerSyncedActiveParticipants] addObject:user];
+//    [[conversation mutableLastServerSyncedActiveParticipants] addObject:user];
+    [conversation addWithUser:user moc:moc];
     UserClient *client = [UserClient insertNewObjectInManagedObjectContext:moc];
     client.user  = user;
     if (trusted) {
@@ -439,8 +440,9 @@
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.conversationType = ZMConversationTypeGroup;
     ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    [[conversation mutableLastServerSyncedActiveParticipants] addObject:user];
-    
+//    [[conversation mutableLastServerSyncedActiveParticipants] addObject:user];
+    [conversation addWithUser:user moc:self.uiMOC];
+
     // when
     BOOL hasUntrustedClients = conversation.hasUntrustedClients;
     
@@ -625,8 +627,8 @@
         conversation.securityLevel = ZMConversationSecurityLevelSecure;
         
         ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.syncMOC];
-        [[conversation mutableLastServerSyncedActiveParticipants] addObject:user];
-
+        [conversation addWithUser:user moc:self.syncMOC];
+        
         ZMOTRMessage *message1 = (ZMOTRMessage *)[conversation appendMessageWithImageData:[self verySmallJPEGData]];
         [NSThread sleepForTimeInterval:0.05]; // cause system time to advance
         ZMOTRMessage *message2 = (ZMOTRMessage *)[conversation appendMessageWithText:@"foo 2" fetchLinkPreview:NO];
@@ -875,7 +877,8 @@
     __block ZMSystemMessage *result = nil;
     [self performPretendingUiMocIsSyncMoc:^{
         [usersToAdd enumerateObjectsUsingBlock:^(ZMUser * _Nonnull obj, BOOL * _Nonnull stop __unused) {
-            [conv.mutableLastServerSyncedActiveParticipants addObject:obj];
+//            [conv addWithUser:obj];
+            [conv addWithUser:obj moc:obj.managedObjectContext];
         }];
         result = [ZMSystemMessage createOrUpdateMessageFromUpdateEvent:event
                                                 inManagedObjectContext:conv.managedObjectContext
@@ -897,7 +900,8 @@
     __block ZMSystemMessage *result = nil;
     [self performPretendingUiMocIsSyncMoc:^{
         [usersToRemove enumerateObjectsUsingBlock:^(ZMUser * _Nonnull obj, BOOL * _Nonnull stop __unused) {
-            [conv.mutableLastServerSyncedActiveParticipants removeObject:obj];
+//            [conv.mutableLastServerSyncedActiveParticipants removeObject:obj];
+            [conv minusWithUserSet: [NSSet setWithObject:obj]];
         }];
         result = [ZMSystemMessage createOrUpdateMessageFromUpdateEvent:event
                                                 inManagedObjectContext:conv.managedObjectContext
@@ -1010,7 +1014,7 @@
     
     // given
     ZMConversation *conversation = [self setupVerifiedConversation];
-    ZMUser *participant = [conversation.lastServerSyncedActiveParticipants firstObject];
+    ZMUser *participant = [conversation.lastServerSyncedActiveParticipants anyObject];
     XCTAssertNotNil(participant);
     XCTAssertEqual(conversation.securityLevel, ZMConversationSecurityLevelSecure);
     [participant block];
