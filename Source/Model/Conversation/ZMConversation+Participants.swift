@@ -22,7 +22,7 @@ import WireProtos
 extension ZMConversation {
     @objc
     public var lastServerSyncedActiveParticipants: Set<ZMUser> {
-        return Set((participantRoles).compactMap {
+        return Set(participantRoles.compactMap {
             if !$0.markedForDelete && !$0.markedForInsert {
              return $0.user
             } else {

@@ -96,10 +96,11 @@
     id s2 = [NSOrderedSet orderedSetWithArray:@[user2, user3]];
     XCTAssertEqualObjects(conversation2.lastServerSyncedActiveParticipants, s2);
     
-    XCTAssertEqualObjects([user1 valueForKey:@"lastServerSyncedActiveConversations"], [NSOrderedSet orderedSetWithObject:conversation1]);
-    XCTAssertEqualObjects([user2 valueForKey:@"lastServerSyncedActiveConversations"], [NSOrderedSet orderedSetWithObject:conversation2]);
+    ///TODO:
+    XCTAssertEqualObjects([user1 valueForKey:@"participantRoles"], [NSOrderedSet orderedSetWithObject:conversation1]);
+    XCTAssertEqualObjects([user2 valueForKey:@"participantRoles"], [NSOrderedSet orderedSetWithObject:conversation2]);
     id ac = [NSOrderedSet orderedSetWithArray:@[conversation1, conversation2]];
-    XCTAssertEqualObjects([user3 valueForKey:@"lastServerSyncedActiveConversations"], ac);
+    XCTAssertEqualObjects([user3 valueForKey:@"participantRoles"], ac);
 
     __block NSError *error = nil;
     XCTAssertTrue([self.uiMOC save:&error], @"Save failed: %@", error);

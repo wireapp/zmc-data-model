@@ -624,11 +624,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return newKeys;
 }
 
-//- (NSMutableOrderedSet *)mutableLastServerSyncedActiveParticipants
-//{
-//    return [self mutableOrderedSetValueForKey:ZMConversationParticipantRolesKey];
-//}
-
 - (BOOL)canMarkAsUnread
 {
     if (self.estimatedUnreadCount > 0) {
