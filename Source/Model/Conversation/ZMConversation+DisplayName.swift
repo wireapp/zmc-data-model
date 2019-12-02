@@ -30,8 +30,9 @@ public extension ZMConversation {
     /// This is equal to the meaningful display name, if it exists, otherwise a
     /// fallback placeholder name is used.
     ///
-    @objc var displayName: String {
-        let result = self.meaningfulDisplayName
+    @objc
+    var displayName: String {
+        let result = meaningfulDisplayName
         switch conversationType {
         case .oneOnOne, .connection: return result ?? ZMConversation.emptyConversationEllipsis
         case .group: return result ?? ZMConversation.emptyGroupConversationName
@@ -75,11 +76,12 @@ public extension ZMConversation {
         let selfUser = managedObjectContext.map(ZMUser.selfUser)
 
         let activeNames: [String] = lastServerSyncedActiveParticipants.compactMap { (user) -> String? in
-            guard let user = user as? ZMUser, user != selfUser && !user.displayName.isEmpty else { return nil }
+            guard user != selfUser &&
+                !user.displayName.isEmpty else { return nil }
             return user.displayName
         }
         
-        return activeNames.isEmpty ? nil : activeNames.joined(separator: ", ")
+        return activeNames.isEmpty ? nil : activeNames.sorted().joined(separator: ", ")
     }
 
     private func oneOnOneDisplayName() -> String? {

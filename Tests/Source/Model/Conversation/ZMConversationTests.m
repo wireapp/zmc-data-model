@@ -1391,8 +1391,6 @@
     user3.name = nil;
     user4.name = @"Baz 4";
     selfUser.name = @"Me Myself";
-//    [conversation addWithUsers:@[user1, user2, user3, user4]];
-//    [conversation addWithUser:[ZMUser selfUserInContext:self.uiMOC]];
     [conversation addWithUsers:@[user1, user2, user3, user4] moc:self.uiMOC];
     [conversation addWithUser:[ZMUser selfUserInContext:self.uiMOC]];
     [self.uiMOC saveOrRollback];

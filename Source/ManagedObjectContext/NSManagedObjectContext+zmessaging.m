@@ -272,7 +272,7 @@ static NSString* ZMLogTag ZM_UNUSED = @"NSManagedObjectContext";
         ZMLogDebug(@"Saving <%@: %p>.", self.class, self);
         self.timeOfLastSave = [NSDate date];
         ZMSTimePoint *tp = [ZMSTimePoint timePointWithInterval:10 label:[NSString stringWithFormat:@"Saving context %@", self.zm_isSyncContext ? @"sync": @"ui"]];
-        if (! [self save:&error]) {
+        if (! [self save:&error]) { ///TODO: throws?
             ZMLogError(@"Failed to save: %@", error);
             [self reportSaveErrorWithError:error];
             [self rollbackWithOldMetadata:oldMetadata];

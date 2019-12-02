@@ -209,10 +209,7 @@ extension ZMUser {
         
         conversationSet.forEach() { conversation in
             if !currentConversationSet.contains(conversation) {
-                let participantRole = ParticipantRole.create(managedObjectContext:  managedObjectContext!, user: self, ///TODO: guard
-                    conversation: conversation)
-                
-                participantRoles.insert(participantRole)
+                add(conversation: conversation, moc: managedObjectContext!)
             }
             
             ///if mark for delete, flip it

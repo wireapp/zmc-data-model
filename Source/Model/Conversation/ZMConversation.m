@@ -1135,7 +1135,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         self.isArchived = sender.isSelfUser;
     }
     
-    ///TODO: participantRoles.remove(otherUsers) unless isInsert == true in Swift
     [self minusWithUserSet:otherUsers.set];
     [self increaseSecurityLevelIfNeededAfterRemovingUsers:otherUsers.set];
 }

@@ -155,7 +155,7 @@ extension DuplicatedEntityRemovalTests {
         // WHEN
         user1.merge(with: user2) ///TODO: how to merge?
         self.moc.delete(user2)
-        self.moc.saveOrRollback()
+        self.moc.saveOrRollback() ///TODO: user1.lastServerSyncedActiveConversations is empty
 
         // THEN
         XCTAssertEqual(user1.lastServerSyncedActiveConversations, lastServerSyncedActiveConversations)

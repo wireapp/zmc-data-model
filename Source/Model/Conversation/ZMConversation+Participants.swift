@@ -77,7 +77,8 @@ extension ZMConversation {
     
     @objc
     func add(user: ZMUser, moc: NSManagedObjectContext) {
-        let _ = ParticipantRole.create(managedObjectContext: moc, user: user, conversation: self)
+        ParticipantRole.create(managedObjectContext: moc, user: user, conversation: self)
+        ///TODO: noti is not fired??
     }
 
     @objc

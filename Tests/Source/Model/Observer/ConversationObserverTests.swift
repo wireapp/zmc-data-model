@@ -306,7 +306,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         
         // when
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
-                                                     modifier: { conversation, _ in conversation.add(user:user, moc:self.uiMOC) },
+                                                     modifier: { conversation, _ in conversation.add(user:user) },
                                                      expectedChangedFields: ["participantsChanged", "nameChanged"],
                                                      expectedChangedKeys: ["displayName", "lastServerSyncedActiveParticipants"]) ///TODO: it should also has key PR?
         
