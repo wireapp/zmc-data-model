@@ -788,6 +788,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return conversation;
 }
 
+///TODO: need to update this NSPredicate, check sameParticipant, participant
 + (instancetype)existingTeamConversationInManagedObjectContext:(NSManagedObjectContext *)moc withParticipant:(ZMUser *)participant team:(Team *)team
 {
     // We consider a conversation being an existing 1:1 team conversation in case the following point are true:

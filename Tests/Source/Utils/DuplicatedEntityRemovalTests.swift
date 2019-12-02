@@ -908,7 +908,7 @@ extension DuplicatedEntityRemovalTests {
         self.moc.saveOrRollback()
         
         // THEN
-        XCTAssertEqual([userA1, userA2].nonZombies.count, 1)
+        XCTAssertEqual([userA1, userA2].nonZombies.count, 1)///TODO: mark for delete attritube?
         guard let userA = [userA1, userA2].nonZombies.first else {
             return XCTFail("Both deleted!")
         }

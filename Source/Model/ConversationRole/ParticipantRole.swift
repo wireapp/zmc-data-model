@@ -54,8 +54,7 @@ public class ParticipantRole: ZMManagedObject {
         let entry = ParticipantRole.insertNewObject(in: managedObjectContext)
         entry.user = user
         entry.conversation = conversation
-        ///TODO: role is default?
-        
+//        entry.markedForInsertion = true ///TODO: needed or do this in SE?
         return entry
     }
 }

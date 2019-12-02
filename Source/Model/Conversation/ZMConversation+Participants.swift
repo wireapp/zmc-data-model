@@ -64,9 +64,9 @@ extension ZMConversation {
         }
         
         removeArray.forEach() {
-            participantRoles.remove($0) ///FIXME: should not work
+            participantRoles.remove($0) ///FIXME: test for entity is removed
         }
-    }///TODO: test
+    }
     
     @objc
     func add(users: [ZMUser], moc: NSManagedObjectContext) {

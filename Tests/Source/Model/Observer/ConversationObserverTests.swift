@@ -312,19 +312,19 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         
     }
     
-    func testThatItNotifiesTheObserverOfAnRemovedParticipant()
-    {
+    ///TODO: test for minus set
+    func testThatItNotifiesTheObserverOfAnRemovedParticipant() {
         // given
         let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
         conversation.conversationType = ZMConversationType.group
         let user = ZMUser.insertNewObject(in:self.uiMOC)
         user.name = "bar"
-        conversation.add(user:user, moc:self.uiMOC)
+        conversation.add(user:user)
         self.uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // when
-        self.checkThatItNotifiesTheObserverOfAChange(conversation,
+        checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: {conversation, _ in conversation.minus(userSet: Set([user])) },
                                                      expectedChangedFields: ["participantsChanged", "nameChanged"],
                                                      expectedChangedKeys: ["displayName", "lastServerSyncedActiveParticipants"])
