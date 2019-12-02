@@ -135,7 +135,7 @@ extension DuplicatedEntityRemovalTests {
         let reaction = Reaction.insertNewObject(in: self.moc)
         let systemMessage = ZMSystemMessage(nonce: UUID(), managedObjectContext: moc)
 
-        let lastServerSyncedActiveConversations = NSOrderedSet(object: conversation)
+        let lastServerSyncedActiveConversations = Set<ZMConversation>([conversation])
         let conversationsCreated = Set<ZMConversation>([conversation])
         let createdTeams = Set<Team>([team])
         let reactions = Set<Reaction>([reaction])
@@ -321,15 +321,15 @@ extension DuplicatedEntityRemovalTests {
         self.moc.saveOrRollback()
         
         // sanity check
-        XCTAssertEqual(user1.lastServerSyncedActiveConversations.set, Set([conversation1, conversation2]))
-        XCTAssertEqual(user2.lastServerSyncedActiveConversations.set, Set([conversation1, conversation3]))
+        XCTAssertEqual(user1.lastServerSyncedActiveConversations, Set([conversation1, conversation2]))
+        XCTAssertEqual(user2.lastServerSyncedActiveConversations, Set([conversation1, conversation3]))
         
         // WHEN
         user1.merge(with: user2)
         self.moc.saveOrRollback()
         
         // THEN
-        XCTAssertEqual(user1.lastServerSyncedActiveConversations.set, Set([conversation1, conversation2, conversation3]))
+        XCTAssertEqual(user1.lastServerSyncedActiveConversations, Set([conversation1, conversation2, conversation3]))
     }
     
     public func testThatItMergesUsers_ActiveConversations() {
@@ -347,15 +347,15 @@ extension DuplicatedEntityRemovalTests {
         self.moc.saveOrRollback()
         
         // sanity check
-        XCTAssertEqual(user1.lastServerSyncedActiveConversations.set, Set([conversation1, conversation2]))
-        XCTAssertEqual(user2.lastServerSyncedActiveConversations.set, Set([conversation1, conversation3]))
+        XCTAssertEqual(user1.lastServerSyncedActiveConversations, Set([conversation1, conversation2]))
+        XCTAssertEqual(user2.lastServerSyncedActiveConversations, Set([conversation1, conversation3]))
         
         // WHEN
         user1.merge(with: user2)
         self.moc.saveOrRollback()
         
         // THEN
-        XCTAssertEqual(user1.lastServerSyncedActiveConversations.set, Set([conversation1, conversation2, conversation3]))
+        XCTAssertEqual(user1.lastServerSyncedActiveConversations, Set([conversation1, conversation2, conversation3]))
     }
     
     public func testThatItMergesUsers_ConversationCreated() {
