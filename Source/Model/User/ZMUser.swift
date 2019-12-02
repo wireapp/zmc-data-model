@@ -297,6 +297,13 @@ extension ZMUser {
         guard let conversation = conversation, let nameGenerator = self.managedObjectContext?.zm_displayNameGenerator else { return self.displayName }
         return nameGenerator.displayName(for: self, in: conversation)
     }
+    
+    // MARK: - Participant role
+    
+    @objc
+    public var conversations: Set<ZMConversation> {
+        return Set(participantRoles.compactMap{ return $0.conversation })
+    }
 }
 
 extension NSManagedObject: SafeForLoggingStringConvertible {

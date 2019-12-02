@@ -203,6 +203,7 @@ static NSString *const ParticipantRolesKey = @"participantRoles";
 @dynamic handle;
 @dynamic addressBookEntry;
 @dynamic managedBy;
+@dynamic participantRoles;
 
 - (UserClient *)selfClient
 {

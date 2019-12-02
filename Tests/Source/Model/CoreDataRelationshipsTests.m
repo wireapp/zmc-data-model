@@ -91,16 +91,15 @@
     XCTAssertTrue([[user1 valueForKey:@"conversationsCreated"] containsObject:conversation1]);
     XCTAssertTrue([[user2 valueForKey:@"conversationsCreated"] containsObject:conversation2]);
     
-    id s1 = [NSOrderedSet orderedSetWithArray:@[user1, user3]];
+    id s1 = [NSSet setWithArray:@[user1, user3]];
     XCTAssertEqualObjects(conversation1.lastServerSyncedActiveParticipants, s1);
-    id s2 = [NSOrderedSet orderedSetWithArray:@[user2, user3]];
+    id s2 = [NSSet setWithArray:@[user2, user3]];
     XCTAssertEqualObjects(conversation2.lastServerSyncedActiveParticipants, s2);
     
-    ///TODO:
-    XCTAssertEqualObjects([user1 valueForKey:@"participantRoles"], [NSOrderedSet orderedSetWithObject:conversation1]);
-    XCTAssertEqualObjects([user2 valueForKey:@"participantRoles"], [NSOrderedSet orderedSetWithObject:conversation2]);
-    id ac = [NSOrderedSet orderedSetWithArray:@[conversation1, conversation2]];
-    XCTAssertEqualObjects([user3 valueForKey:@"participantRoles"], ac);
+    XCTAssertEqualObjects(user1.conversations, [NSSet setWithObject:conversation1]);
+    XCTAssertEqualObjects(user2.conversations, [NSSet setWithObject:conversation2]);
+    id ac = [NSSet setWithArray:@[conversation1, conversation2]];
+    XCTAssertEqualObjects(user3.conversations, ac);
 
     __block NSError *error = nil;
     XCTAssertTrue([self.uiMOC save:&error], @"Save failed: %@", error);
