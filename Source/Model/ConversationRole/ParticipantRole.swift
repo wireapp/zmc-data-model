@@ -23,7 +23,7 @@ public let ZMParticipantRoleMarkedForDeletionKey = "markedForDeletion"
 public let ZMParticipantRoleMarkedForInsertionKey = "markedForInsertion"
 
 @objcMembers
-public class ParticipantRole: ZMManagedObject {
+final public class ParticipantRole: ZMManagedObject {
     
     @NSManaged public var markedForDeletion: Bool
     @NSManaged public var markedForInsertion: Bool

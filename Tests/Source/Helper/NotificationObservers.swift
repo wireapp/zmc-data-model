@@ -73,7 +73,7 @@ class MessageObserver : NSObject, ZMMessageObserver {
 }
 
 
-class ConversationObserver: NSObject, ZMConversationObserver {
+final class ConversationObserver: NSObject, ZMConversationObserver {
     
     var token : NSObjectProtocol?
     
@@ -114,31 +114,4 @@ class ConversationObserver: NSObject, ZMConversationObserver {
             callBack(changeInfo)
         }
     }
-}
-
-class TestTeamObserver : NSObject, TeamObserver {
-
-    var notifications = [TeamChangeInfo]()
-    
-    func clearNotifications(){
-        notifications = []
-    }
-    
-    func teamDidChange(_ changeInfo: TeamChangeInfo) {
-        notifications.append(changeInfo)
-    }
-}
-
-class TestLabelObserver: NSObject, LabelObserver {
-    
-    var notifications = [LabelChangeInfo]()
-    
-    func clearNotifications() {
-        notifications = []
-    }
-    
-    func labelDidChange(_ changeInfo: LabelChangeInfo) {
-        notifications.append(changeInfo)
-    }
-    
 }

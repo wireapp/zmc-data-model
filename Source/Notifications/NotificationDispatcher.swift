@@ -177,6 +177,7 @@ extension ZMManagedObject {
         assert(managedObjectContext.zm_isUserInterfaceContext, "NotificationDispatcher needs to be initialized with uiMOC")
         self.managedObjectContext = managedObjectContext
         let classIdentifiers : [String] = [ZMConversation.classIdentifier,
+                                           ParticipantRole.classIdentifier,
                                            ZMUser.classIdentifier,
                                            ZMConnection.classIdentifier,
                                            UserClient.classIdentifier,

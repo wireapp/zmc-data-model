@@ -18,6 +18,20 @@
 
 import Foundation
 
+class TestLabelObserver: NSObject, LabelObserver {
+    
+    var notifications = [LabelChangeInfo]()
+    
+    func clearNotifications() {
+        notifications = []
+    }
+    
+    func labelDidChange(_ changeInfo: LabelChangeInfo) {
+        notifications.append(changeInfo)
+    }
+    
+}
+
 class LabelObserverTests: NotificationDispatcherTestBase {
     
     var labelObserver : TestLabelObserver!
