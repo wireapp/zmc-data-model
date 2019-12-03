@@ -21,7 +21,7 @@ import WireTesting
 @testable import WireDataModel
 
 
-class ConversationTests_Teams: ZMConversationTestsBase {
+final class ConversationTests_Teams: ZMConversationTestsBase {
 
     var team: Team!
     var user: ZMUser!
@@ -76,7 +76,8 @@ class ConversationTests_Teams: ZMConversationTestsBase {
         let newConversation = ZMConversation.fetchOrCreateTeamConversation(in: uiMOC, withParticipant: otherUser, team: team)
 
         // then
-        XCTAssertEqual(conversation, newConversation) ///TODO: confirmed: conversation?.participantRoles.first?.user == newConversation?.participantRoles.first?.user
+        XCTAssertEqual(conversation?.participantRoles.first?.user, newConversation?.participantRoles.first?.user)
+        XCTAssertEqual(conversation, newConversation)
     }
 
     func testThatItDoesNotReturnAnExistingConversationFromTheSameTeamWithNoParticipants() {
