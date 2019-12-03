@@ -40,6 +40,7 @@ extension Notification.Name {
     static let VoiceChannelParticipantStateChange = Notification.Name("ZMVoiceChannelParticipantStateChangeNotification")
     static let TeamChange = Notification.Name("TeamChangeNotification")
     static let LabelChange = Notification.Name("LabelChangeNotification")
+    static let ParticipantRoleChange = Notification.Name("ParticipantRoleChange")
 
     public static let NonCoreDataChangeInManagedObject = Notification.Name("NonCoreDataChangeInManagedObject")
     
@@ -177,7 +178,6 @@ extension ZMManagedObject {
         assert(managedObjectContext.zm_isUserInterfaceContext, "NotificationDispatcher needs to be initialized with uiMOC")
         self.managedObjectContext = managedObjectContext
         let classIdentifiers : [String] = [ZMConversation.classIdentifier,
-                                           ParticipantRole.classIdentifier,
                                            ZMUser.classIdentifier,
                                            ZMConnection.classIdentifier,
                                            UserClient.classIdentifier,
@@ -189,7 +189,8 @@ extension ZMManagedObject {
                                            ZMGenericMessageData.classIdentifier,
                                            Team.classIdentifier,
                                            Member.classIdentifier,
-                                           Label.classIdentifier]
+                                           Label.classIdentifier,
+                                           ParticipantRole.classIdentifier]
         self.affectingKeysStore = DependencyKeyStore(classIdentifiers : classIdentifiers)
         self.snapshotCenter = SnapshotCenter(managedObjectContext: managedObjectContext)
         super.init()
@@ -299,7 +300,7 @@ extension ZMManagedObject {
     func process(note: Notification) {
         guard let userInfo = note.userInfo as? [String : Any] else { return }
 
-        let updatedObjects = self.extractObjects(for: NSUpdatedObjectsKey, from: userInfo)
+        let updatedObjects = self.extractObjects(for: NSUpdatedObjectsKey, from: userInfo) ///TODO: PR is 0
         let refreshedObjects = self.extractObjects(for: NSRefreshedObjectsKey, from: userInfo)
         let insertedObjects = self.extractObjects(for: NSInsertedObjectsKey, from: userInfo)
         let deletedObjects = self.extractObjects(for: NSDeletedObjectsKey, from: userInfo)
@@ -417,7 +418,7 @@ extension ZMManagedObject {
     }
     
     func fireAllNotifications(){
-        let changes = allChanges
+        let changes = allChanges ///TODO: PR: changes is empty
         let unreads = unreadMessages
         
         self.unreadMessages = [:]

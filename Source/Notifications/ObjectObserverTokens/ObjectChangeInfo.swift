@@ -58,13 +58,15 @@ open class ObjectChangeInfo : NSObject, ObjectChangeInfoProtocol {
 extension ObjectChangeInfo {
     
     static func changeInfo(for object: NSObject, changes: Changes) -> ObjectChangeInfo? {
-        switch object {
+        switch object {///TODO: check ZMConversation.PR change also goes here??
         case let object as ZMConversation:  return ConversationChangeInfo.changeInfo(for: object, changes: changes)
         case let object as ZMUser:          return UserChangeInfo.changeInfo(for: object, changes: changes)
         case let object as ZMMessage:       return MessageChangeInfo.changeInfo(for: object, changes: changes)
         case let object as UserClient:      return UserClientChangeInfo.changeInfo(for: object, changes: changes)
         case let object as Team:            return TeamChangeInfo.changeInfo(for: object, changes: changes)
         case let object as Label:           return LabelChangeInfo.changeInfo(for: object, changes: changes)
+        case let object as ParticipantRole:
+            return ParticipantRoleChangeInfo.changeInfo(for: object, changes: changes)
         default:
             return nil
         }

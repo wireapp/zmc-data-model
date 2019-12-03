@@ -119,6 +119,8 @@ class DependencyKeyStore {
             return Set()
         case Label.entityName():
             return Label.observableKeys
+        case ParticipantRole.entityName():
+            return ParticipantRole.observableKeys
         default:
             zmLog.warn("There are no observable keys defined for \(classIdentifier)")
             return Set()
@@ -155,6 +157,8 @@ class DependencyKeyStore {
             return [:]
         case Label.entityName():
             return observableKeys.mapToDictionary{Label.keyPathsForValuesAffectingValue(forKey: $0)}
+        case ParticipantRole.entityName():
+            return observableKeys.mapToDictionary{ParticipantRole.keyPathsForValuesAffectingValue(forKey: $0)}
         default:
             zmLog.warn("There is no path to affecting keys defined for \(classIdentifier)")
             return [:]
