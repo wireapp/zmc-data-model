@@ -38,6 +38,8 @@ extension ParticipantRole : ObjectInSnapshot {
 @objcMembers
 final public class ParticipantRoleChangeInfo : ObjectChangeInfo {
     
+    static let ParticipantRoleChangeInfoKey = "participantRoleChanges"
+
     static func changeInfo(for participantRole: ParticipantRole, changes: Changes) -> ParticipantRoleChangeInfo? {
         guard changes.hasChangeInfo else { return nil }
         

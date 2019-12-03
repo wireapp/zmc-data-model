@@ -75,7 +75,7 @@ extension ZMManagedObject {
 }
 
 
-extension ZMUser : SideEffectSource {
+extension ZMUser : SideEffectSource { ///TODO: copy to PR?
     
     var allConversations : [ZMConversation] {
         var conversations = Array(lastServerSyncedActiveConversations)
@@ -131,6 +131,16 @@ extension ZMUser : SideEffectSource {
         let affectedKeys = keyStore.observableKeysAffectedByValue(classIdentifier, key: #keyPath(ZMConversation.lastServerSyncedActiveParticipants))
         return Dictionary(keys: conversations,
                                             repeatedValue: Changes(changedKeys: affectedKeys))
+    }
+}
+
+extension ParticipantRole: SideEffectSource {
+    func affectedObjectsAndKeys(keyStore: DependencyKeyStore, knownKeys: Set<String>) -> ObjectAndChanges {
+        return byUpdateAffectedKeys(for: user, knownKeys:knownKeys, keyStore: keyStore, originalChangeKey: ParticipantRoleChangeInfo.ParticipantRoleChangeInfoKey, keyMapping: {"\(#keyPath(ZMConversation.lastServerSyncedActiveParticipants)).\($0)"})
+    }
+
+    func affectedObjectsForInsertionOrDeletion(keyStore: DependencyKeyStore) -> ObjectAndChanges {
+        return byInsertOrDeletionAffectedKeys(for: conversation, keyStore: keyStore, affectedKey: #keyPath(ZMConversation.lastServerSyncedActiveParticipants))
     }
 }
 
