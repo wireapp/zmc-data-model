@@ -1,4 +1,4 @@
-github "wireapp/wire-ios-cryptobox" "feature/safe-public-logs"
+github "wireapp/wire-ios-cryptobox" ~> 20.0
 github "wireapp/wire-ios-protos" ~> 21.0
 github "wireapp/wire-ios-images" ~> 29.0
 github "wireapp/PINCache" "2.3-swift3.1"
