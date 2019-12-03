@@ -799,8 +799,10 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     NSPredicate *sameTeam = [ZMConversation predicateForConversationsInTeam:team];
     NSPredicate *groupConversation = [NSPredicate predicateWithFormat:@"%K == %d", ZMConversationConversationTypeKey, ZMConversationTypeGroup];
     NSPredicate *noUserDefinedName = [NSPredicate predicateWithFormat:@"%K == NULL", ZMConversationUserDefinedNameKey];
-//    NSPredicate *sameParticipant = [NSPredicate predicateWithFormat:@"%K.@count == 1 AND any %@ == %K.user ", ZMConversationParticipantRolesKey, participant, ZMConversationParticipantRolesKey];///TODO: update this, participant in ZMConversationParticipantRolesKey.user?
-    NSPredicate *sameParticipant = [NSPredicate predicateWithFormat:@"%K.@count == 1 AND %@ IN %K ", ZMConversationParticipantRolesKey, participant, ZMConversationParticipantRolesKey];
+    NSPredicate *sameParticipant = [NSPredicate predicateWithFormat:@"%K.@count == 1 AND ANY %K.user == %@ ",
+                                    ZMConversationParticipantRolesKey,
+                                    ZMConversationParticipantRolesKey,
+                                    participant];
 
     NSCompoundPredicate *compoundPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[sameTeam, groupConversation,noUserDefinedName, sameParticipant]];
     NSFetchRequest *request = [self sortedFetchRequestWithPredicate:compoundPredicate];

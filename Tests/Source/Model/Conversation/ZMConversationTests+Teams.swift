@@ -72,11 +72,11 @@ final class ConversationTests_Teams: ZMConversationTestsBase {
     func testThatItReturnsAnExistingOneOnOneConversationIfThereAlreadyIsOneInATeam() {
         // given
         let conversation    = ZMConversation.fetchOrCreateTeamConversation(in: uiMOC, withParticipant: otherUser, team: team)
+        
         // when
         let newConversation = ZMConversation.fetchOrCreateTeamConversation(in: uiMOC, withParticipant: otherUser, team: team)
 
         // then
-        XCTAssertEqual(conversation?.participantRoles.first?.user, newConversation?.participantRoles.first?.user)
         XCTAssertEqual(conversation, newConversation)
     }
 
