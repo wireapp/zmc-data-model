@@ -51,12 +51,14 @@ extension ZMManagedObject {
         let classIdentifier = type(of: object).entityName()
         
         var changes = changedValues()
-        guard changes.count > 0 || knownKeys.count > 0 else { return [:] }
+        guard !changes.isEmpty || !knownKeys.isEmpty else { return [:] }
         let allKeys = knownKeys.union(changes.keys)
         
         let mappedKeys : [String] = Array(allKeys).map(keyMapping)
         let keys = mappedKeys.map{keyStore.observableKeysAffectedByValue(classIdentifier, key: $0)}.reduce(Set()){$0.union($1)}
-        guard keys.count > 0 || originalChangeKey != nil else { return [:] }
+        
+        guard !keys.isEmpty ||
+            originalChangeKey != nil else { return [:] }
         
         var originalChanges = [String : NSObject?]()
         if let originalChangeKey = originalChangeKey {
@@ -66,7 +68,7 @@ extension ZMManagedObject {
                     changes[$0] = .none as Optional<NSObject>
                 }
             }
-            if requiredKeys.count == 0 || !requiredKeys.isDisjoint(with: changes.keys) {
+            if requiredKeys.isEmpty || !requiredKeys.isDisjoint(with: changes.keys) {
                 originalChanges = [originalChangeKey : [self : changes] as Optional<NSObject>]
             }
         }
@@ -136,7 +138,12 @@ extension ZMUser : SideEffectSource { ///TODO: copy to PR?
 
 extension ParticipantRole: SideEffectSource {
     func affectedObjectsAndKeys(keyStore: DependencyKeyStore, knownKeys: Set<String>) -> ObjectAndChanges {
-        return byUpdateAffectedKeys(for: user, knownKeys:knownKeys, keyStore: keyStore, originalChangeKey: ParticipantRoleChangeInfo.ParticipantRoleChangeInfoKey, keyMapping: {"\(#keyPath(ZMConversation.lastServerSyncedActiveParticipants)).\($0)"})
+        let keyMapping: ((String) -> String) = {"\(#keyPath(ZMConversation.lastServerSyncedActiveParticipants)).\($0)"}
+        return byUpdateAffectedKeys(for: conversation, ///TODO: it should affect user?
+                                    knownKeys: knownKeys,
+                                    keyStore: keyStore,
+                                    originalChangeKey: ParticipantRoleChangeInfo.ParticipantRoleChangeInfoKey,
+                                    keyMapping: keyMapping)
     }
 
     func affectedObjectsForInsertionOrDeletion(keyStore: DependencyKeyStore) -> ObjectAndChanges {

@@ -312,8 +312,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         
     }
     
-    func testThatItNotifiesTheObserverOfAParticipantIsDeleted()
-    {
+    func testThatItNotifiesTheObserverOfAParticipantIsDeleted() {
         // given
         let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
         conversation.conversationType = ZMConversationType.group
@@ -330,11 +329,10 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
                                                     conversation.participantRoles.forEach(){ $0.markedForDeletion = true
                                                         
                                                     }
-                                                    
-                                                    //                                                        self.uiMOC.saveOrRollback()
-                                                    
         },
-                                                expectedChangedFields: ["participantsChanged", "nameChanged"],
+                                                expectedChangedFields: ["participantsChanged",
+//                                                                        "participantRoleChanges",
+                                                                        "nameChanged"],
                                                 expectedChangedKeys: ["displayName", "lastServerSyncedActiveParticipants"])
         
     }
