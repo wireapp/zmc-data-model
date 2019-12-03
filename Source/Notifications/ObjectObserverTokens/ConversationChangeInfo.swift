@@ -184,7 +184,8 @@ extension ZMConversation : ObjectInSnapshot {
     }
     
     static func changeInfo(for conversation: ZMConversation, changes: Changes) -> ConversationChangeInfo? {
-        guard changes.changedKeys.count > 0 || changes.originalChanges.count > 0 else { return nil }
+        guard !changes.changedKeys.isEmpty ||
+              !changes.originalChanges.isEmpty else { return nil }
         let changeInfo = ConversationChangeInfo(object: conversation)
         changeInfo.changeInfos = changes.originalChanges
         changeInfo.changedKeys = changes.changedKeys
