@@ -39,7 +39,8 @@ extension ParticipantRole : ObjectInSnapshot {
 final public class ParticipantRoleChangeInfo : ObjectChangeInfo {
     
     static func changeInfo(for participantRole: ParticipantRole, changes: Changes) -> ParticipantRoleChangeInfo? {
-        guard changes.changedKeys.count > 0 || changes.originalChanges.count > 0 else { return nil }
+        guard changes.hasChangeInfo else { return nil }
+        
         let changeInfo = ParticipantRoleChangeInfo(object: participantRole)
         changeInfo.changeInfos = changes.originalChanges
         changeInfo.changedKeys = changes.changedKeys
@@ -47,7 +48,7 @@ final public class ParticipantRoleChangeInfo : ObjectChangeInfo {
     }
     
     public required init(object: NSObject) {
-        self.participantRole = object as! ParticipantRole
+        participantRole = object as! ParticipantRole
         super.init(object: object)
     }
     

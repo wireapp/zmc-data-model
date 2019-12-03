@@ -93,6 +93,11 @@ struct Changes : Mergeable {
         }
         return Changes(changedKeys: changedKeys.union(other.changedKeys), originalChanges: originalChanges.updated(other: other.originalChanges))
     }
+    
+    var hasChangeInfo: Bool {
+        return !changedKeys.isEmpty ||
+               !originalChanges.isEmpty
+    }
 }
 
 
