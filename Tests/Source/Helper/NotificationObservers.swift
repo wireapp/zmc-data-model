@@ -29,15 +29,6 @@ extension ObserverType {
     }
 }
 
-class TestUserClientObserver : NSObject, UserClientObserver {
-    
-    var receivedChangeInfo : [UserClientChangeInfo] = []
-    
-    func userClientDidChange(_ changes: UserClientChangeInfo) {
-        receivedChangeInfo.append(changes)
-    }
-}
-
 class UserObserver : NSObject, ZMUserObserver {
     
     var notifications = [UserChangeInfo]()
