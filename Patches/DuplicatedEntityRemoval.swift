@@ -113,7 +113,7 @@ extension ZMUser {
             context.delete($0)
         }
         firstUser.needsToBeUpdatedFromBackend = true
-        firstUser.lastServerSyncedActiveConversations.forEach { ($0 as? ZMConversation)?.needsToBeUpdatedFromBackend = true }
+        firstUser.lastServerSyncedActiveConversations.forEach { $0.needsToBeUpdatedFromBackend = true }
         return firstUser
     }
 

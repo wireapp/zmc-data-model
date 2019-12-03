@@ -318,8 +318,8 @@ extension ZMUser {
     /// Remove user from all group conversations he is a participant of
     fileprivate func removeFromAllConversations(at timestamp: Date) {
         let allGroupConversations: [ZMConversation] = lastServerSyncedActiveConversations.compactMap {
-            guard let conversation = $0 as? ZMConversation, conversation.conversationType == .group else { return nil}
-            return conversation
+            guard $0.conversationType == .group else { return nil}
+            return $0
         }
         
         allGroupConversations.forEach { conversation in
