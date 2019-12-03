@@ -399,7 +399,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 }
 
 ///TODO: check the keys
-+ (NSSet *)keyPathsForValuesAffectingDisplayName;
++ (NSSet *)keyPathsForValuesAffectingDisplayName
 {
     return [NSSet setWithObjects:ZMConversationConversationTypeKey, ZMConversationParticipantRolesKey, @"lastServerSyncedActiveParticipants.name", @"connection.to.name", @"connection.to.availability", ZMConversationUserDefinedNameKey, nil];
 }

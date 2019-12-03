@@ -308,10 +308,55 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: { conversation, _ in conversation.add(user:user) },
                                                      expectedChangedFields: ["participantsChanged", "nameChanged"],
-                                                     expectedChangedKeys: ["displayName", "lastServerSyncedActiveParticipants"]) ///TODO: it should also has key PR?
+                                                     expectedChangedKeys: ["displayName", "lastServerSyncedActiveParticipants"])
         
     }
     
+    func testThatItNotifiesTheObserverOfAParticipantIsDeleted()
+    {
+        // given
+        let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
+        conversation.conversationType = ZMConversationType.group
+        let user = ZMUser.insertNewObject(in:self.uiMOC)
+        user.name = "Foo"
+        conversation.add(user:user)
+        
+        uiMOC.saveOrRollback()
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        
+        // when
+        self.checkThatItNotifiesTheObserverOfAChange(conversation,
+                                                     modifier: { conversation, _ in
+                                                        conversation.participantRoles.forEach(){ $0.markedForDeletion = true
+                                                            
+                                                        }
+                                                        
+                                                        self.uiMOC.saveOrRollback()
+
+        },
+                                                     expectedChangedFields: ["participantsChanged", "nameChanged"],
+                                                     expectedChangedKeys: ["displayName", "lastServerSyncedActiveParticipants"])
+        
+    }
+
+    func testThatItNotifiesTheObserverOfAParticipantIsInserted()
+    {
+        // given
+        let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
+        conversation.conversationType = ZMConversationType.group
+        let user = ZMUser.insertNewObject(in:self.uiMOC)
+        user.name = "Foo"
+        uiMOC.saveOrRollback()
+        XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+        
+        // when
+        self.checkThatItNotifiesTheObserverOfAChange(conversation,
+                                                     modifier: { conversation, _ in conversation.add(user:user) },
+                                                     expectedChangedFields: ["participantsChanged", "nameChanged"],
+                                                     expectedChangedKeys: ["displayName", "lastServerSyncedActiveParticipants"])
+        
+    }
+
     ///TODO: test for minus set
     func testThatItNotifiesTheObserverOfAnRemovedParticipant() {
         // given

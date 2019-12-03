@@ -20,6 +20,15 @@ import Foundation
 import WireProtos
 
 extension ZMConversation {
+    
+    @objc
+    public class func keyPathsForValuesAffectingLastServerSyncedActiveParticipants () -> Set<String>{
+        return Set([ZMConversationParticipantRolesKey,
+                    "participantRoles.markedForDeletion" //,
+//                    "participantRoles.markedForInsertion"
+            ])
+    }
+    
     @objc
     public var lastServerSyncedActiveParticipants: Set<ZMUser> {
         return Set(participantRoles.compactMap {

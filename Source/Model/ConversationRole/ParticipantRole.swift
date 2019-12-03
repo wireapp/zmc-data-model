@@ -19,8 +19,8 @@
 import Foundation
 
 public let ZMParticipantRoleRoleValueKey      = "role"
-public let ZMParticipantRoleMarkedToDeleteKey = "markedToDelete"
-public let ZMParticipantRoleMarkedToInsertKey = "markedToInsert"
+public let ZMParticipantRoleMarkedForDeletionKey = "markedForDeletion"
+public let ZMParticipantRoleMarkedForInsertionKey = "markedForInsertion"
 
 @objcMembers
 public class ParticipantRole: ZMManagedObject {
@@ -40,10 +40,10 @@ public class ParticipantRole: ZMManagedObject {
         return true
     }
     
-    open override func keysTrackedForLocalModifications() -> Set<String> {
+    public override func keysTrackedForLocalModifications() -> Set<String> {
         return [ZMParticipantRoleRoleValueKey,
-                ZMParticipantRoleMarkedToDeleteKey,
-                ZMParticipantRoleMarkedToInsertKey]
+                ZMParticipantRoleMarkedForDeletionKey,
+                ZMParticipantRoleMarkedForInsertionKey]
     }
     
     @objc
@@ -54,7 +54,6 @@ public class ParticipantRole: ZMManagedObject {
         let entry = ParticipantRole.insertNewObject(in: managedObjectContext)
         entry.user = user
         entry.conversation = conversation
-//        entry.markedForInsertion = true ///TODO: needed or do this in SE?
         return entry
     }
 }
