@@ -255,29 +255,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
 }
 
--(NSSet <ZMUser *> *)activeParticipants
-{
-    
-    NSMutableSet *activeParticipants = [NSMutableSet set];
-    
-    if (self.internalConversationType != ZMConversationTypeGroup) {
-        [activeParticipants addObject:[ZMUser selfUserInContext:self.managedObjectContext]];
-        if (self.connectedUser != nil) {
-            [activeParticipants addObject:self.connectedUser];
-        }
-    }
-    else if(self.isSelfAnActiveMember) {
-        [activeParticipants addObject:[ZMUser selfUserInContext:self.managedObjectContext]];
-        [activeParticipants unionSet:self.lastServerSyncedActiveParticipants];
-    }
-    else
-    {
-        [activeParticipants unionSet:self.lastServerSyncedActiveParticipants];
-    }
-    
-    return activeParticipants;
-}
-
 -(NSArray <ZMUser *> *)sortedActiveParticipants
 {
     return [self sortedUsers:[self activeParticipants]];
@@ -1128,7 +1105,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         self.isArchived = sender.isSelfUser;
     }
     
-    [self minusWithUserSet:otherUsers.set];
+    [self minusWithUserSet:otherUsers.set isFromLocal:NO];
     [self increaseSecurityLevelIfNeededAfterRemovingUsers:otherUsers.set];
 }
 

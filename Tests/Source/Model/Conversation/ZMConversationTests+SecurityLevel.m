@@ -900,8 +900,7 @@
     __block ZMSystemMessage *result = nil;
     [self performPretendingUiMocIsSyncMoc:^{
         [usersToRemove enumerateObjectsUsingBlock:^(ZMUser * _Nonnull obj, BOOL * _Nonnull stop __unused) {
-//            [conv.mutableLastServerSyncedActiveParticipants removeObject:obj];
-            [conv minusWithUserSet: [NSSet setWithObject:obj]];
+            [conv minusWithUserSet: [NSSet setWithObject:obj] isFromLocal:NO];
         }];
         result = [ZMSystemMessage createOrUpdateMessageFromUpdateEvent:event
                                                 inManagedObjectContext:conv.managedObjectContext

@@ -136,6 +136,7 @@ NS_ASSUME_NONNULL_END
 
 - (void)mergeWithExistingConversationWithRemoteID:(nonnull NSUUID *)remoteID;
 
+- (ZMConversationType)internalConversationType;
 
 + (nonnull NSUUID *)selfConversationIdentifierInContext:(nonnull NSManagedObjectContext *)context;
 + (nonnull ZMConversation *)selfConversationInContext:(nonnull NSManagedObjectContext *)managedObjectContext;

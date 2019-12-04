@@ -36,7 +36,8 @@ extension ZMConversation {
 
     @objc
     public class func keyPathsForValuesAffectingActiveParticipants() -> Set<String> {
-        return Set([ZMConversationIsSelfAnActiveMemberKey] + ZMConversation.participantRolesKeys)
+        return Set([ZMConversationIsSelfAnActiveMemberKey,
+                    ZMConversationParticipantRolesKey])
     }
 
     @objc
@@ -48,7 +49,40 @@ extension ZMConversation {
                     ZMConversationUserDefinedNameKey] +
                     ZMConversation.participantRolesKeys)
     }
+
+    @objc
+    public var nonDeletedActiveParticipants: Set<ZMUser> {
+        return Set(participantRoles.compactMap {
+            if !$0.markedForDeletion {
+                return $0.user
+            } else {
+                return nil
+            }
+        })
+    }
     
+    @objc
+    var activeParticipants: Set<ZMUser> {
+        guard let managedObjectContext = managedObjectContext else {return Set()}
+        
+        var activeParticipants: Set<ZMUser> = []
+        
+        if internalConversationType() != .group {
+            activeParticipants.insert(ZMUser.selfUser(in: managedObjectContext))
+            if let connectedUser = connectedUser {
+                activeParticipants.insert(connectedUser)
+            }
+        } else if isSelfAnActiveMember {
+            activeParticipants.insert(ZMUser.selfUser(in: managedObjectContext))
+            activeParticipants.formUnion(nonDeletedActiveParticipants)
+        } else {
+            activeParticipants.formUnion(nonDeletedActiveParticipants)
+        }
+        
+        return activeParticipants
+    }
+
+
     @objc
     public var lastServerSyncedActiveParticipants: Set<ZMUser> {
         return Set(participantRoles.compactMap {
@@ -83,7 +117,7 @@ extension ZMConversation {
     }///TODO: test
     
     @objc
-    func minus(userSet: Set<ZMUser>) {
+    func minus(userSet: Set<ZMUser>, isFromLocal: Bool) {
         
         var removeArray = [ParticipantRole]()
         
@@ -96,8 +130,12 @@ extension ZMConversation {
         }
         
         removeArray.forEach() {
-//            participantRoles.remove($0) ///FIXME: test for entity is removed
-            $0.markedForDeletion = true
+            if isFromLocal {
+                $0.markedForDeletion = true
+                $0.markedForInsertion = false
+            } else {
+                participantRoles.remove($0)
+            }
         }
     }
     
