@@ -40,6 +40,9 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         // THEN
         XCTAssertEqual(sut.lastServerSyncedActiveParticipants, Set([user1, user2]))
         XCTAssertEqual(sut.activeParticipants, Set([user1, selfUser]))
+
+        XCTAssert(user2.participantRoles.first!.markedForDeletion)
+        XCTAssertFalse(user2.participantRoles.first!.markedForInsertion)
     }
     
     func testThatActiveParticipantsIncludesUsersMarkedForInsertion() {
@@ -56,6 +59,9 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         // THEN
         XCTAssertEqual(sut.lastServerSyncedActiveParticipants, Set([user1]))
         XCTAssertEqual(sut.activeParticipants, Set([user1, user2, selfUser]))
+
+        XCTAssertFalse(user2.participantRoles.first!.markedForDeletion)
+        XCTAssert(user2.participantRoles.first!.markedForInsertion)
     }
     
     func testThatRemoveThenAddParticipants() {
