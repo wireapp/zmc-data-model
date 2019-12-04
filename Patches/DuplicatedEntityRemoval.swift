@@ -43,7 +43,6 @@ enum DuplicatedEntityRemoval {
         }
     }
     
-    ///TODO: search for other attritube?
     static func deleteDuplicatedUsers(in context: NSManagedObjectContext) {
         // Fetch users having the same remote identifiers
         context.findDuplicated(by: "remoteIdentifier_data").forEach { (remoteId: Data, users: [ZMUser]) in
@@ -51,7 +50,6 @@ enum DuplicatedEntityRemoval {
         }
     }
     
-    ///TODO: search for other attritube?
     static func deleteDuplicatedConversations(in context: NSManagedObjectContext) {
         // Fetch conversations having the same remote identifiers
         context.findDuplicated(by: "remoteIdentifier_data").forEach { (remoteId: Data, conversations: [ZMConversation]) in

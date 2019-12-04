@@ -105,8 +105,6 @@ NS_ASSUME_NONNULL_END
 + (nonnull NSPredicate *)predicateForSearchQuery:(nonnull NSString *)searchQuery team:(nullable Team *)team;
 + (nonnull NSPredicate *)userDefinedNamePredicateForSearchString:(nonnull NSString *)searchString;
 
-//@property (readonly, nonatomic, nonnull) NSMutableOrderedSet *mutableLastServerSyncedActiveParticipants;
-
 @property (nonatomic) BOOL internalIsArchived;
 
 @property (nonatomic, nullable) NSDate *pendingLastReadServerTimestamp;
@@ -183,7 +181,6 @@ NS_ASSUME_NONNULL_END
 - (void)internalRemoveParticipants:(nonnull NSArray<ZMUser *> *)participants sender:(nonnull ZMUser *)sender;
 
 @property (nonatomic) BOOL isSelfAnActiveMember; ///< whether the self user is an active member (as opposed to a past member)
-//@property (readonly, nonatomic, nonnull) NSOrderedSet<ZMUser *> *lastServerSyncedActiveParticipants;
 
 @end
 

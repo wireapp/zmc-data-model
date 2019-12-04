@@ -72,8 +72,6 @@ static NSString * const LastUpdateDateInGMTKey = @"lastUpdateDateInGMT";
     if (conversation == nil) {
         connection.conversation = [ZMConversation insertNewObjectInManagedObjectContext:user.managedObjectContext];
        
-        ///for 1-to-1 convo, directly insert a new participantRole
-        
         ParticipantRole * participantRole = [ParticipantRole createWithManagedObjectContext:user.managedObjectContext user:user conversation:connection.conversation];
         [connection.conversation.participantRoles setByAddingObject:participantRole];
         connection.conversation.creator = [ZMUser selfUserInContext:user.managedObjectContext];

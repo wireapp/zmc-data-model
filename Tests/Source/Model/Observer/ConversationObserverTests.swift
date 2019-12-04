@@ -330,9 +330,10 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
                                                         $0.markedForDeletion = true
                                                     }
                                                 },
-                                                expectedChangedFields: ["participantsChanged"
-            ],
-                                                expectedChangedKeys: ["lastServerSyncedActiveParticipants"])
+                                                expectedChangedFields: ["participantsChanged",
+                                                     "nameChanged"],
+                                                expectedChangedKeys: ["displayName",
+                                                                      "lastServerSyncedActiveParticipants"])
         
     }
     
@@ -353,8 +354,10 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
                                                             $0.markedForInsertion = true
                                                         }
                                                      },
-                                                     expectedChangedFields: ["participantsChanged"],
-                                                     expectedChangedKeys: ["lastServerSyncedActiveParticipants"])
+                                                     expectedChangedFields: ["participantsChanged",
+                                                                             "nameChanged"],
+                                                     expectedChangedKeys: ["displayName",
+                                                                            "lastServerSyncedActiveParticipants"])
         
     }
     
@@ -372,8 +375,10 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         // when
         checkThatItNotifiesTheObserverOfAChange(conversation,
                                                 modifier: {conversation, _ in conversation.minus(userSet: Set([user])) },
-                                                expectedChangedFields: ["participantsChanged"],
-                                                expectedChangedKeys: ["lastServerSyncedActiveParticipants"])
+                                                expectedChangedFields: ["participantsChanged",
+                                                                        "nameChanged"],
+                                                expectedChangedKeys: ["displayName",
+                                                                      "lastServerSyncedActiveParticipants"])
     }
     
     func testThatItNotifiesTheObserverIfTheSelfUserIsAdded()

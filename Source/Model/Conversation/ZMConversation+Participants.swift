@@ -20,22 +20,33 @@ import Foundation
 import WireProtos
 
 extension ZMConversation {
+    // MARK: - keyPathsForValuesAffecting
+    static
+    private var participantRolesKeys: [String] {
+        return [ZMConversationParticipantRolesKey,
+                "participantRoles.markedForDeletion",
+                "participantRoles.markedForInsertion"
+        ]
+    }
     
     @objc
     public class func keyPathsForValuesAffectingLastServerSyncedActiveParticipants () -> Set<String> {
-        return Set([ZMConversationParticipantRolesKey,
-                    "participantRoles.markedForDeletion",
-                    "participantRoles.markedForInsertion"
-            ])
+        return Set(ZMConversation.participantRolesKeys)
     }
 
     @objc
     public class func keyPathsForValuesAffectingActiveParticipants() -> Set<String> {
-        return Set([ZMConversationParticipantRolesKey,
-                    ZMConversationIsSelfAnActiveMemberKey,
-                    "participantRoles.markedForDeletion",
-                    "participantRoles.markedForInsertion"
-            ])
+        return Set([ZMConversationIsSelfAnActiveMemberKey] + ZMConversation.participantRolesKeys)
+    }
+
+    @objc
+    public class func keyPathsForValuesAffectingDisplayName() -> Set<String> {
+        return Set([ZMConversationConversationTypeKey,
+                    "lastServerSyncedActiveParticipants.name",
+                    "connection.to.name",
+                    "connection.to.availability",
+                    ZMConversationUserDefinedNameKey] +
+                    ZMConversation.participantRolesKeys)
     }
     
     @objc
@@ -49,6 +60,9 @@ extension ZMConversation {
         })
     }
     
+    
+    // MARK: - Participant Set operations
+
     /// union user set to participantRoles
     ///
     /// - Parameter users: users to union

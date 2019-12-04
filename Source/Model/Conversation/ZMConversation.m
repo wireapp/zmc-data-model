@@ -255,7 +255,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
 }
 
-///TODO: copy the filter to the new var activeParticipants
 -(NSSet <ZMUser *> *)activeParticipants
 {
     
@@ -391,12 +390,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 + (NSSet *)keyPathsForValuesAffectingIsReadOnly;
 {
     return [NSSet setWithObjects:ZMConversationConversationTypeKey, ZMConversationIsSelfAnActiveMemberKey, nil];
-}
-
-///TODO: check the keys
-+ (NSSet *)keyPathsForValuesAffectingDisplayName
-{
-    return [NSSet setWithObjects:ZMConversationConversationTypeKey, ZMConversationParticipantRolesKey, @"lastServerSyncedActiveParticipants.name", @"connection.to.name", @"connection.to.availability", ZMConversationUserDefinedNameKey, nil];
 }
 
 + (nonnull instancetype)insertGroupConversationIntoUserSession:(nonnull id<ZMManagedObjectContextProvider> )session
