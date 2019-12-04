@@ -33,13 +33,13 @@ extension ZMConversation {
     public class func keyPathsForValuesAffectingLastServerSyncedActiveParticipants () -> Set<String> {
         return Set(ZMConversation.participantRolesKeys)
     }
-
+    
     @objc
     public class func keyPathsForValuesAffectingActiveParticipants() -> Set<String> {
         return Set([ZMConversationIsSelfAnActiveMemberKey,
                     ZMConversationParticipantRolesKey])
     }
-
+    
     @objc
     public class func keyPathsForValuesAffectingDisplayName() -> Set<String> {
         return Set([ZMConversationConversationTypeKey,
@@ -47,9 +47,9 @@ extension ZMConversation {
                     "connection.to.name",
                     "connection.to.availability",
                     ZMConversationUserDefinedNameKey] +
-                    ZMConversation.participantRolesKeys)
+            ZMConversation.participantRolesKeys)
     }
-
+    
     @objc
     var activeParticipants: Set<ZMUser> {
         guard let managedObjectContext = managedObjectContext else {return Set()}
@@ -70,7 +70,7 @@ extension ZMConversation {
         
         return activeParticipants
     }
-
+    
     @objc
     public var nonDeletedParticipants: Set<ZMUser> {
         return Set(participantRoles.compactMap {
@@ -82,12 +82,12 @@ extension ZMConversation {
         })
     }
     
-
+    
     @objc
     public var lastServerSyncedActiveParticipants: Set<ZMUser> {
         return Set(participantRoles.compactMap {
             if !$0.markedForInsertion {
-             return $0.user
+                return $0.user
             } else {
                 return nil
             }
@@ -96,7 +96,7 @@ extension ZMConversation {
     
     
     // MARK: - Participant Set operations
-
+    
     /// union user set to participantRoles
     ///
     /// - Parameter users: users to union
@@ -153,7 +153,7 @@ extension ZMConversation {
             add(user: user, moc: moc, isFromLocal: isFromLocal)
         }
     }
-
+    
     ///TODO: just for test!!
     @objc
     func add(user: ZMUser, moc: NSManagedObjectContext) {
@@ -166,20 +166,22 @@ extension ZMConversation {
         guard let moc = user.managedObjectContext else { return }
         add(user: user, moc: moc, isFromLocal: false)
     }
-
+    
     ///TODO: just for test!!
     @objc
     func add(users: [ZMUser], moc: NSManagedObjectContext) {
         add(users: users, moc: moc, isFromLocal: false)
     }
-
+    
     @objc
-    func add(user: ZMUser, moc: NSManagedObjectContext, isFromLocal: Bool = false) {
+    func add(user: ZMUser,
+             moc: NSManagedObjectContext,
+             isFromLocal: Bool = false) {
         if let participantRole = user.participantRoles.first(where: {$0.conversation == self}) {
             participantRole.markedForDeletion = false
         } else {
             let participantRole = ParticipantRole.create(managedObjectContext: moc, user: user, conversation: self)
-
+            
             participantRole.markedForInsertion = isFromLocal
         }
     }
@@ -190,5 +192,5 @@ extension ZMConversation {
         
         add(user: user, moc: moc, isFromLocal: isFromLocal)
     }
-
+    
 }

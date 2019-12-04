@@ -746,7 +746,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     NSSet<ZMUser *> *participants = [NSSet setWithObject:participant];
 
     [conversation appendNewConversationSystemMessageAtTimestamp:[NSDate date] users:participants];
-    [conversation internalAddParticipants:@[participant]];
+    [conversation internalAddParticipants:@[participant] isFromLocal:NO]; ///TODO:
 
     // We need to check if we should add a 'secure' system message in case all participants are trusted
     [conversation increaseSecurityLevelIfNeededAfterTrustingClients:participant.clients];
@@ -854,7 +854,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     [conversation appendNewConversationSystemMessageAtTimestamp:[NSDate date] users:participantsSet];
 
     // Add the participants
-    [conversation internalAddParticipants:filteredParticipants];
+    [conversation internalAddParticipants:filteredParticipants isFromLocal:NO];
 
     // We need to check if we should add a 'secure' system message in case all participants are trusted
     NSMutableSet *allClients = [NSMutableSet set];
@@ -1061,7 +1061,13 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return result;
 }
 
-- (void)internalAddParticipants:(NSArray<ZMUser *> *)participants
+
+///TODO: just for test!
+- (void)internalAddParticipants:(nonnull NSArray<ZMUser *> *)participants {
+    [self internalAddParticipants:participants isFromLocal:NO];
+}
+
+- (void)internalAddParticipants:(NSArray<ZMUser *> *)participants isFromLocal:(BOOL) isFromLocal
 {
     VerifyReturn(participants != nil);
     NSSet<ZMUser *> *selfUserSet = [NSSet setWithObject:[ZMUser selfUserInContext:self.managedObjectContext]];
@@ -1082,7 +1088,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         
         
         NSSet *existingUsers = [self.lastServerSyncedActiveParticipants copy];
-        [self unionWithUserSet:otherUsers.set moc:self.managedObjectContext isFromLocal:NO];
+        [self unionWithUserSet:otherUsers.set moc:self.managedObjectContext isFromLocal:isFromLocal];
         
         [otherUsers minusSet:existingUsers];
         if (otherUsers.count > 0) {
@@ -1105,7 +1111,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         self.isArchived = sender.isSelfUser;
     }
     
-    [self minusWithUserSet:otherUsers.set isFromLocal:NO];
+    [self minusWithUserSet:otherUsers.set isFromLocal:NO]; ///TODO: read form param
     [self increaseSecurityLevelIfNeededAfterRemovingUsers:otherUsers.set];
 }
 

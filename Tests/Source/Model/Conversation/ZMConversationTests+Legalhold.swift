@@ -140,12 +140,12 @@ class ZMConversationTests_Legalhold: ZMConversationTestsBase {
 
             let conversation = self.createConversation(in: self.syncMOC)
             conversation.conversationType = .group
-            conversation.internalAddParticipants([selfUser, otherUser, otherUserB])
+            conversation.internalAddParticipants([selfUser, otherUser, otherUserB], isFromLocal: false)
 
             XCTAssertEqual(conversation.legalHoldStatus, .pendingApproval)
 
             // WHEN
-            conversation.internalRemoveParticipants([otherUser], sender: selfUser)
+            conversation.internalRemoveParticipants([otherUser], sender: selfUser) ///TODO: is from local? NO!
 
             // THEN
             XCTAssertEqual(conversation.legalHoldStatus, .disabled)
