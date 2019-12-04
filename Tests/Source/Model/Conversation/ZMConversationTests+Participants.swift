@@ -20,6 +20,7 @@ import Foundation
 @testable import WireDataModel
 
 final class ConversationParticipantsTests : ZMConversationTestsBase {
+    
     func testThatActiveParticipantsExcludesUsersMarkedForDeletion() {
         // GIVEN
         let sut = createConversation(in: uiMOC)
@@ -30,15 +31,32 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         
         XCTAssertEqual(sut.lastServerSyncedActiveParticipants.count, 2)
         XCTAssertEqual(sut.activeParticipants.count, 3)
+
         // WHEN
-        
         sut.minus(userSet: Set([user2]), isFromLocal: true)
         
         let selfUser = sut.managedObjectContext.map(ZMUser.selfUser)
         
         // THEN
-        XCTAssertEqual(sut.lastServerSyncedActiveParticipants.count, 2)
         XCTAssertEqual(sut.lastServerSyncedActiveParticipants, Set([user1, user2]))
         XCTAssertEqual(sut.activeParticipants, Set([user1, selfUser]))
     }
+    
+    func testThatActiveParticipantsIncludesUsersMarkedForInsertion() {
+        // GIVEN
+        let sut = createConversation(in: uiMOC)
+        let user1 = createUser()!
+        let user2 = createUser()!
+        
+        sut.internalAddParticipants([user1])
+
+        // WHEN
+        sut.add(user: user2, isFromLocal: true)
+
+        // THEN
+        XCTAssertEqual(sut.lastServerSyncedActiveParticipants, Set([user1]))
+        XCTAssertEqual(sut.activeParticipants, Set([user1, user2, selfUser]))
+    }
+    
+    ///TODO: test for remove then add
 }

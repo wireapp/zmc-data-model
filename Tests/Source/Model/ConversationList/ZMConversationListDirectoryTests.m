@@ -127,7 +127,7 @@
     self.oneToOneConversationInTeam.userDefinedName = nil;
     self.oneToOneConversationInTeam.team = team;
 //    [self.oneToOneConversationInTeam addWithUser:otherUser];
-    [self.oneToOneConversationInTeam addWithUser:otherUser moc:self.uiMOC];
+    [self.oneToOneConversationInTeam addWithUser:otherUser moc:self.uiMOC isFromLocal:YES];
 
     self.invalidConversation = [self createConversation];
     self.invalidConversation.conversationType = ZMConversationTypeInvalid;
@@ -150,8 +150,7 @@
     self.serviceConversation.conversationType = ZMConversationTypeGroup;
     self.serviceConversation.userDefinedName = nil;
     self.serviceConversation.team = team;
-//    [self.serviceConversation addWithUser:serviceUser];
-    [self.serviceConversation addWithUser:serviceUser moc:self.uiMOC];
+    [self.serviceConversation addWithUser:serviceUser moc:self.uiMOC isFromLocal:YES];
 
     [self.uiMOC saveOrRollback];
 }
