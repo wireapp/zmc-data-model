@@ -374,7 +374,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         
         // when
         checkThatItNotifiesTheObserverOfAChange(conversation,
-                                                modifier: {conversation, _ in conversation.minus(userSet: Set([user])) },
+                                                modifier: {conversation, _ in conversation.minus(userSet: Set([user]), isFromLocal: true) },
                                                 expectedChangedFields: ["participantsChanged",
                                                                         "nameChanged"],
                                                 expectedChangedKeys: ["displayName",

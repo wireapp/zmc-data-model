@@ -51,17 +51,6 @@ extension ZMConversation {
     }
 
     @objc
-    public var nonDeletedActiveParticipants: Set<ZMUser> {
-        return Set(participantRoles.compactMap {
-            if !$0.markedForDeletion {
-                return $0.user
-            } else {
-                return nil
-            }
-        })
-    }
-    
-    @objc
     var activeParticipants: Set<ZMUser> {
         guard let managedObjectContext = managedObjectContext else {return Set()}
         
@@ -74,19 +63,30 @@ extension ZMConversation {
             }
         } else if isSelfAnActiveMember {
             activeParticipants.insert(ZMUser.selfUser(in: managedObjectContext))
-            activeParticipants.formUnion(nonDeletedActiveParticipants)
+            activeParticipants.formUnion(nonDeletedParticipants)
         } else {
-            activeParticipants.formUnion(nonDeletedActiveParticipants)
+            activeParticipants.formUnion(nonDeletedParticipants)
         }
         
         return activeParticipants
     }
 
+    @objc
+    public var nonDeletedParticipants: Set<ZMUser> {
+        return Set(participantRoles.compactMap {
+            if !$0.markedForDeletion {
+                return $0.user
+            } else {
+                return nil
+            }
+        })
+    }
+    
 
     @objc
     public var lastServerSyncedActiveParticipants: Set<ZMUser> {
         return Set(participantRoles.compactMap {
-            if !$0.markedForDeletion && !$0.markedForInsertion {
+            if !$0.markedForInsertion {
              return $0.user
             } else {
                 return nil
