@@ -330,16 +330,13 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
                                                         $0.markedForDeletion = true
                                                     }
                                                 },
-                                                expectedChangedFields: ["participantsChanged",
-//                                                                        "nameChanged"
+                                                expectedChangedFields: ["participantsChanged"
             ],
-                                                expectedChangedKeys: [//"displayName",
-                                                                      "lastServerSyncedActiveParticipants"])
+                                                expectedChangedKeys: ["lastServerSyncedActiveParticipants"])
         
     }
     
-    func testThatItNotifiesTheObserverOfAParticipantIsInserted()
-    {
+    func testThatItNotifiesTheObserverOfAParticipantIsInserted() {
         // given
         let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
         conversation.conversationType = ZMConversationType.group
@@ -350,12 +347,14 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // when
-        self.checkThatItNotifiesTheObserverOfAChange(conversation,
+        checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: { conversation, _ in
-                                                        ///TODO: mark for insert
-        },
-                                                     expectedChangedFields: ["participantsChanged", "nameChanged"],
-                                                     expectedChangedKeys: ["displayName", "lastServerSyncedActiveParticipants"])
+                                                        conversation.participantRoles.forEach(){
+                                                            $0.markedForInsertion = true
+                                                        }
+                                                     },
+                                                     expectedChangedFields: ["participantsChanged"],
+                                                     expectedChangedKeys: ["lastServerSyncedActiveParticipants"])
         
     }
     
@@ -373,8 +372,8 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         // when
         checkThatItNotifiesTheObserverOfAChange(conversation,
                                                 modifier: {conversation, _ in conversation.minus(userSet: Set([user])) },
-                                                expectedChangedFields: ["participantsChanged", "nameChanged"],
-                                                expectedChangedKeys: ["displayName", "lastServerSyncedActiveParticipants"])
+                                                expectedChangedFields: ["participantsChanged"],
+                                                expectedChangedKeys: ["lastServerSyncedActiveParticipants"])
     }
     
     func testThatItNotifiesTheObserverIfTheSelfUserIsAdded()

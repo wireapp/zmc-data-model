@@ -24,8 +24,8 @@ extension ZMConversation {
     @objc
     public class func keyPathsForValuesAffectingLastServerSyncedActiveParticipants () -> Set<String>{
         return Set([ZMConversationParticipantRolesKey,
-                    "participantRoles.markedForDeletion" //,
-//                    "participantRoles.markedForInsertion"
+                    "participantRoles.markedForDeletion" ,
+                    "participantRoles.markedForInsertion"
             ])
     }
     
