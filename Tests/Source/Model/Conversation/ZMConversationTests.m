@@ -1961,7 +1961,7 @@
     XCTAssertEqual(conversation.activeParticipants.count, 3u);
     
     // expect
-    [self keyValueObservingExpectationForObject:conversation keyPath:@"activeParticipants" expectedValue:nil];
+    [self keyValueObservingExpectationForObject:conversation keyPath:@"activeParticipants" expectedValue:nil]; ///TODO: need to fire "activeParticipants" when markForDeletion?
     
     // when
 

@@ -903,14 +903,14 @@ extension DuplicatedEntityRemovalTests {
         connectionA2.conversation = convoA2
         connectionA2.status = .accepted
 
-        moc.saveOrRollback() ///TODO: pr.user is nil
+        moc.saveOrRollback()
         
         // WHEN
-        WireDataModel.DuplicatedEntityRemoval.removeDuplicated(in: self.moc)///TODO:
+        WireDataModel.DuplicatedEntityRemoval.removeDuplicated(in: self.moc)
         self.moc.saveOrRollback()
         
         // THEN
-        XCTAssertEqual([userA1, userA2].nonZombies.count, 1)///TODO: mark for delete attritube?
+        XCTAssertEqual([userA1, userA2].nonZombies.count, 1)
         guard let userA = [userA1, userA2].nonZombies.first else {
             return XCTFail("Both deleted!")
         }

@@ -339,8 +339,7 @@ class UserClientTests: ZMBaseManagedObjectTest {
         }
     }
 
-    ///TODO: undo after find out crash reason
-    func d_testThatItSendsASessionResetMessageForUserInTeamConversation() {
+    func testThatItSendsASessionResetMessageForUserInTeamConversation() {
         var (message, conversation): (ZMGenericMessage?, ZMConversation?)
 
         let noteExpectation = expectation(description: "GenericMessageScheduleNotification should be fired")
