@@ -323,7 +323,7 @@ class DatabaseMigrationTests: DatabaseBaseTest {
             let currentDatabaseURL = directory.syncContext!.persistentStoreCoordinator!.persistentStores.last!.url!
             
             // If this fails add a breakpoint above and add file at `currentDatabaseURL` to test bundle
-            XCTFail("Missing current version database file, add it to test bundle: \(currentDatabaseURL)")
+            XCTFail("Missing current version database file, add it to test bundle: \(currentDatabaseURL), and rename to storeX-X-X.wiredatabase")
             return
         }
 
