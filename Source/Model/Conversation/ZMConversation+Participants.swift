@@ -125,18 +125,28 @@ extension ZMConversation {
         
         participantRoles.forEach() { participantRole in
             if userSet.contains(participantRole.user) {
-                if !participantRole.markedForInsertion {
+                if isFromLocal && participantRole.markedForInsertion {
                     removeArray.append(participantRole)
+                }   else {
+            
+                    if !participantRole.markedForInsertion {
+                        removeArray.append(participantRole)
+                    }
                 }
             }
         }
         
+        ///TODO: rm removeArray
         removeArray.forEach() {
             if isFromLocal {
-                $0.markedForDeletion = true
-                $0.markedForInsertion = false
+                if $0.markedForInsertion {
+                    self.managedObjectContext?.delete($0)
+                } else {
+                    $0.markedForDeletion = true
+                    $0.markedForInsertion = false
+                }
             } else {
-                participantRoles.remove($0)
+                self.managedObjectContext?.delete($0)
             }
         }
     }
@@ -170,9 +180,13 @@ extension ZMConversation {
 
     @objc
     func add(user: ZMUser, moc: NSManagedObjectContext, isFromLocal: Bool = false) {
-        let participantRole = ParticipantRole.create(managedObjectContext: moc, user: user, conversation: self)
+        if let participantRole = user.participantRoles.first(where: {$0.conversation == self}) {
+            participantRole.markedForDeletion = false
+        } else {
+            let participantRole = ParticipantRole.create(managedObjectContext: moc, user: user, conversation: self)
 
-        participantRole.markedForInsertion = isFromLocal
+            participantRole.markedForInsertion = isFromLocal
+        }
     }
     
     @objc

@@ -58,5 +58,48 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         XCTAssertEqual(sut.activeParticipants, Set([user1, user2, selfUser]))
     }
     
-    ///TODO: test for remove then add
+    func testThatRemoveThenAddParticipants() {
+        // GIVEN
+        let sut = createConversation(in: uiMOC)
+        let user1 = createUser()!
+        let user2 = createUser()!
+        
+        sut.internalAddParticipants([user1, user2])
+        
+        XCTAssertEqual(sut.lastServerSyncedActiveParticipants.count, 2)
+        XCTAssertEqual(sut.activeParticipants.count, 3)
+        
+        // WHEN
+        sut.minus(userSet: Set([user2]), isFromLocal: true)
+        sut.add(user: user2, isFromLocal: true)
+
+        let selfUser = sut.managedObjectContext.map(ZMUser.selfUser)
+        
+        // THEN
+        XCTAssertEqual(sut.lastServerSyncedActiveParticipants, Set([user1, user2]))
+        XCTAssertEqual(sut.activeParticipants, Set([user1, user2, selfUser]))
+        
+        XCTAssertFalse(user2.participantRoles.first!.markedForDeletion)
+        XCTAssertFalse(user2.participantRoles.first!.markedForInsertion)
+    }
+
+    func testThatAddThenRemoveParticipants() {
+        // GIVEN
+        let sut = createConversation(in: uiMOC)
+        let user1 = createUser()!
+        let user2 = createUser()!
+        
+        sut.internalAddParticipants([user1])
+        
+        // WHEN
+        sut.add(user: user2, isFromLocal: true)
+        sut.minus(userSet: Set([user2]), isFromLocal: true)
+        uiMOC.processPendingChanges()
+
+        // THEN
+        XCTAssertEqual(sut.lastServerSyncedActiveParticipants, Set([user1]))
+        XCTAssertEqual(sut.activeParticipants, Set([user1, selfUser]))
+
+        XCTAssert(user2.participantRoles.isEmpty, "\(user2.participantRoles)")
+    }
 }
