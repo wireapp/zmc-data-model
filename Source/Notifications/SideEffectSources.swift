@@ -72,12 +72,13 @@ extension ZMManagedObject {
                 originalChanges = [originalChangeKey : [self : changes] as Optional<NSObject>]
             }
         }
+        
         return [object: Changes(changedKeys: keys, originalChanges: originalChanges)]
     }
 }
 
 
-extension ZMUser : SideEffectSource { ///TODO: copy to PR?
+extension ZMUser : SideEffectSource {
     
     var allConversations : [ZMConversation] {
         var conversations = Array(lastServerSyncedActiveConversations)
@@ -137,13 +138,20 @@ extension ZMUser : SideEffectSource { ///TODO: copy to PR?
 }
 
 extension ParticipantRole: SideEffectSource {
-    func affectedObjectsAndKeys(keyStore: DependencyKeyStore, knownKeys: Set<String>) -> ObjectAndChanges {
-        let keyMapping: ((String) -> String) = {"\(#keyPath(ZMConversation.lastServerSyncedActiveParticipants)).\($0)"}
-        return byUpdateAffectedKeys(for: conversation, ///TODO: it should affect user?
-                                    knownKeys: knownKeys,
-                                    keyStore: keyStore,
-                                    originalChangeKey: ParticipantRoleChangeInfo.ParticipantRoleChangeInfoKey,
-                                    keyMapping: keyMapping)
+
+    func affectedObjectsAndKeys(keyStore: DependencyKeyStore,
+                                knownKeys: Set<String>) -> ObjectAndChanges {
+        let keyMapping: ((String) -> String) = {
+            "\(#keyPath(ZMConversation.participantRoles)).\($0)"
+        }
+
+        let changes = byUpdateAffectedKeys(for: conversation,
+                                               knownKeys:knownKeys,
+                                               keyStore: keyStore,
+                                               keyMapping: keyMapping)
+        
+        ///FIXME: we need to affect user also?
+        return changes
     }
 
     func affectedObjectsForInsertionOrDeletion(keyStore: DependencyKeyStore) -> ObjectAndChanges {

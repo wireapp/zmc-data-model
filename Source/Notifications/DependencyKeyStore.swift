@@ -80,12 +80,11 @@ class DependencyKeyStore {
         let observable = classIdentifiers.mapToDictionary{DependencyKeyStore.setupObservableKeys(classIdentifier: $0)}
         let affecting = classIdentifiers.mapToDictionary{DependencyKeyStore.setupAffectedKeys(classIdentifier: $0, observableKeys: observable[$0]!)}
         let all = classIdentifiers.mapToDictionary{DependencyKeyStore.setupAllKeys(observableKeys: observable[$0]!, affectingKeys: affecting[$0]!)}
-        let affectingInverse = classIdentifiers.mapToDictionary{DependencyKeyStore.setupEffectedKeys(affectingKeys: affecting[$0]!)}
+        effectedKeys = classIdentifiers.mapToDictionary{DependencyKeyStore.setupEffectedKeys(affectingKeys: affecting[$0]!)}
         
         self.observableKeys = observable
         self.affectingKeys = affecting
         self.allKeys = all
-        self.effectedKeys = affectingInverse
     }
     
     /// When adding objects that are to be observed, add keys that are supposed to be reported on in here

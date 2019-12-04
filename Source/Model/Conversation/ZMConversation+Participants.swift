@@ -73,7 +73,8 @@ extension ZMConversation {
         }
         
         removeArray.forEach() {
-            participantRoles.remove($0) ///FIXME: test for entity is removed
+//            participantRoles.remove($0) ///FIXME: test for entity is removed
+            $0.markedForDeletion = true
         }
     }
     

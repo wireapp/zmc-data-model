@@ -294,7 +294,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 + (NSSet *)keyPathsForValuesAffectingActiveParticipants
 {
-    return [NSSet setWithObjects:ZMConversationParticipantRolesKey, ZMConversationIsSelfAnActiveMemberKey, nil];
+    return [NSSet setWithObjects:ZMConversationParticipantRolesKey,
+                                 ZMConversationIsSelfAnActiveMemberKey, nil];
 }
 
 - (ZMUser *)connectedUser
