@@ -119,7 +119,7 @@ extension ZMUser {
 
     // Migration method for merging two duplicated @c ZMUser entities
     func merge(with user: ZMUser) {
-        precondition(user.remoteIdentifier == self.remoteIdentifier, "ZMUser's remoteIdentifier should be equal to merge")
+        precondition(user.remoteIdentifier == remoteIdentifier, "ZMUser's remoteIdentifier should be equal to merge")
         
         // NOTE:
         // we are not merging clients since they are re-created on demand

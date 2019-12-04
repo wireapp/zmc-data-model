@@ -153,9 +153,14 @@ extension DuplicatedEntityRemovalTests {
         user2.systemMessages = systemMessages
 
         // WHEN
-        user1.merge(with: user2) ///TODO: how to merge?
-        self.moc.delete(user2)
-        self.moc.saveOrRollback() ///TODO: user1.lastServerSyncedActiveConversations is empty
+        user1.merge(with: user2)
+        
+        ///TODO: create a method to delete
+        user2.participantRoles.forEach() {
+            self.moc.delete($0)
+        }
+        moc.delete(user2)
+        moc.saveOrRollback() ///TODO: user1.lastServerSyncedActiveConversations is empty
 
         // THEN
         XCTAssertEqual(user1.lastServerSyncedActiveConversations, lastServerSyncedActiveConversations)

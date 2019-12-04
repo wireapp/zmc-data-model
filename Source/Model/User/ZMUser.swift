@@ -200,7 +200,7 @@ extension ZMUser {
     }
     
     ///TODO: test
-    /// union ZMConversation set to participantRoles
+    /// union a ZMConversation set to participantRoles
     ///
     /// - Parameter conversationSet: conversations to union
     @objc
@@ -210,10 +210,8 @@ extension ZMUser {
         conversationSet.forEach() { conversation in
             if !currentConversationSet.contains(conversation) {
                 add(conversation: conversation, moc: managedObjectContext!)
-            }
-            
-            ///if mark for delete, flip it
-            if currentConversationSet.contains(conversation) {
+            } else if currentConversationSet.contains(conversation) {
+                ///if mark for delete, set markedForDeletion to false
                 participantRoles.first(where: {$0.markedForDeletion})?.markedForDeletion = false
             }
         }
