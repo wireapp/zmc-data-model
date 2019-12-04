@@ -22,9 +22,18 @@ import WireProtos
 extension ZMConversation {
     
     @objc
-    public class func keyPathsForValuesAffectingLastServerSyncedActiveParticipants () -> Set<String>{
+    public class func keyPathsForValuesAffectingLastServerSyncedActiveParticipants () -> Set<String> {
         return Set([ZMConversationParticipantRolesKey,
-                    "participantRoles.markedForDeletion" ,
+                    "participantRoles.markedForDeletion",
+                    "participantRoles.markedForInsertion"
+            ])
+    }
+
+    @objc
+    public class func keyPathsForValuesAffectingActiveParticipants() -> Set<String> {
+        return Set([ZMConversationParticipantRolesKey,
+                    ZMConversationIsSelfAnActiveMemberKey,
+                    "participantRoles.markedForDeletion",
                     "participantRoles.markedForInsertion"
             ])
     }

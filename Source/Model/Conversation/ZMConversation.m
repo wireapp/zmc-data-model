@@ -292,12 +292,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return sortedUser;
 }
 
-+ (NSSet *)keyPathsForValuesAffectingActiveParticipants
-{
-    return [NSSet setWithObjects:ZMConversationParticipantRolesKey,
-                                 ZMConversationIsSelfAnActiveMemberKey, nil];
-}
-
 - (ZMUser *)connectedUser
 {
     ZMConversationType internalConversationType = self.internalConversationType;
