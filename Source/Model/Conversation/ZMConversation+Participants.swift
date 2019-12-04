@@ -110,13 +110,13 @@ extension ZMConversation {
             if !currentParticipantSet.contains(user) {
                 add(user: user, moc: moc, isFromLocal: isFromLocal)
             }
-
+            
             ///if mark for delete, flip it
             if currentParticipantSet.contains(user) {
                 participantRoles.first(where: {$0.markedForDeletion})?.markedForDeletion = false
             }
         }
-    }///TODO: test
+    }
     
     @objc
     func minus(userSet: Set<ZMUser>, isFromLocal: Bool) {
@@ -127,26 +127,21 @@ extension ZMConversation {
             if userSet.contains(participantRole.user) {
                 if isFromLocal && participantRole.markedForInsertion {
                     removeArray.append(participantRole)
-                }   else {
-            
-                    if !participantRole.markedForInsertion {
-                        removeArray.append(participantRole)
-                    }
+                } else if !participantRole.markedForInsertion {
+                    removeArray.append(participantRole)
                 }
             }
         }
         
         ///TODO: rm removeArray
         removeArray.forEach() {
-            if isFromLocal {
-                if $0.markedForInsertion {
-                    self.managedObjectContext?.delete($0)
-                } else {
-                    $0.markedForDeletion = true
-                    $0.markedForInsertion = false
-                }
-            } else {
-                self.managedObjectContext?.delete($0)
+            switch (isFromLocal, $0.markedForInsertion) {
+            case (true, true),
+                 (false, _):
+                managedObjectContext?.delete($0)
+            case (true, false):
+                $0.markedForDeletion = true
+                $0.markedForInsertion = false
             }
         }
     }
