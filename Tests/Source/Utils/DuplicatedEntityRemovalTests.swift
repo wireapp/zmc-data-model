@@ -155,12 +155,9 @@ extension DuplicatedEntityRemovalTests {
         // WHEN
         user1.merge(with: user2)
         
-        ///TODO: create a method to delete
-        user2.participantRoles.forEach() {
-            self.moc.delete($0)
-        }
-        moc.delete(user2)
-        moc.saveOrRollback() ///TODO: user1.lastServerSyncedActiveConversations is empty
+        user2.delete(from: moc)
+        
+        moc.saveOrRollback()
 
         // THEN
         XCTAssertEqual(user1.lastServerSyncedActiveConversations, lastServerSyncedActiveConversations)
@@ -906,7 +903,7 @@ extension DuplicatedEntityRemovalTests {
         connectionA2.conversation = convoA2
         connectionA2.status = .accepted
 
-        self.moc.saveOrRollback()
+        moc.saveOrRollback() ///TODO: pr.user is nil
         
         // WHEN
         WireDataModel.DuplicatedEntityRemoval.removeDuplicated(in: self.moc)///TODO:

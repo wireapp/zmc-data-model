@@ -25,11 +25,11 @@ enum DuplicatedEntityRemoval {
     static func removeDuplicated(in moc: NSManagedObjectContext) {
         // will skip this during test unless on disk
         guard moc.persistentStoreCoordinator!.persistentStores.first!.type != NSInMemoryStoreType else { return }
-        self.deleteDuplicatedClients(in: moc)
+        deleteDuplicatedClients(in: moc)
         moc.saveOrRollback()
-        self.deleteDuplicatedUsers(in: moc)
+        deleteDuplicatedUsers(in: moc)
         moc.saveOrRollback()
-        self.deleteDuplicatedConversations(in: moc)
+        deleteDuplicatedConversations(in: moc)
         moc.saveOrRollback()
     }
     
@@ -99,6 +99,13 @@ extension UserClient {
 }
 
 extension ZMUser {
+    
+    func delete(from moc: NSManagedObjectContext) {
+        participantRoles.forEach() {
+            moc.delete($0)
+        }
+        moc.delete(self)
+    }
 
     @discardableResult static func merge(_ users: [ZMUser]) -> ZMUser? {
         guard let firstUser = users.first, let context = firstUser.managedObjectContext, users.count > 1 else {
@@ -110,7 +117,7 @@ extension ZMUser {
 
         tail.forEach {
             firstUser.merge(with: $0)
-            context.delete($0)
+            $0.delete(from: context)
         }
         firstUser.needsToBeUpdatedFromBackend = true
         firstUser.lastServerSyncedActiveConversations.forEach { $0.needsToBeUpdatedFromBackend = true }
@@ -143,6 +150,18 @@ extension ZMUser {
 }
 
 extension ZMConversation {
+    
+    func delete(from moc: NSManagedObjectContext) {
+        if let connection = connection {
+            moc.delete(connection)
+        }
+
+        participantRoles.forEach() {
+            moc.delete($0)
+        }
+        moc.delete(self)
+    }
+
     static func merge(_ conversations: [ZMConversation]) {
         // Group conversations having the same remote identifiers
         guard let firstConversation = conversations.first, let context = firstConversation.managedObjectContext, conversations.count > 1 else {
@@ -154,10 +173,7 @@ extension ZMConversation {
 
         tail.forEach {
             firstConversation.merge(with: $0)
-            if let connection = $0.connection {
-                context.delete(connection)
-            }
-            context.delete($0)
+            $0.delete(from: context)
         }
         firstConversation.needsToBeUpdatedFromBackend = true
     }
