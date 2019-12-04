@@ -403,8 +403,7 @@ extension ClientMessageTests_OTR {
     }
 
     func testThatItCreatesPayloadForConfimationMessageWhenOriginalHasNoSenderAndConnectionButInferSenderOtherActiveParticipants() {
-        syncMOC.performGroupedBlockAndWait {///TODO: crash for Fatal error: confirmation need a recipient
-                                            //            ConvType: 2 , original message: Optional("b4583fc1-5ee1-4a9a-b5a7-1385b4087283")
+        syncMOC.performGroupedBlockAndWait {
             //given
             let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
             conversation.conversationType = .oneOnOne

@@ -76,11 +76,9 @@ extension ZMConversation : ObjectInSnapshot {
     public var participantsChanged : Bool {
         return changedKeysContain(keys: #keyPath(ZMConversation.lastServerSyncedActiveParticipants),
                                   #keyPath(ZMConversation.isSelfAnActiveMember),
-                                  #keyPath(ZMConversation.participantRoles)//,
-//                                  #keyPath(ParticipantRole.conversation)
-//                                  #keyPath(ParticipantRole.markedForDeletion)
+                                  #keyPath(ZMConversation.participantRoles)
         )
-    } ///TODO: how to monitor ZMConversation.participantRoles is updated?
+    }
 
     public var nameChanged : Bool {
         return changedKeysContain(keys: #keyPath(ZMConversation.displayName), #keyPath(ZMConversation.userDefinedName))
