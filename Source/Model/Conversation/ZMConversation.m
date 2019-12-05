@@ -1063,11 +1063,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 
 ///TODO: just for test!
-- (void)internalAddParticipants:(nonnull NSArray<ZMUser *> *)participants {
-    [self internalAddParticipants:participants isFromLocal:NO];
-}
-
-- (void)internalAddParticipants:(NSArray<ZMUser *> *)participants isFromLocal:(BOOL) isFromLocal
+- (void)internalAddParticipants:(nonnull NSArray<ZMUser *> *)participants
 {
     VerifyReturn(participants != nil);
     NSSet<ZMUser *> *selfUserSet = [NSSet setWithObject:[ZMUser selfUserInContext:self.managedObjectContext]];
@@ -1088,7 +1084,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         
         
         NSSet *existingUsers = [self.lastServerSyncedActiveParticipants copy];
-        [self unionWithUserSet:otherUsers.set moc:self.managedObjectContext isFromLocal:isFromLocal];
+        [self unionWithUserSet:otherUsers.set moc:self.managedObjectContext isFromLocal:NO];
         
         [otherUsers minusSet:existingUsers];
         if (otherUsers.count > 0) {
@@ -1097,15 +1093,9 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         }
     }
 }
-///TODO: just for test!
-- (void)internalRemoveParticipants:(NSArray<ZMUser *> *)participants sender:(ZMUser *)sender
-{
-    [self internalRemoveParticipants:participants sender:sender isFromLocal:NO];
-}
 
 - (void)internalRemoveParticipants:(NSArray<ZMUser *> *)participants
                             sender:(ZMUser *)sender
-                       isFromLocal:(BOOL)isFromLocal
 {
     VerifyReturn(participants != nil);
     
@@ -1118,7 +1108,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         self.isArchived = sender.isSelfUser;
     }
     
-    [self minusWithUserSet:otherUsers.set isFromLocal:isFromLocal];
+    [self minusWithUserSet:otherUsers.set isFromLocal:NO];
     [self increaseSecurityLevelIfNeededAfterRemovingUsers:otherUsers.set];
 }
 
