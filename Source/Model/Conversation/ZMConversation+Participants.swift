@@ -20,9 +20,10 @@ import Foundation
 import WireProtos
 
 extension ZMConversation {
+    
     // MARK: - keyPathsForValuesAffecting
-    static
-    private var participantRolesKeys: [String] {
+    
+    static private var participantRolesKeys: [String] {
         return [ZMConversationParticipantRolesKey,
                 "participantRoles.markedForDeletion",
                 "participantRoles.markedForInsertion"

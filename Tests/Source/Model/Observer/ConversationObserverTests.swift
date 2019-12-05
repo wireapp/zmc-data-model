@@ -361,7 +361,6 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         
     }
     
-    ///TODO: test for minus set
     func testThatItNotifiesTheObserverOfAnRemovedParticipant() {
         // given
         let conversation = ZMConversation.insertNewObject(in:self.uiMOC)

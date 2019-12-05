@@ -199,7 +199,6 @@ extension ZMUser {
         ParticipantRole.create(managedObjectContext: moc, user: self, conversation: conversation)
     }
     
-    ///TODO: test
     /// union a ZMConversation set to participantRoles
     ///
     /// - Parameter conversationSet: conversations to union

@@ -142,8 +142,6 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
     NSArray *usersInfos = [members arrayForKey:ConversationInfoOthersKey];
     NSSet<ZMUser *> *lastSyncedUsers = [NSSet set];
     
-    ///TODO: if the local one is mark for delete, do not insert
-//    if the local one is mark for insert, do not delete
     lastSyncedUsers = self.lastServerSyncedActiveParticipants;
     
     NSSet<NSUUID *> *participantUUIDs = [NSSet setWithArray:[usersInfos.asDictionaries mapWithBlock:^id(NSDictionary *userDict) {

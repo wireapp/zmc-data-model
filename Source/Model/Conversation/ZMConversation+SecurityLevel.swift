@@ -207,7 +207,7 @@ extension ZMConversation {
     private func increaseSecurityLevelIfNeeded(for cause: SecurityChangeCause) {
         guard securityLevel != .secure &&
               allUsersTrusted &&
-              allParticipantsHaveClients else {///TODO: allUsersTrusted is false
+              allParticipantsHaveClients else {
             return
         }
 
@@ -670,7 +670,7 @@ extension ZMConversation {
         }
         
         let selfUser = ZMUser.selfUser(in: managedObjectContext)
-        return (Array(lastServerSyncedActiveParticipants)).first {
+        return lastServerSyncedActiveParticipants.first {
             if $0.isConnected {
                 return false
             }
