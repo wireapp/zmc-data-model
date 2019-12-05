@@ -58,7 +58,7 @@ open class ObjectChangeInfo : NSObject, ObjectChangeInfoProtocol {
 extension ObjectChangeInfo {
     
     static func changeInfo(for object: NSObject, changes: Changes) -> ObjectChangeInfo? {
-        switch object {///TODO: check ZMConversation.PR change also goes here??
+        switch object {
         case let object as ZMConversation:  return ConversationChangeInfo.changeInfo(for: object, changes: changes)
         case let object as ZMUser:          return UserChangeInfo.changeInfo(for: object, changes: changes)
         case let object as ZMMessage:       return MessageChangeInfo.changeInfo(for: object, changes: changes)

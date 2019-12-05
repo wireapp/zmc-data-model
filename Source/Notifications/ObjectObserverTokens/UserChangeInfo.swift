@@ -161,7 +161,6 @@ extension ZMUser : ObjectInSnapshot {
         return changedKeys.contains(#keyPath(ZMUser.isUnderLegalHold))
     }
     
-    ///TODO: role changed?
     public var roleChanged: Bool {
         return changedKeys.contains(#keyPath(ZMUser.participantRoles))
     }

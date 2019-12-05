@@ -305,7 +305,7 @@ extension ZMManagedObject {
     func process(note: Notification) {
         guard let userInfo = note.userInfo as? [String : Any] else { return }
 
-        let updatedObjects = self.extractObjects(for: NSUpdatedObjectsKey, from: userInfo) ///TODO: PR is 0
+        let updatedObjects = self.extractObjects(for: NSUpdatedObjectsKey, from: userInfo)
         let refreshedObjects = self.extractObjects(for: NSRefreshedObjectsKey, from: userInfo)
         let insertedObjects = self.extractObjects(for: NSInsertedObjectsKey, from: userInfo)
         let deletedObjects = self.extractObjects(for: NSDeletedObjectsKey, from: userInfo)
@@ -423,7 +423,7 @@ extension ZMManagedObject {
     }
     
     func fireAllNotifications(){
-        let changes = allChanges ///TODO: PR: changes is empty
+        let changes = allChanges
         let unreads = unreadMessages
         
         self.unreadMessages = [:]
