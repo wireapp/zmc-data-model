@@ -2490,10 +2490,9 @@
 			};
 			buildConfigurationList = F9C9A4F61CAD5DF10039E10C /* Build configuration list for PBXProject "WireDataModel" */;
 			compatibilityVersion = "Xcode 3.2";
-			developmentRegion = English;
+			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
-				English,
 				en,
 				Base,
 			);
