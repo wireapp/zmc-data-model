@@ -174,18 +174,17 @@ extension ZMUser {
     @NSManaged public var needsToRefetchLabels: Bool
     
     
-    ///TODO: other new attritubes can be written in Swift
-    
     /// Conversation in which the user is active, according to the server
     public var lastServerSyncedActiveConversations: Set<ZMConversation> {
         get {
-        return Set(participantRoles.compactMap {
-            if !$0.markedForDeletion && !$0.markedForInsertion { ///TODO: move these check to a participantRole property
-                return $0.conversation
-            } else {
-                return nil
-            }
-        })
+            ///TODO: copy the logics from Convo.lastServerSyncedActiveParticipants?
+            return Set(participantRoles.compactMap {
+                if !$0.markedForDeletion && !$0.markedForInsertion {
+                    return $0.conversation
+                } else {
+                    return nil
+                }
+            })
         }
         
         set {
@@ -194,8 +193,11 @@ extension ZMUser {
         }
     }
     
+    ///TODO: need isFromLocal param?
     @objc
-    func add(conversation: ZMConversation, moc: NSManagedObjectContext) {
+    func add(conversation: ZMConversation) {
+        guard let moc = self.managedObjectContext else { return }
+        
         ParticipantRole.create(managedObjectContext: moc, user: self, conversation: conversation)
     }
     
@@ -208,7 +210,7 @@ extension ZMUser {
         
         conversationSet.forEach() { conversation in
             if !currentConversationSet.contains(conversation) {
-                add(conversation: conversation, moc: managedObjectContext!)
+                add(conversation: conversation)
             } else if currentConversationSet.contains(conversation) {
                 ///if mark for delete, set markedForDeletion to false
                 participantRoles.first(where: {$0.markedForDeletion})?.markedForDeletion = false

@@ -44,7 +44,7 @@ extern NSString * __nonnull const ReadReceiptsEnabledKey;
 
 @property (nonnull, nonatomic) NSSet<Team *> *createdTeams;
 
-@property (nonnull, nonatomic, readonly) NSString *normalizedName;///TODO: exception?
+@property (nonnull, nonatomic, readonly) NSString *normalizedName;
 @property (nonnull, nonatomic, readonly) NSString *normalizedEmailAddress;
 
 @property (nullable, nonatomic, readonly) NSData *imageMediumData;

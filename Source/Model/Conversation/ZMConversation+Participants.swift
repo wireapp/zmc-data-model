@@ -25,9 +25,8 @@ extension ZMConversation {
     
     static private var participantRolesKeys: [String] {
         return [ZMConversationParticipantRolesKey,
-                "participantRoles.markedForDeletion",
-                "participantRoles.markedForInsertion"
-        ]
+                "\(ZMConversationParticipantRolesKey).\(ZMParticipantRoleMarkedForDeletionKey)",
+                "\(ZMConversationParticipantRolesKey).\(ZMParticipantRoleMarkedForInsertionKey)"]
     }
     
     @objc

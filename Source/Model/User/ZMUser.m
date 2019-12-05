@@ -262,7 +262,6 @@ static NSString *const ParticipantRolesKey = @"participantRoles";
     if (self.isSelfUser) {
         return [ZMConversation selfConversationInContext:self.managedObjectContext];
     } else if (self.isTeamMember) {
-        ///TODO: need to create PR, and link to self?
         return [ZMConversation fetchOrCreateTeamConversationInManagedObjectContext:self.managedObjectContext
                                                                    withParticipant:self
                                                                               team:self.team];
