@@ -125,6 +125,7 @@ extension ZMConversation {
                 switch (isFromLocal, $0.markedForInsertion) {
                 case (true, true),
                      (false, _):
+                    participantRoles.remove($0)
                     managedObjectContext?.delete($0)
                 case (true, false):
                     $0.markedForDeletion = true

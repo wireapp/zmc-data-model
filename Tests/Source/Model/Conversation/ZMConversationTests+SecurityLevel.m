@@ -103,16 +103,20 @@
         unconnectedUserClient.user = newUnconnectedUser;
         
         // when adding a new participant
-        [conversation internalAddParticipants:@[newUnconnectedUser]];
+        [conversation internalAddParticipants:@[newUnconnectedUser] isFromLocal:NO];
         
         // then the conversation should degrade
+        XCTAssertEqual(conversation.lastServerSyncedActiveParticipants.count, 3);
+        XCTAssertEqual(conversation.activeParticipants.count, 4);
         XCTAssertFalse(conversation.allUsersTrusted);
         XCTAssertEqual(conversation.securityLevel, ZMConversationSecurityLevelSecureWithIgnored);
         
-        // when
-        [conversation internalRemoveParticipants:@[newUnconnectedUser] sender:self.selfUser];
-        
+        // when ///TODO: selfuser.moc is ui
+        [conversation internalRemoveParticipants:@[newUnconnectedUser] sender:self.selfUser isFromLocal:NO];
+
         // then
+        XCTAssertEqual(conversation.lastServerSyncedActiveParticipants.count, 2);
+        XCTAssertEqual(conversation.activeParticipants.count, 3);
         XCTAssertTrue(conversation.allUsersTrusted);
         XCTAssertEqual(conversation.securityLevel, ZMConversationSecurityLevelSecure);
     }];

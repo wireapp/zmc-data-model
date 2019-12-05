@@ -205,7 +205,9 @@ extension ZMConversation {
     }
 
     private func increaseSecurityLevelIfNeeded(for cause: SecurityChangeCause) {
-        guard securityLevel != .secure && allUsersTrusted && allParticipantsHaveClients else {
+        guard securityLevel != .secure &&
+              allUsersTrusted &&
+              allParticipantsHaveClients else {///TODO: allUsersTrusted is false
             return
         }
 
@@ -650,10 +652,16 @@ extension ZMConversation {
 extension ZMConversation {
     
     /// Returns true if all participants are connected to the self user and all participants are trusted
-    @objc public var allUsersTrusted : Bool {
-        guard self.lastServerSyncedActiveParticipants.count > 0, self.isSelfAnActiveMember else { return false }
-        let hasOnlyTrustedUsers = self.activeParticipants.first { !$0.trusted() } == nil
-        return hasOnlyTrustedUsers && !self.containsUnconnectedOrExternalParticipant
+    @objc
+    public var allUsersTrusted : Bool {
+        guard !lastServerSyncedActiveParticipants.isEmpty,
+              isSelfAnActiveMember else { return false }
+        
+        let hasOnlyTrustedUsers = activeParticipants.first {
+            !$0.trusted()
+        } == nil
+        
+        return hasOnlyTrustedUsers && !containsUnconnectedOrExternalParticipant
     }
     
     fileprivate var containsUnconnectedOrExternalParticipant : Bool {

@@ -181,7 +181,6 @@
     ZMUser *selfUser = [ZMUser selfUserInContext:self.uiMOC];
     selfUser.remoteIdentifier = [NSUUID createUUID];
     
-//    [conversation addParticipant:user1];
     [conversation internalAddParticipants:@[selfUser, user1]];
     
     XCTAssertTrue(conversation.isSelfAnActiveMember);
