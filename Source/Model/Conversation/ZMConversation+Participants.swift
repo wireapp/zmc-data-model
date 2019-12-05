@@ -120,28 +120,16 @@ extension ZMConversation {
     
     @objc
     func minus(userSet: Set<ZMUser>, isFromLocal: Bool) {
-        
-        var removeArray = [ParticipantRole]()
-        
-        participantRoles.forEach() { participantRole in
-            if userSet.contains(participantRole.user) {
-                if isFromLocal && participantRole.markedForInsertion {
-                    removeArray.append(participantRole)
-                } else if !participantRole.markedForInsertion {
-                    removeArray.append(participantRole)
+        participantRoles.forEach() {
+            if userSet.contains($0.user) {
+                switch (isFromLocal, $0.markedForInsertion) {
+                case (true, true),
+                     (false, _):
+                    managedObjectContext?.delete($0)
+                case (true, false):
+                    $0.markedForDeletion = true
+                    $0.markedForInsertion = false
                 }
-            }
-        }
-        
-        ///TODO: rm removeArray
-        removeArray.forEach() {
-            switch (isFromLocal, $0.markedForInsertion) {
-            case (true, true),
-                 (false, _):
-                managedObjectContext?.delete($0)
-            case (true, false):
-                $0.markedForDeletion = true
-                $0.markedForInsertion = false
             }
         }
     }
