@@ -428,7 +428,7 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.remoteIdentifier = .create()
         conversation.conversationType = .group
-        conversation.add(users: [user1, user2])
+        conversation.add(users: [user1, user2], isFromLocal: false)
         
         let message = conversation.append(text: "This is a regular message in the conversation") as! ZMMessage
         let otherMessage = conversation.append(text: "This is the another message in the conversation") as! ZMMessage

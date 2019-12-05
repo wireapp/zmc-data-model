@@ -1061,8 +1061,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return result;
 }
 
-
-///TODO: just for test!
 - (void)internalAddParticipants:(nonnull NSArray<ZMUser *> *)participants
 {
     VerifyReturn(participants != nil);

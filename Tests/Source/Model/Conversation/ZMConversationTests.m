@@ -1310,10 +1310,8 @@
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     ZMUser *user = [self createUser];
     user.name = @"Foo 1";
-//    [conversation addWithUser:user];
-    [conversation addWithUser:user];
-//    [conversation addWithUser:[ZMUser selfUserInContext:self.uiMOC]];
-    [conversation addWithUser:[ZMUser selfUserInContext:self.uiMOC]];
+    [conversation addWithUser:user isFromLocal:NO];
+    [conversation addWithUser:[ZMUser selfUserInContext:self.uiMOC] isFromLocal:NO];
 
     conversation.conversationType = ZMConversationTypeGroup;
     [self.uiMOC saveOrRollback];
@@ -1354,9 +1352,9 @@
     user1.name = @"Foo 1";
     user2.name = @"Bar 2";
     selfUser.name = @"Me Myself";
-    [conversation addWithUser:user1];
-    [conversation addWithUser:user2];
-    [conversation addWithUser:[ZMUser selfUserInContext:self.uiMOC]];
+    [conversation addWithUser:user1 isFromLocal:NO];
+    [conversation addWithUser:user2 isFromLocal:NO];
+    [conversation addWithUser:[ZMUser selfUserInContext:self.uiMOC] isFromLocal:NO];
     [self.uiMOC saveOrRollback];
     
     NSString *expected = @"Bar, Foo";
@@ -1384,7 +1382,7 @@
     user4.name = @"Baz 4";
     selfUser.name = @"Me Myself";
     [conversation addWithUsers:@[user1, user2, user3, user4] isFromLocal:NO];
-    [conversation addWithUser:[ZMUser selfUserInContext:self.uiMOC]];
+    [conversation addWithUser:[ZMUser selfUserInContext:self.uiMOC] isFromLocal:NO];
     [self.uiMOC saveOrRollback];
     
     NSString *expected = @"Bar, Baz";
@@ -1486,8 +1484,8 @@
     ZMUser *selfUser = [ZMUser selfUserInContext:self.uiMOC];
     user.name = @"Hans Maisenkaiser";
     selfUser.name = @"Jan Schneidezahn";
-    [conversation addWithUser:user];
-    [conversation addWithUser:selfUser];
+    [conversation addWithUser:user isFromLocal:NO];
+    [conversation addWithUser:selfUser isFromLocal:NO];
     conversation.conversationType = ZMConversationTypeOneOnOne;
     [self.uiMOC saveOrRollback];
     
@@ -2256,7 +2254,7 @@
     ZMUser *selfUser = [ZMUser selfUserInContext:self.uiMOC];
     selfUser.remoteIdentifier = NSUUID.createUUID;
     ZMUser *otherUser = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    [conversation addWithUser:otherUser];
+    [conversation addWithUser:otherUser isFromLocal:NO];
     XCTAssertFalse(conversation.isArchived);
     
     // when
@@ -2297,7 +2295,7 @@
     ZMUser *selfUser = [ZMUser selfUserInContext:self.uiMOC];
     selfUser.remoteIdentifier = NSUUID.createUUID;
     ZMUser *otherUser = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    [conversation addWithUser:otherUser];
+    [conversation addWithUser:otherUser isFromLocal:NO];
     conversation.isArchived = YES;
     XCTAssertTrue(conversation.isArchived);
 
@@ -2854,7 +2852,7 @@
     ZMConversation *conversation2 = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation2.userDefinedName = @"The Club";
     conversation2.conversationType = ZMConversationTypeGroup;
-    [conversation2 addWithUser:user1];
+    [conversation2 addWithUser:user1 isFromLocal:NO];
     [self.uiMOC saveOrRollback];
     WaitForAllGroupsToBeEmpty(0.5);
     
@@ -3173,16 +3171,16 @@
     ZMConversation *conversationWithOtherUser = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversationWithOtherUser.conversationType = ZMConversationTypeOneOnOne;
     conversationWithOtherUser.remoteIdentifier = [NSUUID createUUID];
-    [conversationWithOtherUser addWithUser:otherUser];
+    [conversationWithOtherUser addWithUser:otherUser isFromLocal:NO];
 
     ZMConversation *notSyncedConversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     notSyncedConversation.conversationType = ZMConversationTypeOneOnOne;
-    [notSyncedConversation addWithUser:otherUser];
+    [notSyncedConversation addWithUser:otherUser isFromLocal:NO];
 
     ZMConversation *conversationWithSecondUser = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversationWithSecondUser.conversationType = ZMConversationTypeOneOnOne;
     conversationWithSecondUser.remoteIdentifier = [NSUUID createUUID];
-    [conversationWithSecondUser addWithUser:secondUser];
+    [conversationWithSecondUser addWithUser:secondUser isFromLocal:NO];
     
     ZMConversation *emptyConversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     emptyConversation.conversationType = ZMConversationTypeOneOnOne;
@@ -3208,7 +3206,7 @@
     groupConversationWithNoOtherParticipants.isSelfAnActiveMember = YES;
     
     ZMConversation *archived = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    [archived addWithUser:otherUser];
+    [archived addWithUser:otherUser isFromLocal:NO];
     archived.conversationType = ZMConversationTypeOneOnOne;
     archived.isArchived = YES;
     archived.remoteIdentifier = [NSUUID createUUID];

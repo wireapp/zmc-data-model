@@ -207,7 +207,7 @@ extension DisplayNameGeneratorTests {
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.conversationType = .group
        
-        conversation.add(users: [user1, user2, user3])
+        conversation.add(users: [user1, user2, user3], isFromLocal: false)
 
         // when
         let displayName1 = user1.displayName(in: conversation)
@@ -233,7 +233,7 @@ extension DisplayNameGeneratorTests {
         
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.conversationType = .group
-        conversation.add(users: [user1, user2])
+        conversation.add(users: [user1, user2], isFromLocal: false)
         
         // when
         let displayName1 = user1.displayName(in: conversation)
@@ -296,7 +296,7 @@ extension DisplayNameGeneratorTests {
         
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.conversationType = .group
-        conversation.add(users: [user1])
+        conversation.add(users: [user1], isFromLocal: false)
         
         // when
         let displayName1 = user1.displayName(in: conversation)
@@ -337,7 +337,7 @@ extension DisplayNameGeneratorTests {
         
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.conversationType = .group
-        conversation.add(users: [user1, user2])
+        conversation.add(users: [user1, user2], isFromLocal: false)
         
         XCTAssertEqual(user1.displayName(in: conversation), "Hans")
         XCTAssertEqual(user2.displayName(in: conversation), "Uschi")
@@ -388,7 +388,7 @@ extension DisplayNameGeneratorTests {
         
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.conversationType = .group
-        conversation.add(users: [user2])
+        conversation.add(user: user2, isFromLocal: false)
         
         // then
         performIgnoringZMLogError{

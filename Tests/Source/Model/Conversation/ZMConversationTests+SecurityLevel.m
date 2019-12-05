@@ -397,7 +397,7 @@
     
     UserClient *selfClient = [ZMUser selfUserInContext:moc].selfClient;
     ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:moc];
-    [conversation addWithUser:user];
+    [conversation addWithUser:user isFromLocal:NO];
     UserClient *client = [UserClient insertNewObjectInManagedObjectContext:moc];
     client.user  = user;
     if (trusted) {
@@ -443,8 +443,7 @@
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.conversationType = ZMConversationTypeGroup;
     ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-//    [[conversation mutableLastServerSyncedActiveParticipants] addObject:user];
-    [conversation addWithUser:user];
+    [conversation addWithUser:user isFromLocal:NO];
 
     // when
     BOOL hasUntrustedClients = conversation.hasUntrustedClients;
@@ -630,7 +629,7 @@
         conversation.securityLevel = ZMConversationSecurityLevelSecure;
         
         ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.syncMOC];
-        [conversation addWithUser:user];
+        [conversation addWithUser:user isFromLocal:NO];
         
         ZMOTRMessage *message1 = (ZMOTRMessage *)[conversation appendMessageWithImageData:[self verySmallJPEGData]];
         [NSThread sleepForTimeInterval:0.05]; // cause system time to advance
@@ -880,7 +879,7 @@
     __block ZMSystemMessage *result = nil;
     [self performPretendingUiMocIsSyncMoc:^{
         [usersToAdd enumerateObjectsUsingBlock:^(ZMUser * _Nonnull obj, BOOL * _Nonnull stop __unused) {
-            [conv addWithUser:obj];
+            [conv addWithUser:obj isFromLocal:NO];
         }];
         result = [ZMSystemMessage createOrUpdateMessageFromUpdateEvent:event
                                                 inManagedObjectContext:conv.managedObjectContext

@@ -95,7 +95,7 @@ extension ZMConversation {
     }
     
     
-    // MARK: - Participant Set operations
+    // MARK: - Participant operations
     
     /// union user set to participantRoles
     ///
@@ -136,16 +136,10 @@ extension ZMConversation {
     
     @objc
     func add(users: [ZMUser],
-             isFromLocal: Bool = false) {///TODO: no default!!!
+             isFromLocal: Bool) {
         users.forEach() { user in
             add(user: user, isFromLocal: isFromLocal)
         }
-    }
-    
-    ///TODO: just for test!!
-    @objc
-    func add(user: ZMUser) {
-        add(user: user, isFromLocal: false)
     }
     
     @objc
