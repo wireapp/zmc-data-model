@@ -16,7 +16,6 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-import Foundation
 @testable import WireDataModel
 
 extension ZMConversationTests {
@@ -28,8 +27,8 @@ extension ZMConversationTests {
         
         let user1 = ZMUser.insertNewObject(in: uiMOC)
         let user2 = ZMUser.insertNewObject(in: uiMOC)
-        
-        conversation.internalAddParticipants([user1, user2])
+        let isFromLocal = false
+        conversation.internalAddParticipants([user1, user2], isFromLocal: isFromLocal)
         
         XCTAssert(conversation.isSelfAnActiveMember)
         XCTAssertEqual(conversation.lastServerSyncedActiveParticipants.count, 2)
@@ -40,12 +39,16 @@ extension ZMConversationTests {
         
         // when
         
-        conversation.internalRemoveParticipants([user2], sender: user1)
+        conversation.internalRemoveParticipants([user2],
+                                                sender: user1,
+                                                isFromLocal: isFromLocal)
         
+        uiMOC.processPendingChanges() ///TODO: put this inside internalRemoveParticipants?
+
         // then
         XCTAssert(conversation.isSelfAnActiveMember)
         XCTAssertEqual(conversation.lastServerSyncedActiveParticipants.count, 1)
         XCTAssertEqual(conversation.activeParticipants.count, 2)
-        assert(waitForCustomExpectations(withTimeout: 0.5))
+        XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
     }
 }

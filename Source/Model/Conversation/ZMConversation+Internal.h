@@ -181,6 +181,7 @@ NS_ASSUME_NONNULL_END
 - (void)internalAddParticipants:(nonnull NSArray<ZMUser *> *)participants;
 - (void)internalAddParticipants:(nonnull NSArray<ZMUser *> *)participants isFromLocal:(BOOL) isFromLocal;
 - (void)internalRemoveParticipants:(nonnull NSArray<ZMUser *> *)participants sender:(nonnull ZMUser *)sender;
+- (void)internalRemoveParticipants:(nonnull NSArray<ZMUser *> *)participants sender:(nonnull ZMUser *)sender isFromLocal:(BOOL) isFromLocal;
 
 @property (nonatomic) BOOL isSelfAnActiveMember; ///< whether the self user is an active member (as opposed to a past member)
 

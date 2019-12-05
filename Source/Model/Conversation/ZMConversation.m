@@ -1097,8 +1097,15 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         }
     }
 }
-
+///TODO: just for test!
 - (void)internalRemoveParticipants:(NSArray<ZMUser *> *)participants sender:(ZMUser *)sender
+{
+    [self internalRemoveParticipants:participants sender:sender isFromLocal:NO];
+}
+
+- (void)internalRemoveParticipants:(NSArray<ZMUser *> *)participants
+                            sender:(ZMUser *)sender
+                       isFromLocal:(BOOL)isFromLocal
 {
     VerifyReturn(participants != nil);
     
@@ -1111,7 +1118,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         self.isArchived = sender.isSelfUser;
     }
     
-    [self minusWithUserSet:otherUsers.set isFromLocal:NO]; ///TODO: read form param
+    [self minusWithUserSet:otherUsers.set isFromLocal:isFromLocal];
     [self increaseSecurityLevelIfNeededAfterRemovingUsers:otherUsers.set];
 }
 
