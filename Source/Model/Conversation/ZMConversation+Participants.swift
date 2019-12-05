@@ -51,7 +51,7 @@ extension ZMConversation {
     }
     
     @objc
-    var activeParticipants: Set<ZMUser> {
+    public var activeParticipants: Set<ZMUser> {
         guard let managedObjectContext = managedObjectContext else {return Set()}
         
         var activeParticipants: Set<ZMUser> = []
