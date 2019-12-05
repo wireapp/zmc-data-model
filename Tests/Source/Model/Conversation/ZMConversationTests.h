@@ -32,3 +32,7 @@
 - (ZMUser *)createUserOnMoc:(NSManagedObjectContext *)moc;
 - (ZMConversation *)insertConversationWithUnread:(BOOL)hasUnread;
 @end
+
+@interface ZMConversationTests : ZMConversationTestsBase
+
+@end

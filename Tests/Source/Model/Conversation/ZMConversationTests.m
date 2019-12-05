@@ -165,14 +165,6 @@
 @end
 
 
-
-
-@interface ZMConversationTests : ZMConversationTestsBase
-
-@end
-
-
-
 @implementation ZMConversationTests
 
 - (void)testThatItSetsTheSelfUserAsCreatorWhenCreatingAGroupConversationFromTheUI
@@ -1943,36 +1935,6 @@
 @end
 
 @implementation ZMConversationTests (Participants)
-
-- (void)testThatItRecalculatesActiveParticipantsWhenOtherActiveParticipantsKeyChanges
-{
-    // given
-    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    conversation.conversationType = ZMConversationTypeGroup;
-    conversation.isSelfAnActiveMember = YES;
-
-    ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    ZMUser *user2 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    
-    [conversation internalAddParticipants:@[user1, user2]];
-    
-    XCTAssertTrue(conversation.isSelfAnActiveMember);
-    XCTAssertEqual(conversation.lastServerSyncedActiveParticipants.count, 2u);
-    XCTAssertEqual(conversation.activeParticipants.count, 3u);
-    
-    // expect
-    [self keyValueObservingExpectationForObject:conversation keyPath:@"activeParticipants" expectedValue:nil];
-    
-    // when
-
-    [conversation internalRemoveParticipants:@[user2] sender:user1];
-    
-    // then
-    XCTAssertTrue(conversation.isSelfAnActiveMember);
-    XCTAssertEqual(conversation.lastServerSyncedActiveParticipants.count, 1u);
-    XCTAssertEqual(conversation.activeParticipants.count, 2u);
-    XCTAssert([self waitForCustomExpectationsWithTimeout:0.5]);
-}
 
 - (void)testThatItRecalculatesActiveParticipantsWhenIsSelfActiveUserKeyChanges
 {
