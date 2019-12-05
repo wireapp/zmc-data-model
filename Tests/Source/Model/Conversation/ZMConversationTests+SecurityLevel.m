@@ -111,7 +111,7 @@
         XCTAssertFalse(conversation.allUsersTrusted);
         XCTAssertEqual(conversation.securityLevel, ZMConversationSecurityLevelSecureWithIgnored);
         
-        // when ///TODO: selfuser.moc is ui
+        // when
         [conversation internalRemoveParticipants:@[newUnconnectedUser] sender:self.selfUser];
 
         // then

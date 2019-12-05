@@ -129,7 +129,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         conversation.conversationType = ZMConversationType.group
         let otherUser = ZMUser.insertNewObject(in:self.uiMOC)
         otherUser.name = "Foo"
-        conversation.add(user:otherUser)
+        conversation.add(user:otherUser, isFromLocal: false)
         self.uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
@@ -158,7 +158,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
                                                         
                                                         let otherUser = ZMUser.insertNewObject(in:self.uiMOC)
                                                         otherUser.name = "Foo"
-                                                        conversation.add(user:otherUser)
+                                                        conversation.add(user:otherUser, isFromLocal: false)
         },
                                                      expectedChangedFields: ["nameChanged", "participantsChanged"],
                                                      expectedChangedKeys: ["displayName", "lastServerSyncedActiveParticipants"]
@@ -172,7 +172,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
         conversation.conversationType = ZMConversationType.group
         let user = ZMUser.insertNewObject(in:self.uiMOC)
-        conversation.add(user:user)
+        conversation.add(user:user, isFromLocal: false)
         self.uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
@@ -207,7 +207,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         conversation.conversationType = ZMConversationType.group
         let otherUser = ZMUser.insertNewObject(in:self.uiMOC)
         otherUser.accentColorValue = .brightOrange
-        conversation.add(user:otherUser)
+        conversation.add(user:otherUser, isFromLocal: false)
         self.uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
@@ -267,7 +267,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         // when
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: { conversation, observer in
-                                                        conversation.add(user:user1)
+                                                        conversation.add(user:user1, isFromLocal: false)
                                                         self.uiMOC.saveOrRollback()
                                                         observer.clearNotifications()
                                                         self.notifyNameChange(user1, name: "Bar")
@@ -306,7 +306,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         
         // when
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
-                                                     modifier: { conversation, _ in conversation.add(user:user) },
+                                                     modifier: { conversation, _ in conversation.add(user:user, isFromLocal: false) },
                                                      expectedChangedFields: ["participantsChanged", "nameChanged"],
                                                      expectedChangedKeys: ["displayName", "lastServerSyncedActiveParticipants"])
         
@@ -318,7 +318,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         conversation.conversationType = ZMConversationType.group
         let user = ZMUser.insertNewObject(in:self.uiMOC)
         user.name = "Foo"
-        conversation.add(user:user)
+        conversation.add(user:user, isFromLocal: false)
         
         uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
@@ -343,7 +343,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         conversation.conversationType = ZMConversationType.group
         let user = ZMUser.insertNewObject(in:self.uiMOC)
         user.name = "Foo"
-        conversation.add(user:user)
+        conversation.add(user:user, isFromLocal: false)
         uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
@@ -367,7 +367,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         conversation.conversationType = ZMConversationType.group
         let user = ZMUser.insertNewObject(in:self.uiMOC)
         user.name = "bar"
-        conversation.add(user:user)
+        conversation.add(user:user, isFromLocal: false)
         self.uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
@@ -924,7 +924,7 @@ extension ConversationObserverTests {
             user.name = "foo"
             let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
             conversation.conversationType = .group
-            conversation.add(user:user)
+            conversation.add(user:user, isFromLocal: false)
             self.uiMOC.saveOrRollback()
             
             let observer = ConversationObserver()

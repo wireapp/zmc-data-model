@@ -144,7 +144,7 @@ extension ZMConversation {
     
     @objc
     func add(user: ZMUser,
-             isFromLocal: Bool = false) {
+             isFromLocal: Bool) {
         guard let moc = user.managedObjectContext else { return }
         if let participantRole = user.participantRoles.first(where: {$0.conversation == self}) {
             participantRole.markedForDeletion = false

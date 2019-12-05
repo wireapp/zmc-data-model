@@ -181,7 +181,7 @@ extension DuplicatedEntityRemovalTests {
         conversation.conversationType = .oneOnOne
         let connection = createConnection(to: user1, conversation: conversation)
         user1.connection = connection
-        conversation.add(user:user1)
+        conversation.add(user:user1, isFromLocal: false)
         self.moc.saveOrRollback()
         
         // WHEN
@@ -204,7 +204,7 @@ extension DuplicatedEntityRemovalTests {
         conversation.conversationType = .oneOnOne
         let connection = createConnection(to: user2, conversation: conversation)
         user2.connection = connection
-        conversation.add(user:user2)
+        conversation.add(user:user2, isFromLocal: false)
         self.moc.saveOrRollback()
         
         // WHEN
@@ -225,10 +225,10 @@ extension DuplicatedEntityRemovalTests {
         user2.remoteIdentifier = user1.remoteIdentifier
         let conversation1 = createConversation()
         conversation1.conversationType = .oneOnOne
-        conversation1.add(user:user1)
+        conversation1.add(user:user1, isFromLocal: false)
         let conversation2 = createConversation()
         conversation2.conversationType = .oneOnOne
-        conversation2.add(user:user2)
+        conversation2.add(user:user2, isFromLocal: false)
         let connection1 = createConnection(to: user1, conversation: conversation1)
         user1.connection = connection1
         let connection2 = createConnection(to: user2, conversation: conversation2)
@@ -854,42 +854,42 @@ extension DuplicatedEntityRemovalTests {
         let convoA1 = ZMConversation.insertNewObject(in: self.moc)
         convoA1.remoteIdentifier = UUID()
         convoA1.conversationType = .oneOnOne
-        convoA1.add(user:userA1)
+        convoA1.add(user:userA1, isFromLocal: false)
         convoA1.creator = userA1
         convoA1.userDefinedName = "convoA1"
         convoA1.needsToBeUpdatedFromBackend = false
         let convoA2 = ZMConversation.insertNewObject(in: self.moc)
         convoA2.remoteIdentifier = convoA1.remoteIdentifier
         convoA2.conversationType = .oneOnOne
-        convoA2.add(user:userA2)
+        convoA2.add(user:userA2, isFromLocal: false)
         convoA2.creator = userA2
         convoA2.userDefinedName = "convoA2"
         convoA2.needsToBeUpdatedFromBackend = false
         let convoB1 = ZMConversation.insertNewObject(in: self.moc)
         convoB1.remoteIdentifier = UUID()
         convoB1.conversationType = .group
-        convoB1.add(user:userA1)
-        convoB1.add(user:userB)
+        convoB1.add(user:userA1, isFromLocal: false)
+        convoB1.add(user:userB, isFromLocal: false)
         convoB1.creator = userB
-        convoB1.add(user:userA1) // missing userB
+        convoB1.add(user:userA1, isFromLocal: false) // missing userB
         convoB1.userDefinedName = "convoB1"
         convoB1.needsToBeUpdatedFromBackend = false
         let convoB2 = ZMConversation.insertNewObject(in: self.moc)
         convoB2.remoteIdentifier = convoB1.remoteIdentifier
         convoB2.conversationType = .group
-        convoB2.add(user:userC)
-        convoB2.add(user:userB)
+        convoB2.add(user:userC, isFromLocal: false)
+        convoB2.add(user:userB, isFromLocal: false)
         convoB2.creator = userB
-        convoB2.add(user:userC)
+        convoB2.add(user:userC, isFromLocal: false)
         convoB2.userDefinedName = "convoB2"
         convoB2.needsToBeUpdatedFromBackend = false
         let convoC = ZMConversation.insertNewObject(in: self.moc)
         convoC.remoteIdentifier = UUID()
         convoC.conversationType = .group
-        convoC.add(user:userA2)
-        convoC.add(user:userC)
+        convoC.add(user:userA2, isFromLocal: false)
+        convoC.add(user:userC, isFromLocal: false)
         convoC.creator = userC
-        convoC.add(user:userA2) // missing user C
+        convoC.add(user:userA2, isFromLocal: false) // missing user C
         convoC.userDefinedName = "convoC"
         convoC.needsToBeUpdatedFromBackend = false
 

@@ -627,7 +627,7 @@ extension ZMUserTests {
         // given
         let sut = ZMUser.insertNewObject(in: uiMOC)
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        conversation.add(user:sut)
+        conversation.add(user:sut, isFromLocal: false)
         
         // then
         XCTAssertEqual(sut.activeConversations, Set(arrayLiteral: conversation))
