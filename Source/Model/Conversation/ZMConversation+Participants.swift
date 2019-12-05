@@ -135,7 +135,7 @@ extension ZMConversation {
     }
     
     @objc
-    func add(users: [ZMUser],
+    public func add(users: [ZMUser],
              isFromLocal: Bool) {
         users.forEach() { user in
             add(user: user, isFromLocal: isFromLocal)
