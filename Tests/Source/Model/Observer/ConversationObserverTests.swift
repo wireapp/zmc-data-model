@@ -137,7 +137,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: { _, _ in
                                                         self.notifyNameChange(otherUser, name: "Phil")
-        },
+            },
                                                      expectedChangedField: "nameChanged",
                                                      expectedChangedKeys: ["displayName"]
         )
@@ -215,7 +215,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: { _, _ in
                                                         otherUser.accentColorValue = ZMAccentColor.softPink
-        },
+            },
                                                      expectedChangedField: nil,
                                                      expectedChangedKeys: []
         )
@@ -242,7 +242,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: { _, _ in
                                                         self.notifyNameChange(otherUser, name: "Phil")
-        },
+            },
                                                      expectedChangedField: "nameChanged",
                                                      expectedChangedKeys: ["displayName"]
         )
@@ -289,7 +289,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: { conversation, _ in
                                                         _ = conversation.append(text: "foo")
-        },
+            },
                                                      expectedChangedFields: ["messagesChanged", "lastModifiedDateChanged"],
                                                      expectedChangedKeys: ["allMessages", "lastModifiedDate"])
     }
@@ -474,7 +474,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         
         guard let changes = observer.notifications.first else { return XCTFail() }
         changes.checkForExpectedChangeFields(userInfoKeys: conversationInfoKeys,
-                                             expectedChangedFields: ["unreadCountChanged", "conversationListIndicatorChanged"])
+                                     expectedChangedFields: ["unreadCountChanged", "conversationListIndicatorChanged"])
         XCTAssertEqual(changes.changedKeys, Set(["estimatedUnreadCount", "conversationListIndicator"]))
         
     }
@@ -530,33 +530,33 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         conversation.conversationType = ZMConversationType.group
         uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        
+
         return conversation
     }
-    
+
     func testThatLocalDestructionTimeoutChangeIsTriggeringObservation()
     {
         // given
         let conversation = createGroupConversation()
-        
+
         // when
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: { conversation, _ in conversation.localMessageDestructionTimeout = 1000 },
                                                      expectedChangedField: "destructionTimeoutChanged",
                                                      expectedChangedKeys: [#keyPath(ZMConversation.localMessageDestructionTimeout)])
     }
-    
+
     func testThatLanguageChangeIsTriggeringObservation() {
         // given
         let conversation = createGroupConversation()
-        
+
         // when
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: { conversation, _ in conversation.language = "de-DE" },
                                                      expectedChangedField: "languageChanged",
                                                      expectedChangedKeys: [#keyPath(ZMConversation.language)])
     }
-    
+
     func testThatAccessRoleChangeIsTriggeringObservation()
     {
         // given
@@ -585,7 +585,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
                                                      modifier: { conversation, _ in
                                                         conversation.connection = ZMConnection.insertNewObject(in: self.uiMOC)
                                                         conversation.connection!.status = ZMConnectionStatus.pending
-        },
+            },
                                                      expectedChangedField: "connectionStateChanged" ,
                                                      expectedChangedKeys: ["relatedConnectionState"])
     }
@@ -661,7 +661,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
             conversation = self.syncMOC.object(with: uiConversation.objectID) as? ZMConversation
             self.syncMOC.saveOrRollback()
         }
-        
+
         let observer = ConversationObserver()
         self.token = ConversationChangeInfo.add(observer: observer, for: uiConversation)
         
@@ -672,14 +672,14 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         }
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         mergeLastChanges()
-        
+                
         // then
         let changeCount = observer.notifications.count
         XCTAssertEqual(changeCount, 1, "Observer expected 1 notification, but received \(changeCount).")
         
         guard let changes = observer.notifications.first else { return XCTFail() }
         changes.checkForExpectedChangeFields(userInfoKeys: conversationInfoKeys,
-                                             expectedChangedFields: ["conversationListIndicatorChanged", "messagesChanged", "unreadCountChanged"])
+                                     expectedChangedFields: ["conversationListIndicatorChanged", "messagesChanged", "unreadCountChanged"])
         XCTAssertEqual(changes.changedKeys, Set(["allMessages", "conversationListIndicator", "estimatedUnreadCount"]))
     }
     
@@ -693,7 +693,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: { conversation, _ in
                                                         conversation.clearedTimeStamp = Date()
-        },
+            },
                                                      expectedChangedField: "clearedChanged" ,
                                                      expectedChangedKeys: ["clearedTimeStamp"])
     }
@@ -707,7 +707,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: { conversation, _ in
                                                         conversation.securityLevel = .secure
-        },
+            },
                                                      expectedChangedField: "securityLevelChanged" ,
                                                      expectedChangedKeys: ["securityLevel"])
     }
@@ -727,14 +727,14 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         },
                                                      expectedChangedFields: ["securityLevelChanged", "messagesChanged", "nameChanged", "participantsChanged"],
                                                      expectedChangedKeys: ["displayName", "allMessages", "lastServerSyncedActiveParticipants", "securityLevel"])
-        
+    
     }
     
     func testThatItNotifiesAboutSecurityLevelChange_AddingDevice(){
         // given
         let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
         let user = ZMUser.insertNewObject(in: self.uiMOC)
-        
+
         conversation.conversationType = .group
         conversation.securityLevel = .secure
         self.uiMOC.saveOrRollback()
@@ -745,9 +745,9 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
                                                         let client = UserClient.insertNewObject(in: self.uiMOC)
                                                         client.remoteIdentifier = "aabbccdd";
                                                         client.user = user;
-                                                        
+
                                                         conversation.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [client], causedBy: nil)
-                                                        
+
         },
                                                      expectedChangedFields: ["securityLevelChanged", "messagesChanged"],
                                                      expectedChangedKeys: ["securityLevel", "allMessages"])
@@ -767,7 +767,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         conversation.append(text: "Foo")
         self.uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        
+
         // then
         XCTAssertEqual(observer.notifications.count, 2)
         
