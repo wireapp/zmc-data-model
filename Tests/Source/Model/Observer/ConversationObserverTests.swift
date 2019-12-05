@@ -393,7 +393,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: {conversation, _ in conversation.isSelfAnActiveMember = true },
                                                      expectedChangedField: "participantsChanged",
-                                                     expectedChangedKeys: ["isSelfAnActiveMember"])///TODO: check hot the key and field is assigned?
+                                                     expectedChangedKeys: ["isSelfAnActiveMember"])
         
     }
     

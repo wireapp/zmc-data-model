@@ -150,7 +150,6 @@ extension ParticipantRole: SideEffectSource {
                                                keyStore: keyStore,
                                                keyMapping: keyMapping)
         
-        ///FIXME: we need to affect user also?
         return changes
     }
 

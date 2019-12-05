@@ -473,9 +473,7 @@ class ConversationListObserverTests: NotificationDispatcherTestBase {
         }
     }
     
-    ///TODO:
-    func testThatItNotifiesObserversWhenAUserInAConversationChangesTheirName()
-    {
+    func testThatItNotifiesObserversWhenAUserInAConversationChangesTheirName() {
         // given
         let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
         let user = ZMUser.insertNewObject(in:self.uiMOC)

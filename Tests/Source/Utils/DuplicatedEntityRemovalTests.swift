@@ -143,7 +143,7 @@ extension DuplicatedEntityRemovalTests {
         let showingUserRemoved = Set<ZMMessage>([systemMessage])
         let systemMessages = Set<ZMSystemMessage>([systemMessage])
 
-        user2.lastServerSyncedActiveConversations = lastServerSyncedActiveConversations
+        user2.lastServerSyncedActiveConversations = lastServerSyncedActiveConversations ///TODO: not use lastServerSyncedActiveConversations setter
         user2.conversationsCreated = conversationsCreated
         user2.createdTeams = createdTeams
         user2.membership = membership
