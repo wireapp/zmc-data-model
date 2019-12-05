@@ -153,8 +153,10 @@ extension ParticipantRole: SideEffectSource {
         return changes
     }
 
+    
     func affectedObjectsForInsertionOrDeletion(keyStore: DependencyKeyStore) -> ObjectAndChanges {
-        return byInsertOrDeletionAffectedKeys(for: conversation, keyStore: keyStore, affectedKey: #keyPath(ZMConversation.lastServerSyncedActiveParticipants))
+        // delete a ParticipantRole should have no side effect
+        return [:]
     }
 }
 
