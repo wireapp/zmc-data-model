@@ -1311,9 +1311,9 @@
     ZMUser *user = [self createUser];
     user.name = @"Foo 1";
 //    [conversation addWithUser:user];
-    [conversation addWithUser:user moc:self.uiMOC];
+    [conversation addWithUser:user];
 //    [conversation addWithUser:[ZMUser selfUserInContext:self.uiMOC]];
-    [conversation addWithUser:[ZMUser selfUserInContext:self.uiMOC] moc:self.uiMOC];
+    [conversation addWithUser:[ZMUser selfUserInContext:self.uiMOC]];
 
     conversation.conversationType = ZMConversationTypeGroup;
     [self.uiMOC saveOrRollback];
@@ -1383,7 +1383,7 @@
     user3.name = nil;
     user4.name = @"Baz 4";
     selfUser.name = @"Me Myself";
-    [conversation addWithUsers:@[user1, user2, user3, user4] moc:self.uiMOC];
+    [conversation addWithUsers:@[user1, user2, user3, user4] isFromLocal:NO];
     [conversation addWithUser:[ZMUser selfUserInContext:self.uiMOC]];
     [self.uiMOC saveOrRollback];
     
@@ -2755,7 +2755,7 @@
     ZMUser *user2 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     user2.name = @"User2";
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    [conversation addWithUsers:@[user1, user2] moc:self.uiMOC];
+    [conversation addWithUsers:@[user1, user2] isFromLocal:NO];
     conversation.userDefinedName = @"Conversation";
     conversation.conversationType = ZMConversationTypeGroup;
     [self.uiMOC saveOrRollback];
@@ -2780,7 +2780,7 @@
     ZMUser *user2 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     user2.name = @"Bar 2";
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    [conversation addWithUsers:@[user1, user2] moc:self.uiMOC];
+    [conversation addWithUsers:@[user1, user2] isFromLocal:NO];
     conversation.userDefinedName = @"Conversation";
     conversation.conversationType = ZMConversationTypeGroup;
     [self.uiMOC saveOrRollback];
@@ -2876,7 +2876,7 @@
     user1.name = @"Foo";
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
 
-    [conversation addWithUsers:@[user1] moc: self.uiMOC];
+    [conversation addWithUsers:@[user1] isFromLocal:NO];
     conversation.userDefinedName = @"Conversation";
     conversation.conversationType = ZMConversationTypeOneOnOne;
     [self.uiMOC saveOrRollback];

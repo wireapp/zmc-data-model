@@ -102,13 +102,12 @@ extension ZMConversation {
     /// - Parameter users: users to union
     @objc
     func union(userSet: Set<ZMUser>,
-               moc: NSManagedObjectContext,
                isFromLocal: Bool) {
         let currentParticipantSet = lastServerSyncedActiveParticipants
         
         userSet.forEach() { user in
             if !currentParticipantSet.contains(user) {
-                add(user: user, moc: moc, isFromLocal: isFromLocal)
+                add(user: user, isFromLocal: isFromLocal)
             }
             
             ///if mark for delete, flip it
@@ -136,36 +135,23 @@ extension ZMConversation {
     }
     
     @objc
-    func add(users: [ZMUser], moc: NSManagedObjectContext,
+    func add(users: [ZMUser],
              isFromLocal: Bool = false) {///TODO: no default!!!
         users.forEach() { user in
-            add(user: user, moc: moc, isFromLocal: isFromLocal)
+            add(user: user, isFromLocal: isFromLocal)
         }
     }
     
     ///TODO: just for test!!
     @objc
-    func add(user: ZMUser, moc: NSManagedObjectContext) {
-        add(user: user, moc: moc, isFromLocal: false)
-    }
-    
-    ///TODO: just for test!!
-    @objc
     func add(user: ZMUser) {
-        guard let moc = user.managedObjectContext else { return }
-        add(user: user, moc: moc, isFromLocal: false)
-    }
-    
-    ///TODO: just for test!!
-    @objc
-    func add(users: [ZMUser], moc: NSManagedObjectContext) {
-        add(users: users, moc: moc, isFromLocal: false)
+        add(user: user, isFromLocal: false)
     }
     
     @objc
     func add(user: ZMUser,
-             moc: NSManagedObjectContext,
              isFromLocal: Bool = false) {
+        guard let moc = user.managedObjectContext else { return }
         if let participantRole = user.participantRoles.first(where: {$0.conversation == self}) {
             participantRole.markedForDeletion = false
         } else {
@@ -173,13 +159,6 @@ extension ZMConversation {
             
             participantRole.markedForInsertion = isFromLocal
         }
-    }
-    
-    @objc
-    func add(user: ZMUser, isFromLocal: Bool = false) {
-        guard let moc = user.managedObjectContext else { return }
-        
-        add(user: user, moc: moc, isFromLocal: isFromLocal)
     }
     
 }

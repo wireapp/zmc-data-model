@@ -310,7 +310,7 @@ extension ClientMessageTests_OTR {
             connection.to = self.syncUser1
             connection.status = .accepted
             conversation.connection = connection
-            conversation.add(user:self.syncUser1, moc:self.syncMOC)
+            conversation.add(user:self.syncUser1)
             
             self.syncMOC.saveOrRollback()
                         
@@ -359,7 +359,7 @@ extension ClientMessageTests_OTR {
             connection.to = self.syncUser1
             connection.status = .accepted
             conversation.connection = connection
-            conversation.add(user:self.syncUser1, moc:self.syncMOC)
+            conversation.add(user:self.syncUser1)
             
             self.syncMOC.saveOrRollback()
                                     
@@ -408,7 +408,7 @@ extension ClientMessageTests_OTR {
             let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
             conversation.conversationType = .oneOnOne
             conversation.remoteIdentifier = UUID.create()
-            conversation.add(user:self.syncUser1, moc:self.syncMOC)
+            conversation.add(user:self.syncUser1)
             
             let genericMessage = ZMGenericMessage.message(content: ZMText.text(with: "yo"), nonce: UUID.create())
             let clientmessage = ZMClientMessage(nonce: UUID(), managedObjectContext: self.syncMOC)

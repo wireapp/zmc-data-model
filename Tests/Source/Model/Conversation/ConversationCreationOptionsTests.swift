@@ -39,11 +39,11 @@ class ConversationCreationOptionsTests: ZMConversationTestsBase {
 }
 
 extension ConversationCreationOptionsTests: ZMManagedObjectContextProvider {
-    var managedObjectContext: NSManagedObjectContext! {
+    var managedObjectContext: NSManagedObjectContext? {
         return self.uiMOC
     }
     
-    var syncManagedObjectContext: NSManagedObjectContext! {
+    var syncManagedObjectContext: NSManagedObjectContext? {
         return self.syncMOC
     }
 }

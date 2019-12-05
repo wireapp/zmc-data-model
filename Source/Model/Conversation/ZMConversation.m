@@ -1081,10 +1081,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
     
     if (otherUsers.count > 0) {
-        
-        
         NSSet *existingUsers = [self.lastServerSyncedActiveParticipants copy];
-        [self unionWithUserSet:otherUsers.set moc:self.managedObjectContext isFromLocal:NO];
+        [self unionWithUserSet:otherUsers.set isFromLocal:NO];
         
         [otherUsers minusSet:existingUsers];
         if (otherUsers.count > 0) {
