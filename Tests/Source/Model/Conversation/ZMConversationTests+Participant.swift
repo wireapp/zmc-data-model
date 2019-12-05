@@ -27,8 +27,7 @@ extension ZMConversationTests {
         
         let user1 = ZMUser.insertNewObject(in: uiMOC)
         let user2 = ZMUser.insertNewObject(in: uiMOC)
-        let isFromLocal = false
-        conversation.internalAddParticipants([user1, user2], isFromLocal: isFromLocal)
+        conversation.internalAddParticipants([user1, user2])
         
         XCTAssert(conversation.isSelfAnActiveMember)
         XCTAssertEqual(conversation.lastServerSyncedActiveParticipants.count, 2)
@@ -40,10 +39,9 @@ extension ZMConversationTests {
         // when
         
         conversation.internalRemoveParticipants([user2],
-                                                sender: user1,
-                                                isFromLocal: isFromLocal)
+                                                sender: user1)
         
-        uiMOC.processPendingChanges() ///TODO: put this inside internalRemoveParticipants?
+        uiMOC.processPendingChanges()
 
         // then
         XCTAssert(conversation.isSelfAnActiveMember)

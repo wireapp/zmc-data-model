@@ -179,9 +179,8 @@ NS_ASSUME_NONNULL_END
 @interface ZMConversation (ParticipantsInternal)
 
 - (void)internalAddParticipants:(nonnull NSArray<ZMUser *> *)participants;
-- (void)internalAddParticipants:(nonnull NSArray<ZMUser *> *)participants isFromLocal:(BOOL) isFromLocal;
-- (void)internalRemoveParticipants:(nonnull NSArray<ZMUser *> *)participants sender:(nonnull ZMUser *)sender;
-- (void)internalRemoveParticipants:(nonnull NSArray<ZMUser *> *)participants sender:(nonnull ZMUser *)sender isFromLocal:(BOOL) isFromLocal;
+- (void)internalRemoveParticipants:(nonnull NSArray<ZMUser *> *)participants
+                            sender:(nonnull ZMUser *)sender;
 
 @property (nonatomic) BOOL isSelfAnActiveMember; ///< whether the self user is an active member (as opposed to a past member)
 

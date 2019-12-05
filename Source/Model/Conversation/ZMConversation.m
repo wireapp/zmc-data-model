@@ -746,7 +746,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     NSSet<ZMUser *> *participants = [NSSet setWithObject:participant];
 
     [conversation appendNewConversationSystemMessageAtTimestamp:[NSDate date] users:participants];
-    [conversation internalAddParticipants:@[participant] isFromLocal:NO]; ///TODO:
+    [conversation internalAddParticipants:@[participant]];
 
     // We need to check if we should add a 'secure' system message in case all participants are trusted
     [conversation increaseSecurityLevelIfNeededAfterTrustingClients:participant.clients];
@@ -854,7 +854,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     [conversation appendNewConversationSystemMessageAtTimestamp:[NSDate date] users:participantsSet];
 
     // Add the participants
-    [conversation internalAddParticipants:filteredParticipants isFromLocal:NO];
+    [conversation internalAddParticipants:filteredParticipants];
 
     // We need to check if we should add a 'secure' system message in case all participants are trusted
     NSMutableSet *allClients = [NSMutableSet set];
