@@ -114,7 +114,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 @property (nonatomic) NSString *normalizedUserDefinedName;
 @property (nonatomic) ZMConversationType conversationType;
-@property (nonatomic, readonly) ZMConversationType internalConversationType;
 
 @property (nonatomic) NSTimeInterval lastReadTimestampSaveDelay;
 @property (nonatomic) int64_t lastReadTimestampUpdateCounter;
@@ -502,14 +501,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return conversationType;
 }
 
-- (ZMConversationType)internalConversationType
-{
-    [self willAccessValueForKey:ZMConversationConversationTypeKey];
-    ZMConversationType conversationType =  (ZMConversationType)[[self primitiveConversationType] shortValue];
-    [self didAccessValueForKey:ZMConversationConversationTypeKey];
-    return conversationType;
-}
-
 
 + (NSArray *)defaultSortDescriptors
 {
@@ -676,6 +667,14 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 + (ZMConversationList *)pendingConversationsInContext:(NSManagedObjectContext *)moc;
 {
     return moc.conversationListDirectory.pendingConnectionConversations;
+}
+
+- (ZMConversationType)internalConversationType
+{
+    [self willAccessValueForKey:ZMConversationConversationTypeKey];
+    ZMConversationType conversationType =  (ZMConversationType)[[self primitiveConversationType] shortValue];
+    [self didAccessValueForKey:ZMConversationConversationTypeKey];
+    return conversationType;
 }
 
 - (void)mergeWithExistingConversationWithRemoteID:(NSUUID *)remoteID;
