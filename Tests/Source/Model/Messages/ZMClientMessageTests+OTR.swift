@@ -360,6 +360,7 @@ extension ClientMessageTests_OTR {
             connection.status = .accepted
             conversation.connection = connection
             conversation.add(user:self.syncUser1, isFromLocal: false)
+
             
             self.syncMOC.saveOrRollback()
                                     

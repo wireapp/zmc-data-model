@@ -65,7 +65,7 @@ final class ConversationTests_Teams: ZMConversationTestsBase {
         // then
         XCTAssertNotNil(conversation)
         XCTAssertEqual(conversation?.conversationType, .group)
-        XCTAssertEqual(conversation?.lastServerSyncedActiveParticipants, [otherUser])
+        XCTAssertEqual(conversation?.lastServerSyncedActiveParticipants, [otherUser!])
         XCTAssertEqual(conversation?.team, team)
     }
 
