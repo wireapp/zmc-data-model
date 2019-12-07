@@ -191,7 +191,7 @@ extension ZMConversation {
         participantRoles = participantRoles.union(conversation.participantRoles)
         
         zmLog.debug("Merged duplicate conversation \(self.remoteIdentifier?.transportString() ?? "N/A")")
-        zmLog.debug("mutableLastServerSyncedActiveParticipants = \(self.lastServerSyncedActiveParticipants.count)")
+        zmLog.debug("participantRoles = \(self.participantRoles.count)")
     }
 }
 
