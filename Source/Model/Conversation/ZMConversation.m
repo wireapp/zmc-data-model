@@ -1173,7 +1173,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
                 
                 if(conversation.shouldNotBeRefreshed) {
                     [conversationsToKeep addObject:conversation];
-                    [usersToKeep unionSet:conversation.lastServerSyncedActiveParticipants];
+                    [usersToKeep unionSet:conversation.participantRoles];
                 }
             } else if ([obj isKindOfClass:ZMOTRMessage.class]) {
                 ZMOTRMessage *message = (ZMOTRMessage *)obj;
