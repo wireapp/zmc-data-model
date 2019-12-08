@@ -89,7 +89,7 @@ public extension ZMConversation {
     private func oneOnOneDisplayName() -> String? {
         precondition(conversationType == .oneOnOne)
 
-        let other = lastServerSyncedActiveParticipants.first(where: {$0 != selfUser} ) ?? connectedUser
+        let other = participantRoles.map { $0.user }.first(where: {$0 != selfUser} ) ?? connectedUser
         if let name = other?.name, !name.isEmpty {
             return name
         } else {
