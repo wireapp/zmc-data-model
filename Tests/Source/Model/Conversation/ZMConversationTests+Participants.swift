@@ -29,7 +29,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         
         sut.internalAddParticipants([user1, user2])
         
-        XCTAssertEqual(sut.lastServerSyncedActiveParticipants.count, 2)
+        XCTAssertEqual(sut.participantRoles.count, 2)
         XCTAssertEqual(sut.activeParticipants.count, 3)
 
         // WHEN
@@ -38,7 +38,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         let selfUser = sut.managedObjectContext.map(ZMUser.selfUser)
         
         // THEN
-        XCTAssertEqual(sut.lastServerSyncedActiveParticipants, Set([user1, user2]))
+        XCTAssertEqual(Set(sut.participantRoles.map { $0.user }), Set([user1, user2]))
         XCTAssertEqual(sut.activeParticipants, Set([user1, selfUser]))
 
         XCTAssert(user2.participantRoles.first!.markedForDeletion)
@@ -57,7 +57,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         sut.add(user: user2, isFromLocal: true)
 
         // THEN
-        XCTAssertEqual(sut.lastServerSyncedActiveParticipants, Set([user1]))
+        XCTAssertEqual(Set(sut.participantRoles.map { $0.user }), Set([user1, user2]))
         XCTAssertEqual(sut.activeParticipants, Set([user1, user2, selfUser]))
 
         XCTAssertFalse(user2.participantRoles.first!.markedForDeletion)
@@ -72,7 +72,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         
         sut.internalAddParticipants([user1, user2])
         
-        XCTAssertEqual(sut.lastServerSyncedActiveParticipants.count, 2)
+        XCTAssertEqual(sut.participantRoles.count, 2)
         XCTAssertEqual(sut.activeParticipants.count, 3)
         
         // WHEN
@@ -82,7 +82,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         let selfUser = sut.managedObjectContext.map(ZMUser.selfUser)
         
         // THEN
-        XCTAssertEqual(sut.lastServerSyncedActiveParticipants, Set([user1, user2]))
+        XCTAssertEqual(Set(sut.participantRoles.map { $0.user }), Set([user1, user2]))
         XCTAssertEqual(sut.activeParticipants, Set([user1, user2, selfUser]))
         
         XCTAssertFalse(user2.participantRoles.first!.markedForDeletion)
@@ -103,7 +103,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         uiMOC.processPendingChanges()
 
         // THEN
-        XCTAssertEqual(sut.lastServerSyncedActiveParticipants, Set([user1]))
+        XCTAssertEqual(Set(sut.participantRoles.map { $0.user }), Set([user1]))
         XCTAssertEqual(sut.activeParticipants, Set([user1, selfUser]))
 
         XCTAssert(user2.participantRoles.isEmpty, "\(user2.participantRoles)")
