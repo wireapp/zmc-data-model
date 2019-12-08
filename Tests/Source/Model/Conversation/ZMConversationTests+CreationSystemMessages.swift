@@ -29,9 +29,9 @@ class ZMConversationCreationSystemMessageTests: ZMConversationTestsBase {
     func testSystemMessageWhenCreatingConversationWithNoName() {
         syncMOC.performGroupedBlock {
             let selfUser = ZMUser.selfUser(in: self.syncMOC)
-            let alice = self.createUser(onMoc: self.syncMOC)!
+            let alice = self.createUser(onMoc: self.syncMOC)
             alice.name = "alice"
-            let bob = self.createUser(onMoc: self.syncMOC)!
+            let bob = self.createUser(onMoc: self.syncMOC)
             bob.name = "bob"
 
             let conversation = ZMConversation.insertGroupConversation(into: self.syncMOC, withParticipants: [alice, bob], name: nil, in: nil)
@@ -49,9 +49,9 @@ class ZMConversationCreationSystemMessageTests: ZMConversationTestsBase {
     func testSystemMessageWhenCreatingConversationWithName() {
         syncMOC.performGroupedBlock {
             let selfUser = ZMUser.selfUser(in: self.syncMOC)
-            let alice = self.createUser(onMoc: self.syncMOC)!
+            let alice = self.createUser(onMoc: self.syncMOC)
             alice.name = "alice"
-            let bob = self.createUser(onMoc: self.syncMOC)!
+            let bob = self.createUser(onMoc: self.syncMOC)
             bob.name = "bob"
 
             let name = "Crypto"
@@ -144,8 +144,8 @@ class ZMConversationCreationSystemMessageTests: ZMConversationTestsBase {
             
             let user1 = self.createTeamMember(in: self.syncMOC, for: team)
             let user2 = self.createTeamMember(in: self.syncMOC, for: team)
-            let guest1 = self.createUser(onMoc: self.syncMOC)!
-            let guest2 = self.createUser(onMoc: self.syncMOC)!
+            let guest1 = self.createUser(onMoc: self.syncMOC)
+            let guest2 = self.createUser(onMoc: self.syncMOC)
             
             // when
             let conversation = ZMConversation.insertGroupConversation(into: self.syncMOC, withParticipants: [user1, user2, guest1, guest2], name: self.name, in: team)
@@ -170,8 +170,8 @@ class ZMConversationCreationSystemMessageTests: ZMConversationTestsBase {
             
             let user1 = self.createTeamMember(in: self.syncMOC, for: team)
             self.createTeamMember(in: self.syncMOC, for: team)
-            let guest1 = self.createUser(onMoc: self.syncMOC)!
-            let guest2 = self.createUser(onMoc: self.syncMOC)!
+            let guest1 = self.createUser(onMoc: self.syncMOC)
+            let guest2 = self.createUser(onMoc: self.syncMOC)
             
             // when
             let conversation = ZMConversation.insertGroupConversation(into: self.syncMOC, withParticipants: [user1, guest1, guest2], name: self.name, in: team)

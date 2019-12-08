@@ -24,7 +24,7 @@ class ConversationCreationOptionsTests: ZMConversationTestsBase {
 
     func testThatItCreatesTheConversationWithOptions() {
         // given
-        let user = self.createUser()!
+        let user = self.createUser()
         let name = "Test Conversation In Swift"
         let team = Team.insertNewObject(in: self.uiMOC)
         let options = ConversationCreationOptions(participants: [user], name: name, team: team, allowGuests: true)

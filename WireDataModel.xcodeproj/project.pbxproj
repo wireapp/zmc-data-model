@@ -508,7 +508,6 @@
 		F9B71FA01CB2BF2B001DB03F /* ZMConversationListTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F9B71F5B1CB2BC85001DB03F /* ZMConversationListTests.m */; };
 		F9B71FA11CB2BF37001DB03F /* ZMConversation+Testing.m in Sources */ = {isa = PBXBuildFile; fileRef = F9B71F4F1CB2BC85001DB03F /* ZMConversation+Testing.m */; };
 		F9B71FA31CB2BF37001DB03F /* ZMConversationTests+gapsAndWindows.m in Sources */ = {isa = PBXBuildFile; fileRef = F9B71F511CB2BC85001DB03F /* ZMConversationTests+gapsAndWindows.m */; };
-		F9B71FA51CB2BF37001DB03F /* ZMConversationTests+participants.m in Sources */ = {isa = PBXBuildFile; fileRef = F9B71F531CB2BC85001DB03F /* ZMConversationTests+participants.m */; };
 		F9B71FA61CB2BF37001DB03F /* ZMConversationTests+Transport.m in Sources */ = {isa = PBXBuildFile; fileRef = F9B71F541CB2BC85001DB03F /* ZMConversationTests+Transport.m */; };
 		F9B71FA81CB2BF37001DB03F /* ZMConversationTests+Validation.m in Sources */ = {isa = PBXBuildFile; fileRef = F9B71F561CB2BC85001DB03F /* ZMConversationTests+Validation.m */; };
 		F9B71FA91CB2BF37001DB03F /* ZMConversationTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F9B71F581CB2BC85001DB03F /* ZMConversationTests.m */; };
@@ -1164,7 +1163,6 @@
 		F9B71F1E1CB264EF001DB03F /* ZMConversationSecurityLevel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZMConversationSecurityLevel.h; sourceTree = "<group>"; };
 		F9B71F4F1CB2BC85001DB03F /* ZMConversation+Testing.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ZMConversation+Testing.m"; sourceTree = "<group>"; };
 		F9B71F511CB2BC85001DB03F /* ZMConversationTests+gapsAndWindows.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ZMConversationTests+gapsAndWindows.m"; sourceTree = "<group>"; };
-		F9B71F531CB2BC85001DB03F /* ZMConversationTests+participants.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ZMConversationTests+participants.m"; sourceTree = "<group>"; };
 		F9B71F541CB2BC85001DB03F /* ZMConversationTests+Transport.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ZMConversationTests+Transport.m"; sourceTree = "<group>"; };
 		F9B71F561CB2BC85001DB03F /* ZMConversationTests+Validation.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "ZMConversationTests+Validation.m"; sourceTree = "<group>"; };
 		F9B71F571CB2BC85001DB03F /* ZMConversationTests.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZMConversationTests.h; sourceTree = "<group>"; };
@@ -1942,7 +1940,6 @@
 				F9B71F511CB2BC85001DB03F /* ZMConversationTests+gapsAndWindows.m */,
 				54A885A71F62EEB600AFBA95 /* ZMConversationTests+Messages.swift */,
 				16D5260C20DD1D9400608D8E /* ZMConversationTests+Timestamps.swift */,
-				F9B71F531CB2BC85001DB03F /* ZMConversationTests+participants.m */,
 				A9128ACF2398067E0056F591 /* ZMConversationTests+Participants.swift */,
 				EF3510FB22CA0BEE00115B97 /* ZMConversationTests+Transport.h */,
 				F9B71F541CB2BC85001DB03F /* ZMConversationTests+Transport.m */,
@@ -2919,7 +2916,6 @@
 				BF3493F01EC3569800B0C314 /* MemberTests.swift in Sources */,
 				A9128AD4239909CF0056F591 /* ZMConversationTests+Participant.swift in Sources */,
 				F9A7083B1CAEEB7500C2F5FE /* MockEntity2.m in Sources */,
-				F9B71FA51CB2BF37001DB03F /* ZMConversationTests+participants.m in Sources */,
 				1672A62A2345102400380537 /* ZMConversationListTests+Labels.swift in Sources */,
 				F9331C5A1CB3BECB00139ECC /* ZMClientMessageTests+OTR.swift in Sources */,
 				16127CF522005AAB0020E65C /* InvalidConversationRemovalTests.swift in Sources */,
