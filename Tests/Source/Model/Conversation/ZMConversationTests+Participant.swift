@@ -30,7 +30,7 @@ extension ZMConversationTests {
         conversation.internalAddParticipants([user1, user2])
         
         XCTAssert(conversation.isSelfAnActiveMember)
-        XCTAssertEqual(conversation.lastServerSyncedActiveParticipants.count, 2)
+        XCTAssertEqual(conversation.participantRoles.count, 2)
         XCTAssertEqual(conversation.activeParticipants.count, 3)
         
         // expect
@@ -45,7 +45,7 @@ extension ZMConversationTests {
 
         // then
         XCTAssert(conversation.isSelfAnActiveMember)
-        XCTAssertEqual(conversation.lastServerSyncedActiveParticipants.count, 1)
+        XCTAssertEqual(conversation.participantRoles.count, 1)
         XCTAssertEqual(conversation.activeParticipants.count, 2)
         XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
     }
