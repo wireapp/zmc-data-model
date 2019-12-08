@@ -604,7 +604,7 @@ extension ZMUserTests {
         sut.markAccountAsDeleted(at: Date())
         
         // then
-        XCTAssertNotNil(teamOneToOneConversation.participantRoles.first(where: { $0.user == sut }))
+        XCTAssertTrue(teamOneToOneConversation.localParticipants.contains(sut))
     }
     
 }

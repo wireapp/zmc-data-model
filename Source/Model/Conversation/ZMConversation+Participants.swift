@@ -50,6 +50,7 @@ extension ZMConversation {
             ZMConversation.participantRolesKeys)
     }
     
+    /// List of users that are in the conversation
     @objc
     public var activeParticipants: Set<ZMUser> {
         guard let managedObjectContext = managedObjectContext else {return Set()}
@@ -63,25 +64,25 @@ extension ZMConversation {
             }
         } else if isSelfAnActiveMember {
             activeParticipants.insert(ZMUser.selfUser(in: managedObjectContext))
-            activeParticipants.formUnion(nonDeletedParticipants)
+            activeParticipants.formUnion(localParticipants)
         } else {
-            activeParticipants.formUnion(nonDeletedParticipants)
+            activeParticipants.formUnion(localParticipants)
         }
         
         return activeParticipants
     }
     
+    /// Participants that are in the conversation, according to the local state
     @objc
-    public var nonDeletedParticipants: Set<ZMUser> {
-        return Set(participantRoles.compactMap {
-            if !$0.markedForDeletion {
-                return $0.user
-            } else {
-                return nil
-            }
-        })
+    public var localParticipantRoles: Set<ParticipantRole> {
+        return participantRoles.filter { !$0.markedForDeletion }
     }
     
+    /// Participants that are in the conversation, according to the local state
+    @objc
+    public var localParticipants: Set<ZMUser> {
+        return Set(localParticipantRoles.map { $0.user })
+    }
     
     @objc
     public var lastServerSyncedActiveParticipants: Set<ZMUser> {
