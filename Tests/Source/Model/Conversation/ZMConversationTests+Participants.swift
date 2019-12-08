@@ -64,6 +64,34 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         XCTAssert(user2.participantRoles.first!.markedForInsertion)
     }
     
+    func testThatLocalParticipantsExcludesUsersMarkedForDeletion() {
+        // GIVEN
+        let sut = createConversation(in: uiMOC)
+        let user1 = createUser()
+        let user2 = createUser()
+        sut.internalAddParticipants([user1, user2])
+        
+        // WHEN
+        sut.minus(userSet: Set([user2]), isFromLocal: true)
+        
+        // THEN
+        XCTAssertEqual(sut.localParticipants, Set([user1]))
+    }
+    
+    func testThatLocalRolesExcludesUsersMarkedForDeletion() {
+        // GIVEN
+        let sut = createConversation(in: uiMOC)
+        let user1 = createUser()
+        let user2 = createUser()
+        sut.internalAddParticipants([user1, user2])
+        
+        // WHEN
+        sut.minus(userSet: Set([user2]), isFromLocal: true)
+        
+        // THEN
+        XCTAssertEqual(sut.localParticipantRoles.map { $0.user }, [user1])
+    }
+    
     func testThatRemoveThenAddParticipants() {
         // GIVEN
         let sut = createConversation(in: uiMOC)
