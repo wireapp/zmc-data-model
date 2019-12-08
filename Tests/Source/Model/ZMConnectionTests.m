@@ -796,7 +796,7 @@
     XCTAssertEqual(connection.conversation.creator, selfUser);
     AssertDateIsRecent(connection.conversation.lastModifiedDate);
     NSSet *participants = [NSSet setWithObject:user];
-    XCTAssertEqualObjects(connection.conversation.lastServerSyncedActiveParticipants, participants);
+    XCTAssertEqualObjects(connection.conversation.nonDeletedParticipants, participants);
     XCTAssertFalse(connection.existsOnBackend);
     XCTAssertEqual(connection.status, ZMConnectionStatusSent);
     XCTAssertEqual(connection.to, user);
