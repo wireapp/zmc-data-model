@@ -238,7 +238,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         
         // then
         let expectedActiveParticipants = Set([user1, user2])
-        XCTAssertEqual(expectedActiveParticipants, conversation.lastServerSyncedActiveParticipants)
+        XCTAssertEqual(expectedActiveParticipants, conversation.localParticipants)
     }
     
     func testThatItDoesNotUnarchiveTheConversationWhenTheSelfUserIsAddedIfMuted() {
@@ -309,7 +309,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         
         // then
         let expectedActiveParticipants = Set([user1, user2, user3])
-        XCTAssertEqual(expectedActiveParticipants, conversation.lastServerSyncedActiveParticipants)
+        XCTAssertEqual(expectedActiveParticipants, conversation.localParticipants)
     }
     
     func testThatActiveParticipantsContainsSelf() {
@@ -342,7 +342,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         conversation.isSelfAnActiveMember = true
         
         // then
-        XCTAssertFalse(conversation.lastServerSyncedActiveParticipants.contains(selfUser))
+        XCTAssertFalse(conversation.localParticipants.contains(selfUser))
     }
 
     //MARK: - Sorting
