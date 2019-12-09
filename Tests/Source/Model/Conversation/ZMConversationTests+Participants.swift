@@ -426,4 +426,38 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         // then
         XCTAssertEqual(conversation.connectedUser, user)
     }
+    
+    func testThatWeGetAConversationRolesIfItIsAPartOfATeam() {
+        // given
+        let team = self.createTeam(in: self.uiMOC)
+        let user1 = self.createTeamMember(in: self.uiMOC, for: team)
+        let user2 = self.createTeamMember(in: self.uiMOC, for: team)
+        let conversation = ZMConversation.insertGroupConversation(into: self.uiMOC, withParticipants: [user1, user2], name: self.name, in: team)
+        
+        // when
+        let adminRole = Role.create(managedObjectContext: uiMOC, name: "wire_admin", team: team)
+        let memberRole = Role.create(managedObjectContext: uiMOC, name: "wire_member", team: team)
+        team.roles.insert(adminRole)
+        team.roles.insert(memberRole)
+        
+        // then
+        XCTAssertNotNil(conversation!.team)
+        XCTAssertEqual(conversation!.getRoles(), conversation!.team!.roles)
+        XCTAssertNotEqual(conversation!.getRoles(), conversation!.nonTeamRoles)
+    }
+    
+    func testThatWeGetAConversationRolesIfItIsNotAPartOfATeam() {
+        // given
+        let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
+        conversation.conversationType = .group
+        
+        // when
+        let adminRole = Role.create(managedObjectContext: uiMOC, name: "wire_admin", conversation: conversation)
+        conversation.nonTeamRoles.insert(adminRole)
+        
+        // then
+        XCTAssertNil(conversation.team)
+        XCTAssertEqual(conversation.getRoles(), conversation.nonTeamRoles)
+        XCTAssertNotEqual(conversation.getRoles(), conversation.team?.roles)
+    }
 }

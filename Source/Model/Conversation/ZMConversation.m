@@ -158,6 +158,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @dynamic team;
 @dynamic labels;
 @dynamic participantRoles;
+@dynamic nonTeamRoles;
 
 @synthesize pendingLastReadServerTimestamp;
 @synthesize lastReadTimestampSaveDelay;
