@@ -86,6 +86,13 @@ extension ZMConversation {
         return Set(localParticipantRoles.map { $0.user })
     }
     
+    /// Participants that are in the conversation, according to the local state
+    /// even if that state is not yet synchronized with the backend
+    @objc
+    public var localParticipantsExcludingSelf: Set<ZMUser> {
+        return self.localParticipants.filter { !$0.isSelfUser }
+    }
+    
     @objc
     public var lastServerSyncedActiveParticipants: Set<ZMUser> {
         return Set(participantRoles.compactMap {
