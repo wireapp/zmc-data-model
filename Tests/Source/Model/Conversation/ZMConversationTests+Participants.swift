@@ -313,6 +313,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
     }
     
     func testThatActiveParticipantsContainsSelf() {
+        // TODO: review
         // given
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.conversationType = .group
@@ -332,6 +333,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
     }
     
     func testThatOtherActiveParticipantsDoesNotContainSelf() {
+        // TODO: review
         // given
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         let selfUser = ZMUser.selfUser(in: self.uiMOC)
