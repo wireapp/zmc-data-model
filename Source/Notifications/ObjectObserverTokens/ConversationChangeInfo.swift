@@ -74,7 +74,10 @@ extension ZMConversation : ObjectInSnapshot {
     }
 
     public var participantsChanged : Bool {
-        return changedKeysContain(keys: #keyPath(ZMConversation.lastServerSyncedActiveParticipants), #keyPath(ZMConversation.isSelfAnActiveMember))
+        return changedKeysContain(keys: #keyPath(ZMConversation.lastServerSyncedActiveParticipants),
+                                  #keyPath(ZMConversation.isSelfAnActiveMember),
+                                  #keyPath(ZMConversation.participantRoles)
+        )
     }
 
     public var nameChanged : Bool {
@@ -179,7 +182,8 @@ extension ZMConversation : ObjectInSnapshot {
     }
     
     static func changeInfo(for conversation: ZMConversation, changes: Changes) -> ConversationChangeInfo? {
-        guard changes.changedKeys.count > 0 || changes.originalChanges.count > 0 else { return nil }
+        guard changes.hasChangeInfo else { return nil }
+
         let changeInfo = ConversationChangeInfo(object: conversation)
         changeInfo.changeInfos = changes.originalChanges
         changeInfo.changedKeys = changes.changedKeys

@@ -44,7 +44,7 @@
     connection.lastUpdateDate = [NSDate date];
     connection.status = ZMConnectionStatusPending;
     connection.conversation = [ZMConversation insertNewObjectInManagedObjectContext:user.managedObjectContext];
-    [connection.conversation.mutableLastServerSyncedActiveParticipants addObject:user];
+    [connection.conversation addWithUser:user isFromLocal:NO];
     connection.conversation.creator = [ZMUser selfUserInContext:user.managedObjectContext];
     connection.conversation.conversationType = ZMConversationTypeConnection;
     connection.conversation.lastModifiedDate = connection.lastUpdateDate;
@@ -795,8 +795,8 @@
     XCTAssertEqual(connection.conversation.conversationType, ZMConversationTypeConnection);
     XCTAssertEqual(connection.conversation.creator, selfUser);
     AssertDateIsRecent(connection.conversation.lastModifiedDate);
-    NSOrderedSet *participants = [NSOrderedSet orderedSetWithObject:user];
-    XCTAssertEqualObjects(connection.conversation.lastServerSyncedActiveParticipants, participants);
+    NSSet *participants = [NSSet setWithObject:user];
+    XCTAssertEqualObjects(connection.conversation.localParticipants, participants);
     XCTAssertFalse(connection.existsOnBackend);
     XCTAssertEqual(connection.status, ZMConnectionStatusSent);
     XCTAssertEqual(connection.to, user);

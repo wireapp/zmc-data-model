@@ -24,7 +24,7 @@ class ConversationCreationOptionsTests: ZMConversationTestsBase {
 
     func testThatItCreatesTheConversationWithOptions() {
         // given
-        let user = self.createUser()!
+        let user = self.createUser()
         let name = "Test Conversation In Swift"
         let team = Team.insertNewObject(in: self.uiMOC)
         let options = ConversationCreationOptions(participants: [user], name: name, team: team, allowGuests: true)
@@ -39,11 +39,11 @@ class ConversationCreationOptionsTests: ZMConversationTestsBase {
 }
 
 extension ConversationCreationOptionsTests: ZMManagedObjectContextProvider {
-    var managedObjectContext: NSManagedObjectContext! {
+    var managedObjectContext: NSManagedObjectContext? {
         return self.uiMOC
     }
     
-    var syncManagedObjectContext: NSManagedObjectContext! {
+    var syncManagedObjectContext: NSManagedObjectContext? {
         return self.syncMOC
     }
 }

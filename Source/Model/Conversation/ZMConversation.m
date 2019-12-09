@@ -53,7 +53,7 @@ NSString *const ZMConversationIsSelfAnActiveMemberKey = @"isSelfAnActiveMember";
 NSString *const ZMConversationMutedStatusKey = @"mutedStatus";
 NSString *const ZMConversationAllMessagesKey = @"allMessages";
 NSString *const ZMConversationHiddenMessagesKey = @"hiddenMessages";
-NSString *const ZMConversationLastServerSyncedActiveParticipantsKey = @"lastServerSyncedActiveParticipants";
+NSString *const ZMConversationParticipantRolesKey = @"participantRoles";
 NSString *const ZMConversationHasUnreadKnock = @"hasUnreadKnock";
 NSString *const ZMConversationUserDefinedNameKey = @"userDefinedName";
 NSString *const ZMIsDimmedKey = @"zmIsDimmed";
@@ -114,7 +114,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 @property (nonatomic) NSString *normalizedUserDefinedName;
 @property (nonatomic) ZMConversationType conversationType;
-@property (nonatomic, readonly) ZMConversationType internalConversationType;
 
 @property (nonatomic) NSTimeInterval lastReadTimestampSaveDelay;
 @property (nonatomic) int64_t lastReadTimestampUpdateCounter;
@@ -158,6 +157,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @dynamic silencedChangedTimestamp;
 @dynamic team;
 @dynamic labels;
+@dynamic participantRoles;
 
 @synthesize pendingLastReadServerTimestamp;
 @synthesize lastReadTimestampSaveDelay;
@@ -254,29 +254,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
 }
 
--(NSSet <ZMUser *> *)activeParticipants
-{
-    
-    NSMutableSet *activeParticipants = [NSMutableSet set];
-    
-    if (self.internalConversationType != ZMConversationTypeGroup) {
-        [activeParticipants addObject:[ZMUser selfUserInContext:self.managedObjectContext]];
-        if (self.connectedUser != nil) {
-            [activeParticipants addObject:self.connectedUser];
-        }
-    }
-    else if(self.isSelfAnActiveMember) {
-        [activeParticipants addObject:[ZMUser selfUserInContext:self.managedObjectContext]];
-        [activeParticipants unionSet:[self.lastServerSyncedActiveParticipants set]];
-    }
-    else
-    {
-        [activeParticipants unionSet:[self.lastServerSyncedActiveParticipants set]];
-    }
-    
-    return activeParticipants;
-}
-
 -(NSArray <ZMUser *> *)sortedActiveParticipants
 {
     return [self sortedUsers:[self activeParticipants]];
@@ -290,11 +267,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return sortedUser;
 }
 
-+ (NSSet *)keyPathsForValuesAffectingActiveParticipants
-{
-    return [NSSet setWithObjects:ZMConversationLastServerSyncedActiveParticipantsKey, ZMConversationIsSelfAnActiveMemberKey, nil];
-}
-
 - (ZMUser *)connectedUser
 {
     ZMConversationType internalConversationType = self.internalConversationType;
@@ -303,7 +275,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         return self.connection.to;
     }
     else if (self.conversationType == ZMConversationTypeOneOnOne) {
-        return self.lastServerSyncedActiveParticipants.firstObject;
+        return self.lastServerSyncedActiveParticipants.anyObject;
     }
     
     return nil;
@@ -341,7 +313,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
             DraftMessageDataKey,
             LastModifiedDateKey,
             ZMNormalizedUserDefinedNameKey,
-            ZMConversationLastServerSyncedActiveParticipantsKey,
+            ZMConversationParticipantRolesKey,
             VoiceChannelKey,
             ZMConversationHasUnreadMissedCallKey,
             ZMConversationHasUnreadUnsentMessageKey,
@@ -394,11 +366,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 + (NSSet *)keyPathsForValuesAffectingIsReadOnly;
 {
     return [NSSet setWithObjects:ZMConversationConversationTypeKey, ZMConversationIsSelfAnActiveMemberKey, nil];
-}
-
-+ (NSSet *)keyPathsForValuesAffectingDisplayName;
-{
-    return [NSSet setWithObjects:ZMConversationConversationTypeKey, ZMConversationLastServerSyncedActiveParticipantsKey, @"lastServerSyncedActiveParticipants.name", @"connection.to.name", @"connection.to.availability", ZMConversationUserDefinedNameKey, nil];
 }
 
 + (nonnull instancetype)insertGroupConversationIntoUserSession:(nonnull id<ZMManagedObjectContextProvider> )session
@@ -526,19 +493,11 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     if (conversationType == ZMConversationTypeGroup &&
         self.teamRemoteIdentifier != nil &&
         self.lastServerSyncedActiveParticipants.count == 1 &&
-        !self.lastServerSyncedActiveParticipants.firstObject.isServiceUser &&
+        !self.lastServerSyncedActiveParticipants.anyObject.isServiceUser &&
         self.userDefinedName.length == 0) {
         conversationType = ZMConversationTypeOneOnOne;
     }
     
-    return conversationType;
-}
-
-- (ZMConversationType)internalConversationType
-{
-    [self willAccessValueForKey:ZMConversationConversationTypeKey];
-    ZMConversationType conversationType =  (ZMConversationType)[[self primitiveConversationType] shortValue];
-    [self didAccessValueForKey:ZMConversationConversationTypeKey];
     return conversationType;
 }
 
@@ -620,11 +579,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
     
     return newKeys;
-}
-
-- (NSMutableOrderedSet *)mutableLastServerSyncedActiveParticipants
-{
-    return [self mutableOrderedSetValueForKey:ZMConversationLastServerSyncedActiveParticipantsKey];
 }
 
 - (BOOL)canMarkAsUnread
@@ -715,6 +669,14 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return moc.conversationListDirectory.pendingConnectionConversations;
 }
 
+- (ZMConversationType)internalConversationType
+{
+    [self willAccessValueForKey:ZMConversationConversationTypeKey];
+    ZMConversationType conversationType =  (ZMConversationType)[[self primitiveConversationType] shortValue];
+    [self didAccessValueForKey:ZMConversationConversationTypeKey];
+    return conversationType;
+}
+
 - (void)mergeWithExistingConversationWithRemoteID:(NSUUID *)remoteID;
 {
     ZMConversation *existingConversation = [ZMConversation conversationWithRemoteID:remoteID createIfNeeded:NO inContext:self.managedObjectContext];
@@ -801,7 +763,11 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     NSPredicate *sameTeam = [ZMConversation predicateForConversationsInTeam:team];
     NSPredicate *groupConversation = [NSPredicate predicateWithFormat:@"%K == %d", ZMConversationConversationTypeKey, ZMConversationTypeGroup];
     NSPredicate *noUserDefinedName = [NSPredicate predicateWithFormat:@"%K == NULL", ZMConversationUserDefinedNameKey];
-    NSPredicate *sameParticipant = [NSPredicate predicateWithFormat:@"%K.@count == 1 AND %@ IN %K ", ZMConversationLastServerSyncedActiveParticipantsKey, participant, ZMConversationLastServerSyncedActiveParticipantsKey];
+    NSPredicate *sameParticipant = [NSPredicate predicateWithFormat:@"%K.@count == 1 AND ANY %K.user == %@ ",
+                                    ZMConversationParticipantRolesKey,
+                                    ZMConversationParticipantRolesKey,
+                                    participant];
+
     NSCompoundPredicate *compoundPredicate = [NSCompoundPredicate andPredicateWithSubpredicates:@[sameTeam, groupConversation,noUserDefinedName, sameParticipant]];
     NSFetchRequest *request = [self sortedFetchRequestWithPredicate:compoundPredicate];
     return [moc executeFetchRequestOrAssert:request].firstObject;
@@ -1094,7 +1060,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return result;
 }
 
-- (void)internalAddParticipants:(NSArray<ZMUser *> *)participants
+- (void)internalAddParticipants:(nonnull NSArray<ZMUser *> *)participants
 {
     VerifyReturn(participants != nil);
     NSSet<ZMUser *> *selfUserSet = [NSSet setWithObject:[ZMUser selfUserInContext:self.managedObjectContext]];
@@ -1112,8 +1078,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
     
     if (otherUsers.count > 0) {
-        NSSet *existingUsers = [self.lastServerSyncedActiveParticipants.set copy];
-        [self.mutableLastServerSyncedActiveParticipants unionOrderedSet:otherUsers];
+        NSSet *existingUsers = [self.lastServerSyncedActiveParticipants copy];
+        [self unionWithUserSet:otherUsers.set isFromLocal:NO];
         
         [otherUsers minusSet:existingUsers];
         if (otherUsers.count > 0) {
@@ -1123,7 +1089,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
 }
 
-- (void)internalRemoveParticipants:(NSArray<ZMUser *> *)participants sender:(ZMUser *)sender
+- (void)internalRemoveParticipants:(NSArray<ZMUser *> *)participants
+                            sender:(ZMUser *)sender
 {
     VerifyReturn(participants != nil);
     
@@ -1136,12 +1103,11 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         self.isArchived = sender.isSelfUser;
     }
     
-    [self.mutableLastServerSyncedActiveParticipants minusOrderedSet:otherUsers];
+    [self minusWithUserSet:otherUsers.set isFromLocal:NO];
     [self increaseSecurityLevelIfNeededAfterRemovingUsers:otherUsers.set];
 }
 
 @dynamic isSelfAnActiveMember;
-@dynamic lastServerSyncedActiveParticipants;
 
 @end
 
@@ -1207,7 +1173,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
                 
                 if(conversation.shouldNotBeRefreshed) {
                     [conversationsToKeep addObject:conversation];
-                    [usersToKeep unionSet:conversation.lastServerSyncedActiveParticipants.set];
+                    [usersToKeep unionSet:conversation.participantRoles];
                 }
             } else if ([obj isKindOfClass:ZMOTRMessage.class]) {
                 ZMOTRMessage *message = (ZMOTRMessage *)obj;

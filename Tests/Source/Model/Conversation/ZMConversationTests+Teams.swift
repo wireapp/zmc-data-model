@@ -21,7 +21,7 @@ import WireTesting
 @testable import WireDataModel
 
 
-class ConversationTests_Teams: ZMConversationTestsBase {
+final class ConversationTests_Teams: ZMConversationTestsBase {
 
     var team: Team!
     var user: ZMUser!
@@ -71,7 +71,8 @@ class ConversationTests_Teams: ZMConversationTestsBase {
 
     func testThatItReturnsAnExistingOneOnOneConversationIfThereAlreadyIsOneInATeam() {
         // given
-        let conversation = ZMConversation.fetchOrCreateTeamConversation(in: uiMOC, withParticipant: otherUser, team: team)
+        let conversation    = ZMConversation.fetchOrCreateTeamConversation(in: uiMOC, withParticipant: otherUser, team: team)
+        
         // when
         let newConversation = ZMConversation.fetchOrCreateTeamConversation(in: uiMOC, withParticipant: otherUser, team: team)
 

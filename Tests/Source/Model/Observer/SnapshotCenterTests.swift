@@ -79,7 +79,7 @@ class SnapshotCenterTests : BaseZMMessageTests {
                                                            "remoteIdentifier": nil,
                                                            "mutedStatus": 0 as Optional<NSObject>]
         let expectedToManyRelationships = ["hiddenMessages": 0,
-                                           "lastServerSyncedActiveParticipants": 0,
+                                           "participantRoles": 0,
                                            "allMessages": 0,
                                            "labels": 0]
         
@@ -136,7 +136,7 @@ class SnapshotCenterTests : BaseZMMessageTests {
                                                          "remoteIdentifier": nil,
                                                          "mutedStatus": (MutedMessageOptionValue.all.rawValue) as Optional<NSObject>]
         let expectedToManyRelationships = ["hiddenMessages": 0,
-                                           "lastServerSyncedActiveParticipants": 0,
+                                           "participantRoles": 0,
                                            "allMessages": 1,
                                            "labels": 0]
         
@@ -190,7 +190,7 @@ class SnapshotCenterTests : BaseZMMessageTests {
 
         // then
         XCTAssertEqual(changedKeys, Set(conv.entity.attributesByName.keys).union(["hiddenMessages",
-                                                                                  "lastServerSyncedActiveParticipants",
+                                                                                  "participantRoles",
                                                                                   "allMessages",
                                                                                   "labels"]))
     }

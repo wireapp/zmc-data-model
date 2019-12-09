@@ -51,12 +51,14 @@ extension ZMManagedObject {
         let classIdentifier = type(of: object).entityName()
         
         var changes = changedValues()
-        guard changes.count > 0 || knownKeys.count > 0 else { return [:] }
+        guard !changes.isEmpty || !knownKeys.isEmpty else { return [:] }
         let allKeys = knownKeys.union(changes.keys)
         
         let mappedKeys : [String] = Array(allKeys).map(keyMapping)
         let keys = mappedKeys.map{keyStore.observableKeysAffectedByValue(classIdentifier, key: $0)}.reduce(Set()){$0.union($1)}
-        guard keys.count > 0 || originalChangeKey != nil else { return [:] }
+        
+        guard !keys.isEmpty ||
+            originalChangeKey != nil else { return [:] }
         
         var originalChanges = [String : NSObject?]()
         if let originalChangeKey = originalChangeKey {
@@ -66,10 +68,11 @@ extension ZMManagedObject {
                     changes[$0] = .none as Optional<NSObject>
                 }
             }
-            if requiredKeys.count == 0 || !requiredKeys.isDisjoint(with: changes.keys) {
+            if requiredKeys.isEmpty || !requiredKeys.isDisjoint(with: changes.keys) {
                 originalChanges = [originalChangeKey : [self : changes] as Optional<NSObject>]
             }
         }
+        
         return [object: Changes(changedKeys: keys, originalChanges: originalChanges)]
     }
 }
@@ -78,7 +81,7 @@ extension ZMManagedObject {
 extension ZMUser : SideEffectSource {
     
     var allConversations : [ZMConversation] {
-        var conversations = lastServerSyncedActiveConversations.array as? [ZMConversation] ?? []
+        var conversations = Array(lastServerSyncedActiveConversations)
         if let connectedConversation = connection?.conversation {
             conversations.append(connectedConversation)
         }
@@ -131,6 +134,29 @@ extension ZMUser : SideEffectSource {
         let affectedKeys = keyStore.observableKeysAffectedByValue(classIdentifier, key: #keyPath(ZMConversation.lastServerSyncedActiveParticipants))
         return Dictionary(keys: conversations,
                                             repeatedValue: Changes(changedKeys: affectedKeys))
+    }
+}
+
+extension ParticipantRole: SideEffectSource {
+
+    func affectedObjectsAndKeys(keyStore: DependencyKeyStore,
+                                knownKeys: Set<String>) -> ObjectAndChanges {
+        let keyMapping: ((String) -> String) = {
+            "\(#keyPath(ZMConversation.participantRoles)).\($0)"
+        }
+
+        let changes = byUpdateAffectedKeys(for: conversation,
+                                               knownKeys:knownKeys,
+                                               keyStore: keyStore,
+                                               keyMapping: keyMapping)
+        
+        return changes
+    }
+
+    
+    func affectedObjectsForInsertionOrDeletion(keyStore: DependencyKeyStore) -> ObjectAndChanges {
+        // delete a ParticipantRole should have no side effect
+        return [:]
     }
 }
 

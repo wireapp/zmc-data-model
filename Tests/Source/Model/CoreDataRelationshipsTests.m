@@ -69,11 +69,11 @@
     conversation1.creator = user1;
     conversation2.creator = user2;
     
-    [conversation1.mutableLastServerSyncedActiveParticipants addObject:user1];
-    [conversation1.mutableLastServerSyncedActiveParticipants addObject:user3];
+    [conversation1 addWithUser:user1 isFromLocal:NO];
+    [conversation1 addWithUser:user3 isFromLocal:NO];
     
-    [conversation2.mutableLastServerSyncedActiveParticipants addObject:user2];
-    [conversation2.mutableLastServerSyncedActiveParticipants addObject:user3];
+    [conversation2 addWithUser:user2 isFromLocal:NO];
+    [conversation2 addWithUser:user3 isFromLocal:NO];
     
     // Check that the inverse have been set:
     [self.uiMOC processPendingChanges];
@@ -91,15 +91,15 @@
     XCTAssertTrue([[user1 valueForKey:@"conversationsCreated"] containsObject:conversation1]);
     XCTAssertTrue([[user2 valueForKey:@"conversationsCreated"] containsObject:conversation2]);
     
-    id s1 = [NSOrderedSet orderedSetWithArray:@[user1, user3]];
+    id s1 = [NSSet setWithArray:@[user1, user3]];
     XCTAssertEqualObjects(conversation1.lastServerSyncedActiveParticipants, s1);
-    id s2 = [NSOrderedSet orderedSetWithArray:@[user2, user3]];
+    id s2 = [NSSet setWithArray:@[user2, user3]];
     XCTAssertEqualObjects(conversation2.lastServerSyncedActiveParticipants, s2);
     
-    XCTAssertEqualObjects([user1 valueForKey:@"lastServerSyncedActiveConversations"], [NSOrderedSet orderedSetWithObject:conversation1]);
-    XCTAssertEqualObjects([user2 valueForKey:@"lastServerSyncedActiveConversations"], [NSOrderedSet orderedSetWithObject:conversation2]);
-    id ac = [NSOrderedSet orderedSetWithArray:@[conversation1, conversation2]];
-    XCTAssertEqualObjects([user3 valueForKey:@"lastServerSyncedActiveConversations"], ac);
+    XCTAssertEqualObjects(user1.conversations, [NSSet setWithObject:conversation1]);
+    XCTAssertEqualObjects(user2.conversations, [NSSet setWithObject:conversation2]);
+    id ac = [NSSet setWithArray:@[conversation1, conversation2]];
+    XCTAssertEqualObjects(user3.conversations, ac);
 
     __block NSError *error = nil;
     XCTAssertTrue([self.uiMOC save:&error], @"Save failed: %@", error);

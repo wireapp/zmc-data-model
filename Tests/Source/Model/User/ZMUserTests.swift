@@ -579,18 +579,18 @@ extension ZMUserTests {
         let sut = createUser(in: uiMOC)
         let conversation1 = createConversation(in: uiMOC)
         conversation1.conversationType = .group
-        conversation1.mutableLastServerSyncedActiveParticipants.add(sut)
+        conversation1.add(user:sut, isFromLocal: true)
         
         let conversation2 = createConversation(in: uiMOC)
         conversation2.conversationType = .group
-        conversation2.mutableLastServerSyncedActiveParticipants.add(sut)
+        conversation2.add(user:sut, isFromLocal: true)
         
         // when
         sut.markAccountAsDeleted(at: Date())
         
         // then
-        XCTAssertFalse(conversation1.lastServerSyncedActiveParticipants.contains(sut))
-        XCTAssertFalse(conversation2.lastServerSyncedActiveParticipants.contains(sut))
+        XCTAssertNotNil(conversation1.participantRoles.first(where: { $0.user == sut }))
+        XCTAssertNotNil(conversation2.participantRoles.first(where: { $0.user == sut }))
     }
     
     func testThatUserIsNotRemovedFromTeamOneToOneConversationsWhenAccountIsDeleted() {
@@ -604,7 +604,7 @@ extension ZMUserTests {
         sut.markAccountAsDeleted(at: Date())
         
         // then
-        XCTAssertTrue(teamOneToOneConversation.lastServerSyncedActiveParticipants.contains(sut))
+        XCTAssertTrue(teamOneToOneConversation.localParticipants.contains(sut))
     }
     
 }
@@ -627,7 +627,7 @@ extension ZMUserTests {
         // given
         let sut = ZMUser.insertNewObject(in: uiMOC)
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        conversation.mutableLastServerSyncedActiveParticipants.add(sut)
+        conversation.add(user:sut, isFromLocal: false)
         
         // then
         XCTAssertEqual(sut.activeConversations, Set(arrayLiteral: conversation))

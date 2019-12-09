@@ -140,11 +140,7 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
 - (void)updateMembersWithPayload:(NSDictionary *)members
 {
     NSArray *usersInfos = [members arrayForKey:ConversationInfoOthersKey];
-    NSSet<ZMUser *> *lastSyncedUsers = [NSSet set];
-    
-    if (self.mutableLastServerSyncedActiveParticipants != nil) {
-        lastSyncedUsers = self.mutableLastServerSyncedActiveParticipants.set;
-    }
+    NSSet<ZMUser *> *lastSyncedUsers = self.lastServerSyncedActiveParticipants;
     
     NSSet<NSUUID *> *participantUUIDs = [NSSet setWithArray:[usersInfos.asDictionaries mapWithBlock:^id(NSDictionary *userDict) {
         return [userDict uuidForKey:ConversationInfoIDKey];

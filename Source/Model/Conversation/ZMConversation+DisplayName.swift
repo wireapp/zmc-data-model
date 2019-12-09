@@ -30,8 +30,9 @@ public extension ZMConversation {
     /// This is equal to the meaningful display name, if it exists, otherwise a
     /// fallback placeholder name is used.
     ///
-    @objc var displayName: String {
-        let result = self.meaningfulDisplayName
+    @objc
+    var displayName: String {
+        let result = meaningfulDisplayName
         switch conversationType {
         case .oneOnOne, .connection: return result ?? ZMConversation.emptyConversationEllipsis
         case .group: return result ?? ZMConversation.emptyGroupConversationName
@@ -65,6 +66,10 @@ public extension ZMConversation {
         return name
     }
 
+    private var selfUser: ZMUser? {
+        return managedObjectContext.map(ZMUser.selfUser)
+    }
+    
     private func groupDisplayName() -> String? {
         precondition(conversationType == .group)
 
@@ -72,20 +77,19 @@ public extension ZMConversation {
             return userDefined
         }
 
-        let selfUser = managedObjectContext.map(ZMUser.selfUser)
-
         let activeNames: [String] = lastServerSyncedActiveParticipants.compactMap { (user) -> String? in
-            guard let user = user as? ZMUser, user != selfUser && !user.displayName.isEmpty else { return nil }
+            guard user != selfUser &&
+                !user.displayName.isEmpty else { return nil }
             return user.displayName
         }
         
-        return activeNames.isEmpty ? nil : activeNames.joined(separator: ", ")
+        return activeNames.isEmpty ? nil : activeNames.sorted().joined(separator: ", ")
     }
 
     private func oneOnOneDisplayName() -> String? {
         precondition(conversationType == .oneOnOne)
 
-        let other = lastServerSyncedActiveParticipants.firstObject as? ZMUser ?? connectedUser
+        let other = participantRoles.map { $0.user }.first(where: {$0 != selfUser} ) ?? connectedUser
         if let name = other?.name, !name.isEmpty {
             return name
         } else {

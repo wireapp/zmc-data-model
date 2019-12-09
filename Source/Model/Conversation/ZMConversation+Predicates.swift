@@ -28,14 +28,15 @@ extension ZMConversation {
 
     @objc
     public class func predicate(forSearchQuery searchQuery: String) -> NSPredicate! {
-        let formatDict = [ZMConversationLastServerSyncedActiveParticipantsKey: "ANY %K.normalizedName MATCHES %@", ZMNormalizedUserDefinedNameKey: "%K MATCHES %@"]
+        let formatDict = [ZMConversationParticipantRolesKey: "ANY %K.user.normalizedName MATCHES %@",
+                          ZMNormalizedUserDefinedNameKey: "%K MATCHES %@"]
         guard let searchPredicate = NSPredicate(formatDictionary: formatDict, matchingSearch: searchQuery) else { return .none }
         let activeMemberPredicate = NSPredicate(format: "%K == NULL OR %K == YES", ZMConversationClearedTimeStampKey, ZMConversationIsSelfAnActiveMemberKey)
         let basePredicate = NSPredicate(format: "(\(ZMConversationConversationTypeKey) == \(ZMConversationType.group.rawValue))")
 
         /// do not include team 1 to 1 conversations
 
-        let activeParticipantsPredicate = NSPredicate(format: "%K.@count == 1",                                                                      ZMConversationLastServerSyncedActiveParticipantsKey
+        let activeParticipantsPredicate = NSPredicate(format: "%K.@count == 1",                                                                      ZMConversationParticipantRolesKey
         )
 
         let userDefinedNamePredicate = NSPredicate(format: "%K == NULL",                                                                      ZMConversationUserDefinedNameKey
@@ -130,7 +131,7 @@ extension ZMConversation {
         let isTeamConversation = NSPredicate(format: "team != NULL")
         let isGroupConversation = NSPredicate(format: "\(ZMConversationConversationTypeKey) == \(ZMConversationType.group.rawValue)")
         let hasNoUserDefinedName = NSPredicate(format: "\(ZMConversationUserDefinedNameKey) == NULL")
-        let hasOnlyOneParticipant = NSPredicate(format: "\(ZMConversationLastServerSyncedActiveParticipantsKey).@count == 1")
+        let hasOnlyOneParticipant = NSPredicate(format: "\(ZMConversationParticipantRolesKey).@count == 1")
         
         return NSCompoundPredicate(andPredicateWithSubpredicates: [isTeamConversation, isGroupConversation, hasNoUserDefinedName, hasOnlyOneParticipant])
     }
@@ -159,7 +160,7 @@ extension ZMConversation {
     @objc(predicateForSharableConversations)
     class func predicateForSharableConversations() -> NSPredicate {
         let basePredicate = predicateForConversationsIncludingArchived()
-        let hasOtherActiveParticipants = NSPredicate(format: "\(ZMConversationLastServerSyncedActiveParticipantsKey).@count > 0")
+        let hasOtherActiveParticipants = NSPredicate(format: "\(ZMConversationParticipantRolesKey).@count > 0")
         let oneOnOneOrGroupConversation = NSPredicate(format: "\(ZMConversationConversationTypeKey) == \(ZMConversationType.oneOnOne.rawValue) OR \(ZMConversationConversationTypeKey) == \(ZMConversationType.group.rawValue)")
         let selfIsActiveMember = NSPredicate(format: "isSelfAnActiveMember == YES")
         let synced = NSPredicate(format: "\(remoteIdentifierDataKey()!) != NULL")

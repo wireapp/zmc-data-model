@@ -1,6 +1,6 @@
 //
 // Wire
-// Copyright (C) 2018 Wire Swiss GmbH
+// Copyright (C) 2019 Wire Swiss GmbH
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,16 +18,16 @@
 
 import Foundation
 
-extension Set where Element == ZMUser {
+@objcMembers
+public class Role: ZMManagedObject {
+    
+    @NSManaged public var name: String?
 
-    var serviceUsers: Set<ZMUser> {
-        return self.filter { $0.isServiceUser }
-    }
+    @NSManaged public var actions: Set<Action>
+    @NSManaged public var participantRoles: Set<ParticipantRole>
+    @NSManaged public var team: Team
 
-    func categorizeServicesAndUser() -> (services: Set<ZMUser>, users: Set<ZMUser>) {
-        let services = self.serviceUsers
-        let users = self.subtracting(services)
-        return (services, users)
-    }
-
+    public override static func entityName() -> String {
+        return "Role"
+    }    
 }

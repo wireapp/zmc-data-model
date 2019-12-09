@@ -56,7 +56,6 @@ static NSString *const ActiveCallConversationsKey = @"activeCallConversations";
 static NSString *const ConnectionKey = @"connection";
 static NSString *const EmailAddressKey = @"emailAddress";
 static NSString *const PhoneNumberKey = @"phoneNumber";
-static NSString *const LastServerSyncedActiveConversationsKey = @"lastServerSyncedActiveConversations";
 static NSString *const NameKey = @"name";
 static NSString *const HandleKey = @"handle";
 static NSString *const SystemMessagesKey = @"systemMessages";
@@ -91,6 +90,7 @@ static NSString *const LegalHoldRequestKey = @"legalHoldRequest";
 static NSString *const NeedsToAcknowledgeLegalHoldStatusKey = @"needsToAcknowledgeLegalHoldStatus";
 
 static NSString *const NeedsToRefetchLabelsKey = @"needsToRefetchLabels";
+static NSString *const ParticipantRolesKey = @"participantRoles";
 
 
 @interface ZMBoxedSelfUser : NSObject
@@ -203,6 +203,7 @@ static NSString *const NeedsToRefetchLabelsKey = @"needsToRefetchLabels";
 @dynamic handle;
 @dynamic addressBookEntry;
 @dynamic managedBy;
+@dynamic participantRoles;
 
 - (UserClient *)selfClient
 {
@@ -393,7 +394,7 @@ static NSString *const NeedsToRefetchLabelsKey = @"needsToRefetchLabels";
                                            ActiveCallConversationsKey,
                                            ConnectionKey,
                                            ConversationsCreatedKey,
-                                           LastServerSyncedActiveConversationsKey,
+                                           ParticipantRolesKey,
                                            NormalizedEmailAddressKey,
                                            SystemMessagesKey,
                                            UserClientsKey,

@@ -19,7 +19,7 @@
 import Foundation
 @testable import WireDataModel
 
-class ZMConversationTests_Services : BaseZMMessageTests {
+final class ZMConversationTests_Services : BaseZMMessageTests {
 
     var team: Team!
     var service: ServiceUser!

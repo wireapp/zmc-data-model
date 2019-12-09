@@ -33,6 +33,7 @@
 @class LinkMetadata;
 @class Team;
 @class Label;
+@class ParticipantRole;
 
 @protocol ZMConversationMessage;
 
@@ -70,7 +71,6 @@ extern NSString * _Null_unspecified const ZMIsDimmedKey; ///< Specifies that a r
 @property (readonly, nonatomic) ZMConversationType conversationType;
 @property (readonly, nonatomic, nullable) NSDate *lastModifiedDate;
 @property (readonly, nonatomic, nonnull) NSSet<ZMMessage *> *allMessages;
-@property (readonly, nonatomic, nonnull) NSSet<ZMUser *> *activeParticipants;
 @property (readonly, nonatomic, nonnull) NSArray<ZMUser *> *sortedActiveParticipants;
 @property (readonly, nonatomic, nonnull) ZMUser *creator;
 @property (nonatomic, readonly) BOOL isPendingConnectionConversation;
@@ -81,6 +81,7 @@ extern NSString * _Null_unspecified const ZMIsDimmedKey; ///< Specifies that a r
 @property (nonatomic, readonly) BOOL hasDraftMessage;
 @property (nonatomic, nullable) Team *team;
 @property (nonatomic, nonnull) NSSet<Label *> *labels;
+@property (nonatomic, nonnull) NSSet<ParticipantRole *> *participantRoles;
 
 /// This will return @c nil if the last added by self user message has not yet been sync'd to this device, or if the conversation has no self editable message.
 @property (nonatomic, readonly, nullable) ZMMessage *lastEditableMessage;
