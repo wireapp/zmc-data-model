@@ -72,13 +72,15 @@ extension ZMConversation {
         return activeParticipants
     }
     
-    /// Participants that are in the conversation, according to the local state
+    /// Participants that are in the conversation, according to the local state,
+    /// even if that state is not yet synchronized with the backend
     @objc
     public var localParticipantRoles: Set<ParticipantRole> {
         return participantRoles.filter { !$0.markedForDeletion }
     }
     
     /// Participants that are in the conversation, according to the local state
+    /// even if that state is not yet synchronized with the backend
     @objc
     public var localParticipants: Set<ZMUser> {
         return Set(localParticipantRoles.map { $0.user })
@@ -104,7 +106,10 @@ extension ZMConversation {
     @objc
     func union(userSet: Set<ZMUser>,
                isFromLocal: Bool) {
-        let currentParticipantSet = lastServerSyncedActiveParticipants
+        // TODO:
+        // Split in two: one that adds from remote, one that adds from UI
+        // use the method that also upgrades/degrades the conversation
+        let currentParticipantSet = self.participantRoles.map { $0.user }
         
         userSet.forEach() { user in
             if !currentParticipantSet.contains(user) {
@@ -120,6 +125,9 @@ extension ZMConversation {
     
     @objc
     func minus(userSet: Set<ZMUser>, isFromLocal: Bool) {
+        // TODO:
+        // Split in two: one that removes from remote, one that removes from UI
+        // use the method that also upgrades/degrades the conversation
         participantRoles.forEach() {
             if userSet.contains($0.user) {
                 switch (isFromLocal, $0.markedForInsertion) {
@@ -138,6 +146,9 @@ extension ZMConversation {
     @objc
     public func add(users: [ZMUser],
              isFromLocal: Bool) {
+        // TODO:
+        // Split in two: one that adds from remote, one that adds from UI
+        // use the method that also upgrades/degrades the conversation
         users.forEach() { user in
             add(user: user, isFromLocal: isFromLocal)
         }
@@ -146,6 +157,9 @@ extension ZMConversation {
     @objc
     public func add(user: ZMUser,
              isFromLocal: Bool) {
+        // TODO:
+        // Split in two: one that adds from remote, one that adds from UI
+        // use the method that also upgrades/degrades the conversation
         guard let moc = user.managedObjectContext else { return }
         if let participantRole = user.participantRoles.first(where: {$0.conversation == self}) {
             participantRole.markedForDeletion = false
