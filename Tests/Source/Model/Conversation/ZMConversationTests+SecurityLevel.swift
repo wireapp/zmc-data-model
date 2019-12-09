@@ -14,11 +14,6 @@
 //
 // You should have received a copy of the GNU General Public License
 // along with this program. If not, see http://www.gnu.org/licenses/.
-//  ZMConversationTests+SecurityLevel.swift
-//  WireDataModelTests
-//
-//  Created by Marco Conti on 09/12/2019.
-//  Copyright © 2019 Wire Swiss GmbH. All rights reserved.
 //
 
 import XCTest
