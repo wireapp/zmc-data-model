@@ -92,9 +92,9 @@
     XCTAssertTrue([[user2 valueForKey:@"conversationsCreated"] containsObject:conversation2]);
     
     id s1 = [NSSet setWithArray:@[user1, user3]];
-    XCTAssertEqualObjects(conversation1.lastServerSyncedActiveParticipants, s1);
+    XCTAssertEqualObjects(conversation1.localParticipants, s1);
     id s2 = [NSSet setWithArray:@[user2, user3]];
-    XCTAssertEqualObjects(conversation2.lastServerSyncedActiveParticipants, s2);
+    XCTAssertEqualObjects(conversation2.localParticipants, s2);
     
     XCTAssertEqualObjects(user1.conversations, [NSSet setWithObject:conversation1]);
     XCTAssertEqualObjects(user2.conversations, [NSSet setWithObject:conversation2]);
