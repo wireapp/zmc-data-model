@@ -19,7 +19,7 @@
 import Foundation
 @testable import WireDataModel
 
-class ConversationObserverTests : NotificationDispatcherTestBase {
+final class ConversationObserverTests : NotificationDispatcherTestBase {
     
     
     func checkThatItNotifiesTheObserverOfAChange(_ conversation : ZMConversation,

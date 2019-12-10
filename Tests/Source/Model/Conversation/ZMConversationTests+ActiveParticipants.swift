@@ -18,7 +18,9 @@
 
 @testable import WireDataModel
 
-final class ZMConversationTests_Participants: ZMConversationTestsBase {
+
+// MARK: - Participants
+extension ConversationObserverTests {
     
     func testThatItRecalculatesActiveParticipantsWhenIsSelfActiveUserKeyChanges() {
         // given
@@ -35,17 +37,19 @@ final class ZMConversationTests_Participants: ZMConversationTestsBase {
         XCTAssertEqual(conversation.participantRoles.count, 2)
         XCTAssertEqual(conversation.activeParticipants.count, 3)
         
-        // expect
-        keyValueObservingExpectation(for: conversation, keyPath: "activeParticipants", expectedValue: nil)
-        
         // when
-        conversation.isSelfAnActiveMember = false
+        
+        checkThatItNotifiesTheObserverOfAChange(conversation,
+                                                     modifier: { conversation, _ in conversation.isSelfAnActiveMember = false},
+                                                     expectedChangedFields: ["nameChanged", "participantsChanged"],
+                                                     expectedChangedKeys: ["isSelfAnActiveMember", "localParticipantRoles", "displayName"]
+        )
+
         
         // then
         XCTAssertFalse(conversation.isSelfAnActiveMember)
         XCTAssertEqual(conversation.participantRoles.count, 2)
         XCTAssertEqual(conversation.activeParticipants.count, 2)
-        XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
     }
 
     func testThatItRecalculatesActiveParticipantsWhenOtherActiveParticipantsKeyChanges() {
