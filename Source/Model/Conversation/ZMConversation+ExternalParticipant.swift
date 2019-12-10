@@ -44,6 +44,7 @@ extension ZMConversation {
     class func keyPathsForValuesAffectingExternalParticipantsState() -> Set<String> {
         return ["participantRoles.user.isServiceUser",
                 "participantRoles.user.hasTeam"]
+
     }
 
     /// The state of external participants in the conversation.
