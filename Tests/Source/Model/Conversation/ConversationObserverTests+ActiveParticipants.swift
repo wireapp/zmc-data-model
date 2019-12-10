@@ -70,19 +70,28 @@ extension ConversationObserverTests {
         XCTAssertEqual(conversation.activeParticipants.count, 3)
         
         // expect
-        keyValueObservingExpectation(for: conversation, keyPath: "activeParticipants", expectedValue: nil)
+//        keyValueObservingExpectation(for: conversation, keyPath: "activeParticipants", expectedValue: nil)
         
         // when
         
-        conversation.internalRemoveParticipants([user2],
-                                                sender: user1)
-        
-        uiMOC.processPendingChanges()
+        checkThatItNotifiesTheObserverOfAChange(conversation,
+                                                modifier: { conversation, _ in
+                                                    conversation.internalRemoveParticipants([user2],
+                                                                                            sender: user1)
+                                                          },
+                                                expectedChangedFields: [//"nameChanged",
+                                                                        "participantsChanged"//,
+//                                                                        "activeParticipantsChanged"
+            ],
+                                                expectedChangedKeys: ["localParticipantRoles",
+//                                                                      "displayName",
+                                                                      "activeParticipants"
+            ]
+        )
 
         // then
         XCTAssert(conversation.isSelfAnActiveMember)
         XCTAssertEqual(conversation.participantRoles.count, 1)
         XCTAssertEqual(conversation.activeParticipants.count, 2)
-        XCTAssert(waitForCustomExpectations(withTimeout: 0.5))
     }
 }
