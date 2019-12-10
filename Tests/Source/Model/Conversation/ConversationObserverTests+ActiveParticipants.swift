@@ -40,9 +40,12 @@ extension ConversationObserverTests {
         // when
         
         checkThatItNotifiesTheObserverOfAChange(conversation,
-                                                     modifier: { conversation, _ in conversation.isSelfAnActiveMember = false},
-                                                     expectedChangedFields: ["nameChanged", "participantsChanged"],
-                                                     expectedChangedKeys: ["isSelfAnActiveMember", "localParticipantRoles", "displayName"]
+                                                modifier: { conversation, _ in
+                                                    conversation.isSelfAnActiveMember = false},
+                                                expectedChangedFields: ["nameChanged",
+                                                                        "participantsChanged",
+                                                                        "activeParticipantsChanged"],
+                                                expectedChangedKeys: ["isSelfAnActiveMember", "localParticipantRoles", "displayName"]
         )
 
         

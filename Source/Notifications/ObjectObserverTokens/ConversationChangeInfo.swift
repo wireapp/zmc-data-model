@@ -75,11 +75,19 @@ extension ZMConversation : ObjectInSnapshot {
 
     public var participantsChanged : Bool {
         return changedKeysContain(keys: #keyPath(ZMConversation.localParticipantRoles),
-                                  #keyPath(ZMConversation.isSelfAnActiveMember),
-                                  #keyPath(ZMConversation.participantRoles)
+                                        #keyPath(ZMConversation.isSelfAnActiveMember),
+                                        #keyPath(ZMConversation.participantRoles)
         )
     }
 
+    ///TODO: use #keyPath
+    public var activeParticipantsChanged : Bool {
+        return changedKeysContain(keys: #keyPath(ZMConversation.isSelfAnActiveMember),
+                                  ZMConversationParticipantRolesKey,
+                                  "\(ZMConversationParticipantRolesKey).\(ZMParticipantRoleMarkedForDeletionKey)",
+            "\(ZMConversationParticipantRolesKey).\(ZMParticipantRoleMarkedForInsertionKey)")
+    }
+    
     public var nameChanged : Bool {
         return changedKeysContain(keys: #keyPath(ZMConversation.displayName), #keyPath(ZMConversation.userDefinedName))
     }
@@ -157,6 +165,7 @@ extension ZMConversation : ObjectInSnapshot {
 
         return ["allMessagesChanged: \(messagesChanged)",
                 "participantsChanged: \(participantsChanged)",
+                "activeParticipantsChanged: \(activeParticipantsChanged)",
                 "nameChanged: \(nameChanged)",
                 "unreadCountChanged: \(unreadCountChanged)",
                 "lastModifiedDateChanged: \(lastModifiedDateChanged)",

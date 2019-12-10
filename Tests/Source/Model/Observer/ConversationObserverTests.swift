@@ -41,6 +41,7 @@ final class ConversationObserverTests : NotificationDispatcherTestBase {
         return [
             "messagesChanged",
             "participantsChanged",
+            "activeParticipantsChanged",
             "nameChanged",
             "lastModifiedDateChanged",
             "unreadCountChanged",
