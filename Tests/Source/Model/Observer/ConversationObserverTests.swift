@@ -161,7 +161,9 @@ final class ConversationObserverTests : NotificationDispatcherTestBase {
                                                         otherUser.name = "Foo"
                                                         conversation.add(user:otherUser, isFromLocal: false)
         },
-                                                     expectedChangedFields: ["nameChanged", "participantsChanged"],
+                                                     expectedChangedFields: ["nameChanged",
+                                                                             "participantsChanged",
+                                                                             "activeParticipantsChanged"],
                                                      expectedChangedKeys: ["displayName", "localParticipantRoles"]
         )
         
@@ -308,7 +310,9 @@ final class ConversationObserverTests : NotificationDispatcherTestBase {
         // when
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: { conversation, _ in conversation.add(user:user, isFromLocal: false) },
-                                                     expectedChangedFields: ["participantsChanged", "nameChanged"],
+                                                     expectedChangedFields: ["participantsChanged",
+                                                                             "nameChanged",
+                                                                             "activeParticipantsChanged"],
                                                      expectedChangedKeys: ["displayName", "localParticipantRoles"])
         
     }
@@ -332,7 +336,8 @@ final class ConversationObserverTests : NotificationDispatcherTestBase {
                                                     }
                                                 },
                                                 expectedChangedFields: ["participantsChanged",
-                                                     "nameChanged"],
+                                                     "nameChanged",
+                                                     "activeParticipantsChanged"],
                                                 expectedChangedKeys: ["displayName",
                                                                       "localParticipantRoles"])
         
@@ -356,7 +361,8 @@ final class ConversationObserverTests : NotificationDispatcherTestBase {
                                                         }
                                                      },
                                                      expectedChangedFields: ["participantsChanged",
-                                                                             "nameChanged"],
+                                                                             "nameChanged",
+                                                                             "activeParticipantsChanged"],
                                                      expectedChangedKeys: ["displayName",
                                                                             "localParticipantRoles"])
         
@@ -376,7 +382,8 @@ final class ConversationObserverTests : NotificationDispatcherTestBase {
         checkThatItNotifiesTheObserverOfAChange(conversation,
                                                 modifier: {conversation, _ in conversation.minus(userSet: Set([user]), isFromLocal: true) },
                                                 expectedChangedFields: ["participantsChanged",
-                                                                        "nameChanged"],
+                                                                        "nameChanged",
+                                                                        "activeParticipantsChanged"],
                                                 expectedChangedKeys: ["displayName",
                                                                       "localParticipantRoles"])
     }
@@ -726,7 +733,7 @@ final class ConversationObserverTests : NotificationDispatcherTestBase {
                                                         let user = ZMUser.insertNewObject(in: self.uiMOC)
                                                         conversation.internalAddParticipants([user])
         },
-                                                     expectedChangedFields: ["securityLevelChanged", "messagesChanged", "nameChanged", "participantsChanged"],
+                                                     expectedChangedFields: ["securityLevelChanged", "messagesChanged", "nameChanged", "participantsChanged", "activeParticipantsChanged"],
                                                      expectedChangedKeys: ["displayName", "allMessages", "localParticipantRoles", "securityLevel"])
     
     }

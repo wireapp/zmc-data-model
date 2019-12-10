@@ -81,7 +81,6 @@ extension ZMConversation : ObjectInSnapshot {
         )
     }
 
-    ///TODO: use #keyPath
     public var activeParticipantsChanged : Bool {
         return changedKeysContain(keys: #keyPath(ZMConversation.isSelfAnActiveMember),
                                         #keyPath(ZMConversation.activeParticipants))
