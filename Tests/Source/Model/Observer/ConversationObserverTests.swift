@@ -19,7 +19,7 @@
 import Foundation
 @testable import WireDataModel
 
-class ConversationObserverTests : NotificationDispatcherTestBase {
+final class ConversationObserverTests : NotificationDispatcherTestBase {
     
     
     func checkThatItNotifiesTheObserverOfAChange(_ conversation : ZMConversation,
@@ -41,6 +41,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         return [
             "messagesChanged",
             "participantsChanged",
+            "activeParticipantsChanged",
             "nameChanged",
             "lastModifiedDateChanged",
             "unreadCountChanged",
@@ -160,8 +161,10 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
                                                         otherUser.name = "Foo"
                                                         conversation.add(user:otherUser, isFromLocal: false)
         },
-                                                     expectedChangedFields: ["nameChanged", "participantsChanged"],
-                                                     expectedChangedKeys: ["displayName", "lastServerSyncedActiveParticipants"]
+                                                     expectedChangedFields: ["nameChanged",
+                                                                             "participantsChanged",
+                                                                             "activeParticipantsChanged"],
+                                                     expectedChangedKeys: ["displayName", "localParticipantRoles"]
         )
         
     }
@@ -307,8 +310,10 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         // when
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: { conversation, _ in conversation.add(user:user, isFromLocal: false) },
-                                                     expectedChangedFields: ["participantsChanged", "nameChanged"],
-                                                     expectedChangedKeys: ["displayName", "lastServerSyncedActiveParticipants"])
+                                                     expectedChangedFields: ["participantsChanged",
+                                                                             "nameChanged",
+                                                                             "activeParticipantsChanged"],
+                                                     expectedChangedKeys: ["displayName", "localParticipantRoles"])
         
     }
     
@@ -331,9 +336,10 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
                                                     }
                                                 },
                                                 expectedChangedFields: ["participantsChanged",
-                                                     "nameChanged"],
+                                                     "nameChanged",
+                                                     "activeParticipantsChanged"],
                                                 expectedChangedKeys: ["displayName",
-                                                                      "lastServerSyncedActiveParticipants"])
+                                                                      "localParticipantRoles"])
         
     }
     
@@ -355,9 +361,10 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
                                                         }
                                                      },
                                                      expectedChangedFields: ["participantsChanged",
-                                                                             "nameChanged"],
+                                                                             "nameChanged",
+                                                                             "activeParticipantsChanged"],
                                                      expectedChangedKeys: ["displayName",
-                                                                            "lastServerSyncedActiveParticipants"])
+                                                                            "localParticipantRoles"])
         
     }
     
@@ -375,9 +382,10 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         checkThatItNotifiesTheObserverOfAChange(conversation,
                                                 modifier: {conversation, _ in conversation.minus(userSet: Set([user]), isFromLocal: true) },
                                                 expectedChangedFields: ["participantsChanged",
-                                                                        "nameChanged"],
+                                                                        "nameChanged",
+                                                                        "activeParticipantsChanged"],
                                                 expectedChangedKeys: ["displayName",
-                                                                      "lastServerSyncedActiveParticipants"])
+                                                                      "localParticipantRoles"])
     }
     
     func testThatItNotifiesTheObserverIfTheSelfUserIsAdded()
@@ -392,7 +400,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         // when
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: {conversation, _ in conversation.isSelfAnActiveMember = true },
-                                                     expectedChangedField: "participantsChanged",
+                                                     expectedChangedFields: ["participantsChanged", "activeParticipantsChanged", "nameChanged"],
                                                      expectedChangedKeys: ["isSelfAnActiveMember"])
         
     }
@@ -410,7 +418,7 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
         // when
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: {conversation, _ in conversation.isSelfAnActiveMember = false },
-                                                     expectedChangedField: "participantsChanged",
+                                                     expectedChangedFields: ["participantsChanged", "activeParticipantsChanged", "nameChanged"],
                                                      expectedChangedKeys: ["isSelfAnActiveMember"])
         
     }
@@ -725,8 +733,8 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
                                                         let user = ZMUser.insertNewObject(in: self.uiMOC)
                                                         conversation.internalAddParticipants([user])
         },
-                                                     expectedChangedFields: ["securityLevelChanged", "messagesChanged", "nameChanged", "participantsChanged"],
-                                                     expectedChangedKeys: ["displayName", "allMessages", "lastServerSyncedActiveParticipants", "securityLevel"])
+                                                     expectedChangedFields: ["securityLevelChanged", "messagesChanged", "nameChanged", "participantsChanged", "activeParticipantsChanged"],
+                                                     expectedChangedKeys: ["displayName", "allMessages", "localParticipantRoles", "securityLevel"])
     
     }
     
@@ -831,21 +839,21 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
 
     func testThatItSendsUpdateForUpdatedServiceUser() {
         // given
-        let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
+        let conversation = ZMConversation.insertNewObject(in:uiMOC)
         conversation.conversationType = .group
 
         let user = createUser(in: uiMOC)
         conversation.internalAddParticipants([user])
-        self.uiMOC.saveOrRollback()
+        uiMOC.saveOrRollback()
 
         // when
-        self.checkThatItNotifiesTheObserverOfAChange(conversation,
-                                                     modifier: { conversation, _ in
-                                                        user.serviceIdentifier = UUID().uuidString
-                                                        user.providerIdentifier = UUID().uuidString
-        },
-                                                     expectedChangedFields: ["externalParticipantsStateChanged"],
-                                                     expectedChangedKeys: ["externalParticipantsState"])
+        checkThatItNotifiesTheObserverOfAChange(conversation,
+                                                 modifier: { conversation, _ in
+                                                    user.serviceIdentifier = UUID().uuidString
+                                                    user.providerIdentifier = UUID().uuidString
+                                                           },
+                                                 expectedChangedFields: ["externalParticipantsStateChanged"],
+                                                 expectedChangedKeys: ["externalParticipantsState"])
     }
 
     func testThatItNotifiesOfLegalHoldChanges_Enabled() {

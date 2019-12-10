@@ -23,32 +23,43 @@ extension ZMConversation {
     
     // MARK: - keyPathsForValuesAffecting
     
-    static private var participantRolesKeys: [String] {
-        return [ZMConversationParticipantRolesKey,
-                "\(ZMConversationParticipantRolesKey).\(ZMParticipantRoleMarkedForDeletionKey)",
-                "\(ZMConversationParticipantRolesKey).\(ZMParticipantRoleMarkedForInsertionKey)"]
-    }
-    
-    @objc
-    public class func keyPathsForValuesAffectingLastServerSyncedActiveParticipants () -> Set<String> {
-        return Set(ZMConversation.participantRolesKeys)
+    static var participantRolesKeys: [String] {
+        return [#keyPath(ZMConversation.participantRoles),
+                #keyPath(ZMConversation.participantRoles.markedForDeletion),
+                #keyPath(ZMConversation.participantRoles.markedForInsertion)]
     }
     
     @objc
     public class func keyPathsForValuesAffectingActiveParticipants() -> Set<String> {
-        return Set([ZMConversationIsSelfAnActiveMemberKey,
-                    ZMConversationParticipantRolesKey])
+        return Set([ZMConversationIsSelfAnActiveMemberKey] + participantRolesKeys)
+    }
+    
+    @objc
+    public class func keyPathsForValuesAffectingLocalParticipants() -> Set<String> {
+        return Set(participantRolesKeys)
+    }
+    
+    @objc
+    public class func keyPathsForValuesAffectingLocalParticipantRoles() -> Set<String> {
+        return Set(participantRolesKeys)
     }
     
     @objc
     public class func keyPathsForValuesAffectingDisplayName() -> Set<String> {
         return Set([ZMConversationConversationTypeKey,
-                    "lastServerSyncedActiveParticipants.name",
+                    "participantRoles.user.name",
                     "connection.to.name",
                     "connection.to.availability",
                     ZMConversationUserDefinedNameKey] +
-            ZMConversation.participantRolesKeys)
+                   ZMConversation.participantRolesKeys)
     }
+    
+    @objc
+    public class func keyPathsForValuesAffectingLocalParticipantsExcludingSelf() -> Set<String> {
+        return Set(ZMConversation.participantRolesKeys)
+    }
+    
+    //MARK: - Participants methods
     
     /// List of users that are in the conversation
     @objc
@@ -86,17 +97,12 @@ extension ZMConversation {
         return Set(localParticipantRoles.map { $0.user })
     }
     
+    /// Participants that are in the conversation, according to the local state
+    /// even if that state is not yet synchronized with the backend
     @objc
-    public var lastServerSyncedActiveParticipants: Set<ZMUser> {
-        return Set(participantRoles.compactMap {
-            if !$0.markedForInsertion {
-                return $0.user
-            } else {
-                return nil
-            }
-        })
+    public var localParticipantsExcludingSelf: Set<ZMUser> {
+        return self.localParticipants.filter { !$0.isSelfUser }
     }
-    
     
     // MARK: - Participant operations
     
@@ -116,7 +122,7 @@ extension ZMConversation {
                 add(user: user, isFromLocal: isFromLocal)
             }
             
-            ///if mark for delete, flip it
+            ///if marked for delete, set it to non-deleted
             if currentParticipantSet.contains(user) {
                 participantRoles.first(where: {$0.markedForDeletion})?.markedForDeletion = false
             }
