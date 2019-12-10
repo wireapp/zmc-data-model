@@ -1912,37 +1912,6 @@
     XCTAssertEqualObjects(conversation.lastEditableMessage, message);
 }
 
-#pragma mark - Participants
-
-- (void)testThatItRecalculatesActiveParticipantsWhenIsSelfActiveUserKeyChanges
-{
-    // given
-    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    conversation.conversationType = ZMConversationTypeGroup;
-    conversation.isSelfAnActiveMember = YES;
-    
-    ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    ZMUser *user2 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    
-    [conversation internalAddParticipants:@[user1, user2]];
-    
-    XCTAssertTrue(conversation.isSelfAnActiveMember);
-    XCTAssertEqual(conversation.participantRoles.count, 2u);
-    XCTAssertEqual(conversation.activeParticipants.count, 3u);
-    
-    // expect
-    [self keyValueObservingExpectationForObject:conversation keyPath:@"activeParticipants" expectedValue:nil];
-    
-    // when
-    conversation.isSelfAnActiveMember = NO;
-    
-    // then
-    XCTAssertFalse(conversation.isSelfAnActiveMember);
-    XCTAssertEqual(conversation.participantRoles.count, 2u);
-    XCTAssertEqual(conversation.activeParticipants.count, 2u);
-    XCTAssert([self waitForCustomExpectationsWithTimeout:0.5]);
-}
-
 @end
 
 @implementation ZMConversationTests (KeyValueObserving)
