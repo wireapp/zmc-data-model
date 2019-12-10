@@ -332,7 +332,7 @@ final class ConversationObserverTests : NotificationDispatcherTestBase {
         checkThatItNotifiesTheObserverOfAChange(conversation,
                                                 modifier: { conversation, _ in
                                                     conversation.participantRoles.forEach(){
-                                                        $0.markedForDeletion = true
+                                                        $0.operationToSync = .delete
                                                     }
                                                 },
                                                 expectedChangedFields: ["participantsChanged",
@@ -357,7 +357,7 @@ final class ConversationObserverTests : NotificationDispatcherTestBase {
         checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: { conversation, _ in
                                                         conversation.participantRoles.forEach(){
-                                                            $0.markedForInsertion = true
+                                                            $0.operationToSync = .insert
                                                         }
                                                      },
                                                      expectedChangedFields: ["participantsChanged",

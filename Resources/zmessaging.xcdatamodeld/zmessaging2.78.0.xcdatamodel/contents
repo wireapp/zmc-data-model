@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14492.1" systemVersion="19B88" minimumToolsVersion="Xcode 4.3" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="2.78.0">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14490.99" systemVersion="19B88" minimumToolsVersion="Xcode 4.3" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="2.78.0">
     <entity name="Action" representedClassName=".Action" syncable="YES">
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="role" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Role" inverseName="actions" inverseEntity="Role" syncable="YES"/>
@@ -171,9 +171,8 @@
         <relationship name="user" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" syncable="YES"/>
     </entity>
     <entity name="ParticipantRole" representedClassName=".ParticipantRole" syncable="YES">
-        <attribute name="markedForDeletion" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
-        <attribute name="markedForInsertion" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="modifiedKeys" optional="YES" attributeType="Transformable" syncable="YES"/>
+        <attribute name="rawOperationToSync" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <relationship name="conversation" maxCount="1" deletionRule="Nullify" destinationEntity="Conversation" inverseName="participantRoles" inverseEntity="Conversation" syncable="YES"/>
         <relationship name="role" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Role" inverseName="participantRoles" inverseEntity="Role" syncable="YES"/>
         <relationship name="user" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="participantRoles" inverseEntity="User" syncable="YES"/>
@@ -316,7 +315,7 @@
         <element name="Member" positionX="18" positionY="162" width="128" height="165"/>
         <element name="Message" positionX="0" positionY="0" width="128" height="420"/>
         <element name="MessageConfirmation" positionX="9" positionY="153" width="128" height="105"/>
-        <element name="ParticipantRole" positionX="-207" positionY="54" width="128" height="135"/>
+        <element name="ParticipantRole" positionX="-207" positionY="54" width="128" height="120"/>
         <element name="Reaction" positionX="18" positionY="162" width="128" height="105"/>
         <element name="Role" positionX="-198" positionY="63" width="128" height="105"/>
         <element name="Session" positionX="9" positionY="153" width="128" height="60"/>

@@ -25,8 +25,7 @@ extension ZMConversation {
     
     static var participantRolesKeys: [String] {
         return [#keyPath(ZMConversation.participantRoles),
-                #keyPath(ZMConversation.participantRoles.markedForDeletion),
-                #keyPath(ZMConversation.participantRoles.markedForInsertion)]
+                #keyPath(rawOperationToSync)]
     }
     
     @objc
@@ -125,7 +124,7 @@ extension ZMConversation {
             
             ///if marked for delete, set it to non-deleted
             if currentParticipantSet.contains(user) {
-                participantRoles.first(where: {$0.markedForDeletion})?.markedForDeletion = false
+                participantRoles.first(where: {$0.markedForDeletion})?.operationToSync = .none
             }
         }
     }
@@ -143,8 +142,7 @@ extension ZMConversation {
                     participantRoles.remove($0)
                     managedObjectContext?.delete($0)
                 case (true, false):
-                    $0.markedForDeletion = true
-                    $0.markedForInsertion = false
+                    $0.operationToSync = .delete
                 }
             }
         }
@@ -168,12 +166,10 @@ extension ZMConversation {
         // Split in two: one that adds from remote, one that adds from UI
         // use the method that also upgrades/degrades the conversation
         guard let moc = user.managedObjectContext else { return }
-        if let participantRole = user.participantRoles.first(where: {$0.conversation == self}) {
-            participantRole.markedForDeletion = false
-        } else {
-            let participantRole = ParticipantRole.create(managedObjectContext: moc, user: user, conversation: self)
-            
-            participantRole.markedForInsertion = isFromLocal
+        let participantRole = user.participantRoles.first(where: {$0.conversation == self}) ??
+            ParticipantRole.create(managedObjectContext: moc, user: user, conversation: self)
+        if isFromLocal {
+            participantRole.operationToSync = participantRole.markedForDeletion ? .none : .insert
         }
     }
     

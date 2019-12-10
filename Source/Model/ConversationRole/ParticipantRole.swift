@@ -18,19 +18,72 @@
 
 import Foundation
 
-let ZMParticipantRoleRoleValueKey           = "role"
-let ZMParticipantRoleMarkedForDeletionKey   = "markedForDeletion"
-let ZMParticipantRoleMarkedForInsertionKey  = "markedForInsertion"
+let ZMParticipantRoleRoleValueKey           = #keyPath(ParticipantRole.role)
+let ZMParticipantRoleOperationToSyncKey     = #keyPath(ParticipantRole.operationToSync)
+let ZMParticipantRoleModificationToSyncKey  = #keyPath(ParticipantRole.rawOperationToSync)
 
 @objcMembers
 final public class ParticipantRole: ZMManagedObject {
     
-    @NSManaged public var markedForDeletion: Bool
-    @NSManaged public var markedForInsertion: Bool
-    
+    @objc @NSManaged var rawOperationToSync: Int16
     @NSManaged public var conversation: ZMConversation
     @NSManaged public var user: ZMUser
     @NSManaged public var role: Role
+    
+    @objc
+    public enum OperationToSync: Int16 {
+        case none = 0
+        case insert = 1
+        case update = 2
+        case delete = 3
+    }
+    
+    @objc
+    public var operationToSync: OperationToSync {
+        get {
+            return OperationToSync(rawValue: self.rawOperationToSync) ?? .none
+        }
+        set {
+            self.rawOperationToSync = newValue.rawValue
+        }
+    }
+    
+    @objc
+    public class func keyPathsForValuesAffectingOperationToSync() -> Set<String> {
+        return Set([ZMParticipantRoleModificationToSyncKey])
+    }
+    
+    @objc
+    public var markedForDeletion: Bool {
+        return self.operationToSync == .delete
+    }
+    
+    @objc
+    public class func keyPathsForValuesAffectingMarkedForDeletion() -> Set<String> {
+        return Set([ZMParticipantRoleModificationToSyncKey])
+    }
+    
+    @objc
+    public var markedForInsertion: Bool {
+        return self.operationToSync == .insert
+    }
+    
+    @objc
+    public class func keyPathsForValuesAffectingMarkedForInsertion() -> Set<String> {
+        return Set([ZMParticipantRoleModificationToSyncKey])
+    }
+
+    
+    @objc
+    public var markedForUpdate: Bool {
+        return self.operationToSync == .update
+    }
+    
+    @objc
+    public class func keyPathsForValuesAffectingMarkedForUpdate() -> Set<String> {
+        return Set([ZMParticipantRoleModificationToSyncKey])
+    }
+
 
     public override static func entityName() -> String {
         return "ParticipantRole"
@@ -42,8 +95,7 @@ final public class ParticipantRole: ZMManagedObject {
     
     public override func keysTrackedForLocalModifications() -> Set<String> {
         return [ZMParticipantRoleRoleValueKey,
-                ZMParticipantRoleMarkedForDeletionKey,
-                ZMParticipantRoleMarkedForInsertionKey]
+                ZMParticipantRoleOperationToSyncKey]
     }
     
     @objc
