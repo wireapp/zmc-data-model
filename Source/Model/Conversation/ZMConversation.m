@@ -54,6 +54,7 @@ NSString *const ZMConversationMutedStatusKey = @"mutedStatus";
 NSString *const ZMConversationAllMessagesKey = @"allMessages";
 NSString *const ZMConversationHiddenMessagesKey = @"hiddenMessages";
 NSString *const ZMConversationParticipantRolesKey = @"participantRoles";
+NSString *const ZMConversationNonTeamRolesKey = @"nonTeamRoles";
 NSString *const ZMConversationHasUnreadKnock = @"hasUnreadKnock";
 NSString *const ZMConversationUserDefinedNameKey = @"userDefinedName";
 NSString *const ZMIsDimmedKey = @"zmIsDimmed";
@@ -315,6 +316,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
             LastModifiedDateKey,
             ZMNormalizedUserDefinedNameKey,
             ZMConversationParticipantRolesKey,
+            ZMConversationNonTeamRolesKey,
             VoiceChannelKey,
             ZMConversationHasUnreadMissedCallKey,
             ZMConversationHasUnreadUnsentMessageKey,
