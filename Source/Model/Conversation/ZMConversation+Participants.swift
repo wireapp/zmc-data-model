@@ -30,25 +30,36 @@ extension ZMConversation {
     }
     
     @objc
-    public class func keyPathsForValuesAffectingLastServerSyncedActiveParticipants () -> Set<String> {
-        return Set(ZMConversation.participantRolesKeys)
+    public class func keyPathsForValuesAffectingActiveParticipants() -> Set<String> {
+        return Set([ZMConversationIsSelfAnActiveMemberKey] + participantRolesKeys)
     }
     
     @objc
-    public class func keyPathsForValuesAffectingActiveParticipants() -> Set<String> {
-        return Set([ZMConversationIsSelfAnActiveMemberKey,
-                    ZMConversationParticipantRolesKey])
+    public class func keyPathsForValuesAffectingLocalParticipants() -> Set<String> {
+        return Set(participantRolesKeys)
+    }
+    
+    @objc
+    public class func keyPathsForValuesAffectingLocalParticipantRoles() -> Set<String> {
+        return Set(participantRolesKeys)
     }
     
     @objc
     public class func keyPathsForValuesAffectingDisplayName() -> Set<String> {
         return Set([ZMConversationConversationTypeKey,
-                    "lastServerSyncedActiveParticipants.name",
+                    "participantRoles.user.name",
                     "connection.to.name",
                     "connection.to.availability",
                     ZMConversationUserDefinedNameKey] +
             ZMConversation.participantRolesKeys)
     }
+    
+    @objc
+    public class func keyPathsForValuesAffectingLocalParticipantsExcludingSelf() -> Set<String> {
+        return Set(ZMConversation.participantRolesKeys)
+    }
+    
+    //MARK: - Participants methods
     
     /// List of users that are in the conversation
     @objc
@@ -92,18 +103,6 @@ extension ZMConversation {
     public var localParticipantsExcludingSelf: Set<ZMUser> {
         return self.localParticipants.filter { !$0.isSelfUser }
     }
-    
-    @objc
-    public var lastServerSyncedActiveParticipants: Set<ZMUser> {
-        return Set(participantRoles.compactMap {
-            if !$0.markedForInsertion {
-                return $0.user
-            } else {
-                return nil
-            }
-        })
-    }
-    
     
     // MARK: - Participant operations
     

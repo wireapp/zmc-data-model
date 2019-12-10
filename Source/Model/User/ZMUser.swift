@@ -177,7 +177,7 @@ extension ZMUser {
     /// Conversation in which the user is active, according to the server
     public var lastServerSyncedActiveConversations: Set<ZMConversation> {
         get {
-            ///TODO: copy the logics from Convo.lastServerSyncedActiveParticipants?
+            ///TODO: review
             return Set(participantRoles.compactMap {
                 if !$0.markedForDeletion && !$0.markedForInsertion {
                     return $0.conversation
