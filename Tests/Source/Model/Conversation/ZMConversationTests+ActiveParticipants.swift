@@ -18,9 +18,7 @@
 
 @testable import WireDataModel
 
-//MARK: - Participants
-
-extension ZMConversationTests {
+final class ZMConversationTests_Participants: ZMConversationTestsBase {
     
     func testThatItRecalculatesActiveParticipantsWhenIsSelfActiveUserKeyChanges() {
         // given
