@@ -860,10 +860,7 @@
     XCTAssertFalse(firstMessage.expectsReadConfirmation);
 }
 
-@end // general
-
-
-@implementation ZMConversationTests (GroupOneToOne)
+#pragma mark - GroupOneToOne
 
 - (void)testThatGroupConversationInTeamWithOnlyTwoParticipantsIsConsideredOneToOne
 {
@@ -958,11 +955,8 @@
     XCTAssertNil(conversation.connectedUser);
 }
 
-@end
 
-
-
-@implementation ZMConversationTests (ReadOnly)
+#pragma mark - ReadOnly
 
 - (void)testThatAGroupConversationWhereTheUserIsActiveIsNotReadOnly
 {
@@ -1060,12 +1054,7 @@
     XCTAssert([self waitForCustomExpectationsWithTimeout:0.5]);
 }
 
-@end
-
-
-
-
-@implementation ZMConversationTests (Connections)
+#pragma mark - Connections
 
 - (void)testThatItReturnsTheConnectionMessage;
 {
@@ -1214,11 +1203,7 @@
     XCTAssert([self waitForCustomExpectationsWithTimeout:0.5]);
 }
 
-@end // connections
-
-
-@implementation ZMConversationTests (DisplayName)
-
+#pragma mark - DisplayName
 
 - (void)testThatSettingTheUseDefinedNameDoesNotMakeTheNormalizedUserDefinedNameIsLocallyModified;
 {
@@ -1524,10 +1509,7 @@
     XCTAssertEqualObjects(conversation.userDefinedName, @"test̻̟̙");
 }
 
-@end
-
-
-@implementation ZMConversationTests (SettingLastReadMessage)
+#pragma mark - SettingLastReadMessage
 
 - (void)testThatItSetsTheLastReadServerTimeStampToTheLastReadMessageInTheVisibleRange;
 {
@@ -1734,9 +1716,8 @@
     XCTAssertEqual(conversation.conversationListIndicator, ZMConversationListIndicatorNone);
 }
 
-@end
 
-@implementation ZMConversationTests (LastEditableMessage)
+#pragma mark - LastEditableMessage
 
 - (void)testThatItReturnsNilIfConversationHasNoMessages;
 {
@@ -1930,9 +1911,8 @@
     // then
     XCTAssertEqualObjects(conversation.lastEditableMessage, message);
 }
-@end
 
-@implementation ZMConversationTests (Participants)
+#pragma mark - Participants
 
 - (void)testThatItRecalculatesActiveParticipantsWhenIsSelfActiveUserKeyChanges
 {
