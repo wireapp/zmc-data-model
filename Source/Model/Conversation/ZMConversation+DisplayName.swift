@@ -77,7 +77,7 @@ public extension ZMConversation {
             return userDefined
         }
 
-        let activeNames: [String] = lastServerSyncedActiveParticipants.compactMap { (user) -> String? in
+        let activeNames: [String] = localParticipants.compactMap { (user) -> String? in
             guard user != selfUser &&
                 !user.displayName.isEmpty else { return nil }
             return user.displayName

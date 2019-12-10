@@ -96,7 +96,7 @@ class ZMConversationTests_Silencing: ZMConversationTestsBase {
         
         let dataString = message.data()!.base64EncodedString()
         
-        let payload = self.payloadForMessage(in: conversation, type: EventConversationAddClientMessage, data: dataString)!
+        let payload = self.payloadForMessage(in: conversation, type: EventConversationAddClientMessage, data: dataString)
         
         return ZMUpdateEvent.eventFromEventStreamPayload(payload, uuid: UUID())!
     }
