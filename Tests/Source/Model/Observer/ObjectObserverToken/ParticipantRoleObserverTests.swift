@@ -135,25 +135,5 @@ final class ParticipantRoleObserverTests: NotificationDispatcherTestBase {
         )
         
     }
-    
-    func testThatItNotifiesTheObserverOfMarkForInsertion() {
-        // given
-        let user = ZMUser.insertNewObject(in: uiMOC)
-        let convo = ZMConversation.insertNewObject(in: uiMOC)
-        
-        
-        let participantRole = ParticipantRole.create(managedObjectContext: uiMOC, user: user, conversation: convo)
-        participantRole.markedForInsertion = false
-        uiMOC.saveOrRollback()
-        
-        // when
-        checkThatItNotifiesTheObserverOfAChange(participantRole,
-                                                modifier: { participantRole in
-                                                    participantRole.markedForInsertion = true
-        },
-                                                expectedChangedFields: [#keyPath(ParticipantRoleChangeInfo.markedForInsertion)]
-        )
-        
-    }
 }
 

@@ -25,7 +25,7 @@ extension ZMConversation {
     
     static var participantRolesKeys: [String] {
         return [#keyPath(ZMConversation.participantRoles),
-                #keyPath(rawOperationToSync)]
+                #keyPath(ZMConversation.participantRoles.rawOperationToSync)]
     }
     
     @objc
