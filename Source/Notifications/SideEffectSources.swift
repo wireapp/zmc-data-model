@@ -110,7 +110,7 @@ extension ZMUser : SideEffectSource {
             keys.formUnion(keyStore.observableKeysAffectedByValue(ZMUser.entityName(), key: changedKey))
         }
 
-        let otherPartKeys = allChangedKeys.map{"\(#keyPath(ZMConversation.localParticipantRoles)).\($0)"}
+        let otherPartKeys = allChangedKeys.map{"\(#keyPath(ZMConversation.participantRoles.user)).\($0)"}
         let selfUserKeys = allChangedKeys.map{"\(#keyPath(ZMConversation.connection)).\(#keyPath(ZMConnection.to)).\($0)"}
         let mappedKeys = otherPartKeys + selfUserKeys
         var keys = mappedKeys.map{keyStore.observableKeysAffectedByValue(classIdentifier, key: $0)}.reduce(Set()){$0.union($1)}

@@ -831,21 +831,21 @@ class ConversationObserverTests : NotificationDispatcherTestBase {
 
     func testThatItSendsUpdateForUpdatedServiceUser() {
         // given
-        let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
+        let conversation = ZMConversation.insertNewObject(in:uiMOC)
         conversation.conversationType = .group
 
         let user = createUser(in: uiMOC)
         conversation.internalAddParticipants([user])
-        self.uiMOC.saveOrRollback()
+        uiMOC.saveOrRollback()
 
         // when
-        self.checkThatItNotifiesTheObserverOfAChange(conversation,
-                                                     modifier: { conversation, _ in
-                                                        user.serviceIdentifier = UUID().uuidString
-                                                        user.providerIdentifier = UUID().uuidString
-        },
-                                                     expectedChangedFields: ["externalParticipantsStateChanged"],
-                                                     expectedChangedKeys: ["externalParticipantsState"])
+        checkThatItNotifiesTheObserverOfAChange(conversation,
+                                                 modifier: { conversation, _ in
+                                                    user.serviceIdentifier = UUID().uuidString
+                                                    user.providerIdentifier = UUID().uuidString
+                                                           },
+                                                 expectedChangedFields: ["externalParticipantsStateChanged"],
+                                                 expectedChangedKeys: ["externalParticipantsState"])
     }
 
     func testThatItNotifiesOfLegalHoldChanges_Enabled() {
