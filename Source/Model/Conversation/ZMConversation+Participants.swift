@@ -23,6 +23,7 @@ extension ZMConversation {
     
     // MARK: - keyPathsForValuesAffecting
     
+    ///TODO: use key path
     static private var participantRolesKeys: [String] {
         return [ZMConversationParticipantRolesKey,
                 "\(ZMConversationParticipantRolesKey).\(ZMParticipantRoleMarkedForDeletionKey)",

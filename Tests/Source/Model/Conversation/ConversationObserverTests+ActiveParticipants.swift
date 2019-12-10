@@ -79,12 +79,12 @@ extension ConversationObserverTests {
                                                     conversation.internalRemoveParticipants([user2],
                                                                                             sender: user1)
                                                           },
-                                                expectedChangedFields: [//"nameChanged",
-                                                                        "participantsChanged"//,
+                                                expectedChangedFields: ["nameChanged",
+                                                                        "participantsChanged",
 //                                                                        "activeParticipantsChanged"
             ],
                                                 expectedChangedKeys: ["localParticipantRoles",
-//                                                                      "displayName",
+                                                                      "displayName",
                                                                       "activeParticipants"
             ]
         )

@@ -44,7 +44,8 @@ extension ZMConversation : ObjectInSnapshot {
                     #keyPath(ZMConversation.hasReadReceiptsEnabled),
                     ZMConversation.externalParticipantsStateKey,
                     #keyPath(ZMConversation.legalHoldStatus),
-                    #keyPath(ZMConversation.labels)
+                    #keyPath(ZMConversation.labels),
+                    #keyPath(ZMConversation.activeParticipants)
             ])
     }
 
@@ -89,7 +90,8 @@ extension ZMConversation : ObjectInSnapshot {
     }
     
     public var nameChanged : Bool {
-        return changedKeysContain(keys: #keyPath(ZMConversation.displayName), #keyPath(ZMConversation.userDefinedName))
+        return changedKeysContain(keys: #keyPath(ZMConversation.displayName),
+                                        #keyPath(ZMConversation.userDefinedName)) || activeParticipantsChanged
     }
 
     public var lastModifiedDateChanged : Bool {
