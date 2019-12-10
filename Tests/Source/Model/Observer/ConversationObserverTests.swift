@@ -393,7 +393,7 @@ final class ConversationObserverTests : NotificationDispatcherTestBase {
         // when
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: {conversation, _ in conversation.isSelfAnActiveMember = true },
-                                                     expectedChangedField: "participantsChanged",
+                                                     expectedChangedFields: ["participantsChanged", "activeParticipantsChanged", "nameChanged"],
                                                      expectedChangedKeys: ["isSelfAnActiveMember"])
         
     }
@@ -411,7 +411,7 @@ final class ConversationObserverTests : NotificationDispatcherTestBase {
         // when
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
                                                      modifier: {conversation, _ in conversation.isSelfAnActiveMember = false },
-                                                     expectedChangedField: "participantsChanged",
+                                                     expectedChangedFields: ["participantsChanged", "activeParticipantsChanged", "nameChanged"],
                                                      expectedChangedKeys: ["isSelfAnActiveMember"])
         
     }

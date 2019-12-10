@@ -69,9 +69,6 @@ extension ConversationObserverTests {
         XCTAssertEqual(conversation.participantRoles.count, 2)
         XCTAssertEqual(conversation.activeParticipants.count, 3)
         
-        // expect
-//        keyValueObservingExpectation(for: conversation, keyPath: "activeParticipants", expectedValue: nil)
-        
         // when
         
         checkThatItNotifiesTheObserverOfAChange(conversation,
@@ -82,11 +79,11 @@ extension ConversationObserverTests {
                                                 expectedChangedFields: ["nameChanged",
                                                                         "participantsChanged",
 //                                                                        "activeParticipantsChanged"
-            ],
+                                                                       ],
                                                 expectedChangedKeys: ["localParticipantRoles",
                                                                       "displayName",
                                                                       "activeParticipants"
-            ]
+                                                                     ]
         )
 
         // then
