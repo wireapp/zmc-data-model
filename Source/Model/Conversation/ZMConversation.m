@@ -49,7 +49,6 @@ NSString *const ZMConversationConnectionKey = @"connection";
 NSString *const ZMConversationHasUnreadMissedCallKey = @"hasUnreadMissedCall";
 NSString *const ZMConversationHasUnreadUnsentMessageKey = @"hasUnreadUnsentMessage";
 NSString *const ZMConversationIsArchivedKey = @"internalIsArchived";
-NSString *const ZMConversationIsSelfAnActiveMemberKey = @"isSelfAnActiveMember";
 NSString *const ZMConversationMutedStatusKey = @"mutedStatus";
 NSString *const ZMConversationAllMessagesKey = @"allMessages";
 NSString *const ZMConversationHiddenMessagesKey = @"hiddenMessages";
@@ -348,7 +347,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
             HasReadReceiptsEnabledKey,
             ZMConversationLegalHoldStatusKey,
             ZMConversationNeedsToVerifyLegalHoldKey,
-            ZMConversationLabelsKey
+            ZMConversationLabelsKey,
+            @"isSelfAnActiveMember"
         };
         
         NSSet *additionalKeys = [NSSet setWithObjects:KeysIgnoredForTrackingModifications count:(sizeof(KeysIgnoredForTrackingModifications) / sizeof(*KeysIgnoredForTrackingModifications))];
@@ -368,7 +368,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 + (NSSet *)keyPathsForValuesAffectingIsReadOnly;
 {
-    return [NSSet setWithObjects:ZMConversationConversationTypeKey, ZMConversationIsSelfAnActiveMemberKey, nil];
+    return [NSSet setWithObjects:ZMConversationConversationTypeKey, ZMConversationParticipantRolesKey, nil];
 }
 
 + (nonnull instancetype)insertGroupConversationIntoUserSession:(nonnull id<ZMManagedObjectContextProvider> )session
@@ -845,18 +845,11 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     NSMutableSet<ZMUser *> *participantsSet = [NSMutableSet setWithArray:participants];
     [participantsSet addObject:selfUser];
 
-    NSArray<ZMUser *> *filteredParticipants = [participants filterWithBlock:^BOOL(ZMUser * participant) {
-        Require([participant isKindOfClass:[ZMUser class]]);
-        const BOOL isSelf = (participant == selfUser);
-        RequireString(!isSelf, "Can't pass self user as a participant of a group conversation");
-        return !isSelf;
-    }];
-
     // Add the new conversation system message
     [conversation appendNewConversationSystemMessageAtTimestamp:[NSDate date] users:participantsSet];
 
     // Add the participants
-    [conversation internalAddParticipants:filteredParticipants];
+    [conversation internalAddParticipants:participantsSet.allObjects];
 
     // We need to check if we should add a 'secure' system message in case all participants are trusted
     NSMutableSet *allClients = [NSMutableSet set];
@@ -869,11 +862,11 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return conversation;
 }
 
-+ (NSPredicate *)predicateForSearchQuery:(NSString *)searchQuery team:(Team *)team
++ (NSPredicate *)predicateForSearchQuery:(NSString *)searchQuery team:(Team *)team moc:(NSManagedObjectContext *)moc
 {
     NSPredicate *teamPredicate = [NSPredicate predicateWithFormat:@"(%K == %@)", TeamKey, team];
     
-    return [NSCompoundPredicate andPredicateWithSubpredicates:@[[ZMConversation predicateForSearchQuery:searchQuery], teamPredicate]];
+    return [NSCompoundPredicate andPredicateWithSubpredicates:@[[ZMConversation predicateForSearchQuery:searchQuery selfUser: [ZMUser selfUserInContext:moc]], teamPredicate]];
 }
 
 + (NSPredicate *)userDefinedNamePredicateForSearchString:(NSString *)searchString;
@@ -1070,9 +1063,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     NSMutableOrderedSet<ZMUser *> *otherUsers = [NSMutableOrderedSet orderedSetWithArray:participants];
 
     if ([otherUsers intersectsSet:selfUserSet]) {
-        [otherUsers minusSet:selfUserSet];
-
-        self.isSelfAnActiveMember = YES;
+        
         self.needsToBeUpdatedFromBackend = YES;
         
         if (self.mutedStatus == MutedMessageOptionValueNone) {
@@ -1101,16 +1092,14 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     NSMutableOrderedSet<ZMUser *> *otherUsers = [NSMutableOrderedSet orderedSetWithArray:participants];
 
     if ([otherUsers intersectsSet:selfUserSet]) {
-        [otherUsers minusSet:selfUserSet];
-        self.isSelfAnActiveMember = NO;
+        [self minusWithUser:[ZMUser selfUserInContext:self.managedObjectContext] isFromLocal:NO];
         self.isArchived = sender.isSelfUser;
     }
     
     [self minusWithUserSet:otherUsers.set isFromLocal:NO];
+    [self minusWithUser:[ZMUser selfUserInContext:self.managedObjectContext] isFromLocal:NO];
     [self increaseSecurityLevelIfNeededAfterRemovingUsers:otherUsers.set];
 }
-
-@dynamic isSelfAnActiveMember;
 
 @end
 

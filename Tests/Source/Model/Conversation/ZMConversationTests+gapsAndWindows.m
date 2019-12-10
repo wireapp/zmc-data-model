@@ -33,6 +33,7 @@
     ZMUser *user1 = [self createUser];
     ZMUser *user2 = [self createUser];
     ZMUser *user3 = [self createUser];
+    ZMUser *selfUser = [ZMUser selfUserInContext:self.uiMOC];
     
     // when
     ZMConversation *conversation = [ZMConversation insertGroupConversationIntoManagedObjectContext:self.uiMOC withParticipants:@[
@@ -47,7 +48,7 @@
     XCTAssertEqual(fetchedConversation.conversationType, ZMConversationTypeGroup);
     XCTAssertEqualObjects(conversation.objectID, fetchedConversation.objectID);
     
-    NSSet *expectedParticipants = [NSSet setWithObjects:user1, user2, user3, nil];
+    NSSet *expectedParticipants = [NSSet setWithObjects:user1, user2, user3, selfUser, nil];
     XCTAssertEqualObjects(expectedParticipants, conversation.lastServerSyncedActiveParticipants);
     
 }
@@ -60,6 +61,7 @@
     ZMUser *user1 = [self createUser];
     ZMUser *user2 = [self createUser];
     ZMUser *user3 = [self createUser];
+    ZMUser *selfUser = [ZMUser selfUserInContext:self.uiMOC];
     
     // when
     ZMConversation *conversation = [ZMConversation insertGroupConversationIntoUserSession:session
@@ -75,7 +77,7 @@
     XCTAssertEqual(fetchedConversation.conversationType, ZMConversationTypeGroup);
     XCTAssertEqualObjects(conversation.objectID, fetchedConversation.objectID);
     
-    NSSet *expectedParticipants = [NSSet setWithObjects:user1, user2, user3, nil];
+    NSSet *expectedParticipants = [NSSet setWithObjects:user1, user2, user3, selfUser, nil];
     XCTAssertEqualObjects(expectedParticipants, conversation.lastServerSyncedActiveParticipants);
     
 }
@@ -87,6 +89,7 @@
     ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     ZMUser *user2 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     ZMUser *user3 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMUser *selfUser = [ZMUser selfUserInContext:self.uiMOC];
     
     // when
     ZMConversation *conversation = [ZMConversation insertGroupConversationIntoManagedObjectContext:self.uiMOC withParticipants:@[
@@ -107,7 +110,7 @@
     ZMConversation *fetchedConversation = conversations[0];
     XCTAssertEqualObjects(conversation.objectID, fetchedConversation.objectID);
     
-    NSSet *expectedParticipants = [NSSet setWithObjects:user1, user2, user3, nil];
+    NSSet *expectedParticipants = [NSSet setWithObjects:user1, user2, user3, selfUser, nil];
     XCTAssertEqualObjects(expectedParticipants, conversation.lastServerSyncedActiveParticipants);
     
 }

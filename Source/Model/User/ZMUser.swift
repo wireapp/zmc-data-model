@@ -41,17 +41,7 @@ extension ZMUser: UserType {
     }
     
     public var activeConversations: Set<ZMConversation> {
-        if isSelfUser {
-            guard let managedObjectContext = managedObjectContext else { return Set() }
-            
-            let fetchRequest = NSFetchRequest<ZMConversation>(entityName: ZMConversation.entityName())
-            fetchRequest.predicate = ZMConversation.predicateForConversationsWhereSelfUserIsActive()
-            var result = Set(managedObjectContext.fetchOrAssert(request: fetchRequest))
-            result.remove(ZMConversation.selfConversation(in: managedObjectContext))
-            return result
-        } else {
-            return lastServerSyncedActiveConversations
-        }
+        return Set(self.participantRoles.filter{!$0.markedForDeletion}.map{$0.conversation})
     }
 
     // MARK: Legal Hold
@@ -179,7 +169,7 @@ extension ZMUser {
         get {
             ///TODO: copy the logics from Convo.lastServerSyncedActiveParticipants?
             return Set(participantRoles.compactMap {
-                if !$0.markedForDeletion && !$0.markedForInsertion {
+                if !$0.markedForDeletion {
                     return $0.conversation
                 } else {
                     return nil

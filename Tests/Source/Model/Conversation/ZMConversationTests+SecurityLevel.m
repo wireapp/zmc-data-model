@@ -106,7 +106,7 @@
         [conversation internalAddParticipants:@[newUnconnectedUser]];
         
         // then the conversation should degrade
-        XCTAssertEqual(conversation.lastServerSyncedActiveParticipants.count, 3);
+        XCTAssertEqual(conversation.lastServerSyncedActiveParticipants.count, 4);
         XCTAssertEqual(conversation.activeParticipants.count, 4);
         XCTAssertFalse(conversation.allUsersTrusted);
         XCTAssertEqual(conversation.securityLevel, ZMConversationSecurityLevelSecureWithIgnored);
@@ -556,6 +556,7 @@
         conversation.conversationType = ZMConversationTypeGroup;
         
         ZMUser *selfUser = [ZMUser selfUserInContext:self.syncMOC];
+        [conversation addWithUser:selfUser isFromLocal:YES];
         
         Team *mainTeam = [Team fetchOrCreateTeamWithRemoteIdentifier:[[NSUUID alloc] init]
                                                       createIfNeeded:YES
@@ -920,6 +921,7 @@
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.conversationType = ZMConversationTypeGroup;
     conversation.remoteIdentifier = [NSUUID new];
+    [conversation addWithUser:selfUser isFromLocal:YES];
     
     ZMUser *verifiedUser = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     verifiedUser.remoteIdentifier = [NSUUID new];
@@ -957,6 +959,7 @@
     // GIVEN
     ZMConversation *conversation = [self setupVerifiedConversation];
     ZMUser *selfUser = [ZMUser selfUserInContext:self.uiMOC];
+    [conversation addWithUser:selfUser isFromLocal:YES];
 
     // WHEN
     ZMUser *verifiedUser = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];

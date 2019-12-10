@@ -254,8 +254,6 @@
     [self checkConversationAttributeForKey:@"remoteIdentifier" value:[NSUUID createUUID]];
     [self checkConversationAttributeForKey:ZMConversationIsArchivedKey value:@YES];
     [self checkConversationAttributeForKey:ZMConversationIsArchivedKey value:@NO];
-    [self checkConversationAttributeForKey:ZMConversationIsSelfAnActiveMemberKey value:@YES];
-    [self checkConversationAttributeForKey:ZMConversationIsSelfAnActiveMemberKey value:@NO];
     [self checkConversationAttributeForKey:@"needsToBeUpdatedFromBackend" value:@YES];
     [self checkConversationAttributeForKey:@"needsToBeUpdatedFromBackend" value:@NO];
     [self checkConversationAttributeForKey:ZMConversationLastReadServerTimeStampKey value:[NSDate date]];
@@ -272,7 +270,6 @@
     // given
     NSSet *expected = [NSSet setWithArray:@[
                           ZMConversationUserDefinedNameKey,
-                          ZMConversationIsSelfAnActiveMemberKey,
                           ZMConversationLastReadServerTimeStampKey,
                           ZMConversationClearedTimeStampKey,
                           ZMConversationSilencedChangedTimeStampKey,
@@ -969,8 +966,7 @@
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.conversationType = ZMConversationTypeGroup;
-    conversation.isSelfAnActiveMember = YES;
-    
+    [conversation addWithUser:[ZMUser selfUserInContext:self.uiMOC] isFromLocal:YES];
     // then
     XCTAssertFalse(conversation.isReadOnly);
 }
@@ -980,7 +976,7 @@
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.conversationType = ZMConversationTypeGroup;
-    conversation.isSelfAnActiveMember = NO;
+    [conversation minusWithUser:[ZMUser selfUserInContext:self.uiMOC] isFromLocal:YES];
     
     // then
     XCTAssertTrue(conversation.isReadOnly);
@@ -1031,13 +1027,13 @@
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.conversationType = ZMConversationTypeOneOnOne;
-    conversation.isSelfAnActiveMember = YES;
+    [conversation addWithUser:[ZMUser selfUserInContext:self.uiMOC] isFromLocal:YES];
 
     // expect
     [self keyValueObservingExpectationForObject:conversation keyPath:@"isReadOnly" expectedValue:nil];
     
     // when
-    conversation.isSelfAnActiveMember = NO;
+    [conversation minusWithUser:[ZMUser selfUserInContext:self.uiMOC] isFromLocal:YES];
     
     // then
     XCTAssert([self waitForCustomExpectationsWithTimeout:0.5]);
@@ -1048,7 +1044,7 @@
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.conversationType = ZMConversationTypeOneOnOne;
-    conversation.isSelfAnActiveMember = YES;
+    [conversation addWithUser:[ZMUser selfUserInContext:self.uiMOC] isFromLocal:YES];
     
     // expect
     [self keyValueObservingExpectationForObject:conversation keyPath:@"isReadOnly" expectedValue:nil];
@@ -1939,7 +1935,7 @@
     // given
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.conversationType = ZMConversationTypeGroup;
-    conversation.isSelfAnActiveMember = YES;
+    [conversation addWithUser:[ZMUser selfUserInContext:self.uiMOC] isFromLocal:YES];
     
     ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     ZMUser *user2 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
@@ -1947,14 +1943,14 @@
     [conversation internalAddParticipants:@[user1, user2]];
     
     XCTAssertTrue(conversation.isSelfAnActiveMember);
-    XCTAssertEqual(conversation.participantRoles.count, 2u);
+    XCTAssertEqual(conversation.participantRoles.count, 3u);
     XCTAssertEqual(conversation.activeParticipants.count, 3u);
     
     // expect
     [self keyValueObservingExpectationForObject:conversation keyPath:@"activeParticipants" expectedValue:nil];
     
     // when
-    conversation.isSelfAnActiveMember = NO;
+    [conversation minusWithUser:[ZMUser selfUserInContext:self.uiMOC] isFromLocal:YES];
     
     // then
     XCTAssertFalse(conversation.isSelfAnActiveMember);
@@ -2761,7 +2757,7 @@
     
     // when
     NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Conversation"];
-    request.predicate = [ZMConversation predicateForSearchQuery:@"User1" team:nil];
+    request.predicate = [ZMConversation predicateForSearchQuery:@"User1" team:nil moc:self.uiMOC];
     
     NSArray *result = [self.uiMOC executeFetchRequestOrAssert:request];
     
@@ -2786,7 +2782,7 @@
     
     // when
     NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Conversation"];
-    request.predicate = [ZMConversation predicateForSearchQuery:@"Foo Bar" team:nil];
+    request.predicate = [ZMConversation predicateForSearchQuery:@"Foo Bar" team:nil moc:self.uiMOC];
     
     NSArray *result = [self.uiMOC executeFetchRequestOrAssert:request];
     
@@ -2858,7 +2854,7 @@
     
     // when
     NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Conversation"];
-    request.predicate = [ZMConversation predicateForSearchQuery:@"Bine" team:nil];
+    request.predicate = [ZMConversation predicateForSearchQuery:@"Bine" team:nil moc:self.uiMOC];
     
     NSArray *result = [self.uiMOC executeFetchRequestOrAssert:request];
     
@@ -2928,7 +2924,7 @@
     
     // when
     NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Conversation"];
-    request.predicate = [ZMConversation predicateForSearchQuery:@"Club" team:nil];
+    request.predicate = [ZMConversation predicateForSearchQuery:@"Club" team:nil moc:self.uiMOC];
     
     NSArray *result = [self.uiMOC executeFetchRequestOrAssert:request];
     
@@ -2956,7 +2952,7 @@
     
     // when
     NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:@"Conversation"];
-    request.predicate = [ZMConversation predicateForSearchQuery:@"Club" team:team];
+    request.predicate = [ZMConversation predicateForSearchQuery:@"Club" team:team moc:self.uiMOC];
     
     NSArray *result = [self.uiMOC executeFetchRequestOrAssert:request];
     
@@ -3098,7 +3094,7 @@
     [self.uiMOC saveOrRollback];
     
     [conversation clearMessageHistory];
-    conversation.isSelfAnActiveMember = YES;
+    [conversation addWithUser:[ZMUser selfUserInContext:self.uiMOC] isFromLocal:YES];
     WaitForAllGroupsToBeEmpty(0.5);
     
     XCTAssertTrue(conversation.isArchived);
@@ -3106,7 +3102,7 @@
     XCTAssertEqualObjects(conversation.clearedTimeStamp, clearedTimeStamp);
     
     // when
-    NSPredicate *sut = [ZMConversation predicateForSearchQuery:@"lala" team:nil];
+    NSPredicate *sut = [ZMConversation predicateForSearchQuery:@"lala" team:nil moc:self.uiMOC];
     
     // then
     XCTAssertTrue([sut evaluateWithObject:conversation]);
@@ -3126,7 +3122,7 @@
     [self.uiMOC saveOrRollback];
     
     [conversation clearMessageHistory];
-    conversation.isSelfAnActiveMember = NO;
+    [conversation minusWithUser:[ZMUser selfUserInContext:self.uiMOC] isFromLocal:YES];
     WaitForAllGroupsToBeEmpty(0.5);
     
     XCTAssertTrue(conversation.isArchived);
@@ -3134,7 +3130,7 @@
     XCTAssertEqualObjects(conversation.clearedTimeStamp, clearedTimeStamp);
     
     // when
-    NSPredicate *sut = [ZMConversation predicateForSearchQuery:@"lala" team:nil];
+    NSPredicate *sut = [ZMConversation predicateForSearchQuery:@"lala" team:nil moc:self.uiMOC];
     
     // then
     XCTAssertFalse([sut evaluateWithObject:conversation]);
@@ -3149,87 +3145,17 @@
     [self performIgnoringZMLogError:^{
         [self timeStampForSortAppendMessageToConversation:conversation];
     }];
-    conversation.isSelfAnActiveMember = NO;
+    [conversation minusWithUser:[ZMUser selfUserInContext:self.uiMOC] isFromLocal:YES];
     WaitForAllGroupsToBeEmpty(0.5);
     
     XCTAssertFalse(conversation.isSelfAnActiveMember);
     XCTAssertNil(conversation.clearedTimeStamp);
     
     // when
-    NSPredicate *sut = [ZMConversation predicateForSearchQuery:@"lala" team:nil];
+    NSPredicate *sut = [ZMConversation predicateForSearchQuery:@"lala" team:nil moc:self.uiMOC];
     
     // then
     XCTAssertTrue([sut evaluateWithObject:conversation]);
-}
-
-- (void)testThatItFetchesSharableConversations
-{
-    //given
-    ZMUser *otherUser = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    ZMUser *secondUser = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    
-    ZMConversation *conversationWithOtherUser = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    conversationWithOtherUser.conversationType = ZMConversationTypeOneOnOne;
-    conversationWithOtherUser.remoteIdentifier = [NSUUID createUUID];
-    [conversationWithOtherUser addWithUser:otherUser isFromLocal:NO];
-
-    ZMConversation *notSyncedConversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    notSyncedConversation.conversationType = ZMConversationTypeOneOnOne;
-    [notSyncedConversation addWithUser:otherUser isFromLocal:NO];
-
-    ZMConversation *conversationWithSecondUser = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    conversationWithSecondUser.conversationType = ZMConversationTypeOneOnOne;
-    conversationWithSecondUser.remoteIdentifier = [NSUUID createUUID];
-    [conversationWithSecondUser addWithUser:secondUser isFromLocal:NO];
-    
-    ZMConversation *emptyConversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    emptyConversation.conversationType = ZMConversationTypeOneOnOne;
-    
-    ZMConversation *conversationWithSentRequest = [ZMConnection insertNewSentConnectionToUser:otherUser].conversation;
-    
-    ZMConversation *conversationWithIncommingRequest = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    conversationWithIncommingRequest.connection = [ZMConnection insertNewObjectInManagedObjectContext:self.uiMOC];
-    conversationWithIncommingRequest.conversationType = ZMConversationTypeConnection;
-    conversationWithIncommingRequest.connection.status = ZMConnectionStatusPending;
-    conversationWithIncommingRequest.remoteIdentifier = [NSUUID createUUID];
-    
-    ZMConversation *groupConversationWithSelf = [ZMConversation insertGroupConversationIntoManagedObjectContext:self.uiMOC withParticipants:@[otherUser, secondUser]];
-    groupConversationWithSelf.isSelfAnActiveMember = YES;
-    groupConversationWithSelf.remoteIdentifier = [NSUUID createUUID];
-    
-    ZMConversation *groupConversationWithoutSelf = [ZMConversation insertGroupConversationIntoManagedObjectContext:self.uiMOC withParticipants:@[otherUser, secondUser]];
-    groupConversationWithoutSelf.isSelfAnActiveMember = NO;
-    groupConversationWithSelf.remoteIdentifier = [NSUUID createUUID];
-    
-    ZMConversation *groupConversationWithNoOtherParticipants = [ZMConversation insertGroupConversationIntoManagedObjectContext:self.uiMOC withParticipants:@[otherUser, secondUser]];
-    [groupConversationWithNoOtherParticipants internalRemoveParticipants:@[otherUser, secondUser] sender:self.selfUser];
-    groupConversationWithNoOtherParticipants.isSelfAnActiveMember = YES;
-    
-    ZMConversation *archived = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    [archived addWithUser:otherUser isFromLocal:NO];
-    archived.conversationType = ZMConversationTypeOneOnOne;
-    archived.isArchived = YES;
-    archived.remoteIdentifier = [NSUUID createUUID];
-    
-    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:[ZMConversation entityName]];
-    request.predicate = [ZMConversation predicateForSharableConversations];
-    
-    //when
-    NSArray *result = [self.uiMOC executeFetchRequestOrAssert:request];
-    
-    //then
-    XCTAssertEqual(result.count, 4u);
-    XCTAssertTrue([result containsObject:conversationWithOtherUser]);
-    XCTAssertTrue([result containsObject:conversationWithSecondUser]);
-    XCTAssertTrue([result containsObject:groupConversationWithSelf]);
-    XCTAssertTrue([result containsObject:archived]);
-    
-    XCTAssertFalse([result containsObject:emptyConversation]);
-    XCTAssertFalse([result containsObject:conversationWithSentRequest]);
-    XCTAssertFalse([result containsObject:conversationWithIncommingRequest]);
-    XCTAssertFalse([result containsObject:groupConversationWithoutSelf]);
-    XCTAssertFalse([result containsObject:groupConversationWithNoOtherParticipants]);
-    XCTAssertFalse([result containsObject:notSyncedConversation]);
 }
 
 @end

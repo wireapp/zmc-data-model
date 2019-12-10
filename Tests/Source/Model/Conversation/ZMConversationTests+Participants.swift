@@ -30,7 +30,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         sut.internalAddParticipants([user1, user2])
         
         XCTAssertEqual(sut.participantRoles.count, 2)
-        XCTAssertEqual(sut.activeParticipants.count, 3)
+        XCTAssertEqual(sut.activeParticipants.count, 2)
 
         // WHEN
         sut.minus(userSet: Set([user2]), isFromLocal: true)
@@ -39,7 +39,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         
         // THEN
         XCTAssertEqual(Set(sut.participantRoles.map { $0.user }), Set([user1, user2]))
-        XCTAssertEqual(sut.activeParticipants, Set([user1, selfUser]))
+        XCTAssertEqual(sut.activeParticipants, Set([user1]))
 
         XCTAssert(user2.participantRoles.first!.markedForDeletion)
         XCTAssertFalse(user2.participantRoles.first!.markedForInsertion)
@@ -58,7 +58,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
 
         // THEN
         XCTAssertEqual(Set(sut.participantRoles.map { $0.user }), Set([user1, user2]))
-        XCTAssertEqual(sut.activeParticipants, Set([user1, user2, selfUser]))
+        XCTAssertEqual(sut.activeParticipants, Set([user1, user2]))
 
         XCTAssertFalse(user2.participantRoles.first!.markedForDeletion)
         XCTAssert(user2.participantRoles.first!.markedForInsertion)
@@ -101,7 +101,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         sut.internalAddParticipants([user1, user2])
         
         XCTAssertEqual(sut.participantRoles.count, 2)
-        XCTAssertEqual(sut.activeParticipants.count, 3)
+        XCTAssertEqual(sut.activeParticipants.count, 2)
         
         // WHEN
         sut.minus(userSet: Set([user2]), isFromLocal: true)
@@ -111,7 +111,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         
         // THEN
         XCTAssertEqual(Set(sut.participantRoles.map { $0.user }), Set([user1, user2]))
-        XCTAssertEqual(sut.activeParticipants, Set([user1, user2, selfUser]))
+        XCTAssertEqual(sut.activeParticipants, Set([user1, user2]))
         
         XCTAssertFalse(user2.participantRoles.first!.markedForDeletion)
         XCTAssertFalse(user2.participantRoles.first!.markedForInsertion)
@@ -132,7 +132,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
 
         // THEN
         XCTAssertEqual(Set(sut.participantRoles.map { $0.user }), Set([user1]))
-        XCTAssertEqual(sut.activeParticipants, Set([user1, selfUser]))
+        XCTAssertEqual(sut.activeParticipants, Set([user1]))
 
         XCTAssert(user2.participantRoles.isEmpty, "\(user2.participantRoles)")
     }
@@ -319,13 +319,13 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         let selfUser = ZMUser.selfUser(in: self.uiMOC)
         
         // when
-        conversation.isSelfAnActiveMember = true
+        conversation.add(user: ZMUser.selfUser(in: self.uiMOC), isFromLocal: true)
         
         // then
         XCTAssertTrue(conversation.activeParticipants.contains(selfUser))
         
         // when
-        conversation.isSelfAnActiveMember = false
+        conversation.minus(user: ZMUser.selfUser(in: self.uiMOC), isFromLocal: true)
         
         // then
         XCTAssertFalse(conversation.activeParticipants.contains(selfUser))
@@ -337,7 +337,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         let selfUser = ZMUser.selfUser(in: self.uiMOC)
         
         // when
-        conversation.isSelfAnActiveMember = true
+        conversation.add(user: ZMUser.selfUser(in: self.uiMOC), isFromLocal: true)
         
         // then
         XCTAssertFalse(conversation.lastServerSyncedActiveParticipants.contains(selfUser))
@@ -370,7 +370,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         self.uiMOC.saveOrRollback()
 
         // then
-        let expected = [user2, user1, user4, selfUser, user3]
+        let expected = [user2, user1, user4, user3]
 
         XCTAssertEqual(conversation.sortedActiveParticipants, expected)
     }

@@ -21,6 +21,12 @@ import WireProtos
 
 extension ZMConversation {
     
+    @objc
+    public var isSelfAnActiveMember: Bool {
+        return self.participantRoles.contains(where: { (role) -> Bool in
+            role.user.isSelfUser == true
+        })
+    }
     // MARK: - keyPathsForValuesAffecting
     
     static private var participantRolesKeys: [String] {
@@ -36,8 +42,12 @@ extension ZMConversation {
     
     @objc
     public class func keyPathsForValuesAffectingActiveParticipants() -> Set<String> {
-        return Set([ZMConversationIsSelfAnActiveMemberKey,
-                    ZMConversationParticipantRolesKey])
+        return Set([ZMConversationParticipantRolesKey])
+    }
+    
+    @objc
+    public class func keyPathsForValuesAffectingIsSelfAnActiveMember() -> Set<String> {
+        return Set([ZMConversationParticipantRolesKey])
     }
     
     @objc
@@ -119,7 +129,7 @@ extension ZMConversation {
     }
     
     @objc
-    func minus(userSet: Set<ZMUser>, isFromLocal: Bool) {
+    public func minus(userSet: Set<ZMUser>, isFromLocal: Bool) {
         participantRoles.forEach() {
             if userSet.contains($0.user) {
                 switch (isFromLocal, $0.markedForInsertion) {
@@ -133,6 +143,11 @@ extension ZMConversation {
                 }
             }
         }
+    }
+    
+    @objc
+    public func minus(user: ZMUser, isFromLocal: Bool) {
+        self.minus(userSet: Set([user]), isFromLocal: isFromLocal)
     }
     
     @objc

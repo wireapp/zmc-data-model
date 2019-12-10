@@ -32,7 +32,7 @@ class ConversationCreationOptionsTests: ZMConversationTestsBase {
         let conversation = self.insertGroup(with: options)
         // then
         XCTAssertEqual(conversation.displayName, name)
-        XCTAssertEqual(conversation.activeParticipants, Set([user, selfUser]))
+        XCTAssertEqual(conversation.activeParticipants, Set([user, .selfUser(in: uiMOC)]))
         XCTAssertEqual(conversation.team, team)
         XCTAssertEqual(conversation.allowGuests, true)
     }

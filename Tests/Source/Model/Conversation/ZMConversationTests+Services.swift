@@ -43,7 +43,7 @@ final class ZMConversationTests_Services : BaseZMMessageTests {
         let conversation = createConversation(in: uiMOC)
         conversation.team = team
         conversation.conversationType = .group
-        conversation.isSelfAnActiveMember = true
+        conversation.add(user: ZMUser.selfUser(in: uiMOC), isFromLocal: true)
         conversation.internalAddParticipants([service as! ZMUser])
         return conversation
     }
@@ -93,7 +93,7 @@ final class ZMConversationTests_Services : BaseZMMessageTests {
         let existingConversation = createConversation(with: service)
 
         // when
-        existingConversation.isSelfAnActiveMember = false
+        existingConversation.minus(user: ZMUser.selfUser(in: uiMOC), isFromLocal: true)
         let conversation = ZMConversation.existingConversation(in: uiMOC, service: service, team: team)
 
         // then

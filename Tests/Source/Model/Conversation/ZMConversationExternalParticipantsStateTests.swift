@@ -86,7 +86,7 @@ class ZMConversationExternalParticipantsStateTests: ZMConversationTestsBase {
     func createConversationWithSelfUser() -> ZMConversation {
         let conversation = createConversation(in: uiMOC)
         conversation.internalAddParticipants([selfUser])
-        conversation.isSelfAnActiveMember = true
+        conversation.add(user: ZMUser.selfUser(in: uiMOC), isFromLocal: true)
         return conversation
     }
 

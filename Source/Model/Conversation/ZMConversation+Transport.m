@@ -200,7 +200,7 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
 /// Pass timestamp when the timestamp equals the time of the lastRead / cleared event, otherwise pass nil
 - (void)updateSelfStatusFromDictionary:(NSDictionary *)dictionary timeStamp:(NSDate *)timeStamp previousLastServerTimeStamp:(NSDate *)previousLastServerTimestamp
 {
-    self.isSelfAnActiveMember = YES;
+    [self addWithUser:[ZMUser selfUserInContext:self.managedObjectContext] isFromLocal:YES];
     
     [self updateMutedStatusWithPayload:dictionary];
     if ([self updateIsArchivedWithPayload:dictionary] && self.isArchived && previousLastServerTimestamp != nil) {
