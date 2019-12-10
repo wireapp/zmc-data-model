@@ -419,6 +419,26 @@ class DatabaseMigrationTests: DatabaseBaseTest {
             processedVersions.insert(version)
         }
     }
+    
+    // To check that after deleting a isSelfAnActiveMember there is a self user in the participantRoles
+    func testThatItPerformsMigrationFrom_2_77_ToCurrentModelVersion() {
+
+        // GIVEN
+        self.createDatabaseWithOlderModelVersion(versionName: "2-77-0")
+
+        // WHEN
+        let directory = self.createStorageStackAndWaitForCompletion(userID: DatabaseMigrationTests.testUUID)
+
+        // THEN
+        let conversations = ZMConversation.conversationsExcludingArchived(in: directory.uiContext)
+        conversations.forEach({
+            let hasSelfUser = ($0 as! ZMConversation).participantRoles.contains(where: { (role) -> Bool in
+                role.user.isSelfUser == true
+            })
+            XCTAssertTrue(hasSelfUser)
+        })
+
+    }
 }
 
 // MARK: - Helpers
@@ -463,26 +483,6 @@ extension DatabaseMigrationTests {
             return nil
         }
         return source
-    }
-    
-    // To check that after deleting a isSelfAnActiveMember there is a self user in the participantRoles
-    func testThatItPerformsMigrationFrom_2_77_ToCurrentModelVersion() {
-        
-        // GIVEN
-        self.createDatabaseWithOlderModelVersion(versionName: "2-77-0")
-        
-        // WHEN
-        let directory = self.createStorageStackAndWaitForCompletion(userID: DatabaseMigrationTests.testUUID)
-        
-        // THEN
-        let conversations = ZMConversation.conversationsExcludingArchived(in: directory.uiContext)
-        conversations.forEach({
-            let hasSelfUser = ($0 as! ZMConversation).participantRoles.contains(where: { (role) -> Bool in
-                role.user.isSelfUser == true
-            })
-            XCTAssertTrue(hasSelfUser)
-        })
-        
     }
 }
 

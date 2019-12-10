@@ -81,7 +81,8 @@ class SnapshotCenterTests : BaseZMMessageTests {
         let expectedToManyRelationships = ["hiddenMessages": 0,
                                            "participantRoles": 0,
                                            "allMessages": 0,
-                                           "labels": 0]
+                                           "labels": 0,
+                                           "nonTeamRoles": 0]
         
         expectedAttributes.forEach {
             XCTAssertEqual(snapshot.attributes[$0] ?? nil, $1)
@@ -138,7 +139,8 @@ class SnapshotCenterTests : BaseZMMessageTests {
         let expectedToManyRelationships = ["hiddenMessages": 0,
                                            "participantRoles": 0,
                                            "allMessages": 1,
-                                           "labels": 0]
+                                           "labels": 0,
+                                           "nonTeamRoles": 0]
         
         let expectedToOneRelationships = ["team": false,
                                           "connection": false,
@@ -192,7 +194,8 @@ class SnapshotCenterTests : BaseZMMessageTests {
         XCTAssertEqual(changedKeys, Set(conv.entity.attributesByName.keys).union(["hiddenMessages",
                                                                                   "participantRoles",
                                                                                   "allMessages",
-                                                                                  "labels"]))
+                                                                                  "labels",
+                                                                                  "nonTeamRoles"]))
     }
 
 }
