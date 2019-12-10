@@ -105,11 +105,6 @@ extension ZMConversation {
         return self.localParticipants.filter { !$0.isSelfUser }
     }
     
-    @objc
-    public var localParticipantsExcludingSelf: Set<ZMUser> {
-        return self.localParticipants.filter { !$0.isSelfUser }
-    }
-    
     // MARK: - Participant operations
     
     /// union user set to participantRoles
