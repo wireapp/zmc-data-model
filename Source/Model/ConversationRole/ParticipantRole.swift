@@ -34,8 +34,7 @@ final public class ParticipantRole: ZMManagedObject {
     public enum OperationToSync: Int16 {
         case none = 0
         case insert = 1
-        case update = 2
-        case delete = 3
+        case delete = 2
     }
     
     @objc
@@ -73,17 +72,16 @@ final public class ParticipantRole: ZMManagedObject {
         return Set([ZMParticipantRoleModificationToSyncKey])
     }
 
-    
-    @objc
-    public var markedForUpdate: Bool {
-        return self.operationToSync == .update
+    public override static func predicateForObjectsThatNeedToBeInsertedUpstream() -> NSPredicate? {
+        return NSPredicate(format: "%K == %d", #keyPath(rawOperationToSync), OperationToSync.insert.rawValue)
     }
     
-    @objc
-    public class func keyPathsForValuesAffectingMarkedForUpdate() -> Set<String> {
-        return Set([ZMParticipantRoleModificationToSyncKey])
+    public override static func predicateForObjectsThatNeedToBeUpdatedUpstream() -> NSPredicate? {
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [
+            super.predicateForObjectsThatNeedToBeUpdatedUpstream()!,
+            NSPredicate(format: "%K != %d", #keyPath(rawOperationToSync), OperationToSync.none.rawValue)
+        ])
     }
-
 
     public override static func entityName() -> String {
         return "ParticipantRole"

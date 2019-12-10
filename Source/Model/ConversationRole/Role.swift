@@ -29,5 +29,9 @@ public class Role: ZMManagedObject {
 
     public override static func entityName() -> String {
         return "Role"
-    }    
+    }
+    
+    public override static func isTrackingLocalModifications() -> Bool {
+        return false
+    }
 }

@@ -428,4 +428,5 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         // then
         XCTAssertEqual(conversation.connectedUser, user)
     }
+    
 }
