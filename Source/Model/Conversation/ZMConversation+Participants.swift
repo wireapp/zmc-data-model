@@ -51,7 +51,7 @@ extension ZMConversation {
                     "connection.to.name",
                     "connection.to.availability",
                     ZMConversationUserDefinedNameKey] +
-            ZMConversation.participantRolesKeys)
+                   ZMConversation.participantRolesKeys)
     }
     
     @objc
@@ -122,7 +122,7 @@ extension ZMConversation {
                 add(user: user, isFromLocal: isFromLocal)
             }
             
-            ///if mark for delete, flip it
+            ///if marked for delete, set it to non-deleted
             if currentParticipantSet.contains(user) {
                 participantRoles.first(where: {$0.markedForDeletion})?.markedForDeletion = false
             }

@@ -40,7 +40,8 @@ extension ZMConversation {
         }
     }
 
-    @objc class func keyPathsForValuesAffectingExternalParticipantsState() -> Set<String> {
+    @objc
+    class func keyPathsForValuesAffectingExternalParticipantsState() -> Set<String> {
         return ["participantRoles.user.isServiceUser", "participantRoles.user.hasTeam"]
     }
 
