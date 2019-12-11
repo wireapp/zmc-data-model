@@ -39,7 +39,7 @@ final public class Action: ZMManagedObject {
         
         let actions = context.fetchOrAssert(request: fetchRequest)
         return actions.first(where:{
-            $0.role == role            
+            role.actions.contains($0)
         })
     }
 
