@@ -25,7 +25,8 @@ public class Role: ZMManagedObject {
 
     @NSManaged public var actions: Set<Action>
     @NSManaged public var participantRoles: Set<ParticipantRole>
-    @NSManaged public var team: Team
+    @NSManaged public var team: Team?
+    @NSManaged public var conversation: ZMConversation?
 
     public override static func entityName() -> String {
         return "Role"
@@ -33,5 +34,27 @@ public class Role: ZMManagedObject {
     
     public override static func isTrackingLocalModifications() -> Bool {
         return false
+    }
+    
+    @objc
+    @discardableResult
+    static public func create(managedObjectContext: NSManagedObjectContext,
+                              name: String,
+                              conversation: ZMConversation) -> Role {
+        let entry = Role.insertNewObject(in: managedObjectContext)
+        entry.name = name
+        entry.conversation = conversation
+        return entry
+    }
+    
+    @objc
+    @discardableResult
+    static public func create(managedObjectContext: NSManagedObjectContext,
+                              name: String,
+                              team: Team) -> Role {
+        let entry = Role.insertNewObject(in: managedObjectContext)
+        entry.name = name
+        entry.team = team
+        return entry
     }
 }

@@ -313,7 +313,7 @@ class DatabaseMigrationTests: DatabaseBaseTest {
         
         let modelVersion = NSManagedObjectModel.loadModel().version
         let fixtureVersion = String(databaseFixtureFileName(for: modelVersion).dropFirst("store".count))
-        XCTAssertTrue(allVersions.contains(fixtureVersion), "Current model version \"\(fixtureVersion)\" is not added to allVersions array")
+
         
         // Check that we have current version fixture file
         guard let _ = databaseFixtureURL(version: modelVersion) else {
@@ -322,10 +322,23 @@ class DatabaseMigrationTests: DatabaseBaseTest {
             let directory = createStorageStackAndWaitForCompletion(userID: DatabaseMigrationTests.testUUID)
             let currentDatabaseURL = directory.syncContext!.persistentStoreCoordinator!.persistentStores.last!.url!
             
-            // If this fails add a breakpoint above and add file at `currentDatabaseURL` to test bundle
-            XCTFail("Missing current version database file, add it to test bundle: \(currentDatabaseURL), and rename to storeX-X-X.wiredatabase")
-            return
+            XCTFail("\nMissing current version database file: `store\(fixtureVersion).wiredatabase`. \n\n" +
+                    "**HOW TO FIX THIS** \n" +
+                    "- Run the test, until you hit the assertion\n" +
+                    "- **WHILE THE TEST IS PAUSED** on the assertion, do the following:\n" +
+                    "- open the the folder in Finder by typing this command in your terminal. It won't work if the test is not paused.\n" +
+                    "\t open \"\(currentDatabaseURL.deletingLastPathComponent().path)\"\n\n" +
+                    "- Rename the file `store.wiredatabase` to `store\(fixtureVersion).wiredatabase`\n" +
+                    "- Copy it to test bundle if this project in `WireDataModel/Test/Resources` with the other stores\n\n")
+            assert(false)
         }
+        
+        guard allVersions.contains(fixtureVersion) else {
+            return XCTFail("Current model version '\(fixtureVersion)' is not added to allVersions array. \n" +
+                "Please add it to the array above, so that we are sure it's there when we bump to the next version\n" +
+                "and we don't forget to test the migration from that version")
+        }
+        
 
         allVersions.forEach { storeFile in
             // GIVEN

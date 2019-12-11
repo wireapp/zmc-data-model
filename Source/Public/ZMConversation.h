@@ -34,6 +34,7 @@
 @class Team;
 @class Label;
 @class ParticipantRole;
+@class Role;
 
 @protocol ZMConversationMessage;
 
@@ -82,6 +83,7 @@ extern NSString * _Null_unspecified const ZMIsDimmedKey; ///< Specifies that a r
 @property (nonatomic, nullable) Team *team;
 @property (nonatomic, nonnull) NSSet<Label *> *labels;
 @property (nonatomic, nonnull) NSSet<ParticipantRole *> *participantRoles;
+@property (nonatomic, nonnull) NSSet<Role *> *nonTeamRoles;
 
 /// This will return @c nil if the last added by self user message has not yet been sync'd to this device, or if the conversation has no self editable message.
 @property (nonatomic, readonly, nullable) ZMMessage *lastEditableMessage;

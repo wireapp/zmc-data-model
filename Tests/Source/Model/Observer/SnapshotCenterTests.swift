@@ -81,7 +81,8 @@ class SnapshotCenterTests : BaseZMMessageTests {
         let expectedToManyRelationships = ["hiddenMessages": 0,
                                            "participantRoles": 0,
                                            "allMessages": 0,
-                                           "labels": 0]
+                                           "labels": 0,
+                                           "nonTeamRoles": 0]
         
         expectedAttributes.forEach {
             XCTAssertEqual(snapshot.attributes[$0] ?? nil, $1)
@@ -101,7 +102,7 @@ class SnapshotCenterTests : BaseZMMessageTests {
             conv.lastUnreadMissedCallDate = Date()
         }
         conv.mutedMessageTypes = .all
-        conv.isSelfAnActiveMember = false
+        conv.minus(user: ZMUser.selfUser(in: uiMOC), isFromLocal: true)
         conv.append(text: "foo")
         conv.resetLocallyModifiedKeys(conv.keysThatHaveLocalModifications)
         _ = sut.extractChangedKeysFromSnapshot(for: conv)
@@ -114,7 +115,6 @@ class SnapshotCenterTests : BaseZMMessageTests {
                                                          "internalEstimatedUnreadCount": 0 as Optional<NSObject>,
                                                          "hasUnreadUnsentMessage": 0 as Optional<NSObject>,
                                                          "archivedChangedTimestamp": nil,
-                                                         "isSelfAnActiveMember": 0 as Optional<NSObject>,
                                                          "draftMessageText": nil,
                                                          "modifiedKeys": nil,
                                                          "securityLevel": 0 as Optional<NSObject>,
@@ -138,7 +138,8 @@ class SnapshotCenterTests : BaseZMMessageTests {
         let expectedToManyRelationships = ["hiddenMessages": 0,
                                            "participantRoles": 0,
                                            "allMessages": 1,
-                                           "labels": 0]
+                                           "labels": 0,
+                                           "nonTeamRoles": 0]
         
         let expectedToOneRelationships = ["team": false,
                                           "connection": false,
@@ -192,7 +193,8 @@ class SnapshotCenterTests : BaseZMMessageTests {
         XCTAssertEqual(changedKeys, Set(conv.entity.attributesByName.keys).union(["hiddenMessages",
                                                                                   "participantRoles",
                                                                                   "allMessages",
-                                                                                  "labels"]))
+                                                                                  "labels",
+                                                                                  "nonTeamRoles"]))
     }
 
 }
