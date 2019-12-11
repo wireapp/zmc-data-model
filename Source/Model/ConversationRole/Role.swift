@@ -56,7 +56,7 @@ public final class Role: ZMManagedObject {
     @discardableResult
     static public func create(managedObjectContext: NSManagedObjectContext,
                               name: String,
-                              team: Team) -> Role {
+                              team: Team?) -> Role {
         let entry = Role.insertNewObject(in: managedObjectContext)
         entry.name = name
         entry.team = team
@@ -64,9 +64,9 @@ public final class Role: ZMManagedObject {
     }
 
     @objc
-    static func fetchExistingRole(with conversationRole: String, in context: NSManagedObjectContext) -> Role? {
+    static func fetchExistingRole(with name: String, in context: NSManagedObjectContext) -> Role? {
         let fetchRequest = NSFetchRequest<Role>(entityName: Role.entityName())
-        fetchRequest.predicate = NSPredicate(format: "%K == %@", Role.nameKey, conversationRole)
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", Role.nameKey, name)
         fetchRequest.fetchLimit = 1
         
         return context.fetchOrAssert(request: fetchRequest).first

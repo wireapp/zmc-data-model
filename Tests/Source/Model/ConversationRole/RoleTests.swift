@@ -21,6 +21,34 @@ import XCTest
 
 final class RoleTests: ZMBaseManagedObjectTest {
     
+    let payload: [String : Any] = [
+        "actions" : [
+            "add_conversation_member",
+            "remove_conversation_member",
+            "modify_conversation_name",
+            "modify_conversation_message_timer",
+            "modify_conversation_receipt_mode",
+            "modify_conversation_access",
+            "modify_other_conversation_member",
+            "leave_conversation",
+            "delete_conversation"
+        ],
+        "conversation_role" : "wire_admin"
+    ]
+
+    var mockConversation: ZMConversation!
+    
+    override func setUp() {
+        super.setUp()
+        
+        mockConversation = ZMConversation.insertNewObject(in: uiMOC)
+    }
+
+    override func tearDown() {
+        mockConversation = nil
+        super.tearDown()
+    }
+
     func testThatItTracksCorrectKeys() {
         let expectedKeys = Set(arrayLiteral: Role.nameKey,
                                              Role.teamKey,
@@ -34,25 +62,8 @@ final class RoleTests: ZMBaseManagedObjectTest {
     }
     
     func testThatActionsAreCreatedFromPayload() {
-        // given
-        let payload: [String : Any] = [
-            "actions" : [
-                "add_conversation_member",
-                "remove_conversation_member",
-                "modify_conversation_name",
-                "modify_conversation_message_timer",
-                "modify_conversation_receipt_mode",
-                "modify_conversation_access",
-                "modify_other_conversation_member",
-                "leave_conversation",
-                "delete_conversation"
-            ],
-            "conversation_role" : "wire_admin"
-        ]
-        let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        
-        // when
-        let sut = Role.createOrUpdate(with: payload, team: nil, conversation: conversation, context: uiMOC)!
+        // given & when
+        let sut = Role.createOrUpdate(with: payload, team: nil, conversation: mockConversation, context: uiMOC)!
         
         // then
         XCTAssertEqual(sut.actions.count, 9)
@@ -60,5 +71,16 @@ final class RoleTests: ZMBaseManagedObjectTest {
         
         let action = sut.actions.sorted(by: { $0.name < $1.name }).first!
         XCTAssertEqual(action.name, "add_conversation_member")
+    }
+    
+    func testThatCreateOrUpdate_FetchesAnExistingRole() {
+        // given
+        let role = Role.createOrUpdate(with: payload, team: nil, conversation: mockConversation, context: uiMOC)
+
+        // when
+        let fetchedRole = Role.createOrUpdate(with: payload, team: nil, conversation: mockConversation, context: uiMOC)
+
+        // then
+        XCTAssertEqual(role, fetchedRole)
     }
 }

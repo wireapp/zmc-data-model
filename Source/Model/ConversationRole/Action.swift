@@ -27,18 +27,23 @@ final public class Action: ZMManagedObject {
     @NSManaged public var name: String?
 
     public override static func entityName() -> String {
-        return "Action"
+        return String(describing: Action.self)
     }
     
+    ///TODO: private
     static func fetchExistingAction(with name: String,
                                     role: Role,
                                     in context: NSManagedObjectContext) -> Action? {
         let fetchRequest = NSFetchRequest<Action>(entityName: self.entityName())
-        fetchRequest.predicate = NSPredicate(format: "%K == %@", self.nameKey, name)
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", nameKey, name)
         
-        return context.fetchOrAssert(request: fetchRequest).first(where:{$0.role == role})
+        let actions = context.fetchOrAssert(request: fetchRequest)
+        return actions.first(where:{
+            $0.role == role            
+        })
     }
 
+    ///TODO: private
     @objc
     @discardableResult
     static public func create(managedObjectContext: NSManagedObjectContext,
@@ -47,4 +52,20 @@ final public class Action: ZMManagedObject {
         entry.name = name
         return entry
     }
+    
+    public static func fetchOrCreate(with name: String,
+                                     role: Role,
+                                     in context: NSManagedObjectContext, created: inout Bool) -> Action {
+        if let existing = fetchExistingAction(with: name, role: role, in: context) {
+            role.actions.insert(existing)
+            created = false
+            return existing
+        } else {
+            let action = Action.create(managedObjectContext: context, name: name)
+            role.actions.insert(action)
+            created = true
+            return action
+        }
+    }
+
 }

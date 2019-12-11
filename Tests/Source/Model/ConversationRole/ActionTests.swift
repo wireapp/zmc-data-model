@@ -28,4 +28,22 @@ final class ActionTests: ZMBaseManagedObjectTest {
         
         XCTAssertEqual(sut.keysTrackedForLocalModifications(), expectedKeys)
     }
+    
+    func testThatFetchOrCreate_FetchesAnExistingAction() {
+        let name = "dummy action"
+        let role = Role.create(managedObjectContext: uiMOC, name: "DUMMY", team: nil)
+        
+        // given
+        var created = false
+        let action = Action.fetchOrCreate(with: name, role:role, in: uiMOC, created: &created)
+//        uiMOC.processPendingChanges()
+        XCTAssert(created)
+
+        // when
+        let fetchedAction = Action.fetchOrCreate(with: name, role: role, in: uiMOC, created: &created)
+
+        // then
+        XCTAssertFalse(created)
+        XCTAssertEqual(action, fetchedAction)
+    }
 }
