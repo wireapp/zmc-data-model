@@ -176,6 +176,9 @@ extension ZMConversation {
     /// List of roles for the conversation whether it's linked with a team or not
     @objc
     public func getRoles() -> Set<Role> {
-        return (self.team == nil) ? self.nonTeamRoles : self.team!.roles
+        if let team = team {
+            return team.roles
+        }
+        return nonTeamRoles
     }
 }
