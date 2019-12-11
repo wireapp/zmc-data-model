@@ -18,9 +18,9 @@
 
 import Foundation
 
-public let ZMParticipantRoleRoleValueKey      = "role"
-public let ZMParticipantRoleMarkedForDeletionKey = "markedForDeletion"
-public let ZMParticipantRoleMarkedForInsertionKey = "markedForInsertion"
+let ZMParticipantRoleRoleValueKey           = "role"
+let ZMParticipantRoleMarkedForDeletionKey   = "markedForDeletion"
+let ZMParticipantRoleMarkedForInsertionKey  = "markedForInsertion"
 
 @objcMembers
 final public class ParticipantRole: ZMManagedObject {

@@ -276,7 +276,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         return self.connection.to;
     }
     else if (self.conversationType == ZMConversationTypeOneOnOne) {
-        return self.lastServerSyncedActiveParticipants.anyObject;
+        return self.localParticipantsExcludingSelf.anyObject;
     }
     
     return nil;
@@ -495,8 +495,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     // 4. This participant is not a service user (bot).
     if (conversationType == ZMConversationTypeGroup &&
         self.teamRemoteIdentifier != nil &&
-        self.lastServerSyncedActiveParticipants.count == 1 &&
-        !self.lastServerSyncedActiveParticipants.anyObject.isServiceUser &&
+        self.localParticipantsExcludingSelf.count == 1 &&
+        !self.localParticipantsExcludingSelf.anyObject.isServiceUser &&
         self.userDefinedName.length == 0) {
         conversationType = ZMConversationTypeOneOnOne;
     }
@@ -1072,7 +1072,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
     
     if (otherUsers.count > 0) {
-        NSSet *existingUsers = [self.lastServerSyncedActiveParticipants copy];
+        NSSet *existingUsers = [self.localParticipants copy];
         [self unionWithUserSet:otherUsers.set isFromLocal:NO];
         
         [otherUsers minusSet:existingUsers];

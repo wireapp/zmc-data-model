@@ -149,7 +149,7 @@ extension ZMGenericMessage {
     }
 
     func recipientUsersForMessage(in conversation: ZMConversation, selfUser: ZMUser) -> (users: Set<ZMUser>, strategy: MissingClientsStrategy) {
-        let (services, otherUsers) = conversation.lastServerSyncedActiveParticipants.categorizeServicesAndUser()
+        let (services, otherUsers) = conversation.localParticipants.categorizeServicesAndUser()
 
         func recipientForConfirmationMessage() -> Set<ZMUser>? {
             guard self.hasConfirmation(), self.confirmation.firstMessageId != nil else { return nil }

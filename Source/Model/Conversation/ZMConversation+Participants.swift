@@ -29,36 +29,43 @@ extension ZMConversation {
     }
     // MARK: - keyPathsForValuesAffecting
     
-    static private var participantRolesKeys: [String] {
-        return [ZMConversationParticipantRolesKey,
-                "\(ZMConversationParticipantRolesKey).\(ZMParticipantRoleMarkedForDeletionKey)",
-                "\(ZMConversationParticipantRolesKey).\(ZMParticipantRoleMarkedForInsertionKey)"]
-    }
-    
-    @objc
-    public class func keyPathsForValuesAffectingLastServerSyncedActiveParticipants () -> Set<String> {
-        return Set(ZMConversation.participantRolesKeys)
+    static var participantRolesKeys: [String] {
+        return [#keyPath(ZMConversation.participantRoles),
+                #keyPath(ZMConversation.participantRoles.markedForDeletion),
+                #keyPath(ZMConversation.participantRoles.markedForInsertion)]
     }
     
     @objc
     public class func keyPathsForValuesAffectingActiveParticipants() -> Set<String> {
-        return Set([ZMConversationParticipantRolesKey])
+        return Set(participantRolesKeys)
     }
     
     @objc
-    public class func keyPathsForValuesAffectingIsSelfAnActiveMember() -> Set<String> {
-        return Set([ZMConversationParticipantRolesKey])
+    public class func keyPathsForValuesAffectingLocalParticipants() -> Set<String> {
+        return Set(participantRolesKeys)
+    }
+    
+    @objc
+    public class func keyPathsForValuesAffectingLocalParticipantRoles() -> Set<String> {
+        return Set(participantRolesKeys)
     }
     
     @objc
     public class func keyPathsForValuesAffectingDisplayName() -> Set<String> {
         return Set([ZMConversationConversationTypeKey,
-                    "lastServerSyncedActiveParticipants.name",
+                    "participantRoles.user.name",
                     "connection.to.name",
                     "connection.to.availability",
                     ZMConversationUserDefinedNameKey] +
-            ZMConversation.participantRolesKeys)
+                   ZMConversation.participantRolesKeys)
     }
+    
+    @objc
+    public class func keyPathsForValuesAffectingLocalParticipantsExcludingSelf() -> Set<String> {
+        return Set(ZMConversation.participantRolesKeys)
+    }
+    
+    //MARK: - Participants methods
     
     /// List of users that are in the conversation
     @objc
@@ -82,29 +89,26 @@ extension ZMConversation {
         return activeParticipants
     }
     
-    /// Participants that are in the conversation, according to the local state
+    /// Participants that are in the conversation, according to the local state,
+    /// even if that state is not yet synchronized with the backend
     @objc
     public var localParticipantRoles: Set<ParticipantRole> {
         return participantRoles.filter { !$0.markedForDeletion }
     }
     
     /// Participants that are in the conversation, according to the local state
+    /// even if that state is not yet synchronized with the backend
     @objc
     public var localParticipants: Set<ZMUser> {
         return Set(localParticipantRoles.map { $0.user })
     }
     
+    /// Participants that are in the conversation, according to the local state
+    /// even if that state is not yet synchronized with the backend
     @objc
-    public var lastServerSyncedActiveParticipants: Set<ZMUser> {
-        return Set(participantRoles.compactMap {
-            if !$0.markedForInsertion {
-                return $0.user
-            } else {
-                return nil
-            }
-        })
+    public var localParticipantsExcludingSelf: Set<ZMUser> {
+        return self.localParticipants.filter { !$0.isSelfUser }
     }
-    
     
     // MARK: - Participant operations
     
@@ -114,14 +118,17 @@ extension ZMConversation {
     @objc
     func union(userSet: Set<ZMUser>,
                isFromLocal: Bool) {
-        let currentParticipantSet = lastServerSyncedActiveParticipants
+        // TODO:
+        // Split in two: one that adds from remote, one that adds from UI
+        // use the method that also upgrades/degrades the conversation
+        let currentParticipantSet = self.participantRoles.map { $0.user }
         
         userSet.forEach() { user in
             if !currentParticipantSet.contains(user) {
                 add(user: user, isFromLocal: isFromLocal)
             }
             
-            ///if mark for delete, flip it
+            ///if marked for delete, set it to non-deleted
             if currentParticipantSet.contains(user) {
                 participantRoles.first(where: {$0.markedForDeletion})?.markedForDeletion = false
             }
@@ -129,7 +136,10 @@ extension ZMConversation {
     }
     
     @objc
-    public func minus(userSet: Set<ZMUser>, isFromLocal: Bool) {
+    func minus(userSet: Set<ZMUser>, isFromLocal: Bool) {
+        // TODO:
+        // Split in two: one that removes from remote, one that removes from UI
+        // use the method that also upgrades/degrades the conversation
         participantRoles.forEach() {
             if userSet.contains($0.user) {
                 switch (isFromLocal, $0.markedForInsertion) {
@@ -153,6 +163,9 @@ extension ZMConversation {
     @objc
     public func add(users: [ZMUser],
              isFromLocal: Bool) {
+        // TODO:
+        // Split in two: one that adds from remote, one that adds from UI
+        // use the method that also upgrades/degrades the conversation
         users.forEach() { user in
             add(user: user, isFromLocal: isFromLocal)
         }
@@ -161,6 +174,9 @@ extension ZMConversation {
     @objc
     public func add(user: ZMUser,
              isFromLocal: Bool) {
+        // TODO:
+        // Split in two: one that adds from remote, one that adds from UI
+        // use the method that also upgrades/degrades the conversation
         guard let moc = user.managedObjectContext else { return }
         if let participantRole = user.participantRoles.first(where: {$0.conversation == self}) {
             participantRole.markedForDeletion = false

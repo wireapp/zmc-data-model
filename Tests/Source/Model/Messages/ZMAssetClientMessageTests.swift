@@ -952,7 +952,7 @@ extension ZMAssetClientMessageTests {
             "id" : thumbnailId
             ] as [String : Any]
         
-        let payload = self.payloadForMessage(in: conversation, type: EventConversationAddOTRAsset, data: dataPayload)!
+        let payload = self.payloadForMessage(in: conversation, type: EventConversationAddOTRAsset, data: dataPayload)
         let updateEvent = ZMUpdateEvent(fromEventStreamPayload: payload, uuid: nil)!
         
         // when
@@ -989,7 +989,7 @@ extension ZMAssetClientMessageTests {
             "id" : thumbnailId
             ] as [String : Any]
         
-        let payload = self.payloadForMessage(in: conversation, type: EventConversationAddOTRAsset, data: dataPayload)!
+        let payload = self.payloadForMessage(in: conversation, type: EventConversationAddOTRAsset, data: dataPayload)
         let updateEvent = ZMUpdateEvent(fromEventStreamPayload: payload, uuid: nil)!
         
         // when
@@ -1028,9 +1028,9 @@ extension ZMAssetClientMessageTests {
                 "id" : thumbnailId.transportString()
             ]
             
-            let payload1 = self.payloadForMessage(in: conversation, type: EventConversationAddOTRAsset, data: dataPayload, time: firstDate)!
+            let payload1 = self.payloadForMessage(in: conversation, type: EventConversationAddOTRAsset, data: dataPayload, time: firstDate)
             let updateEvent1 = ZMUpdateEvent(fromEventStreamPayload: payload1, uuid: nil)!
-            let payload2 = self.payloadForMessage(in: conversation, type: EventConversationAddOTRAsset, data: dataPayload, time: secondDate)!
+            let payload2 = self.payloadForMessage(in: conversation, type: EventConversationAddOTRAsset, data: dataPayload, time: secondDate)
             let updateEvent2 = ZMUpdateEvent(fromEventStreamPayload: payload2, uuid: nil)!
             
             

@@ -49,8 +49,7 @@
     XCTAssertEqualObjects(conversation.objectID, fetchedConversation.objectID);
     
     NSSet *expectedParticipants = [NSSet setWithObjects:user1, user2, user3, selfUser, nil];
-    XCTAssertEqualObjects(expectedParticipants, conversation.lastServerSyncedActiveParticipants);
-    
+    XCTAssertEqualObjects(expectedParticipants, conversation.localParticipants);
 }
 
 - (void)testThatItInsertsANewConversationInUserSession
@@ -78,7 +77,7 @@
     XCTAssertEqualObjects(conversation.objectID, fetchedConversation.objectID);
     
     NSSet *expectedParticipants = [NSSet setWithObjects:user1, user2, user3, selfUser, nil];
-    XCTAssertEqualObjects(expectedParticipants, conversation.lastServerSyncedActiveParticipants);
+    XCTAssertEqualObjects(expectedParticipants, conversation.localParticipants);
     
 }
 
@@ -111,7 +110,7 @@
     XCTAssertEqualObjects(conversation.objectID, fetchedConversation.objectID);
     
     NSSet *expectedParticipants = [NSSet setWithObjects:user1, user2, user3, selfUser, nil];
-    XCTAssertEqualObjects(expectedParticipants, conversation.lastServerSyncedActiveParticipants);
+    XCTAssertEqualObjects(expectedParticipants, conversation.localParticipants);
     
 }
 
