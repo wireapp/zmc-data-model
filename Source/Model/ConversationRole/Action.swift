@@ -19,15 +19,26 @@
 import Foundation
 
 @objcMembers
-public class Action: ZMManagedObject {
-    
+final public class Action: ZMManagedObject {
+    public static let nameKey = "name"
+
     @NSManaged public var role: Role
     @NSManaged public var name: String?
-    
+
     public override static func entityName() -> String {
         return "Action"
     }
     
+    @objc
+    static func fetchExistingAction(with name: String,
+                                    role: Role,
+                                    in context: NSManagedObjectContext) -> Action? {
+        let fetchRequest = NSFetchRequest<Action>(entityName: self.entityName())
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", self.nameKey, name)
+        
+        return context.fetchOrAssert(request: fetchRequest).first(where:{$0.role == role})
+    }
+
     @objc
     @discardableResult
     static public func create(managedObjectContext: NSManagedObjectContext,

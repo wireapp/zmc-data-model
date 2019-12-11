@@ -22,7 +22,7 @@ import WireUtilities
 import WireCryptobox
 @testable import WireDataModel
 
-class UserClientTests: ZMBaseManagedObjectTest {
+final class UserClientTests: ZMBaseManagedObjectTest {
         
     func clientWithTrustedClientCount(_ trustedCount: UInt, ignoredClientCount: UInt, missedClientCount: UInt) -> UserClient
     {

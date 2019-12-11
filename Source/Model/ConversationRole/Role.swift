@@ -19,8 +19,13 @@
 import Foundation
 
 @objcMembers
-public class Role: ZMManagedObject {
-    
+public final class Role: ZMManagedObject {
+    public static let nameKey = "name"
+    public static let teamKey = "team"
+    public static let conversationKey = "conversation"
+    public static let actionsKey = "actions"
+    public static let participantRolesKey = "participantRoles"
+
     @NSManaged public var name: String?
 
     @NSManaged public var actions: Set<Action>
@@ -56,5 +61,46 @@ public class Role: ZMManagedObject {
         entry.name = name
         entry.team = team
         return entry
+    }
+
+    @objc
+    static func fetchExistingRole(with conversationRole: String, in context: NSManagedObjectContext) -> Role? {
+        let fetchRequest = NSFetchRequest<Role>(entityName: Role.entityName())
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", Role.nameKey, conversationRole)
+        fetchRequest.fetchLimit = 1
+        
+        return context.fetchOrAssert(request: fetchRequest).first
+    }
+
+    @discardableResult
+    public static func createOrUpdate(with payload: [String: Any],
+                                      team: Team?,
+                                      conversation: ZMConversation,
+                                      context: NSManagedObjectContext
+        ) -> Role? {
+        guard let conversationRole = payload["conversation_role"] as? String,
+            let actionNames = payload["actions"] as? [String]
+            else { return nil }
+        
+        let fetchedRole = fetchExistingRole(with: conversationRole, in: context)
+
+        let role = fetchedRole ?? Role.insertNewObject(in: context)
+        
+        actionNames.forEach() { actionName in
+            let action = Action.fetchExistingAction(with: actionName, role: role, in: context)
+            
+            if action == nil {
+                let newAction = Action.insertNewObject(in: context)
+                newAction.name = actionName
+                
+                role.actions.insert(newAction)
+            }
+            
+        }
+
+        role.team = team
+        role.conversation = conversation
+
+        return role
     }
 }
