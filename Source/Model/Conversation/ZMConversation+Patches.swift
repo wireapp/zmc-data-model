@@ -53,24 +53,24 @@ extension ZMConversation {
                 let adminRole = conversation.getRoles().first(where: {$0.name == defaultAdminRoleName} )
                 
                 if let conversationTeam = conversation.team, conversationTeam == selfUser.team, selfUser.isTeamMember {
-                    participantRoleForSelfUser = getAParticipantRoleForATeamMember(in: moc, adminRole: adminRole, user: selfUser, conversation: conversation, team: conversationTeam)
+                    participantRoleForSelfUser = getAParticipantRole(in: moc, adminRole: adminRole, user: selfUser, conversation: conversation, team: conversationTeam)
                 } else {
-                    participantRoleForSelfUser = getAParticipantRoleForANonTeamMember(in: moc, adminRole: adminRole, user: selfUser, conversation: conversation)
+                    participantRoleForSelfUser = getAParticipantRole(in: moc, adminRole: adminRole, user: selfUser, conversation: conversation, team: nil)
                 }
                 conversation.participantRoles.insert(participantRoleForSelfUser)
             }
         }
     }
     
-    static private func getAParticipantRoleForATeamMember(in moc: NSManagedObjectContext, adminRole: Role?, user: ZMUser, conversation: ZMConversation, team: Team) -> ParticipantRole {
+    static private func getAParticipantRole(in moc: NSManagedObjectContext, adminRole: Role?, user: ZMUser, conversation: ZMConversation, team: Team?) -> ParticipantRole {
         let participantRoleForUser = ParticipantRole.create(managedObjectContext: moc, user: user, conversation: conversation)
-        participantRoleForUser.role = (adminRole == nil) ? Role.create(managedObjectContext: moc, name: defaultAdminRoleName, team: team) : adminRole!
-        return participantRoleForUser
-    }
-    
-    static private func getAParticipantRoleForANonTeamMember(in moc: NSManagedObjectContext, adminRole: Role?, user: ZMUser, conversation: ZMConversation) -> ParticipantRole {
-        let participantRoleForUser = ParticipantRole.create(managedObjectContext: moc, user: user, conversation: conversation)
-        participantRoleForUser.role = (adminRole == nil) ? Role.create(managedObjectContext: moc, name: defaultAdminRoleName, conversation: conversation) : adminRole!
+        let customRole = (team != nil) ? Role.create(managedObjectContext: moc, name: defaultAdminRoleName, team: team!) : Role.create(managedObjectContext: moc, name: defaultAdminRoleName, conversation: conversation)
+        
+        if let adminRole = adminRole {
+            participantRoleForUser.role = adminRole
+        } else {
+            participantRoleForUser.role = customRole
+        }
         return participantRoleForUser
     }
 }
