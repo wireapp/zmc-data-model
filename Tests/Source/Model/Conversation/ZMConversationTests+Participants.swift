@@ -35,8 +35,6 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         // WHEN
         sut.minus(userSet: Set([user2]), isFromLocal: true)
         
-        let selfUser = sut.managedObjectContext.map(ZMUser.selfUser)
-        
         // THEN
         XCTAssertEqual(Set(sut.participantRoles.map { $0.user }), Set([user1, user2]))
         XCTAssertEqual(sut.activeParticipants, Set([user1]))
@@ -106,8 +104,6 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         // WHEN
         sut.minus(userSet: Set([user2]), isFromLocal: true)
         sut.add(user: user2, isFromLocal: true)
-
-        let selfUser = sut.managedObjectContext.map(ZMUser.selfUser)
         
         // THEN
         XCTAssertEqual(Set(sut.participantRoles.map { $0.user }), Set([user1, user2]))
