@@ -32,6 +32,10 @@ public class Role: ZMManagedObject {
         return "Role"
     }
     
+    public override static func isTrackingLocalModifications() -> Bool {
+        return false
+    }
+    
     @objc
     @discardableResult
     static public func create(managedObjectContext: NSManagedObjectContext,

@@ -203,7 +203,7 @@ extension ZMUser {
                 add(conversation: conversation)
             } else if currentConversationSet.contains(conversation) {
                 ///if mark for delete, set markedForDeletion to false
-                participantRoles.first(where: {$0.markedForDeletion})?.markedForDeletion = false
+                participantRoles.first(where: {$0.markedForDeletion})?.operationToSync = .none
             }
         }
     }

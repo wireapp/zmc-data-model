@@ -85,25 +85,30 @@ final class ParticipantRoleObserverTests: NotificationDispatcherTestBase {
         
         guard let changes = observer.notifications.first else { return }
         changes.checkForExpectedChangeFields(userInfoKeys: userInfoKeys,
-                                             expectedChangedFields: expectedChangedFields)
+                                             expectedChangedFields: expectedChangedFields,
+                                             file: file,
+                                             line: line)
     }
     
-    func testThatItNotifiesTheObserverOfMarkForDeletion() {
+    func testThatItNotifiesTheObserverOfChangeOfMarkForDeletion() {
         // given
         let user = ZMUser.insertNewObject(in: uiMOC)
         let convo = ZMConversation.insertNewObject(in: uiMOC)
 
         
         let participantRole = ParticipantRole.create(managedObjectContext: uiMOC, user: user, conversation: convo)
-        participantRole.markedForDeletion = false
+        participantRole.operationToSync = .none
         uiMOC.saveOrRollback()
         
         // when
         checkThatItNotifiesTheObserverOfAChange(participantRole,
                                                      modifier: { participantRole in
-                                                        participantRole.markedForDeletion = true
-        },
-                                                     expectedChangedFields: [#keyPath(ParticipantRoleChangeInfo.markedForDeletion)]
+                                                        participantRole.operationToSync = .delete
+                                                     },
+                                                     expectedChangedFields: [
+                                                        #keyPath(ParticipantRoleChangeInfo.markedForDeletion),
+                                                        #keyPath(ParticipantRoleChangeInfo.markedForInsertion),
+            ]
         )
         
     }
@@ -115,15 +120,18 @@ final class ParticipantRoleObserverTests: NotificationDispatcherTestBase {
         
         
         let participantRole = ParticipantRole.create(managedObjectContext: uiMOC, user: user, conversation: convo)
-        participantRole.markedForInsertion = false
+        participantRole.operationToSync = .none
         uiMOC.saveOrRollback()
         
         // when
         checkThatItNotifiesTheObserverOfAChange(participantRole,
                                                 modifier: { participantRole in
-                                                    participantRole.markedForInsertion = true
-        },
-                                                expectedChangedFields: [#keyPath(ParticipantRoleChangeInfo.markedForInsertion)]
+                                                    participantRole.operationToSync = .insert
+                                                },
+                                                expectedChangedFields: [
+                                                    #keyPath(ParticipantRoleChangeInfo.markedForInsertion),
+                                                    #keyPath(ParticipantRoleChangeInfo.markedForDeletion)
+            ]
         )
         
     }
