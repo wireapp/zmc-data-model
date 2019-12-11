@@ -23,10 +23,10 @@ final class RoleTests: ZMBaseManagedObjectTest {
     
     func testThatItTracksCorrectKeys() {
         let expectedKeys = Set(arrayLiteral: Role.nameKey,
-                               Role.teamKey,
-                               Role.conversationKey,
-                               Role.actionsKey,
-                               Role.participantRolesKey)
+                                             Role.teamKey,
+                                             Role.conversationKey,
+                                             Role.actionsKey,
+                                             Role.participantRolesKey)
         
         let role = Role.insertNewObject(in: uiMOC)
         

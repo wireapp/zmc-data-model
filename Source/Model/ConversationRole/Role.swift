@@ -20,11 +20,11 @@ import Foundation
 
 @objcMembers
 public final class Role: ZMManagedObject {
-    public static let nameKey = "name"
-    public static let teamKey = "team"
-    public static let conversationKey = "conversation"
-    public static let actionsKey = "actions"
-    public static let participantRolesKey = "participantRoles"
+    public static let nameKey = #keyPath(Role.name)
+    public static let teamKey = #keyPath(Role.team)
+    public static let conversationKey = #keyPath(Role.conversation)
+    public static let actionsKey = #keyPath(Role.actions)
+    public static let participantRolesKey = #keyPath(Role.participantRoles)
 
     @NSManaged public var name: String?
 
