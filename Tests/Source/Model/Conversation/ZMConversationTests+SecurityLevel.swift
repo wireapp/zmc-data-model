@@ -560,6 +560,7 @@ class ZMConversationTests_SecurityLevel: ZMConversationTestsBase {
             
             let selfUser = ZMUser.selfUser(in: self.syncMOC)
             selfUser.name = "MYSELF"
+            conversation.add(user: selfUser, isFromLocal: true)
             
             let mainTeam = Team.fetchOrCreate(with: UUID.create(),
                                               create: true,
@@ -919,6 +920,7 @@ class ZMConversationTests_SecurityLevel: ZMConversationTestsBase {
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.conversationType = .group
         conversation.remoteIdentifier = UUID()
+        conversation.add(user: selfUser, isFromLocal: true)
         
         let verifiedUser = ZMUser.insertNewObject(in: self.uiMOC)
         verifiedUser.remoteIdentifier = UUID()
@@ -987,7 +989,7 @@ class ZMConversationTests_SecurityLevel: ZMConversationTestsBase {
         // GIVEN
         let conversation = self.setupVerifiedConversation()
         let selfUser = ZMUser.selfUser(in: self.uiMOC)
-        
+
         // WHEN
         let unverifiedUsers = self.setupUnverifiedUsers(count: 1)
         conversation.internalAddParticipants(Array(unverifiedUsers))

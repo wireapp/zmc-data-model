@@ -160,6 +160,9 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
             [participants addObject:[ZMUser userWithRemoteID:userId createIfNeeded:YES inContext:self.managedObjectContext]];
         }
     }
+    // the self user is always a part of the conversation if we are in this method
+    //backend will never send us the update of conversation where we are not in
+    [participants addObject:[ZMUser selfUserInContext:self.managedObjectContext]];
     
     NSMutableSet<ZMUser *> *addedParticipants = [participants mutableCopy];
     [addedParticipants minusSet:lastSyncedUsers];
@@ -200,8 +203,6 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
 /// Pass timestamp when the timestamp equals the time of the lastRead / cleared event, otherwise pass nil
 - (void)updateSelfStatusFromDictionary:(NSDictionary *)dictionary timeStamp:(NSDate *)timeStamp previousLastServerTimeStamp:(NSDate *)previousLastServerTimestamp
 {
-    self.isSelfAnActiveMember = YES;
-    
     [self updateMutedStatusWithPayload:dictionary];
     if ([self updateIsArchivedWithPayload:dictionary] && self.isArchived && previousLastServerTimestamp != nil) {
         if (timeStamp != nil && self.clearedTimeStamp != nil && [self.clearedTimeStamp isEqualToDate:previousLastServerTimestamp]) {

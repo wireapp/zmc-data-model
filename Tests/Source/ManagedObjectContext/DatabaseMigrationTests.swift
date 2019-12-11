@@ -384,6 +384,12 @@ class DatabaseMigrationTests: DatabaseBaseTest {
         }
     }
     
+    func dataBaseExportHelper(_ storeFile: URL) {
+        // set a break poit here to export a store file snapshot
+        // copy the storeFile to test resources
+        XCTAssert(!storeFile.absoluteString.isEmpty)
+    }
+    
     func testThatTheVersionIdentifiersMatchModelNameAndDoNotDuplicate() throws {
         // given
         guard let source = Bundle(for: ZMMessage.self).url(forResource: "zmessaging", withExtension: "momd") else {
@@ -447,6 +453,7 @@ extension DatabaseMigrationTests {
             return
         }
         try! FileManager.default.copyItem(at: source, to: storeFile)
+        dataBaseExportHelper(storeFile)
     }
     
     // The naming scheme is slightly different for fixture files

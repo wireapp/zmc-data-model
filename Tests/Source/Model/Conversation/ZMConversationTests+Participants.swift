@@ -30,16 +30,14 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         sut.internalAddParticipants([user1, user2])
         
         XCTAssertEqual(sut.participantRoles.count, 2)
-        XCTAssertEqual(sut.activeParticipants.count, 3)
+        XCTAssertEqual(sut.activeParticipants.count, 2)
 
         // WHEN
         sut.minus(userSet: Set([user2]), isFromLocal: true)
         
-        let selfUser = sut.managedObjectContext.map(ZMUser.selfUser)
-        
         // THEN
         XCTAssertEqual(Set(sut.participantRoles.map { $0.user }), Set([user1, user2]))
-        XCTAssertEqual(sut.activeParticipants, Set([user1, selfUser]))
+        XCTAssertEqual(sut.activeParticipants, Set([user1]))
 
         XCTAssert(user2.participantRoles.first!.markedForDeletion)
         XCTAssertFalse(user2.participantRoles.first!.markedForInsertion)
@@ -58,7 +56,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
 
         // THEN
         XCTAssertEqual(Set(sut.participantRoles.map { $0.user }), Set([user1, user2]))
-        XCTAssertEqual(sut.activeParticipants, Set([user1, user2, selfUser]))
+        XCTAssertEqual(sut.activeParticipants, Set([user1, user2]))
 
         XCTAssertFalse(user2.participantRoles.first!.markedForDeletion)
         XCTAssert(user2.participantRoles.first!.markedForInsertion)
@@ -101,17 +99,15 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         sut.internalAddParticipants([user1, user2])
         
         XCTAssertEqual(sut.participantRoles.count, 2)
-        XCTAssertEqual(sut.activeParticipants.count, 3)
+        XCTAssertEqual(sut.activeParticipants.count, 2)
         
         // WHEN
         sut.minus(userSet: Set([user2]), isFromLocal: true)
         sut.add(user: user2, isFromLocal: true)
-
-        let selfUser = sut.managedObjectContext.map(ZMUser.selfUser)
         
         // THEN
         XCTAssertEqual(Set(sut.participantRoles.map { $0.user }), Set([user1, user2]))
-        XCTAssertEqual(sut.activeParticipants, Set([user1, user2, selfUser]))
+        XCTAssertEqual(sut.activeParticipants, Set([user1, user2]))
         
         XCTAssertFalse(user2.participantRoles.first!.markedForDeletion)
         XCTAssertFalse(user2.participantRoles.first!.markedForInsertion)
@@ -132,7 +128,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
 
         // THEN
         XCTAssertEqual(Set(sut.participantRoles.map { $0.user }), Set([user1]))
-        XCTAssertEqual(sut.activeParticipants, Set([user1, selfUser]))
+        XCTAssertEqual(sut.activeParticipants, Set([user1]))
 
         XCTAssert(user2.participantRoles.isEmpty, "\(user2.participantRoles)")
     }
@@ -320,29 +316,29 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         let selfUser = ZMUser.selfUser(in: self.uiMOC)
         
         // when
-        conversation.isSelfAnActiveMember = true
+        conversation.add(user: ZMUser.selfUser(in: self.uiMOC), isFromLocal: true)
         
         // then
         XCTAssertTrue(conversation.activeParticipants.contains(selfUser))
         
         // when
-        conversation.isSelfAnActiveMember = false
+        conversation.minus(user: ZMUser.selfUser(in: self.uiMOC), isFromLocal: true)
         
         // then
         XCTAssertFalse(conversation.activeParticipants.contains(selfUser))
     }
     
-    func testThatOtherActiveParticipantsDoesNotContainSelf() {
-        // TODO: review
+    func testThatLocalParticipantsExcludingSelfDoesNotContainSelf() {
         // given
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         let selfUser = ZMUser.selfUser(in: self.uiMOC)
         
         // when
-        conversation.isSelfAnActiveMember = true
+        conversation.add(user: selfUser, isFromLocal: true)
+        self.uiMOC.saveOrRollback()
         
         // then
-        XCTAssertFalse(conversation.localParticipants.contains(selfUser))
+        XCTAssertFalse(conversation.localParticipantsExcludingSelf.contains(selfUser))
     }
 
     //MARK: - Sorting
@@ -372,7 +368,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         self.uiMOC.saveOrRollback()
 
         // then
-        let expected = [user2, user1, user4, selfUser, user3]
+        let expected = [user2, user1, user4, user3]
 
         XCTAssertEqual(conversation.sortedActiveParticipants, expected)
     }
@@ -427,5 +423,39 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         
         // then
         XCTAssertEqual(conversation.connectedUser, user)
+    }
+    
+    func testThatWeGetAConversationRolesIfItIsAPartOfATeam() {
+        // given
+        let team = self.createTeam(in: self.uiMOC)
+        let user1 = self.createTeamMember(in: self.uiMOC, for: team)
+        let user2 = self.createTeamMember(in: self.uiMOC, for: team)
+        let conversation = ZMConversation.insertGroupConversation(into: self.uiMOC, withParticipants: [user1, user2], name: self.name, in: team)
+        
+        // when
+        let adminRole = Role.create(managedObjectContext: uiMOC, name: "wire_admin", team: team)
+        let memberRole = Role.create(managedObjectContext: uiMOC, name: "wire_member", team: team)
+        team.roles.insert(adminRole)
+        team.roles.insert(memberRole)
+        
+        // then
+        XCTAssertNotNil(conversation!.team)
+        XCTAssertEqual(conversation!.getRoles(), conversation!.team!.roles)
+        XCTAssertNotEqual(conversation!.getRoles(), conversation!.nonTeamRoles)
+    }
+    
+    func testThatWeGetAConversationRolesIfItIsNotAPartOfATeam() {
+        // given
+        let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
+        conversation.conversationType = .group
+        
+        // when
+        let adminRole = Role.create(managedObjectContext: uiMOC, name: "wire_admin", conversation: conversation)
+        conversation.nonTeamRoles.insert(adminRole)
+        
+        // then
+        XCTAssertNil(conversation.team)
+        XCTAssertEqual(conversation.getRoles(), conversation.nonTeamRoles)
+        XCTAssertNotEqual(conversation.getRoles(), conversation.team?.roles)
     }
 }

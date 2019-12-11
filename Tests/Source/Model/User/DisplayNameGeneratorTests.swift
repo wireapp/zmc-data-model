@@ -296,7 +296,7 @@ extension DisplayNameGeneratorTests {
         
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.conversationType = .group
-        conversation.add(users: [user1], isFromLocal: false)
+        conversation.add(users: [user1, selfUser], isFromLocal: false)
         
         // when
         let displayName1 = user1.displayName(in: conversation)

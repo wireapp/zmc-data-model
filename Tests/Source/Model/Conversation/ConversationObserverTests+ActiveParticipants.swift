@@ -26,7 +26,7 @@ extension ConversationObserverTests {
         // given
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.conversationType = .group
-        conversation.isSelfAnActiveMember = true
+        conversation.add(user: ZMUser.selfUser(in: uiMOC), isFromLocal: true)
         
         let user1 = ZMUser.insertNewObject(in: uiMOC)
         let user2 = ZMUser.insertNewObject(in: uiMOC)
@@ -34,18 +34,18 @@ extension ConversationObserverTests {
         conversation.internalAddParticipants([user1, user2])
         
         XCTAssert(conversation.isSelfAnActiveMember)
-        XCTAssertEqual(conversation.participantRoles.count, 2)
+        XCTAssertEqual(conversation.participantRoles.count, 3)
         XCTAssertEqual(conversation.activeParticipants.count, 3)
         
         // when
         
         checkThatItNotifiesTheObserverOfAChange(conversation,
                                                 modifier: { conversation, _ in
-                                                    conversation.isSelfAnActiveMember = false},
+                                                    conversation.minus(user: ZMUser.selfUser(in: uiMOC), isFromLocal: true)},
                                                 expectedChangedFields: ["nameChanged",
                                                                         "participantsChanged",
                                                                         "activeParticipantsChanged"],
-                                                expectedChangedKeys: ["isSelfAnActiveMember", "localParticipantRoles", "displayName", "activeParticipants"]
+                                                expectedChangedKeys: ["localParticipantRoles", "displayName", "activeParticipants"]
         )
 
         
@@ -59,14 +59,14 @@ extension ConversationObserverTests {
         // given
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.conversationType = .group
-        conversation.isSelfAnActiveMember = true
+        conversation.add(user: ZMUser.selfUser(in: uiMOC), isFromLocal: true)
         
         let user1 = ZMUser.insertNewObject(in: uiMOC)
         let user2 = ZMUser.insertNewObject(in: uiMOC)
         conversation.internalAddParticipants([user1, user2])
         
         XCTAssert(conversation.isSelfAnActiveMember)
-        XCTAssertEqual(conversation.participantRoles.count, 2)
+        XCTAssertEqual(conversation.participantRoles.count, 3)
         XCTAssertEqual(conversation.activeParticipants.count, 3)
         
         // when
@@ -88,7 +88,7 @@ extension ConversationObserverTests {
 
         // then
         XCTAssert(conversation.isSelfAnActiveMember)
-        XCTAssertEqual(conversation.participantRoles.count, 1)
+        XCTAssertEqual(conversation.participantRoles.count, 2)
         XCTAssertEqual(conversation.activeParticipants.count, 2)
     }
 }

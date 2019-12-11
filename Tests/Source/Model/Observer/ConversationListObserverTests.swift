@@ -593,6 +593,7 @@ class ConversationListObserverTests: NotificationDispatcherTestBase {
         let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
         conversation.lastReadServerTimeStamp = Date()
         conversation.conversationType = .group
+        conversation.add(user:ZMUser.selfUser(in: self.uiMOC), isFromLocal: true)
         self.uiMOC.saveOrRollback()
         
         let conversationList = ZMConversation.conversationsExcludingArchived(in: self.uiMOC)
@@ -602,7 +603,7 @@ class ConversationListObserverTests: NotificationDispatcherTestBase {
         let message = conversation.append(text: "hello")
         self.uiMOC.saveOrRollback()
         
-        guard let user = conversation.activeParticipants.first else { XCTFail(); return }
+        guard let user = conversation.participantRoles.first?.user else { XCTFail(); return }
         
         message?.textMessageData?.editText(user.displayName, mentions: [Mention(range: NSRange(location: 0, length: user.displayName.count), user: user)], fetchLinkPreview: false)
         self.uiMOC.saveOrRollback()

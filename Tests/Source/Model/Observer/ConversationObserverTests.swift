@@ -393,15 +393,16 @@ final class ConversationObserverTests : NotificationDispatcherTestBase {
         // given
         let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
         conversation.conversationType = ZMConversationType.group
-        conversation.isSelfAnActiveMember = false
+        conversation.minus(user: ZMUser.selfUser(in: self.uiMOC), isFromLocal: true)
         self.uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // when
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
-                                                     modifier: {conversation, _ in conversation.isSelfAnActiveMember = true },
+                                                     modifier: {conversation, _ in
+                                                     conversation.add(user: ZMUser.selfUser(in: self.uiMOC), isFromLocal: true)},
                                                      expectedChangedFields: ["participantsChanged", "activeParticipantsChanged", "nameChanged"],
-                                                     expectedChangedKeys: ["isSelfAnActiveMember"])
+                                                     expectedChangedKeys: ["localParticipantRoles", "displayName", "activeParticipants"])
         
     }
     
@@ -411,15 +412,16 @@ final class ConversationObserverTests : NotificationDispatcherTestBase {
         let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
         conversation.conversationType = ZMConversationType.group
         _ = ZMUser.insertNewObject(in:self.uiMOC)
-        conversation.isSelfAnActiveMember = true
+        conversation.add(user: ZMUser.selfUser(in: self.uiMOC), isFromLocal: true)
         uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // when
         self.checkThatItNotifiesTheObserverOfAChange(conversation,
-                                                     modifier: {conversation, _ in conversation.isSelfAnActiveMember = false },
+                                                     modifier: {conversation, _ in
+                                                        conversation.minus(user: ZMUser.selfUser(in: self.uiMOC), isFromLocal: true)},
                                                      expectedChangedFields: ["participantsChanged", "activeParticipantsChanged", "nameChanged"],
-                                                     expectedChangedKeys: ["isSelfAnActiveMember"])
+                                                     expectedChangedKeys: ["localParticipantRoles", "displayName", "activeParticipants"])
         
     }
     

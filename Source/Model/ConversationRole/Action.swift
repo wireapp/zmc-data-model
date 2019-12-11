@@ -27,4 +27,13 @@ public class Action: ZMManagedObject {
     public override static func entityName() -> String {
         return "Action"
     }
+    
+    @objc
+    @discardableResult
+    static public func create(managedObjectContext: NSManagedObjectContext,
+                              name: String) -> Action {
+        let entry = Action.insertNewObject(in: managedObjectContext)
+        entry.name = name
+        return entry
+    }
 }

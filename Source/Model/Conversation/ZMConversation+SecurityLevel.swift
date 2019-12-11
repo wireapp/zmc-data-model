@@ -671,10 +671,9 @@ extension ZMConversation {
         
         let selfUser = ZMUser.selfUser(in: managedObjectContext)
         return localParticipants.first {
-            if $0.isConnected {
+            if $0.isConnected || $0 == selfUser {
                 return false
-            }
-            else if $0.isWirelessUser {
+            } else if $0.isWirelessUser {
                 return false
             }
             else {
