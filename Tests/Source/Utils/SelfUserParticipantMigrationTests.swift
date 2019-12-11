@@ -44,4 +44,18 @@ class SelfUserParticipantMigrationTests: DiskDatabaseTest {
         })
         XCTAssertTrue(hasSelfUser)
     }
+    
+    func testAddUserFromTheConnectionToTheParticipanrRoles() {
+        // Given
+        let conversation = createConversation()
+        let newUser = ZMUser.insertNewObject(in: moc)
+        newUser.remoteIdentifier = UUID.create()
+        let _ = createConnection(to: newUser, conversation: conversation)
+        
+        // When
+        WireDataModel.ZMConversation.addUserFromTheConnectionToTheParticipanrRoles(in: moc)
+        
+        // Then
+        XCTAssertEqual(conversation.participantRoles.count, 1)
+    }
 }
