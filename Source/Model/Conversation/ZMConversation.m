@@ -1092,12 +1092,10 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     NSMutableOrderedSet<ZMUser *> *otherUsers = [NSMutableOrderedSet orderedSetWithArray:participants];
 
     if ([otherUsers intersectsSet:selfUserSet]) {
-        [self minusWithUser:[ZMUser selfUserInContext:self.managedObjectContext] isFromLocal:NO];
         self.isArchived = sender.isSelfUser;
     }
     
     [self minusWithUserSet:otherUsers.set isFromLocal:NO];
-    [self minusWithUser:[ZMUser selfUserInContext:self.managedObjectContext] isFromLocal:NO];
     [self increaseSecurityLevelIfNeededAfterRemovingUsers:otherUsers.set];
 }
 

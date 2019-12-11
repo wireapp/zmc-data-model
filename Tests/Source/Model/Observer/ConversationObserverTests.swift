@@ -402,7 +402,7 @@ final class ConversationObserverTests : NotificationDispatcherTestBase {
                                                      modifier: {conversation, _ in
                                                      conversation.add(user: ZMUser.selfUser(in: self.uiMOC), isFromLocal: true)},
                                                      expectedChangedFields: ["participantsChanged", "activeParticipantsChanged", "nameChanged"],
-                                                     expectedChangedKeys: ["isSelfAnActiveMember"])
+                                                     expectedChangedKeys: ["localParticipantRoles", "displayName", "activeParticipants"])
         
     }
     
@@ -421,7 +421,7 @@ final class ConversationObserverTests : NotificationDispatcherTestBase {
                                                      modifier: {conversation, _ in
                                                         conversation.minus(user: ZMUser.selfUser(in: self.uiMOC), isFromLocal: true)},
                                                      expectedChangedFields: ["participantsChanged", "activeParticipantsChanged", "nameChanged"],
-                                                     expectedChangedKeys: ["isSelfAnActiveMember"])
+                                                     expectedChangedKeys: ["localParticipantRoles", "displayName", "activeParticipants"])
         
     }
     

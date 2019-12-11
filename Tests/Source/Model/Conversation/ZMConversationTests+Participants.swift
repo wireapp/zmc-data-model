@@ -332,17 +332,17 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         XCTAssertFalse(conversation.activeParticipants.contains(selfUser))
     }
     
-    func testThatOtherActiveParticipantsDoesNotContainSelf() {
-        // TODO: review
+    func testThatLocalParticipantsExcludingSelfDoesNotContainSelf() {
         // given
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         let selfUser = ZMUser.selfUser(in: self.uiMOC)
         
         // when
-        conversation.add(user: ZMUser.selfUser(in: self.uiMOC), isFromLocal: true)
+        conversation.add(user: selfUser, isFromLocal: true)
+        self.uiMOC.saveOrRollback()
         
         // then
-        XCTAssertFalse(conversation.localParticipants.contains(selfUser))
+        XCTAssertFalse(conversation.localParticipantsExcludingSelf.contains(selfUser))
     }
 
     //MARK: - Sorting

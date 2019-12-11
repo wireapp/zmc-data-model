@@ -1909,39 +1909,6 @@
 }
 @end
 
-@implementation ZMConversationTests (Participants)
-
-- (void)testThatItRecalculatesActiveParticipantsWhenIsSelfActiveUserKeyChanges
-{
-    // given
-    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    conversation.conversationType = ZMConversationTypeGroup;
-    [conversation addWithUser:[ZMUser selfUserInContext:self.uiMOC] isFromLocal:YES];
-    
-    ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    ZMUser *user2 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    
-    [conversation internalAddParticipants:@[user1, user2]];
-    
-    XCTAssertTrue(conversation.isSelfAnActiveMember);
-    XCTAssertEqual(conversation.participantRoles.count, 3u);
-    XCTAssertEqual(conversation.activeParticipants.count, 3u);
-    
-    // expect
-    [self keyValueObservingExpectationForObject:conversation keyPath:@"activeParticipants" expectedValue:nil];
-    
-    // when
-    [conversation minusWithUser:[ZMUser selfUserInContext:self.uiMOC] isFromLocal:YES];
-    
-    // then
-    XCTAssertFalse(conversation.isSelfAnActiveMember);
-    XCTAssertEqual(conversation.participantRoles.count, 2u);
-    XCTAssertEqual(conversation.activeParticipants.count, 2u);
-    XCTAssert([self waitForCustomExpectationsWithTimeout:0.5]);
-}
-
-@end
-
 @implementation ZMConversationTests (KeyValueObserving)
 
 - (void)testThatItRecalculatesHasDraftMessageWhenDraftMessageTextChanges

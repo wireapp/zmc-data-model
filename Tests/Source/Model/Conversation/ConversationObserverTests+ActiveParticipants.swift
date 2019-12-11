@@ -34,7 +34,7 @@ extension ConversationObserverTests {
         conversation.internalAddParticipants([user1, user2])
         
         XCTAssert(conversation.isSelfAnActiveMember)
-        XCTAssertEqual(conversation.participantRoles.count, 2)
+        XCTAssertEqual(conversation.participantRoles.count, 3)
         XCTAssertEqual(conversation.activeParticipants.count, 3)
         
         // when
@@ -45,7 +45,7 @@ extension ConversationObserverTests {
                                                 expectedChangedFields: ["nameChanged",
                                                                         "participantsChanged",
                                                                         "activeParticipantsChanged"],
-                                                expectedChangedKeys: ["isSelfAnActiveMember", "localParticipantRoles", "displayName", "activeParticipants"]
+                                                expectedChangedKeys: ["localParticipantRoles", "displayName", "activeParticipants"]
         )
 
         
@@ -66,7 +66,7 @@ extension ConversationObserverTests {
         conversation.internalAddParticipants([user1, user2])
         
         XCTAssert(conversation.isSelfAnActiveMember)
-        XCTAssertEqual(conversation.participantRoles.count, 2)
+        XCTAssertEqual(conversation.participantRoles.count, 3)
         XCTAssertEqual(conversation.activeParticipants.count, 3)
         
         // when
@@ -88,7 +88,7 @@ extension ConversationObserverTests {
 
         // then
         XCTAssert(conversation.isSelfAnActiveMember)
-        XCTAssertEqual(conversation.participantRoles.count, 1)
+        XCTAssertEqual(conversation.participantRoles.count, 2)
         XCTAssertEqual(conversation.activeParticipants.count, 2)
     }
 }

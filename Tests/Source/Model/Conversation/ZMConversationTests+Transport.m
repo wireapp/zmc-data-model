@@ -192,6 +192,7 @@
         NSUUID *uuid = NSUUID.createUUID;
         conversation.remoteIdentifier = uuid;
         conversation.mutedStatus = 3;
+        [conversation addWithUser:[ZMUser selfUserInContext:self.syncMOC] isFromLocal:YES];
         NSDate *serverTimestamp = [NSDate date];
         NSDate *archivedDate = [NSDate date];
         NSDate *silencedDate = [archivedDate dateByAddingTimeInterval:10];
@@ -371,8 +372,9 @@
         
         ZMUser *user2 = [ZMUser userWithRemoteID:user2UUID createIfNeeded:NO inContext:self.syncMOC];
         XCTAssertNotNil(user2);
+        ZMUser *selfUser = [ZMUser selfUserInContext:self.syncMOC];
         
-        XCTAssertEqualObjects(conversation.localParticipants, ([NSSet setWithObjects:user1, user2, nil]) );
+        XCTAssertEqualObjects(conversation.localParticipants, ([NSSet setWithObjects:user1, user2, selfUser, nil]) );
         
         XCTAssertFalse(conversation.isArchived);
         XCTAssertFalse(conversation.isFullyMuted);
@@ -445,8 +447,9 @@
 
         ZMUser *user2 = [ZMUser userWithRemoteID:user2UUID createIfNeeded:NO inContext:self.syncMOC];
         XCTAssertNotNil(user2);
+        ZMUser *selfUser = [ZMUser selfUserInContext:self.syncMOC];
 
-        XCTAssertEqualObjects(conversation.localParticipants, ([NSSet setWithObjects:user1, user2, nil]) );
+        XCTAssertEqualObjects(conversation.localParticipants, ([NSSet setWithObjects:user1, user2, selfUser, nil]) );
         XCTAssertNil(conversation.team);
         XCTAssertEqualObjects(conversation.teamRemoteIdentifier, teamID);
         
@@ -498,8 +501,9 @@
 
         ZMUser *user2 = [ZMUser userWithRemoteID:user2UUID createIfNeeded:NO inContext:self.syncMOC];
         XCTAssertNotNil(user2);
+        ZMUser *selfUser = [ZMUser selfUserInContext:self.syncMOC];
 
-        XCTAssertEqualObjects(conversation.localParticipants, ([NSSet setWithObjects:user1, user2, nil]) );
+        XCTAssertEqualObjects(conversation.localParticipants, ([NSSet setWithObjects:user1, user2, selfUser, nil]) );
         XCTAssertNotNil(conversation.team);
         XCTAssertFalse(conversation.team.needsToBeUpdatedFromBackend);
         XCTAssertFalse(conversation.team.needsToRedownloadMembers);
@@ -551,8 +555,9 @@
 
         ZMUser *user2 = [ZMUser userWithRemoteID:user2UUID createIfNeeded:NO inContext:self.syncMOC];
         XCTAssertNotNil(user2);
+        ZMUser *selfUser = [ZMUser selfUserInContext:self.syncMOC];
 
-        XCTAssertEqualObjects(conversation.localParticipants, ([NSSet setWithObjects:user1, user2, nil]) );
+        XCTAssertEqualObjects(conversation.localParticipants, ([NSSet setWithObjects:user1, user2, selfUser, nil]) );
         XCTAssertNil(conversation.team);
         XCTAssertFalse(conversation.isArchived);
         XCTAssertFalse(conversation.isFullyMuted);
