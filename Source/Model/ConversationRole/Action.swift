@@ -21,6 +21,7 @@ import Foundation
 @objcMembers
 final public class Action: ZMManagedObject {
     public static let nameKey = "name"
+    public static let roleKey = "role"
 
     @NSManaged public var role: Role
     @NSManaged public var name: String?
@@ -29,7 +30,6 @@ final public class Action: ZMManagedObject {
         return "Action"
     }
     
-    @objc
     static func fetchExistingAction(with name: String,
                                     role: Role,
                                     in context: NSManagedObjectContext) -> Action? {

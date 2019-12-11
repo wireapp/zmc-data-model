@@ -16,12 +16,10 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-import Foundation
-
 import XCTest
 @testable import WireDataModel
 
-final class RoleTests: ZMConversationTestsBase {
+final class RoleTests: ZMBaseManagedObjectTest {
     
     func testThatItTracksCorrectKeys() {
         let expectedKeys = Set(arrayLiteral: Role.nameKey,
@@ -54,14 +52,13 @@ final class RoleTests: ZMConversationTestsBase {
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         
         // when
-        let sut = Role.createOrUpdate(with: payload, team: nil, conversation: conversation, context: uiMOC)
+        let sut = Role.createOrUpdate(with: payload, team: nil, conversation: conversation, context: uiMOC)!
         
         // then
-        XCTAssertEqual(sut?.actions.count, 9)
-        XCTAssertEqual(sut?.name, "wire_admin")
+        XCTAssertEqual(sut.actions.count, 9)
+        XCTAssertEqual(sut.name, "wire_admin")
         
-        let action = sut?.actions.sorted(by: { $0.name < $1.name }).first
-        XCTAssertEqual(action?.name, "add_conversation_member")
-        XCTAssertEqual(action?.role.name, sut?.name)
+        let action = sut.actions.sorted(by: { $0.name < $1.name }).first!
+        XCTAssertEqual(action.name, "add_conversation_member")
     }
 }
