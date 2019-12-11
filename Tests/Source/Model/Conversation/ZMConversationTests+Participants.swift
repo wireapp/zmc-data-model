@@ -30,14 +30,14 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         sut.internalAddParticipants([user1, user2])
         
         XCTAssertEqual(sut.participantRoles.count, 2)
-        XCTAssertEqual(sut.activeParticipants.count, 2)
+        XCTAssertEqual(sut.localParticipants.count, 2)
 
         // WHEN
         sut.minus(userSet: Set([user2]), isFromLocal: true)
         
         // THEN
         XCTAssertEqual(Set(sut.participantRoles.map { $0.user }), Set([user1, user2]))
-        XCTAssertEqual(sut.activeParticipants, Set([user1]))
+        XCTAssertEqual(sut.localParticipants, Set([user1]))
 
         XCTAssert(user2.participantRoles.first!.markedForDeletion)
         XCTAssertFalse(user2.participantRoles.first!.markedForInsertion)
@@ -56,7 +56,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
 
         // THEN
         XCTAssertEqual(Set(sut.participantRoles.map { $0.user }), Set([user1, user2]))
-        XCTAssertEqual(sut.activeParticipants, Set([user1, user2]))
+        XCTAssertEqual(sut.localParticipants, Set([user1, user2]))
 
         XCTAssertFalse(user2.participantRoles.first!.markedForDeletion)
         XCTAssert(user2.participantRoles.first!.markedForInsertion)
@@ -99,7 +99,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         sut.internalAddParticipants([user1, user2])
         
         XCTAssertEqual(sut.participantRoles.count, 2)
-        XCTAssertEqual(sut.activeParticipants.count, 2)
+        XCTAssertEqual(sut.localParticipants.count, 2)
         
         // WHEN
         sut.minus(userSet: Set([user2]), isFromLocal: true)
@@ -107,7 +107,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         
         // THEN
         XCTAssertEqual(Set(sut.participantRoles.map { $0.user }), Set([user1, user2]))
-        XCTAssertEqual(sut.activeParticipants, Set([user1, user2]))
+        XCTAssertEqual(sut.localParticipants, Set([user1, user2]))
         
         XCTAssertFalse(user2.participantRoles.first!.markedForDeletion)
         XCTAssertFalse(user2.participantRoles.first!.markedForInsertion)
@@ -128,7 +128,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
 
         // THEN
         XCTAssertEqual(Set(sut.participantRoles.map { $0.user }), Set([user1]))
-        XCTAssertEqual(sut.activeParticipants, Set([user1]))
+        XCTAssertEqual(sut.localParticipants, Set([user1]))
 
         XCTAssert(user2.participantRoles.isEmpty, "\(user2.participantRoles)")
     }
@@ -143,7 +143,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         conversation.addParticipantIfMissing(user, date: Date())
         
         // then
-        XCTAssertTrue(conversation.activeParticipants.contains(user))
+        XCTAssertTrue(conversation.localParticipants.contains(user))
         let systemMessage = conversation.lastMessage as? ZMSystemMessage
         XCTAssertEqual(systemMessage?.systemMessageType, ZMSystemMessageType.participantsAdded)
     }
@@ -159,7 +159,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         conversation.addParticipantIfMissing(user, date: Date())
         
         // then
-        XCTAssertTrue(conversation.activeParticipants.contains(user))
+        XCTAssertTrue(conversation.localParticipants.contains(user))
         XCTAssertEqual(conversation.allMessages.count, 0)
     }
     
@@ -167,6 +167,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         // given
         let user = ZMUser.insertNewObject(in: self.uiMOC)
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
+        conversation.add(user: user, isFromLocal: true)
         conversation.conversationType = .oneOnOne
         conversation.connection = ZMConnection.insertNewObject(in: self.uiMOC)
         
@@ -174,7 +175,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         conversation.addParticipantIfMissing(user, date: Date())
 
         // then
-        XCTAssertTrue(conversation.activeParticipants.contains(user))
+        XCTAssertTrue(conversation.localParticipants.contains(user))
     }
     
     func testThatItReturnsAllParticipantsAsActiveParticipantsInOneOnOneConversations() {
@@ -182,16 +183,18 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         let user = ZMUser.insertNewObject(in: self.uiMOC)
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.conversationType = .oneOnOne
+        conversation.add(user: ZMUser.selfUser(in: self.uiMOC), isFromLocal: true)
         
         let connection = ZMConnection.insertNewObject(in: self.uiMOC)
         connection.status = .accepted
         connection.to = user
         connection.conversation = conversation
+        conversation.add(user: user, isFromLocal: true)
         
         self.uiMOC.saveOrRollback()
         
         // then
-        XCTAssertEqual(conversation.activeParticipants.count, 2)
+        XCTAssertEqual(conversation.localParticipants.count, 2)
     }
     
     
@@ -200,25 +203,28 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         let user = ZMUser.insertNewObject(in: self.uiMOC)
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.conversationType = .connection
+        conversation.add(user: ZMUser.selfUser(in: self.uiMOC), isFromLocal: true)
         
         let connection = ZMConnection.insertNewObject(in: self.uiMOC)
         connection.status = .pending
         connection.to = user
         connection.conversation = conversation
+        conversation.add(user: user, isFromLocal: true)
         
         self.uiMOC.saveOrRollback()
         
         // then
-        XCTAssertEqual(conversation.activeParticipants.count, 2)
+        XCTAssertEqual(conversation.localParticipants.count, 2)
     }
     
     func testThatItReturnsSelfUserAsActiveParticipantsInSelfConversations() {
         // given
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.conversationType = .self
+        conversation.add(user: ZMUser.selfUser(in: self.uiMOC), isFromLocal: true)
         
         // then
-        XCTAssertEqual(conversation.activeParticipants.count, 1)
+        XCTAssertEqual(conversation.localParticipants.count, 1)
     }
     
     func testThatItAddsParticipants() {
@@ -319,13 +325,13 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         conversation.add(user: ZMUser.selfUser(in: self.uiMOC), isFromLocal: true)
         
         // then
-        XCTAssertTrue(conversation.activeParticipants.contains(selfUser))
+        XCTAssertTrue(conversation.localParticipants.contains(selfUser))
         
         // when
         conversation.minus(user: ZMUser.selfUser(in: self.uiMOC), isFromLocal: true)
         
         // then
-        XCTAssertFalse(conversation.activeParticipants.contains(selfUser))
+        XCTAssertFalse(conversation.localParticipants.contains(selfUser))
     }
     
     func testThatLocalParticipantsExcludingSelfDoesNotContainSelf() {

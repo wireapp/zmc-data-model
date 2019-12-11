@@ -69,23 +69,7 @@ extension ZMConversation {
     /// List of users that are in the conversation
     @objc
     public var activeParticipants: Set<ZMUser> {
-        guard let managedObjectContext = managedObjectContext else {return Set()}
-        
-        var activeParticipants: Set<ZMUser> = []
-        
-        if internalConversationType() != .group {
-            activeParticipants.insert(ZMUser.selfUser(in: managedObjectContext))
-            if let connectedUser = connectedUser {
-                activeParticipants.insert(connectedUser)
-            }
-        } else if isSelfAnActiveMember {
-            activeParticipants.insert(ZMUser.selfUser(in: managedObjectContext))
-            activeParticipants.formUnion(localParticipants)
-        } else {
-            activeParticipants.formUnion(localParticipants)
-        }
-        
-        return activeParticipants
+        return localParticipants
     }
     
     /// Participants that are in the conversation, according to the local state,

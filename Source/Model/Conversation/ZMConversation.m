@@ -257,7 +257,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 -(NSArray <ZMUser *> *)sortedActiveParticipants
 {
-    return [self sortedUsers:[self activeParticipants]];
+    return [self sortedUsers:[self localParticipants]];
 }
 
 - (NSArray *)sortedUsers:(NSSet *)users
@@ -853,7 +853,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
     // We need to check if we should add a 'secure' system message in case all participants are trusted
     NSMutableSet *allClients = [NSMutableSet set];
-    for (ZMUser *user in conversation.activeParticipants) {
+    for (ZMUser *user in conversation.localParticipants) {
         [allClients unionSet:user.clients];
     }
 

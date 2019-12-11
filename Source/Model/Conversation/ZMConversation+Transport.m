@@ -103,7 +103,7 @@ NSString *const ZMConversationInfoOTRArchivedReferenceKey = @"otr_archived_ref";
     NSDictionary *members = [transportData dictionaryForKey:ConversationInfoMembersKey];
     if(members != nil) {
         [self updateMembersWithPayload:members];
-        [self updatePotentialGapSystemMessagesIfNeededWithUsers:self.activeParticipants];
+        [self updatePotentialGapSystemMessagesIfNeededWithUsers:self.localParticipants]; 
     }
     else {
         ZMLogError(@"Invalid members in conversation JSON: %@", transportData);

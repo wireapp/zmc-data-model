@@ -260,6 +260,7 @@ extension DisplayNameGeneratorTests {
         conversation.conversationType = .oneOnOne
         conversation.connection = ZMConnection.insertNewObject(in: uiMOC)
         conversation.connection?.to = user1
+        conversation.add(user: user1, isFromLocal: true)
         
         // when
         let displayName1 = user1.displayName(in: conversation)
@@ -279,6 +280,7 @@ extension DisplayNameGeneratorTests {
         conversation.conversationType = .oneOnOne
         conversation.connection = ZMConnection.insertNewObject(in: uiMOC)
         conversation.connection?.to = user1
+        conversation.add(user: selfUser, isFromLocal: true)
         
         // when
         let displayName = selfUser.displayName(in: conversation)
@@ -318,6 +320,8 @@ extension DisplayNameGeneratorTests {
         conversation.conversationType = .oneOnOne
         conversation.connection = ZMConnection.insertNewObject(in: uiMOC)
         conversation.connection?.to = user1
+        conversation.add(user: user1, isFromLocal: true)
+        conversation.add(user: selfUser, isFromLocal: true)
         
         // when
         let displayName1 = user1.displayName(in: conversation)
@@ -361,6 +365,8 @@ extension DisplayNameGeneratorTests {
         conversation.conversationType = .oneOnOne
         conversation.connection = ZMConnection.insertNewObject(in: uiMOC)
         conversation.connection?.to = user1
+        conversation.add(user: user1, isFromLocal: true)
+        conversation.add(user: selfUser, isFromLocal: true)
         
         XCTAssertEqual(user1.displayName(in: conversation), "Hans")
         
