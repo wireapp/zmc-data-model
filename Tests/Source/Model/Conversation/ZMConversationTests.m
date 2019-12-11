@@ -29,7 +29,6 @@
 #import "ZMConversationList+Internal.h"
 #import "ZMClientMessage.h"
 #import "ZMConversation+UnreadCount.h"
-#import "ZMConversation+Transport.h"
 
 
 @interface ZMConversationTestsBase ()

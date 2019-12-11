@@ -285,7 +285,7 @@ class ZMConversationTests_SecurityLevel: ZMConversationTestsBase {
         XCTAssertTrue(fetchedMessage!.needsUpdatingUsers)
         
         // when
-        conversation.updatePotentialGapSystemMessagesIfNeeded(with: Set())
+        conversation.updatePotentialGapSystemMessagesIfNeeded(users: Set())
         
         // then
         XCTAssertFalse(fetchedMessage!.needsUpdatingUsers)
