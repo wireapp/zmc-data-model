@@ -339,6 +339,9 @@ struct stringAndStatus {
         if (connection.to.isInserted || status == ZMConnectionStatusPending) {
             connection.to.needsToBeUpdatedFromBackend = YES;
         }
+        
+        ZMConversation *conversation = [ZMConversation conversationWithRemoteID:conversationID createIfNeeded:YES inContext:moc];
+        [conversation addWithUser:connection.to isFromLocal:YES];
     }
 
     ZMConnectionStatus const oldStatus = connection.status;
