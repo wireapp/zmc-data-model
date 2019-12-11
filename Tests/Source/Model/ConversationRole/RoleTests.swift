@@ -21,46 +21,47 @@ import Foundation
 import XCTest
 @testable import WireDataModel
 
-final class RoleTests: ZMBaseManagedObjectTest {
-
+final class RoleTests: ZMConversationTestsBase {
+    
     func testThatItTracksCorrectKeys() {
         let expectedKeys = Set(arrayLiteral: Role.nameKey,
-                                             Role.teamKey,
-                                             Role.conversationKey,
-                                             Role.actionsKey,
-                                             Role.participantRolesKey)
-
+                               Role.teamKey,
+                               Role.conversationKey,
+                               Role.actionsKey,
+                               Role.participantRolesKey)
+        
         let role = Role.insertNewObject(in: uiMOC)
         
         XCTAssertEqual(role.keysTrackedForLocalModifications(), expectedKeys)
     }
-
-    func testThatActionsIsCreatedFromPayload() {
-        syncMOC.performGroupedBlockAndWait{
-            // given
-            let payload: [String : Any] = [
-                "actions" : [
-                    "add_conversation_member",
-                    "remove_conversation_member",
-                    "modify_conversation_name",
-                    "modify_conversation_message_timer",
-                    "modify_conversation_receipt_mode",
-                    "modify_conversation_access",
-                    "modify_other_conversation_member",
-                    "leave_conversation",
-                    "delete_conversation"
-                ],
-                "conversation_role" : "wire_admin"
-            ]
-            let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
-
-            // when
-            let sut = Role.createOrUpdate(with: payload, team: nil, conversation: conversation, context: self.uiMOC)
-            
-            // then
-            XCTAssertEqual(sut?.actions.count, 9)
-            XCTAssertEqual(sut?.name, "wire_admin")
-        }
-        XCTAssert(self.waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+    
+    func testThatActionsAreCreatedFromPayload() {
+        // given
+        let payload: [String : Any] = [
+            "actions" : [
+                "add_conversation_member",
+                "remove_conversation_member",
+                "modify_conversation_name",
+                "modify_conversation_message_timer",
+                "modify_conversation_receipt_mode",
+                "modify_conversation_access",
+                "modify_other_conversation_member",
+                "leave_conversation",
+                "delete_conversation"
+            ],
+            "conversation_role" : "wire_admin"
+        ]
+        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+        
+        // when
+        let sut = Role.createOrUpdate(with: payload, team: nil, conversation: conversation, context: uiMOC)
+        
+        // then
+        XCTAssertEqual(sut?.actions.count, 9)
+        XCTAssertEqual(sut?.name, "wire_admin")
+        
+        let action = sut?.actions.sorted(by: { $0.name < $1.name }).first
+        XCTAssertEqual(action?.name, "add_conversation_member")
+        XCTAssertEqual(action?.role.name, sut?.name)
     }
 }

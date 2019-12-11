@@ -100,6 +100,7 @@ public final class Role: ZMManagedObject {
 
         role.team = team
         role.conversation = conversation
+        role.name = conversationRole
 
         return role
     }
