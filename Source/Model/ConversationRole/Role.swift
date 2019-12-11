@@ -34,7 +34,7 @@ public final class Role: ZMManagedObject {
     @NSManaged public var conversation: ZMConversation?
 
     public override static func entityName() -> String {
-        return "Role"
+        return String(describing: Role.self)
     }
     
     public override static func isTrackingLocalModifications() -> Bool {
@@ -90,8 +90,7 @@ public final class Role: ZMManagedObject {
             let action = Action.fetchExistingAction(with: actionName, role: role, in: context)
             
             if action == nil {
-                let newAction = Action.insertNewObject(in: context)
-                newAction.name = actionName
+                let newAction = Action.create(managedObjectContext: context, name: actionName)
                 
                 role.actions.insert(newAction)
             }
