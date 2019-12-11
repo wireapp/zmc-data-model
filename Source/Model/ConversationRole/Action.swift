@@ -30,8 +30,7 @@ final public class Action: ZMManagedObject {
         return String(describing: Action.self)
     }
     
-    ///TODO: private
-    static func fetchExistingAction(with name: String,
+    private static func fetchExistingAction(with name: String,
                                     role: Role,
                                     in context: NSManagedObjectContext) -> Action? {
         let fetchRequest = NSFetchRequest<Action>(entityName: self.entityName())
@@ -43,16 +42,16 @@ final public class Action: ZMManagedObject {
         })
     }
 
-    ///TODO: private
     @objc
     @discardableResult
-    static public func create(managedObjectContext: NSManagedObjectContext,
+    private static func create(managedObjectContext: NSManagedObjectContext,
                               name: String) -> Action {
         let entry = Action.insertNewObject(in: managedObjectContext)
         entry.name = name
         return entry
     }
     
+    @discardableResult
     public static func fetchOrCreate(with name: String,
                                      role: Role,
                                      in context: NSManagedObjectContext, created: inout Bool) -> Action {

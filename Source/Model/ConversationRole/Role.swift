@@ -87,14 +87,8 @@ public final class Role: ZMManagedObject {
         let role = fetchedRole ?? Role.insertNewObject(in: context)
         
         actionNames.forEach() { actionName in
-            let action = Action.fetchExistingAction(with: actionName, role: role, in: context)
-            
-            if action == nil {
-                let newAction = Action.create(managedObjectContext: context, name: actionName)
-                
-                role.actions.insert(newAction)
-            }
-            
+            var created = false
+            Action.fetchOrCreate(with: actionName, role: role, in: context, created: &created)
         }
 
         role.team = team
