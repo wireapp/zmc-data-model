@@ -80,7 +80,8 @@ extension ZMConversation {
         }
     }
     
-    private func update(updateEvent: ZMUpdateEvent) {
+    @objc
+    public func update(updateEvent: ZMUpdateEvent) {
         if let timeStamp = updateEvent.timeStamp() {
             self.updateServerModified(timeStamp)
         }
@@ -206,7 +207,7 @@ extension ZMConversation {
     }
     
     /// Pass timestamp when the timestamp equals the time of the lastRead / cleared event, otherwise pass nil
-    private func updateSelfStatus(dictionary: [String: Any?], timeStamp: Date?, previousLastServerTimeStamp: Date?) {
+    public func updateSelfStatus(dictionary: [String: Any?], timeStamp: Date?, previousLastServerTimeStamp: Date?) {
         self.updateMuted(with: dictionary)
         if  self.updateIsArchived(payload: dictionary) && self.isArchived,
             let previousLastServerTimeStamp = previousLastServerTimeStamp,
