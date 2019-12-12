@@ -90,11 +90,11 @@
         }];
         ZMConversation *conversation = [ZMConversation insertGroupConversationWithMoc:self.syncMOC
                                                                         participants:syncParticipants
-                                                                                name:NULL
-                                                                                team:NULL
+                                                                                name:nil
+                                                                                team:nil
                                                                          allowGuests:YES
                                                                         readReceipts:NO
-                                                                    participantsRole:NULL];
+                                                                    participantsRole:nil];
         conversation.conversationType = ZMConversationTypeGroup;
         conversation.remoteIdentifier = NSUUID.createUUID;
         [self.syncMOC saveOrRollback];
@@ -182,11 +182,11 @@
     // when
     ZMConversation *conversation = [ZMConversation insertGroupConversationWithMoc:self.syncMOC
                                                                      participants:@[otherUser1, otherUser2]
-                                                                             name:NULL
-                                                                             team:NULL
+                                                                             name:nil
+                                                                             team:nil
                                                                       allowGuests:YES
                                                                      readReceipts:NO
-                                                                 participantsRole:NULL];
+                                                                 participantsRole:nil];
     
     // then
     XCTAssertEqualObjects(conversation.creator, selfUser);
@@ -200,13 +200,13 @@
     Team *team = [Team insertNewObjectInManagedObjectContext:self.uiMOC];
     
     // when
-    ZMConversation *conversation = [ZMConversation insertGroupConversationWithMoc:self.syncMOC
+    ZMConversation *conversation = [ZMConversation insertGroupConversationWithMoc:self.uiMOC
                                                                      participants:@[otherUser1, otherUser2]
                                                                              name:@"abc"
                                                                              team:team
                                                                       allowGuests:YES
-                                                                     readReceipts:NO
-                                                                 participantsRole:NULL];
+                                                                     readReceipts:YES
+                                                                 participantsRole:nil];
     
     // then
     XCTAssertTrue(conversation.hasReadReceiptsEnabled);
@@ -222,10 +222,10 @@
     ZMConversation *conversation = [ZMConversation insertGroupConversationWithMoc:self.uiMOC
                                                                      participants:@[otherUser1, otherUser2]
                                                                              name:@"abc"
-                                                                             team:NULL
+                                                                             team:nil
                                                                       allowGuests:YES
                                                                      readReceipts:NO
-                                                                 participantsRole:NULL];
+                                                                 participantsRole:nil];
     
     // then
     XCTAssertFalse(conversation.hasReadReceiptsEnabled);
@@ -619,11 +619,11 @@
     // when
     ZMConversation *sut = [ZMConversation insertGroupConversationWithMoc:self.syncMOC
                                                             participants:@[user1, user2]
-                                                                    name:NULL
-                                                                    team:NULL
+                                                                    name:nil
+                                                                    team:nil
                                                              allowGuests:YES
                                                             readReceipts:NO
-                                                        participantsRole:NULL];
+                                                        participantsRole:nil];
     
     // then
     AssertDateIsRecent(sut.lastModifiedDate);
@@ -635,13 +635,13 @@
     // given
     ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     ZMUser *user2 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    ZMConversation *sut = [ZMConversation insertGroupConversationWithMoc:self.syncMOC
+    ZMConversation *sut = [ZMConversation insertGroupConversationWithMoc:self.uiMOC
                                                             participants:@[user1, user2]
-                                                                    name:NULL
-                                                                    team:NULL
+                                                                    name:nil
+                                                                    team:nil
                                                              allowGuests:YES
                                                             readReceipts:NO
-                                                        participantsRole:NULL];
+                                                        participantsRole:nil];
     
     // when
     ZMMessage *message = (id)[sut appendMessageWithText:@"Quux"];

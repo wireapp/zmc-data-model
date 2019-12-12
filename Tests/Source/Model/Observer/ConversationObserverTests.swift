@@ -350,6 +350,7 @@ final class ConversationObserverTests : NotificationDispatcherTestBase {
         let user = ZMUser.insertNewObject(in:self.uiMOC)
         user.name = "Foo"
         conversation.addParticipantAndUpdateConversationState(user: user, role: nil)
+        conversation.participantRoles.forEach { $0.operationToSync = .none }
         uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         

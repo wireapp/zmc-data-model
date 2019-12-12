@@ -63,11 +63,12 @@ extension ZMConversation {
             conversation.hasReadReceiptsEnabled = readReceipts;
         }
         
+        let participantsIncludingSelf = Set(participants + [selfUser])
+        
         // Add the new conversation system message
-        conversation.appendNewConversationSystemMessage(at: Date(), users: Set(participants))
+        conversation.appendNewConversationSystemMessage(at: Date(), users: Set(participantsIncludingSelf))
         
         // Add the participants
-        let participantsIncludingSelf = Set(participants + [selfUser])
         conversation.addParticipantsAndUpdateConversationState(users: participantsIncludingSelf, role: participantsRole)
         
         // We need to check if we should add a 'secure' system message in case all participants are trusted
@@ -77,10 +78,12 @@ extension ZMConversation {
         return conversation
     }
     
-    @objc static func fetchOrCreateTeamConversation(moc: NSManagedObjectContext,
-                                                    participant: ZMUser,
-                                                    team: Team?,
-                                                    participantRole: Role? = nil) -> ZMConversation? {
+    @objc static func fetchOrCreateOneToOneTeamConversation(
+        moc: NSManagedObjectContext,
+        participant: ZMUser,
+        team: Team?,
+        participantRole: Role? = nil) -> ZMConversation?
+    {
         guard let team = team,
             !participant.isSelfUser
         else { return nil }
@@ -107,14 +110,17 @@ extension ZMConversation {
         // We are using predicates because filtering all conversations via relationships will cause a lot of faults
         // and slow down the app
 
+        let selfUser = ZMUser.selfUser(in: moc)
         let sameTeam = ZMConversation.predicateForConversations(in: team)
         let groupConversation = NSPredicate(format: "%K == %d", ZMConversationConversationTypeKey, ZMConversationType.group.rawValue)
         let noUserDefinedName = NSPredicate(format: "%K == NULL", ZMConversationUserDefinedNameKey)
         let sameParticipant = NSPredicate(
-            format: "%K.@count == 1 AND ANY %K.user == %@",
+            format: "%K.@count == 2 AND ANY %K.user == %@ AND ANY %K.user == %@",
             ZMConversationParticipantRolesKey,
             ZMConversationParticipantRolesKey,
-            participant
+            participant,
+            ZMConversationParticipantRolesKey,
+            selfUser
         )
         
         let compoundPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [

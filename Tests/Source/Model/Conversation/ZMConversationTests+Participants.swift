@@ -32,6 +32,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         
         XCTAssertEqual(sut.participantRoles.count, 2)
         XCTAssertEqual(sut.activeParticipants.count, 2)
+        sut.participantRoles.forEach { $0.operationToSync = .none }
 
         // WHEN
         sut.removeParticipantAndUpdateConversationState(user: user2, initiatingUser: selfUser)
@@ -100,6 +101,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         let selfUser = ZMUser.selfUser(in: self.uiMOC)
         
         sut.addParticipantsAndUpdateConversationState(users: Set([user1, user2]), role: nil)
+        sut.participantRoles.forEach { $0.operationToSync = .none }
         
         XCTAssertEqual(sut.participantRoles.count, 2)
         XCTAssertEqual(sut.activeParticipants.count, 2)
@@ -460,5 +462,81 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         XCTAssertNil(conversation.team)
         XCTAssertEqual(conversation.getRoles(), conversation.nonTeamRoles)
         XCTAssertNotEqual(conversation.getRoles(), conversation.team?.roles)
+    }
+    
+    func testThatItAddsParticipantsWithTheGivenRoleForAllParticipants() {
+        
+        // given
+        let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
+        conversation.conversationType = .group
+        let role1 = Role.create(managedObjectContext: uiMOC, name: "role1", conversation: conversation)
+        conversation.nonTeamRoles.insert(role1)
+        let user1 = ZMUser.insertNewObject(in: self.uiMOC)
+        user1.name = "user1"
+        let user2 = ZMUser.insertNewObject(in: self.uiMOC)
+        user2.name = "user2"
+        
+        // when
+        conversation.addParticipantsAndUpdateConversationState(users: Set([user1, user2]), role: role1)
+        
+        // then
+        XCTAssertEqual(conversation.participantRoles.count, 2)
+        XCTAssertEqual(conversation.participantRoles.compactMap { $0.role}, [role1, role1])
+    }
+    
+    func testThatItAddsParticipantsWithTheGivenRole() {
+        
+        // given
+        let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
+        conversation.conversationType = .group
+        let role1 = Role.create(managedObjectContext: uiMOC, name: "role1", conversation: conversation)
+        conversation.nonTeamRoles.insert(role1)
+        let role2 = Role.create(managedObjectContext: uiMOC, name: "role2", conversation: conversation)
+        conversation.nonTeamRoles.insert(role2)
+        let user1 = ZMUser.insertNewObject(in: self.uiMOC)
+        user1.name = "user1"
+        let user2 = ZMUser.insertNewObject(in: self.uiMOC)
+        user2.name = "user2"
+        
+        // when
+        conversation.addParticipantsAndUpdateConversationState(usersAndRoles: [
+                (user1, role1),
+                (user2, role2)
+        ])
+        
+        // then
+        XCTAssertEqual(conversation.participantRoles.count, 2)
+        XCTAssertEqual(conversation.participantRoles.first {$0.user == user1}?.role, role1)
+        XCTAssertEqual(conversation.participantRoles.first {$0.user == user2}?.role, role2)
+    }
+    
+    func testThatItUpdateParticipantWithTheGivenRole() {
+        
+        // given
+        let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
+        conversation.conversationType = .group
+        let role1 = Role.create(managedObjectContext: uiMOC, name: "role1", conversation: conversation)
+        conversation.nonTeamRoles.insert(role1)
+        let role2 = Role.create(managedObjectContext: uiMOC, name: "role2", conversation: conversation)
+        conversation.nonTeamRoles.insert(role2)
+        let user1 = ZMUser.insertNewObject(in: self.uiMOC)
+        user1.name = "user1"
+        let user2 = ZMUser.insertNewObject(in: self.uiMOC)
+        user2.name = "user2"
+        conversation.addParticipantsAndUpdateConversationState(usersAndRoles: [
+            (user1, role1),
+            (user2, role1)
+            ])
+        
+        // when
+        conversation.addParticipantsAndUpdateConversationState(usersAndRoles: [
+            (user1, role1),
+            (user2, role2)
+            ])
+        
+        // then
+        XCTAssertEqual(conversation.participantRoles.count, 2)
+        XCTAssertEqual(conversation.participantRoles.first {$0.user == user1}?.role, role1)
+        XCTAssertEqual(conversation.participantRoles.first {$0.user == user2}?.role, role2)
     }
 }

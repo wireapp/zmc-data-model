@@ -597,7 +597,7 @@ extension ZMUserTests {
         // given
         let team = createTeam(in: uiMOC)
         let sut = createTeamMember(in: uiMOC, for: team)
-        let teamOneToOneConversation = ZMConversation.fetchOrCreateTeamConversation(moc: uiMOC, participant: sut, team: team)!
+        let teamOneToOneConversation = ZMConversation.fetchOrCreateOneToOneTeamConversation(moc: uiMOC, participant: sut, team: team)!
         teamOneToOneConversation.teamRemoteIdentifier = team.remoteIdentifier
         
         // when
