@@ -18,7 +18,6 @@
 
 
 #import "ZMConversationTests.h"
-#import "ZMConversation+Transport.h"
 #import "WireDataModelTests-Swift.h"
 
 @implementation ZMConversationTransportTests
@@ -113,6 +112,7 @@
         // given
         [ZMUser selfUserInContext:self.syncMOC].teamIdentifier = [NSUUID UUID];
         ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
+        [conversation addWithUser:[ZMUser selfUserInContext:self.syncMOC] isFromLocal:NO];
         NSUUID *uuid = NSUUID.createUUID;
         conversation.remoteIdentifier = uuid;
         NSDate *serverTimestamp = [NSDate date];
@@ -120,7 +120,7 @@
         NSDate *silencedDate = [archivedDate dateByAddingTimeInterval:10];
         
         NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation
-                                                      conversationType:ZMConvTypeGroup
+                                                      conversationType:ZMBackendConversationTypeGroup
                                                             isArchived:YES
                                                            archivedRef:archivedDate
                                                             isSilenced:YES
@@ -158,7 +158,7 @@
         NSDate *silencedDate = [archivedDate dateByAddingTimeInterval:10];
         
         NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation
-                                                      conversationType:ZMConvTypeGroup
+                                                      conversationType:ZMBackendConversationTypeGroup
                                                             isArchived:YES
                                                            archivedRef:archivedDate
                                                             isSilenced:YES
@@ -198,7 +198,7 @@
         NSDate *silencedDate = [archivedDate dateByAddingTimeInterval:10];
         
         NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation
-                                                      conversationType:ZMConvTypeGroup
+                                                      conversationType:ZMBackendConversationTypeGroup
                                                             isArchived:YES
                                                            archivedRef:archivedDate
                                                             isSilenced:NO
@@ -238,7 +238,7 @@
         NSDate *silencedDate = [archivedDate dateByAddingTimeInterval:10];
         
         NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation
-                                                      conversationType:ZMConvTypeGroup
+                                                      conversationType:ZMBackendConversationTypeGroup
                                                             isArchived:YES
                                                            archivedRef:archivedDate
                                                             isSilenced:YES
@@ -278,7 +278,7 @@
         NSDate *silencedDate = [archivedDate dateByAddingTimeInterval:10];
         
         NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation
-                                                      conversationType:ZMConvTypeGroup
+                                                      conversationType:ZMBackendConversationTypeGroup
                                                             isArchived:YES
                                                            archivedRef:archivedDate
                                                             isSilenced:YES
@@ -317,7 +317,7 @@
         NSDate *silencedDate = [archivedDate dateByAddingTimeInterval:10];
         
         NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation
-                                                      conversationType:ZMConvTypeGroup
+                                                      conversationType:ZMBackendConversationTypeGroup
                                                             isArchived:YES
                                                            archivedRef:archivedDate
                                                             isSilenced:YES
@@ -419,7 +419,7 @@
         NSUUID *teamID = [NSUUID createUUID];
 
         NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation
-                                                      conversationType:ZMConvTypeGroup
+                                                      conversationType:ZMBackendConversationTypeGroup
                                                          activeUserIDs:@[user1UUID, user2UUID]
                                                             isArchived:NO
                                                            archivedRef:nil
@@ -473,7 +473,7 @@
         Team *team = [Team fetchOrCreateTeamWithRemoteIdentifier:NSUUID.createUUID createIfNeeded:YES inContext:self.syncMOC created:nil];
 
         NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation
-                                                      conversationType:ZMConvTypeGroup
+                                                      conversationType:ZMBackendConversationTypeGroup
                                                          activeUserIDs:@[user1UUID, user2UUID]
                                                             isArchived:NO
                                                            archivedRef:nil
@@ -528,7 +528,7 @@
         NSUUID *user2UUID = [NSUUID createUUID];
 
         NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation
-                                                      conversationType:ZMConvTypeGroup
+                                                      conversationType:ZMBackendConversationTypeGroup
                                                          activeUserIDs:@[user1UUID, user2UUID]
                                                             isArchived:NO
                                                            archivedRef:nil
@@ -577,7 +577,7 @@
         NSUUID *user1UUID = [NSUUID createUUID];
         
         NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation
-                                                      conversationType:ZMConvTypeGroup
+                                                      conversationType:ZMBackendConversationTypeGroup
                                                          activeUserIDs:@[user1UUID]
                                                             isArchived:NO
                                                            archivedRef:nil
@@ -612,7 +612,7 @@
         NSUUID *user1UUID = [NSUUID createUUID];
         
         NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation
-                                                      conversationType:ZMConvTypeGroup
+                                                      conversationType:ZMBackendConversationTypeGroup
                                                          activeUserIDs:@[user1UUID]
                                                             isArchived:NO
                                                            archivedRef:nil
@@ -647,7 +647,7 @@
         NSUUID *user1UUID = [NSUUID createUUID];
         
         NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation
-                                                      conversationType:ZMConvTypeGroup
+                                                      conversationType:ZMBackendConversationTypeGroup
                                                          activeUserIDs:@[user1UUID]
                                                             isArchived:NO
                                                            archivedRef:nil
@@ -679,7 +679,7 @@
         NSUUID *user1UUID = [NSUUID createUUID];
         
         NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation
-                                                      conversationType:ZMConvTypeGroup
+                                                      conversationType:ZMBackendConversationTypeGroup
                                                          activeUserIDs:@[user1UUID]
                                                             isArchived:NO
                                                            archivedRef:nil
@@ -712,7 +712,7 @@
         NSUUID *user1UUID = [NSUUID createUUID];
         
         NSDictionary *payload = [self payloadForMetaDataOfConversation:conversation
-                                                      conversationType:ZMConvTypeGroup
+                                                      conversationType:ZMBackendConversationTypeGroup
                                                          activeUserIDs:@[user1UUID]
                                                             isArchived:NO
                                                            archivedRef:nil
