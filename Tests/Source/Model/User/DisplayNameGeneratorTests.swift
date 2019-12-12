@@ -259,8 +259,8 @@ extension DisplayNameGeneratorTests {
         conversation.conversationType = .oneOnOne
         conversation.connection = ZMConnection.insertNewObject(in: uiMOC)
         conversation.connection?.to = user1
-        conversation.add(user: user1, isFromLocal: true)
-        
+        conversation.addParticipantAndUpdateConversationState(user: user1, role: nil)
+
         // when
         let displayName1 = user1.displayName(in: conversation)
         
@@ -279,8 +279,8 @@ extension DisplayNameGeneratorTests {
         conversation.conversationType = .oneOnOne
         conversation.connection = ZMConnection.insertNewObject(in: uiMOC)
         conversation.connection?.to = user1
-        conversation.add(user: selfUser, isFromLocal: true)
-        
+        conversation.addParticipantAndUpdateConversationState(user: selfUser, role: nil)
+
         // when
         let displayName = selfUser.displayName(in: conversation)
         
@@ -319,8 +319,8 @@ extension DisplayNameGeneratorTests {
         conversation.conversationType = .oneOnOne
         conversation.connection = ZMConnection.insertNewObject(in: uiMOC)
         conversation.connection?.to = user1
-        conversation.add(user: user1, isFromLocal: true)
-        conversation.add(user: selfUser, isFromLocal: true)
+        conversation.addParticipantAndUpdateConversationState(user: user1, role: nil)
+        conversation.addParticipantAndUpdateConversationState(user: selfUser, role: nil)
         
         // when
         let displayName1 = user1.displayName(in: conversation)
@@ -364,8 +364,8 @@ extension DisplayNameGeneratorTests {
         conversation.conversationType = .oneOnOne
         conversation.connection = ZMConnection.insertNewObject(in: uiMOC)
         conversation.connection?.to = user1
-        conversation.add(user: user1, isFromLocal: true)
-        conversation.add(user: selfUser, isFromLocal: true)
+        conversation.addParticipantAndUpdateConversationState(user1: user1, role: nil)
+        conversation.addParticipantAndUpdateConversationState(user: selfUser, role: nil)
         
         XCTAssertEqual(user1.displayName(in: conversation), "Hans")
         

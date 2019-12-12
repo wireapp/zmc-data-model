@@ -62,6 +62,7 @@ extension ZMConversation {
         public static let selfKey = "self";
         public static let creatorKey = "creator";
         public static let teamIdKey = "team";
+        public static let conversationRoleKey = "conversation_role";
         public static let accessModeKey = "access";
         public static let accessRoleKey = "access_role";
         public static let messageTimer = "message_timer";
@@ -175,7 +176,6 @@ extension ZMConversation {
             })
         }
         return Set(remoteParticipants)
-    }
     }
     
     private func updateMembers(payload: [String: Any?]) {

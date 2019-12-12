@@ -341,7 +341,7 @@ struct stringAndStatus {
         }
         
         ZMConversation *conversation = [ZMConversation conversationWithRemoteID:conversationID createIfNeeded:YES inContext:moc];
-        [conversation addWithUser:connection.to isFromLocal:YES];
+        [conversation addParticipantAndUpdateConversationStateWithUser:connection.to role:nil];
     }
 
     ZMConnectionStatus const oldStatus = connection.status;
