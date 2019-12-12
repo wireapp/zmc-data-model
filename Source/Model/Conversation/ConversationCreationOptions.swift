@@ -37,7 +37,7 @@ public extension ZMManagedObjectContextProvider {
         return ZMConversation.insertGroupConversation(session: self,
                                                participants: options.participants,
                                                name: options.name,
-                                               team: nil,
+                                               team: options.team,
                                                allowGuests: options.allowGuests,
                                                participantsRole: nil)!
     }

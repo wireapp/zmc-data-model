@@ -32,6 +32,7 @@ extension ZMConversation {
     {
         return self.insertGroupConversation(moc: session.managedObjectContext!,
                                             participants: participants,
+                                            name: name,
                                             team: team,
                                             allowGuests: allowGuests,
                                             readReceipts: readReceipts,
@@ -73,7 +74,7 @@ extension ZMConversation {
         conversation.increaseSecurityLevelIfNeededAfterTrusting(
             clients: Set(participantsIncludingSelf.flatMap { $0.clients })
         )
-        return conversation;
+        return conversation
     }
     
     @objc static func fetchOrCreateTeamConversation(moc: NSManagedObjectContext,

@@ -219,7 +219,7 @@
     ZMUser *otherUser2 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     
     // when
-    ZMConversation *conversation = [ZMConversation insertGroupConversationWithMoc:self.syncMOC
+    ZMConversation *conversation = [ZMConversation insertGroupConversationWithMoc:self.uiMOC
                                                                      participants:@[otherUser1, otherUser2]
                                                                              name:@"abc"
                                                                              team:NULL
