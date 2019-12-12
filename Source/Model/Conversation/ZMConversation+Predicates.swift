@@ -28,9 +28,12 @@ extension ZMConversation {
 
     @objc
     public class func predicate(forSearchQuery searchQuery: String, selfUser: ZMUser) -> NSPredicate! {
-        let formatDict = [ZMConversationParticipantRolesKey: "ANY %K.user.normalizedName MATCHES %@",
-                          ZMNormalizedUserDefinedNameKey: "%K MATCHES %@"]
-        guard let searchPredicate = NSPredicate(formatDictionary: formatDict, matchingSearch: searchQuery) else { return .none }
+        var predicateWithSubpredicates: [NSPredicate] = []
+        normalize(searchQuery).forEach { (strSearchQuery) in
+            predicateWithSubpredicates.append(NSPredicate(format: "(ANY %K.user != %@ AND ANY %K.user.normalizedName MATCHES %@) OR %K MATCHES %@", ZMConversationParticipantRolesKey, selfUser, ZMConversationParticipantRolesKey, strSearchQuery,  ZMNormalizedUserDefinedNameKey, strSearchQuery))
+        }
+
+        let searchPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: predicateWithSubpredicates)
         let activeMemberPredicate = NSPredicate(format: "%K == NULL OR (ANY %K.user == %@)", ZMConversationClearedTimeStampKey, ZMConversationParticipantRolesKey, selfUser)
         let basePredicate = NSPredicate(format: "(\(ZMConversationConversationTypeKey) == \(ZMConversationType.group.rawValue))")
 
@@ -57,6 +60,15 @@ extension ZMConversation {
             basePredicate,
             notTeamMemberPredicate
             ])
+    }
+    
+    @objc
+    public class func normalize(_ string: String) -> [String] {
+        var array: [String] = []
+        string.components(separatedBy: " ").forEach { (str) in
+            array.append(String(format: ".*\\b%@.*", str.lowercased()))
+        }
+        return array
     }
 
     @objc(predicateForConversationsInTeam:)

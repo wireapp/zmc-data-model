@@ -76,10 +76,12 @@
     ZMConversation *selfConversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     selfConversation.remoteIdentifier = selfUserID;
     selfConversation.conversationType = ZMConversationTypeSelf;
+    [selfConversation addWithUser:self.selfUser isFromLocal:NO];
     [self.uiMOC saveOrRollback];
     [self.syncMOC performGroupedBlockAndWait:^{
         [self.syncMOC refreshObject:[ZMUser selfUserInContext:self.syncMOC] mergeChanges:NO];
     }];
+    
 }
 
 - (void)createCoreDataStack;

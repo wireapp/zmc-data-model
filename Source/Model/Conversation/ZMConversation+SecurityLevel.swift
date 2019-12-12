@@ -167,12 +167,12 @@ extension ZMConversation {
     }
 
     private func updateLegalHoldState(cause: SecurityChangeCause) {
-        guard !needsToVerifyLegalHold, !activeParticipants.any({ $0.clients.any(\.needsToBeUpdatedFromBackend) }) else {
+        guard !needsToVerifyLegalHold, !localParticipants.any({ $0.clients.any(\.needsToBeUpdatedFromBackend) }) else {
             // We don't update the legal hold status if we are still gathering information about which clients were added/deleted
             return
         }
         
-        let detectedParticipantsUnderLegalHold = activeParticipants.any(\.isUnderLegalHold)
+        let detectedParticipantsUnderLegalHold = localParticipants.any(\.isUnderLegalHold)
 
         switch (legalHoldStatus, detectedParticipantsUnderLegalHold) {
         case (.disabled, true):
@@ -320,7 +320,7 @@ extension ZMConversation {
     public func addParticipantIfMissing(_ user: ZMUser, date dateOptional: Date?) {
         let date = dateOptional ?? Date()
 
-        guard !activeParticipants.contains(user) else { return }
+        guard !localParticipants.contains(user) else { return }
         
         switch conversationType {
         case .group:
@@ -657,7 +657,7 @@ extension ZMConversation {
         guard !localParticipants.isEmpty,
               isSelfAnActiveMember else { return false }
         
-        let hasOnlyTrustedUsers = activeParticipants.first {
+        let hasOnlyTrustedUsers = localParticipants.first {
             !$0.trusted()
         } == nil
         
@@ -683,12 +683,12 @@ extension ZMConversation {
     }
     
     fileprivate var allParticipantsHaveClients : Bool {
-        return self.activeParticipants.first { $0.clients.count == 0 } == nil
+        return self.localParticipants.first { $0.clients.count == 0 } == nil
     }
     
     /// If true the conversation might still be trusted / ignored
     @objc public var hasUntrustedClients : Bool {
-        return self.activeParticipants.first { $0.untrusted() } != nil
+        return self.localParticipants.first { $0.untrusted() } != nil
     }
 }
 

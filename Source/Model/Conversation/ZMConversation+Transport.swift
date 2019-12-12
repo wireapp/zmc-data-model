@@ -129,7 +129,7 @@ extension ZMConversation {
         
         if let members = transportData[PayloadKeys.membersKey] as? [String: Any?] {
             self.updateMembers(payload: members)
-            self.updatePotentialGapSystemMessagesIfNeeded(users: self.activeParticipants)
+            self.updatePotentialGapSystemMessagesIfNeeded(users: self.localParticipants)
         } else {
             zmLog.error("Invalid members in conversation JSON: \(transportData)")
         }
