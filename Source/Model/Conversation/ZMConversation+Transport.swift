@@ -131,7 +131,7 @@ extension ZMConversation {
             self.creator = ZMUser(remoteID: creatorId, createIfNeeded: true, in: moc)!
         }
         
-        if let members = transportData[PayloadKeys.membersKey] as? [String: Any?] {
+        if let members = transportData[PayloadKeys.membersKey] as? [String: Any] {
             self.updateMembers(payload: members)
             self.updatePotentialGapSystemMessagesIfNeeded(users: self.localParticipants)
         } else {
@@ -178,9 +178,9 @@ extension ZMConversation {
         return Set(remoteParticipants)
     }
     
-    private func updateMembers(payload: [String: Any?]) {
+    private func updateMembers(payload: [String: Any]) {
         
-        guard let usersInfos = payload[PayloadKeys.othersKey] as? [[String: Any?]],
+        guard let usersInfos = payload[PayloadKeys.othersKey] as? [[String: Any]],
             let moc = self.managedObjectContext else {
                 return
         }
@@ -201,7 +201,9 @@ extension ZMConversation {
         let addedParticipantsWithRoles = newParticipants
             .subtracting(self.localParticipants)
             .map { user -> (ZMUser, Role?) in
-                if let roleName = remoteUUIDsToRoles[user.remoteIdentifier!]! {
+                if let roleEntry = remoteUUIDsToRoles[user.remoteIdentifier!],
+                    let roleName = roleEntry
+                {
                     let role = Role.fetchOrCreateRole(
                         with: roleName,
                         teamOrConversation: self.team != nil ? .team(self.team!) : .conversation(self),

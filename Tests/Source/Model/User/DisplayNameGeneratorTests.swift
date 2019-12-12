@@ -364,7 +364,7 @@ extension DisplayNameGeneratorTests {
         conversation.conversationType = .oneOnOne
         conversation.connection = ZMConnection.insertNewObject(in: uiMOC)
         conversation.connection?.to = user1
-        conversation.addParticipantAndUpdateConversationState(user1: user1, role: nil)
+        conversation.addParticipantAndUpdateConversationState(user: user1, role: nil)
         conversation.addParticipantAndUpdateConversationState(user: selfUser, role: nil)
         
         XCTAssertEqual(user1.displayName(in: conversation), "Hans")
