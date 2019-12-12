@@ -52,7 +52,7 @@ extension ZMConversation {
         guard conversationType == .group else { return [] }
 
         // Exception 2) If there is only one user in the group and it's a service, we don't consider it as external
-        let participants = self.activeParticipants
+        let participants = Set(self.localParticipants) 
         let selfUser = ZMUser.selfUser(in: managedObjectContext!)
         let otherUsers = participants.subtracting([selfUser])
 
@@ -82,12 +82,12 @@ extension ZMConversation {
 
     /// Returns whether an services are present, regardless of the display rules.
     public var areServicesPresent: Bool {
-        return activeParticipants.any(\.isServiceUser)
+        return localParticipants.any(\.isServiceUser)
     }
 
     /// Returns whether guests are present, regardless of the display rules.
     public var areGuestsPresent: Bool {
-        return activeParticipants.any { $0.isGuest(in: self) }
+        return localParticipants.any { $0.isGuest(in: self) }
     }
 
 }

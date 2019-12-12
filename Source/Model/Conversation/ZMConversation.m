@@ -257,7 +257,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 
 -(NSArray <ZMUser *> *)sortedActiveParticipants
 {
-    return [self sortedUsers:[self activeParticipants]];
+    return [self sortedUsers:[self localParticipants]];
 }
 
 - (NSArray *)sortedUsers:(NSSet *)users

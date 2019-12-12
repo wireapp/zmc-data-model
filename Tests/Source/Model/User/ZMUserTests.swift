@@ -618,9 +618,10 @@ extension ZMUserTests {
         let sut = ZMUser.selfUser(in: uiMOC)
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.addParticipantAndUpdateConversationState(user: sut, role: nil)
+        let selfConversation = ZMConversation.fetch(withRemoteIdentifier: self.selfUser.remoteIdentifier, in: uiMOC)
         
         // then
-        XCTAssertEqual(sut.activeConversations, Set(arrayLiteral: conversation))
+        XCTAssertEqual(sut.activeConversations, [conversation, selfConversation])
     }
     
     func testActiveConversationsForOtherUser() {

@@ -415,7 +415,7 @@ final class ConversationObserverTests : NotificationDispatcherTestBase {
             expectedChangedKeys: [
                 "localParticipantRoles",
                 "displayName",
-                "activeParticipants"
+                "localParticipants"
             ]
         )
         
@@ -446,7 +446,7 @@ final class ConversationObserverTests : NotificationDispatcherTestBase {
             expectedChangedKeys: [
                 "localParticipantRoles",
                 "displayName",
-                "activeParticipants"]
+                "localParticipants"]
         )
         
     }

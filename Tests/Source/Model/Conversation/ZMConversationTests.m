@@ -1945,9 +1945,8 @@
     // then
     XCTAssertEqualObjects(conversation.lastEditableMessage, message);
 }
-@end
 
-@implementation ZMConversationTests (KeyValueObserving)
+#pragma mark - KeyValueObserving
 
 - (void)testThatItRecalculatesHasDraftMessageWhenDraftMessageTextChanges
 {
@@ -2048,10 +2047,7 @@
     XCTAssertEqualObjects(selfConversationID, selfUserID);
 }
 
-@end
-
-
-@implementation ZMConversationTests (Clearing)
+#pragma mark - Clearing
 
 - (void)testThatGettingRemovedIsNotMovingConversationToClearedList
 {
@@ -2222,11 +2218,7 @@
     XCTAssertTrue(conversation.isArchived);
 }
 
-@end
-
-
-
-@implementation ZMConversationTests (Archiving)
+#pragma mark - Archiving
 
 - (void)testThatLeavingAConversationMarksItAsArchived
 {
@@ -2324,11 +2316,7 @@
     XCTAssertEqual([conversation.archivedChangedTimestamp timeIntervalSince1970], [conversation.lastServerTimeStamp timeIntervalSince1970]);
 }
 
-@end
-
-
-
-@implementation ZMConversationTests (Knocking)
+#pragma mark - Knocking
 
 - (ZMConversation *)createConversationWithMessages;
 {
@@ -2365,9 +2353,7 @@
     [self spinMainQueueWithTimeout:interval];
 }
 
-@end
-
-@implementation ZMConversationTests (UnreadCount)
+#pragma mark - UnreadCount
 
 - (void)testThatItDoesNotCountExcludedConversationWithUnreadMessagesAsUnread
 {
@@ -2547,12 +2533,7 @@
     }];
 }
 
-
-@end
-
-
-
-@implementation ZMConversationTests (ConversationListIndicator)
+#pragma mark - ConversationListIndicator
 
 - (void)setConversationAsHavingKnock:(ZMConversation *)conversation
 {
@@ -2721,11 +2702,7 @@
     WaitForAllGroupsToBeEmpty(0.5);
 }
 
-
-@end
-
-
-@implementation ZMConversationTests (SearchQuerys)
+#pragma mark - SearchQuerys
 
 - (void)testThatItFindsConversationsWithUserDefinedNameByParticipantName
 {
@@ -2947,11 +2924,7 @@
     XCTAssertEqualObjects(result.firstObject, conversation1);
 }
 
-@end
-
-
-
-@implementation ZMConversationTests (Predicates)
+#pragma mark - Predicates
 
 - (void)testThatItFiltersOut_SelfConversation
 {
@@ -3148,11 +3121,7 @@
     XCTAssertTrue([sut evaluateWithObject:conversation]);
 }
 
-@end
-
-
-
-@implementation ZMConversationTests (SelfConversationSync)
+#pragma mark - SelfConversationSync
 
 - (void)testThatItUpdatesTheConversationWhenItReceivesALastReadMessage
 {
@@ -3436,10 +3405,7 @@
     }];
 }
 
-@end
-
-
-@implementation ZMConversationTests (SendOnlyEncryptedMessages)
+#pragma mark - SendOnlyEncryptedMessages
 
 - (void)testThatItInsertsEncryptedTextMessages
 {
@@ -3491,10 +3457,7 @@
     XCTAssertTrue([result.firstObject isKindOfClass:[ZMClientMessage class]]);
 }
 
-@end
-
-
-@implementation ZMConversationTests (SystemMessags)
+#pragma mark - SystemMessags
 
 - (void)testThatItSetsHasUnreadMissedCallForMissedCallMessages
 {
@@ -3699,10 +3662,7 @@
     }];
 }
 
-@end
-
-
-@implementation ZMConversationTests (GroupCallingV3)
+#pragma mark - GroupCallingV3
 
 - (void)testThatItReturnsActiveCall_isCallDeviceActive
 {
