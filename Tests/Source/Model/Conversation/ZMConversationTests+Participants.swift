@@ -256,7 +256,6 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
     }
     
     func testThatActiveParticipantsContainsSelf() {
-        // TODO: review
         // given
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.conversationType = .group
@@ -371,6 +370,8 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         // then
         XCTAssertEqual(conversation.connectedUser, user)
     }
+    
+    // MARK: - Roles
     
     func testThatWeGetAConversationRolesIfItIsAPartOfATeam() {
         // given

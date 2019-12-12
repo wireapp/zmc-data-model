@@ -118,20 +118,15 @@ extension ZMConversation {
             }
             self.updateServerModified(serverTimeStamp)
         }
-
-        if let members = transportData[PayloadKeys.membersKey] as? [String: Any?],
-            let selfStatus = members[PayloadKeys.selfKey] as? [String: Any?] {
-            self.updateSelfStatus(dictionary: selfStatus, timeStamp: nil, previousLastServerTimeStamp: nil)
-        }
-        else {
-            zmLog.error("Missing self status in conversation data")
-        }
     
         if let creatorId = transportData.UUID(fromKey: PayloadKeys.creatorKey) {
             self.creator = ZMUser(remoteID: creatorId, createIfNeeded: true, in: moc)!
         }
         
         if let members = transportData[PayloadKeys.membersKey] as? [String: Any] {
+            if let selfStatus = members[PayloadKeys.selfKey] as? [String: Any?] {
+                self.updateSelfStatus(dictionary: selfStatus, timeStamp: nil, previousLastServerTimeStamp: nil)
+            }
             self.updateMembers(payload: members)
             self.updatePotentialGapSystemMessagesIfNeeded(users: self.localParticipants)
         } else {
@@ -178,45 +173,46 @@ extension ZMConversation {
         return Set(remoteParticipants)
     }
     
+    /// Parse the "members" section
     private func updateMembers(payload: [String: Any]) {
         
-        guard let usersInfos = payload[PayloadKeys.othersKey] as? [[String: Any]],
+        guard let otherUsersInfos = payload[PayloadKeys.othersKey] as? [[String: Any]],
+            let selfInfo = payload[PayloadKeys.selfKey] as? [String: Any],
             let moc = self.managedObjectContext else {
                 return
         }
-        let selfUser = ZMUser.selfUser(in: moc)
+        let usersInfos = otherUsersInfos + [selfInfo]
         
         let remoteUUIDsToRoles: [UUID: String?] = usersInfos.reduce([UUID:String?]()) { (prev, payload) in
             guard let id = payload.UUID(fromKey: PayloadKeys.IDKey) else { return prev }
             let role = payload[PayloadKeys.conversationRoleKey] as? String
             return prev.updated(other: [id: role])
         }
-        let remoteParticipantsUUIDs = Set(remoteUUIDsToRoles.keys)
-
-        // the self user is always a part of the conversation if we are in this method
-        //backend will never send us the update of conversation where we are not in
-        let newParticipants = fetchOrCreateAllUsers(uuids: remoteParticipantsUUIDs)
-            .union([selfUser])
         
-        let addedParticipantsWithRoles = newParticipants
-            .subtracting(self.localParticipants)
+        let allParticipants = fetchOrCreateAllUsers(uuids: Set(remoteUUIDsToRoles.keys))
+        // I will "re-add" all participants, just to make sure they have the right role
+        let addedParticipantsWithRoles = allParticipants
             .map { user -> (ZMUser, Role?) in
                 if let roleEntry = remoteUUIDsToRoles[user.remoteIdentifier!],
                     let roleName = roleEntry
                 {
-                    let role = Role.fetchOrCreateRole(
-                        with: roleName,
-                        teamOrConversation: self.team != nil ? .team(self.team!) : .conversation(self),
-                        in: moc)
+                    let role = fetchOrCreateRoleForConversation(name: roleName)
                     return (user, role)
                 } else {
                     return (user, nil)
                 }
             }
-        let removedParticipants = self.localParticipants.subtracting(newParticipants)
+        let removedParticipants = self.localParticipants.subtracting(allParticipants)
   
         self.addParticipantsAndUpdateConversationState(usersAndRoles: addedParticipantsWithRoles)
-        self.removeParticipantsAndUpdateConversationState(users: removedParticipants, initiatingUser: selfUser)
+        self.removeParticipantsAndUpdateConversationState(users: removedParticipants, initiatingUser: ZMUser.selfUser(in: moc))
+    }
+    
+    private func fetchOrCreateRoleForConversation(name: String) -> Role {
+        return Role.fetchOrCreateRole(
+            with: name,
+            teamOrConversation: self.team != nil ? .team(self.team!) : .conversation(self),
+            in: self.managedObjectContext!)
     }
     
     func updateTeam(identifier: UUID?) {

@@ -82,12 +82,13 @@
         [others addObject:userInfo];
     }
     
+    NSString *selfRemoteId = [ZMUser selfUserInContext:conversation.managedObjectContext].remoteIdentifier.transportString;
     NSDictionary *payload = @{
                               @"name" : [NSNull null],
                               @"creator" : @"3bc5750a-b965-40f8-aff2-831e9b5ac2e9",
                               @"members" : @{
                                       @"self" : @{
-                                              @"id" : @"3bc5750a-b965-40f8-aff2-831e9b5ac2e9",
+                                              @"id" : selfRemoteId,
                                               @"otr_archived" : @(isArchived),
                                               @"otr_archived_ref" : archivedRef ? [archivedRef transportString] : [NSNull null],
                                               @"otr_muted" : @(isSilenced),
@@ -784,12 +785,13 @@
         ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
         NSUUID *uuid = NSUUID.createUUID;
         conversation.remoteIdentifier = uuid;
+        NSString *selfRemoteId = [ZMUser selfUserInContext:conversation.managedObjectContext].remoteIdentifier.transportString;
         NSDictionary *payload = @{
                                   @"name" : [NSNull null],
                                   @"creator" : @"3bc5750a-b965-40f8-aff2-831e9b5ac2e9",
                                   @"members" : @{
                                           @"self" : @{
-                                                  @"id" : @"3bc5750a-b965-40f8-aff2-831e9b5ac2e9"
+                                                  @"id" : selfRemoteId
                                                   },
                                           },
                                   @"type" : @1,

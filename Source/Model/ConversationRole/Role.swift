@@ -118,7 +118,7 @@ public final class Role: ZMManagedObject {
     
     static func fetchOrCreateRole(with name: String,
                                   teamOrConversation: TeamOrConversation,
-                                  in context: NSManagedObjectContext) -> Role? {
+                                  in context: NSManagedObjectContext) -> Role {
         let existingRole = self.fetchExistingRole(with: name,
                                                   teamOrConversation: teamOrConversation,
                                                   in: context)
