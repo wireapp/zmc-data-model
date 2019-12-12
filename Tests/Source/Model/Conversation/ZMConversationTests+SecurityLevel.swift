@@ -632,10 +632,11 @@ class ZMConversationTests_SecurityLevel: ZMConversationTestsBase {
             self.createSelfClient()
             let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
             conversation.conversationType = .group
-            conversation.securityLevel = .secure
+            let selfUser = ZMUser.selfUser(in: self.syncMOC)
             
             let user = ZMUser.insertNewObject(in: self.syncMOC)
-            conversation.addParticipantAndUpdateConversationState(user: user, role: nil)
+            conversation.addParticipantsAndUpdateConversationState(users: Set([user, selfUser]), role: nil)
+            conversation.securityLevel = .secure
             
             let message1 = conversation.append(imageFromData: self.verySmallJPEGData()) as! ZMOTRMessage
             Thread.sleep(forTimeInterval: 0.1)  // cause system time to advance

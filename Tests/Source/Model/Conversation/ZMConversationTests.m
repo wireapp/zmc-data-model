@@ -180,7 +180,7 @@
     ZMUser *otherUser2 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     
     // when
-    ZMConversation *conversation = [ZMConversation insertGroupConversationWithMoc:self.syncMOC
+    ZMConversation *conversation = [ZMConversation insertGroupConversationWithMoc:self.uiMOC
                                                                      participants:@[otherUser1, otherUser2]
                                                                              name:nil
                                                                              team:nil
@@ -617,7 +617,7 @@
     ZMUser *user2 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     
     // when
-    ZMConversation *sut = [ZMConversation insertGroupConversationWithMoc:self.syncMOC
+    ZMConversation *sut = [ZMConversation insertGroupConversationWithMoc:self.uiMOC
                                                             participants:@[user1, user2]
                                                                     name:nil
                                                                     team:nil
@@ -2227,8 +2227,7 @@
     conversation.conversationType = ZMConversationTypeGroup;
     ZMUser *selfUser = [ZMUser selfUserInContext:self.uiMOC];
     selfUser.remoteIdentifier = NSUUID.createUUID;
-    ZMUser *otherUser = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    [conversation addParticipantAndUpdateConversationStateWithUser:otherUser role:nil];
+    [conversation addParticipantAndUpdateConversationStateWithUser:selfUser role:nil];
     XCTAssertFalse(conversation.isArchived);
     
     // when
@@ -3046,6 +3045,8 @@
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.userDefinedName = @"lala";
     conversation.conversationType = ZMConversationTypeGroup;
+    ZMUser *selfUser = [ZMUser selfUserInContext:self.uiMOC];
+    [conversation addParticipantAndUpdateConversationStateWithUser:selfUser role:nil];
     __block NSDate *clearedTimeStamp;
     [self performIgnoringZMLogError:^{
         clearedTimeStamp = [self timeStampForSortAppendMessageToConversation:conversation];
@@ -3053,7 +3054,7 @@
     [self.uiMOC saveOrRollback];
     
     [conversation clearMessageHistory];
-    [conversation addParticipantAndUpdateConversationStateWithUser:[ZMUser selfUserInContext:self.uiMOC] role:nil];
+    [conversation addParticipantAndUpdateConversationStateWithUser:selfUser role:nil];
     WaitForAllGroupsToBeEmpty(0.5);
     
     XCTAssertTrue(conversation.isArchived);
