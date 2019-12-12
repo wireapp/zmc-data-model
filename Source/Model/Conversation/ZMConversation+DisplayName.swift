@@ -70,6 +70,10 @@ public extension ZMConversation {
         return managedObjectContext.map(ZMUser.selfUser)
     }
     
+    
+    /// Get the group name from the participants
+    ///
+    /// - Returns: a group name with creator at the first and other users sorted by name
     private func groupDisplayName() -> String? {
         precondition(conversationType == .group)
 
