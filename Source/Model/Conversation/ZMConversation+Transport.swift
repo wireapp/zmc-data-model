@@ -24,13 +24,13 @@ private let zmLog = ZMSLog(tag: "Conversations")
 
 /// This enum matches the backend convention for type
 @objc(ZMBackendConversationType)
-enum BackendConversationType: Int {
+public enum BackendConversationType: Int {
     case group = 0
     case `self` = 1
     case oneOnOne = 2
     case connection = 3
     
-    static func clientConversationType(rawValue: Int) -> ZMConversationType {
+    public static func clientConversationType(rawValue: Int) -> ZMConversationType {
         guard let backendType = BackendConversationType(rawValue: rawValue) else {
             return .invalid
         }
@@ -49,38 +49,39 @@ enum BackendConversationType: Int {
 
 extension ZMConversation {
     
-    struct PayloadKeys {
+    public struct PayloadKeys {
         
         private init() {}
         
-        static let nameKey = "name";
-        static let typeKey = "type";
-        static let IDKey = "id";
+        public static let nameKey = "name";
+        public static let typeKey = "type";
+        public static let IDKey = "id";
         
-        static let othersKey = "others";
-        static let membersKey = "members";
-        static let selfKey = "self";
-        static let creatorKey = "creator";
-        static let teamIdKey = "team";
-        static let accessModeKey = "access";
-        static let accessRoleKey = "access_role";
-        static let messageTimer = "message_timer";
-        static let receiptMode = "receipt_mode";
+        public static let othersKey = "others";
+        public static let membersKey = "members";
+        public static let selfKey = "self";
+        public static let creatorKey = "creator";
+        public static let teamIdKey = "team";
+        public static let accessModeKey = "access";
+        public static let accessRoleKey = "access_role";
+        public static let messageTimer = "message_timer";
+        public static let receiptMode = "receipt_mode";
         
-        static let OTRMutedValueKey = "otr_muted";
-        static let OTRMutedStatusValueKey = "otr_muted_status";
-        static let OTRMutedReferenceKey = "otr_muted_ref";
-        static let OTRArchivedValueKey = "otr_archived";
-        static let OTRArchivedReferenceKey = "otr_archived_ref";
+        public static let OTRMutedValueKey = "otr_muted";
+        public static let OTRMutedStatusValueKey = "otr_muted_status";
+        public static let OTRMutedReferenceKey = "otr_muted_ref";
+        public static let OTRArchivedValueKey = "otr_archived";
+        public static let OTRArchivedReferenceKey = "otr_archived_ref";
     }
     
-    private func updateClearedFromPostPayload(event: ZMUpdateEvent ) {
+    public func updateCleared(fromPostPayloadEvent event: ZMUpdateEvent ) {
         if let timeStamp = event.timeStamp() {
-            self.updateCleared(timeStamp, synchronize: true)
+            updateCleared(timeStamp, synchronize: true)
         }
     }
     
-    private func update(updateEvent: ZMUpdateEvent) {
+    @objc
+    public func update(updateEvent: ZMUpdateEvent) {
         if let timeStamp = updateEvent.timeStamp() {
             self.updateServerModified(timeStamp)
         }
@@ -206,7 +207,7 @@ extension ZMConversation {
     }
     
     /// Pass timestamp when the timestamp equals the time of the lastRead / cleared event, otherwise pass nil
-    private func updateSelfStatus(dictionary: [String: Any?], timeStamp: Date?, previousLastServerTimeStamp: Date?) {
+    public func updateSelfStatus(dictionary: [String: Any?], timeStamp: Date?, previousLastServerTimeStamp: Date?) {
         self.updateMuted(with: dictionary)
         if  self.updateIsArchived(payload: dictionary) && self.isArchived,
             let previousLastServerTimeStamp = previousLastServerTimeStamp,
