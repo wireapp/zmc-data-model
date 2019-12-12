@@ -40,9 +40,9 @@ extension ZMConversation {
     }
     
     // Migration rules for the Model version 2.78.0
-    static func addUsersToTheParticipanrRoles(in moc: NSManagedObjectContext) {
+    static func addUsersToTheParticipantRoles(in moc: NSManagedObjectContext) {
         migrateIsSelfAnActiveMemberToTheParticipantRoles(in: moc)
-        addUserFromTheConnectionToTheParticipanrRoles(in: moc)
+        addUserFromTheConnectionToTheParticipantRoles(in: moc)
     }
     
     // Model version 2.78.0 adds a `participantRoles` attribute to the `Conversation` entity.
@@ -82,7 +82,7 @@ extension ZMConversation {
     
     // Model version 2.78.0 adds a `participantRoles` attribute to the `Conversation` entity.
     // After creating a new connection, we should add user to the participants roles, because we do not get it from the backend.
-    static func addUserFromTheConnectionToTheParticipanrRoles(in moc: NSManagedObjectContext) {
+    static func addUserFromTheConnectionToTheParticipantRoles(in moc: NSManagedObjectContext) {
         let allConnections = ZMConnection.connections(inMangedObjectContext: moc) as! [ZMConnection]
         for connection in allConnections {
             connection.conversation.add(user: connection.to, isFromLocal: true)

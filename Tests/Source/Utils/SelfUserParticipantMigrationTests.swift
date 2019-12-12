@@ -38,7 +38,7 @@ class SelfUserParticipantMigrationTests: DiskDatabaseTest {
         XCTAssertTrue(hasSelfUser)
     }
     
-    func testAddUserFromTheConnectionToTheParticipanrRoles() {
+    func testAddUserFromTheConnectionToTheParticipantRoles() {
         // Given
         let conversation = createConversation()
         let newUser = ZMUser.insertNewObject(in: moc)
@@ -46,7 +46,7 @@ class SelfUserParticipantMigrationTests: DiskDatabaseTest {
         let _ = createConnection(to: newUser, conversation: conversation)
         
         // When
-        WireDataModel.ZMConversation.addUserFromTheConnectionToTheParticipanrRoles(in: moc)
+        WireDataModel.ZMConversation.addUserFromTheConnectionToTheParticipantRoles(in: moc)
         
         // Then
         XCTAssertEqual(conversation.participantRoles.count, 1)
