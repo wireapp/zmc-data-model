@@ -66,12 +66,6 @@ extension ZMConversation {
     
     //MARK: - Participants methods
     
-    /// List of users that are in the conversation
-    @objc
-    public var activeParticipants: Set<ZMUser> {
-        return localParticipants
-    }
-    
     /// Participants that are in the conversation, according to the local state,
     /// even if that state is not yet synchronized with the backend
     @objc

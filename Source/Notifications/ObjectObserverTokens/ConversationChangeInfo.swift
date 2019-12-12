@@ -45,7 +45,7 @@ extension ZMConversation : ObjectInSnapshot {
                     ZMConversation.externalParticipantsStateKey,
                     #keyPath(ZMConversation.legalHoldStatus),
                     #keyPath(ZMConversation.labels),
-                    #keyPath(ZMConversation.activeParticipants)
+                    #keyPath(ZMConversation.localParticipants)
             ])
     }
 
@@ -83,7 +83,7 @@ extension ZMConversation : ObjectInSnapshot {
 
     public var activeParticipantsChanged : Bool {
         return changedKeysContain(keys: #keyPath(ZMConversation.isSelfAnActiveMember),
-                                        #keyPath(ZMConversation.activeParticipants))
+                                        #keyPath(ZMConversation.localParticipants))
     }
     
     public var nameChanged : Bool {
