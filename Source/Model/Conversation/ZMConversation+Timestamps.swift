@@ -84,7 +84,7 @@ extension ZMConversation {
     }
     
     @objc
-    func updateCleared(_ timestamp: Date, synchronize: Bool = false) {
+    public func updateCleared(_ timestamp: Date, synchronize: Bool = false) {
         guard let managedObjectContext = managedObjectContext else { return }
         
         if timestamp > clearedTimeStamp {
