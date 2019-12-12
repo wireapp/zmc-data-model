@@ -19,21 +19,52 @@
 import Foundation
 
 @objcMembers
-public class Action: ZMManagedObject {
-    
+final public class Action: ZMManagedObject {
+    public static let nameKey = #keyPath(Action.name)
+    public static let roleKey = #keyPath(Action.role)
+
     @NSManaged public var role: Role
     @NSManaged public var name: String?
-    
+
     public override static func entityName() -> String {
-        return "Action"
+        return String(describing: Action.self)
     }
     
+    private static func fetchExistingAction(with name: String,
+                                    role: Role,
+                                    in context: NSManagedObjectContext) -> Action? {
+        let fetchRequest = NSFetchRequest<Action>(entityName: self.entityName())
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", nameKey, name)
+        
+        let actions = context.fetchOrAssert(request: fetchRequest)
+        return actions.first(where:{
+            role.actions.contains($0)
+        })
+    }
+
     @objc
     @discardableResult
-    static public func create(managedObjectContext: NSManagedObjectContext,
+    private static func create(managedObjectContext: NSManagedObjectContext,
                               name: String) -> Action {
         let entry = Action.insertNewObject(in: managedObjectContext)
         entry.name = name
         return entry
     }
+    
+    @discardableResult
+    public static func fetchOrCreate(with name: String,
+                                     role: Role,
+                                     in context: NSManagedObjectContext, created: inout Bool) -> Action {
+        if let existing = fetchExistingAction(with: name, role: role, in: context) {
+            role.actions.insert(existing)
+            created = false
+            return existing
+        } else {
+            let action = Action.create(managedObjectContext: context, name: name)
+            role.actions.insert(action)
+            created = true
+            return action
+        }
+    }
+
 }

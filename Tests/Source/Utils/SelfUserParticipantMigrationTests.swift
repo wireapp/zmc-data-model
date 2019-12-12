@@ -22,13 +22,6 @@ import XCTest
 
 class SelfUserParticipantMigrationTests: DiskDatabaseTest {
     
-    override func setUp() {
-        super.setUp()
-        
-        // Batch update doesn't inform the MOC of any changes so we disable caching in order to fetch directly from the store
-        moc.stalenessInterval = 0.0
-    }
-    
     func testMigrationIsSelfAnActiveMemberToTheParticipantRoles() {
         // Given
         let conversation = createConversation()

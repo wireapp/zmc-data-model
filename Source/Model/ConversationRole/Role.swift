@@ -19,8 +19,13 @@
 import Foundation
 
 @objcMembers
-public class Role: ZMManagedObject {
-    
+public final class Role: ZMManagedObject {
+    public static let nameKey = #keyPath(Role.name)
+    public static let teamKey = #keyPath(Role.team)
+    public static let conversationKey = #keyPath(Role.conversation)
+    public static let actionsKey = #keyPath(Role.actions)
+    public static let participantRolesKey = #keyPath(Role.participantRoles)
+
     @NSManaged public var name: String?
 
     @NSManaged public var actions: Set<Action>
@@ -29,7 +34,7 @@ public class Role: ZMManagedObject {
     @NSManaged public var conversation: ZMConversation?
 
     public override static func entityName() -> String {
-        return "Role"
+        return String(describing: Role.self)
     }
     
     public override static func isTrackingLocalModifications() -> Bool {
@@ -51,10 +56,45 @@ public class Role: ZMManagedObject {
     @discardableResult
     static public func create(managedObjectContext: NSManagedObjectContext,
                               name: String,
-                              team: Team) -> Role {
+                              team: Team?) -> Role {
         let entry = Role.insertNewObject(in: managedObjectContext)
         entry.name = name
         entry.team = team
         return entry
+    }
+
+    @objc
+    static func fetchExistingRole(with name: String, in context: NSManagedObjectContext) -> Role? {
+        let fetchRequest = NSFetchRequest<Role>(entityName: Role.entityName())
+        fetchRequest.predicate = NSPredicate(format: "%K == %@", Role.nameKey, name)
+        fetchRequest.fetchLimit = 1
+        
+        return context.fetchOrAssert(request: fetchRequest).first
+    }
+
+    @discardableResult
+    public static func createOrUpdate(with payload: [String: Any],
+                                      team: Team?,
+                                      conversation: ZMConversation,
+                                      context: NSManagedObjectContext
+        ) -> Role? {
+        guard let conversationRole = payload["conversation_role"] as? String,
+            let actionNames = payload["actions"] as? [String]
+            else { return nil }
+        
+        let fetchedRole = fetchExistingRole(with: conversationRole, in: context)
+
+        let role = fetchedRole ?? Role.insertNewObject(in: context)
+        
+        actionNames.forEach() { actionName in
+            var created = false
+            Action.fetchOrCreate(with: actionName, role: role, in: context, created: &created)
+        }
+
+        role.team = team
+        role.conversation = conversation
+        role.name = conversationRole
+
+        return role
     }
 }

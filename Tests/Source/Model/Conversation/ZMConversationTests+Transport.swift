@@ -20,7 +20,7 @@ import Foundation
 @testable import WireDataModel
 
 extension ZMConversationTransportTests {
-    //final class ConversationTransportTests: ZMConversationTestsBase {
+
     func testThatItDoesNotUpdatesLastModifiedDateIfAlreadyExists() {
         syncMOC.performGroupedAndWait() {_ in
             // given
@@ -35,10 +35,10 @@ extension ZMConversationTransportTests {
             conversation.lastModifiedDate = lastModifiedDate
             let serverTimestamp = currentTime
 
-            let payload = self.payloadForMetaData(of: conversation, conversationType: .convTypeGroup, isArchived: true, archivedRef: currentTime, isSilenced: true, silencedRef: currentTime, silencedStatus: nil)
+            let payload = self.payloadForMetaData(of: conversation, conversationType: .group, isArchived: true, archivedRef: currentTime, isSilenced: true, silencedRef: currentTime, silencedStatus: nil)
 
             // when
-            conversation.update(withTransportData: payload, serverTimeStamp: serverTimestamp)
+            conversation.update(transportData: payload as! [String: Any], serverTimeStamp: serverTimestamp)
 
             // then
             XCTAssertEqual(conversation.lastServerTimeStamp, serverTimestamp)
