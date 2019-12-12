@@ -112,77 +112,186 @@ extension ZMConversation {
     
     // MARK: - Participant operations
     
-    /// union user set to participantRoles
+    /// Add participants to the conversation. The method will decide on its own whether
+    /// this operation need to be synchronized to the backend or not based on the current context.
+    /// If the operation is executed from the UI context, then the operation will be synchronized.
+    /// If the operation is executed from the sync context, then the operation will not be synchronized.
     ///
-    /// - Parameter users: users to union
+    /// The method will handle the case when the participant is already there, so it's safe to call
+    /// it multiple time for the same user. It will update the role if the user is already there with
+    /// a different role.
+    ///
+    /// The method will also check if the addition of the users will change the verification status, the archive
+    /// status, etc.
     @objc
-    func union(userSet: Set<ZMUser>,
-               isFromLocal: Bool) {
-        // TODO:
-        // Split in two: one that adds from remote, one that adds from UI
-        // use the method that also upgrades/degrades the conversation
-        let currentParticipantSet = self.participantRoles.map { $0.user }
+    public func addParticipantAndUpdateConversationState(user: ZMUser, role: Role?) {
+        self.addParticipantsAndUpdateConversationState(usersAndRoles: [(user, role)])
+    }
+    
+    /// Add participants to the conversation. The method will decide on its own whether
+    /// this operation need to be synchronized to the backend or not based on the current context.
+    /// If the operation is executed from the UI context, then the operation will be synchronized.
+    /// If the operation is executed from the sync context, then the operation will not be synchronized.
+    ///
+    /// The method will handle the case when the participant is already there, so it's safe to call
+    /// it multiple time for the same user. It will update the role if the user is already there with
+    /// a different role.
+    ///
+    /// The method will also check if the addition of the users will change the verification status, the archive
+    /// status, etc.
+    @objc
+    public func addParticipantsAndUpdateConversationState(users: Set<ZMUser>, role: Role?) {
+        self.addParticipantsAndUpdateConversationState(usersAndRoles: users.map { ($0, role) })
+    }
+    
+    /// Add participants to the conversation. The method will decide on its own whether
+    /// this operation need to be synchronized to the backend or not based on the current context.
+    /// If the operation is executed from the UI context, then the operation will be synchronized.
+    /// If the operation is executed from the sync context, then the operation will not be synchronized.
+    ///
+    /// The method will handle the case when the participant is already there, so it's safe to call
+    /// it multiple time for the same user. It will update the role if the user is already there with
+    /// a different role.
+    ///
+    /// The method will also check if the addition of the users will change the verification status, the archive
+    /// status, etc.
+    public func addParticipantsAndUpdateConversationState(usersAndRoles: [(ZMUser, Role?)]) {
         
-        userSet.forEach() { user in
-            if !currentParticipantSet.contains(user) {
-                add(user: user, isFromLocal: isFromLocal)
+        let addedRoles = usersAndRoles.compactMap { (user, role) -> ParticipantRole? in
+            
+            // make sure the role is the right team/conversation role
+            require(
+                role == nil || (role!.team == self.team || role!.conversation == self),
+                "Tried to add a role that does not belong to the conversation"
+            )
+            
+            guard let (result, pr) = fetchOrCreateParticipantRole(user: user, role: role) else { return nil }
+            return (result == .created) ? pr : nil
+        }
+        
+        let addedSelfUser = addedRoles.contains(where: {$0.user.isSelfUser})
+        if addedSelfUser {
+            self.needsToBeUpdatedFromBackend = true
+        }
+        
+        if !addedRoles.isEmpty {
+            self.checkIfArchivedStatusChanged(addedSelfUser: addedSelfUser)
+            self.checkIfVerificationLevelChanged(addedUsers: Set(addedRoles.map { $0.user}))
+        }
+    }
+
+    private enum FetchOrCreation {
+        case fetched
+        case created
+    }
+    
+    // Fetch an existing role or create a new one if needed
+    // Returns whether it was created or found
+    private func fetchOrCreateParticipantRole(user: ZMUser, role: Role?) -> (FetchOrCreation, ParticipantRole)? {
+        
+        guard let moc = self.managedObjectContext else { return nil }
+        let shouldSyncToBackend = moc.zm_isUserInterfaceContext
+
+        // If the user is already there, just change the role
+        if let current = self.participantRoles.first(where: {$0.user == user}) {
+            if let role = role {
+                current.role = role
             }
             
-            ///if marked for delete, set it to non-deleted
-            if currentParticipantSet.contains(user) {
-                participantRoles.first(where: {$0.markedForDeletion})?.operationToSync = .none
+            // If we are already trying to delete this user, abort the deletion
+            if shouldSyncToBackend && current.markedForDeletion {
+                current.operationToSync = .none
             }
-        }
-    }
-    
-    @objc
-    func minus(userSet: Set<ZMUser>, isFromLocal: Bool) {
-        // TODO:
-        // Split in two: one that removes from remote, one that removes from UI
-        // use the method that also upgrades/degrades the conversation
-        participantRoles.forEach() {
-            if userSet.contains($0.user) {
-                switch (isFromLocal, $0.markedForInsertion) {
-                case (true, true),
-                     (false, _):
-                    participantRoles.remove($0)
-                    managedObjectContext?.delete($0)
-                case (true, false):
-                    $0.operationToSync = .delete
-                }
+            return (.fetched, current)
+        } else {
+            // A new participant role
+            let participantRole = ParticipantRole.insertNewObject(in: moc)
+            participantRole.conversation = self
+            participantRole.user = user
+            participantRole.role = role
+            if shouldSyncToBackend {
+                participantRole.operationToSync = .insert
             }
+            return (.created, participantRole)
         }
     }
     
-    @objc
-    public func minus(user: ZMUser, isFromLocal: Bool) {
-        self.minus(userSet: Set([user]), isFromLocal: isFromLocal)
-    }
-    
-    @objc
-    public func add(users: [ZMUser],
-             isFromLocal: Bool) {
-        // TODO:
-        // Split in two: one that adds from remote, one that adds from UI
-        // use the method that also upgrades/degrades the conversation
-        users.forEach() { user in
-            add(user: user, isFromLocal: isFromLocal)
+    private func checkIfArchivedStatusChanged(addedSelfUser: Bool) {
+        if addedSelfUser && self.mutedStatus == MutedMessageOptionValue.none.rawValue {
+            self.isArchived = false
         }
     }
     
+    private func checkIfVerificationLevelChanged(addedUsers: Set<ZMUser>) {
+        self.decreaseSecurityLevelIfNeededAfterDiscovering(clients: Set(addedUsers.flatMap { $0.clients }), causedBy: addedUsers)
+    }
+    
+    /// Remove participants to the conversation. The method will decide on its own whether
+    /// this operation need to be synchronized to the backend or not based on the current context.
+    /// If the operation is executed from the UI context, then the operation will be synchronized.
+    /// If the operation is executed from the sync context, then the operation will not be synchronized.
+    ///
+    /// The method will handle the case when the participant is not there, so it's safe to call
+    /// it even if the user is not there.
+    ///
+    /// The method will also check if the addition of the users will change the verification status, the archive
+    /// status, etc.
     @objc
-    public func add(user: ZMUser,
-             isFromLocal: Bool) {
-        // TODO:
-        // Split in two: one that adds from remote, one that adds from UI
-        // use the method that also upgrades/degrades the conversation
-        guard let moc = user.managedObjectContext else { return }
-        let participantRole = user.participantRoles.first(where: {$0.conversation == self}) ??
-            ParticipantRole.create(managedObjectContext: moc, user: user, conversation: self)
-        if isFromLocal {
-            participantRole.operationToSync = participantRole.markedForDeletion ? .none : .insert
+    public func removeParticipantsAndUpdateConversationState(users: Set<ZMUser>, initiatingUser: ZMUser? = nil) {
+        
+        guard let moc = self.managedObjectContext else { return }
+        let shouldSyncToBackend = moc.zm_isUserInterfaceContext
+        let existingUsers = Set(self.participantRoles.map { $0.user })
+        
+        let removedUsers = Set(users.compactMap { user -> ZMUser? in
+            
+            guard existingUsers.contains(user),
+                let existingRole = participantRoles.first(where: { $0.user == user })
+                else { return nil }
+            
+            switch (shouldSyncToBackend, existingRole.markedForInsertion) {
+            case (true, true),
+                 (false, _):
+                participantRoles.remove(existingRole)
+                moc.delete(existingRole)
+            case (true, false):
+                existingRole.operationToSync = .delete
+            }
+            return user
+        })
+        
+        if !removedUsers.isEmpty {
+            let removedSelf = removedUsers.contains(where: { $0.isSelfUser })
+            self.checkIfArchivedStatusChanged(removedSelfUser: removedSelf, initiatingUser: initiatingUser)
+            self.checkIfVerificationLevelChanged(removedUsers: removedUsers)
         }
     }
+    
+    /// Remove participants to the conversation. The method will decide on its own whether
+    /// this operation need to be synchronized to the backend or not based on the current context.
+    /// If the operation is executed from the UI context, then the operation will be synchronized.
+    /// If the operation is executed from the sync context, then the operation will not be synchronized.
+    ///
+    /// The method will handle the case when the participant is not there, so it's safe to call
+    /// it even if the user is not there.
+    ///
+    /// The method will also check if the addition of the users will change the verification status, the archive
+    /// status, etc.
+    @objc
+    public func removeParticipantAndUpdateConversationState(user: ZMUser, initiatingUser: ZMUser? = nil) {
+        self.removeParticipantsAndUpdateConversationState(users: Set(arrayLiteral: user), initiatingUser: initiatingUser)
+    }
+    
+    private func checkIfArchivedStatusChanged(removedSelfUser: Bool, initiatingUser: ZMUser?) {
+        if removedSelfUser, let initiatingUser = initiatingUser {
+            self.isArchived = initiatingUser.isSelfUser
+        }
+    }
+    
+    private func checkIfVerificationLevelChanged(removedUsers: Set<ZMUser>) {
+        self.increaseSecurityLevelIfNeededAfterRemoving(users: removedUsers)
+    }
+    
     
     // MARK: - Conversation roles
     
@@ -195,3 +304,5 @@ extension ZMConversation {
         return nonTeamRoles
     }
 }
+
+

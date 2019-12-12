@@ -44,7 +44,7 @@
     connection.lastUpdateDate = [NSDate date];
     connection.status = ZMConnectionStatusPending;
     connection.conversation = [ZMConversation insertNewObjectInManagedObjectContext:user.managedObjectContext];
-    [connection.conversation addWithUser:user isFromLocal:NO];
+    [connection.conversation addParticipantAndUpdateConversationStateWithUser:user role:nil];
     connection.conversation.creator = [ZMUser selfUserInContext:user.managedObjectContext];
     connection.conversation.conversationType = ZMConversationTypeConnection;
     connection.conversation.lastModifiedDate = connection.lastUpdateDate;

@@ -76,7 +76,7 @@ class BaseZMClientMessageTests : BaseZMMessageTests {
             self.syncUser3 = ZMUser.insertNewObject(in: self.syncMOC)
             self.syncUser3Client1 = self.createClient(for: self.syncUser3, createSessionWithSelfUser: false, onMOC: self.syncMOC)
             
-            self.syncConversation = ZMConversation.insertGroupConversation(into: self.syncMOC, withParticipants: [self.syncUser1!, self.syncUser2!, self.syncUser3!])
+            self.syncConversation = ZMConversation.insertGroupConversation(moc: self.syncMOC, participants: [self.syncUser1!, self.syncUser2!, self.syncUser3!])
             
             self.syncConversation.remoteIdentifier = UUID.create()
             

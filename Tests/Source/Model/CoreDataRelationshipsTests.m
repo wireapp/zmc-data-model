@@ -69,11 +69,11 @@
     conversation1.creator = user1;
     conversation2.creator = user2;
     
-    [conversation1 addWithUser:user1 isFromLocal:NO];
-    [conversation1 addWithUser:user3 isFromLocal:NO];
+    [conversation1 addParticipantAndUpdateConversationStateWithUser:user1 role:nil];
+    [conversation1 addParticipantAndUpdateConversationStateWithUser:user3 role:nil];
     
-    [conversation2 addWithUser:user2 isFromLocal:NO];
-    [conversation2 addWithUser:user3 isFromLocal:NO];
+    [conversation2 addParticipantAndUpdateConversationStateWithUser:user2 role:nil];
+    [conversation2 addParticipantAndUpdateConversationStateWithUser:user3 role:nil];
     
     // Check that the inverse have been set:
     [self.uiMOC processPendingChanges];

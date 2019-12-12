@@ -56,6 +56,7 @@ extension ZMConversation {
         static let nameKey = "name";
         static let typeKey = "type";
         static let IDKey = "id";
+        static let conversationRoleKey = "conversation_role";
         
         static let othersKey = "others";
         static let membersKey = "members";
@@ -91,6 +92,9 @@ extension ZMConversation {
         
         guard let moc = self.managedObjectContext else { return }
         
+        let teamID = transportData.UUID(fromKey: PayloadKeys.teamIdKey)
+        self.updateTeam(identifier: teamID)
+
         if let remoteId = transportData.UUID(fromKey: PayloadKeys.IDKey) {
             require(remoteId == self.remoteIdentifier,
                     "Remote IDs not matching for conversation \(remoteId) vs. \(String(describing: self.remoteIdentifier))")
@@ -133,18 +137,8 @@ extension ZMConversation {
             zmLog.error("Invalid members in conversation JSON: \(transportData)")
         }
 
-        self.updateTeam(identifier: transportData.UUID(fromKey: PayloadKeys.teamIdKey))
         
-        if let receiptMode = transportData[PayloadKeys.receiptMode] as? Int {
-            let enabled = receiptMode > 0
-            let receiptModeChanged = !self.hasReadReceiptsEnabled && enabled
-            self.hasReadReceiptsEnabled = enabled;
-
-            // We only want insert a system message if this is an existing conversation (non empty)
-            if (receiptModeChanged && self.lastMessage != nil) {
-                self.appendMessageReceiptModeIsOnMessage(timestamp: Date())
-            }
-        }
+        self.updateReceiptMode(transportData[PayloadKeys.receiptMode] as? Int)
         
         self.accessModeStrings = transportData[PayloadKeys.accessModeKey] as? [String]
         self.accessRoleString = transportData[PayloadKeys.accessRoleKey] as? String
@@ -155,35 +149,71 @@ extension ZMConversation {
         }
     }
     
+    private func updateReceiptMode(_ receiptMode: Int?) {
+        if let receiptMode = receiptMode {
+            let enabled = receiptMode > 0
+            let receiptModeChanged = !self.hasReadReceiptsEnabled && enabled
+            self.hasReadReceiptsEnabled = enabled;
+            
+            // We only want insert a system message if this is an existing conversation (non empty)
+            if (receiptModeChanged && self.lastMessage != nil) {
+                self.appendMessageReceiptModeIsOnMessage(timestamp: Date())
+            }
+        }
+    }
+
+    private func fetchOrCreateAllUsers(uuids: Set<UUID>) -> Set<ZMUser> {
+        var remoteParticipants = ZMUser.users(withRemoteIDs: uuids, in: self.managedObjectContext!)
+        if remoteParticipants.count != uuids.count {
+            
+            // Some users didn't exist so we need create the missing users
+            let missingUsers = uuids.subtracting(
+                remoteParticipants.map { $0.remoteIdentifier! }
+            )
+            remoteParticipants.formUnion(missingUsers.map {
+                ZMUser(remoteID: $0, createIfNeeded: true, in: self.managedObjectContext!)!
+            })
+        }
+        return Set(remoteParticipants)
+    }
+    
     private func updateMembers(payload: [String: Any?]) {
         
         guard let usersInfos = payload[PayloadKeys.othersKey] as? [[String: Any?]],
             let moc = self.managedObjectContext else {
                 return
         }
+        let selfUser = ZMUser.selfUser(in: moc)
         
-        let remoteParticipantUUIDs = Set(usersInfos.compactMap { $0.UUID(fromKey: PayloadKeys.IDKey) })
-        var remoteParticipants = ZMUser.users(withRemoteIDs: remoteParticipantUUIDs, in: moc)
-        
-        if remoteParticipants.count != remoteParticipantUUIDs.count {
-
-            // Some users didn't exist so we need create the missing users
-            let missingUsers = remoteParticipantUUIDs.subtracting(remoteParticipants.map { $0.remoteIdentifier! } )
-            remoteParticipants.formUnion(missingUsers.map {
-                ZMUser(remoteID: $0, createIfNeeded: true, in: moc)!
-            })
+        let remoteUUIDsToRoles: [UUID: String?] = usersInfos.reduce([UUID:String?]()) { (prev, payload) in
+            guard let id = payload.UUID(fromKey: PayloadKeys.IDKey) else { return prev }
+            let role = payload[PayloadKeys.conversationRoleKey] as? String
+            return prev.updated(other: [id: role])
         }
+        let remoteParticipantsUUIDs = Set(remoteUUIDsToRoles.keys)
 
         // the self user is always a part of the conversation if we are in this method
         //backend will never send us the update of conversation where we are not in
-        let newParticipants = remoteParticipants.union([ZMUser.selfUser(in: moc)])
+        let newParticipants = fetchOrCreateAllUsers(uuids: remoteParticipantsUUIDs)
+            .union([selfUser])
         
-        let addedParticipants = newParticipants.subtracting(self.localParticipants)
+        let addedParticipantsWithRoles = newParticipants
+            .subtracting(self.localParticipants)
+            .map { user -> (ZMUser, Role?) in
+                if let roleName = remoteUUIDsToRoles[user.remoteIdentifier!]! {
+                    let role = Role.fetchOrCreateRole(
+                        with: roleName,
+                        teamOrConversation: self.team != nil ? .team(self.team!) : .conversation(self),
+                        in: moc)
+                    return (user, role)
+                } else {
+                    return (user, nil)
+                }
+            }
         let removedParticipants = self.localParticipants.subtracting(newParticipants)
   
-        let selfUser = ZMUser.selfUser(in: moc)
-        self.internalAddParticipants(Array(addedParticipants))
-        self.internalRemoveParticipants(Array(removedParticipants), sender: selfUser)
+        self.addParticipantsAndUpdateConversationState(usersAndRoles: addedParticipantsWithRoles)
+        self.removeParticipantsAndUpdateConversationState(users: removedParticipants, initiatingUser: selfUser)
     }
     
     func updateTeam(identifier: UUID?) {

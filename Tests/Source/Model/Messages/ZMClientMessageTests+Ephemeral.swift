@@ -321,7 +321,7 @@ extension ZMClientMessageTests_Ephemeral {
             connection.to = self.syncUser1
             connection.status = .accepted
             conversation.connection = connection
-            conversation.add(user:self.syncUser1, isFromLocal: false)
+            conversation.addParticipantAndUpdateConversationState(user: self.syncUser1, role: nil)
 
             self.syncMOC.saveOrRollback()
             

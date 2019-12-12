@@ -112,7 +112,7 @@
         // given
         [ZMUser selfUserInContext:self.syncMOC].teamIdentifier = [NSUUID UUID];
         ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
-        [conversation addWithUser:[ZMUser selfUserInContext:self.syncMOC] isFromLocal:NO];
+        [conversation addParticipantAndUpdateConversationStateWithUser:[ZMUser selfUserInContext:self.syncMOC] role:nil];
         NSUUID *uuid = NSUUID.createUUID;
         conversation.remoteIdentifier = uuid;
         NSDate *serverTimestamp = [NSDate date];
@@ -192,7 +192,7 @@
         NSUUID *uuid = NSUUID.createUUID;
         conversation.remoteIdentifier = uuid;
         conversation.mutedStatus = 3;
-        [conversation addWithUser:[ZMUser selfUserInContext:self.syncMOC] isFromLocal:YES];
+        [conversation addParticipantAndUpdateConversationStateWithUser:[ZMUser selfUserInContext:self.syncMOC] role:nil];
         NSDate *serverTimestamp = [NSDate date];
         NSDate *archivedDate = [NSDate date];
         NSDate *silencedDate = [archivedDate dateByAddingTimeInterval:10];

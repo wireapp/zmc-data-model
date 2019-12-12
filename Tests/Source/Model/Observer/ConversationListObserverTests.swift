@@ -477,7 +477,7 @@ class ConversationListObserverTests: NotificationDispatcherTestBase {
         // given
         let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
         let user = ZMUser.insertNewObject(in:self.uiMOC)
-        conversation.add(user:user, isFromLocal: false)
+        conversation.addParticipantAndUpdateConversationState(user: user, role: nil)
         conversation.conversationType = .group
         
         let conversationList = ZMConversation.conversationsExcludingArchived(in: self.uiMOC)
@@ -593,7 +593,7 @@ class ConversationListObserverTests: NotificationDispatcherTestBase {
         let conversation = ZMConversation.insertNewObject(in:self.uiMOC)
         conversation.lastReadServerTimeStamp = Date()
         conversation.conversationType = .group
-        conversation.add(user:ZMUser.selfUser(in: self.uiMOC), isFromLocal: true)
+        conversation.addParticipantAndUpdateConversationState(user: ZMUser.selfUser(in: self.uiMOC), role: nil)
         self.uiMOC.saveOrRollback()
         
         let conversationList = ZMConversation.conversationsExcludingArchived(in: self.uiMOC)
@@ -999,7 +999,7 @@ class ConversationListObserverTests: NotificationDispatcherTestBase {
         conversation.conversationType = .group
         conversation.team = team
         let user = ZMUser.insertNewObject(in: uiMOC)
-        conversation.add(user:user, isFromLocal: false)
+        conversation.addParticipantAndUpdateConversationState(user: user, role: nil)
         let conversationList = ZMConversation.conversationsExcludingArchived(in: uiMOC)
         XCTAssert(uiMOC.saveOrRollback())
 

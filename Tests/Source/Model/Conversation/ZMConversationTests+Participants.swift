@@ -26,14 +26,15 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         let sut = createConversation(in: uiMOC)
         let user1 = createUser()
         let user2 = createUser()
+        let selfUser = ZMUser.selfUser(in: self.uiMOC)
         
-        sut.internalAddParticipants([user1, user2])
+        sut.addParticipantsAndUpdateConversationState(users: Set([user1, user2]), role: nil)
         
         XCTAssertEqual(sut.participantRoles.count, 2)
         XCTAssertEqual(sut.activeParticipants.count, 2)
 
         // WHEN
-        sut.minus(userSet: Set([user2]), isFromLocal: true)
+        sut.removeParticipantAndUpdateConversationState(user: user2, initiatingUser: selfUser)
         
         // THEN
         XCTAssertEqual(Set(sut.participantRoles.map { $0.user }), Set([user1, user2]))
@@ -49,10 +50,10 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         let user1 = createUser()
         let user2 = createUser()
         
-        sut.internalAddParticipants([user1])
+        sut.addParticipantAndUpdateConversationState(user: user1, role: nil)
 
         // WHEN
-        sut.add(user: user2, isFromLocal: true)
+        sut.addParticipantAndUpdateConversationState(user: user2, role: nil)
 
         // THEN
         XCTAssertEqual(Set(sut.participantRoles.map { $0.user }), Set([user1, user2]))
@@ -67,10 +68,11 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         let sut = createConversation(in: uiMOC)
         let user1 = createUser()
         let user2 = createUser()
-        sut.internalAddParticipants([user1, user2])
+        sut.addParticipantsAndUpdateConversationState(users: Set([user1, user2]), role: nil)
+        let selfUser = ZMUser.selfUser(in: self.uiMOC)
         
         // WHEN
-        sut.minus(userSet: Set([user2]), isFromLocal: true)
+        sut.removeParticipantsAndUpdateConversationState(users: Set([user2]), initiatingUser: selfUser)
         
         // THEN
         XCTAssertEqual(sut.localParticipants, Set([user1]))
@@ -81,10 +83,10 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         let sut = createConversation(in: uiMOC)
         let user1 = createUser()
         let user2 = createUser()
-        sut.internalAddParticipants([user1, user2])
+        sut.addParticipantsAndUpdateConversationState(users: Set([user1, user2]), role: nil)
         
         // WHEN
-        sut.minus(userSet: Set([user2]), isFromLocal: true)
+        sut.removeParticipantsAndUpdateConversationState(users: Set([user2]), initiatingUser: selfUser)
         
         // THEN
         XCTAssertEqual(sut.localParticipantRoles.map { $0.user }, [user1])
@@ -95,15 +97,16 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         let sut = createConversation(in: uiMOC)
         let user1 = createUser()
         let user2 = createUser()
+        let selfUser = ZMUser.selfUser(in: self.uiMOC)
         
-        sut.internalAddParticipants([user1, user2])
+        sut.addParticipantsAndUpdateConversationState(users: Set([user1, user2]), role: nil)
         
         XCTAssertEqual(sut.participantRoles.count, 2)
         XCTAssertEqual(sut.activeParticipants.count, 2)
         
         // WHEN
-        sut.minus(userSet: Set([user2]), isFromLocal: true)
-        sut.add(user: user2, isFromLocal: true)
+        sut.removeParticipantsAndUpdateConversationState(users: Set([user2]), initiatingUser: selfUser)
+        sut.addParticipantAndUpdateConversationState(user: user2, role: nil)
         
         // THEN
         XCTAssertEqual(Set(sut.participantRoles.map { $0.user }), Set([user1, user2]))
@@ -119,11 +122,11 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         let user1 = createUser()
         let user2 = createUser()
         
-        sut.internalAddParticipants([user1])
+        sut.addParticipantAndUpdateConversationState(user: user1, role: nil)
         
         // WHEN
-        sut.add(user: user2, isFromLocal: true)
-        sut.minus(userSet: Set([user2]), isFromLocal: true)
+        sut.addParticipantAndUpdateConversationState(user: user2, role: nil)
+        sut.removeParticipantsAndUpdateConversationState(users: Set([user2]), initiatingUser: selfUser)
         uiMOC.processPendingChanges()
 
         // THEN
@@ -153,7 +156,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         let user = ZMUser.insertNewObject(in: self.uiMOC)
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.conversationType = .group
-        conversation.internalAddParticipants([user])
+        conversation.addParticipantAndUpdateConversationState(user: user, role: nil)
         
         // when
         conversation.addParticipantIfMissing(user, date: Date())
@@ -229,8 +232,8 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         let user2 = self.createUser()
         
         // when
-        conversation.internalAddParticipants([user1])
-        conversation.internalAddParticipants([user2])
+        conversation.addParticipantAndUpdateConversationState(user: user1, role: nil)
+        conversation.addParticipantAndUpdateConversationState(user: user2, role: nil)
         
         // then
         let expectedActiveParticipants = Set([user1, user2])
@@ -247,7 +250,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         selfUser.remoteIdentifier =  UUID.create()
         
         // when
-        conversation.internalAddParticipants([selfUser])
+        conversation.addParticipantAndUpdateConversationState(user: selfUser, role: nil)
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
@@ -263,7 +266,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         selfUser.remoteIdentifier =  UUID.create()
         
         // when
-        conversation.internalAddParticipants([selfUser])
+        conversation.addParticipantAndUpdateConversationState(user: selfUser, role: nil)
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
@@ -278,12 +281,12 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         let selfUser = ZMUser.selfUser(in: self.uiMOC)
         selfUser.remoteIdentifier =  UUID.create()
         
-        conversation.internalAddParticipants([selfUser, user1])
+        conversation.addParticipantsAndUpdateConversationState(users: Set([selfUser, user1]), role: nil)
         
         XCTAssertTrue(conversation.isSelfAnActiveMember)
         
         // when
-        conversation.internalRemoveParticipants([selfUser], sender: user1)
+        conversation.removeParticipantAndUpdateConversationState(user: selfUser, initiatingUser: user1)
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
         // then
@@ -298,10 +301,10 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         let user2 = self.createUser()
         let user3 = self.createUser()
         let unknownUser = self.createUser()
-        conversation.internalAddParticipants([user1, user2, user3])
+        conversation.addParticipantsAndUpdateConversationState(users: Set([user1, user2, user3]), role: nil)
         
         // when
-        conversation.internalRemoveParticipants([unknownUser], sender:user1)
+        conversation.removeParticipantAndUpdateConversationState(user: unknownUser, initiatingUser: user1)
         
         // then
         let expectedActiveParticipants = Set([user1, user2, user3])
@@ -316,13 +319,13 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         let selfUser = ZMUser.selfUser(in: self.uiMOC)
         
         // when
-        conversation.add(user: ZMUser.selfUser(in: self.uiMOC), isFromLocal: true)
+        conversation.addParticipantAndUpdateConversationState(user: ZMUser.selfUser(in: self.uiMOC), role: nil)
         
         // then
         XCTAssertTrue(conversation.activeParticipants.contains(selfUser))
         
         // when
-        conversation.minus(user: ZMUser.selfUser(in: self.uiMOC), isFromLocal: true)
+        conversation.removeParticipantAndUpdateConversationState(user: ZMUser.selfUser(in: self.uiMOC))
         
         // then
         XCTAssertFalse(conversation.activeParticipants.contains(selfUser))
@@ -334,7 +337,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         let selfUser = ZMUser.selfUser(in: self.uiMOC)
         
         // when
-        conversation.add(user: selfUser, isFromLocal: true)
+        conversation.addParticipantAndUpdateConversationState(user: selfUser, role: nil)
         self.uiMOC.saveOrRollback()
         
         // then
@@ -364,7 +367,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         user4.name = "Super Susann"
 
         // when
-        conversation.internalAddParticipants([user1, user2, user3, user4])
+        conversation.addParticipantsAndUpdateConversationState(users: Set([user1, user2, user3, user4]), role: nil)
         self.uiMOC.saveOrRollback()
 
         // then
@@ -379,8 +382,8 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         // when
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.conversationType = .group
-        conversation.add(user: ZMUser.insertNewObject(in: self.uiMOC), isFromLocal: false)
-        conversation.add(user: ZMUser.insertNewObject(in: self.uiMOC), isFromLocal: false)
+        conversation.addParticipantAndUpdateConversationState(user: ZMUser.insertNewObject(in: self.uiMOC), role: nil)
+        conversation.addParticipantAndUpdateConversationState(user: ZMUser.insertNewObject(in: self.uiMOC), role: nil)
         
         // then
         XCTAssertNil(conversation.connectedUser)
@@ -430,7 +433,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         let team = self.createTeam(in: self.uiMOC)
         let user1 = self.createTeamMember(in: self.uiMOC, for: team)
         let user2 = self.createTeamMember(in: self.uiMOC, for: team)
-        let conversation = ZMConversation.insertGroupConversation(into: self.uiMOC, withParticipants: [user1, user2], name: self.name, in: team)
+        let conversation = ZMConversation.insertGroupConversation(moc: self.uiMOC, participants: [user1, user2], name: self.name, team: team)
         
         // when
         let adminRole = Role.create(managedObjectContext: uiMOC, name: "wire_admin", team: team)

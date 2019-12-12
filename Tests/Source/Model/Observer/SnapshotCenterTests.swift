@@ -102,7 +102,7 @@ class SnapshotCenterTests : BaseZMMessageTests {
             conv.lastUnreadMissedCallDate = Date()
         }
         conv.mutedMessageTypes = .all
-        conv.minus(user: ZMUser.selfUser(in: uiMOC), isFromLocal: true)
+        conv.removeParticipantAndUpdateConversationState(user: ZMUser.selfUser(in: uiMOC))
         conv.append(text: "foo")
         conv.resetLocallyModifiedKeys(conv.keysThatHaveLocalModifications)
         _ = sut.extractChangedKeysFromSnapshot(for: conv)

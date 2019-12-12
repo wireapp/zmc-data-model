@@ -17,6 +17,7 @@
 //
 
 import Foundation
+@testable import WireDataModel
 
 final class ClientMessageTests_Cleared: DatabaseBaseTest {
     
@@ -30,7 +31,7 @@ final class ClientMessageTests_Cleared: DatabaseBaseTest {
             let syncSelfClient1 = self.createSelfClient(on: contextDirectory.syncContext)
             contextDirectory.syncContext.setPersistentStoreMetadata(syncSelfClient1.remoteIdentifier!, key: "PersistedClientId")
             
-            let syncConversation = ZMConversation.insertGroupConversation(into: contextDirectory.syncContext, withParticipants: [])!
+            let syncConversation = ZMConversation.insertGroupConversation(moc: contextDirectory.syncContext, participants: [])!
             syncConversation.remoteIdentifier = UUID.create()
             
             // given
@@ -86,7 +87,7 @@ final class ClientMessageTests_Cleared: DatabaseBaseTest {
             let syncSelfClient1 = self.createSelfClient(on: contextDirectory.syncContext)
             contextDirectory.syncContext.setPersistentStoreMetadata(syncSelfClient1.remoteIdentifier!, key: "PersistedClientId")
             
-            let syncConversation = ZMConversation.insertGroupConversation(into: contextDirectory.syncContext, withParticipants: [])!
+            let syncConversation = ZMConversation.insertGroupConversation(moc: contextDirectory.syncContext, participants: [])!
             syncConversation.remoteIdentifier = UUID.create()
             
             let message1 = syncConversation.append(text: "B") as! ZMMessage
