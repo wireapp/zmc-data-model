@@ -75,14 +75,10 @@ extension ZMConversationTransportTests {
                 Set(conversation.localParticipants.map { $0.remoteIdentifier }),
                 Set([user1ID, user2ID, selfUser.remoteIdentifier!])
             )
-            guard let participant1 = conversation.participantRoles
-                .first(where: {$0.user.remoteIdentifier == user1ID}) else {
-                return XCTFail()
-            }
-            guard let participant2 = conversation.participantRoles
-                .first(where: {$0.user.remoteIdentifier == user2ID}) else {
-                    return XCTFail()
-            }
+            guard let participant1 = conversation.participantForUser(id: user1ID),
+                let participant2 = conversation.participantForUser(id: user2ID)
+                else { return XCTFail() }
+            
             XCTAssertNil(participant1.role)
             XCTAssertEqual(participant2.role?.name, "test_role")
             XCTAssertEqual(conversation.nonTeamRoles.count, 1)
@@ -120,14 +116,10 @@ extension ZMConversationTransportTests {
                 Set(conversation.localParticipants.map { $0.remoteIdentifier }),
                 Set([user1ID, user2ID, selfUser.remoteIdentifier!])
             )
-            guard let participant1 = conversation.participantRoles
-                .first(where: {$0.user.remoteIdentifier == user1ID}) else {
-                    return XCTFail()
-            }
-            guard let participant2 = conversation.participantRoles
-                .first(where: {$0.user.remoteIdentifier == user2ID}) else {
-                    return XCTFail()
-            }
+            guard let participant1 = conversation.participantForUser(id: user1ID),
+                let participant2 = conversation.participantForUser(id: user2ID)
+                else { return XCTFail() }
+            
             XCTAssertEqual(participant1.role?.team, team)
             XCTAssertEqual(participant2.role?.team, team)
             XCTAssertEqual(participant1.role?.name, "test_role1")
@@ -136,6 +128,156 @@ extension ZMConversationTransportTests {
             
         }
     }
+    
+    func testThatItChangesRolesFromMetadataInTeam() {
+        
+        syncMOC.performGroupedAndWait() { _ -> () in
+            // given
+            ZMUser.selfUser(in: self.syncMOC).teamIdentifier = UUID()
+            let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
+            let selfUser = ZMUser.selfUser(in: self.syncMOC)
+            conversation.remoteIdentifier = UUID.create()
+            let user1 = ZMUser.insertNewObject(in: self.syncMOC)
+            user1.name = "U1"
+            user1.remoteIdentifier = UUID.create()
+            let team = Team.insertNewObject(in: self.syncMOC)
+            team.remoteIdentifier = UUID.create()
+            conversation.team = team
+            let oldRole = Role.create(managedObjectContext: self.syncMOC, name: "ROLE1", team: team)
+            conversation.addParticipantAndUpdateConversationState(user: user1, role: oldRole)
+            
+            let payload = self.simplePayload(
+                conversation: conversation,
+                team: team,
+                otherActiveUsersAndRoles: [
+                    (user1.remoteIdentifier, "new_role")
+                ]
+            )
+            
+            // when
+            conversation.update(transportData: payload, serverTimeStamp: Date())
+            
+            // then
+            XCTAssertEqual(conversation.localParticipants, Set([user1, selfUser]))
+            guard let newRole = conversation.participantForUser(user1)?.role
+                else { return XCTFail() }
+            
+            XCTAssertNotEqual(oldRole, newRole)
+            XCTAssertEqual(newRole.team, team)
+            XCTAssertEqual(newRole.name, "new_role")
+            XCTAssertEqual(team.roles, Set([newRole, oldRole]))
+        }
+    }
+    
+    func testThatItResuesExistingTeamRolesWhenParsingMetadata() {
+        
+        syncMOC.performGroupedAndWait() { _ -> () in
+            // given
+            ZMUser.selfUser(in: self.syncMOC).teamIdentifier = UUID()
+            let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
+            let selfUser = ZMUser.selfUser(in: self.syncMOC)
+            conversation.remoteIdentifier = UUID.create()
+            let user1ID = UUID.create()
+            let team = Team.insertNewObject(in: self.syncMOC)
+            team.remoteIdentifier = UUID.create()
+            let teamRole = Role.create(managedObjectContext: self.syncMOC, name: "role1", team: team)
+            
+            let payload = self.simplePayload(
+                conversation: conversation,
+                team: team,
+                otherActiveUsersAndRoles: [
+                    (user1ID, "role1")
+                ]
+            )
+            
+            // when
+            conversation.update(transportData: payload, serverTimeStamp: Date())
+            
+            // then
+            XCTAssertEqual(
+                Set(conversation.localParticipants.map { $0.remoteIdentifier }),
+                Set([user1ID, selfUser.remoteIdentifier!])
+            )
+            guard let participant1 = conversation.participantForUser(id: user1ID)
+                else { return XCTFail() }
+            
+            XCTAssertEqual(participant1.role, teamRole)
+            
+        }
+    }
+    
+    func testThatItParserSelfRoleFromConversationMetadataInTeam() {
+        
+        syncMOC.performGroupedAndWait() { _ -> () in
+            // given
+            ZMUser.selfUser(in: self.syncMOC).teamIdentifier = UUID()
+            let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
+            let selfUser = ZMUser.selfUser(in: self.syncMOC)
+            conversation.remoteIdentifier = UUID.create()
+            let team = Team.insertNewObject(in: self.syncMOC)
+            team.remoteIdentifier = UUID.create()
+            
+            let payload = self.simplePayload(
+                conversation: conversation,
+                team: team,
+                selfRole: "test_role"
+            )
+            
+            // when
+            conversation.update(transportData: payload, serverTimeStamp: Date())
+            
+            // then
+            XCTAssertEqual(conversation.localParticipants, [selfUser])
+            guard let selfRole = conversation.participantForUser(selfUser)?.role else {
+                return XCTFail()
+            }
+            XCTAssertEqual(selfRole.team, team)
+            XCTAssertEqual(selfRole.name, "test_role")
+            XCTAssertEqual(team.roles, Set([selfRole]))
+            
+        }
+    }
+    
+    func testThatItParserSelfRoleFromConversationMetadataNotInTeam() {
+        
+        syncMOC.performGroupedAndWait() { _ -> () in
+            // given
+            ZMUser.selfUser(in: self.syncMOC).teamIdentifier = UUID()
+            let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
+            let selfUser = ZMUser.selfUser(in: self.syncMOC)
+            conversation.remoteIdentifier = UUID.create()
+            
+            let payload = self.simplePayload(
+                conversation: conversation,
+                team: nil,
+                selfRole: "test_role"
+            )
+            
+            // when
+            conversation.update(transportData: payload, serverTimeStamp: Date())
+            
+            // then
+            XCTAssertEqual(conversation.localParticipants, [selfUser])
+            guard let selfRole = conversation.participantForUser(selfUser)?.role else {
+                return XCTFail()
+            }
+            XCTAssertEqual(selfRole.conversation, conversation)
+            XCTAssertEqual(selfRole.name, "test_role")
+            XCTAssertEqual(conversation.participantRoles.map { $0.role }, [selfRole])
+            
+        }
+    }
+}
+
+extension ZMConversation {
+    
+    fileprivate func participantForUser(_ user: ZMUser) -> ParticipantRole?  {
+        return self.participantForUser(id: user.remoteIdentifier!)
+    }
+    
+    fileprivate func participantForUser(id: UUID) -> ParticipantRole? {
+        return self.participantRoles.first(where: { $0.user.remoteIdentifier == id })
+    }
 }
 
 extension ZMConversationTransportTests {
@@ -143,6 +285,7 @@ extension ZMConversationTransportTests {
     func simplePayload(
         conversation: ZMConversation,
         team: Team?,
+        selfRole: String? = nil,
         conversationType: BackendConversationType = BackendConversationType.group,
         otherActiveUsersAndRoles: [(UUID, String?)] = []
         ) -> [String: Any] {
@@ -160,7 +303,8 @@ extension ZMConversationTransportTests {
             "creator": "3bc5750a-b965-40f8-aff2-831e9b5ac2e9",
             "members": [
                 "self": [
-                    "id" : "3bc5750a-b965-40f8-aff2-831e9b5ac2e9",
+                    "id" : ZMUser.selfUser(in: conversation.managedObjectContext!).remoteIdentifier.transportString(),
+                    "conversation_role": (selfRole ?? NSNull()) as Any
                 ],
                 "others": others,
             ],
