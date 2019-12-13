@@ -21,8 +21,17 @@ import Foundation
 
 extension ZMConversation {
     
+    @objc(insertGroupConversationIntoManagedObjectContext:withParticipants:)
+    static public func insertGroupConversation(moc: NSManagedObjectContext,
+                                                     participants: [ZMUser]) -> ZMConversation? {
+        return self.insertGroupConversation(moc: moc,
+                                            participants: participants,
+                                            name: nil)
+    }
+    
     /// Insert a new group conversation with name into the user session
-    @objc static public func insertGroupConversation(session: ZMManagedObjectContextProvider,
+    @objc
+    static public func insertGroupConversation(session: ZMManagedObjectContextProvider,
                                               participants: [ZMUser],
                                               name: String? = nil,
                                               team: Team? = nil,
@@ -39,7 +48,8 @@ extension ZMConversation {
                                             participantsRole: participantsRole)
     }
     
-    @objc static func insertGroupConversation(moc: NSManagedObjectContext,
+    @objc
+    static public func insertGroupConversation(moc: NSManagedObjectContext,
                                        participants: [ZMUser],
                                        name: String? = nil,
                                        team: Team? = nil,

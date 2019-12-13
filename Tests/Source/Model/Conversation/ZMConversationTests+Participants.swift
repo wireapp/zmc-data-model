@@ -145,7 +145,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         conversation.conversationType = .group
         
         // when
-        conversation.addParticipantIfMissing(user, date: Date())
+        conversation.addParticipantAndSystemMessageIfMissing(user, date: Date())
         
         // then
         XCTAssertTrue(conversation.localParticipants.contains(user))
@@ -161,7 +161,7 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         conversation.addParticipantAndUpdateConversationState(user: user, role: nil)
         
         // when
-        conversation.addParticipantIfMissing(user, date: Date())
+        conversation.addParticipantAndSystemMessageIfMissing(user, date: Date())
         
         // then
         XCTAssertTrue(conversation.localParticipants.contains(user))
