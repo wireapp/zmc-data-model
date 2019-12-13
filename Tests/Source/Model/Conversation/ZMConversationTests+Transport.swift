@@ -316,6 +316,5 @@ extension ZMConversationTransportTests {
             "receipt_mode": 0
         ]
     }
-
 }
 
