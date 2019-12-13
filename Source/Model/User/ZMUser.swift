@@ -183,7 +183,6 @@ extension ZMUser {
         }
     }
     
-    ///TODO: need isFromLocal param?
     @objc
     func add(conversation: ZMConversation) {
         guard let moc = self.managedObjectContext else { return }
