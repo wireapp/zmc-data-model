@@ -316,7 +316,7 @@ extension ZMConversation {
     /// - Parameters:
     ///   - user: the participant to add
     ///   - dateOptional: if provide a nil, current date will be used
-    func addParticipantIfMissing(_ user: ZMUser, date dateOptional: Date?) {
+    public func addParticipantAndSystemMessageIfMissing(_ user: ZMUser, date dateOptional: Date?) {
         let date = dateOptional ?? Date()
 
         guard !localParticipants.contains(user) else { return }
@@ -324,8 +324,6 @@ extension ZMConversation {
         switch conversationType {
         case .group:
             appendSystemMessage(type: .participantsAdded, sender: user, users: Set(arrayLiteral: user), clients: nil, timestamp: date)
-            // we will fetch the role once we fetch the entire convo metadata
-            self.addParticipantAndUpdateConversationState(user: user, role: nil)
         case .oneOnOne, .connection:
             if user.connection == nil {
                 user.connection = connection ?? ZMConnection.insertNewObject(in: managedObjectContext!)
@@ -336,6 +334,9 @@ extension ZMConversation {
         default:
             break
         }
+        
+        // we will fetch the role once we fetch the entire convo metadata
+        self.addParticipantAndUpdateConversationState(user: user, role: nil)
         
         // A missing user indicate that we are out of sync with the BE so we'll re-sync the conversation
         needsToBeUpdatedFromBackend = true

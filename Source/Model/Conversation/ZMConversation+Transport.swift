@@ -56,6 +56,7 @@ extension ZMConversation {
         public static let nameKey = "name";
         public static let typeKey = "type";
         public static let IDKey = "id";
+        public static let targetKey = "target";
         
         public static let othersKey = "others";
         public static let membersKey = "members";
@@ -118,20 +119,15 @@ extension ZMConversation {
             }
             self.updateServerModified(serverTimeStamp)
         }
-
-        if let members = transportData[PayloadKeys.membersKey] as? [String: Any?],
-            let selfStatus = members[PayloadKeys.selfKey] as? [String: Any?] {
-            self.updateSelfStatus(dictionary: selfStatus, timeStamp: nil, previousLastServerTimeStamp: nil)
-        }
-        else {
-            zmLog.error("Missing self status in conversation data")
-        }
     
         if let creatorId = transportData.UUID(fromKey: PayloadKeys.creatorKey) {
             self.creator = ZMUser(remoteID: creatorId, createIfNeeded: true, in: moc)!
         }
         
         if let members = transportData[PayloadKeys.membersKey] as? [String: Any] {
+            if let selfStatus = members[PayloadKeys.selfKey] as? [String: Any?] {
+                self.updateSelfStatus(dictionary: selfStatus, timeStamp: nil, previousLastServerTimeStamp: nil)
+            }
             self.updateMembers(payload: members)
             self.updatePotentialGapSystemMessagesIfNeeded(users: self.localParticipants)
         } else {
@@ -162,61 +158,25 @@ extension ZMConversation {
             }
         }
     }
-
-    private func fetchOrCreateAllUsers(uuids: Set<UUID>) -> Set<ZMUser> {
-        var remoteParticipants = ZMUser.users(withRemoteIDs: uuids, in: self.managedObjectContext!)
-        if remoteParticipants.count != uuids.count {
-            
-            // Some users didn't exist so we need create the missing users
-            let missingUsers = uuids.subtracting(
-                remoteParticipants.map { $0.remoteIdentifier! }
-            )
-            remoteParticipants.formUnion(missingUsers.map {
-                ZMUser(remoteID: $0, createIfNeeded: true, in: self.managedObjectContext!)!
-            })
-        }
-        return Set(remoteParticipants)
-    }
     
+    /// Parse the "members" section
     private func updateMembers(payload: [String: Any]) {
         
-        guard let usersInfos = payload[PayloadKeys.othersKey] as? [[String: Any]],
+        guard let otherUsersInfos = payload[PayloadKeys.othersKey] as? [[String: Any]],
+            let selfInfo = payload[PayloadKeys.selfKey] as? [String: Any],
             let moc = self.managedObjectContext else {
                 return
         }
-        let selfUser = ZMUser.selfUser(in: moc)
+        let usersInfos = otherUsersInfos + [selfInfo]
         
-        let remoteUUIDsToRoles: [UUID: String?] = usersInfos.reduce([UUID:String?]()) { (prev, payload) in
-            guard let id = payload.UUID(fromKey: PayloadKeys.IDKey) else { return prev }
-            let role = payload[PayloadKeys.conversationRoleKey] as? String
-            return prev.updated(other: [id: role])
-        }
-        let remoteParticipantsUUIDs = Set(remoteUUIDsToRoles.keys)
-
-        // the self user is always a part of the conversation if we are in this method
-        //backend will never send us the update of conversation where we are not in
-        let newParticipants = fetchOrCreateAllUsers(uuids: remoteParticipantsUUIDs)
-            .union([selfUser])
-        
-        let addedParticipantsWithRoles = newParticipants
-            .subtracting(self.localParticipants)
-            .map { user -> (ZMUser, Role?) in
-                if let roleEntry = remoteUUIDsToRoles[user.remoteIdentifier!],
-                    let roleName = roleEntry
-                {
-                    let role = Role.fetchOrCreateRole(
-                        with: roleName,
-                        teamOrConversation: self.team != nil ? .team(self.team!) : .conversation(self),
-                        in: moc)
-                    return (user, role)
-                } else {
-                    return (user, nil)
-                }
-            }
-        let removedParticipants = self.localParticipants.subtracting(newParticipants)
+        let usersAndRoles = self.usersPayloadToUserAndRole(
+            payload: usersInfos,
+            userIdKey: PayloadKeys.IDKey)
+        let allParticipants = Set(usersAndRoles.map { $0.0 })
+        let removedParticipants = self.localParticipants.subtracting(allParticipants)
   
-        self.addParticipantsAndUpdateConversationState(usersAndRoles: addedParticipantsWithRoles)
-        self.removeParticipantsAndUpdateConversationState(users: removedParticipants, initiatingUser: selfUser)
+        self.addParticipantsAndUpdateConversationState(usersAndRoles: usersAndRoles)
+        self.removeParticipantsAndUpdateConversationState(users: removedParticipants, initiatingUser: ZMUser.selfUser(in: moc))
     }
     
     func updateTeam(identifier: UUID?) {
@@ -272,7 +232,75 @@ extension ZMConversation {
 
 }
 
-fileprivate extension Dictionary where Key == String, Value == Any {
+// MARK: - Payload parsing utils
+
+public struct ConversationParsing {
+    private init() {}
+    
+    public static func parseUsersPayloadToUserAndRole(
+        payload: [[String: Any]],
+        userIdKey: String,
+        conversation: ZMConversation
+        ) -> [(ZMUser, Role?)] {
+        return conversation.usersPayloadToUserAndRole(payload: payload, userIdKey: userIdKey)
+    }
+}
+
+extension ZMConversation {
+    
+    /// Extract user and role from a list of dictionaries
+    func usersPayloadToUserAndRole(
+        payload: [[String: Any]],
+        userIdKey: String
+    ) -> [(ZMUser, Role?)] {
+        
+        let uuidsToRoles = payload.reduce([UUID:String?]()) { (prev, payload) in
+            guard let id = payload.UUID(fromKey: userIdKey) else { return prev }
+            let role = payload[ZMConversation.PayloadKeys.conversationRoleKey] as? String
+            return prev.updated(other: [id: role])
+        }
+        let users = self.fetchOrCreateAllUsers(
+            uuids: Set(uuidsToRoles.keys)
+        )
+        return users.map {
+            user -> (ZMUser, Role?) in
+            if let roleEntry = uuidsToRoles[user.remoteIdentifier!],
+                let roleName = roleEntry
+            {
+                let role = self.fetchOrCreateRoleForConversation(name: roleName)
+                return (user, role)
+            } else {
+                return (user, nil)
+            }
+        }
+    }
+    
+    private func fetchOrCreateRoleForConversation(name: String) -> Role {
+        return Role.fetchOrCreateRole(
+            with: name,
+            teamOrConversation: self.team != nil ? .team(self.team!) : .conversation(self),
+            in: self.managedObjectContext!)
+    }
+    
+    /// Fetch or create all users in the list
+    private func fetchOrCreateAllUsers(uuids: Set<UUID>) -> Set<ZMUser> {
+        var users = ZMUser.users(withRemoteIDs: uuids, in: self.managedObjectContext!)
+        if users.count != uuids.count {
+            
+            // Some users didn't exist so we need create the missing users
+            let missingUsers = uuids.subtracting(
+                users.map { $0.remoteIdentifier! }
+            )
+            users.formUnion(missingUsers.map {
+                ZMUser(remoteID: $0, createIfNeeded: true, in: self.managedObjectContext!)!
+            })
+        }
+        return Set(users)
+    }
+}
+
+
+extension Dictionary where Key == String, Value == Any {
     
     func UUID(fromKey key: String) -> UUID? {
         return (self[key] as? String).flatMap(Foundation.UUID.init)
@@ -283,7 +311,7 @@ fileprivate extension Dictionary where Key == String, Value == Any {
     }
 }
 
-fileprivate extension Dictionary where Key == String, Value == Any? {
+extension Dictionary where Key == String, Value == Any? {
     
     func UUID(fromKey key: String) -> UUID? {
         return (self[key] as? String).flatMap(Foundation.UUID.init)

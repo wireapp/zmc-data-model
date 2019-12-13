@@ -26,10 +26,6 @@ extension ZMConnection {
     ///
     /// - Parameter user: the user to insert
     public func add(user: ZMUser) {
-        guard let managedObjectContext = user.managedObjectContext else { return }
-        
-        let participantRole = ParticipantRole.create(managedObjectContext: managedObjectContext, user: user, conversation: conversation)
-        
-        conversation.participantRoles.insert(participantRole)
+        conversation?.addParticipantAndUpdateConversationState(user: user, role: nil)
     }
 }

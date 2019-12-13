@@ -18,16 +18,15 @@
 
 import Foundation
 
-extension ZMConversation {
+extension ZMTestSession: ZMManagedObjectContextProvider {
     
-    /// Verifies that a sender of an update event is part of the conversation. If they are not,
-    /// it means that our local state is out of sync and we need to update the list of participants.
-    @objc
-    public func verifySender(of updateEvent: ZMUpdateEvent, moc: NSManagedObjectContext) {
-
-        guard let senderUUID = updateEvent.senderUUID(),
-              let user = ZMUser(remoteID: senderUUID, createIfNeeded: true, in: moc) else { return }
-
-        addParticipantAndSystemMessageIfMissing(user, date: updateEvent.timeStamp()?.addingTimeInterval(-0.01))
+    public var managedObjectContext: NSManagedObjectContext! {
+        return self.uiMOC
     }
+    
+    public var syncManagedObjectContext: NSManagedObjectContext! {
+        return self.syncMOC
+    }
+    
+    
 }
