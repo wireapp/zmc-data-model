@@ -25,7 +25,7 @@ class SelfUserParticipantMigrationTests: DiskDatabaseTest {
     func testMigrationIsSelfAnActiveMemberToTheParticipantRoles() {
         // Given
         let conversation = createConversation()
-        conversation.add(user: ZMUser.selfUser(in: moc), isFromLocal: true)
+        conversation.addParticipantAndUpdateConversationState(user: ZMUser.selfUser(in: moc), role: nil)
         self.moc.saveOrRollback()
         
         // When

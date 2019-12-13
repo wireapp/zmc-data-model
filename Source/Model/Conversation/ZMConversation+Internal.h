@@ -88,13 +88,6 @@ NS_ASSUME_NONNULL_END
 
 + (nullable instancetype)conversationWithRemoteID:(nonnull NSUUID *)UUID createIfNeeded:(BOOL)create inContext:(nonnull NSManagedObjectContext *)moc;
 + (nullable instancetype)conversationWithRemoteID:(nonnull NSUUID *)UUID createIfNeeded:(BOOL)create inContext:(nonnull NSManagedObjectContext *)moc created:(nullable BOOL *)created;
-///Create a conversation with a self user and participants as a parameters
-+ (nullable instancetype)insertGroupConversationIntoManagedObjectContext:(nonnull NSManagedObjectContext *)moc withParticipants:(nonnull NSArray *)participants;
-+ (nullable instancetype)insertGroupConversationIntoManagedObjectContext:(nonnull NSManagedObjectContext *)moc withParticipants:(nonnull NSArray <ZMUser *>*)participants inTeam:(nullable Team *)team;
-+ (nullable instancetype)insertGroupConversationIntoManagedObjectContext:(nonnull NSManagedObjectContext *)moc withParticipants:(nonnull NSArray <ZMUser *>*)participants name:(nullable NSString *)name inTeam:(nullable Team *)team;
-+ (nullable instancetype)insertGroupConversationIntoManagedObjectContext:(nonnull NSManagedObjectContext *)moc withParticipants:(nonnull NSArray <ZMUser *>*)participants name:(nullable NSString *)name inTeam:(nullable Team *)team allowGuests:(BOOL)allowGuests;
-+ (nullable instancetype)insertGroupConversationIntoManagedObjectContext:(nonnull NSManagedObjectContext *)moc withParticipants:(nonnull NSArray <ZMUser *>*)participants name:(nullable NSString *)name inTeam:(nullable Team *)team allowGuests:(BOOL)allowGuests readReceipts:(BOOL)readReceipts;
-+ (nullable instancetype)fetchOrCreateTeamConversationInManagedObjectContext:(nonnull NSManagedObjectContext *)moc withParticipant:(nonnull ZMUser *)participant team:(nonnull Team *)team;
 
 + (nonnull ZMConversationList *)conversationsIncludingArchivedInContext:(nonnull NSManagedObjectContext *)moc;
 + (nonnull ZMConversationList *)archivedConversationsInContext:(nonnull NSManagedObjectContext *)moc;
@@ -175,14 +168,6 @@ NS_ASSUME_NONNULL_END
 
 @end
 
-
-@interface ZMConversation (ParticipantsInternal)
-
-- (void)internalAddParticipants:(nonnull NSArray<ZMUser *> *)participants;
-- (void)internalRemoveParticipants:(nonnull NSArray<ZMUser *> *)participants
-                            sender:(nonnull ZMUser *)sender;
-
-@end
 
 @interface NSUUID (ZMSelfConversation)
 

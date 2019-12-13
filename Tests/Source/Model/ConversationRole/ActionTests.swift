@@ -31,12 +31,12 @@ final class ActionTests: ZMBaseManagedObjectTest {
     
     func testThatFetchOrCreate_FetchesAnExistingAction() {
         let name = "dummy action"
-        let role = Role.create(managedObjectContext: uiMOC, name: "DUMMY", team: nil)
+        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+        let role = Role.create(managedObjectContext: uiMOC, name: "DUMMY", conversation: conversation)
         
         // given
         var created = false
         let action = Action.fetchOrCreate(with: name, role:role, in: uiMOC, created: &created)
-//        uiMOC.processPendingChanges()
         XCTAssert(created)
 
         // when

@@ -317,8 +317,7 @@ extension ZMUser {
             } else {
                 conversation.appendParticipantRemovedSystemMessage(user: self, at: timestamp)
             }
-            
-            conversation.internalRemoveParticipants([self], sender: self)
+            conversation.removeParticipantAndUpdateConversationState(user: self, initiatingUser: self)
         }
     }
 }

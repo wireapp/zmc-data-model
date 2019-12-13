@@ -18,6 +18,25 @@
 
 import Foundation
 
+public enum TeamOrConversation {
+    case team(Team)
+    case conversation(ZMConversation)
+    
+    /// Creates a team or a conversation. One must be nil, the other not nil
+    static func fromTeamOrConversation(team: Team?,
+                                       conversation: ZMConversation?) -> TeamOrConversation {
+        require(team != nil || conversation != nil) // one must be not nil
+        require(team == nil || conversation == nil) // one must be nil
+        if let team = team {
+            return .team(team)
+            
+        } else if let conversation = conversation {
+            return .conversation(conversation)
+        }
+        fatal("No team and no conversation")
+    }
+}
+
 @objcMembers
 public final class Role: ZMManagedObject {
     public static let nameKey = #keyPath(Role.name)
@@ -46,43 +65,79 @@ public final class Role: ZMManagedObject {
     static public func create(managedObjectContext: NSManagedObjectContext,
                               name: String,
                               conversation: ZMConversation) -> Role {
-        let entry = Role.insertNewObject(in: managedObjectContext)
-        entry.name = name
-        entry.conversation = conversation
-        return entry
+        return create(managedObjectContext: managedObjectContext,
+                      name: name,
+                      teamOrConversation: .conversation(conversation))
     }
     
     @objc
     @discardableResult
     static public func create(managedObjectContext: NSManagedObjectContext,
                               name: String,
-                              team: Team?) -> Role {
+                              team: Team) -> Role {
+        return create(managedObjectContext: managedObjectContext,
+                      name: name,
+                      teamOrConversation: .team(team))
+    }
+    
+    static public func create(managedObjectContext: NSManagedObjectContext,
+                              name: String,
+                              teamOrConversation: TeamOrConversation) -> Role {
+        
         let entry = Role.insertNewObject(in: managedObjectContext)
         entry.name = name
-        entry.team = team
+        switch teamOrConversation {
+        case .team(let team):
+            entry.team = team
+        case .conversation(let conversation):
+            entry.conversation = conversation
+        }
         return entry
     }
 
-    @objc
-    static func fetchExistingRole(with name: String, in context: NSManagedObjectContext) -> Role? {
+    static func fetchExistingRole(with name: String,
+                                  teamOrConversation: TeamOrConversation,
+                                  in context: NSManagedObjectContext) -> Role? {
         let fetchRequest = NSFetchRequest<Role>(entityName: Role.entityName())
-        fetchRequest.predicate = NSPredicate(format: "%K == %@", Role.nameKey, name)
+        let namePredicate = NSPredicate(format: "%K == %@", Role.nameKey, name)
+        let teamOrConvoPredicate: NSPredicate
+        switch teamOrConversation {
+            case .team(let team):
+                teamOrConvoPredicate = NSPredicate(format: "%K == %@", Role.teamKey, team)
+            case .conversation(let convo):
+                teamOrConvoPredicate = NSPredicate(format: "%K == %@", Role.conversationKey, convo)
+        }
+        fetchRequest.predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [
+            namePredicate,
+            teamOrConvoPredicate
+        ])
         fetchRequest.fetchLimit = 1
         
         return context.fetchOrAssert(request: fetchRequest).first
     }
+    
+    static func fetchOrCreateRole(with name: String,
+                                  teamOrConversation: TeamOrConversation,
+                                  in context: NSManagedObjectContext) -> Role? {
+        let existingRole = self.fetchExistingRole(with: name,
+                                                  teamOrConversation: teamOrConversation,
+                                                  in: context)
+        return existingRole ?? create(managedObjectContext: context, name: name, teamOrConversation: teamOrConversation)
+    }
+    
 
     @discardableResult
     public static func createOrUpdate(with payload: [String: Any],
-                                      team: Team?,
-                                      conversation: ZMConversation,
+                                      teamOrConversation: TeamOrConversation,
                                       context: NSManagedObjectContext
         ) -> Role? {
         guard let conversationRole = payload["conversation_role"] as? String,
             let actionNames = payload["actions"] as? [String]
             else { return nil }
         
-        let fetchedRole = fetchExistingRole(with: conversationRole, in: context)
+        let fetchedRole = fetchExistingRole(with: conversationRole,
+                                            teamOrConversation: teamOrConversation,
+                                            in: context)
 
         let role = fetchedRole ?? Role.insertNewObject(in: context)
         
@@ -91,8 +146,12 @@ public final class Role: ZMManagedObject {
             Action.fetchOrCreate(with: actionName, role: role, in: context, created: &created)
         }
 
-        role.team = team
-        role.conversation = conversation
+        switch teamOrConversation {
+        case .team(let team):
+            role.team = team
+        case .conversation(let conversation):
+            role.conversation = conversation
+        }
         role.name = conversationRole
 
         return role

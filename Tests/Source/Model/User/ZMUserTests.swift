@@ -579,11 +579,11 @@ extension ZMUserTests {
         let sut = createUser(in: uiMOC)
         let conversation1 = createConversation(in: uiMOC)
         conversation1.conversationType = .group
-        conversation1.add(user:sut, isFromLocal: true)
+        conversation1.addParticipantAndUpdateConversationState(user: sut, role: nil)
         
         let conversation2 = createConversation(in: uiMOC)
         conversation2.conversationType = .group
-        conversation2.add(user:sut, isFromLocal: true)
+        conversation2.addParticipantAndUpdateConversationState(user: sut, role: nil)
         
         // when
         sut.markAccountAsDeleted(at: Date())
@@ -597,7 +597,7 @@ extension ZMUserTests {
         // given
         let team = createTeam(in: uiMOC)
         let sut = createTeamMember(in: uiMOC, for: team)
-        let teamOneToOneConversation = ZMConversation.fetchOrCreateTeamConversation(in: uiMOC, withParticipant: sut, team: team)!
+        let teamOneToOneConversation = ZMConversation.fetchOrCreateOneToOneTeamConversation(moc: uiMOC, participant: sut, team: team)!
         teamOneToOneConversation.teamRemoteIdentifier = team.remoteIdentifier
         
         // when
@@ -617,7 +617,7 @@ extension ZMUserTests {
         // given
         let sut = ZMUser.selfUser(in: uiMOC)
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        conversation.add(user: sut, isFromLocal: true)
+        conversation.addParticipantAndUpdateConversationState(user: sut, role: nil)
         let selfConversation = ZMConversation.fetch(withRemoteIdentifier: self.selfUser.remoteIdentifier, in: uiMOC)
         
         // then
@@ -628,7 +628,7 @@ extension ZMUserTests {
         // given
         let sut = ZMUser.insertNewObject(in: uiMOC)
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        conversation.add(user:sut, isFromLocal: false)
+        conversation.addParticipantAndUpdateConversationState(user: sut, role: nil)
         
         // then
         XCTAssertEqual(sut.activeConversations, Set(arrayLiteral: conversation))

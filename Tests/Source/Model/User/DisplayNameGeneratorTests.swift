@@ -206,8 +206,7 @@ extension DisplayNameGeneratorTests {
         
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.conversationType = .group
-       
-        conversation.add(users: [user1, user2, user3], isFromLocal: false)
+        conversation.addParticipantsAndUpdateConversationState(users: Set([user1, user2, user3]), role: nil)
 
         // when
         let displayName1 = user1.displayName(in: conversation)
@@ -233,7 +232,7 @@ extension DisplayNameGeneratorTests {
         
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.conversationType = .group
-        conversation.add(users: [user1, user2], isFromLocal: false)
+        conversation.addParticipantsAndUpdateConversationState(users: Set([user1, user2]), role: nil)
         
         // when
         let displayName1 = user1.displayName(in: conversation)
@@ -260,8 +259,8 @@ extension DisplayNameGeneratorTests {
         conversation.conversationType = .oneOnOne
         conversation.connection = ZMConnection.insertNewObject(in: uiMOC)
         conversation.connection?.to = user1
-        conversation.add(user: user1, isFromLocal: true)
-        
+        conversation.addParticipantAndUpdateConversationState(user: user1, role: nil)
+
         // when
         let displayName1 = user1.displayName(in: conversation)
         
@@ -280,8 +279,8 @@ extension DisplayNameGeneratorTests {
         conversation.conversationType = .oneOnOne
         conversation.connection = ZMConnection.insertNewObject(in: uiMOC)
         conversation.connection?.to = user1
-        conversation.add(user: selfUser, isFromLocal: true)
-        
+        conversation.addParticipantAndUpdateConversationState(user: selfUser, role: nil)
+
         // when
         let displayName = selfUser.displayName(in: conversation)
         
@@ -298,7 +297,7 @@ extension DisplayNameGeneratorTests {
         
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.conversationType = .group
-        conversation.add(users: [user1, selfUser], isFromLocal: false)
+        conversation.addParticipantsAndUpdateConversationState(users: Set([user1, selfUser]), role: nil)
         
         // when
         let displayName1 = user1.displayName(in: conversation)
@@ -320,8 +319,8 @@ extension DisplayNameGeneratorTests {
         conversation.conversationType = .oneOnOne
         conversation.connection = ZMConnection.insertNewObject(in: uiMOC)
         conversation.connection?.to = user1
-        conversation.add(user: user1, isFromLocal: true)
-        conversation.add(user: selfUser, isFromLocal: true)
+        conversation.addParticipantAndUpdateConversationState(user: user1, role: nil)
+        conversation.addParticipantAndUpdateConversationState(user: selfUser, role: nil)
         
         // when
         let displayName1 = user1.displayName(in: conversation)
@@ -341,7 +340,7 @@ extension DisplayNameGeneratorTests {
         
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.conversationType = .group
-        conversation.add(users: [user1, user2], isFromLocal: false)
+        conversation.addParticipantsAndUpdateConversationState(users: Set([user1, user2]), role: nil)
         
         XCTAssertEqual(user1.displayName(in: conversation), "Hans")
         XCTAssertEqual(user2.displayName(in: conversation), "Uschi")
@@ -365,8 +364,8 @@ extension DisplayNameGeneratorTests {
         conversation.conversationType = .oneOnOne
         conversation.connection = ZMConnection.insertNewObject(in: uiMOC)
         conversation.connection?.to = user1
-        conversation.add(user: user1, isFromLocal: true)
-        conversation.add(user: selfUser, isFromLocal: true)
+        conversation.addParticipantAndUpdateConversationState(user: user1, role: nil)
+        conversation.addParticipantAndUpdateConversationState(user: selfUser, role: nil)
         
         XCTAssertEqual(user1.displayName(in: conversation), "Hans")
         
@@ -394,7 +393,7 @@ extension DisplayNameGeneratorTests {
         
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.conversationType = .group
-        conversation.add(user: user2, isFromLocal: false)
+        conversation.addParticipantAndUpdateConversationState(user: user2, role: nil)
         
         // then
         performIgnoringZMLogError{
@@ -412,10 +411,10 @@ extension DisplayNameGeneratorTests {
         user1.name = "Emmett Brown"
         user2.name = "Marty McFly"
         
-        let groupConversation = ZMConversation.insertGroupConversation(into: uiMOC, withParticipants: [user1, user2])!
+        let groupConversation = ZMConversation.insertGroupConversation(moc: uiMOC, participants: [user1, user2])!
         groupConversation.userDefinedName = "Future Stuff"
        
-        let groupConversationNoName = ZMConversation.insertGroupConversation(into: uiMOC, withParticipants: [user1, user2])!
+        let groupConversationNoName = ZMConversation.insertGroupConversation(moc: uiMOC, participants: [user1, user2])!
         
         let oneOnOneConversation = ZMConversation.insertNewObject(in: uiMOC)
         oneOnOneConversation.conversationType = .oneOnOne
@@ -443,7 +442,7 @@ extension DisplayNameGeneratorTests {
         let user1 = ZMUser.insertNewObject(in: uiMOC)
         let user2 = ZMUser.insertNewObject(in: uiMOC)
         
-        let groupConversation = ZMConversation.insertGroupConversation(into: uiMOC, withParticipants: [user1, user2])!
+        let groupConversation = ZMConversation.insertGroupConversation(moc: uiMOC, participants: [user1, user2])!
         
         let oneOnOneConversation = ZMConversation.insertNewObject(in: uiMOC)
         oneOnOneConversation.conversationType = .oneOnOne

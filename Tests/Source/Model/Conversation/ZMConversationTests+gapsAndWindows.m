@@ -36,9 +36,14 @@
     ZMUser *selfUser = [ZMUser selfUserInContext:self.uiMOC];
     
     // when
-    ZMConversation *conversation = [ZMConversation insertGroupConversationIntoManagedObjectContext:self.uiMOC withParticipants:@[
-                                                                                                                user1, user2, user3
-                                                                                                                ]];
+    ZMConversation *conversation =
+    [ZMConversation insertGroupConversationWithMoc:self.uiMOC
+                                      participants:@[user1, user2, user3]
+                                              name:NULL
+                                              team:NULL
+                                       allowGuests:YES
+                                      readReceipts:NO
+                                  participantsRole:NULL];
     
     // then
     NSArray *conversations = [ZMConversation conversationsIncludingArchivedInContext:self.uiMOC];
@@ -63,9 +68,13 @@
     ZMUser *selfUser = [ZMUser selfUserInContext:self.uiMOC];
     
     // when
-    ZMConversation *conversation = [ZMConversation insertGroupConversationIntoUserSession:session
-                                                                         withParticipants:@[user1, user2, user3]
-                                                                                   inTeam:nil];
+    ZMConversation *conversation = [ZMConversation insertGroupConversationWithSession:session
+                                                                         participants:@[user1, user2, user3]
+                                                                                 name:NULL
+                                                                                 team:NULL
+                                                                          allowGuests:YES
+                                                                         readReceipts:NO
+                                                                     participantsRole:nil];
     
     // then
     NSFetchRequest *fetchRequest = [ZMConversation sortedFetchRequest];
@@ -91,9 +100,13 @@
     ZMUser *selfUser = [ZMUser selfUserInContext:self.uiMOC];
     
     // when
-    ZMConversation *conversation = [ZMConversation insertGroupConversationIntoManagedObjectContext:self.uiMOC withParticipants:@[
-                                                                                                                user1, user2, user3
-                                                                                                                ]];
+    ZMConversation *conversation = [ZMConversation insertGroupConversationWithMoc:self.uiMOC
+                                                                     participants:@[user1, user2, user3]
+                                                                             name:NULL
+                                                                             team:NULL
+                                                                      allowGuests:YES
+                                                                     readReceipts:NO
+                                                                 participantsRole:NULL];
     
     NSError *error;
     XCTAssertTrue([self.uiMOC save:&error], @"Error: %@", error);

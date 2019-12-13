@@ -29,7 +29,7 @@ class ZMUserTests_Permissions: ModelObjectsTests {
         team.remoteIdentifier = .create()
         conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.remoteIdentifier = .create()
-        conversation.add(user: ZMUser.selfUser(in: uiMOC), isFromLocal: true)
+        conversation.addParticipantAndUpdateConversationState(user: ZMUser.selfUser(in: uiMOC), role: nil)
     }
     
     override func tearDown() {
@@ -65,7 +65,7 @@ class ZMUserTests_Permissions: ModelObjectsTests {
     func testThatUserCantAddOrRemoveServicesToAConversation_ByInactiveParticipant() {
         // when
         makeSelfUserTeamMember(withPermissions: .addRemoveConversationMember)
-        conversation.minus(user: ZMUser.selfUser(in: uiMOC), isFromLocal: true)
+        conversation.removeParticipantAndUpdateConversationState(user: ZMUser.selfUser(in: uiMOC))
         
         // then
         XCTAssertFalse(ZMUser.selfUser(in: uiMOC).canAddUser(to: conversation))
@@ -105,7 +105,7 @@ class ZMUserTests_Permissions: ModelObjectsTests {
     func testThatUserCantAddOrRemoveUsersToAConversation_ByInactiveParticipant() {
         // when
         makeSelfUserTeamMember(withPermissions: .addRemoveConversationMember)
-        conversation.minus(user: ZMUser.selfUser(in: uiMOC), isFromLocal: true)
+        conversation.removeParticipantAndUpdateConversationState(user: ZMUser.selfUser(in: uiMOC))
         
         // then
         XCTAssertFalse(ZMUser.selfUser(in: uiMOC).canAddUser(to: conversation))
@@ -141,7 +141,7 @@ class ZMUserTests_Permissions: ModelObjectsTests {
     func testThatConversationCantBeDeleted_ByItsCreatorIfNotAnActiveParticipant() {
         // when
         makeSelfUserTeamMember(withPermissions: .member)
-        conversation.minus(user: ZMUser.selfUser(in: uiMOC), isFromLocal: true)
+        conversation.removeParticipantAndUpdateConversationState(user: ZMUser.selfUser(in: uiMOC))
         conversation.creator = selfUser
         
         // then
@@ -337,7 +337,7 @@ class ZMUserTests_Permissions: ModelObjectsTests {
     
     func testThatReadReceiptSettingsCantBeModified_ByInactiveParticipant() {
         // given
-        conversation.minus(user: ZMUser.selfUser(in: uiMOC), isFromLocal: true)
+        conversation.removeParticipantAndUpdateConversationState(user: ZMUser.selfUser(in: uiMOC))
         
         // then
         XCTAssertFalse(ZMUser.selfUser(in: uiMOC).canModifyReadReceiptSettings(in: conversation))
@@ -385,7 +385,7 @@ class ZMUserTests_Permissions: ModelObjectsTests {
     
     func testThatEphemeralSettingsCantBeModified_ByInactiveParticipant() {
         // given
-        conversation.minus(user: ZMUser.selfUser(in: uiMOC), isFromLocal: true)
+        conversation.removeParticipantAndUpdateConversationState(user: ZMUser.selfUser(in: uiMOC))
         
         // then
         XCTAssertFalse(ZMUser.selfUser(in: uiMOC).canModifyEphemeralSettings(in: conversation))
@@ -425,7 +425,7 @@ class ZMUserTests_Permissions: ModelObjectsTests {
     
     func testThatConversationNotificationSettingsCantBeModified_ByInactiveParticipant() {
         // given
-        conversation.minus(user: ZMUser.selfUser(in: uiMOC), isFromLocal: true)
+        conversation.removeParticipantAndUpdateConversationState(user: ZMUser.selfUser(in: uiMOC))
         
         // then
         XCTAssertFalse(ZMUser.selfUser(in: uiMOC).canModifyNotificationSettings(in: conversation))
@@ -465,7 +465,7 @@ class ZMUserTests_Permissions: ModelObjectsTests {
     
     func testThatConversationAccessControlCantBeModified_ByInactiveParticipant() {
         // given
-        conversation.minus(user: ZMUser.selfUser(in: uiMOC), isFromLocal: true)
+        conversation.removeParticipantAndUpdateConversationState(user: ZMUser.selfUser(in: uiMOC))
         
         // then
         XCTAssertFalse(ZMUser.selfUser(in: uiMOC).canModifyAccessControlSettings(in: conversation))
@@ -504,7 +504,7 @@ class ZMUserTests_Permissions: ModelObjectsTests {
     
     func testThatConversationTitleCantBeModified_ByInactiveParticipant() {
         // given
-        conversation.minus(user: ZMUser.selfUser(in: uiMOC), isFromLocal: true)
+        conversation.removeParticipantAndUpdateConversationState(user: ZMUser.selfUser(in: uiMOC))
         
         // then
         XCTAssertFalse(ZMUser.selfUser(in: uiMOC).canModifyTitle(in: conversation))
