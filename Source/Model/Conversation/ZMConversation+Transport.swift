@@ -199,7 +199,7 @@ extension ZMConversation {
     }
     
     /// Pass timestamp when the timestamp equals the time of the lastRead / cleared event, otherwise pass nil
-    public func updateSelfStatus(dictionary: [String: Any?], timeStamp: Date?, previousLastServerTimeStamp: Date?) {
+    public func updateSelfStatus(dictionary: [String: Any], timeStamp: Date?, previousLastServerTimeStamp: Date?) {
         self.updateMuted(with: dictionary)
         if  self.updateIsArchived(payload: dictionary) && self.isArchived,
             let previousLastServerTimeStamp = previousLastServerTimeStamp,
@@ -211,7 +211,7 @@ extension ZMConversation {
         }
     }
     
-    private func updateIsArchived(payload: [String: Any?]) -> Bool {
+    private func updateIsArchived(payload: [String: Any]) -> Bool {
         if let silencedRef = payload.date(fromKey: PayloadKeys.OTRArchivedReferenceKey),
             self.updateArchived(silencedRef, synchronize: false) {
             self.internalIsArchived = (payload[PayloadKeys.OTRArchivedValueKey] as? Int) == 1
