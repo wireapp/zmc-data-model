@@ -126,7 +126,7 @@ extension ZMConversation {
         
         if let members = transportData[PayloadKeys.membersKey] as? [String: Any] {
             self.updateMembers(payload: members)
-            if let selfStatus = members[PayloadKeys.selfKey] as? [String: Any?] {
+            if let selfStatus = members[PayloadKeys.selfKey] as? [String: Any] {
                 self.updateSelfStatus(dictionary: selfStatus, timeStamp: nil, previousLastServerTimeStamp: nil)
             }
             self.updatePotentialGapSystemMessagesIfNeeded(users: self.localParticipants)
