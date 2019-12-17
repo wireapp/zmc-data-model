@@ -29,8 +29,4 @@ public extension UserType {
         return role(in: conversation)?.name == ZMConversation.defaultAdminRoleName
     }
 
-    func role(in conversation: ZMConversation) -> Role? {
-        return zmUser?.participantRoles.first(where: { $0.conversation == conversation })?.role
-    }
-    
 }
