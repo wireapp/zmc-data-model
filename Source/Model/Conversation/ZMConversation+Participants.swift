@@ -34,8 +34,7 @@ extension ZMConversation {
     
     static var participantRolesKeys: [String] {
         return [#keyPath(ZMConversation.participantRoles),
-                #keyPath(ZMConversation.participantRoles.rawOperationToSync),
-                #keyPath(ZMConversation.participantRoles.role)] /// when a participant's role changes, it affects conversation's group detail screen's sections
+                #keyPath(ZMConversation.participantRoles.rawOperationToSync)]
     }
     
     @objc
@@ -50,7 +49,7 @@ extension ZMConversation {
     
     @objc
     public class func keyPathsForValuesAffectingLocalParticipantRoles() -> Set<String> {
-        return Set(participantRolesKeys)
+        return Set(participantRolesKeys + [#keyPath(ZMConversation.participantRoles.role)])
     }
     
     @objc
