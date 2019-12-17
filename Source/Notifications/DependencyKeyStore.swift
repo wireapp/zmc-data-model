@@ -193,7 +193,7 @@ class DependencyKeyStore {
     ///   - classIdentifier: the class's id, e.g. "Conversation"
     ///   - key: the key, e.g. "participantRoles.role"
     /// - Returns: the inverse of keyPathsForValuesAffectingValueForKey, all observable keys that are affected by `key`
-    func observableKeysAffectedByValue(_ classIdentifier: String, key: String) -> Set<String> { ///TODO: "participantRoles.role" is not affecting convo??
+    func observableKeysAffectedByValue(_ classIdentifier: String, key: String) -> Set<String> {
         var keys = effectedKeys[classIdentifier]?[key] ?? Set()
         if let otherKeys = observableKeys[classIdentifier], otherKeys.contains(key) {
             keys.insert(key)
