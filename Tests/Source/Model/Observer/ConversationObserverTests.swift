@@ -992,7 +992,6 @@ final class ConversationObserverTests : NotificationDispatcherTestBase {
             }
         }
         
-        // Discovering a legal hold client should add a system message and change the legal hold value
         checkThatItNotifiesTheObserverOfAChange(conversation,
                                                 modifier: modifier,
                                                 expectedChangedFields: [#keyPath(ConversationChangeInfo.participantsChanged)],
