@@ -201,4 +201,7 @@ public protocol UserType: NSObjectProtocol {
     @objc(canModifyTitleInConversation:)
     func canModifyTitle(in conversation: ZMConversation) -> Bool
 
+    /// The role in the given conversation.
+    @objc(roleInConversation:)
+    func role(in conversation: ZMConversation) -> Role?
 }
