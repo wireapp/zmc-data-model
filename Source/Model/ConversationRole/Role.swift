@@ -27,11 +27,9 @@ public enum TeamOrConversation {
         return self.fromTeamOrConversation(team: conversation.team, conversation: conversation)
     }
     
-    /// Creates a team or a conversation. One between team and conversation must be nil, the other not nil
+    /// Creates a team or a conversation
     static func fromTeamOrConversation(team: Team?,
                                        conversation: ZMConversation?) -> TeamOrConversation {
-        require(team != nil || conversation != nil) // one must be not nil
-        require(team == nil || conversation == nil) // one must be nil
         if let team = team {
             return .team(team)
             

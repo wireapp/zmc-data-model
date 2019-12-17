@@ -200,13 +200,15 @@ extension ZMConversation {
     public func updateSelfStatus(dictionary: [String: Any], timeStamp: Date?, previousLastServerTimeStamp: Date?) {
         self.updateMuted(with: dictionary)
         
+        let selfUser = ZMUser.selfUser(in: self.managedObjectContext!)
         if let roleName = dictionary[ZMConversation.PayloadKeys.conversationRoleKey] as? String {
             let role = Role.fetchOrCreateRole(
                 with: roleName,
                 teamOrConversation: TeamOrConversation.matching(self),
                 in: self.managedObjectContext!)
-            let selfUser = ZMUser.selfUser(in: self.managedObjectContext!)
             self.addParticipantAndUpdateConversationState(user: selfUser, role: role)
+        } else if !self.isSelfAnActiveMember {
+            self.addParticipantAndUpdateConversationState(user: selfUser, role: nil)
         }
         
         if  self.updateIsArchived(payload: dictionary) && self.isArchived,
