@@ -22,6 +22,11 @@ public enum TeamOrConversation {
     case team(Team)
     case conversation(ZMConversation)
     
+    /// Creates a team if the conversation belongs to a team, or a conversation otherwise
+    public static func matching(_ conversation: ZMConversation) -> TeamOrConversation {
+        return self.fromTeamOrConversation(team: conversation.team, conversation: conversation)
+    }
+    
     /// Creates a team or a conversation. One between team and conversation must be nil, the other not nil
     static func fromTeamOrConversation(team: Team?,
                                        conversation: ZMConversation?) -> TeamOrConversation {
