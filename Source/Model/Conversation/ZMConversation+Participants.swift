@@ -34,7 +34,8 @@ extension ZMConversation {
     
     static var participantRolesKeys: [String] {
         return [#keyPath(ZMConversation.participantRoles),
-                #keyPath(ZMConversation.participantRoles.rawOperationToSync)]
+                #keyPath(ZMConversation.participantRoles.rawOperationToSync),
+                #keyPath(ZMConversation.participantRoles.role)] /// when a participant's role changes, it affects conversation's group detail screen's sections
     }
     
     @objc
