@@ -45,7 +45,7 @@ extension ZMUser: UserType {
     }
 
     public func role(in conversation: ZMConversation) -> Role? {
-        return zmUser?.participantRoles.first(where: { $0.conversation == conversation })?.role
+        return participantRoles.first(where: { $0.conversation == conversation })?.role
     }
 
     // MARK: Legal Hold
