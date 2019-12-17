@@ -106,7 +106,9 @@ extension ZMConversation {
         (moc.executeFetchRequestOrAssert(groupConversationsFetch) as! [ZMConversation]).forEach {
             guard $0.isSelfAnActiveMember else { return }
             $0.needsToBeUpdatedFromBackend = true
-            $0.needsToDownloadRoles = true
+            if $0.team == nil {
+                $0.needsToDownloadRoles = true
+            }
         }
         
         // Mark team as need to download roles
