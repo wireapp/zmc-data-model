@@ -95,17 +95,15 @@ class RolesMigrationTests: DiskDatabaseTest {
     func testMigratingUsers() {
         
         // Given
+        let oldKey = "lastServerSyncedActiveParticipants"
         let user1 = ZMUser.insertNewObject(in: moc)
         user1.name = "u1"
         let user2 = ZMUser.insertNewObject(in: moc)
         user2.name = "u2"
         
         let groupConvo = createConversation()
-        groupConvo.userDefinedName = "Group"
-        groupConvo.needsToDownloadRoles = false
-        groupConvo.needsToBeUpdatedFromBackend = false
         let orderedSet = NSOrderedSet(array: [user1, user2])
-        groupConvo.setValue(orderedSet, forKey: "lastServerSyncedActiveParticipants")
+        groupConvo.setValue(orderedSet, forKey: oldKey)
         self.moc.saveOrRollback()
         
         // When
@@ -113,5 +111,6 @@ class RolesMigrationTests: DiskDatabaseTest {
         
         // Then
         XCTAssertEqual(groupConvo.localParticipants, Set([user1, user2]))
+        XCTAssertEqual((groupConvo.value(forKey: oldKey) as! NSOrderedSet).count, 0)
     }
 }
