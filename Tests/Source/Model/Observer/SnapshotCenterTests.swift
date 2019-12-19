@@ -144,7 +144,7 @@ class SnapshotCenterTests : BaseZMMessageTests {
                                            "nonTeamRoles": 0,
                                            "lastServerSyncedActiveParticipants": 0]
         
-        let expectedToOneRelationships: [String: NSManagedObjectID?] =
+        let expectedToOneRelationships: [String: NSManagedObjectID] =
             ["creator": conv.creator.objectID]
         
         expectedAttributes.forEach{
