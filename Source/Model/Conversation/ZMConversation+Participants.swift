@@ -180,7 +180,6 @@ extension ZMConversation {
         if let current = self.participantRoles.first(where: {$0.user == user}) {
             if let role = role {
                 current.role = role
-                moc.saveOrRollback()
             }
             
             // If we are already trying to delete this user, abort the deletion
@@ -200,7 +199,6 @@ extension ZMConversation {
                 participantRole.operationToSync = .insert
             }
 
-            moc.saveOrRollback()
             return (.created, participantRole)
         }
     }
