@@ -89,7 +89,7 @@ public extension ZMUser {
         if conversation.conversationType == .group {
             return hasRoleWithAction(actionName: ConversationAction.deleteConvesation.name, conversation: conversation) &&
                    conversation.creator == self &&
-                   isTeamMember
+                   hasTeam
         } else {
             return conversation.teamRemoteIdentifier != nil && conversation.isSelfAnActiveMember && conversation.creator == self
         }
