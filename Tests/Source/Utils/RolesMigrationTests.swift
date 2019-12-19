@@ -91,4 +91,27 @@ class RolesMigrationTests: DiskDatabaseTest {
         XCTAssertTrue(groupConvo.needsToBeUpdatedFromBackend)
         XCTAssertTrue(team.needsToDownloadRoles)
     }
+    
+    func testMigratingUsers() {
+        
+        // Given
+        let user1 = ZMUser.insertNewObject(in: moc)
+        user1.name = "u1"
+        let user2 = ZMUser.insertNewObject(in: moc)
+        user2.name = "u2"
+        
+        let groupConvo = createConversation()
+        groupConvo.userDefinedName = "Group"
+        groupConvo.needsToDownloadRoles = false
+        groupConvo.needsToBeUpdatedFromBackend = false
+        let orderedSet = NSOrderedSet(array: [user1, user2])
+        groupConvo.setValue(orderedSet, forKey: "lastServerSyncedActiveParticipants")
+        self.moc.saveOrRollback()
+        
+        // When
+        WireDataModel.ZMConversation.migrateUsersToParticipants(in: moc)
+        
+        // Then
+        XCTAssertEqual(groupConvo.localParticipants, Set([user1, user2]))
+    }
 }
