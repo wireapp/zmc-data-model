@@ -55,10 +55,9 @@ extension ZMConversation {
                                        team: Team? = nil,
                                        allowGuests: Bool = true,
                                        readReceipts: Bool = false,
-                                       participantsRole: Role? = nil) -> ZMConversation?
-    {
+                                       participantsRole: Role? = nil) -> ZMConversation? {
         let selfUser = ZMUser.selfUser(in: moc)
-        if (team != nil && !selfUser.canCreateConversation) {
+        if (team != nil && !selfUser.canCreateConversation(type: .group)) { ///TODO: inject 1-to-1
             return nil
         }
         

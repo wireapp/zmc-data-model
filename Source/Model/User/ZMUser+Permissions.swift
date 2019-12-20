@@ -171,8 +171,14 @@ public extension ZMUser {
         return hasRoleWithAction(actionName: ConversationAction.leaveConversation.name, conversation: conversation)
     }
     
-    @objc var canCreateConversation: Bool {
-        return permissions?.contains(.createConversation) ?? true
+    @objc
+    func canCreateConversation(type: ZMConversationType) -> Bool {
+        switch type {
+        case .oneOnOne:///all users are allow to open 1-to-1 conversation
+            return true
+        default:
+            return permissions?.contains(.member) ?? true
+        }
     }
     
     @objc var canCreateService: Bool {
