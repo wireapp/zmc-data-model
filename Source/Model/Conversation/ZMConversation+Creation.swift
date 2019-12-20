@@ -48,6 +48,16 @@ extension ZMConversation {
                                             participantsRole: participantsRole)
     }
     
+    @objc
+    static public func insertGroupConversation(moc: NSManagedObjectContext,
+                                               participants: [ZMUser],
+                                               name: String? = nil,
+                                               team: Team? = nil,
+                                               allowGuests: Bool = true,
+                                               readReceipts: Bool = false,
+                                               participantsRole: Role? = nil) -> ZMConversation? {
+        return insertGroupConversation(moc: moc, participants: participants, name: name, team: team, allowGuests: allowGuests, readReceipts: readReceipts, participantsRole: participantsRole, type: .group)
+    }
     
     /// insert a conversation with group type
     ///
@@ -61,7 +71,6 @@ extension ZMConversation {
     ///   - participantsRole: the participants' role
     ///   - type: the convo type want to be created (for permission check)
     /// - Returns: the created conversation, nullable
-    @objc
     static public func insertGroupConversation(moc: NSManagedObjectContext,
                                        participants: [ZMUser],
                                        name: String? = nil,
