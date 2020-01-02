@@ -36,21 +36,14 @@ extension ZMConversation {
         let groupOnly = NSPredicate(format: "(\(ZMConversationConversationTypeKey) == \(ZMConversationType.group.rawValue))")
         
         let notTeamOneToOne = NSCompoundPredicate(notPredicateWithSubpredicate: predicateForTeamOneToOneConversation())
-        
-        let roleNameMatchingQueries = NSCompoundPredicate(orPredicateWithSubpredicates:
-            normalize(searchQuery).map {
-                NSPredicate(format: "$role.user.normalizedName MATCHES %@", $0)
-            }
-        )
-        let userNamesMatching = NSPredicate(
-            format: "SUBQUERY(%K, $role, $role.user != %@ AND (\(roleNameMatchingQueries.predicateFormat))).@count > 1",
-            ZMConversationParticipantRolesKey,
-            selfUser
-            )
 
+        let userNamesMatching = predicateForConversationWithUsers(
+            matchingQuery: searchQuery,
+            selfUser: selfUser
+        )
         let queryMatching = NSCompoundPredicate(
             orPredicateWithSubpredicates: [userNamesMatching, convoNameMatching])
-
+        
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             queryMatching,
             selfUserIsMember,
@@ -59,14 +52,30 @@ extension ZMConversation {
             ])
     }
     
+    @available(*, deprecated)
     @objc
     public class func normalize(_ string: String) -> [String] {
-        let trimmedString = string.trimmingCharacters(in: .whitespacesAndNewlines)
-        var array: [String] = []
-        trimmedString.components(separatedBy: " ").forEach { (str) in
-            array.append(String(format: ".*\\b%@.*", str.lowercased()))
-        }
-        return array
+        return string.words
+    }
+
+    
+    private class func predicateForConversationWithUsers(
+        matchingQuery query: String,
+        selfUser: ZMUser) -> NSPredicate
+    {
+        let roleNameMatchingRegexes = query.words.map { ".*\\b\($0.lowercased()).*" }
+        
+        let roleNameMatchingConditions = roleNameMatchingRegexes.map { _ in
+            "$role.user.normalizedName MATCHES %@"
+            }.joined(separator: " OR ")
+        
+        return NSPredicate(
+            format: "SUBQUERY(%K, $role, $role.user != %@ AND (\(roleNameMatchingConditions))).@count > 0",
+            argumentArray: [
+                ZMConversationParticipantRolesKey,
+                selfUser
+                ] + roleNameMatchingRegexes
+        )
     }
 
     @objc(predicateForConversationsInTeam:)
@@ -177,4 +186,15 @@ extension ZMConversation {
         return NSCompoundPredicate(andPredicateWithSubpredicates: [basePredicate, predicate1, predicate2])
     }
     
+}
+
+extension String {
+    
+    fileprivate var words: [String] {
+        var words: [String] = []
+        enumerateSubstrings(in: self.startIndex..., options: .byWords) { substring, _, _, _ in
+            words.append(String(substring!))
+        }
+        return words
+    }
 }
