@@ -19,10 +19,12 @@
 import Foundation
 
 final class ConversationTests: ZMConversationTestsBase {
-    private func insertMockGroupConversation() -> ZMConversation {
+    
+    @discardableResult
+    private func insertMockGroupConversation(userDefinedName: String) -> ZMConversation {
         let selfUser = ZMUser.selfUser(in: uiMOC)
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        conversation.userDefinedName = "Sömëbodÿ"
+        conversation.userDefinedName = userDefinedName
         conversation.conversationType = .group
         conversation.addParticipantAndUpdateConversationState(user: selfUser, role: nil)
         uiMOC.saveOrRollback()
@@ -33,7 +35,7 @@ final class ConversationTests: ZMConversationTestsBase {
 
     func testThatItFindsConversationByUserDefinedNameDiacritics() {
         // given
-        let conversation = insertMockGroupConversation()
+        let conversation = insertMockGroupConversation(userDefinedName: "Sömëbodÿ")
         
         // when
         
@@ -47,7 +49,7 @@ final class ConversationTests: ZMConversationTestsBase {
 
     func testThatItFindsConversationWithQueryStringWithTrailingSpace() {
         // given
-        let conversation = insertMockGroupConversation()
+        let conversation = insertMockGroupConversation(userDefinedName: "Sömëbodÿ")
 
         // when
         
@@ -62,15 +64,15 @@ final class ConversationTests: ZMConversationTestsBase {
 
     func testThatItFindsConversationWithQueryStringWithWords() {
         // given
-        let conversation = insertMockGroupConversation()
-        
+        let conversation = insertMockGroupConversation(userDefinedName: "Sömëbodÿ to")
+
         // when
         
         let request = ZMConversation.sortedFetchRequest(with: ZMConversation.predicate(forSearchQuery: "Sømebôdy to", selfUser: selfUser))
         let result = uiMOC.executeFetchRequestOrAssert(request)
         
         // then
-        XCTAssertEqual(result?.count, 0)
-        XCTAssertEqual(result?.first as? ZMConversation, nil)
+        XCTAssertEqual(result?.count, 1)
+        XCTAssertEqual(result?.first as? ZMConversation, conversation)
     }
 }
