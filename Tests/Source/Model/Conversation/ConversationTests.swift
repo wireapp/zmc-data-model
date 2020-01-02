@@ -18,7 +18,7 @@
 
 import Foundation
 
-final class ConversationTests : ZMConversationTestsBase {
+final class ConversationTests: ZMConversationTestsBase {
     func testThatItFindsConversationWithQueryStringWithTrailingSpace() {
         // given
         let selfUser = ZMUser.selfUser(in: uiMOC)
