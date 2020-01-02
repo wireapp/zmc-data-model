@@ -29,38 +29,33 @@ extension ZMConversation {
     @objc
     public class func predicate(forSearchQuery searchQuery: String, selfUser: ZMUser) -> NSPredicate! {
         
-        let convoNamePredicate = NSPredicate(formatDictionary: [ZMNormalizedUserDefinedNameKey: "%K MATCHES %@"], matchingSearch: searchQuery)!
-        let usersPredicates = normalize(searchQuery).map { (strSearchQuery) in
-            NSPredicate(format: "ANY %K.user != %@ AND ANY %K.user.normalizedName MATCHES %@", ZMConversationParticipantRolesKey, selfUser, ZMConversationParticipantRolesKey, strSearchQuery)
-        }
-        let usersPredicate = NSCompoundPredicate(orPredicateWithSubpredicates: usersPredicates)
-        let searchPredicate = NSCompoundPredicate(
-            orPredicateWithSubpredicates: [usersPredicate, convoNamePredicate])
-        let activeMemberPredicate = NSPredicate(format: "%K == NULL OR (ANY %K.user == %@)", ZMConversationClearedTimeStampKey, ZMConversationParticipantRolesKey, selfUser)
-        let basePredicate = NSPredicate(format: "(\(ZMConversationConversationTypeKey) == \(ZMConversationType.group.rawValue))")
-
-        /// do not include team 1 to 1 conversations
-
-        let activeParticipantsPredicate = NSPredicate(format: "%K.@count == 1",                                                                      ZMConversationParticipantRolesKey
+        let convoNameMatching = NSPredicate(formatDictionary: [ZMNormalizedUserDefinedNameKey: "%K MATCHES %@"], matchingSearch: searchQuery)!
+        
+        let selfUserIsMember = NSPredicate(format: "%K == NULL OR (ANY %K.user == %@)", ZMConversationClearedTimeStampKey, ZMConversationParticipantRolesKey, selfUser)
+        
+        let groupOnly = NSPredicate(format: "(\(ZMConversationConversationTypeKey) == \(ZMConversationType.group.rawValue))")
+        
+        let notTeamOneToOne = NSCompoundPredicate(notPredicateWithSubpredicate: predicateForTeamOneToOneConversation())
+        
+        let roleNameMatchingQueries = NSCompoundPredicate(orPredicateWithSubpredicates:
+            normalize(searchQuery).map {
+                NSPredicate(format: "$role.user.normalizedName MATCHES %@", $0)
+            }
         )
+        let userNamesMatching = NSPredicate(
+            format: "SUBQUERY(%K, $role, $role.user != %@ AND (\(roleNameMatchingQueries.predicateFormat))).@count > 1",
+            ZMConversationParticipantRolesKey,
+            selfUser
+            )
 
-        let userDefinedNamePredicate = NSPredicate(format: "%K == NULL",                                                                      ZMConversationUserDefinedNameKey
-        )
-
-        let teamRemoteIdentifierPredicate = NSPredicate(format: "%K != NULL",                                                                      TeamRemoteIdentifierDataKey
-        )
-
-        let notTeamMemberPredicate = NSCompoundPredicate(notPredicateWithSubpredicate: NSCompoundPredicate(andPredicateWithSubpredicates: [
-            activeParticipantsPredicate,
-            userDefinedNamePredicate ,
-            teamRemoteIdentifierPredicate
-            ]))
+        let queryMatching = NSCompoundPredicate(
+            orPredicateWithSubpredicates: [userNamesMatching, convoNameMatching])
 
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
-            searchPredicate,
-            activeMemberPredicate,
-            basePredicate,
-            notTeamMemberPredicate
+            queryMatching,
+            selfUserIsMember,
+            groupOnly,
+            notTeamOneToOne
             ])
     }
     
