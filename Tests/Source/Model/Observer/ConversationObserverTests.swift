@@ -379,7 +379,6 @@ final class ConversationObserverTests : NotificationDispatcherTestBase {
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.conversationType = ZMConversationType.group
         conversation.addParticipantAndUpdateConversationState(user: user, role: nil)
-//        conversation.participantRoles.forEach { $0.operationToSync = .none }
 
         uiMOC.saveOrRollback()
 
@@ -414,7 +413,6 @@ final class ConversationObserverTests : NotificationDispatcherTestBase {
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.conversationType = ZMConversationType.group
         conversation.addParticipantAndUpdateConversationState(user: user, role: oldRole)
-//        conversation.participantRoles.forEach { $0.operationToSync = .none }
 
         uiMOC.saveOrRollback()
 
