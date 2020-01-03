@@ -58,7 +58,6 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         let selfUser = ZMUser.selfUser(in: self.uiMOC)
         
         sut.addParticipantsAndUpdateConversationState(users: Set([user1, user2]), role: nil)
-//        sut.participantRoles.forEach { $0.operationToSync = .none }
         
         XCTAssertEqual(sut.participantRoles.count, 2)
         XCTAssertEqual(sut.localParticipants.count, 2)
@@ -70,9 +69,6 @@ final class ConversationParticipantsTests : ZMConversationTestsBase {
         // THEN
         XCTAssertEqual(Set(sut.participantRoles.map { $0.user }), Set([user1, user2]))
         XCTAssertEqual(sut.localParticipants, Set([user1, user2]))
-        
-//        XCTAssertFalse(user2.participantRoles.first!.operationToSync == .delete)
-//        XCTAssertFalse(user2.participantRoles.first!.operationToSync == .insert)
     }
 
     func testThatAddThenRemoveParticipants() {
