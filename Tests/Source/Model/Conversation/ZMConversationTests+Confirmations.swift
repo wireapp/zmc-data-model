@@ -83,7 +83,7 @@ class ZMConversationTests_Confirmations: ZMConversationTestsBase {
         conversation.lastReadServerTimeStamp = .distantPast
         
         // when
-        var confirmMessages = conversation.confirmUnreadMessagesAsRead(until: message2.serverTimestamp!)
+        let confirmMessages = conversation.confirmUnreadMessagesAsRead(until: message2.serverTimestamp!)
         
         // then
         XCTAssertEqual(confirmMessages.count, 1)
