@@ -42,21 +42,13 @@ private let zmLog = ZMSLog(tag: "UserClient")
 @objcMembers
 public class UserClient: ZMManagedObject, UserClientType {
     public var activationLatitude: Double {
-        get {
-            return activationLocationLatitude?.doubleValue ?? 0.0
-        }
-        set {
-            activationLocationLatitude = NSNumber(value: activationLatitude)
-        }
+        get { return activationLocationLatitude?.doubleValue ?? 0.0 }
+        set { activationLocationLatitude = NSNumber(value: newValue) }
     }
 
     public var activationLongitude: Double {
-        get {
-            return activationLocationLongitude?.doubleValue ?? 0.0
-        }
-        set {
-            activationLocationLongitude = NSNumber(value: activationLongitude)
-        }
+        get { return activationLocationLongitude?.doubleValue ?? 0.0 }
+        set { activationLocationLongitude = NSNumber(value: newValue) }
     }
     
     @NSManaged public var type: DeviceType
