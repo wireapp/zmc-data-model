@@ -135,3 +135,54 @@ extension Location: EphemeralMessageCapable {
         message.location = self
     }
 }
+
+extension Knock: EphemeralMessageCapable {
+    public func setEphemeralContent(on ephemeral: inout Ephemeral) {
+        ephemeral.knock = self
+    }
+    
+    public func setContent(on message: inout GenericMessage) {
+        message.knock = self
+    }
+}
+
+extension Text: EphemeralMessageCapable {
+    
+    init(content: String, mentions: [Mention], replyingTo: ZMClientMessage?) {
+        self = Text.with {
+            $0.content = content
+            $0.mentions = mentions.compactMap { WireProtos.Mention($0) }
+            
+            if let quotedMessage = replyingTo,
+               let quotedMessageNonce = quotedMessage.nonce,
+               let quotedMessageHash = quotedMessage.hashOfContent {
+                $0.quote = Quote.with({
+                    $0.quotedMessageID = quotedMessageNonce.transportString()
+                    $0.quotedMessageSha256 = quotedMessageHash
+                })
+            }
+        }
+    }
+    
+    public func setEphemeralContent(on ephemeral: inout Ephemeral) {
+        ephemeral.text = self
+    }
+    
+    public func setContent(on message: inout GenericMessage) {
+        message.text = self
+    }
+}
+
+extension WireProtos.Mention {
+    
+    init?(_ mention: WireDataModel.Mention) {
+        guard let userID = (mention.user as? ZMUser)?.remoteIdentifier.transportString() else { return nil }
+        
+        self = WireProtos.Mention.with {
+            $0.start = Int32(mention.range.location)
+            $0.length = Int32(mention.range.length)
+            $0.userID = userID
+        }
+    }
+    
+}

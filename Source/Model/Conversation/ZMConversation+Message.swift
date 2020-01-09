@@ -39,7 +39,7 @@ extension ZMConversation {
     
     @discardableResult
     public func appendKnock(nonce: UUID = UUID()) -> ZMConversationMessage? {
-        return appendClientMessage(with: ZMGenericMessage.message(content: ZMKnock.knock(), nonce: nonce, expiresAfter: messageDestructionTimeoutValue))
+        return appendClientMessage(with: GenericMessage.message(content: Knock.with({ $0.hotKnock = false }), nonce: nonce, expiresAfter: messageDestructionTimeoutValue))
     }
     
     @discardableResult @objc(appendText:mentions:fetchLinkPreview:nonce:)
@@ -60,23 +60,28 @@ extension ZMConversation {
         
         guard !(text as NSString).zmHasOnlyWhitespaceCharacters() else { return nil }
         
-        let textContent = ZMText.text(with: text, mentions: mentions, linkPreviews: [], replyingTo: quotedMessage as? ZMOTRMessage)
-        let genericMessage = ZMGenericMessage.message(content: textContent, nonce: nonce, expiresAfter: messageDestructionTimeoutValue)
+        let text = Text(content: text, mentions: mentions, replyingTo: quotedMessage as? ZMClientMessage)
+        let genericMessage = GenericMessage.message(content: text, nonce: nonce, expiresAfter: messageDestructionTimeoutValue)
         let clientMessage = ZMClientMessage(nonce: nonce, managedObjectContext: managedObjectContext!)
-        clientMessage.add(genericMessage.data())
-        clientMessage.linkPreviewState = fetchLinkPreview ? .waitingToBeProcessed : .done
-        clientMessage.needsLinkAttachmentsUpdate = fetchLinkPreview
-        clientMessage.quote = quotedMessage as? ZMMessage
         
-        append(clientMessage, expires: true, hidden: false)
-        
-        if let managedObjectContext = managedObjectContext {
-            NotificationInContext(name: ZMConversation.clearTypingNotificationName,
-                                  context: managedObjectContext.notificationContext,
-                                  object: self).post()
+        do {
+            clientMessage.add(try genericMessage.serializedData())
+            clientMessage.linkPreviewState = fetchLinkPreview ? .waitingToBeProcessed : .done
+            clientMessage.needsLinkAttachmentsUpdate = fetchLinkPreview
+            clientMessage.quote = quotedMessage as? ZMMessage
+            
+            append(clientMessage, expires: true, hidden: false)
+            
+            if let managedObjectContext = managedObjectContext {
+                NotificationInContext(name: ZMConversation.clearTypingNotificationName,
+                                      context: managedObjectContext.notificationContext,
+                                      object: self).post()
+            }
+            
+            return clientMessage
+        } catch {
+            return nil
         }
-        
-        return clientMessage
     }
     
     @discardableResult @objc(appendImageAtURL:nonce:)
