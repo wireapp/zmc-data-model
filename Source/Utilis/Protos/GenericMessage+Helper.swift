@@ -173,6 +173,71 @@ extension Text: EphemeralMessageCapable {
     }
 }
 
+extension WireProtos.Asset: EphemeralMessageCapable {
+    
+    init(_ metadata: ZMFileMetadata) {
+        self = WireProtos.Asset.with({
+            $0.original = WireProtos.Asset.Original.with({
+                $0.size = metadata.size
+                $0.mimeType = metadata.mimeType
+                $0.name = metadata.filename
+            })
+        })
+    }
+    
+    init(_ metadata: ZMAudioMetadata) {
+        self = WireProtos.Asset.with({
+            $0.original = WireProtos.Asset.Original.with({
+                $0.size = metadata.size
+                $0.mimeType = metadata.mimeType
+                $0.name = metadata.filename
+                $0.audio = WireProtos.Asset.AudioMetaData.with({
+                    let loudnessArray = metadata.normalizedLoudness.map { UInt8(roundf($0 * 255)) }
+                    $0.durationInMillis = UInt64(metadata.duration * 1000)
+                    $0.normalizedLoudness = NSData(bytes: loudnessArray, length: loudnessArray.count) as Data
+                })
+                
+            })
+        })
+    }
+    
+    init(_ metadata: ZMVideoMetadata) {
+        self = WireProtos.Asset.with({
+            $0.original = WireProtos.Asset.Original.with({
+                $0.size = metadata.size
+                $0.mimeType = metadata.mimeType
+                $0.name = metadata.filename
+                $0.video = WireProtos.Asset.VideoMetaData.with({
+                    $0.durationInMillis = UInt64(metadata.duration * 1000)
+                    $0.width = Int32(metadata.dimensions.width)
+                    $0.height = Int32(metadata.dimensions.height)
+                })
+            })
+        })
+    }
+    
+    init(imageSize: CGSize, mimeType: String, size: UInt64) {
+        self = WireProtos.Asset.with({
+            $0.original = WireProtos.Asset.Original.with({
+                $0.size = size
+                $0.mimeType = mimeType
+                $0.image = WireProtos.Asset.ImageMetaData.with({
+                    $0.width = Int32(imageSize.width)
+                    $0.height = Int32(imageSize.height)
+                })
+            })
+        })
+    }
+    
+    public func setEphemeralContent(on ephemeral: inout Ephemeral) {
+        ephemeral.asset = self
+    }
+    
+    public func setContent(on message: inout GenericMessage) {
+        message.asset = self
+    }
+}
+
 extension WireProtos.Mention {
     
     init?(_ mention: WireDataModel.Mention) {

@@ -95,13 +95,20 @@ extension ZMConversation {
     
     @discardableResult @objc(appendImageFromData:nonce:)
     public func append(imageFromData imageData: Data, nonce: UUID = UUID()) -> ZMConversationMessage? {
-        do {
-            let imageDataWithoutMetadata = try imageData.wr_removingImageMetadata()
-            return appendAssetClientMessage(withNonce: nonce, imageData: imageDataWithoutMetadata)
-        } catch let error {
-            log.error("Cannot remove image metadata: \(error)")
-            return nil
-        }
+        guard let managedObjectContext = managedObjectContext,
+              let imageData = try? imageData.wr_removingImageMetadata() else { return nil }
+        
+        
+        // mimeType is assigned first, to make sure UI can handle animated GIF file correctly
+        let mimeType = ZMAssetMetaDataEncoder.contentType(forImageData: imageData) ?? ""
+        // We update the size again when the the preprocessing is done
+        let imageSize = ZMImagePreprocessor.sizeOfPrerotatedImage(with: imageData)
+        
+        let asset = WireProtos.Asset(imageSize: imageSize, mimeType: mimeType, size: UInt64(imageData.count))
+        
+        return append(asset: asset, nonce: nonce, expires: true, prepareMessage: { message in
+            managedObjectContext.zm_fileAssetCache.storeAssetData(message, format: .original, encrypted: false, data: imageData)
+        })
     }
     
     @discardableResult @objc(appendFile:nonce:)
@@ -109,22 +116,33 @@ extension ZMConversation {
         guard let data = try? Data.init(contentsOf: fileMetadata.fileURL, options: .mappedIfSafe),
               let managedObjectContext = managedObjectContext else { return nil }
         
-        guard let message = ZMAssetClientMessage(with: fileMetadata,
+        return append(asset: fileMetadata.asset, nonce: nonce, expires: false) { (message) in
+            managedObjectContext.zm_fileAssetCache.storeAssetData(message, encrypted: false, data: data)
+            
+            if let thumbnailData = fileMetadata.thumbnail {
+                managedObjectContext.zm_fileAssetCache.storeAssetData(message, format: .original, encrypted: false, data: thumbnailData)
+            }
+        }
+    }
+    
+    @nonobjc
+    private func append(asset: WireProtos.Asset, nonce: UUID, expires: Bool, prepareMessage: (ZMAssetClientMessage) -> Void) -> ZMAssetClientMessage? {
+        guard let managedObjectContext = managedObjectContext,
+              let message = ZMAssetClientMessage(asset: asset,
                                                  nonce: nonce,
                                                  managedObjectContext: managedObjectContext,
-                                                 expiresAfter: messageDestructionTimeoutValue) else { return  nil}
+                                                 expiresAfter: messageDestructionTimeoutValue)
+        else { return nil }
         
         message.sender = ZMUser.selfUser(in: managedObjectContext)
         
-        append(message)
-        unarchiveIfNeeded()
-        
-        managedObjectContext.zm_fileAssetCache.storeAssetData(message, encrypted: false, data: data)
-        
-        if let thumbnailData = fileMetadata.thumbnail {
-            managedObjectContext.zm_fileAssetCache.storeAssetData(message, format: .original, encrypted: false, data: thumbnailData)
+        if expires {
+            message.setExpirationDate()
         }
         
+        append(message)
+        unarchiveIfNeeded()
+        prepareMessage(message)
         message.updateCategoryCache()
         message.prepareToSend()
         
