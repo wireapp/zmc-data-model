@@ -52,28 +52,19 @@ extension ZMConversation {
             ])
     }
     
-    private class func predicateForConversationWithUsers(
-        matchingQuery query: String,
-        selfUser: ZMUser) -> NSPredicate
-    {
-        let roleNameMatchingRegexes = query.words.map { ".*\\b\($0.lowercased()).*" }
+    private class func predicateForConversationWithUsers(matchingQuery query: String,
+                                                         selfUser: ZMUser) -> NSPredicate {
+        let roleNameMatchingRegexes = query.words.map { word -> String in
+            return ".*\\b\(NSRegularExpression.escapedPattern(for: word).lowercased()).*"
+        }
         
         let roleNameMatchingConditions = roleNameMatchingRegexes.map { _ in
             "$role.user.normalizedName MATCHES %@"
             }.joined(separator: " OR ")
-        
-        if roleNameMatchingConditions.isEmpty {
-            return  NSPredicate(
-                format: "SUBQUERY(%K, $role, $role.user != %@).@count > 0",
-                argumentArray: [
-                    ZMConversationParticipantRolesKey,
-                    selfUser
-                    ] + roleNameMatchingRegexes
-            )
-        }
+
         
         return NSPredicate(
-            format: "SUBQUERY(%K, $role, $role.user != %@ AND (\(roleNameMatchingConditions))",
+            format: "SUBQUERY(%K, $role, $role.user != %@ AND (\(roleNameMatchingConditions))).@count > 0",
             argumentArray: [
                 ZMConversationParticipantRolesKey,
                 selfUser
@@ -198,6 +189,11 @@ extension String {
         enumerateSubstrings(in: self.startIndex..., options: .byWords) { substring, _, _, _ in
             words.append(String(substring!))
         }
+        
+        if words.isEmpty {
+            words = [trimmingCharacters(in: .whitespacesAndNewlines)]
+        }
+        
         return words
     }
 }
