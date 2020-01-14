@@ -62,8 +62,18 @@ extension ZMConversation {
             "$role.user.normalizedName MATCHES %@"
             }.joined(separator: " OR ")
         
+        if roleNameMatchingConditions.isEmpty {
+            return  NSPredicate(
+                format: "SUBQUERY(%K, $role, $role.user != %@).@count > 0",
+                argumentArray: [
+                    ZMConversationParticipantRolesKey,
+                    selfUser
+                    ] + roleNameMatchingRegexes
+            )
+        }
+        
         return NSPredicate(
-            format: "SUBQUERY(%K, $role, $role.user != %@ AND (\(roleNameMatchingConditions))).@count > 0",
+            format: "SUBQUERY(%K, $role, $role.user != %@ AND (\(roleNameMatchingConditions))",
             argumentArray: [
                 ZMConversationParticipantRolesKey,
                 selfUser
