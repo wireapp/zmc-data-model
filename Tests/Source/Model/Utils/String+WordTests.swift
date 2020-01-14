@@ -32,7 +32,7 @@ final class StringWordsTests: XCTestCase {
         XCTAssertEqual(words, ["once", "upon", "a", "time"])
     }
     
-    func testThatSingleSymbolIsSplitedAsAWord() {
+    func testThatSingleSymbolIsSplittedAsAWord() {
         //given
         let sut = "@"
         
