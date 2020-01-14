@@ -54,9 +54,7 @@ extension ZMConversation {
     
     private class func predicateForConversationWithUsers(matchingQuery query: String,
                                                          selfUser: ZMUser) -> NSPredicate {
-        let roleNameMatchingRegexes = query.words.map { word -> String in
-            return ".*\\b\(NSRegularExpression.escapedPattern(for: word).lowercased()).*"
-        }
+        let roleNameMatchingRegexes = query.words.map { ".*\\b\(NSRegularExpression.escapedPattern(for: $0).lowercased()).*" }
         
         let roleNameMatchingConditions = roleNameMatchingRegexes.map { _ in
             "$role.user.normalizedName MATCHES %@"
