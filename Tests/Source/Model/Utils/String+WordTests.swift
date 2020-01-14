@@ -21,7 +21,7 @@ import XCTest
 
 final class StringWordsTests: XCTestCase {
     
-    func testThatSetenceIsSplited() {
+    func testThatSentenceIsSplitted() {
         //given
         let sut = "once upon a time"
         
