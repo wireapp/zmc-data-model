@@ -388,7 +388,7 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         return user?.canLeave(conversation) == true
     }
 
-    public func role(in conversation: ZMConversation) -> Role? {
+    public func role(in conversation: ZMConversation) -> RoleType? {
         return user?.role(in: conversation)
     }
     

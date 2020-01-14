@@ -212,5 +212,5 @@ public protocol UserType: NSObjectProtocol {
 
     /// The role in the given conversation.
     @objc(roleInConversation:)
-    func role(in conversation: ZMConversation) -> Role?
+    func role(in conversation: ZMConversation) -> RoleType?
 }

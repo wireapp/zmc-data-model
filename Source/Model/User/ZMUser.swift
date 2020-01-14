@@ -44,7 +44,7 @@ extension ZMUser: UserType {
         return Set(self.participantRoles.compactMap {$0.conversation})
     }
 
-    public func role(in conversation: ZMConversation) -> Role? {
+    public func role(in conversation: ZMConversation) -> RoleType? {
         return participantRoles.first(where: { $0.conversation == conversation })?.role
     }
 
