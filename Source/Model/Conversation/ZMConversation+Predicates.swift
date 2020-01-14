@@ -182,7 +182,7 @@ extension ZMConversation {
 
 extension String {
     
-    fileprivate var words: [String] {
+    var words: [String] {
         var words: [String] = []
         enumerateSubstrings(in: self.startIndex..., options: .byWords) { substring, _, _, _ in
             words.append(String(substring!))
