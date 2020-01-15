@@ -199,7 +199,7 @@ public extension ZMUser {
     private func hasRoleWithAction(actionName: String, conversation: ZMConversation) -> Bool {
         guard
             conversation.isSelfAnActiveMember,
-            let role = self.role(in: conversation) as? Role
+            let role = self.role(in: conversation)
         else {
             return false
         }

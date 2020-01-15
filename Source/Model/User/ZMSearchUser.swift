@@ -388,10 +388,10 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         return user?.canLeave(conversation) == true
     }
 
-    public func role(in conversation: ZMConversation) -> RoleType? {
-        return user?.role(in: conversation)
+    public func isGroupAdmin(in conversation: ZMConversation) -> Bool {
+        return user?.isGroupAdmin(in: conversation) == true
     }
-    
+
     public override func isEqual(_ object: Any?) -> Bool {
         guard let otherSearchUser = object as? ZMSearchUser else { return false }
         
