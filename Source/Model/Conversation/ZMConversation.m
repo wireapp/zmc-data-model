@@ -124,8 +124,8 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @property (nonatomic) NSDate *lastReadServerTimeStamp;
 @property (nonatomic) NSDate *lastServerTimeStamp;
 @property (nonatomic) NSDate *clearedTimeStamp;
-@property (nonatomic) NSDate *archivedChangedTimestamp;
-@property (nonatomic) NSDate *silencedChangedTimestamp;
+@property (nonatomic, nullable) NSDate *archivedChangedTimestamp;
+@property (nonatomic, nullable) NSDate *silencedChangedTimestamp;
 
 @end
 

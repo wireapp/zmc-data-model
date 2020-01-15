@@ -34,7 +34,7 @@
 @interface ZMImageMessage ()
 
 @property (nonatomic) BOOL isAnimatedGIF;
-@property (nonatomic) NSString *imageType;
+@property (nullable, nonatomic) NSString *imageType;
 
 @end
 
