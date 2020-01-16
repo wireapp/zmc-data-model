@@ -140,12 +140,12 @@ static NSString *const ParticipantRolesKey = @"participantRoles";
 
 @interface ZMUser ()
 
-@property (nullable, nonatomic) NSString *normalizedName;
+@property (nonatomic) NSString *normalizedName;
 @property (nonatomic, copy) NSString *name;
 @property (nonatomic) ZMAccentColor accentColorValue;
 @property (nonatomic, copy) NSString *emailAddress;
 @property (nonatomic, copy) NSString *phoneNumber;
-@property (nullable, nonatomic, copy) NSString *normalizedEmailAddress;
+@property (nonatomic, copy) NSString *normalizedEmailAddress;
 @property (nullable, nonatomic) NSString *managedBy;
 @property (nonatomic, readonly) UserClient *selfClient;
 
