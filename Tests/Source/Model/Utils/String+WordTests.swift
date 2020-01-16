@@ -1,6 +1,6 @@
 //
 // Wire
-// Copyright (C) 2019 Wire Swiss GmbH
+// Copyright (C) 2020 Wire Swiss GmbH
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -16,17 +16,30 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-import Foundation
+import XCTest
+@testable import WireDataModel
 
-public extension UserType {
-
-    func canManagedGroupRole(of user: UserType, conversation: ZMConversation) -> Bool {
-        guard isAdminGroup(conversation: conversation) else { return false }
-        return !user.isSelfUser && (user.isConnected || isOnSameTeam(otherUser: user))
+final class StringWordsTests: XCTestCase {
+    
+    func testThatSentenceIsSplitted() {
+        //given
+        let sut = "once upon a time"
+        
+        //when
+        let words = sut.words
+        
+        //then
+        XCTAssertEqual(words, ["once", "upon", "a", "time"])
     }
-
-    func isAdminGroup(conversation: ZMConversation) -> Bool {
-        return role(in: conversation)?.name == ZMConversation.defaultAdminRoleName
+    
+    func testThatSingleSymbolIsSplittedAsAWord() {
+        //given
+        let sut = "@"
+        
+        //when
+        let words = sut.words
+        
+        //then
+        XCTAssertEqual(words, ["@"])
     }
-
 }
