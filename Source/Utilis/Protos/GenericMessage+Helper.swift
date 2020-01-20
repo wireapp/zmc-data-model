@@ -183,10 +183,10 @@ extension Text: EphemeralMessageCapable {
 
 extension WireProtos.Reaction: MessageCapable {
     
-    init(emoji: String, messageID: String) {
+    init(emoji: String, messageID: UUID) {
         self = WireProtos.Reaction.with({
             $0.emoji = emoji
-            $0.messageID = messageID
+            $0.messageID = messageID.transportString()
         })
     }
     
@@ -206,10 +206,10 @@ extension WireProtos.Reaction: MessageCapable {
 
 extension LastRead: MessageCapable {
     
-    init(conversationID: String, lastReadTimestamp: Int64) {
+    init(conversationID: UUID, lastReadTimestamp: Date) {
         self = LastRead.with {
-            $0.conversationID = conversationID
-            $0.lastReadTimestamp = lastReadTimestamp
+            $0.conversationID = conversationID.transportString()
+            $0.lastReadTimestamp = Int64(lastReadTimestamp.timeIntervalSince1970 * 1000)
         }
     }
     

@@ -51,7 +51,7 @@ extension ZMConversation {
               convID != ZMConversation.selfConversationIdentifier(in: moc)
             else { return nil }
         
-        let lastRead = LastRead(conversationID: convID.transportString(), lastReadTimestamp: Int64(lastReadTimeStamp.timeIntervalSince1970 * 1000))
+        let lastRead = LastRead(conversationID: convID, lastReadTimestamp: lastReadTimeStamp)
         let genericMessage = GenericMessage.message(content: lastRead, nonce: nonce)
         let selfConversation = ZMConversation.selfConversation(in: moc)
         
