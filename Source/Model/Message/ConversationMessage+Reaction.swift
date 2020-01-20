@@ -60,27 +60,25 @@ extension ZMMessage {
     @objc public func addReaction(_ unicodeValue: String?, forUser user:ZMUser) {
         removeReaction(forUser:user)
         if let unicodeValue = unicodeValue , unicodeValue.count > 0 {
-            for reaction in self.reactions {
-                if reaction.unicodeValue! == unicodeValue {
-                    reaction.mutableSetValue(forKey: ZMReactionUsersValueKey).add(user)
-                    return
-                }
+            guard let reaction = self.reactions.first(where: {$0.unicodeValue! == unicodeValue}) else {
+                
+                //we didn't find a reaction, need to add a new one
+                let newReaction = Reaction.insertReaction(unicodeValue, users: [user], inMessage: self)
+                self.mutableSetValue(forKey: "reactions").add(newReaction)
+                updateCategoryCache()
+                return
             }
-            
-            //we didn't find a reaction, need to add a new one
-            let newReaction = Reaction.insertReaction(unicodeValue, users: [user], inMessage: self)
-            self.mutableSetValue(forKey: "reactions").add(newReaction)
+            reaction.mutableSetValue(forKey: ZMReactionUsersValueKey).add(user)
+            return
         }
         updateCategoryCache()
     }
     
     fileprivate func removeReaction(forUser user: ZMUser) {
-        for reaction in self.reactions {
-            if reaction.users.contains(user) {
-                reaction.mutableSetValue(forKey: ZMReactionUsersValueKey).remove(user)
-                break;
-            }
+        guard let reaction = self.reactions.first(where: {$0.users.contains(user)}) else {
+            return;
         }
+        reaction.mutableSetValue(forKey: ZMReactionUsersValueKey).remove(user)
     }
 
     @objc public func clearAllReactions() {
