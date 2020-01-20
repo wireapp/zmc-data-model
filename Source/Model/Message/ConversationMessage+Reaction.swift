@@ -62,7 +62,7 @@ extension ZMMessage {
         if let unicodeValue = unicodeValue , unicodeValue.count > 0 {
             guard let reaction = self.reactions.first(where: {$0.unicodeValue! == unicodeValue}) else {
                 
-                //we didn't find a reaction, need to add a new one
+                // we didn't find a reaction, need to add a new one
                 let newReaction = Reaction.insertReaction(unicodeValue, users: [user], inMessage: self)
                 self.mutableSetValue(forKey: "reactions").add(newReaction)
                 updateCategoryCache()
