@@ -59,19 +59,20 @@ extension ZMMessage {
     
     @objc public func addReaction(_ unicodeValue: String?, forUser user:ZMUser) {
         removeReaction(forUser:user)
-        if let unicodeValue = unicodeValue , unicodeValue.count > 0 {
-            guard let reaction = self.reactions.first(where: {$0.unicodeValue! == unicodeValue}) else {
-                
-                // we didn't find a reaction, need to add a new one
-                let newReaction = Reaction.insertReaction(unicodeValue, users: [user], inMessage: self)
-                self.mutableSetValue(forKey: "reactions").add(newReaction)
+        guard let unicodeValue = unicodeValue,
+            unicodeValue.count > 0 else {
                 updateCategoryCache()
                 return
-            }
-            reaction.mutableSetValue(forKey: ZMReactionUsersValueKey).add(user)
+        }
+        
+        guard let reaction = self.reactions.first(where: {$0.unicodeValue! == unicodeValue}) else {
+            // we didn't find a reaction, need to add a new one
+            let newReaction = Reaction.insertReaction(unicodeValue, users: [user], inMessage: self)
+            self.mutableSetValue(forKey: "reactions").add(newReaction)
+            updateCategoryCache()
             return
         }
-        updateCategoryCache()
+        reaction.mutableSetValue(forKey: ZMReactionUsersValueKey).add(user)
     }
     
     fileprivate func removeReaction(forUser user: ZMUser) {
