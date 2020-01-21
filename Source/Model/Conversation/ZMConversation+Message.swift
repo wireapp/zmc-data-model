@@ -42,11 +42,11 @@ extension ZMConversation {
         return appendClientMessage(with: GenericMessage.message(content: Knock.with({ $0.hotKnock = false }), nonce: nonce, expiresAfter: messageDestructionTimeoutValue))
     }
     
-    @discardableResult @objc(appendSelfConversationWithLastReadOf:)
-    public static func appendSelfConversation(withLastReadOf conversation: ZMConversation) -> ZMClientMessage? {
-        guard let moc = conversation.managedObjectContext,
-              let lastReadTimeStamp = conversation.lastReadServerTimeStamp,
-              let convID = conversation.remoteIdentifier,
+    @discardableResult @objc(appendSelfConversationWithLastReadOfConversation:)
+    public static func appendSelfConversation(withLastReadOf theConversation: ZMConversation) -> ZMClientMessage? {
+        guard let moc = theConversation.managedObjectContext,
+              let lastReadTimeStamp = theConversation.lastReadServerTimeStamp,
+              let convID = theConversation.remoteIdentifier,
               convID != ZMConversation.selfConversationIdentifier(in: moc)
             else { return nil }
         
