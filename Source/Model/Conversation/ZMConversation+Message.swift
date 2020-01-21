@@ -43,7 +43,7 @@ extension ZMConversation {
     }
     
     @discardableResult @objc(appendSelfConversationWithLastReadOf:nonce:)
-    static func appendSelfConversation(withLastReadOf conversation: ZMConversation,
+    public static func appendSelfConversation(withLastReadOf conversation: ZMConversation,
                                        nonce: UUID = UUID()) -> ZMClientMessage? {
         guard let moc = conversation.managedObjectContext,
               let lastReadTimeStamp = conversation.lastReadServerTimeStamp,
