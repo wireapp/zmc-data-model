@@ -182,7 +182,7 @@ extension UserChangeInfo {
 
     // MARK: Registering UserType
 
-    /// Adds an observer for the ZMUser or ZMSearchUser. You must hold on to the token and use it to unregister.
+    /// Adds an observer for a user conforming to UserType. You must hold on to the token and use it to unregister.
     ///
     @objc(addObserver:forUser:inManagedObjectContext:)
     public static func add(observer: ZMUserObserver, for user: UserType, in managedObjectContext: NSManagedObjectContext) -> NSObjectProtocol? {
