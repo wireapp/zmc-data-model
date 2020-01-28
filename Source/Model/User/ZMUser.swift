@@ -48,7 +48,7 @@ extension ZMUser: UserType {
         guard let selfUser = managedObjectContext.map(ZMUser.selfUser) else {
             return false
         }
-        return self.isTrusted && selfUser.isTrusted
+        return isTrusted && selfUser.isTrusted && !clients.isEmpty
     }
 
     // MARK: - Conversation Roles
