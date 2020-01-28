@@ -658,7 +658,7 @@ extension ZMConversation {
               isSelfAnActiveMember else { return false }
         
         let hasOnlyTrustedUsers = localParticipants.first {
-            !$0.isTrusted
+            !$0.isTrusted || $0.clients.isEmpty
         } == nil
         
         return hasOnlyTrustedUsers && !containsUnconnectedOrExternalParticipant
@@ -688,7 +688,7 @@ extension ZMConversation {
     
     /// If true the conversation might still be trusted / ignored
     @objc public var hasUntrustedClients : Bool {
-        return self.localParticipants.first { !$0.isTrusted } != nil
+        return self.localParticipants.first { !$0.isTrusted } != nil 
     }
 }
 
