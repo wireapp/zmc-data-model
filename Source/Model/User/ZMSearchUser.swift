@@ -217,12 +217,7 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
     }
     
     public var isVerified: Bool {
-        guard let user = user,
-            let selfUser = contextProvider?.managedObjectContext.map(ZMUser.selfUser) else {
-                return false
-        }
-        
-        return user.trusted() && selfUser.trusted()
+        return user?.isVerified != false
     }
     
     public var managedByWire: Bool {
