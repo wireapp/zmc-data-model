@@ -337,7 +337,7 @@ extension ZMUser {
         
         return !hasUntrustedClients
     }
-    
+
 //    @objc
 //    public func untrusted() -> Bool {
 //        let selfUser = managedObjectContext.map(ZMUser.selfUser)
