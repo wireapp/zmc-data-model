@@ -327,7 +327,7 @@ extension ZMUser {
     
     @objc
     public func trusted() -> Bool {
-        if self.clients.count == 0 {
+        if self.clients.isEmpty {
             return false
         }
 
@@ -349,4 +349,3 @@ extension ZMUser {
         return hasUntrustedClients
     }
 }
-
