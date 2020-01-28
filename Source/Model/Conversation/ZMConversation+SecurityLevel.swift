@@ -688,7 +688,7 @@ extension ZMConversation {
     
     /// If true the conversation might still be trusted / ignored
     @objc public var hasUntrustedClients : Bool {
-        return self.localParticipants.first { !$0.isTrusted } != nil 
+        return self.localParticipants.contains { !$0.isTrusted }
     }
 }
 
