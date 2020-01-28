@@ -727,14 +727,14 @@ extension ZMUserTests {
         let selfUser = ZMUser.selfUser(in: uiMOC)
         
         // WHEN
-        XCTAssert(user.trusted())
-        XCTAssert(selfUser.trusted())
+        XCTAssertTrue(user.trusted())
+        XCTAssertTrue(selfUser.trusted())
         
         // THEN
-        XCTAssert(user.verified)
+        XCTAssertTrue(user.isVerified)
     }
     
-    func testThatUserIsNotVerified() {
+    func testThatUserIsNotVerified_WhenSelfUserIsNotTrustedButUserIsTrusted() {
         // GIVEN
         let user: ZMUser = self.userWithClients(count: 2, trusted: true)
         let selfUser = ZMUser.selfUser(in: uiMOC)
@@ -746,9 +746,9 @@ extension ZMUserTests {
         selfClient?.ignoreClient(newClient)
         
         // THEN
-        XCTAssert(user.trusted())
+        XCTAssertTrue(user.trusted())
         XCTAssertFalse(selfUser.trusted())
-        XCTAssertFalse(user.verified)
+        XCTAssertFalse(user.isVerified)
     }
     
     @objc(userWithClients:trusted:)

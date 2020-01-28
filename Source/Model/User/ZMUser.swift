@@ -44,7 +44,7 @@ extension ZMUser: UserType {
         return Set(self.participantRoles.compactMap {$0.conversation})
     }
     
-    public var verified: Bool {
+    public var isVerified: Bool {
         guard let selfUser = managedObjectContext.map(ZMUser.selfUser) else {
             return false
         }
@@ -330,22 +330,20 @@ extension ZMUser {
         if self.clients.isEmpty {
             return false
         }
-
+        
         let selfUser = managedObjectContext.map(ZMUser.selfUser)
         let selfClient = selfUser?.selfClient()
-        let untrustedClient = self.clients.first(where: { ($0 != selfClient) && !(selfClient?.trustedClients.contains($0) ?? false) })
-        let hasOnlyTrustedClients = (untrustedClient == nil)
+        let hasUntrustedClients = self.clients.contains(where: { ($0 != selfClient) && !(selfClient?.trustedClients.contains($0) ?? false) })
         
-        return hasOnlyTrustedClients
+        return !hasUntrustedClients
     }
     
     @objc
     public func untrusted() -> Bool {
         let selfUser = managedObjectContext.map(ZMUser.selfUser)
         let selfClient = selfUser?.selfClient()
-        let untrustedClient = self.clients.first(where: { ($0 != selfClient) && !(selfClient?.trustedClients.contains($0) ?? false) })
-        let hasUntrustedClients = (untrustedClient != nil)
-        
+        let hasUntrustedClients = self.clients.contains(where: { ($0 != selfClient) && !(selfClient?.trustedClients.contains($0) ?? false) })
+
         return hasUntrustedClients
     }
 }

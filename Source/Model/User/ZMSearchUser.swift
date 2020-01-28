@@ -216,7 +216,7 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         return user?.allClients ?? []
     }
     
-    public var verified: Bool {
+    public var isVerified: Bool {
         guard let user = user,
             let selfUser = contextProvider?.managedObjectContext.map(ZMUser.selfUser) else {
                 return false
