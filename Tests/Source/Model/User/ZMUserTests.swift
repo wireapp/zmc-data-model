@@ -721,7 +721,7 @@ extension ZMUserTests {
 // MARK: - Verifying user
 extension ZMUserTests {
     
-    func testThatUserIsVerified() {
+    func testThatUserIsVerified_WhenSelfUserAndUserIsTrusted() {
         // GIVEN
         let user: ZMUser = self.userWithClients(count: 2, trusted: true)
         let selfUser = ZMUser.selfUser(in: uiMOC)
