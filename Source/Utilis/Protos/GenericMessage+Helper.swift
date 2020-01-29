@@ -156,10 +156,11 @@ extension Knock: EphemeralMessageCapable {
 
 extension Text: EphemeralMessageCapable {
     
-    init(content: String, mentions: [Mention], replyingTo: ZMOTRMessage?) {
+    init(content: String, mentions: [Mention], linkPreviews: [LinkPreview], replyingTo: ZMOTRMessage?) {
         self = Text.with {
             $0.content = content
             $0.mentions = mentions.compactMap { WireProtos.Mention($0) }
+            $0.linkPreview = linkPreviews.compactMap { $0 }
             
             if let quotedMessage = replyingTo,
                let quotedMessageNonce = quotedMessage.nonce,
