@@ -156,7 +156,7 @@ extension Knock: EphemeralMessageCapable {
 
 extension Text: EphemeralMessageCapable {
     
-    init(content: String, mentions: [Mention], linkPreviews: [LinkPreview], replyingTo: ZMOTRMessage?) {
+    public init(content: String, mentions: [Mention], linkPreviews: [LinkPreview], replyingTo: ZMOTRMessage?) {
         self = Text.with {
             $0.content = content
             $0.mentions = mentions.compactMap { WireProtos.Mention($0) }
