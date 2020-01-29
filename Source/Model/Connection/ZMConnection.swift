@@ -19,6 +19,7 @@
 import Foundation
 
 extension ZMConnection {
+    @objc(connectionsInMangedObjectContext:)
     class func connections(inMangedObjectContext moc: NSManagedObjectContext) -> [NSFetchRequestResult] {
         guard let request = sortedFetchRequest() else { return [] }
         
