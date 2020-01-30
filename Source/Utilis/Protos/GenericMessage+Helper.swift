@@ -160,7 +160,7 @@ extension Text: EphemeralMessageCapable {
         self = Text.with {
             $0.content = content
             $0.mentions = mentions.compactMap { WireProtos.Mention($0) }
-            $0.linkPreview = linkPreviews.compactMap { $0 }
+            $0.linkPreview = linkPreviews
             
             if let quotedMessage = replyingTo,
                let quotedMessageNonce = quotedMessage.nonce,
@@ -370,28 +370,6 @@ public extension LinkPreview {
             
             guard let author = twitterMetadata.author,
                 let username = twitterMetadata.username else { return }
-            
-            $0.tweet = WireProtos.Tweet.with({
-                $0.author = author
-                $0.username = username
-            })
-        }
-    }
-    
-    init(originalURL: String, permanentURL: String, offset: Int32,title: String, summary: String, imageData: Data?, author: String?, username: String?) {
-        
-        self = LinkPreview.with {
-            $0.url = originalURL
-            $0.permanentURL = permanentURL
-            $0.urlOffset = offset
-            $0.title = title
-            $0.summary = summary
-            if let imageData = imageData {
-                $0.image = WireProtos.Asset(imageSize: CGSize(width: 0, height: 0), mimeType: "image/jpeg", size: UInt64(imageData.count))
-            }
-            
-            guard let author = author,
-                let username = username else { return }
             
             $0.tweet = WireProtos.Tweet.with({
                 $0.author = author
