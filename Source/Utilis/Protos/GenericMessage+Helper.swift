@@ -328,3 +328,75 @@ extension WireProtos.Mention {
     }
     
 }
+
+public extension LinkPreview {
+
+    init(linkMetadata: LinkMetadata) {
+        if let articleMetadata = linkMetadata as? ArticleMetadata {
+            self = LinkPreview(articleMetadata: articleMetadata)
+        } else if let twitterMetadata = linkMetadata as? TwitterStatusMetadata {
+            self = LinkPreview(twitterMetadata: twitterMetadata)
+        } else {
+            self = LinkPreview.with {
+                $0.url = linkMetadata.originalURLString
+                $0.permanentURL = linkMetadata.permanentURL?.absoluteString ?? linkMetadata.resolvedURL?.absoluteString ?? linkMetadata.originalURLString
+                $0.urlOffset = Int32(linkMetadata.characterOffsetInText)
+            }
+        }
+    }
+    
+    init(articleMetadata: ArticleMetadata) {
+        self = LinkPreview.with {
+            $0.url = articleMetadata.originalURLString
+            $0.permanentURL = articleMetadata.permanentURL?.absoluteString ?? articleMetadata.resolvedURL?.absoluteString ?? articleMetadata.originalURLString
+            $0.urlOffset = Int32(articleMetadata.characterOffsetInText)
+            $0.title = articleMetadata.title ?? ""
+            $0.summary = articleMetadata.summary ?? ""
+            if let imageData = articleMetadata.imageData.first {
+                $0.image = WireProtos.Asset(imageSize: CGSize(width: 0, height: 0), mimeType: "image/jpeg", size: UInt64(imageData.count))
+            }
+        }
+    }
+    
+    init(twitterMetadata: TwitterStatusMetadata) {
+        self = LinkPreview.with {
+            $0.url = twitterMetadata.originalURLString
+            $0.permanentURL = twitterMetadata.permanentURL?.absoluteString ?? twitterMetadata.resolvedURL?.absoluteString ?? twitterMetadata.originalURLString
+            $0.urlOffset = Int32(twitterMetadata.characterOffsetInText)
+            $0.title = twitterMetadata.message ?? ""
+            if let imageData = twitterMetadata.imageData.first {
+                $0.image = WireProtos.Asset(imageSize: CGSize(width: 0, height: 0), mimeType: "image/jpeg", size: UInt64(imageData.count))
+            }
+            
+            guard let author = twitterMetadata.author,
+                let username = twitterMetadata.username else { return }
+            
+            $0.tweet = WireProtos.Tweet.with({
+                $0.author = author
+                $0.username = username
+            })
+        }
+    }
+    
+    init(originalURL: String, permanentURL: String, offset: Int32,title: String, summary: String, imageData: Data?, author: String?, username: String?) {
+        
+        self = LinkPreview.with {
+            $0.url = originalURL
+            $0.permanentURL = permanentURL
+            $0.urlOffset = offset
+            $0.title = title
+            $0.summary = summary
+            if let imageData = imageData {
+                $0.image = WireProtos.Asset(imageSize: CGSize(width: 0, height: 0), mimeType: "image/jpeg", size: UInt64(imageData.count))
+            }
+            
+            guard let author = author,
+                let username = username else { return }
+            
+            $0.tweet = WireProtos.Tweet.with({
+                $0.author = author
+                $0.username = username
+            })
+        }
+    }
+}
