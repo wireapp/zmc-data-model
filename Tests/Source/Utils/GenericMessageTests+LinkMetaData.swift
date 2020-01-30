@@ -83,7 +83,7 @@ class GenericMessageTests_LinkMetaData: BaseZMMessageTests {
         
         preview.author = "Author"
         preview.message = name
-        let text = Text(content: "Text", mentions: [], linkPreviews: [LinkPreview(linkMetadata: preview)], replyingTo: nil)
+        let text = Text(content: "Text", mentions: [], linkPreviews: [preview], replyingTo: nil)
         let genericMessage = GenericMessage.message(content: text, nonce: nonce, expiresAfter: nil)
         do {
             clientMessage.add(try genericMessage.serializedData())
@@ -113,7 +113,7 @@ class GenericMessageTests_LinkMetaData: BaseZMMessageTests {
         article.title = "title"
         article.summary = "summary"
         
-        let text = Text(content: "sample text", mentions: [], linkPreviews: [LinkPreview(linkMetadata: article)], replyingTo: nil)
+        let text = Text(content: "sample text", mentions: [], linkPreviews: [article], replyingTo: nil)
         let genericMessage = GenericMessage.message(content: text, nonce: nonce, expiresAfter: nil)
         do {
             clientMessage.add(try genericMessage.serializedData())
