@@ -385,9 +385,22 @@ struct CacheAsset: Asset {
     }
     
     func updateWithAssetId(_ assetId: String, token: String?) {
-        guard let genericMessage = owner.genericMessage else { return }
+        //        guard let genericMessage = owner.genericMessage else { return }
         
-        var updatedGenericMessage: ZMGenericMessage
+        guard let keys = cache.encryptFileAndComputeSHA256Digest(owner) else { return }
+        let asset = WireProtos.Asset(otrKey: keys.otrKey, sha256: keys.sha256!)
+        
+        let genericMessage = GenericMessage.message(content: asset, nonce: owner.nonce ?? UUID(), expiresAfter: owner.deletionTimeout)
+        
+        //        var updatedGenericMessage: ZMGenericMessage
+        //        switch type {
+        //        case .thumbnail:
+        //            updatedGenericMessage = genericMessage.updatedPreview(withAssetId: assetId, token: token)!
+        //        case .image, .file:
+        //            updatedGenericMessage = genericMessage.updatedUploaded(withAssetId: assetId, token: token)!
+        //        }
+        
+        var updatedGenericMessage: GenericMessage
         switch type {
         case .thumbnail:
             updatedGenericMessage = genericMessage.updatedPreview(withAssetId: assetId, token: token)!
@@ -395,7 +408,12 @@ struct CacheAsset: Asset {
             updatedGenericMessage = genericMessage.updatedUploaded(withAssetId: assetId, token: token)!
         }
         
-        owner.add(updatedGenericMessage)
+//        owner.add(updatedGenericMessage)
+        do {
+            _ = owner.mergeWithExistingData(data: try updatedGenericMessage.serializedData())
+        } catch {
+            return
+        }
         
         // Now that we've stored the assetId when can safely delete the encrypted data
         switch type {

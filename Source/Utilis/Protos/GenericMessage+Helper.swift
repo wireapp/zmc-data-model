@@ -86,6 +86,22 @@ extension GenericMessage {
         }        
     }
 
+    var assetData: WireProtos.Asset? {
+        guard let content = content else { return nil }
+        switch content {
+        case .asset(let data):
+            return data
+        case .ephemeral(let data):
+            switch data.content {
+            case .asset(let data)?:
+                return data
+            default:
+                return nil
+            }
+        default:
+            return nil
+        }
+    }
 }
 
 extension Ephemeral: MessageCapable {
@@ -329,6 +345,15 @@ extension WireProtos.Asset: EphemeralMessageCapable {
         })
     }
     
+    init(otrKey: Data, sha256: Data) {
+        self = WireProtos.Asset.with({
+            $0.uploaded = WireProtos.Asset.RemoteData.with({
+                $0.otrKey = otrKey
+                $0.sha256 = sha256
+            })
+        })
+    }
+    
     public func setEphemeralContent(on ephemeral: inout Ephemeral) {
         ephemeral.asset = self
     }
@@ -399,5 +424,96 @@ public extension LinkPreview {
                 $0.username = username
             })
         }
+    }
+}
+
+extension WireProtos.Asset.RemoteData {
+    
+    public func updated(withId assetId: String, token: String?) -> WireProtos.Asset.RemoteData {
+        return WireProtos.Asset.RemoteData.with {
+            $0.assetID = assetId
+            if let token = token {
+                $0.assetToken = token
+            }
+        }
+    }
+}
+
+extension GenericMessage {
+    
+    public func updatedPreview(withAssetId assetId: String, token: String?) -> GenericMessage? {
+        guard let asset = assetData, asset.preview.hasRemote else { return nil }
+        
+        let preview = asset.preview
+        let remote = preview.remote
+        let newRemote = remote.updated(withId: assetId, token: token)
+        return GenericMessage.with() {
+            guard let content = content else { return }
+            switch content {
+            case .asset(let data):
+                $0.asset = data
+                $0.asset.preview = preview
+                $0.asset.preview.remote = newRemote
+            case .ephemeral(let data):
+                let ephemeral = data
+                switch data.content {
+                case .asset(let data)?:
+                    $0.ephemeral = ephemeral
+                    $0.ephemeral.asset = data
+                    $0.ephemeral.asset.preview = preview
+                    $0.ephemeral.asset.preview.remote = newRemote
+                default:
+                    return
+                }
+            default:
+                return
+            }
+        }
+    }
+    
+    public func updatedUploaded(withAssetId assetId: String, token: String?) -> GenericMessage? {
+        guard let asset = assetData, asset.uploaded.hasAssetID else { return nil }
+        
+        let remote = asset.uploaded
+        let newRemote = remote.updated(withId: assetId, token: token)
+        return GenericMessage.with() {
+            guard let content = content else { return }
+            switch content {
+            case .asset(let data):
+                $0.asset = data
+                $0.asset.preview.remote = newRemote
+            case .ephemeral(let data):
+                let ephemeral = data
+                switch data.content {
+                case .asset(let data)?:
+                    $0.ephemeral = ephemeral
+                    $0.ephemeral.asset = data
+                    $0.ephemeral.asset.preview.remote = newRemote
+                default:
+                    return
+                }
+            default:
+                return
+            }
+            
+        }
+    }
+}
+
+extension WireProtos.Text {
+    
+    public func validatingFields() -> Text? {
+        let validMentions = mentions.compactMap { $0.validatingFields() }
+        guard validMentions.count == mentions.count else { return nil }
+        
+        return self
+    }
+}
+
+extension WireProtos.Mention {
+    
+    public func validatingFields() -> WireProtos.Mention? {
+        guard UUID.isValid(object: self.userID) else { return nil }
+        return self
     }
 }
