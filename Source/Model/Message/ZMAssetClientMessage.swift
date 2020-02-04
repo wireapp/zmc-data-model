@@ -387,9 +387,10 @@ struct CacheAsset: Asset {
     func updateWithAssetId(_ assetId: String, token: String?) {
         //        guard let genericMessage = owner.genericMessage else { return }
         
-        guard let keys = cache.encryptFileAndComputeSHA256Digest(owner) else { return }
-        let asset = WireProtos.Asset(otrKey: keys.otrKey, sha256: keys.sha256!)
-        
+        guard let assetOriginal = owner.genericMessage?.asset.original else { return }
+        let imageMetaData = WireProtos.Asset.ImageMetaData(width: assetOriginal.image.width, height: assetOriginal.image.height)
+        let original = WireProtos.Asset.Original(size: assetOriginal.size, mimeType: assetOriginal.mimeType, name: assetOriginal.name, imageMetaData: imageMetaData)
+        let asset = WireProtos.Asset(original: original)
         let genericMessage = GenericMessage.message(content: asset, nonce: owner.nonce ?? UUID(), expiresAfter: owner.deletionTimeout)
         
         //        var updatedGenericMessage: ZMGenericMessage
@@ -399,7 +400,8 @@ struct CacheAsset: Asset {
         //        case .image, .file:
         //            updatedGenericMessage = genericMessage.updatedUploaded(withAssetId: assetId, token: token)!
         //        }
-        
+        //        owner.add(updatedGenericMessage)
+
         var updatedGenericMessage: GenericMessage
         switch type {
         case .thumbnail:
@@ -408,7 +410,6 @@ struct CacheAsset: Asset {
             updatedGenericMessage = genericMessage.updatedUploaded(withAssetId: assetId, token: token)!
         }
         
-//        owner.add(updatedGenericMessage)
         do {
             _ = owner.mergeWithExistingData(data: try updatedGenericMessage.serializedData())
         } catch {

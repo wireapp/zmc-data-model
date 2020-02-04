@@ -345,12 +345,9 @@ extension WireProtos.Asset: EphemeralMessageCapable {
         })
     }
     
-    init(otrKey: Data, sha256: Data) {
+    init(original: WireProtos.Asset.Original) {
         self = WireProtos.Asset.with({
-            $0.uploaded = WireProtos.Asset.RemoteData.with({
-                $0.otrKey = otrKey
-                $0.sha256 = sha256
-            })
+            $0.original = original
         })
     }
     
@@ -360,6 +357,30 @@ extension WireProtos.Asset: EphemeralMessageCapable {
     
     public func setContent(on message: inout GenericMessage) {
         message.asset = self
+    }
+}
+
+extension WireProtos.Asset.Original {
+    
+    init(size: UInt64, mimeType: String, name: String?, imageMetaData: WireProtos.Asset.ImageMetaData?) {
+        self = WireProtos.Asset.Original.with({
+            $0.size = size
+            $0.mimeType = mimeType
+            $0.name = name ?? ""
+            if let imageMetaData = imageMetaData {
+                $0.image = imageMetaData
+            }
+        })
+    }
+}
+
+extension WireProtos.Asset.ImageMetaData {
+    
+    init(width: Int32, height: Int32) {
+        self = WireProtos.Asset.ImageMetaData.with({
+            $0.width = width
+            $0.height = height
+        })
     }
 }
 
@@ -429,13 +450,17 @@ public extension LinkPreview {
 
 extension WireProtos.Asset.RemoteData {
     
-    public func updated(withId assetId: String, token: String?) -> WireProtos.Asset.RemoteData {
-        return WireProtos.Asset.RemoteData.with {
+    init(assetId: String, token: String?) {
+        self = WireProtos.Asset.RemoteData.with {
             $0.assetID = assetId
             if let token = token {
                 $0.assetToken = token
             }
         }
+    }
+    
+    public func updated(withId assetId: String, token: String?) -> WireProtos.Asset.RemoteData {
+        return WireProtos.Asset.RemoteData(assetId: assetId, token: token)
     }
 }
 
@@ -495,25 +520,24 @@ extension GenericMessage {
             default:
                 return
             }
-            
         }
     }
 }
 
-extension WireProtos.Text {
-    
-    public func validatingFields() -> Text? {
-        let validMentions = mentions.compactMap { $0.validatingFields() }
-        guard validMentions.count == mentions.count else { return nil }
-        
-        return self
-    }
-}
-
-extension WireProtos.Mention {
-    
-    public func validatingFields() -> WireProtos.Mention? {
-        guard UUID.isValid(object: self.userID) else { return nil }
-        return self
-    }
-}
+//extension WireProtos.Text {
+//
+//    public func validatingFields() -> Text? {
+//        let validMentions = mentions.compactMap { $0.validatingFields() }
+//        guard validMentions.count == mentions.count else { return nil }
+//
+//        return self
+//    }
+//}
+//
+//extension WireProtos.Mention {
+//
+//    public func validatingFields() -> WireProtos.Mention? {
+//        guard UUID.isValid(object: self.userID) else { return nil }
+//        return self
+//    }
+//}
