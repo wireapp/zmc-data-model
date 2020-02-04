@@ -47,10 +47,6 @@ extension ZMAssetClientMessage {
         return genericAssetMessage
     }
     
-    public var underlyingMessage: GenericMessage? {
-        return underlyingAssetMessage
-    }
-    
     /// The generic asset message that is constructed by merging
     /// all generic messages from the dataset that contain an asset
     public var genericAssetMessage: ZMGenericMessage? {
@@ -64,7 +60,7 @@ extension ZMAssetClientMessage {
         return self.cachedGenericAssetMessage
     }
     
-    public var underlyingAssetMessage: GenericMessage? {
+    public var underlyingMessage: GenericMessage? {
         guard !isZombieObject else { return nil }
         
         if self.cachedUnderlyingAssetMessage == nil {

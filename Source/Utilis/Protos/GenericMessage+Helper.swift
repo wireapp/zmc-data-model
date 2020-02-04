@@ -420,18 +420,48 @@ public extension LinkPreview {
 extension GenericMessage {
     
     public mutating func updatedPreview(withAssetId assetId: String, token: String?) {
-        self.asset.preview.remote.assetID = assetId
-        
-        if let token = token {
-            self.asset.preview.remote.assetToken = token
+        guard let content = content else { return }
+        switch content {
+        case .asset:
+            self.asset.preview.remote.assetID = assetId
+            if let token = token {
+                self.asset.preview.remote.assetToken = token
+            }
+        case .ephemeral(let data):
+            switch data.content {
+            case .asset?:
+                self.ephemeral.asset.preview.remote.assetID = assetId
+                if let token = token {
+                    self.ephemeral.asset.preview.remote.assetToken = token
+                }
+            default:
+                return
+            }
+        default:
+            return
         }
     }
     
     public mutating func updatedUploaded(withAssetId assetId: String, token: String?) {
-        self.asset.uploaded.assetID = assetId
-        
-        if let token = token {
-            self.asset.uploaded.assetToken = token
+        guard let content = content else { return }
+        switch content {
+        case .asset:
+            self.asset.uploaded.assetID = assetId
+            if let token = token {
+                self.asset.uploaded.assetToken = token
+            }
+        case .ephemeral(let data):
+            switch data.content {
+            case .asset?:
+                self.ephemeral.asset.uploaded.assetID = assetId
+                if let token = token {
+                    self.ephemeral.asset.uploaded.assetToken = token
+                }
+            default:
+                return
+            }
+        default:
+            return
         }
     }
 }
