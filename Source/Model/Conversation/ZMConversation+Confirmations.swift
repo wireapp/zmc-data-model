@@ -34,9 +34,8 @@ extension ZMConversation {
         for messages in unreadMessagesNeedingConfirmation.partition(by: \.sender).values {
             guard !messages.isEmpty else { continue }
             
-            let confirmation = ZMConfirmation.confirm(messages: messages.compactMap(\.nonce), type: .READ)
-            
-            if let confirmationMessage = append(message: confirmation, hidden: true) {
+            let confirmation = Confirmation.confirm(messages: messages.compactMap(\.nonce), type: .read)
+            if let confirmation = confirmation, let confirmationMessage = append(message: confirmation, hidden: true) {
                 confirmationMessages.append(confirmationMessage)
             }
         }
@@ -64,7 +63,9 @@ extension ZMConversation {
         let deliveredMessages = messageObjects.filter { $0.conversation == self && $0.needsDeliveryConfirmation }.compactMap(\.nonce)
         
         guard deliveredMessages.count > 0 else { return nil }
-        return append(message: ZMConfirmation.confirm(messages: deliveredMessages, type: .DELIVERED), hidden: true)
+        
+        guard let confirmation =  Confirmation.confirm(messages: deliveredMessages, type: .delivered) else { return nil }
+        return append(message: confirmation, hidden: true)
     }
     
     @discardableResult @objc
