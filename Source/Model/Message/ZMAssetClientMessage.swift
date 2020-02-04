@@ -387,12 +387,6 @@ struct CacheAsset: Asset {
     func updateWithAssetId(_ assetId: String, token: String?) {
         //        guard let genericMessage = owner.genericMessage else { return }
         
-        guard let assetOriginal = owner.genericMessage?.asset.original else { return }
-        let imageMetaData = WireProtos.Asset.ImageMetaData(width: assetOriginal.image.width, height: assetOriginal.image.height)
-        let original = WireProtos.Asset.Original(size: assetOriginal.size, mimeType: assetOriginal.mimeType, name: assetOriginal.name, imageMetaData: imageMetaData)
-        let asset = WireProtos.Asset(original: original)
-        let genericMessage = GenericMessage.message(content: asset, nonce: owner.nonce ?? UUID(), expiresAfter: owner.deletionTimeout)
-        
         //        var updatedGenericMessage: ZMGenericMessage
         //        switch type {
         //        case .thumbnail:
@@ -401,7 +395,16 @@ struct CacheAsset: Asset {
         //            updatedGenericMessage = genericMessage.updatedUploaded(withAssetId: assetId, token: token)!
         //        }
         //        owner.add(updatedGenericMessage)
-
+        
+        guard let assetOriginal = owner.genericMessage?.asset.original else {
+            return
+        }
+        let imageMetaData = WireProtos.Asset.ImageMetaData(width: assetOriginal.image.width, height: assetOriginal.image.height)
+        let original = WireProtos.Asset.Original(size: assetOriginal.size, mimeType: assetOriginal.mimeType, name: assetOriginal.name, imageMetaData: imageMetaData)
+        let asset = WireProtos.Asset(original: original)
+        let genericMessage = GenericMessage.message(content: asset, nonce: owner.nonce ?? UUID(), expiresAfter: owner.deletionTimeout)
+        
+        
         var updatedGenericMessage: GenericMessage
         switch type {
         case .thumbnail:

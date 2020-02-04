@@ -467,7 +467,7 @@ extension WireProtos.Asset.RemoteData {
 extension GenericMessage {
     
     public func updatedPreview(withAssetId assetId: String, token: String?) -> GenericMessage? {
-        guard let asset = assetData, asset.preview.hasRemote else { return nil }
+        guard let asset = assetData/*, asset.preview.hasRemote*/ else { return nil }
         
         let preview = asset.preview
         let remote = preview.remote
@@ -497,7 +497,7 @@ extension GenericMessage {
     }
     
     public func updatedUploaded(withAssetId assetId: String, token: String?) -> GenericMessage? {
-        guard let asset = assetData, asset.uploaded.hasAssetID else { return nil }
+        guard let asset = assetData/*, asset.uploaded.hasAssetID*/ else { return nil }
         
         let remote = asset.uploaded
         let newRemote = remote.updated(withId: assetId, token: token)
@@ -523,21 +523,3 @@ extension GenericMessage {
         }
     }
 }
-
-//extension WireProtos.Text {
-//
-//    public func validatingFields() -> Text? {
-//        let validMentions = mentions.compactMap { $0.validatingFields() }
-//        guard validMentions.count == mentions.count else { return nil }
-//
-//        return self
-//    }
-//}
-//
-//extension WireProtos.Mention {
-//
-//    public func validatingFields() -> WireProtos.Mention? {
-//        guard UUID.isValid(object: self.userID) else { return nil }
-//        return self
-//    }
-//}
