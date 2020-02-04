@@ -24,6 +24,7 @@ import Foundation
 
     /// In memory cache
     var cachedGenericAssetMessage: ZMGenericMessage? = nil
+    var cachedUnderlyingAssetMessage: GenericMessage? = nil
     
     internal convenience init?(asset: WireProtos.Asset,
                                nonce: UUID,
@@ -385,36 +386,17 @@ struct CacheAsset: Asset {
     }
     
     func updateWithAssetId(_ assetId: String, token: String?) {
-        //        guard let genericMessage = owner.genericMessage else { return }
+        guard var genericMessage = owner.underlyingMessage else { return }
         
-        //        var updatedGenericMessage: ZMGenericMessage
-        //        switch type {
-        //        case .thumbnail:
-        //            updatedGenericMessage = genericMessage.updatedPreview(withAssetId: assetId, token: token)!
-        //        case .image, .file:
-        //            updatedGenericMessage = genericMessage.updatedUploaded(withAssetId: assetId, token: token)!
-        //        }
-        //        owner.add(updatedGenericMessage)
-        
-        guard let assetOriginal = owner.genericMessage?.asset.original else {
-            return
-        }
-        let imageMetaData = WireProtos.Asset.ImageMetaData(width: assetOriginal.image.width, height: assetOriginal.image.height)
-        let original = WireProtos.Asset.Original(size: assetOriginal.size, mimeType: assetOriginal.mimeType, name: assetOriginal.name, imageMetaData: imageMetaData)
-        let asset = WireProtos.Asset(original: original)
-        let genericMessage = GenericMessage.message(content: asset, nonce: owner.nonce ?? UUID(), expiresAfter: owner.deletionTimeout)
-        
-        
-        var updatedGenericMessage: GenericMessage
         switch type {
         case .thumbnail:
-            updatedGenericMessage = genericMessage.updatedPreview(withAssetId: assetId, token: token)!
+            genericMessage.updatedPreview(withAssetId: assetId, token: token)
         case .image, .file:
-            updatedGenericMessage = genericMessage.updatedUploaded(withAssetId: assetId, token: token)!
+            genericMessage.updatedUploaded(withAssetId: assetId, token: token)
         }
         
         do {
-            _ = owner.mergeWithExistingData(data: try updatedGenericMessage.serializedData())
+            _ = owner.mergeWithExistingData(data: try genericMessage.serializedData())
         } catch {
             return
         }

@@ -47,6 +47,10 @@ extension ZMAssetClientMessage {
         return genericAssetMessage
     }
     
+    public var underlyingMessage: GenericMessage? {
+        return underlyingAssetMessage
+    }
+    
     /// The generic asset message that is constructed by merging
     /// all generic messages from the dataset that contain an asset
     public var genericAssetMessage: ZMGenericMessage? {
@@ -58,6 +62,17 @@ extension ZMAssetClientMessage {
             })
         }
         return self.cachedGenericAssetMessage
+    }
+    
+    public var underlyingAssetMessage: GenericMessage? {
+        guard !isZombieObject else { return nil }
+        
+        if self.cachedUnderlyingAssetMessage == nil {
+            self.cachedUnderlyingAssetMessage = self.underlyingMessageMergedFromDataSet(filter: {
+                $0.assetData != nil
+            })
+        }
+        return self.cachedUnderlyingAssetMessage
     }
     
     public func add(_ genericMessage: ZMGenericMessage) {
@@ -105,6 +120,23 @@ extension ZMAssetClientMessage {
         let builder = ZMGenericMessage.builder()!
         filteredMessages.forEach { builder.merge(from: $0) }
         return builder.build()
+    }
+    
+    func underlyingMessageMergedFromDataSet(filter: (GenericMessage)->Bool) -> GenericMessage? {
+        let filteredData = self.dataSet
+            .compactMap { ($0 as? ZMGenericMessageData)?.underlyingMessage }
+            .filter(filter)
+            .compactMap { try? $0.serializedData() }
+        
+        guard !filteredData.isEmpty else {
+            return nil
+        }
+        
+        var message = GenericMessage()
+        filteredData.forEach {
+            try? message.merge(serializedData: $0)
+        }
+        return message
     }
     
     /// Returns the generic message for the given representation

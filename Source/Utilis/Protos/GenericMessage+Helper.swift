@@ -345,42 +345,12 @@ extension WireProtos.Asset: EphemeralMessageCapable {
         })
     }
     
-    init(original: WireProtos.Asset.Original) {
-        self = WireProtos.Asset.with({
-            $0.original = original
-        })
-    }
-    
     public func setEphemeralContent(on ephemeral: inout Ephemeral) {
         ephemeral.asset = self
     }
     
     public func setContent(on message: inout GenericMessage) {
         message.asset = self
-    }
-}
-
-extension WireProtos.Asset.Original {
-    
-    init(size: UInt64, mimeType: String, name: String?, imageMetaData: WireProtos.Asset.ImageMetaData?) {
-        self = WireProtos.Asset.Original.with({
-            $0.size = size
-            $0.mimeType = mimeType
-            $0.name = name ?? ""
-            if let imageMetaData = imageMetaData {
-                $0.image = imageMetaData
-            }
-        })
-    }
-}
-
-extension WireProtos.Asset.ImageMetaData {
-    
-    init(width: Int32, height: Int32) {
-        self = WireProtos.Asset.ImageMetaData.with({
-            $0.width = width
-            $0.height = height
-        })
     }
 }
 
@@ -395,7 +365,6 @@ extension WireProtos.Mention {
             $0.userID = userID
         }
     }
-    
 }
 
 public extension LinkPreview {
@@ -448,78 +417,21 @@ public extension LinkPreview {
     }
 }
 
-extension WireProtos.Asset.RemoteData {
-    
-    init(assetId: String, token: String?) {
-        self = WireProtos.Asset.RemoteData.with {
-            $0.assetID = assetId
-            if let token = token {
-                $0.assetToken = token
-            }
-        }
-    }
-    
-    public func updated(withId assetId: String, token: String?) -> WireProtos.Asset.RemoteData {
-        return WireProtos.Asset.RemoteData(assetId: assetId, token: token)
-    }
-}
-
 extension GenericMessage {
     
-    public func updatedPreview(withAssetId assetId: String, token: String?) -> GenericMessage? {
-        guard let asset = assetData/*, asset.preview.hasRemote*/ else { return nil }
+    public mutating func updatedPreview(withAssetId assetId: String, token: String?) {
+        self.asset.preview.remote.assetID = assetId
         
-        let preview = asset.preview
-        let remote = preview.remote
-        let newRemote = remote.updated(withId: assetId, token: token)
-        return GenericMessage.with() {
-            guard let content = content else { return }
-            switch content {
-            case .asset(let data):
-                $0.asset = data
-                $0.asset.preview = preview
-                $0.asset.preview.remote = newRemote
-            case .ephemeral(let data):
-                let ephemeral = data
-                switch data.content {
-                case .asset(let data)?:
-                    $0.ephemeral = ephemeral
-                    $0.ephemeral.asset = data
-                    $0.ephemeral.asset.preview = preview
-                    $0.ephemeral.asset.preview.remote = newRemote
-                default:
-                    return
-                }
-            default:
-                return
-            }
+        if let token = token {
+            self.asset.preview.remote.assetToken = token
         }
     }
     
-    public func updatedUploaded(withAssetId assetId: String, token: String?) -> GenericMessage? {
-        guard let asset = assetData/*, asset.uploaded.hasAssetID*/ else { return nil }
+    public mutating func updatedUploaded(withAssetId assetId: String, token: String?) {
+        self.asset.uploaded.assetID = assetId
         
-        let remote = asset.uploaded
-        let newRemote = remote.updated(withId: assetId, token: token)
-        return GenericMessage.with() {
-            guard let content = content else { return }
-            switch content {
-            case .asset(let data):
-                $0.asset = data
-                $0.asset.preview.remote = newRemote
-            case .ephemeral(let data):
-                let ephemeral = data
-                switch data.content {
-                case .asset(let data)?:
-                    $0.ephemeral = ephemeral
-                    $0.ephemeral.asset = data
-                    $0.ephemeral.asset.preview.remote = newRemote
-                default:
-                    return
-                }
-            default:
-                return
-            }
+        if let token = token {
+            self.asset.uploaded.assetToken = token
         }
     }
 }
