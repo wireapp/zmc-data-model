@@ -234,21 +234,25 @@ extension ZMAssetClientMessage {
     override public func awakeFromInsert() {
         super.awakeFromInsert()
         self.cachedGenericAssetMessage = nil
+        self.cachedUnderlyingAssetMessage = nil
     }
     
     override public func awakeFromFetch() {
         super.awakeFromFetch()
         self.cachedGenericAssetMessage = nil
+        self.cachedUnderlyingAssetMessage = nil
     }
     
     override public func awake(fromSnapshotEvents flags: NSSnapshotEventType) {
         super.awake(fromSnapshotEvents: flags)
         self.cachedGenericAssetMessage = nil
+        self.cachedUnderlyingAssetMessage = nil
     }
     
     override public func didTurnIntoFault() {
         super.didTurnIntoFault()
         self.cachedGenericAssetMessage = nil
+        self.cachedUnderlyingAssetMessage = nil
     }
     
     public override static func entityName() -> String {

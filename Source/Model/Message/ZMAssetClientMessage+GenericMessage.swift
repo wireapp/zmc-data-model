@@ -77,6 +77,7 @@ extension ZMAssetClientMessage {
     
     func mergeWithExistingData(data: Data) -> ZMGenericMessageData? {
         self.cachedGenericAssetMessage = nil
+        self.cachedUnderlyingAssetMessage = nil
         
         guard let genericMessage = ZMGenericMessageBuilder().merge(from: data).build() as? ZMGenericMessage else {
             return nil
