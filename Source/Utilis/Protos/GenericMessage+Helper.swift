@@ -354,6 +354,20 @@ extension WireProtos.Asset: EphemeralMessageCapable {
     }
 }
 
+extension WireProtos.Asset.Preview {
+    
+    init(size: UInt64, mimeType: String, remoteData: WireProtos.Asset.RemoteData?, imageMetadata: WireProtos.Asset.ImageMetaData) {
+        self = WireProtos.Asset.Preview.with({
+            $0.size = size
+            $0.mimeType = mimeType
+            $0.image = imageMetadata
+            if let remoteData = remoteData {
+                $0.remote = remoteData
+            }
+        })
+    }
+}
+
 extension WireProtos.Mention {
     
     init?(_ mention: WireDataModel.Mention) {
