@@ -115,9 +115,10 @@ NSString *const ZMConversationLastReadLocalTimestampKey = @"lastReadLocalTimesta
     NSPredicate *notSelfConversation = [NSPredicate predicateWithFormat:@"%K != %d", ZMConversationConversationTypeKey, ZMConversationTypeSelf];
     NSPredicate *notInvalidConversation = [NSPredicate predicateWithFormat:@"%K != %d", ZMConversationConversationTypeKey, ZMConversationTypeInvalid];
     NSPredicate *pendingConnection = [NSPredicate predicateWithFormat:@"%K != nil AND %K.status == %d", ZMConversationConnectionKey, ZMConversationConnectionKey, ZMConnectionStatusPending];
+    NSPredicate *notBlockedConnection = [NSPredicate predicateWithFormat:@"%K.status != %d", ZMConversationConnectionKey, ZMConnectionStatusBlocked];
     NSPredicate *acceptablePredicate = [NSCompoundPredicate orPredicateWithSubpredicates:@[pendingConnection, [self predicateForUnreadConversation]]];
     
-    return [NSCompoundPredicate andPredicateWithSubpredicates:@[notSelfConversation, notInvalidConversation, acceptablePredicate]];
+    return [NSCompoundPredicate andPredicateWithSubpredicates:@[notSelfConversation, notInvalidConversation, acceptablePredicate, notBlockedConnection]];
 }
 
 + (NSPredicate *)predicateForUnreadConversation
@@ -136,8 +137,9 @@ NSString *const ZMConversationLastReadLocalTimestampKey = @"lastReadLocalTimesta
 {
     NSPredicate *notSelfConversation = [NSPredicate predicateWithFormat:@"%K != %d", ZMConversationConversationTypeKey, ZMConversationTypeSelf];
     NSPredicate *notInvalidConversation = [NSPredicate predicateWithFormat:@"%K != %d", ZMConversationConversationTypeKey, ZMConversationTypeInvalid];
+    NSPredicate *notBlockedConnection = [NSPredicate predicateWithFormat:@"%K.status != %d", ZMConversationConnectionKey, ZMConnectionStatusBlocked];
     
-    return [NSCompoundPredicate andPredicateWithSubpredicates:@[notSelfConversation, notInvalidConversation, [self predicateForUnreadConversation]]];
+    return [NSCompoundPredicate andPredicateWithSubpredicates:@[notSelfConversation, notInvalidConversation, [self predicateForUnreadConversation], notBlockedConnection]];
 }
 
 - (void)setInternalEstimatedUnreadCount:(int64_t)internalEstimatedUnreadCount
