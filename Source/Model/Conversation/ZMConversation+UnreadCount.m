@@ -120,7 +120,7 @@ NSString *const ZMConversationLastReadLocalTimestampKey = @"lastReadLocalTimesta
     
     NSPredicate *notBlockedConnection = [NSPredicate predicateWithFormat:@"(%K == nil) OR (%K != nil AND %K.status != %d)", ZMConversationConnectionKey, ZMConversationConnectionKey, ZMConversationConnectionKey, ZMConnectionStatusBlocked];
     
-    return [NSCompoundPredicate andPredicateWithSubpredicates:@[notSelfConversation, notInvalidConversation, acceptablePredicate, notBlockedConnection]];
+    return [NSCompoundPredicate andPredicateWithSubpredicates:@[notSelfConversation, notInvalidConversation, notBlockedConnection, acceptablePredicate]];
 }
 
 + (NSPredicate *)predicateForUnreadConversation
@@ -142,7 +142,7 @@ NSString *const ZMConversationLastReadLocalTimestampKey = @"lastReadLocalTimesta
 
     NSPredicate *notBlockedConnection = [NSPredicate predicateWithFormat:@"(%K == nil) OR (%K != nil AND %K.status != %d)", ZMConversationConnectionKey, ZMConversationConnectionKey, ZMConversationConnectionKey, ZMConnectionStatusBlocked];
 
-    return [NSCompoundPredicate andPredicateWithSubpredicates:@[notSelfConversation, notInvalidConversation, [self predicateForUnreadConversation], notBlockedConnection]];
+    return [NSCompoundPredicate andPredicateWithSubpredicates:@[notSelfConversation, notInvalidConversation, notBlockedConnection, [self predicateForUnreadConversation]]];
 }
 
 - (void)setInternalEstimatedUnreadCount:(int64_t)internalEstimatedUnreadCount
