@@ -235,7 +235,7 @@ extension ZMConversation {
     @objc(markMessagesAsReadUntil:)
     public func markMessagesAsRead(until message: ZMConversationMessage) {
         if let currentTimestamp = lastReadServerTimeStamp,
-           let messageTimestamp = message.serverTimestamp,
+           let messageTimestamp = message.serverTimestampIncludingChildMessages,
            currentTimestamp.compare(messageTimestamp) == .orderedDescending {
             // Current last read timestamp is newer than message we are marking as read
             return
