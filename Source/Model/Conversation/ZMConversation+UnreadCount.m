@@ -118,11 +118,9 @@ NSString *const ZMConversationLastReadLocalTimestampKey = @"lastReadLocalTimesta
     NSPredicate *pendingConnection = [NSPredicate predicateWithFormat:@"%K != nil AND %K.status == %d", ZMConversationConnectionKey, ZMConversationConnectionKey, ZMConnectionStatusPending];
     NSPredicate *acceptablePredicate = [NSCompoundPredicate orPredicateWithSubpredicates:@[pendingConnection, [self predicateForUnreadConversation]]];
     
-    NSPredicate *notBlockedConnection = [NSPredicate predicateWithFormat:@"%K != nil AND %K.status != %d", ZMConversationConnectionKey, ZMConversationConnectionKey, ZMConnectionStatusBlocked];
-    NSPredicate *notConnection = [NSPredicate predicateWithFormat:@"%K == nil", ZMConversationConnectionKey];
-    NSPredicate *groupConversationOrNotBlocked = [NSCompoundPredicate orPredicateWithSubpredicates:@[notBlockedConnection, notConnection]];
+    NSPredicate *notBlockedConnection = [NSPredicate predicateWithFormat:@"(%K == nil) OR (%K != nil AND %K.status != %d)", ZMConversationConnectionKey, ZMConversationConnectionKey, ZMConversationConnectionKey, ZMConnectionStatusBlocked];
     
-    return [NSCompoundPredicate andPredicateWithSubpredicates:@[notSelfConversation, notInvalidConversation, acceptablePredicate, groupConversationOrNotBlocked]];
+    return [NSCompoundPredicate andPredicateWithSubpredicates:@[notSelfConversation, notInvalidConversation, acceptablePredicate, notBlockedConnection]];
 }
 
 + (NSPredicate *)predicateForUnreadConversation
@@ -142,11 +140,9 @@ NSString *const ZMConversationLastReadLocalTimestampKey = @"lastReadLocalTimesta
     NSPredicate *notSelfConversation = [NSPredicate predicateWithFormat:@"%K != %d", ZMConversationConversationTypeKey, ZMConversationTypeSelf];
     NSPredicate *notInvalidConversation = [NSPredicate predicateWithFormat:@"%K != %d", ZMConversationConversationTypeKey, ZMConversationTypeInvalid];
 
-    NSPredicate *notBlockedConnection = [NSPredicate predicateWithFormat:@"%K != nil AND %K.status != %d", ZMConversationConnectionKey, ZMConversationConnectionKey, ZMConnectionStatusBlocked];
-    NSPredicate *notConnection = [NSPredicate predicateWithFormat:@"%K == nil", ZMConversationConnectionKey];
-    NSPredicate *groupConversationOrNotBlocked = [NSCompoundPredicate orPredicateWithSubpredicates:@[notBlockedConnection, notConnection]];
+    NSPredicate *notBlockedConnection = [NSPredicate predicateWithFormat:@"(%K == nil) OR (%K != nil AND %K.status != %d)", ZMConversationConnectionKey, ZMConversationConnectionKey, ZMConversationConnectionKey, ZMConnectionStatusBlocked];
 
-    return [NSCompoundPredicate andPredicateWithSubpredicates:@[notSelfConversation, notInvalidConversation, [self predicateForUnreadConversation], groupConversationOrNotBlocked]];
+    return [NSCompoundPredicate andPredicateWithSubpredicates:@[notSelfConversation, notInvalidConversation, [self predicateForUnreadConversation], notBlockedConnection]];
 }
 
 - (void)setInternalEstimatedUnreadCount:(int64_t)internalEstimatedUnreadCount
