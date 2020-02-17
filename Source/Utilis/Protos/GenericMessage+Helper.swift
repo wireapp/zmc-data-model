@@ -67,6 +67,13 @@ public extension GenericMessage {
     }
 }
 
+public extension GenericMessage {
+    var zmMessage: ZMGenericMessage? {
+        let data = try? serializedData()
+        return ZMGenericMessage.message(fromData: data)
+    }
+}
+
 extension GenericMessage {
     var locationData: Location? {
         guard let content = content else { return nil }
