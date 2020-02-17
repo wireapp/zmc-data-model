@@ -18,9 +18,11 @@
 
 
 import XCTest
+import WireTesting
+
 @testable import WireDataModel
 
-class ProtobufUtilitiesTests: XCTestCase {
+class ProtobufUtilitiesTests: BaseZMClientMessageTests {
     
     func testThatItSetsAndReadsTheLoudness() {
         
@@ -248,7 +250,7 @@ class ProtobufUtilitiesTests: XCTestCase {
     }
 }
 
-// MARK:-  Using Swift protobuf API
+// MARK:-  Using Swift protobuf API, Update assets
 
 extension ProtobufUtilitiesTests {
     
@@ -345,4 +347,72 @@ extension ProtobufUtilitiesTests {
         XCTAssertEqual(sut.ephemeral.asset.preview.remote.otrKey, otr)
         XCTAssertEqual(sut.ephemeral.asset.preview.remote.sha256, sha)
      }
+}
+
+
+// MARK:-  Using Swift protobuf API, set message flags (legal hold status, needs read confirmation)
+
+extension ProtobufUtilitiesTests {
+
+//    func testThatMessageNeedsReadConfirmation_InAOneToOne_WhenSelfUserHasReadReceiptsEnabled() {
+//        // given
+//        let user = createUser(in: uiMOC)
+//        let conversation = createConversation(in: uiMOC)
+//        conversation.conversationType = .oneOnOne
+//
+//        // insert message which expects read confirmation
+//        let message = insertMessage(conversation, fromSender: user, timestamp: Date()) as! ZMClientMessage
+//        message.genericMessage?.setExpectsReadConfirmation(true)?.data().apply(message.add)
+//        message.underlyingMessage?.setExpectsReadConfirmation(true)?.data()
+//
+//        // when
+//        ZMUser.selfUser(in: uiMOC).readReceiptsEnabled = true
+//        // then
+//        XCTAssertTrue(message.needsReadConfirmation)
+//    }
+
+//    func testThatMessageDoesntNeedsReadConfirmation_InAOneToOne_WhenSelfUserHasReadReceiptsDisabled() {
+//        // given
+//        let user = createUser(in: uiMOC)
+//        let conversation = createConversation(in: uiMOC)
+//        conversation.conversationType = .oneOnOne
+//
+//        ZMUser.selfUser(in: uiMOC).readReceiptsEnabled = false
+//
+//        // insert message which expects read confirmation
+//        let message = insertMessage(conversation, fromSender: user, timestamp: Date()) as! ZMClientMessage
+//        message.genericMessage?.setExpectsReadConfirmation(true)?.data().apply(message.add)
+//
+//        // then
+//        XCTAssertFalse(message.needsReadConfirmation)
+//    }
+    
+//    func insertMessage(_ conversation: ZMConversation, fromSender: ZMUser? = nil, timestamp: Date = .init(), moc: NSManagedObjectContext? = nil, eventSource: ZMUpdateEventSource = .download) -> ZMMessage {
+//        let nonce = UUID.create()
+//        let genericMessage = ZMGenericMessage.message(content: ZMText.text(with: "foo"), nonce: nonce)
+//        let messageEvent = createUpdateEvent(
+//            nonce,
+//            conversationID: conversation.remoteIdentifier!,
+//            timestamp: timestamp,
+//            genericMessage: genericMessage,
+//            senderID: fromSender?.remoteIdentifier ?? UUID.create(),
+//            eventSource: eventSource
+//        )
+//        
+//        var message: ZMMessage!
+//        let MOC = moc ?? uiMOC
+//        
+//        if MOC.zm_isUserInterfaceContext {
+//            performPretendingUiMocIsSyncMoc {
+//                message = ZMOTRMessage.createOrUpdate(from: messageEvent, in: self.uiMOC, prefetchResult: nil)
+//            }
+//        }
+//        else {
+//            message = ZMOTRMessage.createOrUpdate(from: messageEvent, in: MOC, prefetchResult: nil)
+//            
+//        }
+//        XCTAssertTrue(MOC.saveOrRollback())
+//        XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
+//        return message
+//    }
 }
