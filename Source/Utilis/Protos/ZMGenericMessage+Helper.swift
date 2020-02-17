@@ -58,6 +58,15 @@ extension MessageContentType {
 
 public extension ZMGenericMessage {
     
+    static func message(fromData data: Data?) -> ZMGenericMessage? {
+        guard data != nil else { return nil }
+        
+        let builder = ZMGenericMessageBuilder()
+        builder.merge(from: data!)
+        
+        return builder.buildAndValidate()
+    }
+    
     @objc
     static func message(withBase64String base64String: String) -> ZMGenericMessage? {
         guard let data = Data(base64Encoded: base64String) else { return nil }
