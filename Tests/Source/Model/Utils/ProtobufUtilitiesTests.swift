@@ -369,6 +369,7 @@ extension ProtobufUtilitiesTests {
 //        ZMUser.selfUser(in: uiMOC).readReceiptsEnabled = true
 //        // then
 //        XCTAssertTrue(message.needsReadConfirmation)
+    
 //    }
 
 //    func testThatMessageDoesntNeedsReadConfirmation_InAOneToOne_WhenSelfUserHasReadReceiptsDisabled() {
