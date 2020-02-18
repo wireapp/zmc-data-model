@@ -310,7 +310,7 @@ extension Calling: MessageCapable {
 
 extension WireProtos.MessageEdit: MessageCapable {
     
-    init(replacingMessageID: UUID, text: Text) {
+    public init(replacingMessageID: UUID, text: Text) {
         self = MessageEdit.with {
             $0.replacingMessageID = replacingMessageID.transportString()
             $0.text = text
