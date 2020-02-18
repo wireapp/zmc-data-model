@@ -401,6 +401,10 @@ extension Cleared: MessageCapable {
         get { return false }
         set {}
     }
+    
+    public var legalHoldStatus: LegalHoldStatus {
+        return defaultLegalHoldStatus
+    }
 }
 
 extension MessageHide: MessageCapable {
@@ -412,6 +416,10 @@ extension MessageHide: MessageCapable {
         get { return false }
         set {}
     }
+    
+    public var legalHoldStatus: LegalHoldStatus {
+        return defaultLegalHoldStatus
+    }
 }
 
 extension MessageDelete: MessageCapable {
@@ -422,6 +430,10 @@ extension MessageDelete: MessageCapable {
     public var expectsReadConfirmation: Bool {
         get { return false }
         set {}
+    }
+    
+    public var legalHoldStatus: LegalHoldStatus {
+        return defaultLegalHoldStatus
     }
 }
 
@@ -539,6 +551,10 @@ extension External: MessageCapable {
     public var expectsReadConfirmation: Bool {
         get { return false }
         set {}
+    }
+    
+    public var legalHoldStatus: LegalHoldStatus {
+        return defaultLegalHoldStatus
     }
 }
 
