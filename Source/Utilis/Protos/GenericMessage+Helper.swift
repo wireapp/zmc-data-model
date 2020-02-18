@@ -23,8 +23,6 @@ public protocol MessageCapable {
     func setContent(on message: inout GenericMessage)
     var expectsReadConfirmation: Bool { get set }
     var legalHoldStatus: LegalHoldStatus { get }
-    mutating func updateLegalHoldStatus(_ status: LegalHoldStatus)
-    mutating func updateExpectsReadConfirmation(_ value: Bool)
 }
 
 public protocol EphemeralMessageCapable: MessageCapable {
@@ -217,14 +215,6 @@ extension Location: EphemeralMessageCapable {
     public func setContent(on message: inout GenericMessage) {
         message.location = self
     }
-    
-    public mutating func updateLegalHoldStatus(_ status: LegalHoldStatus) {
-        self.legalHoldStatus = status
-    }
-    
-    public mutating func updateExpectsReadConfirmation(_ value: Bool) {
-        self.expectsReadConfirmation = value
-    }
 }
 
 extension Knock: EphemeralMessageCapable {
@@ -234,14 +224,6 @@ extension Knock: EphemeralMessageCapable {
     
     public func setContent(on message: inout GenericMessage) {
         message.knock = self
-    }
-    
-    public mutating func updateLegalHoldStatus(_ status: LegalHoldStatus) {
-        self.legalHoldStatus = status
-    }
-    
-    public mutating func updateExpectsReadConfirmation(_ value: Bool) {
-        self.expectsReadConfirmation = value
     }
 }
 
@@ -271,14 +253,6 @@ extension Text: EphemeralMessageCapable {
     public func setContent(on message: inout GenericMessage) {
         message.text = self
     }
-    
-    public mutating func updateLegalHoldStatus(_ status: LegalHoldStatus) {
-        self.legalHoldStatus = status
-    }
-    
-    public mutating func updateExpectsReadConfirmation(_ value: Bool) {
-        self.expectsReadConfirmation = value
-    }
 }
 
 extension WireProtos.Reaction: MessageCapable {
@@ -300,12 +274,6 @@ extension WireProtos.Reaction: MessageCapable {
         }
         set {}
     }
-    
-    public mutating func updateLegalHoldStatus(_ status: LegalHoldStatus) {
-        self.legalHoldStatus = status
-    }
-    
-    public func updateExpectsReadConfirmation(_ value: Bool) {}
 }
 
 extension LastRead: MessageCapable {
@@ -331,10 +299,6 @@ extension LastRead: MessageCapable {
     public var legalHoldStatus: LegalHoldStatus {
         return defaultLegalHoldStatus
     }
-    
-    public func updateLegalHoldStatus(_ status: LegalHoldStatus) {}
-    
-    public func updateExpectsReadConfirmation(_ value: Bool) {}
 }
 
 extension Calling: MessageCapable {
@@ -359,10 +323,6 @@ extension Calling: MessageCapable {
     public var legalHoldStatus: LegalHoldStatus {
         return defaultLegalHoldStatus
     }
-    
-    public func updateLegalHoldStatus(_ status: LegalHoldStatus) {}
-    
-    public func updateExpectsReadConfirmation(_ value: Bool) {}
 }
 
 extension WireProtos.MessageEdit: MessageCapable {
@@ -388,10 +348,6 @@ extension WireProtos.MessageEdit: MessageCapable {
     public var legalHoldStatus: LegalHoldStatus {
         return defaultLegalHoldStatus
     }
-    
-    public func updateLegalHoldStatus(_ status: LegalHoldStatus) {}
-    
-    public func updateExpectsReadConfirmation(_ value: Bool) {}
 }
 
 extension WireProtos.Asset: EphemeralMessageCapable {
@@ -457,14 +413,6 @@ extension WireProtos.Asset: EphemeralMessageCapable {
     public func setContent(on message: inout GenericMessage) {
         message.asset = self
     }
-    
-    public mutating func updateLegalHoldStatus(_ status: LegalHoldStatus) {
-        self.legalHoldStatus = status
-    }
-    
-    public mutating func updateExpectsReadConfirmation(_ value: Bool) {
-        self.expectsReadConfirmation = value
-    }
 }
 
 extension WireProtos.Confirmation: MessageCapable {
@@ -495,10 +443,6 @@ extension WireProtos.Confirmation: MessageCapable {
     public var legalHoldStatus: LegalHoldStatus {
         return defaultLegalHoldStatus
     }
-    
-    public func updateLegalHoldStatus(_ status: LegalHoldStatus) {}
-    
-    public func updateExpectsReadConfirmation(_ value: Bool) {}
 }
 
 extension WireProtos.Asset.Preview {
@@ -578,6 +522,8 @@ public extension LinkPreview {
     }
 }
 
+// MARK:- Update assets
+
 extension GenericMessage {
     
     public mutating func updatedPreview(withAssetId assetId: String, token: String?) {
@@ -627,6 +573,8 @@ extension GenericMessage {
     }
 }
 
+// MARK:- Set message flags
+
 extension GenericMessage {
     
     public mutating func setLegalHoldStatus(_ status: LegalHoldStatus) {
@@ -635,15 +583,15 @@ extension GenericMessage {
         case .ephemeral:
             self.ephemeral.updateLegalHoldStatus(status)
         case .reaction:
-            self.reaction.updateLegalHoldStatus(status)
+            self.reaction.legalHoldStatus = status
         case .knock:
-            self.knock.updateLegalHoldStatus(status)
+            self.knock.legalHoldStatus = status
         case .text:
-            self.text.updateLegalHoldStatus(status)
+            self.text.legalHoldStatus = status
         case .location:
-            self.location.updateLegalHoldStatus(status)
+            self.location.legalHoldStatus = status
         case .asset:
-            self.asset.updateLegalHoldStatus(status)
+            self.asset.legalHoldStatus = status
         default:
             return
         }
@@ -655,13 +603,13 @@ extension GenericMessage {
         case .ephemeral:
             self.ephemeral.updateExpectsReadConfirmation(value)
         case .knock:
-            self.knock.updateExpectsReadConfirmation(value)
+            self.knock.expectsReadConfirmation = value
         case .text:
-            self.text.updateExpectsReadConfirmation(value)
+            self.text.expectsReadConfirmation = value
         case .location:
-            self.location.updateExpectsReadConfirmation(value)
+            self.location.expectsReadConfirmation = value
         case .asset:
-            self.asset.updateExpectsReadConfirmation(value)
+            self.asset.expectsReadConfirmation = value
         default:
             return
         }
