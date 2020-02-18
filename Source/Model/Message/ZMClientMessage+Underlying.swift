@@ -50,34 +50,4 @@ extension ZMClientMessage {
             return nil
         }
     }
-    
-    override open var needsReadConfirmation: Bool {
-        guard let conversation = conversation, let managedObjectContext = managedObjectContext else { return false }
-        
-        if conversation.conversationType == .oneOnOne {
-            var expectsReadConfirmation: Bool {
-                
-                switch underlyingMessage?.content {
-                case .ephemeral(let data)?:
-                    return data.expectsReadConfirmation
-                case .knock(let data)?:
-                    return data.expectsReadConfirmation
-                case .text(let data)?:
-                    return data.expectsReadConfirmation
-                case .location(let data)?:
-                    return data.expectsReadConfirmation
-                case .asset(let data)?:
-                    return data.expectsReadConfirmation
-                default:
-                    return false
-                }
-            }
-            
-            return ((genericMessage?.content?.expectsReadConfirmation() == true || expectsReadConfirmation) && ZMUser.selfUser(in: managedObjectContext).readReceiptsEnabled)
-        } else if conversation.conversationType == .group {
-            return expectsReadConfirmation
-        }
-        
-        return false
-    }
 }
