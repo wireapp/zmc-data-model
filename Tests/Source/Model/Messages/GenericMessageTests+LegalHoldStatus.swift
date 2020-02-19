@@ -20,18 +20,12 @@ import WireTesting
 
 @testable import WireDataModel
 
-class ZMMessageTests_LegalHoldStatus: BaseZMClientMessageTests {
+class GenericMessageTests_LegalHoldStatus: BaseZMClientMessageTests {
 
     func testThatItUpdatesLegalHoldStatusFlagForTextMessage() {
         
         // given
-        let message = ZMClientMessage(nonce: UUID.create(), managedObjectContext: uiMOC)
         var genericMessage = GenericMessage(content: Text(content: "foo"), nonce: UUID.create())
-        do {
-            message.add(try genericMessage.serializedData())
-        } catch {
-            XCTFail("Unexpected error thrown: \(error)")
-        }
         
         // when
         XCTAssertEqual(genericMessage.text.legalHoldStatus, .unknown)
@@ -44,13 +38,7 @@ class ZMMessageTests_LegalHoldStatus: BaseZMClientMessageTests {
     func testThatItUpdatesLegalHoldStatusFlagForReaction() {
         
         // given
-        let message = ZMClientMessage(nonce: UUID.create(), managedObjectContext: uiMOC)
         var genericMessage = GenericMessage(content: WireProtos.Reaction(emoji: "🤠", messageID: UUID.create()))
-        do {
-            message.add(try genericMessage.serializedData())
-        } catch {
-            XCTFail("Unexpected error thrown: \(error)")
-        }
         
         // when
         XCTAssertEqual(genericMessage.reaction.legalHoldStatus, .unknown)
@@ -63,13 +51,7 @@ class ZMMessageTests_LegalHoldStatus: BaseZMClientMessageTests {
     func testThatItUpdatesLegalHoldStatusFlagForKnock() {
 
         // given
-        let message = ZMClientMessage(nonce: UUID.create(), managedObjectContext: uiMOC)
         var genericMessage = GenericMessage(content: WireProtos.Knock.with { $0.hotKnock = true }, nonce: UUID.create())
-        do {
-            message.add(try genericMessage.serializedData())
-        } catch {
-            XCTFail("Unexpected error thrown: \(error)")
-        }
 
         // when
         XCTAssertEqual(genericMessage.knock.legalHoldStatus, .unknown)
@@ -82,17 +64,11 @@ class ZMMessageTests_LegalHoldStatus: BaseZMClientMessageTests {
     func testThatItUpdatesLegalHoldStatusFlagForLocation() {
 
         // given
-        let message = ZMClientMessage(nonce: UUID.create(), managedObjectContext: uiMOC)
         let location = WireProtos.Location.with {
             $0.latitude = 0.0
             $0.longitude = 0.0
         }
         var genericMessage = GenericMessage(content: location, nonce: UUID.create())
-        do {
-            message.add(try genericMessage.serializedData())
-        } catch {
-            XCTFail("Unexpected error thrown: \(error)")
-        }
 
         // when
         XCTAssertEqual(genericMessage.location.legalHoldStatus, .unknown)
@@ -105,13 +81,7 @@ class ZMMessageTests_LegalHoldStatus: BaseZMClientMessageTests {
     func testThatItUpdatesLegalHoldStatusFlagForAsset() {
 
         // given
-        let message = ZMClientMessage(nonce: UUID.create(), managedObjectContext: uiMOC)
         var genericMessage = GenericMessage(content: WireProtos.Asset(imageSize: CGSize(width: 42, height: 12), mimeType: "image/jpeg", size: 123), nonce: UUID.create())
-        do {
-            message.add(try genericMessage.serializedData())
-        } catch {
-            XCTFail("Unexpected error thrown: \(error)")
-        }
 
         // when
         XCTAssertEqual(genericMessage.asset.legalHoldStatus, .unknown)
@@ -124,15 +94,8 @@ class ZMMessageTests_LegalHoldStatus: BaseZMClientMessageTests {
     func testThatItUpdatesLegalHoldStatusFlagForEphemeral() {
 
         // given
-        let message = ZMClientMessage(nonce: UUID.create(), managedObjectContext: uiMOC)
         let asset = WireProtos.Asset(imageSize: CGSize(width: 42, height: 12), mimeType: "image/jpeg", size: 123)
         var genericMessage = GenericMessage(content: asset, nonce: UUID.create(), expiresAfter: 15)
-        
-        do {
-            message.add(try genericMessage.serializedData())
-        } catch {
-            XCTFail("Unexpected error thrown: \(error)")
-        }
 
         // when
         XCTAssertEqual(genericMessage.ephemeral.legalHoldStatus, .unknown)

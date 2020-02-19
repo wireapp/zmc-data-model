@@ -23,18 +23,6 @@ extension ZMOTRMessage {
     private static let deliveryConfirmationDayThreshold = 7
     
     @NSManaged @objc dynamic var expectsReadConfirmation: Bool
-        
-    override open var needsReadConfirmation: Bool {
-        guard let conversation = conversation, let managedObjectContext = managedObjectContext else { return false }
-        
-        if conversation.conversationType == .oneOnOne {
-            return genericMessage?.content?.expectsReadConfirmation() == true && ZMUser.selfUser(in: managedObjectContext).readReceiptsEnabled
-        } else if conversation.conversationType == .group {
-            return expectsReadConfirmation
-        }
-        
-        return false
-    }
     
     @objc
     var needsDeliveryConfirmation: Bool {
