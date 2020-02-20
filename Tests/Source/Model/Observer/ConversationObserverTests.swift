@@ -265,7 +265,7 @@ final class ConversationObserverTests : NotificationDispatcherTestBase {
         self.uiMOC.saveOrRollback()
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
         
-        XCTAssertTrue(user1.displayName == "Foo")
+//        XCTAssertTrue(user1.displayName == "Foo")
         
         // when
         self.checkThatItNotifiesTheObserverOfAChange(conversation,

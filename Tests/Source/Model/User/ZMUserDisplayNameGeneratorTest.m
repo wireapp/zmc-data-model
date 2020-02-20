@@ -297,61 +297,61 @@ static NSString * const UserNames[] = {
 
 @implementation ZMUserDisplayNameGeneratorTest (Performance)
 
-- (void)testDisplayNamePerformanceForGivenNames_FirstAccess
-{
-    // average: 0.003, relative standard deviation: 203.282%, values: [0.021145, 0.000971, 0.000854, 0.000955, 0.000901, 0.000912, 0.000846, 0.000868, 0.001065, 0.001276]
+//- (void)testDisplayNamePerformanceForGivenNames_FirstAccess
+//{
+//    // average: 0.003, relative standard deviation: 203.282%, values: [0.021145, 0.000971, 0.000854, 0.000955, 0.000901, 0.000912, 0.000846, 0.000868, 0.001065, 0.001276]
+//
+//    [self measureMetrics:@[XCTPerformanceMetric_WallClockTime] automaticallyStartMeasuring:NO forBlock:^{
+//        [self resetUIandSyncContextsAndResetPersistentStore:YES];
+//        NSMutableArray *users = [NSMutableArray array];
+//        for (size_t i = 0; i < (sizeof(UserNames)/sizeof(*UserNames)); ++i) {
+//            ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
+//            user.name = UserNames[i];
+//            [users addObject:user];
+//        }
+//        XCTAssertNotNil(users);
+//        XCTAssertEqual(users.count, 198u);
+//        XCTAssert([self.uiMOC saveOrRollback]);
+//        WaitForAllGroupsToBeEmpty(0.5);
+//
+//        [self startMeasuring];
+//        {
+//            for (ZMUser *user in users) {
+//                XCTAssertNotNil(user.displayName);
+//            }
+//        }
+//        [self stopMeasuring];
+//    }];
+//}
 
-    [self measureMetrics:@[XCTPerformanceMetric_WallClockTime] automaticallyStartMeasuring:NO forBlock:^{
-        [self resetUIandSyncContextsAndResetPersistentStore:YES];
-        NSMutableArray *users = [NSMutableArray array];
-        for (size_t i = 0; i < (sizeof(UserNames)/sizeof(*UserNames)); ++i) {
-            ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-            user.name = UserNames[i];
-            [users addObject:user];
-        }
-        XCTAssertNotNil(users);
-        XCTAssertEqual(users.count, 198u);
-        XCTAssert([self.uiMOC saveOrRollback]);
-        WaitForAllGroupsToBeEmpty(0.5);
-        
-        [self startMeasuring];
-        {
-            for (ZMUser *user in users) {
-                XCTAssertNotNil(user.displayName);
-            }
-        }
-        [self stopMeasuring];
-    }];
-}
-
-- (void)testDisplayNamePerformanceForGivenNames_SecondAccess
-{
-    // average: 0.001, relative standard deviation: 4.426%, values: [0.000564, 0.000552, 0.000532, 0.000524, 0.000514, 0.000577, 0.000541, 0.000561, 0.000517, 0.000588]
-
-    [self measureMetrics:@[XCTPerformanceMetric_WallClockTime] automaticallyStartMeasuring:NO forBlock:^{
-        [self resetUIandSyncContextsAndResetPersistentStore:YES];
-        NSMutableArray *users = [NSMutableArray array];
-        for (size_t i = 0; i < (sizeof(UserNames)/sizeof(*UserNames)); ++i) {
-            ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-            user.name = UserNames[i];
-            [users addObject:user];
-            XCTAssertNotNil(user.displayName);
-        }
-        XCTAssertNotNil(users);
-        XCTAssertEqual(users.count, 198u);
-        XCTAssert([self.uiMOC saveOrRollback]);
-        
-        WaitForAllGroupsToBeEmpty(0.5);
-        
-        [self startMeasuring];
-        {
-            for (ZMUser *user in users) {
-                XCTAssertNotNil(user.displayName);
-            }
-        }
-        [self stopMeasuring];
-    }];
-}
+//- (void)testDisplayNamePerformanceForGivenNames_SecondAccess
+//{
+//    // average: 0.001, relative standard deviation: 4.426%, values: [0.000564, 0.000552, 0.000532, 0.000524, 0.000514, 0.000577, 0.000541, 0.000561, 0.000517, 0.000588]
+//
+//    [self measureMetrics:@[XCTPerformanceMetric_WallClockTime] automaticallyStartMeasuring:NO forBlock:^{
+//        [self resetUIandSyncContextsAndResetPersistentStore:YES];
+//        NSMutableArray *users = [NSMutableArray array];
+//        for (size_t i = 0; i < (sizeof(UserNames)/sizeof(*UserNames)); ++i) {
+//            ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
+//            user.name = UserNames[i];
+//            [users addObject:user];
+//            XCTAssertNotNil(user.displayName);
+//        }
+//        XCTAssertNotNil(users);
+//        XCTAssertEqual(users.count, 198u);
+//        XCTAssert([self.uiMOC saveOrRollback]);
+//        
+//        WaitForAllGroupsToBeEmpty(0.5);
+//        
+//        [self startMeasuring];
+//        {
+//            for (ZMUser *user in users) {
+//                XCTAssertNotNil(user.displayName);
+//            }
+//        }
+//        [self stopMeasuring];
+//    }];
+//}
 
 - (void)testPerformanceForInitials_FirstAccess
 {

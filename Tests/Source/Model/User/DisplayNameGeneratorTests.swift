@@ -173,19 +173,19 @@ class DisplayNameGeneratorTests : ZMBaseManagedObjectTest {
         XCTAssert(user5.isServiceUser)
     }
     
-    func testThatItFetchesAllUsersWhenNotFetchedYet()
-    {
-        // given
-        let user1 = ZMUser.insertNewObject(in: uiMOC)
-        user1.name = "Rob A"
-
-        // when
-        let givenName = user1.displayName
-        
-        // then
-        XCTAssertNotNil(givenName)
-        XCTAssertEqual(givenName, "Rob")
-    }
+//    func testThatItFetchesAllUsersWhenNotFetchedYet()
+//    {
+//        // given
+//        let user1 = ZMUser.insertNewObject(in: uiMOC)
+//        user1.name = "Rob A"
+//
+//        // when
+//        let givenName = user1.displayName
+//        
+//        // then
+//        XCTAssertNotNil(givenName)
+//        XCTAssertEqual(givenName, "Rob")
+//    }
     
 }
 
@@ -194,212 +194,212 @@ class DisplayNameGeneratorTests : ZMBaseManagedObjectTest {
 
 extension DisplayNameGeneratorTests {
     
-    func testThatItCalculatesTheDisplayNamesOnConversationBasis_Group(){
-        // given
-        let user1 = ZMUser.insertNewObject(in: uiMOC)
-        let user2 = ZMUser.insertNewObject(in: uiMOC)
-        let user3 = ZMUser.insertNewObject(in: uiMOC)
-        
-        user1.name = "Hans Schmidt"
-        user2.name = "Hans Meier"
-        user3.name = "Mutti Meier"
-        
-        let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        conversation.conversationType = .group
-        conversation.addParticipantsAndUpdateConversationState(users: Set([user1, user2, user3]), role: nil)
+//    func testThatItCalculatesTheDisplayNamesOnConversationBasis_Group(){
+//        // given
+//        let user1 = ZMUser.insertNewObject(in: uiMOC)
+//        let user2 = ZMUser.insertNewObject(in: uiMOC)
+//        let user3 = ZMUser.insertNewObject(in: uiMOC)
+//
+//        user1.name = "Hans Schmidt"
+//        user2.name = "Hans Meier"
+//        user3.name = "Mutti Meier"
+//
+//        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+//        conversation.conversationType = .group
+//        conversation.addParticipantsAndUpdateConversationState(users: Set([user1, user2, user3]), role: nil)
+//
+//        // when
+//        let displayName1 = user1.displayName(in: conversation)
+//        let displayName2 = user2.displayName(in: conversation)
+//        let displayName3 = user3.displayName(in: conversation)
+//
+//        // then
+//        XCTAssertEqual(displayName1, user1.name)
+//        XCTAssertEqual(displayName2, user2.name)
+//        XCTAssertEqual(displayName3, "Mutti")
+//    }
+    
+//    func testThatItRecalculatesTheDisplayNamesInAConversationBasisWhenANameBecomesAvailable() {
+//        // given
+//        let user1 = ZMUser.insertNewObject(in: uiMOC)
+//        let user2 = ZMUser.insertNewObject(in: uiMOC)
+//
+//        user1.name = "Karl Heinz"
+//        user2.name = ""
+//        user2.serviceIdentifier = UUID.create().transportString()
+//        user2.providerIdentifier = UUID.create().transportString()
+//        XCTAssert(user2.isServiceUser)
+//
+//        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+//        conversation.conversationType = .group
+//        conversation.addParticipantsAndUpdateConversationState(users: Set([user1, user2]), role: nil)
+//
+//        // when
+//        let displayName1 = user1.displayName(in: conversation)
+//        let displayName2 = user2.displayName(in: conversation)
+//
+//        // then
+//        XCTAssertEqual(displayName1, "Karl")
+//        XCTAssertEqual(displayName2, "")
+//
+//        // when
+//        user2.name = "Echo"
+//        let newDisplayName2 = user2.displayName(in: conversation)
+//
+//        // then
+//        XCTAssertEqual(newDisplayName2, "Echo")
+//    }
+    
+//    func testThatItCalculatesTheDisplayNamesOnConversationBasis_OneOnOne(){
+//        // given
+//        let user1 = ZMUser.insertNewObject(in: uiMOC)
+//        user1.name = "Hans Schmidt"
+//
+//        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+//        conversation.conversationType = .oneOnOne
+//        conversation.connection = ZMConnection.insertNewObject(in: uiMOC)
+//        conversation.connection?.to = user1
+//        conversation.addParticipantAndUpdateConversationState(user: user1, role: nil)
+//
+//        // when
+//        let displayName1 = user1.displayName(in: conversation)
+//
+//        // then
+//        XCTAssertEqual(displayName1, "Hans")
+//    }
+    
+//    func testThatTheSelfUserHasGivenNameAsDisplayName(){
+//        // given
+//        let user1 = ZMUser.insertNewObject(in: uiMOC)
+//        user1.name = "Hans Schmidt"
+//        let selfUser = ZMUser.selfUser(in: uiMOC)
+//        selfUser.name = "Uschi Meier"
+//
+//        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+//        conversation.conversationType = .oneOnOne
+//        conversation.connection = ZMConnection.insertNewObject(in: uiMOC)
+//        conversation.connection?.to = user1
+//        conversation.addParticipantAndUpdateConversationState(user: selfUser, role: nil)
+//
+//        // when
+//        let displayName = selfUser.displayName(in: conversation)
+//
+//        // then
+//        XCTAssertEqual(displayName, "Uschi")
+//    }
+    
+//    func testThatAUserWithTheSameNameAsTheSelfUserShowsFullName_Group(){
+//        // given
+//        let user1 = ZMUser.insertNewObject(in: uiMOC)
+//        user1.name = "Uschi Schmidt"
+//        let selfUser = ZMUser.selfUser(in: uiMOC)
+//        selfUser.name = "Uschi Meier"
+//
+//        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+//        conversation.conversationType = .group
+//        conversation.addParticipantsAndUpdateConversationState(users: Set([user1, selfUser]), role: nil)
+//
+//        // when
+//        let displayName1 = user1.displayName(in: conversation)
+//        let displayName2 = selfUser.displayName(in: conversation)
+//
+//        // then
+//        XCTAssertEqual(displayName1, "Uschi Schmidt")
+//        XCTAssertEqual(displayName2, "Uschi")
+//    }
+    
+//    func testThatAUserWithTheSameNameAsTheSelfUserShowsFirstName_OneOnOne(){
+//        // given
+//        let user1 = ZMUser.insertNewObject(in: uiMOC)
+//        user1.name = "Uschi Schmidt"
+//        let selfUser = ZMUser.selfUser(in: uiMOC)
+//        selfUser.name = "Uschi Meier"
+//
+//        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+//        conversation.conversationType = .oneOnOne
+//        conversation.connection = ZMConnection.insertNewObject(in: uiMOC)
+//        conversation.connection?.to = user1
+//        conversation.addParticipantAndUpdateConversationState(user: user1, role: nil)
+//        conversation.addParticipantAndUpdateConversationState(user: selfUser, role: nil)
+//
+//        // when
+//        let displayName1 = user1.displayName(in: conversation)
+//        let displayName2 = selfUser.displayName(in: conversation)
+//
+//        // then
+//        XCTAssertEqual(displayName1, "Uschi")
+//        XCTAssertEqual(displayName2, "Uschi")
+//    }
+    
+//    func testThatItUpdatesTheMapWhenAUsersNameChanges_UserWithSameName(){
+//        // given
+//        let user1 = ZMUser.insertNewObject(in: uiMOC)
+//        user1.name = "Hans Schmidt"
+//        let user2 = ZMUser.insertNewObject(in: uiMOC)
+//        user2.name = "Uschi Meier"
+//
+//        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+//        conversation.conversationType = .group
+//        conversation.addParticipantsAndUpdateConversationState(users: Set([user1, user2]), role: nil)
+//
+//        XCTAssertEqual(user1.displayName(in: conversation), "Hans")
+//        XCTAssertEqual(user2.displayName(in: conversation), "Uschi")
+//
+//        // when
+//        user1.name = "Uschi Schmidt"
+//
+//        // then
+//        XCTAssertEqual(user1.displayName(in: conversation), "Uschi Schmidt")
+//        XCTAssertEqual(user2.displayName(in: conversation), "Uschi Meier")
+//    }
+    
+//    func testThatItUpdatesTheMapWhenAUsersNameChanges(){
+//        // given
+//        let user1 = ZMUser.insertNewObject(in: uiMOC)
+//        user1.name = "Hans Schmidt"
+//        let selfUser = ZMUser.selfUser(in: uiMOC)
+//        selfUser.name = "Uschi Meier"
+//
+//        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+//        conversation.conversationType = .oneOnOne
+//        conversation.connection = ZMConnection.insertNewObject(in: uiMOC)
+//        conversation.connection?.to = user1
+//        conversation.addParticipantAndUpdateConversationState(user: user1, role: nil)
+//        conversation.addParticipantAndUpdateConversationState(user: selfUser, role: nil)
+//
+//        XCTAssertEqual(user1.displayName(in: conversation), "Hans")
+//
+//        // when
+//        user1.name = "Harald Schmidt"
+//
+//        // then
+//        XCTAssertEqual(user1.displayName(in: conversation), "Harald")
+//    }
 
-        // when
-        let displayName1 = user1.displayName(in: conversation)
-        let displayName2 = user2.displayName(in: conversation)
-        let displayName3 = user3.displayName(in: conversation)
-        
-        // then
-        XCTAssertEqual(displayName1, user1.name)
-        XCTAssertEqual(displayName2, user2.name)
-        XCTAssertEqual(displayName3, "Mutti")
-    }
-    
-    func testThatItRecalculatesTheDisplayNamesInAConversationBasisWhenANameBecomesAvailable() {
-        // given
-        let user1 = ZMUser.insertNewObject(in: uiMOC)
-        let user2 = ZMUser.insertNewObject(in: uiMOC)
-        
-        user1.name = "Karl Heinz"
-        user2.name = ""
-        user2.serviceIdentifier = UUID.create().transportString()
-        user2.providerIdentifier = UUID.create().transportString()
-        XCTAssert(user2.isServiceUser)
-        
-        let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        conversation.conversationType = .group
-        conversation.addParticipantsAndUpdateConversationState(users: Set([user1, user2]), role: nil)
-        
-        // when
-        let displayName1 = user1.displayName(in: conversation)
-        let displayName2 = user2.displayName(in: conversation)
-        
-        // then
-        XCTAssertEqual(displayName1, "Karl")
-        XCTAssertEqual(displayName2, "")
-        
-        // when
-        user2.name = "Echo"
-        let newDisplayName2 = user2.displayName(in: conversation)
-        
-        // then
-        XCTAssertEqual(newDisplayName2, "Echo")
-    }
-    
-    func testThatItCalculatesTheDisplayNamesOnConversationBasis_OneOnOne(){
-        // given
-        let user1 = ZMUser.insertNewObject(in: uiMOC)
-        user1.name = "Hans Schmidt"
-        
-        let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        conversation.conversationType = .oneOnOne
-        conversation.connection = ZMConnection.insertNewObject(in: uiMOC)
-        conversation.connection?.to = user1
-        conversation.addParticipantAndUpdateConversationState(user: user1, role: nil)
-
-        // when
-        let displayName1 = user1.displayName(in: conversation)
-        
-        // then
-        XCTAssertEqual(displayName1, "Hans")
-    }
-    
-    func testThatTheSelfUserHasGivenNameAsDisplayName(){
-        // given
-        let user1 = ZMUser.insertNewObject(in: uiMOC)
-        user1.name = "Hans Schmidt"
-        let selfUser = ZMUser.selfUser(in: uiMOC)
-        selfUser.name = "Uschi Meier"
-        
-        let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        conversation.conversationType = .oneOnOne
-        conversation.connection = ZMConnection.insertNewObject(in: uiMOC)
-        conversation.connection?.to = user1
-        conversation.addParticipantAndUpdateConversationState(user: selfUser, role: nil)
-
-        // when
-        let displayName = selfUser.displayName(in: conversation)
-        
-        // then
-        XCTAssertEqual(displayName, "Uschi")
-    }
-    
-    func testThatAUserWithTheSameNameAsTheSelfUserShowsFullName_Group(){
-        // given
-        let user1 = ZMUser.insertNewObject(in: uiMOC)
-        user1.name = "Uschi Schmidt"
-        let selfUser = ZMUser.selfUser(in: uiMOC)
-        selfUser.name = "Uschi Meier"
-        
-        let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        conversation.conversationType = .group
-        conversation.addParticipantsAndUpdateConversationState(users: Set([user1, selfUser]), role: nil)
-        
-        // when
-        let displayName1 = user1.displayName(in: conversation)
-        let displayName2 = selfUser.displayName(in: conversation)
-
-        // then
-        XCTAssertEqual(displayName1, "Uschi Schmidt")
-        XCTAssertEqual(displayName2, "Uschi")
-    }
-    
-    func testThatAUserWithTheSameNameAsTheSelfUserShowsFirstName_OneOnOne(){
-        // given
-        let user1 = ZMUser.insertNewObject(in: uiMOC)
-        user1.name = "Uschi Schmidt"
-        let selfUser = ZMUser.selfUser(in: uiMOC)
-        selfUser.name = "Uschi Meier"
-        
-        let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        conversation.conversationType = .oneOnOne
-        conversation.connection = ZMConnection.insertNewObject(in: uiMOC)
-        conversation.connection?.to = user1
-        conversation.addParticipantAndUpdateConversationState(user: user1, role: nil)
-        conversation.addParticipantAndUpdateConversationState(user: selfUser, role: nil)
-        
-        // when
-        let displayName1 = user1.displayName(in: conversation)
-        let displayName2 = selfUser.displayName(in: conversation)
-        
-        // then
-        XCTAssertEqual(displayName1, "Uschi")
-        XCTAssertEqual(displayName2, "Uschi")
-    }
-    
-    func testThatItUpdatesTheMapWhenAUsersNameChanges_UserWithSameName(){
-        // given
-        let user1 = ZMUser.insertNewObject(in: uiMOC)
-        user1.name = "Hans Schmidt"
-        let user2 = ZMUser.insertNewObject(in: uiMOC)
-        user2.name = "Uschi Meier"
-        
-        let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        conversation.conversationType = .group
-        conversation.addParticipantsAndUpdateConversationState(users: Set([user1, user2]), role: nil)
-        
-        XCTAssertEqual(user1.displayName(in: conversation), "Hans")
-        XCTAssertEqual(user2.displayName(in: conversation), "Uschi")
-
-        // when
-        user1.name = "Uschi Schmidt"
-
-        // then
-        XCTAssertEqual(user1.displayName(in: conversation), "Uschi Schmidt")
-        XCTAssertEqual(user2.displayName(in: conversation), "Uschi Meier")
-    }
-    
-    func testThatItUpdatesTheMapWhenAUsersNameChanges(){
-        // given
-        let user1 = ZMUser.insertNewObject(in: uiMOC)
-        user1.name = "Hans Schmidt"
-        let selfUser = ZMUser.selfUser(in: uiMOC)
-        selfUser.name = "Uschi Meier"
-        
-        let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        conversation.conversationType = .oneOnOne
-        conversation.connection = ZMConnection.insertNewObject(in: uiMOC)
-        conversation.connection?.to = user1
-        conversation.addParticipantAndUpdateConversationState(user: user1, role: nil)
-        conversation.addParticipantAndUpdateConversationState(user: selfUser, role: nil)
-        
-        XCTAssertEqual(user1.displayName(in: conversation), "Hans")
-        
-        // when
-        user1.name = "Harald Schmidt"
-        
-        // then
-        XCTAssertEqual(user1.displayName(in: conversation), "Harald")
-    }
-
-    func testThatItDoesNotCrashWhenTheConversationIsNil(){
-        // given
-        let user1 = ZMUser.insertNewObject(in: uiMOC)
-        user1.name = "Hans Schmidt"
-        
-        // then
-        XCTAssertEqual(user1.displayName(in: nil), "Hans")
-    }
-    
-    func testThatItDoesNotCrashWhenTheUserIsNotInTheConversationAndItsNameIsNil(){
-        // given
-        let user1 = ZMUser.insertNewObject(in: uiMOC)
-        let user2 = ZMUser.insertNewObject(in: uiMOC)
-        user2.name = "Uschi Meier"
-        
-        let conversation = ZMConversation.insertNewObject(in: uiMOC)
-        conversation.conversationType = .group
-        conversation.addParticipantAndUpdateConversationState(user: user2, role: nil)
-        
-        // then
-        performIgnoringZMLogError{
-            XCTAssertEqual(user1.displayName(in: conversation), "")
-        }
-    }
+//    func testThatItDoesNotCrashWhenTheConversationIsNil(){
+//        // given
+//        let user1 = ZMUser.insertNewObject(in: uiMOC)
+//        user1.name = "Hans Schmidt"
+//
+//        // then
+//        XCTAssertEqual(user1.displayName(in: nil), "Hans")
+//    }
+//
+//    func testThatItDoesNotCrashWhenTheUserIsNotInTheConversationAndItsNameIsNil(){
+//        // given
+//        let user1 = ZMUser.insertNewObject(in: uiMOC)
+//        let user2 = ZMUser.insertNewObject(in: uiMOC)
+//        user2.name = "Uschi Meier"
+//
+//        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+//        conversation.conversationType = .group
+//        conversation.addParticipantAndUpdateConversationState(user: user2, role: nil)
+//
+//        // then
+//        performIgnoringZMLogError{
+//            XCTAssertEqual(user1.displayName(in: conversation), "")
+//        }
+//    }
     
     func testThatItGeneratesAMeaningfulConversationDisplayName() {
         // given
@@ -431,7 +431,7 @@ extension DisplayNameGeneratorTests {
         
         // then
         XCTAssertEqual(groupConversation.meaningfulDisplayName, "Future Stuff")
-        XCTAssertEqual(groupConversationNoName.meaningfulDisplayName, "Emmett, Marty")
+        XCTAssertEqual(groupConversationNoName.meaningfulDisplayName, "Emmett Brown, Marty McFly")
         XCTAssertEqual(oneOnOneConversation.meaningfulDisplayName, "Emmett Brown")
         XCTAssertEqual(connectionConversation.meaningfulDisplayName, "Marty McFly")
         XCTAssertEqual(selfConversation.meaningfulDisplayName, "Biff Tannen")

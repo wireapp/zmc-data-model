@@ -240,16 +240,16 @@ static NSString *const ParticipantRolesKey = @"participantRoles";
     return self.managedBy == nil || [self.managedBy isEqualToString:@"wire"];
 }
 
-- (NSString *)displayName;
-{
-    if (self.isServiceUser) {
-        return self.name;
-    }
-    else {
-        PersonName *personName = [self.managedObjectContext.zm_displayNameGenerator personNameFor:self];
-        return personName.givenName ?: @"";
-    }
-}
+//- (NSString *)displayName;
+//{
+//    if (self.isServiceUser) {
+//        return self.name;
+//    }
+//    else {
+//        PersonName *personName = [self.managedObjectContext.zm_displayNameGenerator personNameFor:self];
+//        return personName.givenName ?: @"";
+//    }
+//}
 
 - (NSString *)initials
 {
