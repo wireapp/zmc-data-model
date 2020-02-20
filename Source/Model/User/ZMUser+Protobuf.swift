@@ -18,7 +18,7 @@
 
 import Foundation
 
-extension ZMUser {
+public extension ZMUser {
     var userId: UserId {
         return UserId.with {
             $0.uuid = remoteIdentifier.uuidData
