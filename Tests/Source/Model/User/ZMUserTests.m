@@ -2306,14 +2306,6 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
 
 @implementation ZMUserTests (DisplayName)
 
-//- (void)testThatItReturnsCorrectUserName
-//{
-//    ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-//    user.name = @"User Name";
-//
-//    XCTAssertEqualObjects(user.displayName, @"User");
-//}
-
 - (void)testThatItReturnsCorrectUserNameForService
 {
     ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
