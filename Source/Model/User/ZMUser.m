@@ -240,12 +240,6 @@ static NSString *const ParticipantRolesKey = @"participantRoles";
     return self.managedBy == nil || [self.managedBy isEqualToString:@"wire"];
 }
 
-- (NSString *)initials
-{
-    PersonName *personName = [self.managedObjectContext.zm_displayNameGenerator personNameFor:self];
-    return personName.initials ?: @"";
-}
-
 - (ZMConversation *)oneToOneConversation
 {
     if (self.isSelfUser) {

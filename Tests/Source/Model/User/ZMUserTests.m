@@ -2317,14 +2317,6 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     XCTAssertEqualObjects(user.name, @"User Name");
 }
 
-- (void)testThatItReturnsCorrectInitials
-{
-    ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    user.name = @"User Name";
-    
-    XCTAssertEqualObjects(user.initials, @"UN");
-}
-
 - (void)testThatTheUserNameIsCopied
 {
     // given
