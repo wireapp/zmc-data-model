@@ -328,3 +328,21 @@ extension ZMUser {
         return !hasUntrustedClients
     }
 }
+
+extension ZMUser {
+    
+    /// The initials e.g. "JS" for "John Smith"
+    @objc public var initials: String? {
+        return personName(for: self).initials
+    }
+    
+    private func personName(for user: ZMUser) -> PersonName {
+        if user.objectID.isTemporaryID {
+            try! managedObjectContext!.obtainPermanentIDs(for: [user])
+        }
+        
+        let personName = PersonName.person(withName: user.name ?? "", schemeTagger: nil)
+        return personName
+    }
+}
+
