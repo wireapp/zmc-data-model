@@ -609,21 +609,6 @@ public extension ZMUserEntry {
     
 }
 
-public extension ZMNewOtrMessage {
-    
-    @objc static func message(withSender sender: UserClient, nativePush: Bool, recipients: [ZMUserEntry], blob: Data? = nil) -> ZMNewOtrMessage {
-        let builder = ZMNewOtrMessage.builder()!
-        builder.setNativePush(nativePush)
-        builder.setSender(sender.zmClientId)
-        builder.setRecipientsArray(recipients)
-        if nil != blob {
-            builder.setBlob(blob)
-        }
-        return builder.build()
-    }
-    
-}
-
 @objc
 extension ZMAsset: EphemeralMessageContentType {
     
