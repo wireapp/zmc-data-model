@@ -20,6 +20,6 @@ import Foundation
 
 extension UserClient {
     public var safeRemoteIdentifier: SanitizedString {
-        return SanitizedString(stringLiteral: self.remoteIdentifier?.readableHash ?? "nil")
+        return SafeValueForLogging(self.remoteIdentifier?.readableHash ?? "nil")
     }
 }
