@@ -301,12 +301,6 @@ extension ZMUser {
 }
 
 extension ZMUser {
-    @objc(displayNameInConversation:)
-    public func displayName(in conversation: ZMConversation?) -> String {
-        guard let conversation = conversation, let nameGenerator = self.managedObjectContext?.zm_displayNameGenerator else { return self.displayName }
-        return nameGenerator.displayName(for: self, in: conversation)
-    }
-    
     // MARK: - Participant role
     
     @objc
@@ -334,3 +328,12 @@ extension ZMUser {
         return !hasUntrustedClients
     }
 }
+
+extension ZMUser {
+    
+    /// The initials e.g. "JS" for "John Smith"
+    @objc public var initials: String? {
+        return PersonName.person(withName: self.name ?? "", schemeTagger: nil).initials
+    }
+}
+
