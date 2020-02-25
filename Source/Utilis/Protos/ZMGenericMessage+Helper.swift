@@ -587,28 +587,6 @@ extension ZMExternal: MessageContentType {
     }
 }
 
-public extension ZMClientEntry {
-    
-    @objc static func entry(withClient client: UserClient, data: Data) -> ZMClientEntry {
-        let builder = ZMClientEntry.builder()!
-        builder.setClient(client.zmClientId)
-        builder.setText(data)
-        return builder.build()
-    }
-    
-}
-
-public extension ZMUserEntry {
-    
-    @objc static func entry(withUser user: ZMUser, clientEntries: [ZMClientEntry]) -> ZMUserEntry {
-        let builder = ZMUserEntry.builder()!
-        builder.setUser(user.zmUserId())
-        builder.setClientsArray(clientEntries)
-        return builder.build()
-    }
-    
-}
-
 @objc
 extension ZMAsset: EphemeralMessageContentType {
     
