@@ -19,7 +19,7 @@
 import Foundation
 
 extension UserClient {
-    public var safeRemoteIdentifier: SafeForLoggingStringConvertible {
+    public var safeRemoteIdentifier: SafeValueForLogging<String> {
         return SafeValueForLogging(self.remoteIdentifier?.readableHash ?? "nil")
     }
 }
