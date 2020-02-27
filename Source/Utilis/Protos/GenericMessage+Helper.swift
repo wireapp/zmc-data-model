@@ -666,6 +666,14 @@ public extension LinkPreview {
     }
 }
 
+//extension CompositeMessage {
+//    init(with items: [CompositeMessage.Item]) {
+//        self = CompositeMessage.with {
+//            $0.items = items
+//        }
+//    }
+//}
+
 // MARK:- Update assets
 
 extension GenericMessage {
