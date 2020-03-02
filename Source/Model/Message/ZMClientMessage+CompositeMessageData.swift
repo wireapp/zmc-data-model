@@ -45,3 +45,9 @@ extension ZMClientMessage: CompositeMessageData {
         return []
     }
 }
+
+extension ZMClientMessage: ConversationCompositeMessage {
+    public var compositeMessageData: CompositeMessageData? {
+        return nil
+    }
+}

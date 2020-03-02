@@ -192,7 +192,7 @@ extension ZMMessage {
 
 // MARK:- Conversation Message protocol implementation
 
-extension ZMMessage : ZMConversationMessage, ConversationCompositeMessage {
+extension ZMMessage : ZMConversationMessage {
     @NSManaged public var linkAttachments: [LinkAttachment]?
     @NSManaged public var needsLinkAttachmentsUpdate: Bool
     @NSManaged public var replies: Set<ZMMessage>
@@ -274,10 +274,6 @@ extension ZMMessage {
     }
     
     @objc public var locationMessageData: LocationMessageData? {
-        return nil
-    }
-    
-    public var compositeMessageData: CompositeMessageData? {
         return nil
     }
     
