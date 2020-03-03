@@ -28,14 +28,13 @@ public enum CompositeMessageItem {
 }
 
 public protocol ButtonMessageData {
-    var id: UUID { get }
-    var title: String { get }
+    var title: String? { get }
     var state: ButtonMessageState { get }
     func touchAction()
 }
 
 public enum ButtonMessageState {
-    case notSelected
+    case unselected
     case selected
     case confirmed
 }
