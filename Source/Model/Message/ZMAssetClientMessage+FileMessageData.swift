@@ -142,7 +142,7 @@ extension ZMAssetClientMessage: ZMFileMessageData {
         if let fileExtension = fileExtension,
             richAssetType == .audio,
             temporaryFileURL.pathExtension != fileExtension {
-            temporaryFileURL = temporaryFileURL.appendingPathExtension(fileExtension)
+            temporaryFileURL.appendPathExtension(fileExtension)
         }
         
         if FileManager.default.fileExists(atPath: temporaryFileURL.path) {
