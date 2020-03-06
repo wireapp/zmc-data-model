@@ -19,7 +19,7 @@
 import Foundation
 
 class ButtonState: ZMManagedObject {
-    @NSManaged private var identifier_data: Data?
+    @NSManaged private var remoteIdentifier_data: Data?
     @NSManaged private var stateValue: Int16
     @NSManaged var message: ZMMessage?
     
@@ -29,13 +29,13 @@ class ButtonState: ZMManagedObject {
         case confirmed
     }
     
-    var identifier: UUID? {
+    var remoteIdentifier: UUID? {
         get {
-            guard let data = identifier_data else { return nil }
+            guard let data = remoteIdentifier_data else { return nil }
             return UUID(data: data)
         }
         set {
-            identifier_data = newValue?.uuidData
+            remoteIdentifier_data = newValue?.uuidData
         }
     }
     
