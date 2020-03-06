@@ -18,15 +18,25 @@
 
 import Foundation
 
-public class ButtonState: ZMManagedObject {
-    @NSManaged public var identifier: UUID?
-    @NSManaged public var stateValue: Int16
-    @NSManaged public var message: ZMMessage?
+class ButtonState: ZMManagedObject {
+    @NSManaged private var identifier_data: Data?
+    @NSManaged private var stateValue: Int16
+    @NSManaged var message: ZMMessage?
     
     enum State: Int16 {
         case unselected
         case selected
         case confirmed
+    }
+    
+    var identifier: UUID? {
+        get {
+            guard let data = identifier_data else { return nil }
+            return UUID(data: data)
+        }
+        set {
+            identifier_data = newValue?.uuidData
+        }
     }
     
     var state: State {

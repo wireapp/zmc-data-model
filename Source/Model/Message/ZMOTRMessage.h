@@ -29,7 +29,7 @@ extern NSString * const DeliveredKey;
 
 @interface ZMOTRMessage : ZMMessage
 
-@property (nullable, nonatomic, retain) NSSet<ButtonState *> *buttonStates;
+@property (nonatomic, nullable) NSSet<ButtonState *> *buttonStates;
 @property (nonatomic) NSOrderedSet *dataSet;
 @property (nonatomic, readonly) NSSet *missingRecipients;
 @property (nonatomic, readonly, nullable) NSString *dataSetDebugInformation;
