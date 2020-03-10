@@ -172,10 +172,7 @@ extension CompositeMessageItemContent: ButtonMessageData {
             let buttonState = self.buttonState ??
                 ButtonState.insert(with: buttonId, message: self.parentMessage, inContext: moc)
             buttonState.state = .selected
-
-            // TODO: Figure out how to send to only one recipient
             self.parentMessage.conversation?.appendButtonAction(with: buttonId, referenceMessageId: messageId)
-
             moc.saveOrRollback()
         }
     }
