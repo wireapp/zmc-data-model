@@ -280,6 +280,28 @@ public extension NewOtrMessage {
     }
 }
 
+extension ButtonAction: MessageCapable {
+    init(buttonId: String, referenceMessageId: String) {
+        self = ButtonAction.with {
+            $0.buttonID = buttonId
+            $0.referenceMessageID = referenceMessageId
+        }
+    }
+    
+    public func setContent(on message: inout GenericMessage) {
+        message.buttonAction = self
+    }
+    
+    public var expectsReadConfirmation: Bool {
+        get { return false }
+        set { }
+    }
+    
+    public var legalHoldStatus: LegalHoldStatus {
+        return defaultLegalHoldStatus
+    }
+}
+
 extension Location: EphemeralMessageCapable {
     public func setEphemeralContent(on ephemeral: inout Ephemeral) {
         ephemeral.location = self

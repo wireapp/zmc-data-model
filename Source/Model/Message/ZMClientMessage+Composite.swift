@@ -48,6 +48,19 @@ public enum ButtonMessageState {
     case unselected
     case selected
     case confirmed
+    
+    init(from buttonState: ButtonState.State?) {
+        switch buttonState {
+        case .some(.unselected):
+            self = .unselected
+        case .some(.selected):
+            self = .selected
+        case .some(.confirmed):
+            self = .confirmed
+        default:
+            self = .unselected
+        }
+    }
 }
 
 extension ZMClientMessage: CompositeMessageData {
@@ -145,14 +158,45 @@ extension CompositeMessageItemContent: ButtonMessageData {
     }
     
     var state: ButtonMessageState {
-        // TODO: Get message state from database
-        return .unselected
+        return ButtonMessageState(from: buttonState?.state)
     }
     
     func touchAction() {
-        // TODO:
-        // 1. Update button state
-        // 2. Insert ButtonAction as silent message in conversation with service as a recipient
-        // 3. Save changes
+        guard let moc = parentMessage.managedObjectContext,
+            let button = button,
+            let message = parentMessage.underlyingMessage,
+            !hasSelectedButton else { return }
+
+        moc.performGroupedBlock { [weak self] in
+            guard let `self` = self else { return }
+            var buttonState: ButtonState
+            if let state = self.buttonState {
+                buttonState = state
+            }
+            else {
+                buttonState = ButtonState.insertNewObject(in: moc)
+                buttonState.remoteIdentifier = UUID(uuidString: button.id)
+                buttonState.message = self.parentMessage
+            }
+            buttonState.state = .selected
+
+            // TODO: Figure out how to send to only one recipient
+            self.parentMessage.conversation?.appendButtonAction(with: button.id, referenceMessageId: message.messageID)
+
+            moc.saveOrRollback()
+        }
+    }
+    
+    private var hasSelectedButton: Bool {
+        return parentMessage.buttonStates?.contains(where: {$0.state == .selected}) ?? false
+    }
+    
+    private var buttonState: ButtonState? {
+        guard let button = button else { return nil }
+
+        return parentMessage.buttonStates?.first(where: { buttonState in
+            guard let remoteIdentifier = buttonState.remoteIdentifier else { return false }
+            return remoteIdentifier == UUID(uuidString: button.id)
+        })
     }
 }
