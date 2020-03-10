@@ -163,25 +163,18 @@ extension CompositeMessageItemContent: ButtonMessageData {
     
     func touchAction() {
         guard let moc = parentMessage.managedObjectContext,
-            let button = button,
-            let message = parentMessage.underlyingMessage,
+            let buttonId = button?.id,
+            let messageId = parentMessage.nonce,
             !hasSelectedButton else { return }
 
         moc.performGroupedBlock { [weak self] in
             guard let `self` = self else { return }
-            var buttonState: ButtonState
-            if let state = self.buttonState {
-                buttonState = state
-            }
-            else {
-                buttonState = ButtonState.insertNewObject(in: moc)
-                buttonState.remoteIdentifier = UUID(uuidString: button.id)
-                buttonState.message = self.parentMessage
-            }
+            let buttonState = self.buttonState ??
+                ButtonState.insert(with: buttonId, message: self.parentMessage, inContext: moc)
             buttonState.state = .selected
 
             // TODO: Figure out how to send to only one recipient
-            self.parentMessage.conversation?.appendButtonAction(with: button.id, referenceMessageId: message.messageID)
+            self.parentMessage.conversation?.appendButtonAction(with: buttonId, referenceMessageId: messageId)
 
             moc.saveOrRollback()
         }
@@ -196,7 +189,7 @@ extension CompositeMessageItemContent: ButtonMessageData {
 
         return parentMessage.buttonStates?.first(where: { buttonState in
             guard let remoteIdentifier = buttonState.remoteIdentifier else { return false }
-            return remoteIdentifier == UUID(uuidString: button.id)
+            return remoteIdentifier == button.id
         })
     }
 }

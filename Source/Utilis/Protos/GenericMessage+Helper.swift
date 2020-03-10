@@ -281,10 +281,10 @@ public extension NewOtrMessage {
 }
 
 extension ButtonAction: MessageCapable {
-    init(buttonId: String, referenceMessageId: String) {
+    init(buttonId: String, referenceMessageId: UUID) {
         self = ButtonAction.with {
             $0.buttonID = buttonId
-            $0.referenceMessageID = referenceMessageId
+            $0.referenceMessageID = referenceMessageId.transportString()
         }
     }
     

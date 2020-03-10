@@ -23,19 +23,26 @@ class ButtonState: ZMManagedObject {
     @NSManaged private var stateValue: Int16
     @NSManaged var message: ZMMessage?
     
+    static func insert(with id: String, message: ZMMessage, inContext moc: NSManagedObjectContext) -> ButtonState {
+        let buttonState = ButtonState.insertNewObject(in: moc)
+        buttonState.remoteIdentifier = id
+        buttonState.message = message
+        return buttonState
+    }
+    
     enum State: Int16 {
         case unselected
         case selected
         case confirmed
     }
     
-    var remoteIdentifier: UUID? {
+    var remoteIdentifier: String? {
         get {
             guard let data = remoteIdentifier_data else { return nil }
-            return UUID(data: data)
+            return String(data: data, encoding: .utf8)
         }
         set {
-            remoteIdentifier_data = newValue?.uuidData
+            remoteIdentifier_data = newValue?.data(using: .utf8)
         }
     }
     
