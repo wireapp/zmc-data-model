@@ -19,10 +19,10 @@
 import Foundation
 
 class ButtonState: ZMManagedObject {
-    @NSManaged private var remoteIdentifier_data: Data?
     @NSManaged private var stateValue: Int16
     @NSManaged var message: ZMMessage?
-    
+    @NSManaged var remoteIdentifier: String?
+
     static func insert(with id: String, message: ZMMessage, inContext moc: NSManagedObjectContext) -> ButtonState {
         let buttonState = ButtonState.insertNewObject(in: moc)
         buttonState.remoteIdentifier = id
@@ -30,20 +30,18 @@ class ButtonState: ZMManagedObject {
         return buttonState
     }
     
+    override static func entityName() -> String {
+        return String(describing: ButtonState.self)
+    }
+    
+    override static func isTrackingLocalModifications() -> Bool {
+        return false
+    }
+
     enum State: Int16 {
         case unselected
         case selected
         case confirmed
-    }
-    
-    var remoteIdentifier: String? {
-        get {
-            guard let data = remoteIdentifier_data else { return nil }
-            return String(data: data, encoding: .utf8)
-        }
-        set {
-            remoteIdentifier_data = newValue?.data(using: .utf8)
-        }
     }
     
     var state: State {
