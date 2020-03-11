@@ -22,6 +22,7 @@ class ButtonState: ZMManagedObject {
     @NSManaged private var stateValue: Int16
     @NSManaged var message: ZMMessage?
     @NSManaged var remoteIdentifier: String?
+    @NSManaged var errorMessage: String?
 
     static func insert(with id: String, message: ZMMessage, inContext moc: NSManagedObjectContext) -> ButtonState {
         let buttonState = ButtonState.insertNewObject(in: moc)

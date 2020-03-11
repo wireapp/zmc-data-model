@@ -24,6 +24,7 @@
         <relationship name="dataSet" toMany="YES" deletionRule="Cascade" ordered="YES" destinationEntity="GenericMessageData" inverseName="asset" inverseEntity="GenericMessageData" syncable="YES"/>
     </entity>
     <entity name="ButtonState" representedClassName=".ButtonState" syncable="YES">
+        <attribute name="errorMessage" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="remoteIdentifier" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="stateValue" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <relationship name="message" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Message" inverseName="buttonStates" inverseEntity="Message" syncable="YES"/>
@@ -316,7 +317,7 @@
         <element name="Action" positionX="-189" positionY="72" width="128" height="75"/>
         <element name="AddressBookEntry" positionX="9" positionY="153" width="128" height="90"/>
         <element name="AssetClientMessage" positionX="9" positionY="153" width="128" height="225"/>
-        <element name="ButtonState" positionX="-225" positionY="36" width="128" height="90"/>
+        <element name="ButtonState" positionX="-225" positionY="36" width="128" height="105"/>
         <element name="ClientMessage" positionX="9" positionY="153" width="128" height="105"/>
         <element name="Connection" positionX="0" positionY="0" width="128" height="165"/>
         <element name="Conversation" positionX="0" positionY="0" width="128" height="705"/>
