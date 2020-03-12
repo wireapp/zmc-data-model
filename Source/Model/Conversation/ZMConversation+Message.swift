@@ -24,7 +24,7 @@ private let log = ZMSLog(tag: "Conversations")
 extension ZMConversation {
     
     @discardableResult
-    func appendButtonAction(with id: String, referenceMessageId: UUID, nonce: UUID = UUID()) -> ZMClientMessage? {
+    func append(buttonActionWithId id: String, referenceMessageId: UUID, nonce: UUID = UUID()) -> ZMClientMessage? {
         let buttonAction = ButtonAction(buttonId: id, referenceMessageId: referenceMessageId)
         return appendClientMessage(with: GenericMessage(content: buttonAction, nonce: nonce))
     }

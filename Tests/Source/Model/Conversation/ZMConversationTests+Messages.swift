@@ -592,7 +592,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         let messageId = UUID()
 
         // WHEN
-        let message = conversation.appendButtonAction(with: buttonId, referenceMessageId: messageId)
+        let message = conversation.append(buttonActionWithId: buttonId, referenceMessageId: messageId)
 
         // THEN
         XCTAssertEqual(message, conversation.lastMessage)
