@@ -49,16 +49,22 @@ public enum ButtonMessageState {
     case selected
     case confirmed
     
-    init(from buttonState: ButtonState.State?) {
-        switch buttonState {
-        case .some(.unselected):
+    init(from state: ButtonState.State?) {
+        guard let state = state else {
             self = .unselected
-        case .some(.selected):
+            return
+        }
+        self = ButtonMessageState(from: state)
+    }
+    
+    init(from state: ButtonState.State) {
+        switch state {
+        case .unselected:
+            self = .unselected
+        case .selected:
             self = .selected
-        case .some(.confirmed):
+        case .confirmed:
             self = .confirmed
-        default:
-            self = .unselected
         }
     }
 }
