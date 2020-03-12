@@ -70,6 +70,7 @@ class ZMClientMessageTests_Composite: BaseZMClientMessageTests {
 
         // WHEN
         button.touchAction()
+        _ = waitForAllGroupsToBeEmpty(withTimeout: 0.5)
         
         // THEN
         let lastMessage = conversation.lastMessage as? ZMClientMessage
