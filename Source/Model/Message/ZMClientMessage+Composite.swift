@@ -41,6 +41,7 @@ public enum CompositeMessageItem {
 public protocol ButtonMessageData {
     var title: String? { get }
     var state: ButtonMessageState { get }
+    var isExpired: Bool { get }
     func touchAction()
 }
 
@@ -167,6 +168,10 @@ extension CompositeMessageItemContent: ButtonMessageData {
         return ButtonMessageState(from: buttonState?.state)
     }
     
+    var isExpired: Bool {
+        return buttonState?.isExpired ?? false
+    }
+    
     func touchAction() {
         guard let moc = parentMessage.managedObjectContext,
             let buttonId = button?.id,
@@ -178,6 +183,7 @@ extension CompositeMessageItemContent: ButtonMessageData {
             let buttonState = self.buttonState ??
                 ButtonState.insert(with: buttonId, message: self.parentMessage, inContext: moc)
             buttonState.state = .selected
+            self.parentMessage.buttonStates?.resetExpired()
             self.parentMessage.conversation?.append(buttonActionWithId: buttonId, referenceMessageId: messageId)
             moc.saveOrRollback()
         }
