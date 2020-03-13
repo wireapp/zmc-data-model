@@ -93,6 +93,47 @@ extension ZMClientMessage: ConversationCompositeMessage {
     }
 }
 
+extension ZMClientMessage {
+    @objc static func updateButtonStates(withConfirmation confirmation: ZMButtonActionConfirmation,
+                                         forConversation conversation: ZMConversation,
+                                         inContext moc: NSManagedObjectContext) {
+        let nonce = UUID(uuidString: confirmation.referenceMessageId)
+        let message = ZMClientMessage.fetch(withNonce: nonce, for: conversation, in: moc)
+        message?.updateButtonStates(withConfirmation: confirmation)
+    }
+    
+    private func updateButtonStates(withConfirmation confirmation: ZMButtonActionConfirmation) {
+        guard let states = buttonStates, states.contains(where: { $0.remoteIdentifier == confirmation.buttonId }) else {
+            return
+        }
+        managedObjectContext?.performGroupedBlock { [managedObjectContext] in
+            for state in states {
+                state.state = state.remoteIdentifier == confirmation.buttonId ?
+                    .confirmed :
+                    .unselected
+            }
+            managedObjectContext?.saveOrRollback()
+        }
+    }
+    
+    @objc static func expireButtonState(forButtonAction buttonAction: ZMButtonAction,
+                                        forConversation conversation: ZMConversation,
+                                        inContext moc: NSManagedObjectContext) {
+        let nonce = UUID(uuidString: buttonAction.referenceMessageId)
+        let message = ZMClientMessage.fetch(withNonce: nonce, for: conversation, in: moc)
+        message?.expireButtonState(withButtonAction: buttonAction)
+    }
+    
+    private func expireButtonState(withButtonAction buttonAction: ZMButtonAction) {
+        let state = buttonStates?.first(where: { $0.remoteIdentifier == buttonAction.buttonId })
+        managedObjectContext?.performGroupedBlock { [managedObjectContext] in
+            state?.isExpired = true
+            state?.state = .unselected
+            managedObjectContext?.saveOrRollback()
+        }
+    }
+}
+
 fileprivate class CompositeMessageItemContent: NSObject {
     private let parentMessage: ZMClientMessage
     private let item: Composite.Item

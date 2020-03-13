@@ -68,7 +68,8 @@ extension ZMClientMessage {
                               #keyPath(ZMMessage.confirmations),
                               #keyPath(ZMClientMessage.quote),
                               MessageKey.linkPreview.rawValue,
-                              #keyPath(ZMMessage.linkAttachments)]
+                              #keyPath(ZMMessage.linkAttachments),
+                              #keyPath(ZMClientMessage.buttonStates)]
         return keys.union(additionalKeys)
     }
 }
@@ -130,7 +131,8 @@ extension ZMSystemMessage {
                 "senderChanged: \(senderChanged)",
                 "isObfuscatedChanged: \(isObfuscatedChanged)",
                 "genericMessageChanged: \(genericMessageChanged)",
-                "linkAttachmentsChanged: \(linkAttachmentsChanged)"
+                "linkAttachmentsChanged: \(linkAttachmentsChanged)",
+                "buttonStatesChanged: \(buttonStatesChanged)"
                 ].joined(separator: ", ")
     }
     
@@ -199,6 +201,10 @@ extension ZMSystemMessage {
 
     public var linkAttachmentsChanged: Bool {
         return changedKeysContain(keys: #keyPath(ZMMessage.linkAttachments))
+    }
+    
+    public var buttonStatesChanged: Bool {
+        return changedKeysContain(keys: #keyPath(ZMClientMessage.buttonStates))
     }
     
     public var userChangeInfo : UserChangeInfo? {
