@@ -107,11 +107,7 @@ extension ZMClientMessage {
             return
         }
         managedObjectContext?.performGroupedBlock { [managedObjectContext] in
-            for state in states {
-                state.state = state.remoteIdentifier == confirmation.buttonId ?
-                    .confirmed :
-                    .unselected
-            }
+            states.confirmButtonState(withId: confirmation.buttonId)
             managedObjectContext?.saveOrRollback()
         }
     }

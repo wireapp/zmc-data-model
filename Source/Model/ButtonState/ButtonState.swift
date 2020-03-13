@@ -56,6 +56,14 @@ class ButtonState: ZMManagedObject {
 }
 
 extension Set where Element: ButtonState {
+    func confirmButtonState(withId id: String) {
+        for button in self {
+            button.state = button.remoteIdentifier == id ?
+                .confirmed :
+                .unselected
+        }
+    }
+    
     func resetExpired() {
         for button in self {
             button.isExpired = false
