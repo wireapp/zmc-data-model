@@ -114,7 +114,7 @@ class ZMClientMessageTests_Composite: BaseZMClientMessageTests {
         XCTAssertEqual(WireDataModel.ButtonState.State.selected, buttonState?.state)
     }
     
-    func testThatItUpdatesButtonStatesUponButtonActionConfirmation() {
+    func testThatItUpdatesButtonStates_WhenReceivingButtonActionConfirmation() {
         // GIVEN
         let nonce = UUID()
         let buttonItems = [
@@ -163,7 +163,7 @@ class ZMClientMessageTests_Composite: BaseZMClientMessageTests {
         }
     }
     
-    func testThatItSetsIsExpiredAndUnselectsButtonState() {
+    func testThatItSetsIsExpiredAndUnselectsButtonState_WhenButtonActionMessageExpires() {
         // GIVEN
         let nonce = UUID()
         let message = compositeMessage(with: compositeProto(items: compositeItemButton(buttonID: "1")), nonce: nonce)
