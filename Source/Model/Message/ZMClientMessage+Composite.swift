@@ -106,10 +106,7 @@ extension ZMClientMessage {
         guard let states = buttonStates, states.contains(where: { $0.remoteIdentifier == confirmation.buttonId }) else {
             return
         }
-        managedObjectContext?.performGroupedBlock { [managedObjectContext] in
-            states.confirmButtonState(withId: confirmation.buttonId)
-            managedObjectContext?.saveOrRollback()
-        }
+        states.confirmButtonState(withId: confirmation.buttonId)
     }
     
     @objc static func expireButtonState(forButtonAction buttonAction: ZMButtonAction,

@@ -151,8 +151,10 @@ class ZMClientMessageTests_Composite: BaseZMClientMessageTests {
         let confirmation = builder.build()
         
         // WHEN
-        ZMClientMessage.updateButtonStates(withConfirmation: confirmation!, forConversation: conversation, inContext: uiMOC)
-        _ = waitForAllGroupsToBeEmpty(withTimeout: 0.5)
+        uiMOC.performAndWait { [uiMOC] in
+            ZMClientMessage.updateButtonStates(withConfirmation: confirmation!, forConversation: conversation, inContext: uiMOC)
+            uiMOC.saveOrRollback()
+        }
         
         // THEN
         XCTAssertEqual(buttonStates[0].state, WireDataModel.ButtonState.State.confirmed)
