@@ -27,6 +27,8 @@
 /// SHA-256 digest
 @property (nonatomic, readonly) NSData *sha256;
 
++ (ZMEncryptionKeyWithChecksum *)keyWithAES:(NSData *)aesKey digest:(NSData *)sha256;
+
 @end
 
 
@@ -37,7 +39,10 @@
 /// The AES Key used to encrypt @c data and the sha-256 digest of @c data
 @property (nonatomic, readonly) ZMEncryptionKeyWithChecksum *keys;
 
++ (ZMExternalEncryptedDataWithKeys *)dataWithKeysWithData:(NSData *)data keys:(ZMEncryptionKeyWithChecksum *)keys;
+
 @end
+
 
 
 @interface ZMGenericMessage (External)

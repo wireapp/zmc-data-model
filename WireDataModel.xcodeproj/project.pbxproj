@@ -183,6 +183,9 @@
 		5EFE9C0F2126D3FA007932A6 /* NormalizationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5EFE9C0E2126D3FA007932A6 /* NormalizationResult.swift */; };
 		631A0578240420380062B387 /* UserClient+SafeLogging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631A0577240420380062B387 /* UserClient+SafeLogging.swift */; };
 		631A0586240439470062B387 /* UserClientTests+SafeLogging.swift in Sources */ = {isa = PBXBuildFile; fileRef = 631A0585240439470062B387 /* UserClientTests+SafeLogging.swift */; };
+		63340BBF241FF249004ED87C /* ZMOTRMessage+UpdateEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63340BBE241FF249004ED87C /* ZMOTRMessage+UpdateEvent.swift */; };
+		63340BC1241FF8D1004ED87C /* GenericMessage+UpdateEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63340BC0241FF8D1004ED87C /* GenericMessage+UpdateEvent.swift */; };
+		63340BC3241FF935004ED87C /* GenericMessage+External.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63340BC2241FF935004ED87C /* GenericMessage+External.swift */; };
 		6334B516238BDA84000470F0 /* UserAvailabilityTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6334B515238BDA84000470F0 /* UserAvailabilityTests.swift */; };
 		63495DF023F6BD2A002A7C59 /* GenericMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63495DEF23F6BD2A002A7C59 /* GenericMessageTests.swift */; };
 		63495E1B23FED9A9002A7C59 /* ZMUser+Protobuf.swift in Sources */ = {isa = PBXBuildFile; fileRef = 63495E1A23FED9A9002A7C59 /* ZMUser+Protobuf.swift */; };
@@ -797,6 +800,9 @@
 		5EFE9C0E2126D3FA007932A6 /* NormalizationResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NormalizationResult.swift; sourceTree = "<group>"; };
 		631A0577240420380062B387 /* UserClient+SafeLogging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserClient+SafeLogging.swift"; sourceTree = "<group>"; };
 		631A0585240439470062B387 /* UserClientTests+SafeLogging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UserClientTests+SafeLogging.swift"; sourceTree = "<group>"; };
+		63340BBE241FF249004ED87C /* ZMOTRMessage+UpdateEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMOTRMessage+UpdateEvent.swift"; sourceTree = "<group>"; };
+		63340BC0241FF8D1004ED87C /* GenericMessage+UpdateEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GenericMessage+UpdateEvent.swift"; sourceTree = "<group>"; };
+		63340BC2241FF935004ED87C /* GenericMessage+External.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GenericMessage+External.swift"; sourceTree = "<group>"; };
 		6334B515238BDA84000470F0 /* UserAvailabilityTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserAvailabilityTests.swift; sourceTree = "<group>"; };
 		63495DEF23F6BD2A002A7C59 /* GenericMessageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GenericMessageTests.swift; sourceTree = "<group>"; };
 		63495E1A23FED9A9002A7C59 /* ZMUser+Protobuf.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMUser+Protobuf.swift"; sourceTree = "<group>"; };
@@ -1690,8 +1696,10 @@
 				54363A001D7876200048FD7D /* ZMClientMessage+Encryption.swift */,
 				165124D32188B613006A3C75 /* ZMClientMessage+Quotes.swift */,
 				165124D52188CF66006A3C75 /* ZMClientMessage+Editing.swift */,
+				63340BC0241FF8D1004ED87C /* GenericMessage+UpdateEvent.swift */,
 				BFD2E7971CBE796600BF195A /* ZMGenericMessage+UpdateEvent.h */,
 				BFD2E7981CBE796600BF195A /* ZMGenericMessage+UpdateEvent.m */,
+				63340BC2241FF935004ED87C /* GenericMessage+External.swift */,
 				F9A705F81CAEE01D00C2F5FE /* ZMGenericMessage+External.h */,
 				F9A705F91CAEE01D00C2F5FE /* ZMGenericMessage+External.m */,
 				168913DB2085066800F1E98A /* ZMGenericMessage+Debug.swift */,
@@ -1711,6 +1719,7 @@
 				BF8F3A821E4B61C70079E9E7 /* TextSearchQuery.swift */,
 				F9A706011CAEE01D00C2F5FE /* ZMOTRMessage.h */,
 				F9A706021CAEE01D00C2F5FE /* ZMOTRMessage.m */,
+				63340BBE241FF249004ED87C /* ZMOTRMessage+UpdateEvent.swift */,
 				16030DC421AEE25500F8032E /* ZMOTRMessage+Confirmations.swift */,
 				EF1F850322FD71BB0020F6DC /* ZMOTRMessage+VerifySender.swift */,
 				544A46AD1E2E82BA00D6A748 /* ZMOTRMessage+SecurityDegradation.swift */,
@@ -2806,6 +2815,7 @@
 				F93265211D8950F10076AAD6 /* NSManagedObjectContext+FetchRequest.swift in Sources */,
 				CE4EDC091D6D9A3D002A20AA /* Reaction.swift in Sources */,
 				F1FDF2F021B1448800E037A1 /* ZMConversation+GenericMessage.swift in Sources */,
+				63340BC1241FF8D1004ED87C /* GenericMessage+UpdateEvent.swift in Sources */,
 				F963E96F1D9ADD5A00098AD3 /* ZMGenericMessage+PropertyUtils.m in Sources */,
 				F1FDF2FC21B1567900E037A1 /* ZMClientMessage+Underlying.swift in Sources */,
 				544E8C131E2F825700F9B8B8 /* ZMConversation+SecurityLevel.swift in Sources */,
@@ -2864,6 +2874,7 @@
 				16460A44206515370096B616 /* NSManagedObjectContext+BackupImport.swift in Sources */,
 				F90D99A51E02DC6B00034070 /* AssetCollectionBatched.swift in Sources */,
 				54FB03AF1E41FC86000E13DC /* NSManagedObjectContext+Patches.swift in Sources */,
+				63340BBF241FF249004ED87C /* ZMOTRMessage+UpdateEvent.swift in Sources */,
 				547E66491F7503A5008CB1FA /* ZMConversation+Notifications.swift in Sources */,
 				EF18C7E61F9E4F8A0085A832 /* ZMUser+Filename.swift in Sources */,
 				F9A706781CAEE01D00C2F5FE /* ZMClientMessage.m in Sources */,
@@ -2889,6 +2900,7 @@
 				54F6CEAB1CE2972200A1276D /* ZMAssetClientMessage+Download.swift in Sources */,
 				F9B71F221CB264EF001DB03F /* ZMConversation.m in Sources */,
 				8767E85B216391DF00390F75 /* ZMConversation+Mute.swift in Sources */,
+				63340BC3241FF935004ED87C /* GenericMessage+External.swift in Sources */,
 				F18998A61E7BE03800E579A2 /* zmessaging.xcdatamodeld in Sources */,
 				BF103F9D1F0112F30047FDE5 /* ManagedObjectObserver.swift in Sources */,
 				F9A706B71CAEE01D00C2F5FE /* UserChangeInfo.swift in Sources */,

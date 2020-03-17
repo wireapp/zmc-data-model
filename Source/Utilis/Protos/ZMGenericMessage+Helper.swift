@@ -228,6 +228,9 @@ public extension ZMGenericMessage {
         return builder.buildAndValidate()
     }
 
+    var genericMessage: GenericMessage? {
+        return try? GenericMessage(serializedData: data())
+    }
 }
 
 @objc
