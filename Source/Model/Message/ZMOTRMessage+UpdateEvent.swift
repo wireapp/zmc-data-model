@@ -24,10 +24,13 @@ extension ZMOTRMessage {
         guard let conversation = self.conversation(for: updateEvent, in: moc, prefetchResult: prefetchResult) else { return nil }
         let selfUser = ZMUser.selfUser(in: moc)
         
-        guard conversation.conversationType != .self && updateEvent.senderUUID() == selfUser.remoteIdentifier else {
-            return nil
+        if conversation.conversationType == .self && updateEvent.senderUUID() != selfUser.remoteIdentifier  {
+            return nil // don't process messages in the self conversation not sent from the self user
         }
         
+        // Update the legal hold state in the conversation
+        conversation.updateSecurityLevelIfNeededAfterReceiving(message: <#T##ZMGenericMessage#>, timestamp: updateEvent.timeStamp() ?? Date())
         
+        return nil
     }
 }

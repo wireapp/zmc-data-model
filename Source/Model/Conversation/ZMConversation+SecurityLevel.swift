@@ -110,7 +110,7 @@ extension ZMConversation {
     /// If the legal hold status hint inside the received message is different than the local status,
     /// we update the local version to match the remote one.
     @objc(updateSecurityLevelIfNeededAfterReceiving:timestamp:)
-    public func updateSecurityLevelIfNeededAfterReceiving(message: ZMGenericMessage, timestamp: Date) {
+    public func updateSecurityLevelIfNeededAfterReceiving(message: GenericMessage, timestamp: Date) {
         updateLegalHoldIfNeededWithHint(from: message, timestamp: timestamp)
     }
     
@@ -237,7 +237,8 @@ extension ZMConversation {
     }
 
     /// Update the legal hold status based on the hint of a message.
-    private func updateLegalHoldIfNeededWithHint(from message: ZMGenericMessage, timestamp: Date) {
+    private func updateLegalHoldIfNeededWithHint(from message: GenericMessage, timestamp: Date) {
+        
         switch message.content?.legalHoldStatus {
         case .ENABLED? where !legalHoldStatus.denotesEnabledComplianceDevice:
             needsToVerifyLegalHold = true
