@@ -82,6 +82,54 @@ public extension GenericMessage {
 }
 
 extension GenericMessage {
+    var legalHoldStatus: LegalHoldStatus {
+        guard let content = content else { return .unknown }
+        switch content {
+        case .asset(let value):
+            return value.legalHoldStatus
+        case .availability(let value):
+            return .unknown
+        case .buttonAction(let value):
+            return .unknown
+        case .buttonActionConfirmation(let value):
+            return .unknown
+        case .calling(let value):
+            return value.legalHoldStatus
+        case .cleared(let value):
+            return value.legalHoldStatus
+        case .clientAction(let value):
+            return .unknown
+        case .composite(let value):
+            return value.legalHoldStatus
+        case .confirmation(let value):
+            return value.legalHoldStatus
+        case .deleted(let value):
+            return value.legalHoldStatus
+        case .edited(let value):
+            return value.legalHoldStatus
+        case .ephemeral(let value):
+            return value.legalHoldStatus
+        case .external(let value):
+            return value.legalHoldStatus
+        case .hidden(let value):
+            return value.legalHoldStatus
+        case .image(let value):
+            return .unknown
+        case .knock(let value):
+            return value.legalHoldStatus
+        case .lastRead(let value):
+            return value.legalHoldStatus
+        case .location(let value):
+            return value.legalHoldStatus
+        case .reaction(let value):
+            return value.legalHoldStatus
+        case .text(let value):
+            return value.legalHoldStatus
+        }
+    }
+}
+
+extension GenericMessage {
     var locationData: Location? {
         guard let content = content else { return nil }
         switch content {
