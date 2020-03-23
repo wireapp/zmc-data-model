@@ -20,6 +20,8 @@ import Foundation
 
 @objcMembers public class ZMClientMessage: ZMOTRMessage {
 
+    @objc public static let linkPreviewStateKey = "linkPreviewState"
+    
     /// Link Preview state
     @NSManaged public var updatedTimestamp: Date?
     

@@ -32,8 +32,6 @@
 @interface ZMClientMessageTests : BaseZMMessageTests
 @end
 
-NSString * const ZMClientMessageLinkPreviewStateKey = @"linkPreviewState";
-
 @implementation ZMClientMessageTests
 
 - (void)testThatItDoesNotCreateTextMessagesFromUpdateEventIfThereIsAlreadyAClientMessageWithTheSameNonce
@@ -127,13 +125,13 @@ NSString * const ZMClientMessageLinkPreviewStateKey = @"linkPreviewState";
 {
     // given
     ZMClientMessage *message = [self createClientTextMessage];
-    XCTAssertFalse([message.keysThatHaveLocalModifications containsObject:ZMClientMessageLinkPreviewStateKey]);
+    XCTAssertFalse([message.keysThatHaveLocalModifications containsObject:ZMClientMessage.linkPreviewStateKey]);
     
     // when
     message.linkPreviewState = state;
     
     // then
-    XCTAssertEqual([message.keysThatHaveLocalModifications containsObject:ZMClientMessageLinkPreviewStateKey], shouldSet);
+    XCTAssertEqual([message.keysThatHaveLocalModifications containsObject:ZMClientMessage.linkPreviewStateKey], shouldSet);
 }
 
 - (void)testThatAInsertedClientMessageHasADefaultLinkPreviewStateDone
