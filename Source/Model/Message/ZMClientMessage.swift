@@ -160,3 +160,14 @@ import Foundation
         return false
     }
 }
+
+extension ZMClientMessage {
+
+    public override var imageMessageData: ZMImageMessageData? {
+        return nil
+    }
+
+    public override var fileMessageData: ZMFileMessageData? {
+        return nil
+    }
+}
