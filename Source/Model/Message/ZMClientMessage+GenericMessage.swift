@@ -21,10 +21,6 @@ import Foundation
 extension ZMClientMessage {
     
     public override var genericMessage: ZMGenericMessage? {
-        return genericClientMessage
-    }
-    
-    public var genericClientMessage: ZMGenericMessage? {
         guard !isZombieObject else { return nil }
         
         if self.cachedGenericMessage == nil {
