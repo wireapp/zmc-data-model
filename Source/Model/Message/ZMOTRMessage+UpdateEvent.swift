@@ -21,7 +21,6 @@ import Foundation
 private let zmLog = ZMSLog(tag: "event-processing")
 
 extension ZMOTRMessage {
-
     static func createOrUpdateMessage(fromUpdateEvent updateEvent: ZMUpdateEvent,
                                        inManagedObjectContext moc: NSManagedObjectContext,
                                        prefetchResult: ZMFetchRequestBatchResult) -> ZMOTRMessage? {
@@ -29,12 +28,9 @@ extension ZMOTRMessage {
 
         guard
             let senderID = updateEvent.senderUUID(),
-            let conversation = self.conversation(for: updateEvent, in: moc, prefetchResult: prefetchResult) else {
+            let conversation = self.conversation(for: updateEvent, in: moc, prefetchResult: prefetchResult),
+            !isSelf(conversation: conversation, andIsSenderID: senderID, differentFromSelfUserID: selfUser.remoteIdentifier) else {
             return nil
-        }
-
-        if conversation.isSelfConversation && senderID != selfUser.remoteIdentifier  {
-            return nil // don't process messages in the self conversation not sent from the self user
         }
         
         guard let message = ZMGenericMessage(from: updateEvent) else {
@@ -73,9 +69,60 @@ extension ZMOTRMessage {
         } else if message.hasEdited() {
             return ZMClientMessage.editMessage(withEdit: message.edited, forConversation: conversation, updateEvent: updateEvent, inContext: moc, prefetchResult: prefetchResult)
         } else if conversation.shouldAdd(event: updateEvent) && !(message.hasClientAction() || message.hasCalling() || message.hasAvailability()) {
+            guard let nonce = UUID(uuidString: message.messageId) else { return nil }
+            let messageClass: AnyClass = ZMGenericMessage.entityClass(for: message)
+            var clientMessage = messageClass.fetch(withNonce: nonce, for: conversation, in: moc) as? ZMOTRMessage
             
+            // This seems to be redundent with the guard statement a few lines down
+            guard !(clientMessage?.isZombieObject ?? false) else {
+                return nil
+            }
+            
+            var isNewMessage = false
+            if clientMessage == nil {
+                isNewMessage = true
+                
+                // Init from a subclass of ZMOTRMessage is necessary to have the right type to call update(with:updateEvent:initialUpdate:)
+                clientMessage = ZMOTRMessage(nonce: nonce, managedObjectContext: moc)
+                clientMessage?.senderClientID = updateEvent.senderClientID()
+                clientMessage?.serverTimestamp = updateEvent.timeStamp()
+                
+                if isGroup(conversation: conversation, andIsSenderID: senderID, differentFromSelfUserID: selfUser.remoteIdentifier) {
+                    clientMessage?.expectsReadConfirmation = conversation.hasReadReceiptsEnabled
+                }
+            } else if clientMessage?.senderClientID != updateEvent.senderClientID() {
+                return nil
+            }
+            
+            
+            // In case of AssetMessages: If the payload does not match the sha265 digest, calling `updateWithGenericMessage:updateEvent` will delete the object.
+            
+            // update(with:updateEvent:initialUpdate:) should be called on subclasses of ZMOTRMessage
+            clientMessage?.update(with: message, updateEvent: updateEvent, initialUpdate: isNewMessage)
+            
+            // It seems that if the object was inserted and immediately deleted, the isDeleted flag is not set to true.
+            // In addition the object will still have a managedObjectContext until the context is finally saved. In this
+            // case, we need to check the nonce (which would have previously been set) to avoid setting an invalid
+            // relationship between the deleted object and the conversation and / or sender
+            guard !clientMessage!.isZombieObject && clientMessage?.nonce != nil else {
+                return nil
+            }
+            
+            clientMessage?.update(with: updateEvent, for: conversation)
+            clientMessage?.unarchiveIfNeeded(conversation)
+            clientMessage?.updateCategoryCache()
+            
+            return clientMessage
         }
         return nil
+    }
+    
+    private static func isSelf(conversation: ZMConversation, andIsSenderID senderID: UUID, differentFromSelfUserID selfUserID: UUID) -> Bool {
+        return conversation.isSelfConversation && senderID != selfUserID
+    }
+    
+    private static func isGroup(conversation: ZMConversation, andIsSenderID senderID: UUID, differentFromSelfUserID selfUserID: UUID) -> Bool {
+        return conversation.conversationType == .group && senderID != selfUserID
     }
     
     private static func appendInvalidSystemMessage(forUpdateEvent event: ZMUpdateEvent, toConversation conversation: ZMConversation, inContext moc: NSManagedObjectContext) {
