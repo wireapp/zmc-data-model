@@ -83,7 +83,14 @@ extension ZMOTRMessage {
                 isNewMessage = true
                 
                 // Init from a subclass of ZMOTRMessage is necessary to have the right type to call update(with:updateEvent:initialUpdate:)
-                clientMessage = ZMOTRMessage(nonce: nonce, managedObjectContext: moc)
+                if messageClass is ZMClientMessage.Type {
+                    clientMessage = ZMClientMessage(nonce: nonce, managedObjectContext: moc)
+                } else if messageClass is ZMAssetClientMessage.Type {
+                    clientMessage = ZMAssetClientMessage(nonce: nonce, managedObjectContext: moc)
+                } else {
+                    return nil
+                }
+                
                 clientMessage?.senderClientID = updateEvent.senderClientID()
                 clientMessage?.serverTimestamp = updateEvent.timeStamp()
                 
