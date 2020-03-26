@@ -217,8 +217,7 @@ extension ZMGenericMessage {
         }
         else if self.hasButtonAction() {
             recipientUsers = recipientForButtonActionMessage()
-        }
-        else if let deletedEphemeral = recipientsForDeletedEphemeral() {
+        } else if let deletedEphemeral = recipientsForDeletedEphemeral() {
             recipientUsers = deletedEphemeral
         }
         else {
