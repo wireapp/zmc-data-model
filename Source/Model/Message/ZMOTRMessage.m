@@ -128,6 +128,10 @@ NSString * const DeliveredKey = @"delivered";
     return nil;
 }
 
+- (void)updateWithUpdateEvent:(ZMUpdateEvent *)updateEvent initialUpdate:(BOOL)initialUpdate {
+    NSAssert(FALSE, @"Subclasses should override this method: [%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd));
+}
+
 - (void)updateWithGenericMessage:(__unused ZMGenericMessage *)message updateEvent:(__unused ZMUpdateEvent *)updateEvent initialUpdate:(__unused BOOL)initialUpdate
 {
     NSAssert(FALSE, @"Subclasses should override this method: [%@ %@]", NSStringFromClass([self class]), NSStringFromSelector(_cmd));

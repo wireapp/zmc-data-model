@@ -82,7 +82,6 @@ extension ZMOTRMessage {
             if clientMessage == nil {
                 isNewMessage = true
                 
-                // Init from a subclass of ZMOTRMessage is necessary to have the right type to call update(with:updateEvent:initialUpdate:)
                 if messageClass is ZMClientMessage.Type {
                     clientMessage = ZMClientMessage(nonce: nonce, managedObjectContext: moc)
                 } else if messageClass is ZMAssetClientMessage.Type {
@@ -103,10 +102,8 @@ extension ZMOTRMessage {
             
             
             // In case of AssetMessages: If the payload does not match the sha265 digest, calling `updateWithGenericMessage:updateEvent` will delete the object.
-            
-            // update(with:updateEvent:initialUpdate:) should be called on subclasses of ZMOTRMessage
-            clientMessage?.update(with: message, updateEvent: updateEvent, initialUpdate: isNewMessage)
-            
+            clientMessage?.update(with: updateEvent, initialUpdate: isNewMessage)
+
             // It seems that if the object was inserted and immediately deleted, the isDeleted flag is not set to true.
             // In addition the object will still have a managedObjectContext until the context is finally saved. In this
             // case, we need to check the nonce (which would have previously been set) to avoid setting an invalid
