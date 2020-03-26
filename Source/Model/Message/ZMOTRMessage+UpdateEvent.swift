@@ -21,9 +21,9 @@ import Foundation
 private let zmLog = ZMSLog(tag: "event-processing")
 
 extension ZMOTRMessage {
-    static func createOrUpdateMessage(fromUpdateEvent updateEvent: ZMUpdateEvent,
-                                       inManagedObjectContext moc: NSManagedObjectContext,
-                                       prefetchResult: ZMFetchRequestBatchResult) -> ZMOTRMessage? {
+    @objc static func createOrUpdate(fromUpdateEvent updateEvent: ZMUpdateEvent,
+                                     inManagedObjectContext moc: NSManagedObjectContext,
+                                     prefetchResult: ZMFetchRequestBatchResult) -> ZMOTRMessage? {
         let selfUser = ZMUser.selfUser(in: moc)
 
         guard
