@@ -152,7 +152,7 @@ extension ZMGenericMessage {
         let (services, otherUsers) = conversation.localParticipants.categorizeServicesAndUser()
 
         func recipientForButtonActionMessage() -> Set<ZMUser> {
-            guard self.hasButtonAction(),
+            guard hasButtonAction(),
                 let message = ZMMessage.fetch(withNonce: UUID(uuidString: self.buttonAction.referenceMessageId), for: conversation, in: conversation.managedObjectContext!),
                 let sender = message.sender else {
                     fatal("buttonAction needs a recipient")
