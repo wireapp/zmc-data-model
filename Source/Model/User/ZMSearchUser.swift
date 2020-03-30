@@ -313,16 +313,7 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
             return internalCompleteImageData
         }
     }
-    
-    public var needsRichProfileUpdate: Bool {
-        get {
-            return user?.needsRichProfileUpdate ?? false
-        }
-        set {
-            user?.needsRichProfileUpdate = newValue
-        }
-    }
-    
+
     public var richProfile: [UserRichProfileField] {
         return user?.richProfile ?? []
     }
@@ -501,6 +492,14 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
     
     public func refreshData() {
         user?.refreshData()
+    }
+
+    public func refreshRichProfile() {
+        user?.refreshRichProfile()
+    }
+
+    public func refreshMembership() {
+        user?.refreshMembership()
     }
     
     public func connect(message: String) {

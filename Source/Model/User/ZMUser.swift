@@ -79,6 +79,16 @@ extension ZMUser: UserType {
     public var allClients: [UserClientType] {
         return Array(clients)
     }
+
+    // MARK: - Data refresh requests
+
+    public func refreshRichProfile() {
+        needsRichProfileUpdate = true
+    }
+
+    public func refreshMembership() {
+        membership?.needsToBeUpdatedFromBackend = true
+    }
     
 }
 
