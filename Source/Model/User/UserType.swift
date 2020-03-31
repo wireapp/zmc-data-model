@@ -149,6 +149,11 @@ public protocol UserType: NSObjectProtocol {
     /// This is useful to discover if user is still in a team since clients are not notified
     /// of team-wide events.
     func refreshMembership()
+
+    /// Request a refresh of the team metadata.
+    ///
+    /// This is useful to discover changes such as team name and logo.
+    func refreshTeamData()
     
     /// Sends a connection request to the given user. May be a no-op, eg. if we're already connected.
     /// A ZMUserChangeNotification with the searchUser as object will be sent notifiying about the connection status change

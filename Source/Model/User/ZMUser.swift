@@ -89,6 +89,10 @@ extension ZMUser: UserType {
     public func refreshMembership() {
         membership?.needsToBeUpdatedFromBackend = true
     }
+
+    public func refreshTeamData() {
+        team?.refreshMetadata()
+    }
     
 }
 

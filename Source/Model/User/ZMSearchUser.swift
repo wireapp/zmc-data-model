@@ -501,6 +501,10 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
     public func refreshMembership() {
         user?.refreshMembership()
     }
+
+    public func refreshTeamData() {
+        user?.refreshTeamData()
+    }
     
     public func connect(message: String) {
         
