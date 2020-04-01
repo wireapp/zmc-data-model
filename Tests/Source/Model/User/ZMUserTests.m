@@ -408,6 +408,37 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     XCTAssertNil(user.membership);
 }
 
+- (void)testThatItDeletesMembershipIfUserBelongsToSelfUserTeamOnAnExistingUserWhoIsMarkedAsDeleted
+{
+    // given
+    NSUUID *uuid = [NSUUID createUUID];
+    NSUUID *teamId = NSUUID.createUUID;
+    Team *team = [Team insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
+    team.remoteIdentifier = teamId;
+    user.remoteIdentifier = uuid;
+
+    Member *membership = [Member insertNewObjectInManagedObjectContext:self.uiMOC];
+    membership.user = user;
+    membership.team = team;
+
+    XCTAssertNotNil(user.membership);
+    XCTAssertEqualObjects(user.membership.team, team);
+
+    NSMutableDictionary *payload = [self samplePayloadForUserID:uuid];
+    payload[@"team"] = teamId.transportString;
+    payload[@"deleted"] = [NSNumber numberWithBool:YES];
+
+    // when
+    [self performPretendingUiMocIsSyncMoc:^{
+        [user updateWithTransportData:payload authoritative:NO];
+    }];
+
+    // then
+    XCTAssertTrue(user.isAccountDeleted);
+    XCTAssertTrue(user.membership.isDeleted);
+}
+
 - (void)testThatItUpdatesBasicDataOnAnExistingUser
 {
     // given

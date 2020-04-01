@@ -562,7 +562,7 @@ static NSString *const ParticipantRolesKey = @"participantRoles";
     
     if ([transportData objectForKey:@"team"] || authoritative) {
         self.teamIdentifier = [transportData optionalUuidForKey:@"team"];
-        [self createMembershipIfBelongingToTeam];
+        [self createOrDeleteMembershipIfBelongingToTeam];
     }
     
     NSString *email = [transportData optionalStringForKey:@"email"];
