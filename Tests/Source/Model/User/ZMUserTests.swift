@@ -304,8 +304,9 @@ extension ZMUserTests {
 }
 
 extension ZMUser {
-    static func insert(in moc: NSManagedObjectContext, name: String, handle: String? = nil, connectionStatus: ZMConnectionStatus = .accepted) -> ZMUser {
+    static func insert(in moc: NSManagedObjectContext, id: UUID = .create(), name: String, handle: String? = nil, connectionStatus: ZMConnectionStatus = .accepted) -> ZMUser {
         let user = ZMUser.insertNewObject(in: moc)
+        user.remoteIdentifier = id
         user.name = name
         user.setHandle(handle)
         let connection = ZMConnection.insertNewSentConnection(to: user)
@@ -479,39 +480,7 @@ extension ZMUserTests {
         // then
         XCTAssertEqual(user.availability, .none)
     }
-    
-    func testThatConnectionsAndTeamMembersReturnsExpectedUsers() {
-        // given
-        _ = ZMUser.insert(in: uiMOC, name: "user1", handle: "handl1", connectionStatus: .pending)
-        _ = ZMUser.insert(in: uiMOC, name: "user2", handle: "handl1", connectionStatus: .blocked)
-        _ = ZMUser.insert(in: uiMOC, name: "user3", handle: "handl1", connectionStatus: .cancelled)
-        _ = ZMUser.insert(in: uiMOC, name: "user4", handle: "handl1", connectionStatus: .ignored)
-        _ = ZMUser.insert(in: uiMOC, name: "user5", handle: "handl1", connectionStatus: .sent)
-        _ = ZMUser.insert(in: uiMOC, name: "user6", handle: "handl1", connectionStatus: .invalid)
-        let connectedUser = ZMUser.insert(in: uiMOC, name: "user7", handle: "handl1", connectionStatus: .accepted)
-        let connectedUserWithoutHandle = ZMUser.insert(in: uiMOC, name: "user8", handle: nil, connectionStatus: .accepted)
-        
-        let team = Team.insertNewObject(in: uiMOC)
-        let teamUser = ZMUser.insertNewObject(in: uiMOC)
-        teamUser.remoteIdentifier = .create()
-        
-        let membership = Member.insertNewObject(in: uiMOC)
-        membership.team = team
-        membership.user = teamUser
-        membership.remoteIdentifier = teamUser.remoteIdentifier
-        
-        let selfMembership = Member.insertNewObject(in: uiMOC)
-        selfMembership.team = team
-        selfMembership.user = selfUser
-        selfMembership.remoteIdentifier = selfUser.remoteIdentifier
-        
-        // when
-        let connectionsAndTeamMembers = ZMUser.connectionsAndTeamMembers(in: uiMOC)
 
-        // then
-        XCTAssertEqual(Set<ZMUser>(arrayLiteral: connectedUser, connectedUserWithoutHandle, teamUser, selfUser), connectionsAndTeamMembers)
-    }
-    
     func testThatNeedsToNotifyAvailabilityBehaviourChangeDefaultsToNothing() {
         XCTAssertEqual(selfUser.needsToNotifyAvailabilityBehaviourChange, [])
     }
@@ -524,6 +493,211 @@ extension ZMUserTests {
         XCTAssertEqual(selfUser.needsToNotifyAvailabilityBehaviourChange, .alert)
     }
         
+}
+
+// MARK: - Broadcast Recipients
+
+extension ZMUserTests {
+
+    func testThatItReturnsAllConnections() {
+        // given
+        _ = ZMUser.insert(in: uiMOC, name: "1", handle: "1", connectionStatus: .pending)
+        _ = ZMUser.insert(in: uiMOC, name: "2", handle: "2", connectionStatus: .blocked)
+        _ = ZMUser.insert(in: uiMOC, name: "3", handle: "3", connectionStatus: .cancelled)
+        _ = ZMUser.insert(in: uiMOC, name: "4", handle: "4", connectionStatus: .ignored)
+        _ = ZMUser.insert(in: uiMOC, name: "5", handle: "5", connectionStatus: .sent)
+        _ = ZMUser.insert(in: uiMOC, name: "6", handle: "6", connectionStatus: .invalid)
+
+        let connectedUser1 = ZMUser.insert(in: uiMOC, name: "7", handle: "7", connectionStatus: .accepted)
+        let connectedUser2 = ZMUser.insert(in: uiMOC, name: "8", handle: nil, connectionStatus: .accepted)
+
+        let team = createTeam(in: uiMOC)
+        createUserAndAddMember(to: team)
+        createMembership(in: uiMOC, user: selfUser, team: team)
+
+        // when
+        let connections = ZMUser.connections(in: uiMOC)
+
+        // then
+        XCTAssertEqual(connections, Set([connectedUser1, connectedUser2]))
+    }
+
+    func testThatItReturnsAllKnownTeamMembers() {
+        // given
+        let selfUserTeam = createTeam(in: uiMOC)
+        createMembership(in: uiMOC, user: selfUser, team: selfUserTeam)
+
+        let (selfTeamUser1, _) = createUserAndAddMember(to: selfUserTeam)
+        let (selfTeamUser2, _) = createUserAndAddMember(to: selfUserTeam)
+        let (selfTeamUser3, _) = createUserAndAddMember(to: selfUserTeam)
+
+        _ = ZMUser.insert(in: uiMOC, name: "1", handle: "1", connectionStatus: .accepted)
+
+        let otherTeam = createTeam(in: uiMOC)
+        let (otherTeamUser, _) = createUserAndAddMember(to: otherTeam)
+
+        // self user and self team member
+        let selfTeamConversation1 = createConversation(in: uiMOC)
+        selfTeamConversation1.addParticipantsAndUpdateConversationState(users: Set([selfUser, selfTeamUser1]), role: nil)
+
+        // self user and self team member
+        let selfTeamConversation2 = createConversation(in: uiMOC)
+        selfTeamConversation2.addParticipantsAndUpdateConversationState(users: Set([selfUser, selfTeamUser2]), role: nil)
+
+        // self team members
+        let selfTeamConversation3 = createConversation(in: uiMOC)
+        selfTeamConversation3.addParticipantsAndUpdateConversationState(users: Set([selfTeamUser2, selfTeamUser3]), role: nil)
+
+        // self user and other team member
+        let otherTeamConversation = createConversation(in: uiMOC)
+        otherTeamConversation.addParticipantsAndUpdateConversationState(users: Set([selfUser, otherTeamUser]), role: nil)
+
+        // when
+        let knownTeamMembers = ZMUser.knownTeamMembers(in: uiMOC)
+
+        // then
+        XCTAssertEqual(knownTeamMembers, Set([selfUser, selfTeamUser1, selfTeamUser2]))
+    }
+
+    func testThatReturnsExpectedRecipientsForBroadcast() {
+        // given
+        _ = ZMUser.insert(in: uiMOC, name: "1", handle: "1", connectionStatus: .pending)
+        _ = ZMUser.insert(in: uiMOC, name: "2", handle: "2", connectionStatus: .blocked)
+        _ = ZMUser.insert(in: uiMOC, name: "3", handle: "3", connectionStatus: .cancelled)
+        _ = ZMUser.insert(in: uiMOC, name: "4", handle: "4", connectionStatus: .ignored)
+        _ = ZMUser.insert(in: uiMOC, name: "5", handle: "5", connectionStatus: .sent)
+        _ = ZMUser.insert(in: uiMOC, name: "6", handle: "6", connectionStatus: .invalid)
+
+        let connectedUser1 = ZMUser.insert(in: uiMOC, name: "7", handle: "7", connectionStatus: .accepted)
+        let connectedUser2 = ZMUser.insert(in: uiMOC, name: "8", handle: nil, connectionStatus: .accepted)
+
+        let selfUserTeam = createTeam(in: uiMOC)
+        createMembership(in: uiMOC, user: selfUser, team: selfUserTeam)
+
+        let (selfTeamUser1, _) = createUserAndAddMember(to: selfUserTeam)
+        let (selfTeamUser2, _) = createUserAndAddMember(to: selfUserTeam)
+        let (selfTeamUser3, _) = createUserAndAddMember(to: selfUserTeam)
+
+        let otherTeam = createTeam(in: uiMOC)
+        let (otherTeamUser, _) = createUserAndAddMember(to: otherTeam)
+
+        // self user and self team member
+        let selfTeamConversation1 = createConversation(in: uiMOC)
+        selfTeamConversation1.addParticipantsAndUpdateConversationState(users: Set([selfUser, selfTeamUser1]), role: nil)
+
+        // self user and self team member
+        let selfTeamConversation2 = createConversation(in: uiMOC)
+        selfTeamConversation2.addParticipantsAndUpdateConversationState(users: Set([selfUser, selfTeamUser2]), role: nil)
+
+        // self team members
+        let selfTeamConversation3 = createConversation(in: uiMOC)
+        selfTeamConversation3.addParticipantsAndUpdateConversationState(users: Set([selfTeamUser2, selfTeamUser3]), role: nil)
+
+        // self user and other team member
+        let otherTeamConversation = createConversation(in: uiMOC)
+        otherTeamConversation.addParticipantsAndUpdateConversationState(users: Set([selfUser, otherTeamUser]), role: nil)
+
+        // when
+        let recipients = ZMUser.recipientsForBroadcast(in: uiMOC, maxCount: 50)
+
+        // then
+        XCTAssertEqual(recipients, Set([selfUser, selfTeamUser1, selfTeamUser2, connectedUser1, connectedUser2]))
+    }
+
+    func testThatItReturnsRecipientsForBroadcastUpToAMaximumCount() {
+        // given
+        let connectedUser1 = ZMUser.insert(in: uiMOC, name: "1", handle: "1", connectionStatus: .accepted)
+        let connectedUser2 = ZMUser.insert(in: uiMOC, name: "2", handle: "2", connectionStatus: .accepted)
+        let connectedUser3 = ZMUser.insert(in: uiMOC, name: "3", handle: nil, connectionStatus: .accepted)
+
+        let selfUserTeam = createTeam(in: uiMOC)
+        createMembership(in: uiMOC, user: selfUser, team: selfUserTeam)
+
+        let (selfTeamUser1, _) = createUserAndAddMember(to: selfUserTeam)
+        let (selfTeamUser2, _) = createUserAndAddMember(to: selfUserTeam)
+
+        let allRecipients = [
+            selfUser!,
+            connectedUser1,
+            connectedUser2,
+            connectedUser3,
+            selfTeamUser1,
+            selfTeamUser2
+        ]
+
+        let conversation = createConversation(in: uiMOC)
+        conversation.addParticipantsAndUpdateConversationState(users: Set(allRecipients), role: nil)
+
+        // when
+        let recipients = ZMUser.recipientsForBroadcast(in: uiMOC, maxCount: 3)
+
+        // then
+        XCTAssertEqual(recipients.count, 3)
+    }
+
+    func testThatItPrioritiesTeamMembersOverConnectionsForBroadcast() {
+        // given
+        let connectedUser1 = ZMUser.insert(in: uiMOC, name: "1", handle: "1", connectionStatus: .accepted)
+        let connectedUser2 = ZMUser.insert(in: uiMOC, name: "2", handle: "2", connectionStatus: .accepted)
+        let connectedUser3 = ZMUser.insert(in: uiMOC, name: "3", handle: nil, connectionStatus: .accepted)
+
+        let selfUserTeam = createTeam(in: uiMOC)
+        createMembership(in: uiMOC, user: selfUser, team: selfUserTeam)
+
+        let (teamUser1, _) = createUserAndAddMember(to: selfUserTeam)
+        let (teamUser2, _) = createUserAndAddMember(to: selfUserTeam)
+
+        let allRecipients = [
+            selfUser!,
+            connectedUser1,
+            connectedUser2,
+            connectedUser3,
+            teamUser1,
+            teamUser2
+        ]
+
+        let conversation = createConversation(in: uiMOC)
+        conversation.addParticipantsAndUpdateConversationState(users: Set(allRecipients), role: nil)
+
+        // when
+        let recipients = ZMUser.recipientsForBroadcast(in: uiMOC, maxCount: 3)
+
+        // then
+        XCTAssertEqual(recipients, Set([selfUser, teamUser1, teamUser2]))
+    }
+
+    func testThatItRecipientsForBroadcastIsDeterministic() {
+        // given
+        let selfUserTeam = createTeam(in: uiMOC)
+        createMembership(in: uiMOC, user: selfUser, team: selfUserTeam)
+
+        let (teamUser1, _) = createUserAndAddMember(to: selfUserTeam)
+        let (teamUser2, _) = createUserAndAddMember(to: selfUserTeam)
+        let (teamUser3, _) = createUserAndAddMember(to: selfUserTeam)
+        let (teamUser4, _) = createUserAndAddMember(to: selfUserTeam)
+
+        let allRecipients = [
+            selfUser!,
+            teamUser1,
+            teamUser2,
+            teamUser3,
+            teamUser4
+        ]
+
+        let conversation = createConversation(in: uiMOC)
+        conversation.addParticipantsAndUpdateConversationState(users: Set(allRecipients), role: nil)
+
+        // when
+        let recipients = ZMUser.recipientsForBroadcast(in: uiMOC, maxCount: 3)
+
+        // then
+        let expectedRecipients = allRecipients.sorted {
+            $0.remoteIdentifier.transportString() < $1.remoteIdentifier.transportString()
+        }.prefix(3)
+
+        XCTAssertEqual(recipients, Set(expectedRecipients))
+    }
+
 }
 
 // MARK: - Bot support

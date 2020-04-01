@@ -109,14 +109,14 @@ extension ZMGenericMessage {
         return nil
     }
     
-    public func encryptedMessagePayloadDataForBroadcast(context: NSManagedObjectContext) -> (data: Data, strategy: MissingClientsStrategy)? {
-        let recipients = ZMUser.connectionsAndTeamMembers(in: context)
-        
-        if let data = encryptedMessagePayloadData(for: recipients, externalData: nil, context: context) {
-            return (data, MissingClientsStrategy.doNotIgnoreAnyMissingClient)
-        }
-        
-        return nil
+    public func encryptedMessagePayloadDataForBroadcast(recipients: Set<ZMUser>,
+                                                        in context: NSManagedObjectContext) -> (data: Data, strategy: MissingClientsStrategy)? {
+
+        guard let data = encryptedMessagePayloadData(for: recipients, externalData: nil, context: context) else { return nil }
+
+        // It's important to ignore all irrelevant missing clients, because otherwise the backend will enforce that
+        // the message is sent to all team members and contacts.
+        return (data, MissingClientsStrategy.ignoreAllMissingClientsNotFromUsers(users: recipients))
     }
     
     fileprivate func encryptedMessagePayloadData(for recipients: Set<ZMUser>, externalData: Data?, context: NSManagedObjectContext) -> Data? {

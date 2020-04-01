@@ -62,24 +62,67 @@ public struct NotificationMethod: OptionSet {
 }
 
 extension ZMUser {
-    
-    @objc public static func connectionsAndTeamMembers(in context: NSManagedObjectContext) -> Set<ZMUser> {
-        var connectionsAndTeamMembers : Set<ZMUser> = Set()
-        
+
+    /// A set of all users to receive a broadcast message.
+    ///
+    /// Broadcast messages are expensive for large teams. Therefore it is necessary broadcast to
+    /// a limited subset of all users. Known team members are priortized first, followed by
+    /// connected non team members.
+    ///
+    /// - Parameters:
+    ///     - context: The context to search in.
+    ///     - maxCount: The maximum number of recipients to return.
+
+    public static func recipientsForBroadcast(in context: NSManagedObjectContext, maxCount: Int) -> Set<ZMUser> {
+        var recipients = Set<ZMUser>()
+        var remainingSlots = maxCount
+
+        let sortByIdentifer: (ZMUser, ZMUser) -> Bool = {
+            $0.remoteIdentifier.transportString() < $1.remoteIdentifier.transportString()
+        }
+
+        let teamMembers = knownTeamMembers(in: context)
+            .sorted(by: sortByIdentifer)
+            .prefix(remainingSlots)
+
+        recipients.formUnion(teamMembers)
+        remainingSlots -= recipients.count
+
+        guard remainingSlots > 0 else { return recipients }
+
+        let contacts = connections(in: context)
+            .sorted(by: sortByIdentifer)
+            .prefix(remainingSlots)
+
+        recipients.formUnion(contacts)
+
+        return recipients
+    }
+
+    /// The set of all users who both share the team and a conversation with the self user.
+
+    public static func knownTeamMembers(in context: NSManagedObjectContext) -> Set<ZMUser> {
         let selfUser = ZMUser.selfUser(in: context)
+
+        guard selfUser.hasTeam else { return Set() }
+
+        let teamMembersInConversationWithSelfUser = selfUser.conversations.lazy
+            .flatMap { $0.participantRoles }
+            .map { $0.user }
+            .filter { $0.isOnSameTeam(otherUser: selfUser) }
+
+        return Set(teamMembersInConversationWithSelfUser)
+    }
+
+    /// The set of all users connected with the self user.
+
+    public static func connections(in context: NSManagedObjectContext) -> Set<ZMUser> {
         let request = NSFetchRequest<ZMUser>(entityName: ZMUser.entityName())
         request.predicate = ZMUser.predicateForUsers(withConnectionStatuses: [ZMConnectionStatus.accepted.rawValue])
-        
-        let connectedUsers = context.fetchOrAssert(request: request)
-        connectionsAndTeamMembers.formUnion(connectedUsers)
-        
-        if let teamUsers = selfUser.team?.members.compactMap({ $0.user }) {
-            connectionsAndTeamMembers.formUnion(teamUsers)
-        }
-        
-        return connectionsAndTeamMembers
+
+        return Set(context.fetchOrAssert(request: request))
     }
-    
+
     @objc public var availability : Availability {
         get {
             self.willAccessValue(forKey: AvailabilityKey)
