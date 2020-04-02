@@ -304,6 +304,8 @@ extension ZMUserTests {
 }
 
 extension ZMUser {
+
+    @discardableResult
     static func insert(in moc: NSManagedObjectContext, id: UUID = .create(), name: String, handle: String? = nil, connectionStatus: ZMConnectionStatus = .accepted) -> ZMUser {
         let user = ZMUser.insertNewObject(in: moc)
         user.remoteIdentifier = id
@@ -501,12 +503,12 @@ extension ZMUserTests {
 
     func testThatItReturnsAllConnections() {
         // given
-        _ = ZMUser.insert(in: uiMOC, name: "1", handle: "1", connectionStatus: .pending)
-        _ = ZMUser.insert(in: uiMOC, name: "2", handle: "2", connectionStatus: .blocked)
-        _ = ZMUser.insert(in: uiMOC, name: "3", handle: "3", connectionStatus: .cancelled)
-        _ = ZMUser.insert(in: uiMOC, name: "4", handle: "4", connectionStatus: .ignored)
-        _ = ZMUser.insert(in: uiMOC, name: "5", handle: "5", connectionStatus: .sent)
-        _ = ZMUser.insert(in: uiMOC, name: "6", handle: "6", connectionStatus: .invalid)
+        ZMUser.insert(in: uiMOC, name: "1", handle: "1", connectionStatus: .pending)
+        ZMUser.insert(in: uiMOC, name: "2", handle: "2", connectionStatus: .blocked)
+        ZMUser.insert(in: uiMOC, name: "3", handle: "3", connectionStatus: .cancelled)
+        ZMUser.insert(in: uiMOC, name: "4", handle: "4", connectionStatus: .ignored)
+        ZMUser.insert(in: uiMOC, name: "5", handle: "5", connectionStatus: .sent)
+        ZMUser.insert(in: uiMOC, name: "6", handle: "6", connectionStatus: .invalid)
 
         let connectedUser1 = ZMUser.insert(in: uiMOC, name: "7", handle: "7", connectionStatus: .accepted)
         let connectedUser2 = ZMUser.insert(in: uiMOC, name: "8", handle: nil, connectionStatus: .accepted)
@@ -536,21 +538,10 @@ extension ZMUserTests {
         let otherTeam = createTeam(in: uiMOC)
         let (otherTeamUser, _) = createUserAndAddMember(to: otherTeam)
 
-        // self user and self team member
-        let selfTeamConversation1 = createConversation(in: uiMOC)
-        selfTeamConversation1.addParticipantsAndUpdateConversationState(users: Set([selfUser, selfTeamUser1]), role: nil)
-
-        // self user and self team member
-        let selfTeamConversation2 = createConversation(in: uiMOC)
-        selfTeamConversation2.addParticipantsAndUpdateConversationState(users: Set([selfUser, selfTeamUser2]), role: nil)
-
-        // self team members
-        let selfTeamConversation3 = createConversation(in: uiMOC)
-        selfTeamConversation3.addParticipantsAndUpdateConversationState(users: Set([selfTeamUser2, selfTeamUser3]), role: nil)
-
-        // self user and other team member
-        let otherTeamConversation = createConversation(in: uiMOC)
-        otherTeamConversation.addParticipantsAndUpdateConversationState(users: Set([selfUser, otherTeamUser]), role: nil)
+        createConversation(in: uiMOC, with: [selfUser, selfTeamUser1])
+        createConversation(in: uiMOC, with: [selfUser, selfTeamUser2])
+        createConversation(in: uiMOC, with: [selfTeamUser2, selfTeamUser3])
+        createConversation(in: uiMOC, with: [selfUser, otherTeamUser])
 
         // when
         let knownTeamMembers = ZMUser.knownTeamMembers(in: uiMOC)
@@ -561,12 +552,12 @@ extension ZMUserTests {
 
     func testThatReturnsExpectedRecipientsForBroadcast() {
         // given
-        _ = ZMUser.insert(in: uiMOC, name: "1", handle: "1", connectionStatus: .pending)
-        _ = ZMUser.insert(in: uiMOC, name: "2", handle: "2", connectionStatus: .blocked)
-        _ = ZMUser.insert(in: uiMOC, name: "3", handle: "3", connectionStatus: .cancelled)
-        _ = ZMUser.insert(in: uiMOC, name: "4", handle: "4", connectionStatus: .ignored)
-        _ = ZMUser.insert(in: uiMOC, name: "5", handle: "5", connectionStatus: .sent)
-        _ = ZMUser.insert(in: uiMOC, name: "6", handle: "6", connectionStatus: .invalid)
+        ZMUser.insert(in: uiMOC, name: "1", handle: "1", connectionStatus: .pending)
+        ZMUser.insert(in: uiMOC, name: "2", handle: "2", connectionStatus: .blocked)
+        ZMUser.insert(in: uiMOC, name: "3", handle: "3", connectionStatus: .cancelled)
+        ZMUser.insert(in: uiMOC, name: "4", handle: "4", connectionStatus: .ignored)
+        ZMUser.insert(in: uiMOC, name: "5", handle: "5", connectionStatus: .sent)
+        ZMUser.insert(in: uiMOC, name: "6", handle: "6", connectionStatus: .invalid)
 
         let connectedUser1 = ZMUser.insert(in: uiMOC, name: "7", handle: "7", connectionStatus: .accepted)
         let connectedUser2 = ZMUser.insert(in: uiMOC, name: "8", handle: nil, connectionStatus: .accepted)
@@ -581,21 +572,10 @@ extension ZMUserTests {
         let otherTeam = createTeam(in: uiMOC)
         let (otherTeamUser, _) = createUserAndAddMember(to: otherTeam)
 
-        // self user and self team member
-        let selfTeamConversation1 = createConversation(in: uiMOC)
-        selfTeamConversation1.addParticipantsAndUpdateConversationState(users: Set([selfUser, selfTeamUser1]), role: nil)
-
-        // self user and self team member
-        let selfTeamConversation2 = createConversation(in: uiMOC)
-        selfTeamConversation2.addParticipantsAndUpdateConversationState(users: Set([selfUser, selfTeamUser2]), role: nil)
-
-        // self team members
-        let selfTeamConversation3 = createConversation(in: uiMOC)
-        selfTeamConversation3.addParticipantsAndUpdateConversationState(users: Set([selfTeamUser2, selfTeamUser3]), role: nil)
-
-        // self user and other team member
-        let otherTeamConversation = createConversation(in: uiMOC)
-        otherTeamConversation.addParticipantsAndUpdateConversationState(users: Set([selfUser, otherTeamUser]), role: nil)
+        createConversation(in: uiMOC, with: [selfUser, selfTeamUser1])
+        createConversation(in: uiMOC, with: [selfUser, selfTeamUser2])
+        createConversation(in: uiMOC, with: [selfTeamUser2, selfTeamUser3])
+        createConversation(in: uiMOC, with: [selfUser, otherTeamUser])
 
         // when
         let recipients = ZMUser.recipientsForBroadcast(in: uiMOC, maxCount: 50)
@@ -625,8 +605,7 @@ extension ZMUserTests {
             selfTeamUser2
         ]
 
-        let conversation = createConversation(in: uiMOC)
-        conversation.addParticipantsAndUpdateConversationState(users: Set(allRecipients), role: nil)
+        createConversation(in: uiMOC, with: allRecipients)
 
         // when
         let recipients = ZMUser.recipientsForBroadcast(in: uiMOC, maxCount: 3)
@@ -656,8 +635,7 @@ extension ZMUserTests {
             teamUser2
         ]
 
-        let conversation = createConversation(in: uiMOC)
-        conversation.addParticipantsAndUpdateConversationState(users: Set(allRecipients), role: nil)
+        createConversation(in: uiMOC, with: allRecipients)
 
         // when
         let recipients = ZMUser.recipientsForBroadcast(in: uiMOC, maxCount: 3)
@@ -684,8 +662,7 @@ extension ZMUserTests {
             teamUser4
         ]
 
-        let conversation = createConversation(in: uiMOC)
-        conversation.addParticipantsAndUpdateConversationState(users: Set(allRecipients), role: nil)
+        createConversation(in: uiMOC, with: allRecipients)
 
         // when
         let recipients = ZMUser.recipientsForBroadcast(in: uiMOC, maxCount: 3)
