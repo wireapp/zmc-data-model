@@ -147,7 +147,7 @@ NSString * const DeliveredKey = @"delivered";
     // (Extensions can add new functionality to a type, but they cannot override existing functionality)
     // So, for now we call the Swift implementation of this method.
     // When converting ZMOTRMessage to Swift, we can move the code of the extension method to the Swift override
-    [ZMOTRMessage createOrUpdateFromUpdateEvent:updateEvent inManagedObjectContext:moc prefetchResult:prefetchResult];
+    return [ZMOTRMessage createOrUpdateFromUpdateEvent:updateEvent inManagedObjectContext:moc prefetchResult:prefetchResult];
 }
 
 -(void)updateWithPostPayload:(NSDictionary *)payload updatedKeys:(NSSet *)updatedKeys {
