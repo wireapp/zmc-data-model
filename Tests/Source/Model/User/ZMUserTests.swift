@@ -628,7 +628,7 @@ extension ZMUserTests {
         createConversation(in: uiMOC, with: [selfUser, connectedTeamUser1])
 
         // when
-        let recipients = ZMUser.recipientsForBroadcast(in: uiMOC, maxCount: 50)
+        let recipients = ZMUser.recipientsForAvailabilityStatusBroadcast(in: uiMOC, maxCount: 50)
 
         // then
         XCTAssertEqual(recipients, Set([selfUser, selfTeamUser1, selfTeamUser2, connectedTeamUser1, connectedTeamUser2]))
@@ -653,7 +653,7 @@ extension ZMUserTests {
         createConversation(in: uiMOC, with: allRecipients)
 
         // when
-        let recipients = ZMUser.recipientsForBroadcast(in: uiMOC, maxCount: 3)
+        let recipients = ZMUser.recipientsForAvailabilityStatusBroadcast(in: uiMOC, maxCount: 3)
 
         // then
         XCTAssertEqual(recipients.count, 3)
@@ -690,7 +690,7 @@ extension ZMUserTests {
         createConversation(in: uiMOC, with: allRecipients)
 
         // when
-        let recipients = ZMUser.recipientsForBroadcast(in: uiMOC, maxCount: 3)
+        let recipients = ZMUser.recipientsForAvailabilityStatusBroadcast(in: uiMOC, maxCount: 3)
 
         // then
         XCTAssertEqual(recipients, Set([selfUser, selfTeamUser1, selfTeamUser2]))
@@ -717,7 +717,7 @@ extension ZMUserTests {
         createConversation(in: uiMOC, with: allRecipients)
 
         // when
-        let recipients = ZMUser.recipientsForBroadcast(in: uiMOC, maxCount: 3)
+        let recipients = ZMUser.recipientsForAvailabilityStatusBroadcast(in: uiMOC, maxCount: 3)
 
         // then
         let expectedRecipients = allRecipients.sorted {
