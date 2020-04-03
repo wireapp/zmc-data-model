@@ -67,15 +67,15 @@ extension ZMUser {
     ///
     /// Broadcast messages are expensive for large teams. Therefore it is necessary broadcast to
     /// a limited subset of all users. Known team members are priortized first, followed by
-    /// connected non team members.
+    /// connected non team members. The self user is guaranteed to be a recipient.
     ///
     /// - Parameters:
     ///     - context: The context to search in.
     ///     - maxCount: The maximum number of recipients to return.
 
     public static func recipientsForBroadcast(in context: NSManagedObjectContext, maxCount: Int) -> Set<ZMUser> {
-        var recipients = Set<ZMUser>()
-        var remainingSlots = maxCount
+        var recipients: Set = [selfUser(in: context)]
+        var remainingSlots = maxCount - recipients.count
 
         let sortByIdentifer: (ZMUser, ZMUser) -> Bool = {
             $0.remoteIdentifier.transportString() < $1.remoteIdentifier.transportString()
@@ -100,6 +100,8 @@ extension ZMUser {
     }
 
     /// The set of all users who both share the team and a conversation with the self user.
+    ///
+    /// Note: the self user is not included.
 
     public static func knownTeamMembers(in context: NSManagedObjectContext) -> Set<ZMUser> {
         let selfUser = ZMUser.selfUser(in: context)
@@ -109,7 +111,7 @@ extension ZMUser {
         let teamMembersInConversationWithSelfUser = selfUser.conversations.lazy
             .flatMap { $0.participantRoles }
             .map { $0.user }
-            .filter { $0.isOnSameTeam(otherUser: selfUser) }
+            .filter { $0.isOnSameTeam(otherUser: selfUser) && !$0.isSelfUser }
 
         return Set(teamMembersInConversationWithSelfUser)
     }

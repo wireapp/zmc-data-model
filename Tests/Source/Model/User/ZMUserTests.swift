@@ -547,7 +547,7 @@ extension ZMUserTests {
         let knownTeamMembers = ZMUser.knownTeamMembers(in: uiMOC)
 
         // then
-        XCTAssertEqual(knownTeamMembers, Set([selfUser, selfTeamUser1, selfTeamUser2]))
+        XCTAssertEqual(knownTeamMembers, Set([selfTeamUser1, selfTeamUser2]))
     }
 
     func testThatReturnsExpectedRecipientsForBroadcast() {
