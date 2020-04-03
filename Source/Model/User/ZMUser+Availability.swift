@@ -90,11 +90,11 @@ extension ZMUser {
 
         guard remainingSlots > 0 else { return recipients }
 
-        let contacts = connections(in: context)
+        let teamUsers = knownTeamUsers(in: context)
             .sorted(by: sortByIdentifer)
             .prefix(remainingSlots)
 
-        recipients.formUnion(contacts)
+        recipients.formUnion(teamUsers)
 
         return recipients
     }
@@ -103,7 +103,7 @@ extension ZMUser {
     ///
     /// Note: the self user is not included.
 
-    public static func knownTeamMembers(in context: NSManagedObjectContext) -> Set<ZMUser> {
+    static func knownTeamMembers(in context: NSManagedObjectContext) -> Set<ZMUser> {
         let selfUser = ZMUser.selfUser(in: context)
 
         guard selfUser.hasTeam else { return Set() }
@@ -116,11 +116,15 @@ extension ZMUser {
         return Set(teamMembersInConversationWithSelfUser)
     }
 
-    /// The set of all users connected with the self user.
+    /// The set of all users from another team who are connected with the self user.
 
-    public static func connections(in context: NSManagedObjectContext) -> Set<ZMUser> {
+    static func knownTeamUsers(in context: NSManagedObjectContext) -> Set<ZMUser> {
+        let connectedPredicate = ZMUser.predicateForUsers(withConnectionStatuses: [ZMConnectionStatus.accepted.rawValue])
+        let teamUserPredicate = NSPredicate(format: "(%K != NULL)", #keyPath(ZMUser.teamIdentifier))
+        let connectedAndTeamUserPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [connectedPredicate, teamUserPredicate])
+
         let request = NSFetchRequest<ZMUser>(entityName: ZMUser.entityName())
-        request.predicate = ZMUser.predicateForUsers(withConnectionStatuses: [ZMConnectionStatus.accepted.rawValue])
+        request.predicate = connectedAndTeamUserPredicate
 
         return Set(context.fetchOrAssert(request: request))
     }

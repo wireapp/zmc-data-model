@@ -37,6 +37,7 @@ extension ModelObjectsTests {
         let member = Member.insertNewObject(in: uiMOC)
         member.user = .insertNewObject(in: uiMOC)
         member.user?.remoteIdentifier = .create()
+        member.user?.teamIdentifier = team.remoteIdentifier
         member.team = team
         return (member.user!, member)
     }

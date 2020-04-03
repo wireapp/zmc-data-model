@@ -313,7 +313,7 @@ extension ZMUser {
         user.setHandle(handle)
         let connection = ZMConnection.insertNewSentConnection(to: user)
         connection?.status = connectionStatus
-        
+
         return user
     }
 }
@@ -501,27 +501,74 @@ extension ZMUserTests {
 
 extension ZMUserTests {
 
-    func testThatItReturnsAllConnections() {
+    func testThatItReturnsAllKnownTeamUsers() {
         // given
-        ZMUser.insert(in: uiMOC, name: "1", handle: "1", connectionStatus: .pending)
-        ZMUser.insert(in: uiMOC, name: "2", handle: "2", connectionStatus: .blocked)
-        ZMUser.insert(in: uiMOC, name: "3", handle: "3", connectionStatus: .cancelled)
-        ZMUser.insert(in: uiMOC, name: "4", handle: "4", connectionStatus: .ignored)
-        ZMUser.insert(in: uiMOC, name: "5", handle: "5", connectionStatus: .sent)
-        ZMUser.insert(in: uiMOC, name: "6", handle: "6", connectionStatus: .invalid)
+        let selfTeam = createTeam(in: uiMOC)
+        createMembership(in: uiMOC, user: selfUser, team: selfTeam)
 
-        let connectedUser1 = ZMUser.insert(in: uiMOC, name: "7", handle: "7", connectionStatus: .accepted)
-        let connectedUser2 = ZMUser.insert(in: uiMOC, name: "8", handle: nil, connectionStatus: .accepted)
+        // fellow team members
+        createUserAndAddMember(to: selfTeam)
+        createUserAndAddMember(to: selfTeam)
 
-        let team = createTeam(in: uiMOC)
-        createUserAndAddMember(to: team)
-        createMembership(in: uiMOC, user: selfUser, team: team)
+        let otherTeam = createTeam(in: uiMOC)
+
+        // other team users but not connected
+        createUserAndAddMember(to: otherTeam)
+        createUserAndAddMember(to: otherTeam)
+
+        // other team users and connected
+        let (connectedTeamUser1, _) = createUserAndAddMember(to: otherTeam)
+        let (connectedTeamUser2, _) = createUserAndAddMember(to: otherTeam)
+
+        // non team users but connected
+        let connectedUser1 = createUser(in: uiMOC)
+        let connectedUser2 = createUser(in: uiMOC)
+
+        let usersToConnect = [connectedUser1, connectedUser2, connectedTeamUser1, connectedTeamUser2]
+
+        for user in usersToConnect {
+            let connection = ZMConnection.insertNewSentConnection(to: user)
+            connection?.status = .accepted
+        }
 
         // when
-        let connections = ZMUser.connections(in: uiMOC)
+        let knownTeamUsers = ZMUser.knownTeamUsers(in: uiMOC)
 
         // then
-        XCTAssertEqual(connections, Set([connectedUser1, connectedUser2]))
+        XCTAssertEqual(knownTeamUsers, Set([connectedTeamUser1, connectedTeamUser2]))
+    }
+
+
+    func testThatItReturnsOnlyKnownTeamUsersWithAcceptedConnections() {
+        // given
+        let selfTeam = createTeam(in: uiMOC)
+        createMembership(in: uiMOC, user: selfUser, team: selfTeam)
+
+        let otherTeam = createTeam(in: uiMOC)
+
+        // other team users with accepted connections
+        let (connectedTeamUser1, _) = createUserAndAddMember(to: otherTeam)
+        let (connectedTeamUser2, _) = createUserAndAddMember(to: otherTeam)
+
+        let usersToConnect = [connectedTeamUser1, connectedTeamUser2]
+
+        for user in usersToConnect {
+            let connection = ZMConnection.insertNewSentConnection(to: user)
+            connection?.status = .accepted
+        }
+
+        // other team users with unaccepted connections
+        for connectionStatus in [ZMConnectionStatus.pending, .blocked, .cancelled, .ignored, .sent, .invalid] {
+            let (user, _) = createUserAndAddMember(to: otherTeam)
+            let connection = ZMConnection.insertNewSentConnection(to: user)
+            connection?.status = connectionStatus
+        }
+
+        // when
+        let knownTeamUsers = ZMUser.knownTeamUsers(in: uiMOC)
+
+        // then
+        XCTAssertEqual(knownTeamUsers, Set([connectedTeamUser1, connectedTeamUser2]))
     }
 
     func testThatItReturnsAllKnownTeamMembers() {
@@ -552,16 +599,6 @@ extension ZMUserTests {
 
     func testThatReturnsExpectedRecipientsForBroadcast() {
         // given
-        ZMUser.insert(in: uiMOC, name: "1", handle: "1", connectionStatus: .pending)
-        ZMUser.insert(in: uiMOC, name: "2", handle: "2", connectionStatus: .blocked)
-        ZMUser.insert(in: uiMOC, name: "3", handle: "3", connectionStatus: .cancelled)
-        ZMUser.insert(in: uiMOC, name: "4", handle: "4", connectionStatus: .ignored)
-        ZMUser.insert(in: uiMOC, name: "5", handle: "5", connectionStatus: .sent)
-        ZMUser.insert(in: uiMOC, name: "6", handle: "6", connectionStatus: .invalid)
-
-        let connectedUser1 = ZMUser.insert(in: uiMOC, name: "7", handle: "7", connectionStatus: .accepted)
-        let connectedUser2 = ZMUser.insert(in: uiMOC, name: "8", handle: nil, connectionStatus: .accepted)
-
         let selfUserTeam = createTeam(in: uiMOC)
         createMembership(in: uiMOC, user: selfUser, team: selfUserTeam)
 
@@ -570,39 +607,47 @@ extension ZMUserTests {
         let (selfTeamUser3, _) = createUserAndAddMember(to: selfUserTeam)
 
         let otherTeam = createTeam(in: uiMOC)
-        let (otherTeamUser, _) = createUserAndAddMember(to: otherTeam)
+
+        // unconnected other team users
+        createUserAndAddMember(to: otherTeam)
+        createUserAndAddMember(to: otherTeam)
+
+        let (connectedTeamUser1, _) = createUserAndAddMember(to: otherTeam)
+        let (connectedTeamUser2, _) = createUserAndAddMember(to: otherTeam)
+
+        let usersToConnect = [connectedTeamUser1, connectedTeamUser2]
+
+        for user in usersToConnect {
+            let connection = ZMConnection.insertNewSentConnection(to: user)
+            connection?.status = .accepted
+        }
 
         createConversation(in: uiMOC, with: [selfUser, selfTeamUser1])
         createConversation(in: uiMOC, with: [selfUser, selfTeamUser2])
         createConversation(in: uiMOC, with: [selfTeamUser2, selfTeamUser3])
-        createConversation(in: uiMOC, with: [selfUser, otherTeamUser])
+        createConversation(in: uiMOC, with: [selfUser, connectedTeamUser1])
 
         // when
         let recipients = ZMUser.recipientsForBroadcast(in: uiMOC, maxCount: 50)
 
         // then
-        XCTAssertEqual(recipients, Set([selfUser, selfTeamUser1, selfTeamUser2, connectedUser1, connectedUser2]))
+        XCTAssertEqual(recipients, Set([selfUser, selfTeamUser1, selfTeamUser2, connectedTeamUser1, connectedTeamUser2]))
     }
 
     func testThatItReturnsRecipientsForBroadcastUpToAMaximumCount() {
         // given
-        let connectedUser1 = ZMUser.insert(in: uiMOC, name: "1", handle: "1", connectionStatus: .accepted)
-        let connectedUser2 = ZMUser.insert(in: uiMOC, name: "2", handle: "2", connectionStatus: .accepted)
-        let connectedUser3 = ZMUser.insert(in: uiMOC, name: "3", handle: nil, connectionStatus: .accepted)
-
         let selfUserTeam = createTeam(in: uiMOC)
         createMembership(in: uiMOC, user: selfUser, team: selfUserTeam)
 
         let (selfTeamUser1, _) = createUserAndAddMember(to: selfUserTeam)
         let (selfTeamUser2, _) = createUserAndAddMember(to: selfUserTeam)
+        let (selfTeamUser3, _) = createUserAndAddMember(to: selfUserTeam)
 
         let allRecipients = [
             selfUser!,
-            connectedUser1,
-            connectedUser2,
-            connectedUser3,
             selfTeamUser1,
-            selfTeamUser2
+            selfTeamUser2,
+            selfTeamUser3
         ]
 
         createConversation(in: uiMOC, with: allRecipients)
@@ -614,25 +659,32 @@ extension ZMUserTests {
         XCTAssertEqual(recipients.count, 3)
     }
 
-    func testThatItPrioritiesTeamMembersOverConnectionsForBroadcast() {
+    func testThatItPrioritiesTeamMembersOverOtherTeamUsersForBroadcast() {
         // given
-        let connectedUser1 = ZMUser.insert(in: uiMOC, name: "1", handle: "1", connectionStatus: .accepted)
-        let connectedUser2 = ZMUser.insert(in: uiMOC, name: "2", handle: "2", connectionStatus: .accepted)
-        let connectedUser3 = ZMUser.insert(in: uiMOC, name: "3", handle: nil, connectionStatus: .accepted)
-
         let selfUserTeam = createTeam(in: uiMOC)
         createMembership(in: uiMOC, user: selfUser, team: selfUserTeam)
 
-        let (teamUser1, _) = createUserAndAddMember(to: selfUserTeam)
-        let (teamUser2, _) = createUserAndAddMember(to: selfUserTeam)
+        let (selfTeamUser1, _) = createUserAndAddMember(to: selfUserTeam)
+        let (selfTeamUser2, _) = createUserAndAddMember(to: selfUserTeam)
+
+        let otherTeam = createTeam(in: uiMOC)
+
+        let (connectedTeamUser1, _) = createUserAndAddMember(to: otherTeam)
+        let (connectedTeamUser2, _) = createUserAndAddMember(to: otherTeam)
+
+        let usersToConnect = [connectedTeamUser1, connectedTeamUser2]
+
+        for user in usersToConnect {
+            let connection = ZMConnection.insertNewSentConnection(to: user)
+            connection?.status = .accepted
+        }
 
         let allRecipients = [
             selfUser!,
-            connectedUser1,
-            connectedUser2,
-            connectedUser3,
-            teamUser1,
-            teamUser2
+            selfTeamUser1,
+            selfTeamUser2,
+            connectedTeamUser1,
+            connectedTeamUser2
         ]
 
         createConversation(in: uiMOC, with: allRecipients)
@@ -641,7 +693,7 @@ extension ZMUserTests {
         let recipients = ZMUser.recipientsForBroadcast(in: uiMOC, maxCount: 3)
 
         // then
-        XCTAssertEqual(recipients, Set([selfUser, teamUser1, teamUser2]))
+        XCTAssertEqual(recipients, Set([selfUser, selfTeamUser1, selfTeamUser2]))
     }
 
     func testThatItRecipientsForBroadcastIsDeterministic() {
