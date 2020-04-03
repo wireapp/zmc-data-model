@@ -167,12 +167,6 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         set { user?.availability = newValue }
     }
     
-    public var shouldHideAvailability: Bool {
-        guard let user = user else { return false }
-        
-        return user.shouldHideAvailability
-    }
-    
     public var isSelfUser: Bool {
         guard let user = user else { return false }
         
