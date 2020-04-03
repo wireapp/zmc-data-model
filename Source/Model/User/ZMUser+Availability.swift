@@ -63,7 +63,7 @@ public struct NotificationMethod: OptionSet {
 
 extension ZMUser {
 
-    /// A set of all users to receive a broadcast message.
+    /// The set of all users to receive an availability status broadcast message.
     ///
     /// Broadcast messages are expensive for large teams. Therefore it is necessary broadcast to
     /// a limited subset of all users. Known team members are priortized first, followed by
@@ -73,7 +73,7 @@ extension ZMUser {
     ///     - context: The context to search in.
     ///     - maxCount: The maximum number of recipients to return.
 
-    public static func recipientsForBroadcast(in context: NSManagedObjectContext, maxCount: Int) -> Set<ZMUser> {
+    public static func recipientsForAvailabilityStatusBroadcast(in context: NSManagedObjectContext, maxCount: Int) -> Set<ZMUser> {
         var recipients: Set = [selfUser(in: context)]
         var remainingSlots = maxCount - recipients.count
 
