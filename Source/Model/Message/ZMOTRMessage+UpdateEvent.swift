@@ -66,6 +66,8 @@ extension ZMOTRMessage {
             ZMMessage.add(message.reaction, senderID: senderID, conversation: conversation, in: moc)
         } else if message.hasConfirmation() {
             ZMMessageConfirmation.createMessageConfirmations(message.confirmation, conversation: conversation, updateEvent: updateEvent)
+        } else if message.hasButtonActionConfirmation() {
+            ZMClientMessage.updateButtonStates(withConfirmation: message.buttonActionConfirmation, forConversation: conversation, inContext: moc)
         } else if message.hasEdited() {
             return ZMClientMessage.editMessage(withEdit: message.edited, forConversation: conversation, updateEvent: updateEvent, inContext: moc, prefetchResult: prefetchResult)
         } else if conversation.shouldAdd(event: updateEvent) && !(message.hasClientAction() || message.hasCalling() || message.hasAvailability()) {
