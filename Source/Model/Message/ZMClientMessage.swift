@@ -139,7 +139,7 @@ import Foundation
             return
         }
         if let genericMessage = self.genericMessage,
-            let _ = genericMessage.textData,
+            genericMessage.textData != nil,
             !genericMessage.linkPreviews.isEmpty,
             linkPreviewState != ZMLinkPreviewState.done {
             // If we have link previews and they are not sent yet, we wait until they are sent
