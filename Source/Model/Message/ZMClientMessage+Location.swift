@@ -30,17 +30,17 @@ public protocol LocationMessageData: NSObjectProtocol {
 extension ZMClientMessage: LocationMessageData {
     
     public override var locationMessageData: LocationMessageData? {
-        switch underlyingMessage?.content {
-        case .location(_)?:
+        guard let content = underlyingMessage?.content else { return nil }
+        switch content {
+        case .location:
             return self
-        case .ephemeral(let data)?:
+        case .ephemeral(let data):
             switch data.content {
-            case .location(_)?:
+            case .location?:
                 return self
             default:
                 return nil
             }
-            
         default:
             return nil
         }

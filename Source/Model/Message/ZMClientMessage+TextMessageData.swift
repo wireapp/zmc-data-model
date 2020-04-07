@@ -29,9 +29,10 @@ extension ZMClientMessage: ZMTextMessageData {
     
     @NSManaged public var quote: ZMMessage?
     
-    public override var textMessageData: ZMTextMessageData? {
-        let isTextMessage = self.genericMessage?.textData != nil
-        return isTextMessage ? self : nil
+    public override var textMessageData: ZMTextMessageData? {        
+        guard genericMessage?.textData != nil
+            else { return nil }
+        return self
     }
     
     public var isQuotingSelf: Bool{

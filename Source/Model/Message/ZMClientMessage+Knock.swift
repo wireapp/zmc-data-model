@@ -21,7 +21,8 @@ import Foundation
 extension ZMClientMessage: ZMKnockMessageData {
     
     public override var knockMessageData: ZMKnockMessageData? {
-        guard genericMessage?.knockData != nil else { return nil }
+        guard genericMessage?.knockData != nil
+            else { return nil }
         return self
     }
 }
