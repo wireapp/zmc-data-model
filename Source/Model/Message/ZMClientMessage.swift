@@ -135,7 +135,7 @@ import Foundation
     }
 
     private func setObfuscationTimerIfNeeded() {
-        guard self.isEphemeral else {
+        guard isEphemeral else {
             return
         }
         if let genericMessage = self.genericMessage,
