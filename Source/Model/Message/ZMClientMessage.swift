@@ -150,7 +150,7 @@ import Foundation
 
     func hasDownloadedImage() -> Bool {
         if let textMessageData = self.textMessageData,
-            let _ = textMessageData.linkPreview,
+            textMessageData.linkPreview != nil,
             let managedObjectContext = self.managedObjectContext {
             return managedObjectContext.zm_fileAssetCache.hasDataOnDisk(self, format: ZMImageFormat.medium, encrypted: false)
                 // processed or downloaded
