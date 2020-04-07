@@ -73,7 +73,7 @@ extension ZMOTRMessage {
         } else if conversation.shouldAdd(event: updateEvent) && !(message.hasClientAction() || message.hasCalling() || message.hasAvailability()) {
             guard let nonce = UUID(uuidString: message.messageId) else { return nil }
             let messageClass: AnyClass = ZMGenericMessage.entityClass(for: message)
-            var clientMessage = messageClass.fetch(withNonce: nonce, for: conversation, in: moc) as? ZMOTRMessage
+            var clientMessage = messageClass.fetch(withNonce: nonce, for: conversation, in: moc, prefetchResult: prefetchResult) as? ZMOTRMessage
             
             // This seems to be redundent with the guard statement a few lines down
             guard !(clientMessage?.isZombieObject ?? false) else {
