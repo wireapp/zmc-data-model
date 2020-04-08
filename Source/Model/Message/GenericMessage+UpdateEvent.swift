@@ -35,11 +35,11 @@ extension GenericMessage {
         
         var message = GenericMessage(withBase64String: base64Content)
         
-        if case .external? = message?.content {
-            message = GenericMessage(from: updateEvent, withExternal: message!.external)
+        if case .some(.external(let external)) = message?.content {
+            message = GenericMessage(from: updateEvent, withExternal: external)
         }
         
-        guard message != nil else { return nil }
-        self = message!
+        guard let unwrappedMessage = message else { return nil }
+        self = unwrappedMessage
     }
 }
