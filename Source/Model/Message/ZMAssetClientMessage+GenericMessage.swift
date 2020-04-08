@@ -199,27 +199,4 @@ extension ZMAssetClientMessage {
         let isFileMessage = self.genericAssetMessage?.assetData != nil
         return isFileMessage ? self : nil
     }
-    
-    public override func update(with message: ZMGenericMessage, updateEvent: ZMUpdateEvent, initialUpdate: Bool) {
-        self.add(message)
-        self.version = 3 // We assume received assets are V3 since backend no longer supports sending V2 assets.
-
-        if let assetData = message.assetData, assetData.hasUploaded() {
-            if assetData.uploaded.hasAssetId() {
-                self.updateTransferState(.uploaded, synchronize: false)
-            }
-        }
-
-        if let assetData = message.assetData, assetData.hasNotUploaded(), self.transferState != .uploaded {
-            ///TODO: change ZMAssetNotUploaded to NS_CLOSED_ENUM
-            switch assetData.notUploaded {
-            case .CANCELLED:
-                self.managedObjectContext?.delete(self)
-            case .FAILED:
-                self.updateTransferState(.uploadingFailed, synchronize: false)
-            @unknown default:
-                fatalError()
-            }
-        }
-    }
 }
