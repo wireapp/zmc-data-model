@@ -88,19 +88,20 @@ import WireLinkPreview
         }
     }
     
-    func applyLinkPreviewUpdate(_ updatedMessage: ZMGenericMessage, from updateEvent: ZMUpdateEvent) {
+    @nonobjc func applyLinkPreviewUpdate(_ updatedMessage: GenericMessage, from updateEvent: ZMUpdateEvent) {
         guard let nonce = self.nonce,
               let senderUUID = updateEvent.senderUUID(),
-              let originalText = genericMessage?.textData,
+              let originalText = underlyingMessage?.textData,
               let updatedText = updatedMessage.textData,
               senderUUID == sender?.remoteIdentifier,
               originalText.content == updatedText.content
         else { return }
         
         let expiresAfter = deletionTimeout > 0 ? deletionTimeout : nil
-        add(ZMGenericMessage.message(content: originalText.updateLinkPeview(from: updatedText), nonce: nonce, expiresAfter: expiresAfter).data())
+        let message = GenericMessage(content: originalText.updateLinkPreview(from: updatedText), nonce: nonce, expiresAfter: expiresAfter)
+        guard let data = try? message.serializedData() else { return }
+        add(data)
     }
-    
 }
 
 
