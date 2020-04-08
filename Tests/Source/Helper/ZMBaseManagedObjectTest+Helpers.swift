@@ -45,6 +45,7 @@ extension ZMBaseManagedObjectTest {
         let member = Member.insertNewObject(in: moc)
         member.user = user
         member.team = team
+        member.user?.teamIdentifier = team.remoteIdentifier
         return member
     }
 
