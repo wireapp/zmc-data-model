@@ -22,10 +22,6 @@ import WireCryptobox
 private var zmLog = ZMSLog(tag: "message encryption")
 
 public let ZMFailedToCreateEncryptedMessagePayloadString = "💣"
-//// From https://github.com/wearezeta/generic-message-proto:
-//// "If payload is smaller then 256KB then OM can be sent directly"
-//// Just to be sure we set the limit lower, to 128KB (base 10)
-public let ZMClientMessageByteSizeExternalThreshold: UInt = 128000
 
 // MARK: - Encrypted data for recipients
 
@@ -138,7 +134,7 @@ extension ZMGenericMessage {
             messageData = try? message.serializedData()
             
             // message too big?
-            if let data = messageData, UInt(data.count) > ZMClientMessageByteSizeExternalThreshold && externalData == nil {
+            if let data = messageData, UInt(data.count) > ZMClientMessage.byteSizeExternalThreshold && externalData == nil {
                 // The payload is too big, we therefore rollback the session since we won't use the message we just encrypted.
                 // This will prevent us advancing sender chain multiple time before sending a message, and reduce the risk of TooDistantFuture.
                 sessionsDirectory.discardCache()

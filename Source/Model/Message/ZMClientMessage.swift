@@ -23,6 +23,11 @@ import Foundation
     @objc public static let linkPreviewStateKey = "linkPreviewState"
     @objc public static let linkPreviewKey = "linkPreview"
     
+    //// From https://github.com/wearezeta/generic-message-proto:
+    //// "If payload is smaller then 256KB then OM can be sent directly"
+    //// Just to be sure we set the limit lower, to 128KB (base 10)
+    @objc public static let byteSizeExternalThreshold: UInt = 128000
+    
     /// Link Preview state
     @NSManaged public var updatedTimestamp: Date?
     
