@@ -40,8 +40,6 @@ extern NSString * const DeliveredKey;
 - (void)doesNotMissRecipient:(UserClient *)recipient;
 - (void)doesNotMissRecipients:(NSSet<UserClient *> *)recipients;
 
-- (void)updateWithGenericMessage:(ZMGenericMessage * )message updateEvent:(ZMUpdateEvent *)updateEvent initialUpdate:(BOOL)initialUpdate;
-
 // Temporary method needed to decouple from ZMGenericMessage
 - (void)updateWithUpdateEvent:(ZMUpdateEvent *)updateEvent initialUpdate:(BOOL)initialUpdate;
 
