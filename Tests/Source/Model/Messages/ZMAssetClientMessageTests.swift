@@ -278,9 +278,12 @@ extension ZMAssetClientMessageTests {
         XCTAssertNotNil(sut)
         
         // when
-        let originalMessage = ZMGenericMessage.message(content: ZMAsset.asset(withOriginal: .original(withSize: 256, mimeType: mimeType, name: name), preview: nil), nonce: nonce)
-        sut.update(with: originalMessage, updateEvent: ZMUpdateEvent(), initialUpdate: true)
+        let assetOriginal = WireProtos.Asset.Original(withSize: 256, mimeType: mimeType, name: name)
+        let asset = WireProtos.Asset(original: assetOriginal, preview: nil)
+        let originalMessage = GenericMessage(content: asset, nonce: nonce)
+        let updateEvent = createUpdateEvent(nonce, conversationID: UUID.create(), genericMessage: originalMessage)
         
+        sut.update(with: updateEvent, initialUpdate: true)
         // then
         XCTAssertEqual(sut.fileMessageData?.size, 256)
         XCTAssertEqual(sut.fileMessageData?.mimeType, mimeType)
@@ -298,9 +301,11 @@ extension ZMAssetClientMessageTests {
         XCTAssertNotNil(sut)
         
         // when
-        let originalMessage = ZMGenericMessage.message(content: ZMAsset.asset(withUploadedOTRKey: .zmRandomSHA256Key(), sha256: .zmRandomSHA256Key()), nonce: nonce)
-        let uploadedMessage = originalMessage.updatedUploaded(withAssetId: "id", token: "token")!
-        sut.update(with: uploadedMessage, updateEvent: ZMUpdateEvent(), initialUpdate: true)
+        let asset = WireProtos.Asset(withUploadedOTRKey: .zmRandomSHA256Key(), sha256: .zmRandomSHA256Key())
+        var originalMessage = GenericMessage(content: asset, nonce: nonce)
+        originalMessage.updatedUploaded(withAssetId: "id", token: "token")
+        let updateEvent = createUpdateEvent(nonce, conversationID: UUID.create(), genericMessage: originalMessage)
+        sut.update(with: updateEvent, initialUpdate: true)
         
         // then
         XCTAssertEqual(sut.fileMessageData?.transferState, .uploaded)
@@ -316,8 +321,11 @@ extension ZMAssetClientMessageTests {
         XCTAssertNotNil(sut)
         
         // when
-        let originalMessage = ZMGenericMessage.message(content: ZMAsset.asset(withUploadedOTRKey: .zmRandomSHA256Key(), sha256: .zmRandomSHA256Key()), nonce: nonce)
-        sut.update(with: originalMessage, updateEvent: ZMUpdateEvent(), initialUpdate: true)
+        let asset = WireProtos.Asset(withUploadedOTRKey: .zmRandomSHA256Key(), sha256: .zmRandomSHA256Key())
+        let originalMessage = GenericMessage(content: asset, nonce: nonce)
+        let updateEvent = createUpdateEvent(nonce, conversationID: UUID.create(), genericMessage: originalMessage)
+
+        sut.update(with: updateEvent, initialUpdate: true)
         
         // then
         XCTAssertEqual(sut.fileMessageData?.transferState, .uploading)
@@ -333,8 +341,10 @@ extension ZMAssetClientMessageTests {
         XCTAssertNotNil(sut)
         
         // when
-        let originalMessage = ZMGenericMessage.message(content: ZMAsset.asset(withNotUploaded: .CANCELLED), nonce: nonce)
-        sut.update(with: originalMessage, updateEvent: ZMUpdateEvent(), initialUpdate: true)
+        let asset = WireProtos.Asset(withNotUploaded: .cancelled)
+        let originalMessage = GenericMessage(content: asset, nonce: nonce)
+        let updateEvent = createUpdateEvent(nonce, conversationID: UUID.create(), genericMessage: originalMessage)
+        sut.update(with: updateEvent, initialUpdate: true)
         
         // then
         XCTAssertTrue(sut.isZombieObject)
@@ -351,11 +361,15 @@ extension ZMAssetClientMessageTests {
         XCTAssertNotNil(sut)
         
         // when
-        let originalMessage = ZMGenericMessage.message(content: ZMAsset.asset(withUploadedOTRKey: .zmRandomSHA256Key(), sha256: .zmRandomSHA256Key()), nonce: nonce)
-        let uploadedMessage = originalMessage.updatedUploaded(withAssetId: "id", token: "token")!
-        sut.update(with: uploadedMessage, updateEvent: ZMUpdateEvent(), initialUpdate: true)
-        let canceledMessage = ZMGenericMessage.message(content: ZMAsset.asset(withNotUploaded: .CANCELLED), nonce: nonce)
-        sut.update(with: canceledMessage, updateEvent: ZMUpdateEvent(), initialUpdate: true)
+        let asset = WireProtos.Asset(withUploadedOTRKey: .zmRandomSHA256Key(), sha256: .zmRandomSHA256Key())
+        var message = GenericMessage(content: asset, nonce: nonce)
+        message.updatedUploaded(withAssetId: "id", token: "token")
+        let updateEvent = createUpdateEvent(nonce, conversationID: UUID.create(), genericMessage: message)
+        sut.update(with: updateEvent, initialUpdate: true)
+        
+        let canceledMessage = GenericMessage(content: WireProtos.Asset(withNotUploaded: .cancelled), nonce: nonce)
+        let updateEventForCanceled = createUpdateEvent(nonce, conversationID: UUID.create(), genericMessage: canceledMessage)
+        sut.update(with: updateEventForCanceled, initialUpdate: true)
         
         // then
         XCTAssertEqual(sut.fileMessageData?.transferState, .uploaded)
@@ -371,8 +385,9 @@ extension ZMAssetClientMessageTests {
         XCTAssertNotNil(sut)
         
         // when
-        let originalMessage = ZMGenericMessage.message(content: ZMAsset.asset(withNotUploaded: .FAILED), nonce: nonce)
-        sut.update(with: originalMessage, updateEvent: ZMUpdateEvent(), initialUpdate: true)
+        let message = GenericMessage(content: WireProtos.Asset(withNotUploaded: .failed), nonce: nonce)
+        let updateEvent = createUpdateEvent(nonce, conversationID: UUID.create(), genericMessage: message)
+        sut.update(with: updateEvent, initialUpdate: true)
         
         // then
         XCTAssertEqual(sut.fileMessageData?.transferState, .uploadingFailed)
@@ -587,42 +602,40 @@ extension ZMAssetClientMessageTests {
     
     func testThatItDoesNotSetAssetIdWhenUpdatingFromAnUploadedMessage() {
         self.syncMOC.performAndWait {
-            
+
             // given
             let previewSize : UInt64 = 46
             let previewMimeType = "image/jpg"
-            let remoteData = ZMAssetRemoteData.remoteData(withOTRKey: Data.zmRandomSHA256Key(), sha256: Data.zmRandomSHA256Key())
-            let imageMetadata = ZMAssetImageMetaData.imageMetaData(withWidth: 4235, height: 324)
+            let remoteData = WireProtos.Asset.RemoteData(withOTRKey: .zmRandomSHA256Key(), sha256: .zmRandomSHA256Key())
+            let imageMetadata = WireProtos.Asset.ImageMetaData(width: 4235, height: 324)
             let sut = appendFileMessage(to: syncConversation)!
-            
-            let assetWithUploaded = ZMAsset.asset(withUploadedOTRKey: Data.zmRandomSHA256Key(), sha256: Data.zmRandomSHA256Key())
-            let assetWithPreview = ZMAsset.asset(withOriginal: nil, preview: ZMAssetPreview.preview(withSize: previewSize, mimeType: previewMimeType, remoteData: remoteData, imageMetadata: imageMetadata))
-            let builder = ZMAssetBuilder()
-            builder.merge(from: assetWithUploaded)
-            builder.mergePreview(assetWithPreview.preview)
-            let asset = builder.build()!
-            
-            let genericMessage = ZMGenericMessage.message(content: asset, nonce: sut.nonce!)
-            let payload : [String : AnyObject] = [
-                "type" : "conversation.otr-asset-add" as AnyObject,
-                "data" : [
-                    "id" : UUID.create().uuidString
-                ] as AnyObject
-            ]
-            let updateEvent = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: UUID.create())!
+
+            let assetWithUploaded = WireProtos.Asset(withUploadedOTRKey: .zmRandomSHA256Key(), sha256: .zmRandomSHA256Key())
+            let assetWithPreview = WireProtos.Asset(original: nil, preview: WireProtos.Asset.Preview(size: previewSize, mimeType: previewMimeType, remoteData: remoteData, imageMetadata: imageMetadata))
+    
+            var asset = WireProtos.Asset()
+            do {
+                try asset.merge(serializedData: try assetWithUploaded.serializedData())
+                try asset.preview.merge(serializedData: try assetWithPreview.preview.serializedData())
+            } catch {
+                XCTFail()
+                return
+            }
+           
+            let genericMessage = GenericMessage(content: asset, nonce: sut.nonce!)
+            let updateEvent = createUpdateEvent(sut.nonce!, conversationID: UUID.create(), genericMessage: genericMessage)
             XCTAssertNil(sut.fileMessageData?.thumbnailAssetID)
-            
-            
+
             // when
-            sut.update(with: genericMessage, updateEvent: updateEvent, initialUpdate: true)
-            
+            sut.update(with: updateEvent, initialUpdate: true)
+
             // then
             XCTAssertNil(sut.fileMessageData?.thumbnailAssetID)
             // testing that other properties are kept
-            XCTAssertEqual(sut.genericAssetMessage?.asset.preview.remote.otrKey, remoteData.otrKey)
-            XCTAssertEqual(sut.genericAssetMessage?.asset.preview.remote.sha256, remoteData.sha256)
-            XCTAssertEqual(sut.genericAssetMessage?.asset.preview.image.width, imageMetadata.width)
-            XCTAssertEqual(sut.genericAssetMessage?.asset.original.name, sut.filename)
+            XCTAssertEqual(sut.underlyingMessage?.asset.preview.remote.otrKey, remoteData.otrKey)
+            XCTAssertEqual(sut.underlyingMessage?.asset.preview.remote.sha256, remoteData.sha256)
+            XCTAssertEqual(sut.underlyingMessage?.asset.preview.image.width, imageMetadata.width)
+            XCTAssertEqual(sut.underlyingMessage?.asset.original.name, sut.filename)
         }
     }
     
@@ -630,42 +643,37 @@ extension ZMAssetClientMessageTests {
         // given
         let previewSize : UInt64 = 46
         let previewMimeType = "image/jpg"
-        let remoteData = ZMAssetRemoteData.remoteData(withOTRKey: Data.zmRandomSHA256Key(), sha256: Data.zmRandomSHA256Key())
-        let imageMetadata = ZMAssetImageMetaData.imageMetaData(withWidth: 4235, height: 324)
+        let remoteData = WireProtos.Asset.RemoteData(withOTRKey: .zmRandomSHA256Key(), sha256: .zmRandomSHA256Key())
+        let imageMetadata = WireProtos.Asset.ImageMetaData(width: 4235, height: 324)
         
         let uuid = UUID.create()
         let sut = appendFileMessage(to: conversation)!
-        
+
         XCTAssertFalse(sut.genericAssetMessage!.asset.hasPreview())
         XCTAssertTrue(uiMOC.saveOrRollback())
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        
+
         // when
         uiMOC.refresh(sut, mergeChanges: false) // Turn object into fault
-        
+
         self.syncMOC.performAndWait {
             let sutInSyncContext = self.syncMOC.object(with: sut.objectID) as! ZMAssetClientMessage
-            let asset = ZMAsset.asset(withOriginal: nil, preview: ZMAssetPreview.preview(withSize: previewSize, mimeType: previewMimeType, remoteData: remoteData, imageMetadata: imageMetadata))
-            let genericMessage = ZMGenericMessage.message(content: asset, nonce: sut.nonce!)
-            let payload : [String : AnyObject] = [
-                "type" : "conversation.otr-asset-add" as AnyObject,
-                "data" : [
-                    "id" : uuid
-                ] as AnyObject
-            ]
-            let updateEvent = ZMUpdateEvent(fromEventStreamPayload: payload as ZMTransportData, uuid: UUID.create())!
+            let preview = WireProtos.Asset.Preview(size: previewSize, mimeType: previewMimeType, remoteData: remoteData, imageMetadata: imageMetadata)
+            let asset = WireProtos.Asset(original: nil, preview: preview)
+            let genericMessage = GenericMessage(content: asset, nonce: sut.nonce!)
+            let updateEvent = createUpdateEvent(uuid, conversationID: UUID.create(), genericMessage: genericMessage)
             XCTAssertNil(sutInSyncContext.fileMessageData?.thumbnailAssetID)
-            
-            sutInSyncContext.update(with: genericMessage, updateEvent: updateEvent, initialUpdate: true) // Append preview
+
+            sutInSyncContext.update(with: updateEvent, initialUpdate: true) // Append preview
             XCTAssertTrue(self.syncMOC.saveOrRollback())
         }
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
-        
+
         // then
         // properties changed in sync context are visible
-        XCTAssertEqual(sut.genericAssetMessage?.asset.preview.remote.otrKey, remoteData.otrKey)
-        XCTAssertEqual(sut.genericAssetMessage?.asset.preview.remote.sha256, remoteData.sha256)
-        XCTAssertEqual(sut.genericAssetMessage?.asset.preview.image.width, imageMetadata.width)
+        XCTAssertEqual(sut.underlyingMessage?.asset.preview.remote.otrKey, remoteData.otrKey)
+        XCTAssertEqual(sut.underlyingMessage?.asset.preview.remote.sha256, remoteData.sha256)
+        XCTAssertEqual(sut.underlyingMessage?.asset.preview.image.width, imageMetadata.width)
     }
 }
 
@@ -1146,49 +1154,31 @@ extension ZMAssetClientMessageTests {
 
     typealias PreviewMeta = (otr: Data, sha: Data, assetId: String?, token: String?)
 
-    private func originalGenericMessage(nonce: UUID, image: ZMAssetImageMetaData? = nil, preview: ZMAssetPreview? = nil, mimeType: String = "image/jpg", name: String? = nil) -> ZMGenericMessage {
-        let asset = ZMAsset.asset(withOriginal: .original(withSize: 128, mimeType: mimeType, name: name, imageMetaData: image), preview: preview)
-        return ZMGenericMessage.message(content: asset, nonce: nonce)
+    private func updateEventForOriginal(nonce: UUID, image: WireProtos.Asset.ImageMetaData? = nil, preview: WireProtos.Asset.Preview? = nil, mimeType: String = "image/jpg", name: String? = nil) -> ZMUpdateEvent {
+        let original = WireProtos.Asset.Original(withSize: 128, mimeType: mimeType, name: name, imageMetaData: image)
+        let asset = WireProtos.Asset(original: original, preview: preview)
+        return createUpdateEvent(nonce, conversationID: UUID.create(), genericMessage: GenericMessage(content: asset, nonce: nonce))
     }
 
-    private func uploadedGenericMessage(nonce: UUID, otr: Data = .randomEncryptionKey(), sha: Data = .zmRandomSHA256Key(), assetId: UUID? = UUID.create(), token: UUID? = UUID.create()) -> ZMGenericMessage {
-
-        let assetBuilder = ZMAsset.builder()!
-        let remoteBuilder = ZMAssetRemoteData.builder()!
-
-        _ = remoteBuilder.setOtrKey(otr)
-        _ = remoteBuilder.setSha256(sha)
-        if let assetId = assetId {
-            _ = remoteBuilder.setAssetId(assetId.transportString())
+    private func updateEventForUploaded(nonce: UUID, otr: Data = .randomEncryptionKey(), sha: Data = .zmRandomSHA256Key(), assetId: UUID? = UUID.create(), token: UUID? = UUID.create()) -> ZMUpdateEvent {
+        let remoteData = WireProtos.Asset.RemoteData(withOTRKey: otr, sha256: sha, assetId: assetId?.transportString(), assetToken: token?.transportString())
+        let asset = WireProtos.Asset.with {
+            $0.uploaded = remoteData
         }
-        if let token = token {
-            _ = remoteBuilder.setAssetToken(token.transportString())
-        }
-
-        assetBuilder.setUploaded(remoteBuilder)
-        return ZMGenericMessage.message(content: assetBuilder.build(), nonce: nonce)
+        return createUpdateEvent(nonce, conversationID: UUID.create(), genericMessage: GenericMessage(content: asset, nonce: nonce))
     }
 
-    func previewGenericMessage(with nonce: UUID, assetId: String? = UUID.create().transportString(), token: String? = UUID.create().transportString(), otr: Data = .randomEncryptionKey(), sha: Data = .randomEncryptionKey()) -> (ZMGenericMessage, PreviewMeta) {
-        let assetBuilder = ZMAsset.builder()
-        let previewBuilder = ZMAssetPreview.builder()
-        let remoteBuilder = ZMAssetRemoteData.builder()
-
-        _ = remoteBuilder?.setOtrKey(otr)
-        _ = remoteBuilder?.setSha256(sha)
-        if let assetId = assetId {
-            _ = remoteBuilder?.setAssetId(assetId)
-        }
-        if let token = token {
-            _ = remoteBuilder?.setAssetToken(token)
-        }
-        _ = previewBuilder?.setSize(512)
-        _ = previewBuilder?.setMimeType("image/jpg")
-        _ = previewBuilder?.setRemote(remoteBuilder)
-        _ = assetBuilder?.setPreview(previewBuilder)
-
+    func previewGenericMessage(with nonce: UUID, assetId: String? = UUID.create().transportString(), token: String? = UUID.create().transportString(), otr: Data = .randomEncryptionKey(), sha: Data = .randomEncryptionKey()) -> (GenericMessage, PreviewMeta) {
+   
+        let remoteData = WireProtos.Asset.RemoteData(withOTRKey: otr, sha256: sha, assetId: assetId, assetToken: token)
+        let preview = WireProtos.Asset.Preview(size: 512, mimeType: "image/jpg", remoteData: remoteData, imageMetadata: WireProtos.Asset.ImageMetaData(width: 123, height: 4578))
+        let asset = WireProtos.Asset.with { $0.preview = preview }
+        let message = GenericMessage(content: asset, nonce: nonce)
+        
         let previewMeta = (otr, sha, assetId, token)
-        return (ZMGenericMessage.message(content: assetBuilder!.build(), nonce: nonce), previewMeta)
+
+        XCTAssertEqual(message.asset.preview.remote.assetID, assetId)
+        return (message, previewMeta)
     }
 
     func createMessageWithNonce() -> (ZMAssetClientMessage, UUID) {
@@ -1209,8 +1199,8 @@ extension ZMAssetClientMessageTests {
         let assetId = UUID.create()
         let assetData = Data.secureRandomData(length: 512)
 
-        sut.update(with: originalGenericMessage(nonce: nonce, name: "document.pdf"), updateEvent: ZMUpdateEvent(), initialUpdate: true)
-        sut.update(with: uploadedGenericMessage(nonce: nonce, assetId: assetId), updateEvent: ZMUpdateEvent(), initialUpdate: false)
+        sut.update(with: updateEventForOriginal(nonce: nonce, name: "document.pdf"), initialUpdate: true)
+        sut.update(with: updateEventForUploaded(nonce: nonce, assetId: assetId), initialUpdate: false)
         uiMOC.zm_fileAssetCache.storeAssetData(sut, encrypted: false, data: assetData)
 
 
@@ -1226,9 +1216,9 @@ extension ZMAssetClientMessageTests {
         // when
         let assetId = UUID.create()
         let assetData = Data.secureRandomData(length: 512)
-        let image = ZMAssetImageMetaData.imageMetaData(withWidth: 123, height: 4569)
-        sut.update(with: originalGenericMessage(nonce: nonce, image: image, preview: nil), updateEvent: ZMUpdateEvent(), initialUpdate: false)
-        sut.update(with: uploadedGenericMessage(nonce: nonce, assetId: assetId), updateEvent: ZMUpdateEvent(), initialUpdate: false)
+        let image = WireProtos.Asset.ImageMetaData(width: 123, height: 4569)
+        sut.update(with: updateEventForOriginal(nonce: nonce, image: image, preview: nil), initialUpdate: false)
+        sut.update(with: updateEventForUploaded(nonce: nonce, assetId: assetId), initialUpdate: false)
         uiMOC.zm_fileAssetCache.storeAssetData(sut, format: .medium, encrypted: false, data: assetData)
 
         // then
@@ -1240,13 +1230,13 @@ extension ZMAssetClientMessageTests {
         // given
         let (sut, nonce) = createMessageWithNonce()
 
-        let image = ZMAssetImageMetaData.imageMetaData(withWidth: 123, height: 4569)
-        let original = originalGenericMessage(nonce: nonce, image: image, preview: nil)
-        let uploaded = uploadedGenericMessage(nonce: nonce)
+        let image = WireProtos.Asset.ImageMetaData(width: 123, height: 4569)
+        let original = updateEventForOriginal(nonce: nonce, image: image, preview: nil)
+        let uploaded = updateEventForUploaded(nonce: nonce)
 
         // when
-        sut.update(with: original, updateEvent: ZMUpdateEvent(), initialUpdate: false)
-        sut.update(with: uploaded, updateEvent: ZMUpdateEvent(), initialUpdate: false)
+        sut.update(with: original, initialUpdate: false)
+        sut.update(with: uploaded, initialUpdate: false)
 
         // then
         XCTAssertTrue(sut.genericAssetMessage!.v3_isImage)
@@ -1259,13 +1249,13 @@ extension ZMAssetClientMessageTests {
         let (sut, nonce) = createMessageWithNonce()
         let assetId = UUID.create()
 
-        let image = ZMAssetImageMetaData.imageMetaData(withWidth: 123, height: 4569)
-        let original = originalGenericMessage(nonce: nonce, image: image, preview: nil)
-        let uploaded = uploadedGenericMessage(nonce: nonce, assetId: assetId)
+        let image = WireProtos.Asset.ImageMetaData(width: 123, height: 4569)
+        let original = updateEventForOriginal(nonce: nonce, image: image, preview: nil)
+        let uploaded = updateEventForUploaded(nonce: nonce, assetId: assetId)
 
         // when
-        sut.update(with: original, updateEvent: ZMUpdateEvent(), initialUpdate: false)
-        sut.update(with: uploaded, updateEvent: ZMUpdateEvent(), initialUpdate: false)
+        sut.update(with: original, initialUpdate: false)
+        sut.update(with: uploaded, initialUpdate: false)
 
         // then
         XCTAssertEqual(FileAssetCache.cacheKeyForAsset(sut, format: .medium), sut.imageMessageData?.imageDataIdentifier)
@@ -1277,7 +1267,8 @@ extension ZMAssetClientMessageTests {
 
         // when
         let (preview, previewMeta) = previewGenericMessage(with: nonce)
-        sut.update(with: preview, updateEvent: ZMUpdateEvent(), initialUpdate: false)
+        let updateEvent = createUpdateEvent(nonce, conversationID: UUID.create(), genericMessage: preview)
+        sut.update(with: updateEvent, initialUpdate: false)
 
         // then
         XCTAssertEqual(sut.fileMessageData?.thumbnailAssetID, previewMeta.assetId)
@@ -1290,14 +1281,15 @@ extension ZMAssetClientMessageTests {
         // when
         let previewData = Data.secureRandomData(length: 512)
         let (preview, _) = previewGenericMessage(with: nonce)
-        sut.update(with: preview, updateEvent: ZMUpdateEvent(), initialUpdate: false)
+        let updateEvent = createUpdateEvent(nonce, conversationID: UUID.create(), genericMessage: preview)
+        sut.update(with: updateEvent, initialUpdate: false)
         uiMOC.zm_fileAssetCache.storeAssetData(sut, format: .medium, encrypted: false, data: previewData)
 
         // then
         XCTAssertFalse(sut.hasDownloadedFile)
         XCTAssertTrue(sut.hasDownloadedPreview)
         XCTAssertEqual(sut.version, 3)
-        
+
         let expectation = self.expectation(description: "preview data was retreived")
         sut.fileMessageData?.fetchImagePreviewData(queue: .global(qos: .background), completionHandler: { (previewDataResult) in
             XCTAssertEqual(previewDataResult, previewData)
@@ -1311,13 +1303,13 @@ extension ZMAssetClientMessageTests {
         let (sut, nonce) = createMessageWithNonce()
 
         let data = verySmallJPEGData()
-        let image = ZMAssetImageMetaData.imageMetaData(withWidth: 123, height: 4569)
-        let original = originalGenericMessage(nonce: nonce, image: image, preview: nil)
-        let uploaded = uploadedGenericMessage(nonce: nonce)
+        let image = WireProtos.Asset.ImageMetaData(width: 123, height: 4569)
+        let original = updateEventForOriginal(nonce: nonce, image: image, preview: nil)
+        let uploaded = updateEventForUploaded(nonce: nonce)
 
         // when
-        sut.update(with: original, updateEvent: ZMUpdateEvent(), initialUpdate: false)
-        sut.update(with: uploaded, updateEvent: ZMUpdateEvent(), initialUpdate: false)
+        sut.update(with: original, initialUpdate: false)
+        sut.update(with: uploaded, initialUpdate: false)
 
         uiMOC.zm_fileAssetCache.storeAssetData(sut, format: .medium, encrypted: false, data: data)
 
@@ -1327,14 +1319,15 @@ extension ZMAssetClientMessageTests {
         XCTAssertEqual(sut.imageMessageData?.imageData, data)
         XCTAssertEqual(sut.version, 3)
     }
-    
+
     func testThatRequestingImagePreviewDownloadFiresANotification_V3() {
         // given
         let (sut, nonce) = createMessageWithNonce()
         let (preview, _) = previewGenericMessage(with: nonce)
-        sut.update(with: preview, updateEvent: ZMUpdateEvent(), initialUpdate: false)
+        let updateEvent = createUpdateEvent(nonce, conversationID: UUID.create(), genericMessage: preview)
+        sut.update(with: updateEvent, initialUpdate: false)
         uiMOC.saveOrRollback()
-        
+
         // expect
         let expectation = self.expectation(description: "Notified")
         let token = NotificationInContext.addObserver(name: ZMAssetClientMessage.imageDownloadNotificationName,
@@ -1344,10 +1337,10 @@ extension ZMAssetClientMessageTests {
         { _ in
             expectation.fulfill()
         }
-        
+
         // when
         sut.fileMessageData?.requestImagePreviewDownload()
-        
+
         // then
         withExtendedLifetime(token) { () -> () in
             XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
@@ -1355,17 +1348,17 @@ extension ZMAssetClientMessageTests {
     }
 
     func testThatRequestingFileDownloadFiresANotification_V3() {
-        
+
         // given
         let (sut, nonce) = createMessageWithNonce()
-        let image = ZMAssetImageMetaData.imageMetaData(withWidth: 123, height: 4569)
-        let original = originalGenericMessage(nonce: nonce, image: image, preview: nil)
-        let uploaded = uploadedGenericMessage(nonce: nonce)
+        let image = WireProtos.Asset.ImageMetaData(width: 123, height: 4569)
+        let original = updateEventForOriginal(nonce: nonce, image: image, preview: nil)
+        let uploaded = updateEventForUploaded(nonce: nonce)
         
-        sut.update(with: original, updateEvent: ZMUpdateEvent(), initialUpdate: false)
-        sut.update(with: uploaded, updateEvent: ZMUpdateEvent(), initialUpdate: false)
+        sut.update(with: original, initialUpdate: false)
+        sut.update(with: uploaded, initialUpdate: false)
         uiMOC.saveOrRollback()
-        
+
         // expect
         let expectation = self.expectation(description: "Notified")
         let token = NotificationInContext.addObserver(name: ZMAssetClientMessage.assetDownloadNotificationName,
@@ -1375,10 +1368,10 @@ extension ZMAssetClientMessageTests {
         { _ in
             expectation.fulfill()
         }
-        
+
         // when
         sut.imageMessageData?.requestFileDownload()
-        
+
         // then
         withExtendedLifetime(token) { () -> () in
             XCTAssertTrue(waitForCustomExpectations(withTimeout: 0.5))
