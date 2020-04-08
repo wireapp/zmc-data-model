@@ -2347,7 +2347,6 @@
 		F9C9A83D1CAEDBC40039E10C /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				066328622428E9E5005BB3BE /* store2-80-0.wiredatabase */,
 				06392CF823BF9DA9003186E6 /* store2-79-0.wiredatabase */,
 				A90E1FDE23ABA48700CDE283 /* store2-78-0.wiredatabase */,
 				1646D5BA234FA6B400E60F1E /* store2-77-0.wiredatabase */,
@@ -2657,7 +2656,6 @@
 				1637729C22B3F1F700510B7B /* store2-74-0.wiredatabase in Resources */,
 				F9A706F71CAEE31C00C2F5FE /* animated.gif in Resources */,
 				54829DB01DE6F7BA009100D3 /* store1-28.wiredatabase in Resources */,
-				066328632428EA11005BB3BE /* store2-80-0.wiredatabase in Resources */,
 				16A9E354220CAB790062CFCD /* store2-60-0.wiredatabase in Resources */,
 				EF451EA620066E5A005C12F1 /* store2-40-0.wiredatabase in Resources */,
 				54829DB21DE6F7BA009100D3 /* store2-4.wiredatabase in Resources */,
@@ -3304,7 +3302,6 @@
 		F189988C1E7BE03800E579A2 /* zmessaging.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
-				066328612428E4D7005BB3BE /* zmessaging2.80.0.xcdatamodel */,
 				06392CF723BF9C22003186E6 /* zmessaging2.79.0.xcdatamodel */,
 				A90676E4238D844E006417AC /* zmessaging2.78.0.xcdatamodel */,
 				1646D5B9234FA56B00E60F1E /* zmessaging2.77.0.xcdatamodel */,
@@ -3374,7 +3371,7 @@
 				F18998A41E7BE03800E579A2 /* zmessaging2.8.xcdatamodel */,
 				F18998A51E7BE03800E579A2 /* zmessaging2.9.xcdatamodel */,
 			);
-			currentVersion = 066328612428E4D7005BB3BE /* zmessaging2.80.0.xcdatamodel */;
+			currentVersion = 06392CF723BF9C22003186E6 /* zmessaging2.79.0.xcdatamodel */;
 			path = zmessaging.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
