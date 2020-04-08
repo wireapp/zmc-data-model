@@ -392,6 +392,20 @@ extension Text: EphemeralMessageCapable {
     public func setContent(on message: inout GenericMessage) {
         message.text = self
     }
+    
+    public func updateLinkPreview(from text: Text) -> Text {
+        guard text.linkPreview.count > 0 else {
+            return self
+        }
+        do {
+            let data = try serializedData()
+            var updatedText = try Text(serializedData: data)
+            updatedText.linkPreview = text.linkPreview
+            return updatedText
+        } catch {
+            return self
+        }
+    }
 }
 
 extension WireProtos.Reaction: MessageCapable {
