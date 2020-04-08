@@ -73,11 +73,21 @@ import Foundation
     }
 
     public override func expire() {
-        if let genericMessage = self.genericMessage, genericMessage.hasEdited() {
+        guard let genericMessage = self.genericMessage else {
+            super.expire()
+            return
+        }
+        if genericMessage.hasEdited() {
             // Replace the nonce with the original
             // This way if we get a delete from a different device while we are waiting for the response it will delete this message
             let originalID = self.genericMessage.flatMap { UUID(uuidString: $0.edited.replacingMessageId) }
             self.nonce = originalID
+        } else if genericMessage.hasButtonAction(),
+            let managedObjectContext = managedObjectContext,
+            let conversation = conversation
+        {
+            ZMClientMessage.expireButtonState(forButtonAction: genericMessage.buttonAction,                                          forConversation: conversation,
+                                              inContext: managedObjectContext)
         }
         super.expire()
     }
