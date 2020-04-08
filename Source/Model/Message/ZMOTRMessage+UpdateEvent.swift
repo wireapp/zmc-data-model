@@ -75,8 +75,7 @@ extension ZMOTRMessage {
             let messageClass: AnyClass = ZMGenericMessage.entityClass(for: message)
             var clientMessage = messageClass.fetch(withNonce: nonce, for: conversation, in: moc, prefetchResult: prefetchResult) as? ZMOTRMessage
             
-            // This seems to be redundent with the guard statement a few lines down
-            guard !(clientMessage?.isZombieObject ?? false) else {
+            guard !isZombieObject(clientMessage) else {
                 return nil
             }
             
@@ -98,10 +97,9 @@ extension ZMOTRMessage {
                 if isGroup(conversation: conversation, andIsSenderID: senderID, differentFromSelfUserID: selfUser.remoteIdentifier) {
                     clientMessage?.expectsReadConfirmation = conversation.hasReadReceiptsEnabled
                 }
-            } else if clientMessage?.senderClientID != updateEvent.senderClientID() {
+            } else if clientMessage?.senderClientID == nil || clientMessage?.senderClientID != updateEvent.senderClientID() {
                 return nil
             }
-            
             
             // In case of AssetMessages: If the payload does not match the sha265 digest, calling `updateWithGenericMessage:updateEvent` will delete the object.
             clientMessage?.update(with: updateEvent, initialUpdate: isNewMessage)
@@ -110,7 +108,7 @@ extension ZMOTRMessage {
             // In addition the object will still have a managedObjectContext until the context is finally saved. In this
             // case, we need to check the nonce (which would have previously been set) to avoid setting an invalid
             // relationship between the deleted object and the conversation and / or sender
-            guard !clientMessage!.isZombieObject && clientMessage?.nonce != nil else {
+            guard !isZombieObject(clientMessage) && clientMessage?.nonce != nil else {
                 return nil
             }
             
@@ -121,6 +119,11 @@ extension ZMOTRMessage {
             return clientMessage
         }
         return nil
+    }
+    
+    private static func isZombieObject(_ message: ZMOTRMessage?) -> Bool {
+        guard let message = message else { return false }
+        return message.isZombieObject
     }
     
     private static func isSelf(conversation: ZMConversation, andIsSenderID senderID: UUID, differentFromSelfUserID selfUserID: UUID) -> Bool {
