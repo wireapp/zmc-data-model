@@ -76,8 +76,12 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
         
         // expect
         let assetId = "asset-id"
-        let uploaded = ZMGenericMessage.message(content: ZMAsset.asset(withUploadedOTRKey: .init(), sha256: .init()), nonce: sut.nonce!).updatedUploaded(withAssetId: assetId, token: nil)!
-        sut.update(with: uploaded, updateEvent: ZMUpdateEvent(), initialUpdate: true)
+        let asset = WireProtos.Asset(withUploadedOTRKey: .zmRandomSHA256Key(), sha256: .zmRandomSHA256Key())
+        var message = GenericMessage(content: asset, nonce: sut.nonce!)
+        message.updatedUploaded(withAssetId: assetId, token: nil)
+        let updateEvent = createUpdateEvent(sut.nonce!, conversationID: UUID.create(), genericMessage: message)
+        
+        sut.update(with: updateEvent, initialUpdate: true)
         let observer = AssetDeletionNotificationObserver()
         
         // when
@@ -115,18 +119,25 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
         XCTAssertNotNil(cache.assetData(sut, format: .original, encrypted: false))
         XCTAssertNotNil(cache.assetData(sut, encrypted: false))
         
+        var asset: WireProtos.Asset
+        var updateEvent: ZMUpdateEvent
+        
         // expect
         let assetId = "asset-id"
-        let uploaded = ZMGenericMessage.message(content: ZMAsset.asset(withUploadedOTRKey: .init(), sha256: .init()), nonce: sut.nonce!).updatedUploaded(withAssetId: assetId, token: nil)!
-        sut.update(with: uploaded, updateEvent: ZMUpdateEvent(), initialUpdate: true)
+        asset = WireProtos.Asset(withUploadedOTRKey: .zmRandomSHA256Key(), sha256: .zmRandomSHA256Key())
+        var message = GenericMessage(content: asset, nonce: sut.nonce!)
+        message.updatedUploaded(withAssetId: assetId, token: nil)
+        updateEvent = createUpdateEvent(sut.nonce!, conversationID: UUID.create(), genericMessage: message)
+        sut.update(with: updateEvent, initialUpdate: true)
         
         let previewAssetId = "preview_assetId"
-        let remote = ZMAssetRemoteData.remoteData(withOTRKey: .init(), sha256: .init(), assetId: previewAssetId, assetToken: nil)
-        let image = ZMAssetImageMetaData.imageMetaData(withWidth: 1024, height: 1024)
-        let preview = ZMAssetPreview.preview(withSize: 256, mimeType: "image/png", remoteData: remote, imageMetadata: image)
-        let asset = ZMAsset.asset(withOriginal: nil, preview: preview)
-        let genericMessage = ZMGenericMessage.message(content: asset, nonce: sut.nonce!)
-        sut.update(with: genericMessage, updateEvent: ZMUpdateEvent(), initialUpdate: true)
+        let remote = WireProtos.Asset.RemoteData(withOTRKey: .zmRandomSHA256Key(), sha256: .zmRandomSHA256Key(), assetId: previewAssetId, assetToken: nil)
+        let image = WireProtos.Asset.ImageMetaData(width: 1024, height: 1024)
+        let preview = WireProtos.Asset.Preview(size: 256, mimeType: "image/png", remoteData: remote, imageMetadata: image)
+        asset = WireProtos.Asset(original: nil, preview: preview)
+        let genericMessage = GenericMessage(content: asset, nonce: sut.nonce!)
+        updateEvent = createUpdateEvent(sut.nonce!, conversationID: UUID.create(), genericMessage: genericMessage)
+        sut.update(with: updateEvent, initialUpdate: true)
         
         let observer = AssetDeletionNotificationObserver()
         
