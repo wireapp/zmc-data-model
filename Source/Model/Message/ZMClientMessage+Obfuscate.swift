@@ -22,7 +22,9 @@ extension ZMClientMessage {
     override open func obfuscate() {
         super.obfuscate()
         if self.underlyingMessage?.knockData == nil {
-            guard let obfuscatedMessage = self.underlyingMessage?.obfuscatedMessage() else { return }
+            guard let obfuscatedMessage = self.underlyingMessage?.obfuscatedMessage() else {
+                return
+            }
             deleteContent()
             do {
                 let data = try obfuscatedMessage.serializedData()
@@ -49,7 +51,9 @@ extension ZMClientMessage {
     }
     
     private func createNewGenericMessage(with data: Data) -> ZMGenericMessageData? {
-        guard let moc = self.managedObjectContext else { fatalError() }
+        guard let moc = self.managedObjectContext else {
+            fatalError()
+        }
         let messageData = ZMGenericMessageData.insertNewObject(in: moc)
         messageData.data = data
         messageData.message = self

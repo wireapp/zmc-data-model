@@ -49,8 +49,10 @@ import Foundation
     }
 
     public override var hashOfContent: Data? {
-        guard let serverTimestamp = serverTimestamp else { return nil }
-
+        guard let serverTimestamp = serverTimestamp else {
+            return nil
+        }
+        
         return genericMessage?.hashOfContent(with: serverTimestamp)
     }
 
@@ -107,15 +109,20 @@ import Foundation
     
     public override func update(withPostPayload payload: [AnyHashable : Any], updatedKeys: Set<AnyHashable>?) {
         // we don't want to update the conversation if the message is a confirmation message
-        guard let genericMessage = self.genericMessage else { return }
+        guard let genericMessage = self.genericMessage else {
+            return
+        }
         if genericMessage.hasConfirmation() || genericMessage.hasReaction() {
             return
         }
 
         if genericMessage.hasDeleted() {
             let originalID = UUID(uuidString: genericMessage.deleted.messageId)
-            guard let managedObjectContext = managedObjectContext,
-                let conversation = conversation else { return }
+            guard
+                let managedObjectContext = managedObjectContext,
+                let conversation = conversation else {
+                    return
+            }
 
             let original = ZMMessage.fetch(withNonce: originalID, for: conversation, in: managedObjectContext)
             original?.sender = nil

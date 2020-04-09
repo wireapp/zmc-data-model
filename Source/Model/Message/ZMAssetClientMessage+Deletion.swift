@@ -54,7 +54,9 @@ extension ZMAssetClientMessage {
     }
     
     private func markRemoteAssetToBeDeleted() {
-        guard sender == ZMUser.selfUser(in: managedObjectContext!) else { return }
+        guard sender == ZMUser.selfUser(in: managedObjectContext!) else {
+            return
+        }
         
         // Request the asset to be deleted
         if let identifier = genericAssetMessage?.v3_uploadedAssetId {

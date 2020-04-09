@@ -21,7 +21,9 @@ import Foundation
 extension ZMClientMessage {
     
     public override var genericMessage: ZMGenericMessage? {
-        guard !isZombieObject else { return nil }
+        guard !isZombieObject else {
+            return nil
+        }
         
         if self.cachedGenericMessage == nil {
             self.cachedGenericMessage = genericMessageFromDataSet()
@@ -44,7 +46,9 @@ extension ZMClientMessage {
     }
     
     public var underlyingMessage: GenericMessage? {
-        guard !isZombieObject else { return nil }
+        guard !isZombieObject else {
+            return nil
+        }
         
         if self.cachedUnderlyingMessage == nil {
             self.cachedUnderlyingMessage = self.underlyingMessageMergedFromDataSet()
@@ -57,7 +61,9 @@ extension ZMClientMessage {
             .compactMap { ($0 as? ZMGenericMessageData)?.underlyingMessage }
             .filter { $0.knownMessage && $0.imageAssetData == nil }
             .compactMap { try? $0.serializedData() }
-        guard !filteredData.isEmpty else { return nil }
+        guard !filteredData.isEmpty else {
+            return nil
+        }
         
         var message = GenericMessage()
         filteredData.forEach {
