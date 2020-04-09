@@ -70,26 +70,25 @@ extension ZMAssetClientMessageTests_Ephemeral {
         XCTAssertEqual(message.genericAssetMessage!.ephemeral.expireAfterMillis, Int64(10*1000))
     }
     
-    func assetWithImage() -> ZMAsset {
-        let original = ZMAssetOriginal.original(withSize: 1000, mimeType: "image", name: "foo")
-        let remoteData = ZMAssetRemoteData.remoteData(withOTRKey: Data(), sha256: Data(), assetId: "id", assetToken: "token")
-        let imageMetaData = ZMAssetImageMetaData.imageMetaData(withWidth: 30, height: 40)
-        let imageMetaDataBuilder = imageMetaData.toBuilder()!
-        imageMetaDataBuilder.setTag("bar")
-        
-        let preview = ZMAssetPreview.preview(withSize: 2000, mimeType: "video", remoteData: remoteData, imageMetadata: imageMetaDataBuilder.build())
-        let asset  = ZMAsset.asset(withOriginal: original, preview: preview)
+    func assetWithImage() -> WireProtos.Asset {
+        let original = WireProtos.Asset.Original(withSize: 1000, mimeType: "image", name: "foo")
+        let remoteData = WireProtos.Asset.RemoteData(withOTRKey: Data(), sha256: Data(), assetId: "id", assetToken: "token")
+        let imageMetaData = WireProtos.Asset.ImageMetaData(width: 30, height: 40)
+        let preview = WireProtos.Asset.Preview(size: 2000, mimeType: "video", remoteData: remoteData, imageMetadata: imageMetaData)
+        let asset = WireProtos.Asset(original: original, preview: preview)
         return asset
     }
     
-    func thumbnailEvent(for message: ZMAssetClientMessage) -> ZMUpdateEvent {
+    func thumbnailEvent(for message: ZMAssetClientMessage, remoteMessage: GenericMessage) -> ZMUpdateEvent {
+        let data = try? remoteMessage.serializedData().base64String()
         let payload : [String : Any] = [
             "id": UUID.create(),
             "conversation": conversation.remoteIdentifier!.transportString(),
             "from": selfUser.remoteIdentifier!.transportString(),
             "time": Date().transportString(),
             "data": [
-                "id": "fooooo"
+                "id": "fooooo",
+                "text": data ?? ""
             ],
             "type": "conversation.otr-message-add"
         ]
@@ -103,10 +102,10 @@ extension ZMAssetClientMessageTests_Ephemeral {
         
         // when
         let message = conversation.append(file: fileMetadata) as! ZMAssetClientMessage
-        let remoteMessage = ZMGenericMessage.message(content: assetWithImage(), nonce: message.nonce!)
-        
-        let event = thumbnailEvent(for: message)
-        message.update(with: remoteMessage, updateEvent: event, initialUpdate: true)
+        let remoteMessage = GenericMessage(content: assetWithImage(), nonce: message.nonce!)
+
+        let event = thumbnailEvent(for: message, remoteMessage: remoteMessage)
+        message.update(with: event, initialUpdate: true)
     
         // then
         XCTAssertTrue(message.genericAssetMessage!.hasEphemeral())
