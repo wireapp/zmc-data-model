@@ -21,13 +21,13 @@ import Foundation
 extension ZMClientMessage {
     @objc
     override public var isEphemeral: Bool {
-        return self.destructionDate != nil
-            || self.ephemeral != nil
-            || self.isObfuscated
+        return destructionDate != nil
+            || ephemeral != nil
+            || isObfuscated
     }
     
     var ephemeral: ZMEphemeral? {
-        return dataSet.array
+        return dataSet.lazy
             .compactMap { ($0 as? ZMGenericMessageData)?.genericMessage }
             .first(where: { $0.hasEphemeral() })?.ephemeral
     }

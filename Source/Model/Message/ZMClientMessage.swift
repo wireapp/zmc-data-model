@@ -52,26 +52,28 @@ import Foundation
         guard let serverTimestamp = serverTimestamp else {
             return nil
         }
-        
         return genericMessage?.hashOfContent(with: serverTimestamp)
     }
 
     public override func awakeFromFetch() {
         super.awakeFromFetch()
-        self.cachedGenericMessage = nil
-        self.cachedUnderlyingMessage = nil
+        
+        cachedGenericMessage = nil
+        cachedUnderlyingMessage = nil
     }
     
     public override func awake(fromSnapshotEvents flags: NSSnapshotEventType) {
         super.awake(fromSnapshotEvents: flags)
-        self.cachedGenericMessage = nil
-        self.cachedUnderlyingMessage = nil
+        
+        cachedGenericMessage = nil
+        cachedUnderlyingMessage = nil
     }
     
     public override func didTurnIntoFault() {
         super.didTurnIntoFault()
-        self.cachedGenericMessage = nil
-        self.cachedUnderlyingMessage = nil
+        
+        cachedGenericMessage = nil
+        cachedUnderlyingMessage = nil
     }
     
     public static func keyPathsForValuesAffectingGenericMessage() -> Set<String> {
@@ -88,12 +90,13 @@ import Foundation
             // Replace the nonce with the original
             // This way if we get a delete from a different device while we are waiting for the response it will delete this message
             let originalID = self.genericMessage.flatMap { UUID(uuidString: $0.edited.replacingMessageId) }
-            self.nonce = originalID
+            nonce = originalID
         } else if genericMessage.hasButtonAction(),
             let managedObjectContext = managedObjectContext,
             let conversation = conversation
         {
-            ZMClientMessage.expireButtonState(forButtonAction: genericMessage.buttonAction,                                          forConversation: conversation,
+            ZMClientMessage.expireButtonState(forButtonAction: genericMessage.buttonAction,
+                                              forConversation: conversation,
                                               inContext: managedObjectContext)
         }
         super.expire()
@@ -102,7 +105,9 @@ import Foundation
     public override func resend() {
         if let genericMessage = self.genericMessage, genericMessage.hasEdited() {
             // Re-apply the edit since we've restored the orignal nonce when the message expired
-            editText(self.textMessageData?.messageText ?? "", mentions: self.textMessageData?.mentions ?? [], fetchLinkPreview: true)
+            editText(self.textMessageData?.messageText ?? "",
+                     mentions: self.textMessageData?.mentions ?? [],
+                     fetchLinkPreview: true)
         }
         super.resend()
     }
@@ -135,7 +140,7 @@ import Foundation
             }
 
             if let serverTimestamp = (payload as NSDictionary).optionalDate(forKey: "time") {
-                self.updatedTimestamp = serverTimestamp
+                updatedTimestamp = serverTimestamp
             }
         } else {
             super.update(withPostPayload: payload, updatedKeys: nil)
@@ -150,6 +155,7 @@ import Foundation
     
     public override func markAsSent() {
         super.markAsSent()
+        
         if linkPreviewState == ZMLinkPreviewState.uploaded {
             linkPreviewState = ZMLinkPreviewState.done
         }
@@ -171,15 +177,19 @@ import Foundation
     }
 
     func hasDownloadedImage() -> Bool {
-        if let textMessageData = self.textMessageData,
+        guard
+            let textMessageData = self.textMessageData,
             textMessageData.linkPreview != nil,
-            let managedObjectContext = self.managedObjectContext {
-            return managedObjectContext.zm_fileAssetCache.hasDataOnDisk(self, format: ZMImageFormat.medium, encrypted: false)
-                // processed or downloaded
-                || managedObjectContext.zm_fileAssetCache.hasDataOnDisk(self, format: ZMImageFormat.original, encrypted: false)
-            // original
+            let managedObjectContext = self.managedObjectContext else {
+                return false
         }
-        return false
+        // processed or downloaded
+        let hasMedium = managedObjectContext.zm_fileAssetCache.hasDataOnDisk(self, format: ZMImageFormat.medium, encrypted: false)
+        
+        // original
+        let hasOriginal = managedObjectContext.zm_fileAssetCache.hasDataOnDisk(self, format: ZMImageFormat.original, encrypted: false)
+        
+        return hasMedium || hasOriginal
     }
 }
 

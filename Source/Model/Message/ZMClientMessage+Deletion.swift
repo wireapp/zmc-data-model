@@ -21,19 +21,18 @@ import Foundation
 extension ZMClientMessage {
     
     func deleteContent() {
-        self.cachedGenericMessage = nil
-        self.cachedUnderlyingMessage = nil
-        self.dataSet.map { $0 as! ZMGenericMessageData }.forEach {
+        cachedGenericMessage = nil
+        cachedUnderlyingMessage = nil
+        dataSet.compactMap { $0 as? ZMGenericMessageData }.forEach {
             $0.managedObjectContext?.delete($0)
         }
-        self.dataSet = NSOrderedSet()
-        self.normalizedText = nil
-        self.quote = nil
+        dataSet = NSOrderedSet()
+        normalizedText = nil
+        quote = nil
     }
     
     public override func removeClearingSender(_ clearingSender: Bool) {
-        super.removeClearingSender(clearingSender)
-        
         deleteContent()
+        super.removeClearingSender(clearingSender)
     }
 }
