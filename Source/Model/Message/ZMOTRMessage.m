@@ -226,7 +226,7 @@ NSString * const DeliveredKey = @"delivered";
             clientMessage.serverTimestamp = updateEvent.timeStamp;
             
             if (![updateEvent.senderUUID isEqual:selfUser.remoteIdentifier] && conversation.conversationType == ZMConversationTypeGroup) {
-                clientMessage.expectsReadConfirmation = conversation.hasReadReceiptsEnabled;
+                clientMessage.expectsReadConfirmation = conversation.hasReadReceiptsEnabled || message.hasComposite;
             }
         } else if (![clientMessage.senderClientID isEqualToString:updateEvent.senderClientID]) {
             return nil;
