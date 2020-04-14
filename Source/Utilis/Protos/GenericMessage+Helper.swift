@@ -394,7 +394,7 @@ extension Text: EphemeralMessageCapable {
     }
     
     public func updateLinkPreview(from text: Text) -> Text {
-        guard text.linkPreview.count > 0 else {
+        guard !text.linkPreview.isEmpty else {
             return self
         }
         do {
