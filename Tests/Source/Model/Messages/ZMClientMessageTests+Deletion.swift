@@ -119,25 +119,22 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
         XCTAssertNotNil(cache.assetData(sut, format: .original, encrypted: false))
         XCTAssertNotNil(cache.assetData(sut, encrypted: false))
         
-        var asset: WireProtos.Asset
-        var updateEvent: ZMUpdateEvent
-        
         // expect
-        let assetId = "asset-id"
-        asset = WireProtos.Asset(withUploadedOTRKey: .zmRandomSHA256Key(), sha256: .zmRandomSHA256Key())
-        var message = GenericMessage(content: asset, nonce: sut.nonce!)
+        let assetId = UUID.create().transportString()
+        let asset1 = WireProtos.Asset(withUploadedOTRKey: .zmRandomSHA256Key(), sha256: .zmRandomSHA256Key())
+        var message = GenericMessage(content: asset1, nonce: sut.nonce!)
         message.updatedUploaded(withAssetId: assetId, token: nil)
-        updateEvent = createUpdateEvent(sut.nonce!, conversationID: UUID.create(), genericMessage: message)
-        sut.update(with: updateEvent, initialUpdate: true)
+        let updateEvent1 = createUpdateEvent(sut.nonce!, conversationID: UUID.create(), genericMessage: message)
+        sut.update(with: updateEvent1, initialUpdate: true)
         
-        let previewAssetId = "preview_assetId"
+        let previewAssetId = UUID.create().transportString()
         let remote = WireProtos.Asset.RemoteData(withOTRKey: .zmRandomSHA256Key(), sha256: .zmRandomSHA256Key(), assetId: previewAssetId, assetToken: nil)
         let image = WireProtos.Asset.ImageMetaData(width: 1024, height: 1024)
         let preview = WireProtos.Asset.Preview(size: 256, mimeType: "image/png", remoteData: remote, imageMetadata: image)
-        asset = WireProtos.Asset(original: nil, preview: preview)
-        let genericMessage = GenericMessage(content: asset, nonce: sut.nonce!)
-        updateEvent = createUpdateEvent(sut.nonce!, conversationID: UUID.create(), genericMessage: genericMessage)
-        sut.update(with: updateEvent, initialUpdate: true)
+        let asset2 = WireProtos.Asset(original: nil, preview: preview)
+        let genericMessage = GenericMessage(content: asset2, nonce: sut.nonce!)
+        let updateEvent2 = createUpdateEvent(sut.nonce!, conversationID: UUID.create(), genericMessage: genericMessage)
+        sut.update(with: updateEvent2, initialUpdate: true)
         
         let observer = AssetDeletionNotificationObserver()
         
