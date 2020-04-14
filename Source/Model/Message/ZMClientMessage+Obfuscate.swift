@@ -21,8 +21,8 @@ import Foundation
 extension ZMClientMessage {
     override open func obfuscate() {
         super.obfuscate()
-        if self.underlyingMessage?.knockData == nil {
-            guard let obfuscatedMessage = self.underlyingMessage?.obfuscatedMessage() else {
+        if underlyingMessage?.knockData == nil {
+            guard let obfuscatedMessage = underlyingMessage?.obfuscatedMessage() else {
                 return
             }
             deleteContent()
@@ -35,10 +35,10 @@ extension ZMClientMessage {
     
     @objc(mergeWithExistingData:)
     func mergeWithExistingData(_ data: Data) -> ZMGenericMessageData? {
-        self.cachedGenericMessage = nil
-        self.cachedUnderlyingMessage = nil
+        cachedGenericMessage = nil
+        cachedUnderlyingMessage = nil
         
-        let existingMessageData = self.dataSet
+        let existingMessageData = dataSet
             .compactMap { $0 as? ZMGenericMessageData }
             .first
         

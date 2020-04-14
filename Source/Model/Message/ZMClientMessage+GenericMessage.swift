@@ -25,14 +25,14 @@ extension ZMClientMessage {
             return nil
         }
         
-        if self.cachedGenericMessage == nil {
-            self.cachedGenericMessage = genericMessageFromDataSet()
+        if cachedGenericMessage == nil {
+            cachedGenericMessage = genericMessageFromDataSet()
         }
-        return self.cachedGenericMessage
+        return cachedGenericMessage
     }
     
     private func genericMessageFromDataSet() -> ZMGenericMessage? {
-        let filteredMessages = self.dataSet
+        let filteredMessages = dataSet
             .compactMap { ($0 as? ZMGenericMessageData)?.genericMessage }
             .filter{ $0.knownMessage() && $0.imageAssetData == nil }
         
@@ -50,14 +50,14 @@ extension ZMClientMessage {
             return nil
         }
         
-        if self.cachedUnderlyingMessage == nil {
-            self.cachedUnderlyingMessage = self.underlyingMessageMergedFromDataSet()
+        if cachedUnderlyingMessage == nil {
+            cachedUnderlyingMessage = underlyingMessageMergedFromDataSet()
         }
-        return self.cachedUnderlyingMessage
+        return cachedUnderlyingMessage
     }
     
     private func underlyingMessageMergedFromDataSet() -> GenericMessage? {
-        let filteredData = self.dataSet
+        let filteredData = dataSet
             .compactMap { ($0 as? ZMGenericMessageData)?.underlyingMessage }
             .filter { $0.knownMessage && $0.imageAssetData == nil }
             .compactMap { try? $0.serializedData() }
@@ -79,8 +79,8 @@ extension ZMClientMessage {
         }
         let messageData = mergeWithExistingData(data)
         
-        if (self.nonce == nil) {
-            self.nonce = UUID(uuidString: messageData?.genericMessage?.messageId ?? "")
+        if (nonce == nil) {
+            nonce = UUID(uuidString: messageData?.genericMessage?.messageId ?? "")
         }
         updateCategoryCache()
         setLocallyModifiedKeys([#keyPath(ZMClientMessage.dataSet)])
