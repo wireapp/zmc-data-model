@@ -2306,14 +2306,6 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
 
 @implementation ZMUserTests (DisplayName)
 
-- (void)testThatItReturnsCorrectUserName
-{
-    ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    user.name = @"User Name";
-    
-    XCTAssertEqualObjects(user.displayName, @"User");
-}
-
 - (void)testThatItReturnsCorrectUserNameForService
 {
     ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
@@ -2322,7 +2314,7 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     user.serviceIdentifier = [[NSUUID UUID] transportString];
     
     XCTAssertTrue(user.isServiceUser);
-    XCTAssertEqualObjects(user.displayName, @"User Name");
+    XCTAssertEqualObjects(user.name, @"User Name");
 }
 
 - (void)testThatItReturnsCorrectInitials
@@ -2353,32 +2345,13 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
 
 @implementation ZMUserTests (Trust)
 
-- (ZMUser *)userWithClients:(int)count trusted:(BOOL)trusted
-{
-    [self createSelfClient];
-    [self.uiMOC refreshAllObjects];
-    
-    UserClient *selfClient = [ZMUser selfUserInContext:self.uiMOC].selfClient;
-    ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    for (int i = 0; i < count; i++) {
-        UserClient *client = [UserClient insertNewObjectInManagedObjectContext:self.uiMOC];
-        client.user = user;
-        if (trusted) {
-            [selfClient trustClient:client];
-        } else {
-            [selfClient ignoreClient:client];
-        }
-    }
-    return user;
-}
-
 - (void)testThatItReturns_Trusted_NO_WhenThereAreNoClients
 {
     // given
     ZMUser *user = [self userWithClients:0 trusted:NO];
     
     // when
-    BOOL isTrusted = user.trusted;
+    BOOL isTrusted = user.isTrusted;
     
     //then
     XCTAssertFalse(isTrusted);
@@ -2391,7 +2364,7 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     ZMUser *user = [self userWithClients:1 trusted:YES];
     
     // when
-    BOOL isTrusted = user.trusted;
+    BOOL isTrusted = user.isTrusted;
     
     //then
     XCTAssertTrue(isTrusted);
@@ -2403,7 +2376,7 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     ZMUser *user = [self userWithClients:1 trusted:NO];
     
     // when
-    BOOL isTrusted = user.trusted;
+    BOOL isTrusted = user.isTrusted;
     
     //then
     XCTAssertFalse(isTrusted);
@@ -2416,7 +2389,7 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     ZMUser *user = [self userWithClients:0 trusted:YES];
     
     // when
-    BOOL isTrusted = user.untrusted;
+    BOOL isTrusted = !user.isTrusted;
     
     //then
     XCTAssertFalse(isTrusted);
@@ -2429,7 +2402,7 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     ZMUser *user = [self userWithClients:1 trusted:NO];
     
     // when
-    BOOL untrusted = user.untrusted;
+    BOOL untrusted = !user.isTrusted;
     
     //then
     XCTAssertTrue(untrusted);
@@ -2441,7 +2414,7 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     ZMUser *user = [self userWithClients:1 trusted:YES];
     
     // when
-    BOOL untrusted = user.untrusted;
+    BOOL untrusted = !user.isTrusted;
     
     //then
     XCTAssertFalse(untrusted);

@@ -117,23 +117,6 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     return _genericMessage;
 }
 
-- (ZMGenericMessageData *)mergeWithExistingData:(NSData *)data
-{
-    _genericMessage = nil;
-    ZMGenericMessageData *existingMessageData = [self.dataSet firstObject];
-    
-    if (existingMessageData != nil) {
-        existingMessageData.data = data;        
-        return existingMessageData;
-    }
-    else {
-        ZMGenericMessageData *messageData = [NSEntityDescription insertNewObjectForEntityForName:[ZMGenericMessageData entityName] inManagedObjectContext:self.managedObjectContext];
-        messageData.data = data;
-        messageData.message = self;
-        return messageData;
-    }
-}
-
 - (void)setGenericMessage:(ZMGenericMessage *)genericMessage
 {
     if ([genericMessage knownMessage] && genericMessage.imageAssetData == nil) {
@@ -219,6 +202,10 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
         // This way if we get a delete from a different device while we are waiting for the response it will delete this message
         NSUUID *originalID = [NSUUID uuidWithTransportString:self.genericMessage.edited.replacingMessageId];
         self.nonce = originalID;
+    } else if (self.genericMessage.hasButtonAction) {
+        [ZMClientMessage expireButtonStateForButtonAction:self.genericMessage.buttonAction
+                                          forConversation:self.conversation
+                                                inContext:self.managedObjectContext];
     }
     [super expire];
 }
@@ -347,20 +334,6 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     }
     return -1;
 }
-
-- (void)obfuscate;
-{
-    [super obfuscate];
-    if (self.genericMessage.knockData == nil) {
-        ZMGenericMessage *obfuscatedMessage = [self.genericMessage obfuscatedMessage];
-        [self deleteContent];
-        if (obfuscatedMessage != nil) {
-            [self mergeWithExistingData:obfuscatedMessage.data];
-            [self setGenericMessage:self.genericMessageFromDataSet];
-        }
-    }
-}
-
 @end
 
 

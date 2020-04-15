@@ -1377,7 +1377,7 @@
     [conversation addParticipantAndUpdateConversationStateWithUser:[ZMUser selfUserInContext:self.uiMOC] role:nil];
     [self.uiMOC saveOrRollback];
     
-    NSString *expected = @"Bar, Foo";
+    NSString *expected = @"Bar 2, Foo 1";
     
     // when
     conversation.userDefinedName = nil;
@@ -1404,7 +1404,7 @@
     [conversation addParticipantsAndUpdateConversationStateWithUsers:[NSSet setWithObjects:user1, user2, user3, user4, [ZMUser selfUserInContext:self.uiMOC], nil] role:nil];
     [self.uiMOC saveOrRollback];
     
-    NSString *expected = @"Bar, Baz";
+    NSString *expected = @", Bar 2, Baz 4";
     
     // when
     conversation.userDefinedName = nil;
@@ -2463,8 +2463,8 @@
     [self.syncMOC performGroupedBlockAndWait:^{
         XCTAssertEqual([ZMConversation unreadConversationCountInContext:self.syncMOC], 0lu);
     
-        ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
-        conversation.conversationType = ZMConversationTypeConnection;
+        ZMConversation *conversation = [self insertConversationWithUnread:YES];
+        conversation.conversationType = ZMConversationTypeOneOnOne;
         ZMConnection *connection = [ZMConnection insertNewObjectInManagedObjectContext:self.syncMOC];
         connection.conversation = conversation;
         connection.status = ZMConnectionStatusBlocked;
@@ -3530,6 +3530,7 @@
     NSDate *orginalDate = [NSDate dateWithTimeIntervalSinceNow:-20];
     NSDate *firstCallDate = [orginalDate dateByAddingTimeInterval:50];
     NSDate *secondCallDate = [orginalDate dateByAddingTimeInterval:100];
+    NSDate *thirdCallDate = [orginalDate dateByAddingTimeInterval:150];
 
     __block ZMMessage *message;
     __block ZMConversation *conversation;
@@ -3576,6 +3577,24 @@
     
     // then
     XCTAssertEqualWithAccuracy([uiConv.lastReadServerTimeStamp timeIntervalSince1970], [secondCallDate timeIntervalSince1970], 0.5);
+    
+    [self.syncMOC performGroupedBlockAndWait:^{
+        // and when
+        // (5) append third missed call (as childMessage)
+        [conversation appendMissedCallMessageFromUser:user at:thirdCallDate relevantForStatus:YES];
+        [self.syncMOC saveOrRollback];
+    }];
+    WaitForAllGroupsToBeEmpty(0.5);
+    
+    [self.uiMOC refreshObject:uiMessage mergeChanges:YES];
+    [self.uiMOC refreshObject:uiConv mergeChanges:YES];
+    
+    // (6) set third call as read
+    [uiConv markMessagesAsReadUntil:uiMessage];
+    WaitForAllGroupsToBeEmpty(0.5);
+    
+    // then
+    XCTAssertEqualWithAccuracy([uiConv.lastReadServerTimeStamp timeIntervalSince1970], [thirdCallDate timeIntervalSince1970], 0.5);
 }
 
 - (void)testThatItDoesReturnTheMissedCallMessageAsFirstUnreadMessageWhenItHasUnreadChildren

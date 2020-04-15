@@ -186,7 +186,7 @@ public class UserClient: ZMManagedObject, UserClientType {
         userClient.user = selfUser
         userClient.model = model
         userClient.label = label
-        userClient.deviceClass = model.hasSuffix("iPad") ? .tablet : .phone
+        userClient.deviceClass = model.hasPrefix("iPad") ? .tablet : .phone
         
         return userClient
     }
@@ -309,7 +309,8 @@ public class UserClient: ZMManagedObject, UserClientType {
                 guard
                     let user = (try? uiMOC.existingObject(with: userID)) as? ZMUser,
                     let conversation = self.conversation(for: user) else { return }
-                GenericMessageScheduleNotification.post(message: ZMGenericMessage.clientAction(ZMClientAction.RESETSESSION), conversation: conversation)
+                
+                GenericMessageScheduleNotification.post(message: GenericMessage(clientAction: .resetSession), conversation: conversation)
             }
         }
     }

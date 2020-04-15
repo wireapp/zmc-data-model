@@ -37,19 +37,8 @@ extern NSString * _Nonnull const ZMClientMessageLinkPreviewKey;
 @property (nonatomic) NSDate * _Nullable updatedTimestamp;
 
 - (void)addData:(NSData * _Nonnull)data;
+- (void)deleteContent;
 
 - (BOOL)hasDownloadedImage;
-
-@end
-
-
-
-@interface ZMClientMessage (Testing)
-
-+ (ZMNewOtrMessage * _Nullable)otrMessageForGenericMessage:(ZMGenericMessage * _Nonnull)genericMessage
-                                                selfClient:(UserClient * _Nonnull)selfClient
-                                              conversation:(ZMConversation * _Nonnull)conversation
-                                              externalData:(NSData * _Nullable)externalData
-                                         sessionsDirectory:(EncryptionSessionsDirectory * _Nonnull)sessionsDirectory;
 
 @end

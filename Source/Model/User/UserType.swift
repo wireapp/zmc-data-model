@@ -30,9 +30,6 @@ public protocol UserType: NSObjectProtocol {
     
     /// The full name
     var name: String? { get }
-
-    /// The given name / first name e.g. "John" for "John Smith"
-    var displayName: String { get }
     
     /// The "@name" handle
     var handle: String? { get }
@@ -42,6 +39,9 @@ public protocol UserType: NSObjectProtocol {
 
     /// Email for the user
     var emailAddress: String? { get }
+
+    /// The phone number of the user
+    var phoneNumber: String? { get }
 
     /// Whether this is the self user
     var isSelfUser: Bool { get }
@@ -125,6 +125,9 @@ public protocol UserType: NSObjectProtocol {
     
     /// All clients belonging to the user
     var allClients: [UserClientType] { get }
+    
+    /// Whether the user verified all own devices plus others
+    var isVerified: Bool { get }
     
     func requestPreviewProfileImage()
     func requestCompleteProfileImage()

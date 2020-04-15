@@ -240,23 +240,6 @@ static NSString *const ParticipantRolesKey = @"participantRoles";
     return self.managedBy == nil || [self.managedBy isEqualToString:@"wire"];
 }
 
-- (NSString *)displayName;
-{
-    if (self.isServiceUser) {
-        return self.name;
-    }
-    else {
-        PersonName *personName = [self.managedObjectContext.zm_displayNameGenerator personNameFor:self];
-        return personName.givenName ?: @"";
-    }
-}
-
-- (NSString *)initials
-{
-    PersonName *personName = [self.managedObjectContext.zm_displayNameGenerator personNameFor:self];
-    return personName.initials ?: @"";
-}
-
 - (ZMConversation *)oneToOneConversation
 {
     if (self.isSelfUser) {
@@ -945,37 +928,6 @@ static NSString *const ParticipantRolesKey = @"participantRoles";
     }
 }
 
-- (BOOL)trusted
-{
-    if (self.clients.count == 0) {
-        return false;
-    }
-    ZMUser *selfUser = [ZMUser selfUserInContext:self.managedObjectContext];
-    UserClient *selfClient = selfUser.selfClient;
-    __block BOOL hasOnlyTrustedClients = YES;
-    [self.clients enumerateObjectsUsingBlock:^(UserClient *client, BOOL * _Nonnull stop) {
-        if (client != selfClient && ![selfClient.trustedClients containsObject:client]) {
-            hasOnlyTrustedClients = NO;
-            *stop = YES;
-        }
-    }];
-    return hasOnlyTrustedClients;
-}
-
-- (BOOL)untrusted
-{
-    ZMUser *selfUser = [ZMUser selfUserInContext:self.managedObjectContext];
-    UserClient *selfClient = selfUser.selfClient;
-    __block BOOL hasUntrustedClients = NO;
-    [self.clients enumerateObjectsUsingBlock:^(UserClient *client, BOOL * _Nonnull stop) {
-        if (client != selfClient && ![selfClient.trustedClients containsObject:client]) {
-            hasUntrustedClients = YES;
-            *stop = YES;
-        }
-    }];
-    return hasUntrustedClients;
-}
-
 @end
 
 
@@ -1123,7 +1075,7 @@ static NSString *const ParticipantRolesKey = @"participantRoles";
 
 @implementation ZMUser (Protobuf)
 
-- (ZMUserId *)userId
+- (ZMUserId *)zmUserId
 {
     ZMUserIdBuilder *userIdBuilder = [ZMUserId builder];
     [userIdBuilder setUuid:[self.remoteIdentifier data]];

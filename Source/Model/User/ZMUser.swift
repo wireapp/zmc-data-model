@@ -43,6 +43,13 @@ extension ZMUser: UserType {
     public var activeConversations: Set<ZMConversation> {
         return Set(self.participantRoles.compactMap {$0.conversation})
     }
+    
+    public var isVerified: Bool {
+        guard let selfUser = managedObjectContext.map(ZMUser.selfUser) else {
+            return false
+        }
+        return isTrusted && selfUser.isTrusted && !clients.isEmpty
+    }
 
     // MARK: - Conversation Roles
 
@@ -294,12 +301,6 @@ extension ZMUser {
 }
 
 extension ZMUser {
-    @objc(displayNameInConversation:)
-    public func displayName(in conversation: ZMConversation?) -> String {
-        guard let conversation = conversation, let nameGenerator = self.managedObjectContext?.zm_displayNameGenerator else { return self.displayName }
-        return nameGenerator.displayName(for: self, in: conversation)
-    }
-    
     // MARK: - Participant role
     
     @objc
@@ -315,3 +316,24 @@ extension NSManagedObject: SafeForLoggingStringConvertible {
         return "\(type(of: self)) \(Unmanaged.passUnretained(self).toOpaque()): moc=\(moc) objectID=\(self.objectID)"
     }
 }
+
+extension ZMUser {
+    
+    /// Whether all user's devices are verified by the selfUser
+    @objc public var isTrusted: Bool {
+        let selfUser = managedObjectContext.map(ZMUser.selfUser)
+        let selfClient = selfUser?.selfClient()
+        let hasUntrustedClients = self.clients.contains(where: { ($0 != selfClient) && !(selfClient?.trustedClients.contains($0) ?? false) })
+        
+        return !hasUntrustedClients
+    }
+}
+
+extension ZMUser {
+    
+    /// The initials e.g. "JS" for "John Smith"
+    @objc public var initials: String? {
+        return PersonName.person(withName: self.name ?? "", schemeTagger: nil).initials
+    }
+}
+

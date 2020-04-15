@@ -29,7 +29,13 @@ extension UserClient {
         return UInt64(pointer.pointee)
     }
     
-    public var clientId: ZMClientId {
+    public var clientId: ClientId {
+        return ClientId.with {
+            $0.client = self.hexRemoteIdentifier
+        }
+    }
+    
+    public var zmClientId: ZMClientId {
         let builder = ZMClientIdBuilder()
         builder.setClient(self.hexRemoteIdentifier)
         return builder.build()

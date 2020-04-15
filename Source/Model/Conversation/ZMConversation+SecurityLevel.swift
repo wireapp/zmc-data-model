@@ -19,6 +19,8 @@
 import Foundation
 import WireCryptobox
 
+private let zmLog = ZMSLog(tag: "event-processing")
+
 @objc public enum ZMConversationLegalHoldStatus: Int16 {
     case disabled = 0
     case pendingApproval = 1
@@ -320,6 +322,8 @@ extension ZMConversation {
         let date = dateOptional ?? Date()
 
         guard !localParticipants.contains(user) else { return }
+        
+        zmLog.debug("Sender: \(user.remoteIdentifier?.transportString() ?? "n/a") missing from participant list: \(localParticipants.map{ $0.remoteIdentifier} )")
         
         switch conversationType {
         case .group:
@@ -657,9 +661,7 @@ extension ZMConversation {
         guard !localParticipants.isEmpty,
               isSelfAnActiveMember else { return false }
         
-        let hasOnlyTrustedUsers = localParticipants.first {
-            !$0.trusted()
-        } == nil
+        let hasOnlyTrustedUsers = localParticipants.allSatisfy { ($0.isTrusted && !$0.clients.isEmpty) }
         
         return hasOnlyTrustedUsers && !containsUnconnectedOrExternalParticipant
     }
@@ -688,7 +690,7 @@ extension ZMConversation {
     
     /// If true the conversation might still be trusted / ignored
     @objc public var hasUntrustedClients : Bool {
-        return self.localParticipants.first { $0.untrusted() } != nil
+        return self.localParticipants.contains { !$0.isTrusted }
     }
 }
 
