@@ -86,7 +86,7 @@ extension ZMUser {
             .prefix(remainingSlots)
 
         recipients.formUnion(teamMembers)
-        remainingSlots -= recipients.count
+        remainingSlots = maxCount - recipients.count
 
         guard remainingSlots > 0 else { return recipients }
 
