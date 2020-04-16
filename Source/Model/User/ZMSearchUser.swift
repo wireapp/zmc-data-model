@@ -117,6 +117,7 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
     public var assetKeys: SearchUserAssetKeys?
     public var remoteIdentifier: UUID?
     public var teamIdentifier: UUID?
+    public var teamPermissions: Permissions?
     @objc public var contact: ZMAddressBookContact?
     @objc public var user: ZMUser?
     public private(set) var hasDownloadedFullUserProfile: Bool = false
@@ -188,7 +189,9 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
     }
     
     public var teamRole: TeamRole {
-        guard let user = user else { return .none }
+        guard let user = user else {
+            return (teamPermissions?.rawValue).flatMap(TeamRole.init(rawPermissions:)) ?? .none
+        }
         
         return user.teamRole
     }
