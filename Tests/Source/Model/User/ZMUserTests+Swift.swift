@@ -20,7 +20,7 @@ import Foundation
 @testable import WireDataModel
 
 // MARK: - Modified keys for profile picture upload
-extension ZMUserTests {
+final class ZMUserTests_Swift: ModelObjectsTests {
     func testThatSettingUserProfileAssetIdentifiersDirectlyDoesNotMarkAsModified() {
         // GIVEN
         let user = ZMUser.selfUser(in: uiMOC)
@@ -67,7 +67,7 @@ extension ZMUserTests {
 
 // MARK: - AssetV3 response parsing
 
-extension ZMUserTests {
+extension ZMUserTests_Swift {
     
     func assetPayload(previewId: String , completeId: String) -> NSArray {
         return [
@@ -185,7 +185,7 @@ extension ZMUserTests {
 }
 
 // MARK: - AssetV3 filter predicates
-extension ZMUserTests {
+extension ZMUserTests_Swift {
     func testThatPreviewImageDownloadFilterPicksUpUser() {
         syncMOC.performGroupedBlockAndWait {
             // GIVEN
@@ -252,7 +252,7 @@ extension ZMUserTests {
 }
 
 // MARK: - AssetV3 request notifications
-extension ZMUserTests {
+extension ZMUserTests_Swift {
     
     func testThatItPostsPreviewRequestNotifications() {
         let noteExpectation = expectation(description: "PreviewAssetFetchNotification should be fired")
@@ -319,7 +319,7 @@ extension ZMUser {
 }
 
 // MARK: - Predicates
-extension ZMUserTests {
+extension ZMUserTests_Swift {
     
     func testPredicateFilteringConnectedUsersByHandle() {
         // Given
@@ -400,7 +400,7 @@ extension ZMUserTests {
 }
 
 // MARK: - Filename
-extension ZMUserTests {
+extension ZMUserTests_Swift {
     
     /// check the generated filename matches several critirias and a regex pattern
     ///
@@ -447,7 +447,7 @@ extension ZMUserTests {
 }
 
 // MARK: - Availability
-extension ZMUserTests {
+extension ZMUserTests_Swift {
     
     func testThatWeCanUpdateAvailabilityFromGenericMessage() {
         let user = ZMUser.insert(in: self.uiMOC, name: "Foo")
@@ -499,7 +499,7 @@ extension ZMUserTests {
 
 // MARK: - Broadcast Recipients
 
-extension ZMUserTests {
+extension ZMUserTests_Swift {
 
     func testThatItReturnsAllKnownTeamUsers() {
         // given
@@ -730,7 +730,7 @@ extension ZMUserTests {
 }
 
 // MARK: - Bot support
-extension ZMUserTests {
+extension ZMUserTests_Swift {
     func testThatServiceIdentifierAndProviderIdentifierAreNilByDefault() {
         // GIVEN
         let sut = ZMUser.insertNewObject(in: self.uiMOC)
@@ -742,7 +742,7 @@ extension ZMUserTests {
 }
 
 // MARK: - Expiration support
-extension ZMUserTests {
+extension ZMUserTests_Swift {
     func testIsWirelessUserCalculation_false() {
         // given
         let sut = ZMUser.insertNewObject(in: self.uiMOC)
@@ -775,7 +775,7 @@ extension ZMUserTests {
 
 // MARK: - Account deletion
 
-extension ZMUserTests {
+extension ZMUserTests_Swift {
     
     func testThatUserIsRemovedFromAllConversationsWhenAccountIsDeleted() {
         // given
@@ -814,7 +814,7 @@ extension ZMUserTests {
 
 // MARK: - Active conversations
 
-extension ZMUserTests {
+extension ZMUserTests_Swift {
     
     func testActiveConversationsForSelfUser() {
         // given
@@ -840,7 +840,7 @@ extension ZMUserTests {
 }
 
 // MARK: - Self user tests
-extension ZMUserTests {
+extension ZMUserTests_Swift {
     func testThatItIsPossibleToSetReadReceiptsEnabled() {
         // GIVEN
         let sut = ZMUser.selfUser(in: uiMOC)
@@ -922,7 +922,7 @@ extension ZMUserTests {
 }
 
 // MARK: - Verifying user
-extension ZMUserTests {
+extension ZMUserTests_Swift {
     
     func testThatUserIsVerified_WhenSelfUserAndUserIsTrusted() {
         // GIVEN
@@ -953,23 +953,5 @@ extension ZMUserTests {
         XCTAssertFalse(selfUser.isTrusted)
         XCTAssertFalse(user.isVerified)
     }
-    
-    @objc(userWithClients:trusted:)
-    public func userWithClients(count: Int, trusted: Bool) -> ZMUser {
-        self.createSelfClient()
-        self.uiMOC.refreshAllObjects()
-        
-        let selfClient: UserClient? = ZMUser.selfUser(in: self.uiMOC).selfClient()
-        let user: ZMUser = ZMUser.insertNewObject(in: self.uiMOC)
-        [0...count].forEach({ _ in
-            let client: UserClient = UserClient.insertNewObject(in: self.uiMOC)
-            client.user = user
-            if trusted {
-                selfClient?.trustClient(client)
-            } else {
-                selfClient?.ignoreClient(client)
-            }
-        })
-        return user
-    }
+
 }
