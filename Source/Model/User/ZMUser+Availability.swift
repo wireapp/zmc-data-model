@@ -120,13 +120,13 @@ extension ZMUser {
 
     static func knownTeamUsers(in context: NSManagedObjectContext) -> Set<ZMUser> {
         let connectedPredicate = ZMUser.predicateForUsers(withConnectionStatuses: [ZMConnectionStatus.accepted.rawValue])
-        let teamUserPredicate = NSPredicate(format: "(%K != NULL)", #keyPath(ZMUser.teamIdentifier))
-        let connectedAndTeamUserPredicate = NSCompoundPredicate(andPredicateWithSubpredicates: [connectedPredicate, teamUserPredicate])
-
         let request = NSFetchRequest<ZMUser>(entityName: ZMUser.entityName())
-        request.predicate = connectedAndTeamUserPredicate
+        request.predicate = connectedPredicate
 
-        return Set(context.fetchOrAssert(request: request))
+        let connections = Set(context.fetchOrAssert(request: request))
+        let selfUser = ZMUser.selfUser(in: context)
+        let result = connections.filter { $0.hasTeam && !$0.isOnSameTeam(otherUser: selfUser) }
+        return Set(result)
     }
 
     @objc public var availability : Availability {
