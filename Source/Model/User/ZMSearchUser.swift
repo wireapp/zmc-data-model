@@ -137,7 +137,7 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
     
     public var teamCreatedBy: UUID? {
         get {
-            return user != nil ? user?.membership?.createdBy?.remoteIdentifier : internalTeamCreatedBy
+            return user?.membership?.createdBy?.remoteIdentifier ?? internalTeamCreatedBy
         }
     }
 
