@@ -127,12 +127,19 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
     fileprivate var internalHandle: String?
     fileprivate var internalIsConnected: Bool = false
     fileprivate var internalIsTeamMember: Bool = false
+    fileprivate var internalTeamCreatedBy: UUID?
+    fileprivate var internalTeamPermissions: Permissions?
     fileprivate var internalAccentColorValue: ZMAccentColor
     fileprivate var internalPendingApprovalByOtherUser: Bool = false
     fileprivate var internalConnectionRequestMessage: String?
     fileprivate var internalPreviewImageData: Data?
     fileprivate var internalCompleteImageData: Data?
-
+    
+    public var teamCreatedBy: UUID? {
+        get {
+            return user?.membership?.createdBy?.remoteIdentifier ?? internalTeamCreatedBy
+        }
+    }
 
     public var emailAddress: String? {
         get {
@@ -188,7 +195,9 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
     }
     
     public var teamRole: TeamRole {
-        guard let user = user else { return .none }
+        guard let user = user else {
+            return (internalTeamPermissions?.rawValue).flatMap(TeamRole.init(rawPermissions:)) ?? .none
+        }
         
         return user.teamRole
     }
@@ -639,6 +648,11 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
     
     public func reportImageDataHasBeenDeleted() {
         self.assetKeys = nil
+    }
+    
+    public func updateWithTeamMembership(permissions: Permissions, createdBy: UUID?) {
+        self.internalTeamPermissions = permissions
+        self.internalTeamCreatedBy = createdBy
     }
     
 }
