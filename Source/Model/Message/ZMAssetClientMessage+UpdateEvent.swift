@@ -27,7 +27,12 @@ extension ZMAssetClientMessage {
         add(message)
         version = 3 // We assume received assets are V3 since backend no longer supports sending V2 assets.
         
-        guard case .some(.asset(let assetData)) = message.content, let status = assetData.status else { return }
+        guard
+            let assetData = message.assetData,
+            let status = assetData.status
+        else {
+            return
+        }
         
         switch status {
         case .uploaded(let data) where data.hasAssetID:
