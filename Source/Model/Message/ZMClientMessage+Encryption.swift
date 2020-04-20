@@ -238,12 +238,29 @@ extension ZMGenericMessage {
     /// Returns a message with recipients
     fileprivate func otrMessage(_ selfClient: UserClient,
                                 recipients: Set<ZMUser>,
+                                conversation: ZMConversation?,
                                 externalData: Data?,
                                 sessionDirectory: EncryptionSessionsDirectory) -> NewOtrMessage {
         
         let userEntries = self.recipientsWithEncryptedData(selfClient, recipients: recipients, sessionDirectory: sessionDirectory)
         let nativePush = !hasConfirmation() // We do not want to send pushes for delivery receipts
-        let message = NewOtrMessage(withSender: selfClient, nativePush: nativePush, recipients: userEntries, blob: externalData)
+        var message = NewOtrMessage(withSender: selfClient, nativePush: nativePush, recipients: userEntries, blob: externalData)
+        
+        
+        // fill reportMissing if needed
+        if let conversation = conversation,
+           let context = conversation.managedObjectContext {
+        
+        let recipientsAndStrategy = recipientUsersForMessage(in: conversation, selfUser: ZMUser.selfUser(in: context))
+            
+            switch recipientsAndStrategy.strategy {
+            case .ignoreAllMissingClientsNotFromUsers(let users):
+                message.reportMissing = Array(users.map{ $0.userId })
+            default:
+                break
+            }
+        }
+        
         return message
     }
     
