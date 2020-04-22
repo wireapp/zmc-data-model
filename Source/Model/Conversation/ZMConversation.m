@@ -32,7 +32,6 @@
 #import "ZMUser+Internal.h"
 
 #import "ZMMessage+Internal.h"
-#import "ZMClientMessage.h"
 
 #import "NSManagedObjectContext+zmessaging.h"
 #import "ZMConnection+Internal.h"
@@ -456,6 +455,9 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return conversationType;
 }
 
+- (BOOL)isSelfConversation {
+    return self.conversationType == ZMConversationTypeSelf;
+}
 
 + (NSArray *)defaultSortDescriptors
 {
