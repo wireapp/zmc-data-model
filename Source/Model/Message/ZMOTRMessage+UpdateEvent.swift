@@ -121,6 +121,49 @@ extension ZMOTRMessage {
         return nil
     }
     
+    @objc static func createOrUpdate2(fromUpdateEvent updateEvent: ZMUpdateEvent,
+                                     inManagedObjectContext moc: NSManagedObjectContext,
+                                     prefetchResult: ZMFetchRequestBatchResult) -> ZMOTRMessage? {
+        
+        let selfUser = ZMUser.selfUser(in: moc)
+        
+        guard
+            let senderID = updateEvent.senderUUID(),
+            let conversation = self.conversation(for: updateEvent, in: moc, prefetchResult: prefetchResult),
+            !isSelf(conversation: conversation, andIsSenderID: senderID, differentFromSelfUserID: selfUser.remoteIdentifier)
+        else {
+            return nil
+        }
+        
+        guard
+            let message = GenericMessage(from: updateEvent),
+            let content = message.content
+        else {
+            appendInvalidSystemMessage(forUpdateEvent: updateEvent, toConversation: conversation, inContext: moc)
+            return nil
+        }
+        zmLog.debug("processing:\n\(message.debugDescription)")
+        
+        // Update the legal hold state in the conversation
+        conversation.updateSecurityLevelIfNeededAfterReceiving(message: message, timestamp: updateEvent.timeStamp() ?? Date())
+        
+        if !message.knownMessage {
+            UnknownMessageAnalyticsTracker.tagUnknownMessage(with: moc.analytics)
+        }
+        
+        // Verify sender is part of conversation
+        conversation.verifySender(of: updateEvent, moc: moc)
+        
+        switch content {
+        case .lastRead where :
+            <#code#>
+        default:
+            <#code#>
+        }
+        
+        return nil
+    }
+    
     private static func isZombieObject(_ message: ZMOTRMessage?) -> Bool {
         guard let message = message else { return false }
         return message.isZombieObject
