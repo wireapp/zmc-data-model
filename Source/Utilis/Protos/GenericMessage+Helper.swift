@@ -19,22 +19,6 @@
 import Foundation
 import WireProtos
 
-public protocol MessageCapable {
-    func setContent(on message: inout GenericMessage)
-    var expectsReadConfirmation: Bool { get set }
-    var legalHoldStatus: LegalHoldStatus { get }
-}
-
-public protocol EphemeralMessageCapable: MessageCapable {
-    func setEphemeralContent(on ephemeral: inout Ephemeral)
-}
-
-extension MessageCapable {
-    var defaultLegalHoldStatus: LegalHoldStatus {
-        return .unknown
-    }
-}
-
 public extension GenericMessage {
     init?(withBase64String base64String: String?) {
         guard
@@ -190,98 +174,11 @@ extension GenericMessage {
     }
 }
 
-extension Ephemeral: MessageCapable {
-    public var expectsReadConfirmation: Bool {
-        get {
-            guard let content = content else { return false }
-            switch content {
-            case let .text(value):
-                return value.expectsReadConfirmation
-            case .image:
-                return false
-            case let .knock(value):
-                return value.expectsReadConfirmation
-            case let .asset(value):
-                return value.expectsReadConfirmation
-            case let .location(value):
-                return value.expectsReadConfirmation
-            }
-        }
-        set {
-            guard let content = content else { return }
-            switch content {
-            case .text:
-                text.expectsReadConfirmation = newValue
-            case .image:
-                break
-            case .knock:
-                knock.expectsReadConfirmation = newValue
-            case .asset:
-                knock.expectsReadConfirmation = newValue
-            case .location:
-                location.expectsReadConfirmation = newValue
-            }
-        }
-    }
-    
+extension Ephemeral {
     public static func ephemeral(content: EphemeralMessageCapable, expiresAfter timeout: TimeInterval) -> Ephemeral {
         return Ephemeral.with() { 
             $0.expireAfterMillis = Int64(timeout * 1000)
             content.setEphemeralContent(on: &$0)
-        }
-    }
-    
-    public func setContent(on message: inout GenericMessage) {
-        message.ephemeral = self
-    }
-    
-    public var legalHoldStatus: LegalHoldStatus {
-        get {
-            guard let content = content else { return defaultLegalHoldStatus }
-            switch content {
-            case let .text(value):
-                return value.legalHoldStatus
-            case .image:
-                return defaultLegalHoldStatus
-            case let .knock(value):
-                return value.legalHoldStatus
-            case let .asset(value):
-                return value.legalHoldStatus
-            case let .location(value):
-                return value.legalHoldStatus
-            }
-        }
-    }
-    
-    public mutating func updateLegalHoldStatus(_ status: LegalHoldStatus) {
-        guard let content = content else { return }
-        switch content {
-        case .text:
-            self.text.legalHoldStatus = status
-        case .image:
-            break
-        case .knock:
-            self.knock.legalHoldStatus = status
-        case .asset:
-            self.asset.legalHoldStatus = status
-        case .location:
-            self.location.legalHoldStatus = status
-        }
-    }
-    
-    public mutating func updateExpectsReadConfirmation(_ value: Bool) {
-        guard let content = content else { return }
-        switch content {
-        case .text:
-            self.text.expectsReadConfirmation = value
-        case .image:
-            break
-        case .knock:
-            self.knock.expectsReadConfirmation = value
-        case .asset:
-            self.asset.expectsReadConfirmation = value
-        case .location:
-            self.location.expectsReadConfirmation = value
         }
     }
 }
@@ -317,56 +214,25 @@ public extension NewOtrMessage {
     }
 }
 
-extension ButtonAction: MessageCapable {
+extension ButtonAction {
     init(buttonId: String, referenceMessageId: UUID) {
         self = ButtonAction.with {
             $0.buttonID = buttonId
             $0.referenceMessageID = referenceMessageId.transportString()
         }
     }
-    
-    public func setContent(on message: inout GenericMessage) {
-        message.buttonAction = self
-    }
-    
-    public var expectsReadConfirmation: Bool {
-        get { return false }
-        set { }
-    }
-    
-    public var legalHoldStatus: LegalHoldStatus {
-        return defaultLegalHoldStatus
-    }
 }
 
-extension Location: EphemeralMessageCapable {
+extension Location {
     init(latitude: Float, longitude: Float) {
         self = WireProtos.Location.with({
             $0.latitude = latitude
             $0.longitude = longitude
         })
     }
-
-    public func setEphemeralContent(on ephemeral: inout Ephemeral) {
-        ephemeral.location = self
-    }
-    
-    public func setContent(on message: inout GenericMessage) {
-        message.location = self
-    }
 }
 
-extension Knock: EphemeralMessageCapable {
-    public func setEphemeralContent(on ephemeral: inout Ephemeral) {
-        ephemeral.knock = self
-    }
-    
-    public func setContent(on message: inout GenericMessage) {
-        message.knock = self
-    }
-}
-
-extension Text: EphemeralMessageCapable {
+extension Text {
     
     public init(content: String, mentions: [Mention] = [], linkPreviews: [LinkMetadata] = [], replyingTo: ZMOTRMessage? = nil) {
         self = Text.with {
@@ -384,15 +250,7 @@ extension Text: EphemeralMessageCapable {
             }
         }
     }
-    
-    public func setEphemeralContent(on ephemeral: inout Ephemeral) {
-        ephemeral.text = self
-    }
-    
-    public func setContent(on message: inout GenericMessage) {
-        message.text = self
-    }
-    
+
     public func updateLinkPreview(from text: Text) -> Text {
         guard !text.linkPreview.isEmpty else {
             return self
@@ -408,7 +266,7 @@ extension Text: EphemeralMessageCapable {
     }
 }
 
-extension WireProtos.Reaction: MessageCapable {
+extension WireProtos.Reaction {
     
     init(emoji: String, messageID: UUID) {
         self = WireProtos.Reaction.with({
@@ -416,20 +274,9 @@ extension WireProtos.Reaction: MessageCapable {
             $0.messageID = messageID.transportString()
         })
     }
-    
-    public func setContent(on message: inout GenericMessage) {
-        message.reaction = self
-    }
-    
-    public var expectsReadConfirmation: Bool {
-        get {
-            return false
-        }
-        set {}
-    }
 }
 
-extension LastRead: MessageCapable {
+extension LastRead {
     
     init(conversationID: UUID, lastReadTimestamp: Date) {
         self = LastRead.with {
@@ -437,48 +284,18 @@ extension LastRead: MessageCapable {
             $0.lastReadTimestamp = Int64(lastReadTimestamp.timeIntervalSince1970 * 1000)
         }
     }
-    
-    public func setContent(on message: inout GenericMessage) {
-        message.lastRead = self
-    }
-    
-    public var expectsReadConfirmation: Bool {
-        get {
-            return false
-        }
-        set {}
-    }
-    
-    public var legalHoldStatus: LegalHoldStatus {
-        return defaultLegalHoldStatus
-    }
 }
 
-extension Calling: MessageCapable {
+extension Calling {
     
     public init(content: String) {
         self = Calling.with {
             $0.content = content
         }
     }
-    
-    public func setContent(on message: inout GenericMessage) {
-        message.calling = self
-    }
-    
-    public var expectsReadConfirmation: Bool {
-        get {
-            return false
-        }
-        set {}
-    }
-    
-    public var legalHoldStatus: LegalHoldStatus {
-        return defaultLegalHoldStatus
-    }
 }
 
-extension WireProtos.MessageEdit: MessageCapable {
+extension WireProtos.MessageEdit {
     
     public init(replacingMessageID: UUID, text: Text) {
         self = MessageEdit.with {
@@ -486,79 +303,9 @@ extension WireProtos.MessageEdit: MessageCapable {
             $0.text = text
         }
     }
-    
-    public func setContent(on message: inout GenericMessage) {
-        message.edited = self
-    }
-    
-    public var expectsReadConfirmation: Bool {
-        get {
-            return false
-        }
-        set {}
-    }
-    
-    public var legalHoldStatus: LegalHoldStatus {
-        return defaultLegalHoldStatus
-    }
 }
 
-extension Cleared: MessageCapable {
-    public func setContent(on message: inout GenericMessage) {
-        message.cleared = self
-    }
-    
-    public var expectsReadConfirmation: Bool {
-        get { return false }
-        set {}
-    }
-    
-    public var legalHoldStatus: LegalHoldStatus {
-        return defaultLegalHoldStatus
-    }
-}
-
-extension MessageHide: MessageCapable {
-    public func setContent(on message: inout GenericMessage) {
-        message.hidden = self
-    }
-    
-    public var expectsReadConfirmation: Bool {
-        get { return false }
-        set {}
-    }
-    
-    public var legalHoldStatus: LegalHoldStatus {
-        return defaultLegalHoldStatus
-    }
-}
-
-extension MessageDelete: MessageCapable {
-    public func setContent(on message: inout GenericMessage) {
-        message.deleted = self
-    }
-    
-    public var expectsReadConfirmation: Bool {
-        get { return false }
-        set {}
-    }
-    
-    public var legalHoldStatus: LegalHoldStatus {
-        return defaultLegalHoldStatus
-    }
-}
-
-extension WireProtos.Asset: EphemeralMessageCapable {
-    public func setEphemeralContent(on ephemeral: inout Ephemeral) {
-        ephemeral.asset = self
-    }
-    
-    public func setContent(on message: inout GenericMessage) {
-        message.asset = self
-    }
-}
-
-extension WireProtos.Confirmation: MessageCapable {
+extension WireProtos.Confirmation {
     
     init?(messageIds: [UUID], type: Confirmation.TypeEnum) {
         guard let firstMessageID = messageIds.first else {
@@ -571,24 +318,9 @@ extension WireProtos.Confirmation: MessageCapable {
             $0.type = type
         })
     }
-    
-    public func setContent(on message: inout GenericMessage) {
-        message.confirmation = self
-    }
-    
-    public var expectsReadConfirmation: Bool {
-        get {
-            return false
-        }
-        set {}
-    }
-    
-    public var legalHoldStatus: LegalHoldStatus {
-        return defaultLegalHoldStatus
-    }
 }
 
-extension External: MessageCapable {
+extension External {
     init(withOTRKey otrKey: Data, sha256: Data) {
         self = External.with {
             $0.otrKey = otrKey
@@ -598,19 +330,6 @@ extension External: MessageCapable {
     
     init(withKeyWithChecksum key: ZMEncryptionKeyWithChecksum) {
         self = External(withOTRKey: key.aesKey, sha256: key.sha256)
-    }
-    
-    public func setContent(on message: inout GenericMessage) {
-        message.external = self
-    }
-    
-    public var expectsReadConfirmation: Bool {
-        get { return false }
-        set {}
-    }
-    
-    public var legalHoldStatus: LegalHoldStatus {
-        return defaultLegalHoldStatus
     }
 }
 
