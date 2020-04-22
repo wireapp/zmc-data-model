@@ -109,8 +109,7 @@ extension ZMConversation {
     /// Should be called when a message is received.
     /// If the legal hold status hint inside the received message is different than the local status,
     /// we update the local version to match the remote one.
-    @objc(updateSecurityLevelIfNeededAfterReceiving:timestamp:)
-    public func updateSecurityLevelIfNeededAfterReceiving(message: ZMGenericMessage, timestamp: Date) {
+    public func updateSecurityLevelIfNeededAfterReceiving(message: GenericMessage, timestamp: Date) {
         updateLegalHoldIfNeededWithHint(from: message, timestamp: timestamp)
     }
     
@@ -237,15 +236,15 @@ extension ZMConversation {
         }
     }
 
-    /// Update the legal hold status based on the hint of a message.
-    private func updateLegalHoldIfNeededWithHint(from message: ZMGenericMessage, timestamp: Date) {
-        switch message.content?.legalHoldStatus {
-        case .ENABLED? where !legalHoldStatus.denotesEnabledComplianceDevice:
+    /// Update the legal hold status based on the hint of a message.    
+    private func updateLegalHoldIfNeededWithHint(from message: GenericMessage, timestamp: Date) {
+        switch message.content?.messageCapable?.legalHoldStatus {
+        case .enabled? where !legalHoldStatus.denotesEnabledComplianceDevice:
             needsToVerifyLegalHold = true
             legalHoldStatus = .pendingApproval
             appendLegalHoldEnabledSystemMessageForConversationAfterReceivingMessage(at: timestamp)
             expireAllPendingMessagesBecauseOfSecurityLevelDegradation()
-        case .DISABLED? where legalHoldStatus.denotesEnabledComplianceDevice:
+        case .disabled? where legalHoldStatus.denotesEnabledComplianceDevice:
             needsToVerifyLegalHold = true
             legalHoldStatus = .disabled
             appendLegalHoldDisabledSystemMessageForConversationAfterReceivingMessage(at: timestamp)
