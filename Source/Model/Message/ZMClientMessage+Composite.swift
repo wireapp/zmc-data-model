@@ -46,10 +46,10 @@ extension ZMClientMessage: CompositeMessageData {
 
 // MARK: - ButtonStates Interface
 extension ZMClientMessage {
-    @objc static func updateButtonStates(withConfirmation confirmation: ZMButtonActionConfirmation,
-                                         forConversation conversation: ZMConversation,
-                                         inContext moc: NSManagedObjectContext) {
-        let nonce = UUID(uuidString: confirmation.referenceMessageId)
+    static func updateButtonStates(withConfirmation confirmation: ButtonActionConfirmation,
+                                   forConversation conversation: ZMConversation,
+                                   inContext moc: NSManagedObjectContext) {
+        let nonce = UUID(uuidString: confirmation.referenceMessageID)
         let message = ZMClientMessage.fetch(withNonce: nonce, for: conversation, in: moc)
         message?.updateButtonStates(withConfirmation: confirmation)
     }
@@ -65,13 +65,13 @@ extension ZMClientMessage {
 
 // MARK: - ButtonStates Helpers
 extension ZMClientMessage {
-    private func updateButtonStates(withConfirmation confirmation: ZMButtonActionConfirmation) {
+    private func updateButtonStates(withConfirmation confirmation: ButtonActionConfirmation) {
         guard let moc = managedObjectContext else { return }
         
-        if !containsButtonState(withId: confirmation.buttonId) {
-            ButtonState.insert(with: confirmation.buttonId, message: self, inContext: moc)
+        if !containsButtonState(withId: confirmation.buttonID) {
+            ButtonState.insert(with: confirmation.buttonID, message: self, inContext: moc)
         }
-        buttonStates?.confirmButtonState(withId: confirmation.buttonId)
+        buttonStates?.confirmButtonState(withId: confirmation.buttonID)
     }
     
     private func containsButtonState(withId buttonId: String) -> Bool {

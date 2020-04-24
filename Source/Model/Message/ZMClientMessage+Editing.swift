@@ -19,13 +19,13 @@
 import Foundation
 
 extension ZMClientMessage {
-    static func editMessage(withEdit messageEdit: ZMMessageEdit,
+    static func editMessage(withEdit messageEdit: MessageEdit,
                             forConversation conversation: ZMConversation,
                             updateEvent: ZMUpdateEvent,
                             inContext moc: NSManagedObjectContext,
                             prefetchResult: ZMFetchRequestBatchResult) -> ZMClientMessage? {
         guard
-            let editedMessageId = UUID(uuidString: messageEdit.replacingMessageId),
+            let editedMessageId = UUID(uuidString: messageEdit.replacingMessageID),
             let editedMessage = ZMClientMessage.fetch(withNonce: editedMessageId, for: conversation, in: moc, prefetchResult: prefetchResult),
             editedMessage.processMessageEdit(messageEdit, from: updateEvent)
         else {
@@ -40,23 +40,30 @@ extension ZMClientMessage {
     /// - parameter messageEdit: Message edit update
     /// - parameter updateEvent: Update event which delivered the message edit update
     /// - Returns: true if edit was succesfully applied
-    @objc
-    func processMessageEdit(_ messageEdit: ZMMessageEdit, from updateEvent: ZMUpdateEvent) -> Bool {
-        guard let nonce = updateEvent.messageNonce(),
-              let senderUUID = updateEvent.senderUUID(),
-              let originalText = genericMessage?.textData,
-              let editedText = messageEdit.text,
-              messageEdit.hasText(),
-              senderUUID == sender?.remoteIdentifier
-        else { return false }
+    func processMessageEdit(_ messageEdit: MessageEdit, from updateEvent: ZMUpdateEvent) -> Bool {
+        guard
+            case .text? = messageEdit.content,
+            let nonce = updateEvent.messageNonce(),
+            let senderUUID = updateEvent.senderUUID(),
+            let originalText = underlyingMessage?.textData,
+            senderUUID == sender?.remoteIdentifier
+        else {
+            return false
+        }
         
-        add(ZMGenericMessage.message(content: originalText.applyEdit(from: editedText), nonce: nonce).data())
+        do {
+            let genericMessage = GenericMessage(content: originalText.applyEdit(from: messageEdit.text), nonce: nonce)
+            let data = try genericMessage.serializedData()
+            add(data)
+        } catch {
+            return false
+        }
+        
         updateNormalizedText()
-        
         self.nonce = nonce
-        self.updatedTimestamp = updateEvent.timeStamp()
-        self.reactions.removeAll()
-        self.linkAttachments = nil
+        updatedTimestamp = updateEvent.timeStamp()
+        reactions.removeAll()
+        linkAttachments = nil
         
         return true
     }

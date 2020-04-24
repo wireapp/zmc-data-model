@@ -86,22 +86,7 @@ extern NSString * _Nonnull const ZMMessageNeedsLinkAttachmentsUpdateKey;
 /// @param clearingSender Whether information about the sender should be removed or not
 - (void)removeMessageClearingSender:(BOOL)clearingSender;
 
-/// Removes the message only for clients of the selfUser
-+ (void)removeMessageWithRemotelyHiddenMessage:(ZMMessageHide * _Nonnull)hiddenMessage
-                        inManagedObjectContext:(NSManagedObjectContext * _Nonnull)moc;
-
-/// Removes the message for all participants of the message's conversation
-/// Clients that don't belong to the selfUser will see a system message indicating the deletion
-+ (void)removeMessageWithRemotelyDeletedMessage:(ZMMessageDelete * _Nonnull)deletedMessage
-                                 inConversation:(ZMConversation * _Nonnull)conversation
-                                       senderID:(NSUUID * _Nonnull)senderID
-                         inManagedObjectContext:(NSManagedObjectContext * _Nonnull)moc;
-
-
-+ (void)addReaction:(ZMReaction * _Nonnull)reaction
-           senderID:(NSUUID * _Nonnull)senderID
-       conversation:(ZMConversation * _Nonnull)conversation
-inManagedObjectContext:(NSManagedObjectContext * _Nonnull)moc;
++ (void)stopDeletionTimerForMessage:(ZMMessage * _Nonnull)message;
 
 @end
 

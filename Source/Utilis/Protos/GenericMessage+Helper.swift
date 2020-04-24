@@ -251,6 +251,26 @@ extension Text {
         }
     }
 
+    public func applyEdit(from text: Text) -> Text {
+        do {
+            let data = try text.serializedData()
+            var updatedText = try Text(serializedData: data)
+            
+            // Transfer read receipt expectation
+            updatedText.expectsReadConfirmation = expectsReadConfirmation
+            
+            // We always keep the quote from the original message
+            if hasQuote {
+                updatedText.quote = quote
+            } else {
+                updatedText.clearQuote()
+            }
+            return updatedText
+        } catch {
+            return self
+        }
+    }
+    
     public func updateLinkPreview(from text: Text) -> Text {
         guard !text.linkPreview.isEmpty else {
             return self

@@ -779,20 +779,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return clientMessage;
 }
 
-+ (void)updateConversationWithZMLastReadFromSelfConversation:(ZMLastRead *)lastRead inContext:(NSManagedObjectContext *)context
-{
-    double newTimeStamp = lastRead.lastReadTimestamp;
-    NSDate *timestamp = [NSDate dateWithTimeIntervalSince1970:(newTimeStamp/1000)];
-    NSUUID *conversationID = [NSUUID uuidWithTransportString:lastRead.conversationId];
-    if (conversationID == nil || timestamp == nil) {
-        return;
-    }
-    
-    ZMConversation *conversationToUpdate = [ZMConversation conversationWithRemoteID:conversationID createIfNeeded:YES inContext:context];
-    [conversationToUpdate updateLastRead:timestamp synchronize:NO];
-}
-
-
 + (ZMClientMessage *)appendSelfConversationWithClearedOfConversation:(ZMConversation *)conversation
 {
     NSUUID *convID = conversation.remoteIdentifier;
@@ -807,21 +793,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     
     return [self appendSelfConversationWithGenericMessage:message managedObjectContext:conversation.managedObjectContext];
 }
-
-+ (void)updateConversationWithZMClearedFromSelfConversation:(ZMCleared *)cleared inContext:(NSManagedObjectContext *)context
-{
-    double newTimeStamp = cleared.clearedTimestamp;
-    NSDate *timestamp = [NSDate dateWithTimeIntervalSince1970:(newTimeStamp/1000)];
-    NSUUID *conversationID = [NSUUID uuidWithTransportString:cleared.conversationId];
-    
-    if (conversationID == nil || timestamp == nil) {
-        return;
-    }
-    
-    ZMConversation *conversation = [ZMConversation conversationWithRemoteID:conversationID createIfNeeded:YES inContext:context];
-    [conversation updateCleared:timestamp synchronize:NO];
-}
-
 
 @end
 
