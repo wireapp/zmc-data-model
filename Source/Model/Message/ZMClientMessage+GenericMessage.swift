@@ -86,13 +86,4 @@ extension ZMClientMessage {
         updateCategoryCache()
         setLocallyModifiedKeys([#keyPath(ZMClientMessage.dataSet)])
     }
-    
-    public override func update(with message: ZMGenericMessage, updateEvent: ZMUpdateEvent, initialUpdate: Bool) {
-        if initialUpdate {
-            add(message.data())
-            updateNormalizedText()
-        } else {
-            applyLinkPreviewUpdate(message, from: updateEvent)
-        }
-    }
 }
