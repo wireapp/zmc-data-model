@@ -40,14 +40,15 @@ class ZMClientMessageTests_Composite: BaseCompositeMessageTests {
         let message = compositeMessage(with: compositeProto(items: compositeItemButton()), nonce: nonce)
         let conversation = self.conversation(withMessage: message)
         
-        let builder = ZMButtonActionConfirmationBuilder()
-        builder.setReferenceMessageId(nonce.transportString())
-        builder.setButtonId("1")
-        let confirmation = builder.build()
+
+        let confirmation = ButtonActionConfirmation.with {
+            $0.referenceMessageID = nonce.transportString()
+            $0.buttonID = "1"
+        }
 
         // WHEN
         uiMOC.performAndWait { [uiMOC] in
-            ZMClientMessage.updateButtonStates(withConfirmation: confirmation!, forConversation: conversation, inContext: uiMOC)
+            ZMClientMessage.updateButtonStates(withConfirmation: confirmation, forConversation: conversation, inContext: uiMOC)
             uiMOC.saveOrRollback()
         }
         
@@ -85,15 +86,14 @@ class ZMClientMessageTests_Composite: BaseCompositeMessageTests {
             uiMOC.saveOrRollback()
         }
         
-        let builder = ZMButtonActionConfirmationBuilder()
-        builder.setReferenceMessageId(nonce.transportString())
-        builder.setButtonId("1")
-        
-        let confirmation = builder.build()
+        let confirmation = ButtonActionConfirmation.with {
+            $0.referenceMessageID = nonce.transportString()
+            $0.buttonID = "1"
+        }
         
         // WHEN
         uiMOC.performAndWait { [uiMOC] in
-            ZMClientMessage.updateButtonStates(withConfirmation: confirmation!, forConversation: conversation, inContext: uiMOC)
+            ZMClientMessage.updateButtonStates(withConfirmation: confirmation, forConversation: conversation, inContext: uiMOC)
             uiMOC.saveOrRollback()
         }
         

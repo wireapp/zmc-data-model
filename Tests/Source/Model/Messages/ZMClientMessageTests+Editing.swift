@@ -17,6 +17,44 @@
 //
 
 import XCTest
+@testable import WireDataModel
+
+class ZMClientMessageTests_Editing: BaseZMClientMessageTests {
+    func testThatItEditsTheMessage() {
+        // GIVEN
+        let conversationID = UUID.create()
+        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+        conversation.remoteIdentifier = conversationID
+        
+        let user = ZMUser.insertNewObject(in: uiMOC)
+        user.remoteIdentifier = UUID.create()
+        
+        let nonce = UUID.create()
+        let message = ZMClientMessage(nonce: nonce, managedObjectContext: uiMOC)
+        message.sender = user
+        let data = try? GenericMessage(content: Text(content: "text")).serializedData()
+        message.add(data)
+        conversation.append(message)
+        
+        let edited = MessageEdit.with {
+            $0.replacingMessageID = nonce.transportString()
+            $0.text = Text(content: "editedText")
+        }
+        
+        let genericMessage = GenericMessage(content: edited)
+        
+        let updateEvent = createUpdateEvent(nonce, conversationID: conversationID, genericMessage: genericMessage, senderID: message.sender!.remoteIdentifier)
+        
+        // WHEN
+        var editedMessage: ZMClientMessage?
+        performPretendingUiMocIsSyncMoc {
+            editedMessage = ZMClientMessage.editMessage(withEdit: edited, forConversation: conversation, updateEvent: updateEvent, inContext: self.uiMOC, prefetchResult: ZMFetchRequestBatchResult())
+        }
+        
+        // THEN
+        XCTAssertEqual(editedMessage?.messageText, "editedText")
+    }
+}
 
 class ZMClientMessageTests_TextMessageData : BaseZMClientMessageTests {
     
