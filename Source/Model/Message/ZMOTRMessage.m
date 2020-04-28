@@ -21,7 +21,6 @@
 #import "ZMGenericMessage+UpdateEvent.h"
 #import "ZMConversation+Internal.h"
 #import <WireDataModel/WireDataModel-Swift.h>
-#import "ZMGenericMessageData.h"
 
 
 @import WireTransport;
@@ -97,13 +96,6 @@ NSString * const DeliveredKey = @"delivered";
 + (NSSet *)keyPathsForValuesAffectingDeliveryState;
 {
     return [[ZMMessage keyPathsForValuesAffectingValueForKey:ZMMessageDeliveryStateKey] setByAddingObject:DeliveredKey];
-}
-
-- (NSString *)dataSetDebugInformation
-{
-    return [[self.dataSet mapWithBlock:^NSString *(ZMGenericMessageData *msg) {
-        return [NSString stringWithFormat:@"<%@>: %@", NSStringFromClass(ZMGenericMessageData.class), msg.genericMessage];
-    }].array componentsJoinedByString:@"\n"];
 }
 
 - (void)markAsSent

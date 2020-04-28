@@ -184,8 +184,7 @@ extension ZMClientMessageTests_Ephemeral {
             )
             article.title = "title"
             article.summary = "summary"
-            let linkPreview = article.protocolBuffer.update(withOtrKey: Data(), sha256: Data())
-            let genericMessage = ZMGenericMessage.message(content: ZMText.text(with: "foo", linkPreviews: [linkPreview]), nonce: UUID.create(), expiresAfter: timeout)
+             let genericMessage = GenericMessage(content: Text(content: "foo", mentions: [], linkPreviews: [article], replyingTo: nil), nonce: UUID.create(), expiresAfter: timeout)
             let message = self.syncConversation.appendClientMessage(with: genericMessage)!
             message.linkPreviewState = .processed
             XCTAssertEqual(message.linkPreviewState, .processed)

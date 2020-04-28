@@ -45,9 +45,11 @@ import Foundation
     }
     
     public override var hashOfContent: Data? {
-        guard let serverTimestamp = serverTimestamp else { return nil }
+        guard let serverTimestamp = serverTimestamp else {
+            return nil
+        }
         
-        return genericAssetMessage?.hashOfContent(with: serverTimestamp)
+        return underlyingMessage?.hashOfContent(with: serverTimestamp)
     }
     
     /// Remote asset ID
@@ -394,9 +396,9 @@ struct CacheAsset: Asset {
         
         switch type {
         case .thumbnail:
-            genericMessage.updatedPreview(withAssetId: assetId, token: token)
+            genericMessage.updatePreview(assetId: assetId, token: token)
         case .image, .file:
-            genericMessage.updatedUploaded(withAssetId: assetId, token: token)
+            genericMessage.updateUploaded(assetId: assetId, token: token)
         }
         
         do {

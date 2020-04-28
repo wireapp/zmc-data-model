@@ -263,7 +263,7 @@ extension ProtobufUtilitiesTests {
         // when
         XCTAssertNotEqual(sut.asset.uploaded.assetID, assetId)
         XCTAssertNotEqual(sut.asset.uploaded.assetToken, token)
-        sut.updatedUploaded(withAssetId: assetId, token: token)
+        sut.updateUploaded(assetId: assetId, token: token)
         
         // then
         XCTAssertEqual(sut.asset.uploaded.assetID, assetId)
@@ -279,7 +279,7 @@ extension ProtobufUtilitiesTests {
         // when
         XCTAssertNotEqual(sut.ephemeral.asset.uploaded.assetID, assetId)
         XCTAssertNotEqual(sut.ephemeral.asset.uploaded.assetToken, token)
-        sut.updatedUploaded(withAssetId: assetId, token: token)
+        sut.updateUploaded(assetId: assetId, token: token)
         
         // then
         XCTAssertEqual(sut.ephemeral.asset.uploaded.assetID, assetId)
@@ -308,7 +308,7 @@ extension ProtobufUtilitiesTests {
         // when
         XCTAssertNotEqual(sut.asset.preview.remote.assetID, assetId)
         XCTAssertNotEqual(sut.asset.preview.remote.assetToken, token)
-        sut.updatedPreview(withAssetId: assetId, token: token)
+        sut.updatePreview(assetId: assetId, token: token)
     
         // then
         XCTAssertEqual(sut.asset.preview.remote.assetID, assetId)
@@ -339,7 +339,7 @@ extension ProtobufUtilitiesTests {
         // when
         XCTAssertNotEqual(sut.ephemeral.asset.preview.remote.assetID, assetId)
         XCTAssertNotEqual(sut.ephemeral.asset.preview.remote.assetToken, token)
-        sut.updatedPreview(withAssetId: assetId, token: token)
+        sut.updatePreview(assetId: assetId, token: token)
         
         // then
         XCTAssertEqual(sut.ephemeral.asset.preview.remote.assetID, assetId)

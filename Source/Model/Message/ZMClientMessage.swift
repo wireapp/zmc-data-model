@@ -52,7 +52,7 @@ import Foundation
         guard let serverTimestamp = serverTimestamp else {
             return nil
         }
-        return genericMessage?.hashOfContent(with: serverTimestamp)
+        return underlyingMessage?.hashOfContent(with: serverTimestamp)
     }
 
     public override func awakeFromFetch() {

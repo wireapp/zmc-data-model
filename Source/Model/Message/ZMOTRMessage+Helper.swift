@@ -1,6 +1,6 @@
 //
 // Wire
-// Copyright (C) 2018 Wire Swiss GmbH
+// Copyright (C) 2020 Wire Swiss GmbH
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,13 +18,11 @@
 
 import Foundation
 
-final class InvalidGenericMessageDataRemoval {
-    static func removeInvalid(in moc: NSManagedObjectContext) {
-        do {
-            try moc.batchDeleteEntities(named: ZMGenericMessageData.entityName(),
-                                        matching: NSPredicate(format: "\(ZMGenericMessageData.assetKey) == nil AND \(ZMGenericMessageData.messageKey) == nil"))
-        } catch {
-            fatalError("Failed to perform batch update: \(error)")
-        }
+extension ZMOTRMessage {
+    public var dataSetDebugInformation: String {
+        let debugDescription = dataSet.lazy
+            .compactMap { ($0 as? ZMGenericMessageData)?.underlyingMessage.debugDescription }
+            .joined(separator: "\n")
+        return String.init(format: "<%@>: %@", NSStringFromClass(ZMGenericMessageData.self), debugDescription)
     }
 }

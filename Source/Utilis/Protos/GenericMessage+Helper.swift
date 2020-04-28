@@ -325,6 +325,32 @@ extension WireProtos.MessageEdit {
     }
 }
 
+extension Cleared {
+    public init(timestamp: Date, conversationID: UUID) {
+        self = Cleared.with {
+            $0.clearedTimestamp = Int64(timestamp.timeIntervalSince1970 * 1000)
+            $0.conversationID = conversationID.transportString()
+        }
+    }
+}
+
+extension MessageHide {
+    public init(conversationId: UUID, messageId: UUID) {
+        self = MessageHide.with {
+            $0.conversationID = conversationId.transportString()
+            $0.messageID = messageId.transportString()
+        }
+    }
+}
+
+extension MessageDelete {
+    public init(messageId: UUID) {
+        self = MessageDelete.with {
+         $0.messageID = messageId.transportString()
+        }
+    }
+}
+
 extension WireProtos.Confirmation {
     
     init?(messageIds: [UUID], type: Confirmation.TypeEnum) {
@@ -337,6 +363,13 @@ extension WireProtos.Confirmation {
             $0.moreMessageIds = moreMessageIds.map { $0.transportString() }
             $0.type = type
         })
+    }
+    
+    public init(messageId: UUID, type: Confirmation.TypeEnum) {
+        self = WireProtos.Confirmation.with {
+            $0.firstMessageID = messageId.transportString()
+            $0.type = type
+        }
     }
 }
 
@@ -420,8 +453,10 @@ public extension LinkPreview {
 
 extension GenericMessage {
     
-    public mutating func updatedPreview(withAssetId assetId: String, token: String?) {
-        guard let content = content else { return }
+    public mutating func updatePreview(assetId: String, token: String?) {
+        guard let content = content else {
+            return
+        }
         switch content {
         case .asset:
             self.asset.preview.remote.assetID = assetId
@@ -443,8 +478,10 @@ extension GenericMessage {
         }
     }
     
-    public mutating func updatedUploaded(withAssetId assetId: String, token: String?) {
-        guard let content = content else { return }
+    public mutating func updateUploaded(assetId: String, token: String?) {
+        guard let content = content else {
+            return
+        }
         switch content {
         case .asset:
             self.asset.uploaded.assetID = assetId
@@ -525,5 +562,11 @@ extension GenericMessage {
         default:
             return
         }
+    }
+}
+
+extension ImageAsset {
+    public func imageFormat() -> ZMImageFormat {
+        return ImageFormatFromString(self.tag)
     }
 }

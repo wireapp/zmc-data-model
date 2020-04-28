@@ -324,7 +324,7 @@ extension ClientMessageTests_OTR {
             
             textMessage.sender = self.syncUser1
             textMessage.senderClientID = senderID
-            let confirmationMessage = conversation.append(message: ZMConfirmation.confirm(messageId: textMessage.nonce!, type: .DELIVERED), hidden: true)
+            let confirmationMessage = conversation.append(message: Confirmation(messageId: textMessage.nonce!, type: .delivered), hidden: true)
             
             //when
             guard let payloadAndStrategy = confirmationMessage?.encryptedMessagePayloadData()
@@ -369,7 +369,7 @@ extension ClientMessageTests_OTR {
             
             textMessage.sender = self.syncUser1
             textMessage.senderClientID = senderID
-            let confirmationMessage = conversation.append(message: ZMConfirmation.confirm(messageId: textMessage.nonce!, type: .DELIVERED), hidden: true)
+            let confirmationMessage = conversation.append(message: Confirmation(messageId: textMessage.nonce!, type: .delivered), hidden: true)
             
             //when
             guard let _ = confirmationMessage?.encryptedMessagePayloadData()
@@ -396,7 +396,7 @@ extension ClientMessageTests_OTR {
             
             self.syncMOC.saveOrRollback()
             
-            let confirmationMessage = conversation.append(message: ZMConfirmation.confirm(messageId: clientmessage.nonce!, type: .DELIVERED), hidden: true)
+            let confirmationMessage = conversation.append(message: Confirmation(messageId: clientmessage.nonce!, type: .delivered), hidden: true)
 
             //when
             guard let _ = confirmationMessage?.encryptedMessagePayloadData()
@@ -419,7 +419,7 @@ extension ClientMessageTests_OTR {
             
             self.syncMOC.saveOrRollback()
             
-            let confirmationMessage = conversation.append(message: ZMConfirmation.confirm(messageId: clientmessage.nonce!, type: .DELIVERED), hidden: true)
+            let confirmationMessage = conversation.append(message: Confirmation(messageId: clientmessage.nonce!, type: .delivered), hidden: true)
 
             //when
             guard let _ = confirmationMessage?.encryptedMessagePayloadData()

@@ -193,7 +193,7 @@ extension ZMMessageTests_Confirmation {
         
         // when
         let sut = insertMessage(conversation, fromSender: remoteUser)
-        _ = conversation.append(message: ZMConfirmation.confirm(messageId: sut.nonce!, type: .DELIVERED), hidden: true)
+        _ = conversation.append(message: Confirmation(messageId: sut.nonce!, type: .delivered), hidden: true)
         
         // then
         guard let hiddenMessage = conversation.hiddenMessages.first as? ZMClientMessage else {

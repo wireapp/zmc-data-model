@@ -303,7 +303,7 @@ extension ZMAssetClientMessageTests {
         // when
         let asset = WireProtos.Asset(withUploadedOTRKey: .zmRandomSHA256Key(), sha256: .zmRandomSHA256Key())
         var originalMessage = GenericMessage(content: asset, nonce: nonce)
-        originalMessage.updatedUploaded(withAssetId: "id", token: "token")
+        originalMessage.updateUploaded(assetId: "id", token: "token")
         let updateEvent = createUpdateEvent(nonce, conversationID: UUID.create(), genericMessage: originalMessage)
         sut.update(with: updateEvent, initialUpdate: true)
         
@@ -363,7 +363,7 @@ extension ZMAssetClientMessageTests {
         // when
         let asset = WireProtos.Asset(withUploadedOTRKey: .zmRandomSHA256Key(), sha256: .zmRandomSHA256Key())
         var message = GenericMessage(content: asset, nonce: nonce)
-        message.updatedUploaded(withAssetId: "id", token: "token")
+        message.updateUploaded(assetId: "id", token: "token")
         let updateEvent = createUpdateEvent(nonce, conversationID: UUID.create(), genericMessage: message)
         sut.update(with: updateEvent, initialUpdate: true)
         
