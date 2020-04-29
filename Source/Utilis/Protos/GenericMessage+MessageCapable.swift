@@ -21,7 +21,6 @@ import Foundation
 public protocol MessageCapable {
     func setContent(on message: inout GenericMessage)
     var expectsReadConfirmation: Bool { get set }
-    var legalHoldStatus: LegalHoldStatus { get }
 }
 
 public protocol EphemeralMessageCapable: MessageCapable {
@@ -29,66 +28,11 @@ public protocol EphemeralMessageCapable: MessageCapable {
 }
 
 extension MessageCapable {
-    public var legalHoldStatus: LegalHoldStatus {
-        return defaultLegalHoldStatus
-    }
-    
     public var expectsReadConfirmation: Bool {
         get {
             return false
         }
         set {}
-    }
-    
-    var defaultLegalHoldStatus: LegalHoldStatus {
-        return .unknown
-    }
-}
-
-extension GenericMessage.OneOf_Content {
-    var messageCapable: MessageCapable? {
-        switch self {
-        case .asset(let value):
-            return value
-        case .availability(let value):
-            return value
-        case .buttonAction(let value):
-            return value
-        case .buttonActionConfirmation(let value):
-            return value
-        case .calling(let value):
-            return value
-        case .cleared(let value):
-            return value
-        case .clientAction(let value):
-            return value
-        case .composite(let value):
-            return value
-        case .confirmation(let value):
-            return value
-        case .deleted(let value):
-            return value
-        case .edited(let value):
-            return value
-        case .ephemeral(let value):
-            return value
-        case .external(let value):
-            return value
-        case .hidden(let value):
-            return value
-        case .image(let value):
-            return value
-        case .knock(let value):
-            return value
-        case .lastRead(let value):
-            return value
-        case .location(let value):
-            return value
-        case .reaction(let value):
-            return value
-        case .text(let value):
-            return value
-        }
     }
 }
 
@@ -265,56 +209,5 @@ extension Ephemeral: MessageCapable {
     
     public func setContent(on message: inout GenericMessage) {
         message.ephemeral = self
-    }
-    
-    
-    public var legalHoldStatus: LegalHoldStatus {
-        get {
-            guard let content = content else { return defaultLegalHoldStatus }
-            switch content {
-            case let .text(value):
-                return value.legalHoldStatus
-            case .image:
-                return defaultLegalHoldStatus
-            case let .knock(value):
-                return value.legalHoldStatus
-            case let .asset(value):
-                return value.legalHoldStatus
-            case let .location(value):
-                return value.legalHoldStatus
-            }
-        }
-    }
-    
-    public mutating func updateLegalHoldStatus(_ status: LegalHoldStatus) {
-        guard let content = content else { return }
-        switch content {
-        case .text:
-            self.text.legalHoldStatus = status
-        case .image:
-            break
-        case .knock:
-            self.knock.legalHoldStatus = status
-        case .asset:
-            self.asset.legalHoldStatus = status
-        case .location:
-            self.location.legalHoldStatus = status
-        }
-    }
-    
-    public mutating func updateExpectsReadConfirmation(_ value: Bool) {
-        guard let content = content else { return }
-        switch content {
-        case .text:
-            self.text.expectsReadConfirmation = value
-        case .image:
-            break
-        case .knock:
-            self.knock.expectsReadConfirmation = value
-        case .asset:
-            self.asset.expectsReadConfirmation = value
-        case .location:
-            self.location.expectsReadConfirmation = value
-        }
     }
 }
