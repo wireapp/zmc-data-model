@@ -130,6 +130,16 @@ public extension GenericMessage {
             return false
         }
     }
+    
+    var hasDeleted: Bool {
+        guard let content = content else { return false }
+        switch content {
+        case .deleted:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 // MARK: - Ephemeral
