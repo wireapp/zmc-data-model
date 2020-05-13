@@ -399,7 +399,7 @@ extension MessageDelete {
 
 extension WireProtos.Confirmation {
     
-     public init?(messageIds: [UUID], type: Confirmation.TypeEnum) {
+    public init?(messageIds: [UUID], type: Confirmation.TypeEnum = .delivered) {
         guard let firstMessageID = messageIds.first else {
             return nil
         }
@@ -411,7 +411,7 @@ extension WireProtos.Confirmation {
         })
     }
     
-    public init(messageId: UUID, type: Confirmation.TypeEnum) {
+    public init(messageId: UUID, type: Confirmation.TypeEnum = .delivered) {
         self = WireProtos.Confirmation.with {
             $0.firstMessageID = messageId.transportString()
             $0.type = type
