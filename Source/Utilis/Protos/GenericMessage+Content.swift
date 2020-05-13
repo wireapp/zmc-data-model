@@ -134,7 +134,7 @@ public extension GenericMessage {
 
 // MARK: - Ephemeral
 
-extension Ephemeral {
+public extension Ephemeral {
     var hasAsset: Bool {
         switch content {
         case .asset:
