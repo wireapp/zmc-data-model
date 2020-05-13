@@ -572,6 +572,19 @@ public extension LinkPreview {
     }
 }
 
+public extension Tweet {
+    init(author: String?, username: String?) {
+        self = Tweet.with {
+            if let author = author {
+                $0.author = author
+            }
+            if let username = username {
+                $0.username = username
+            }
+        }
+    }
+}
+
 // MARK: - ImageAsset
 
 extension ImageAsset {
