@@ -519,6 +519,37 @@ public extension LinkPreview {
         }
     }
     
+    init(withOriginalURL originalURL: String,
+         permanentURL: String,
+         offset: Int32,
+         title: String?,
+         summary: String?,
+         imageAsset: WireProtos.Asset?,
+         article: Article? = nil,
+         tweet: Tweet? = nil) {
+        self = LinkPreview.with {
+            $0.url = originalURL
+            $0.permanentURL = permanentURL
+            $0.urlOffset = offset
+            
+            if let title = title {
+                $0.title = title
+            }
+            if let summary = summary {
+                $0.summary = summary
+            }
+            if let image = imageAsset {
+                $0.image = image
+            }
+            if let tweet = tweet {
+                $0.tweet = tweet
+            }
+            if let article = article {
+                $0.article = article
+            }
+        }
+    }
+    
     mutating func update(withOtrKey otrKey: Data, sha256: Data, original: WireProtos.Asset.Original?) {
         image.uploaded = WireProtos.Asset.RemoteData(withOTRKey: otrKey, sha256: sha256)
         if let original = original {
