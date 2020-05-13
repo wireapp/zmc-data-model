@@ -19,6 +19,8 @@
 import Foundation
 import WireProtos
 
+// MARK: - GenericMessage
+
 public extension GenericMessage {
     init?(withBase64String base64String: String?) {
         guard
@@ -196,6 +198,8 @@ extension GenericMessage {
     }
 }
 
+// MARK: - Ephemeral
+
 extension Ephemeral {
     public init(content: EphemeralMessageCapable, expiresAfter timeout: TimeInterval) {
         self = Ephemeral.with() {
@@ -203,34 +207,9 @@ extension Ephemeral {
             content.setEphemeralContent(on: &$0)
         }
     }
-    
-    var hasAsset: Bool {
-        switch self.content {
-        case .asset:
-            return true
-        default:
-            return false
-        }
-    }
-    
-    var hasKnock: Bool {
-        switch self.content {
-        case .knock:
-            return true
-        default:
-            return false
-        }
-    }
-    
-    var hasLocation: Bool {
-        switch self.content {
-        case .location:
-            return true
-        default:
-            return false
-        }
-    }
 }
+
+// MARK: - ClientEntry
 
 public extension ClientEntry {
     init(withClient client: UserClient, data: Data) {
@@ -241,6 +220,8 @@ public extension ClientEntry {
     }
 }
 
+// MARK: - UserEntry
+
 public extension UserEntry {
     init(withUser user: ZMUser, clientEntries: [ClientEntry]) {
         self = UserEntry.with {
@@ -249,6 +230,8 @@ public extension UserEntry {
         }
     }
 }
+
+// MARK: - NewOtrMessage
 
 public extension NewOtrMessage {
     init(withSender sender: UserClient, nativePush: Bool, recipients: [UserEntry], blob: Data? = nil) {
@@ -263,6 +246,8 @@ public extension NewOtrMessage {
     }
 }
 
+// MARK: - ButtonAction
+
 extension ButtonAction {
     init(buttonId: String, referenceMessageId: UUID) {
         self = ButtonAction.with {
@@ -272,6 +257,8 @@ extension ButtonAction {
     }
 }
 
+// MARK: - Location
+
 extension Location {
     init(latitude: Float, longitude: Float) {
         self = WireProtos.Location.with({
@@ -280,6 +267,8 @@ extension Location {
         })
     }
 }
+
+// MARK: - Text
 
 extension Text {
     
@@ -327,6 +316,8 @@ extension Text {
     }
 }
 
+// MARK: - Reaction
+
 extension WireProtos.Reaction {
     
     public init(emoji: String, messageID: UUID) {
@@ -336,6 +327,8 @@ extension WireProtos.Reaction {
         })
     }
 }
+
+// MARK: - LastRead
 
 extension LastRead {
     
@@ -347,6 +340,8 @@ extension LastRead {
     }
 }
 
+// MARK: - Calling
+
 extension Calling {
     
     public init(content: String) {
@@ -355,6 +350,8 @@ extension Calling {
         }
     }
 }
+
+// MARK: - MessageEdit
 
 extension WireProtos.MessageEdit {
     
@@ -366,6 +363,8 @@ extension WireProtos.MessageEdit {
     }
 }
 
+// MARK: - Cleared
+
 extension Cleared {
     public init(timestamp: Date, conversationID: UUID) {
         self = Cleared.with {
@@ -374,6 +373,8 @@ extension Cleared {
         }
     }
 }
+
+// MARK: - MessageHide
 
 extension MessageHide {
     public init(conversationId: UUID, messageId: UUID) {
@@ -384,6 +385,8 @@ extension MessageHide {
     }
 }
 
+// MARK: - MessageDelete
+
 extension MessageDelete {
     public init(messageId: UUID) {
         self = MessageDelete.with {
@@ -391,6 +394,8 @@ extension MessageDelete {
         }
     }
 }
+
+// MARK: - Confirmation
 
 extension WireProtos.Confirmation {
     
@@ -414,6 +419,8 @@ extension WireProtos.Confirmation {
     }
 }
 
+// MARK: - External
+
 extension External {
     init(withOTRKey otrKey: Data, sha256: Data) {
         self = External.with {
@@ -427,6 +434,8 @@ extension External {
     }
 }
 
+// MARK: - Mention
+
 public extension WireProtos.Mention {
     
     init?(_ mention: WireDataModel.Mention) {
@@ -439,6 +448,8 @@ public extension WireProtos.Mention {
         }
     }
 }
+
+// MARK: - Availability
 
 extension WireProtos.Availability {
     public init(_ availability: Availability) {
@@ -456,6 +467,8 @@ extension WireProtos.Availability {
         }
     }
 }
+
+// MARK: - LinkPreview
 
 public extension LinkPreview {
 
@@ -528,164 +541,10 @@ public extension LinkPreview {
     }
 }
 
-// MARK:- Set message flags
-
-extension GenericMessage {
-    
-    public mutating func setLegalHoldStatus(_ status: LegalHoldStatus) {
-        guard let content = content else { return }
-        switch content {
-        case .ephemeral:
-            self.ephemeral.updateLegalHoldStatus(status)
-        case .reaction:
-            self.reaction.legalHoldStatus = status
-        case .knock:
-            self.knock.legalHoldStatus = status
-        case .text:
-            self.text.legalHoldStatus = status
-        case .location:
-            self.location.legalHoldStatus = status
-        case .asset:
-            self.asset.legalHoldStatus = status
-        default:
-            return
-        }
-    }
-    
-    public mutating func setExpectsReadConfirmation(_ value: Bool) {
-        guard let content = content else { return }
-        switch content {
-        case .ephemeral:
-            self.ephemeral.updateExpectsReadConfirmation(value)
-        case .knock:
-            self.knock.expectsReadConfirmation = value
-        case .text:
-            self.text.expectsReadConfirmation = value
-        case .location:
-            self.location.expectsReadConfirmation = value
-        case .asset:
-            self.asset.expectsReadConfirmation = value
-        default:
-            return
-        }
-    }
-}
+// MARK: - ImageAsset
 
 extension ImageAsset {
     public func imageFormat() -> ZMImageFormat {
         return ImageFormatFromString(self.tag)
-    }
-}
-
-public extension GenericMessage {
-    var hasText: Bool {
-        guard let content = content else { return false }
-        switch content {
-        case .text:
-            return true
-        default:
-            return false
-        }
-    }
-    
-    var hasConfirmation: Bool {
-        guard let content = content else { return false }
-        switch content {
-        case .confirmation:
-            return true
-        default:
-            return false
-        }
-    }
-    
-    var hasReaction: Bool {
-        guard let content = content else { return false }
-        switch content {
-        case .reaction:
-            return true
-        default:
-            return false
-        }
-    }
-    
-    var hasAsset: Bool {
-        guard let content = content else { return false }
-        switch content {
-        case .asset:
-            return true
-        default:
-            return false
-        }
-    }
-    
-    var hasEphemeral: Bool {
-        guard let content = content else { return false }
-        switch content {
-        case .ephemeral:
-            return true
-        default:
-            return false
-        }
-    }
-    
-    var hasClientAction: Bool {
-        guard let content = content else { return false }
-        switch content {
-        case .clientAction:
-            return true
-        default:
-            return false
-        }
-    }
-    
-    var hasCleared: Bool {
-        guard let content = content else { return false }
-        switch content {
-        case .cleared:
-            return true
-        default:
-            return false
-        }
-    }
-    
-    var hasLastRead: Bool {
-        guard let content = content else { return false }
-        switch content {
-        case .lastRead:
-            return true
-        default:
-            return false
-        }
-    }
-    
-    var hasKnock: Bool {
-        guard let content = content else { return false }
-        switch content {
-        case .knock:
-            return true
-        default:
-            return false
-        }
-    }
-    
-    var hasExternal: Bool {
-        guard let content = content else { return false }
-        switch content {
-        case .external:
-            return true
-        default:
-            return false
-        }
-    }
-    
-    
-    var hasAvailability: Bool {
-        guard let content = content else { return false }
-        switch content {
-        case .availability:
-            return true
-        default:
-            return false
-        }
     }
 }

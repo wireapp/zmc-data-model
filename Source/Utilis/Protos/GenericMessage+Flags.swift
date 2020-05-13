@@ -18,6 +18,8 @@
 
 import Foundation
 
+// MARK:- Set message flags
+
 extension GenericMessage {
     var legalHoldStatus: LegalHoldStatus {
         guard let content = content else { return .unknown }
@@ -36,6 +38,44 @@ extension GenericMessage {
             return asset.legalHoldStatus
         default:
             return .unknown
+        }
+    }
+    
+    public mutating func setLegalHoldStatus(_ status: LegalHoldStatus) {
+        guard let content = content else { return }
+        switch content {
+        case .ephemeral:
+            self.ephemeral.updateLegalHoldStatus(status)
+        case .reaction:
+            self.reaction.legalHoldStatus = status
+        case .knock:
+            self.knock.legalHoldStatus = status
+        case .text:
+            self.text.legalHoldStatus = status
+        case .location:
+            self.location.legalHoldStatus = status
+        case .asset:
+            self.asset.legalHoldStatus = status
+        default:
+            return
+        }
+    }
+    
+    public mutating func setExpectsReadConfirmation(_ value: Bool) {
+        guard let content = content else { return }
+        switch content {
+        case .ephemeral:
+            self.ephemeral.updateExpectsReadConfirmation(value)
+        case .knock:
+            self.knock.expectsReadConfirmation = value
+        case .text:
+            self.text.expectsReadConfirmation = value
+        case .location:
+            self.location.expectsReadConfirmation = value
+        case .asset:
+            self.asset.expectsReadConfirmation = value
+        default:
+            return
         }
     }
 }
