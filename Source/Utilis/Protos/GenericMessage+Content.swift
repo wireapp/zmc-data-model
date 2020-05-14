@@ -140,6 +140,16 @@ public extension GenericMessage {
             return false
         }
     }
+    
+    var hasCalling: Bool {
+        guard let content = content else { return false }
+        switch content {
+        case .calling:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 // MARK: - Ephemeral
