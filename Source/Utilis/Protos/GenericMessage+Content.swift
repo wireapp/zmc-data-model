@@ -150,6 +150,16 @@ public extension GenericMessage {
             return false
         }
     }
+    
+    var hasHidden: Bool {
+        guard let content = content else { return false }
+        switch content {
+        case .hidden:
+            return true
+        default:
+            return false
+        }
+    }
 }
 
 // MARK: - Ephemeral
