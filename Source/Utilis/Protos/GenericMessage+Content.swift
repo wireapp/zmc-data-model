@@ -30,7 +30,7 @@ public extension GenericMessage {
     }
     
     var hasReaction: Bool {
-        return messageData is Reaction
+        return messageData is WireProtos.Reaction
     }
     
     var hasAsset: Bool {
