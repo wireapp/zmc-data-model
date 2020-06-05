@@ -501,7 +501,6 @@
 		F9A706FD1CAEE32A00C2F5FE /* medium.jpg in Resources */ = {isa = PBXBuildFile; fileRef = F9A706D31CAEE30700C2F5FE /* medium.jpg */; };
 		F9A706FE1CAEE32A00C2F5FE /* not_animated.gif in Resources */ = {isa = PBXBuildFile; fileRef = F9A706D41CAEE30700C2F5FE /* not_animated.gif */; };
 		F9A707031CAEE32E00C2F5FE /* tiny.jpg in Resources */ = {isa = PBXBuildFile; fileRef = F9A706D91CAEE30700C2F5FE /* tiny.jpg */; };
-		F9A7070A1CAEE38500C2F5FE /* ProtocolBuffers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9C9A6B51CAD80BC0039E10C /* ProtocolBuffers.framework */; };
 		F9A7070B1CAEE38500C2F5FE /* WireProtos.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9C9A6B61CAD80BC0039E10C /* WireProtos.framework */; };
 		F9A707321CAEE3C900C2F5FE /* WireSystem.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9A707251CAEE3AA00C2F5FE /* WireSystem.framework */; };
 		F9A707331CAEE3C900C2F5FE /* WireTransport.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9A7072B1CAEE3AA00C2F5FE /* WireTransport.framework */; };
@@ -574,7 +573,6 @@
 		F9C9A6AD1CAD7C7F0039E10C /* ZMMessage.h in Headers */ = {isa = PBXBuildFile; fileRef = F9C9A6A61CAD7C7F0039E10C /* ZMMessage.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F9C9A6AE1CAD7C7F0039E10C /* ZMUser.h in Headers */ = {isa = PBXBuildFile; fileRef = F9C9A6A71CAD7C7F0039E10C /* ZMUser.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F9C9A6B01CAD7D1F0039E10C /* ZMManagedObject.h in Headers */ = {isa = PBXBuildFile; fileRef = F9C9A6AF1CAD7D1F0039E10C /* ZMManagedObject.h */; settings = {ATTRIBUTES = (Public, ); }; };
-		F9C9A6B81CAD80BC0039E10C /* ProtocolBuffers.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9C9A6B51CAD80BC0039E10C /* ProtocolBuffers.framework */; };
 		F9C9A7661CAE8DFC0039E10C /* ZMAddressBookContact.h in Headers */ = {isa = PBXBuildFile; fileRef = F9C9A7641CAE8DFC0039E10C /* ZMAddressBookContact.h */; settings = {ATTRIBUTES = (Public, ); }; };
 		F9C9A80C1CAED99F0039E10C /* WireDataModel.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = F9C9A4FC1CAD5DF10039E10C /* WireDataModel.framework */; };
 		F9C9A80D1CAED9A00039E10C /* WireDataModel.framework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = F9C9A4FC1CAD5DF10039E10C /* WireDataModel.framework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
@@ -1302,7 +1300,6 @@
 		F9C9A6A61CAD7C7F0039E10C /* ZMMessage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZMMessage.h; sourceTree = "<group>"; };
 		F9C9A6A71CAD7C7F0039E10C /* ZMUser.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZMUser.h; sourceTree = "<group>"; };
 		F9C9A6AF1CAD7D1F0039E10C /* ZMManagedObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZMManagedObject.h; sourceTree = "<group>"; };
-		F9C9A6B51CAD80BC0039E10C /* ProtocolBuffers.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ProtocolBuffers.framework; path = Carthage/Build/iOS/ProtocolBuffers.framework; sourceTree = "<group>"; };
 		F9C9A6B61CAD80BC0039E10C /* WireProtos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WireProtos.framework; path = Carthage/Build/iOS/WireProtos.framework; sourceTree = "<group>"; };
 		F9C9A6B71CAD80BC0039E10C /* WireTransport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WireTransport.framework; path = Carthage/Build/iOS/WireTransport.framework; sourceTree = "<group>"; };
 		F9C9A7641CAE8DFC0039E10C /* ZMAddressBookContact.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ZMAddressBookContact.h; sourceTree = "<group>"; };
@@ -1333,7 +1330,6 @@
 			files = (
 				F93265281D895C1C0076AAD6 /* WireUtilities.framework in Frameworks */,
 				F93265271D895A910076AAD6 /* WireTransport.framework in Frameworks */,
-				F9C9A6B81CAD80BC0039E10C /* ProtocolBuffers.framework in Frameworks */,
 				F9C9A6741CAD78160039E10C /* PINCache.framework in Frameworks */,
 				878B823020A1C7AF007455CA /* HTMLString.framework in Frameworks */,
 				54CF1D9E1E939F84003D18E8 /* WireCryptobox.framework in Frameworks */,
@@ -1363,7 +1359,6 @@
 				F9C9A8101CAED9A00039E10C /* WireTesting.framework in Frameworks */,
 				F9A707331CAEE3C900C2F5FE /* WireTransport.framework in Frameworks */,
 				F9A707341CAEE3C900C2F5FE /* WireUtilities.framework in Frameworks */,
-				F9A7070A1CAEE38500C2F5FE /* ProtocolBuffers.framework in Frameworks */,
 				F9C9A80C1CAED99F0039E10C /* WireDataModel.framework in Frameworks */,
 				878B823120A1C7C7007455CA /* HTMLString.framework in Frameworks */,
 			);
@@ -2325,7 +2320,6 @@
 				F9C9A8381CAEDABF0039E10C /* ocmock.framework */,
 				F9C9A8391CAEDABF0039E10C /* WireSystem.framework */,
 				F9C9A79D1CAEAAF20039E10C /* WireTesting.framework */,
-				F9C9A6B51CAD80BC0039E10C /* ProtocolBuffers.framework */,
 				F9C9A6B61CAD80BC0039E10C /* WireProtos.framework */,
 				F9C9A6B71CAD80BC0039E10C /* WireTransport.framework */,
 				F9C9A6711CAD78160039E10C /* PINCache.framework */,
@@ -2771,7 +2765,6 @@
 				"$(SRCROOT)/Carthage/Build/iOS/WireTesting.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/WireTransport.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/WireProtos.framework",
-				"$(SRCROOT)/Carthage/Build/iOS/ProtocolBuffers.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/WireCryptobox.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/WireUtilities.framework",
 				"$(SRCROOT)/Carthage/Build/iOS/PINCache.framework",
