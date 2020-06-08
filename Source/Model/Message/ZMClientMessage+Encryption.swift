@@ -98,26 +98,34 @@ extension ZMAssetClientMessage: EncryptedPayloadGenerator {
 }
 
 extension GenericMessage {
+
     public func encryptedMessagePayloadData(_ conversation: ZMConversation,
                                             externalData: Data?) -> (data: Data, strategy: MissingClientsStrategy)? {
+
         guard let context = conversation.managedObjectContext else { return nil }
         
-        let recipientsAndStrategy = recipientUsersForMessage(in: conversation,
-                                                             selfUser: ZMUser.selfUser(in: context))
-        if let data = encryptedMessagePayloadData(for: recipientsAndStrategy.users,
-                                                  missingClientsStrategy: recipientsAndStrategy.strategy,
-                                                  externalData: nil,
-                                                  context: context) {
-            return (data, recipientsAndStrategy.strategy)
-        }
-        
-        return nil
+        let (users, strategy) = recipientUsersForMessage(in: conversation, selfUser: ZMUser.selfUser(in: context))
+
+        let recipients = users.mapToDictionary { $0.clients }
+
+        let maybeData = encryptedMessagePayloadData(for: recipients,
+                                                    missingClientsStrategy: strategy,
+                                                    externalData: nil,
+                                                    context: context)
+
+        guard let data = maybeData else { return nil }
+
+        return (data, strategy)
     }
     
     public func encryptedMessagePayloadDataForBroadcast(recipients: Set<ZMUser>,
                                                         in context: NSManagedObjectContext) -> (data: Data, strategy: MissingClientsStrategy)? {
+
         let missingClientsStrategy = MissingClientsStrategy.ignoreAllMissingClientsNotFromUsers(users: recipients)
-        guard let data = encryptedMessagePayloadData(for: recipients,
+
+        let messageRecipients = recipients.mapToDictionary { $0.clients }
+
+        guard let data = encryptedMessagePayloadData(for: messageRecipients,
                                                      missingClientsStrategy: missingClientsStrategy,
                                                      externalData: nil,
                                                      context: context) else { return nil }
@@ -126,17 +134,25 @@ extension GenericMessage {
         // the message is sent to all team members and contacts.
         return (data, missingClientsStrategy)
     }
-    
-    fileprivate func encryptedMessagePayloadData(for recipients: Set<ZMUser>,
-                                                 missingClientsStrategy: MissingClientsStrategy,
-                                                 externalData: Data?, context: NSManagedObjectContext) -> Data? {
-        guard let selfClient = ZMUser.selfUser(in: context).selfClient(), selfClient.remoteIdentifier != nil
-            else { return nil }
+
+    // We need a method to conver set of users to set of clients.
+
+    private func encryptedMessagePayloadData(for recipients: [ZMUser: Set<UserClient>],
+                                             missingClientsStrategy: MissingClientsStrategy,
+                                             externalData: Data?,
+                                             context: NSManagedObjectContext) -> Data? {
+
+        guard
+            let selfClient = ZMUser.selfUser(in: context).selfClient(),
+            selfClient.remoteIdentifier != nil
+        else {
+            return nil
+        }
         
         let encryptionContext = selfClient.keysStore.encryptionContext
-        var messageData : Data?
+        var messageData: Data?
         
-        encryptionContext.perform { (sessionsDirectory) in
+        encryptionContext.perform { sessionsDirectory in
             let message = otrMessage(selfClient,
                                      recipients: recipients,
                                      missingClientsStrategy: missingClientsStrategy,
@@ -157,10 +173,10 @@ extension GenericMessage {
         }
         
         // reset all failed sessions
-        for recipient in recipients {
-            recipient.clients.forEach({ $0.failedToEstablishSession = false })
-        }
-        
+        recipients.values
+            .flatMap { $0 }
+            .forEach { $0.failedToEstablishSession = false }
+
         return messageData
     }
     
@@ -262,74 +278,77 @@ extension GenericMessage {
         return (recipientUsers, strategy)
     }
     
-    /// Returns a message with recipients
-    fileprivate func otrMessage(_ selfClient: UserClient,
-                                recipients: Set<ZMUser>,
-                                missingClientsStrategy: MissingClientsStrategy,
-                                externalData: Data?,
-                                sessionDirectory: EncryptionSessionsDirectory) -> NewOtrMessage {
+    /// Returns a message for the given recipients.
+
+    private func otrMessage(_ selfClient: UserClient,
+                            recipients: [ZMUser: Set<UserClient>],
+                            missingClientsStrategy: MissingClientsStrategy,
+                            externalData: Data?,
+                            sessionDirectory: EncryptionSessionsDirectory) -> NewOtrMessage {
         
-        let userEntries = recipientsWithEncryptedData(selfClient, recipients: recipients, sessionDirectory: sessionDirectory)
-        let nativePush = !hasConfirmation // We do not want to send pushes for delivery receipts
+        let userEntries = userEntriesWithEncryptedData(selfClient,
+                                                       recipients: recipients,
+                                                       sessionDirectory: sessionDirectory)
+
+        // We do not want to send pushes for delivery receipts.
+        let nativePush = !hasConfirmation
         
-        var message = NewOtrMessage(withSender: selfClient, nativePush: nativePush, recipients: userEntries, blob: externalData)
-        
-        
-        switch missingClientsStrategy {
-        case .ignoreAllMissingClientsNotFromUsers(let users):
+        var message = NewOtrMessage(withSender: selfClient,
+                                    nativePush: nativePush,
+                                    recipients: userEntries,
+                                    blob: externalData)
+
+        if case .ignoreAllMissingClientsNotFromUsers(let users) = missingClientsStrategy {
             message.reportMissing = Array(users.map{ $0.userId })
-        default:
-            break
         }
-        
+
         return message
     }
-    
-    /// Returns the recipients and the encrypted data for each recipient
-    func recipientsWithEncryptedData(_ selfClient: UserClient,
-                                     recipients: Set<ZMUser>,
-                                     sessionDirectory: EncryptionSessionsDirectory
-        ) -> [UserEntry]
-    {
-        let userEntries = recipients.compactMap { user -> UserEntry? in
+
+    private func userEntriesWithEncryptedData(_ selfClient: UserClient,
+                                              recipients: [ZMUser: Set<UserClient>],
+                                              sessionDirectory: EncryptionSessionsDirectory) -> [UserEntry] {
+
+        return recipients.compactMap { (user, clients) in
             guard !user.isAccountDeleted else { return nil }
             
-            let clientsEntries = user.clients.compactMap { client -> ClientEntry? in
-                
-                if client != selfClient {
-                    guard let clientRemoteIdentifier = client.sessionIdentifier else {
-                        return nil
-                    }
-                    
-                    let hasSessionWithClient = sessionDirectory.hasSession(for: clientRemoteIdentifier)
-                    
-                    if !hasSessionWithClient {
-                        // if the session is corrupted, we will send a special payload
-                        if client.failedToEstablishSession {
-                            let data = ZMFailedToCreateEncryptedMessagePayloadString.data(using: String.Encoding.utf8)!
-                            return ClientEntry(withClient: client, data: data)
-                        }
-                        else {
-                            // if we do not have a session, we need to fetch a prekey and create a new session
-                            return nil
-                        }
-                    }
-                    
-                    guard let encryptedData = try? sessionDirectory.encryptCaching(self.serializedData(), for: clientRemoteIdentifier) else {
-                        return nil
-                    }
-                    return ClientEntry(withClient: client, data: encryptedData)
-                } else {
-                    return nil
-                }
-            }
-            
-            if clientsEntries.isEmpty {
-                return nil
-            }
-            return UserEntry(withUser: user, clientEntries: clientsEntries)
+            let clientEntries = clientEntriesWithEncryptedData(selfClient,
+                                                               userClients: clients,
+                                                               sessionDirectory: sessionDirectory)
+
+            guard !clientEntries.isEmpty else { return nil }
+
+            return UserEntry(withUser: user, clientEntries: clientEntries)
         }
-        return userEntries
+    }
+
+    private func clientEntriesWithEncryptedData(_ selfClient: UserClient,
+                                                userClients: Set<UserClient>,
+                                                sessionDirectory: EncryptionSessionsDirectory) -> [ClientEntry] {
+
+        return userClients.compactMap { client in
+            guard client != selfClient else { return nil }
+            return clientEntry(for: client, sessionDirectory: sessionDirectory)
+        }
+    }
+
+    // Assumes it's not the self client.
+    private func clientEntry(for client: UserClient, sessionDirectory: EncryptionSessionsDirectory) -> ClientEntry? {
+        guard let sessionIdentifier = client.sessionIdentifier else { return nil }
+
+        if sessionDirectory.hasSession(for: sessionIdentifier) {
+            let encryptedData = try? sessionDirectory.encryptCaching(serializedData(), for: sessionIdentifier)
+            guard let data = encryptedData else { return nil }
+            return ClientEntry(withClient: client, data: data)
+
+        } else if client.failedToEstablishSession {
+            // If the session is corrupted, we will send a special payload.
+            let data = ZMFailedToCreateEncryptedMessagePayloadString.data(using: String.Encoding.utf8)!
+            return ClientEntry(withClient: client, data: data)
+
+        }
+
+        return nil
     }
 }
 
@@ -346,7 +365,7 @@ extension GenericMessage {
         return externalGenericMessage.encryptedMessagePayloadData(conversation, externalData: encryptedDataWithKeys.data)
     }
     
-    fileprivate func encryptedMessageDataWithExternalDataBlob(_ recipients: Set<ZMUser>,
+    fileprivate func encryptedMessageDataWithExternalDataBlob(_ recipients: [ZMUser: Set<UserClient>],
                                                               missingClientsStrategy: MissingClientsStrategy,
                                                               context: NSManagedObjectContext) -> Data? {
         guard let encryptedDataWithKeys = GenericMessage.encryptedDataWithKeys(from: self) else {
