@@ -132,6 +132,26 @@ extension GenericMessage {
         return (data, missingClientsStrategy)
     }
 
+    /// Attempts to generate an encrypted payload for the given user client.
+
+    public func encryptedMessagePayloadData(for client: UserClient,
+                                            in context: NSManagedObjectContext) -> EncryptedPayloadGenerator.Payload? {
+
+        guard let user = client.user else { return nil }
+
+        let missingClientsStrategy = MissingClientsStrategy.ignoreAllMissingClients
+        let recipients = [user: Set(arrayLiteral: client)]
+
+        let maybeData = encryptedMessagePayloadData(for: recipients,
+                                                    missingClientsStrategy: missingClientsStrategy,
+                                                    externalData: nil,
+                                                    context: context)
+
+        guard let data = maybeData else { return nil }
+
+        return (data, missingClientsStrategy)
+    }
+
 
     private func encryptedMessagePayloadData(for recipients: [ZMUser: Set<UserClient>],
                                              missingClientsStrategy: MissingClientsStrategy,
