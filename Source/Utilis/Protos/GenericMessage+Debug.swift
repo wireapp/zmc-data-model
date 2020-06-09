@@ -18,6 +18,7 @@
 
 import Foundation
 import WireProtos
+import SwiftProtobuf
 
 fileprivate let redactedValue = "<redacted>"
 
@@ -62,7 +63,7 @@ fileprivate extension Article {
 // MARK: - GenericMessage
 
 public extension GenericMessage {
-    var debugDescriptionForGenericMessage: String {
+    var debugDescription: String {
         var message = self
         guard let content = content else {
             return ""
@@ -75,6 +76,6 @@ public extension GenericMessage {
         default:
             break
         }
-        return message.debugDescription
+        return (message as SwiftProtobuf.Message).debugDescription
     }
 }
