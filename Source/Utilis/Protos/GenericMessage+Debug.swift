@@ -25,7 +25,8 @@ fileprivate let redactedValue = "<redacted>"
 
 fileprivate extension Text {
     func sanitize() -> Text {
-        var text = Text(content: redactedValue)
+        var text = self
+        text.content = redactedValue
         text.linkPreview = text.linkPreview.map { $0.sanitize() }
         return text
     }
@@ -37,11 +38,11 @@ fileprivate extension LinkPreview {
     func sanitize() -> LinkPreview {
         return LinkPreview(withOriginalURL: redactedValue,
                            permanentURL: redactedValue,
-                           offset: self.urlOffset,
+                           offset: urlOffset,
                            title: redactedValue,
                            summary: redactedValue,
-                           imageAsset: self.image,
-                           article: nil,
+                           imageAsset: image,
+                           article: article.sanitize(),
                            tweet: nil)
     }
 }
@@ -58,42 +59,22 @@ fileprivate extension Article {
     }
 }
 
-
 // MARK: - GenericMessage
 
 public extension GenericMessage {
-    var debugDescription: String {
+    var debugDescriptionForGenericMessage: String {
         var message = self
         guard let content = content else {
             return ""
         }
         switch content {
         case .text:
-            message.text = self.text.sanitize()
+            message.text = text.sanitize()
         case .edited:
-            message.edited.text = self.edited.text.sanitize()
+            message.edited.text = edited.text.sanitize()
         default:
             break
         }
-        let description = NSMutableString()
-//        message.writeDescription(to: description, withIndent: "")
-        return (message as! Message).debugDescription 
-        
-        //        guard let builder = self.toBuilder() else { return "" }
-        //
-        //        if builder.hasText() {
-        //            builder.setText(builder.text().sanitize())
-        //        }
-        //
-        //        if builder.hasEdited(), let editedBuilder = builder.edited().toBuilder(), editedBuilder.hasText() {
-        //            builder.setEdited(editedBuilder.setText(editedBuilder.text().sanitize()))
-        //        }
-        //
-        //        let message = builder.build()!
-        //
-        //        let description = NSMutableString()
-        //        message.writeDescription(to: description, withIndent: "")
-        //        return description as String
-        
+        return message.debugDescription
     }
 }
