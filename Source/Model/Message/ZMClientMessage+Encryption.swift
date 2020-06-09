@@ -31,7 +31,7 @@ public protocol EncryptedPayloadGenerator {
 
     /// Returns the payload encrypted for each recipients and the strategy to use to handle missing clients.
 
-    func encryptedMessagePayloadData() -> Payload?
+    func encryptedPayload() -> Payload?
 
     var debugInfo: String { get }
 
@@ -63,9 +63,9 @@ public enum MissingClientsStrategy: Equatable {
 
 extension ZMClientMessage: EncryptedPayloadGenerator {
 
-    public func encryptedMessagePayloadData() -> Payload? {
+    public func encryptedPayload() -> Payload? {
         guard let conversation = conversation else { return nil }
-        return underlyingMessage?.encryptedMessagePayloadData(conversation, externalData: nil)
+        return underlyingMessage?.encryptedPayload(for: conversation, externalData: nil)
     }
 
     public var debugInfo: String {
@@ -83,9 +83,9 @@ extension ZMClientMessage: EncryptedPayloadGenerator {
 
 extension ZMAssetClientMessage: EncryptedPayloadGenerator {
 
-    public func encryptedMessagePayloadData() -> Payload? {
+    public func encryptedPayload() -> Payload? {
         guard let conversation = conversation else { return nil }
-        return underlyingMessage?.encryptedMessagePayloadData(conversation, externalData: nil)
+        return underlyingMessage?.encryptedPayload(for: conversation, externalData: nil)
     }
 
     public var debugInfo: String {
@@ -98,8 +98,8 @@ extension GenericMessage {
 
     /// Attempts to generate an encrypted payload for recipients in the given conversation.
 
-    public func encryptedMessagePayloadData(_ conversation: ZMConversation,
-                                            externalData: Data?) -> EncryptedPayloadGenerator.Payload? {
+    public func encryptedPayload(for conversation: ZMConversation,
+                                 externalData: Data?) -> EncryptedPayloadGenerator.Payload? {
 
         guard let context = conversation.managedObjectContext else { return nil }
 
@@ -107,10 +107,10 @@ extension GenericMessage {
         let (users, missingClientsStrategy) = recipientUsersForMessage(in: conversation, selfUser: selfUser)
         let recipients = users.mapToDictionary { $0.clients }
 
-        let maybeData = encryptedMessagePayloadData(for: recipients,
-                                                    missingClientsStrategy: missingClientsStrategy,
-                                                    externalData: nil,
-                                                    context: context)
+        let maybeData = encryptedPayload(for: recipients,
+                                         missingClientsStrategy: missingClientsStrategy,
+                                         externalData: nil,
+                                         context: context)
 
         return maybeData.map { ($0, missingClientsStrategy) }
     }
@@ -118,8 +118,8 @@ extension GenericMessage {
 
     /// Attempts to generate an encrypted payload for the given set of users.
     
-    public func encryptedMessagePayloadDataForBroadcast(recipients: Set<ZMUser>,
-                                                        in context: NSManagedObjectContext) -> EncryptedPayloadGenerator.Payload? {
+    public func encryptedPayload(forBroadcastRecipients recipients: Set<ZMUser>,
+                                 in context: NSManagedObjectContext) -> EncryptedPayloadGenerator.Payload? {
 
         // It's important to ignore all irrelevant missing clients, because otherwise the backend will enforce that
         // the message is sent to all team members and contacts.
@@ -127,35 +127,35 @@ extension GenericMessage {
 
         let messageRecipients = recipients.mapToDictionary { $0.clients }
 
-        let maybeData = encryptedMessagePayloadData(for: messageRecipients,
-                                                    missingClientsStrategy: missingClientsStrategy,
-                                                    externalData: nil,
-                                                    context: context)
+        let maybeData = encryptedPayload(for: messageRecipients,
+                                         missingClientsStrategy: missingClientsStrategy,
+                                         externalData: nil,
+                                         context: context)
 
         return maybeData.map { ($0, missingClientsStrategy) }
     }
 
     /// Attempts to generate an encrypted payload for the given collection of user clients.
 
-    public func encryptedMessagePayloadData(for recipients: [ZMUser: Set<UserClient>],
-                                            in context: NSManagedObjectContext) -> EncryptedPayloadGenerator.Payload? {
+    public func encryptedPayload(for recipients: [ZMUser: Set<UserClient>],
+                                 in context: NSManagedObjectContext) -> EncryptedPayloadGenerator.Payload? {
 
         // We're targeting a specific client so we want to ignore all missing clients.
         let missingClientsStrategy = MissingClientsStrategy.ignoreAllMissingClients
 
-        let maybeData = encryptedMessagePayloadData(for: recipients,
-                                                    missingClientsStrategy: missingClientsStrategy,
-                                                    externalData: nil,
-                                                    context: context)
+        let maybeData = encryptedPayload(for: recipients,
+                                         missingClientsStrategy: missingClientsStrategy,
+                                         externalData: nil,
+                                         context: context)
 
         return maybeData.map { ($0, missingClientsStrategy) }
     }
 
 
-    private func encryptedMessagePayloadData(for recipients: [ZMUser: Set<UserClient>],
-                                             missingClientsStrategy: MissingClientsStrategy,
-                                             externalData: Data?,
-                                             context: NSManagedObjectContext) -> Data? {
+    private func encryptedPayload(for recipients: [ZMUser: Set<UserClient>],
+                                  missingClientsStrategy: MissingClientsStrategy,
+                                  externalData: Data?,
+                                  context: NSManagedObjectContext) -> Data? {
 
         guard
             let selfClient = ZMUser.selfUser(in: context).selfClient(),
@@ -388,7 +388,7 @@ extension GenericMessage {
     private func encryptedMessageDataWithExternalDataBlob(_ conversation: ZMConversation) -> EncryptedPayloadGenerator.Payload? {
         guard let encryptedDataWithKeys = GenericMessage.encryptedDataWithKeys(from: self) else { return nil }
         let externalGenericMessage = GenericMessage(content: External(withKeyWithChecksum: encryptedDataWithKeys.keys))
-        return externalGenericMessage.encryptedMessagePayloadData(conversation, externalData: encryptedDataWithKeys.data)
+        return externalGenericMessage.encryptedPayload(for: conversation, externalData: encryptedDataWithKeys.data)
     }
     
     private func encryptedMessageDataWithExternalDataBlob(_ recipients: [ZMUser: Set<UserClient>],
@@ -397,7 +397,7 @@ extension GenericMessage {
 
         guard let encryptedDataWithKeys = GenericMessage.encryptedDataWithKeys(from: self) else { return nil }
         let externalGenericMessage = GenericMessage(content: External(withKeyWithChecksum: encryptedDataWithKeys.keys))
-        return externalGenericMessage.encryptedMessagePayloadData(for: recipients,
+        return externalGenericMessage.encryptedPayload(for: recipients,
                                                                   missingClientsStrategy: missingClientsStrategy,
                                                                   externalData: encryptedDataWithKeys.data,
                                                                   context: context)
