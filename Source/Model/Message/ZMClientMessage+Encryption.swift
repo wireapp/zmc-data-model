@@ -99,7 +99,7 @@ extension GenericMessage {
     /// Attempts to generate an encrypted payload for recipients in the given conversation.
 
     public func encryptedPayload(for conversation: ZMConversation,
-                                 externalData: Data?) -> EncryptedPayloadGenerator.Payload? {
+                                 externalData: Data? = nil) -> EncryptedPayloadGenerator.Payload? {
 
         guard let context = conversation.managedObjectContext else { return nil }
 
