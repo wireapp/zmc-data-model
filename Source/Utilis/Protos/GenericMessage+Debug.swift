@@ -62,8 +62,8 @@ fileprivate extension Article {
 
 // MARK: - GenericMessage
 
-public extension GenericMessage {
-    var debugDescription: String {
+ extension GenericMessage: CustomStringConvertible {
+    public var description: String {
         var message = self
         guard let content = content else {
             return ""
@@ -76,6 +76,6 @@ public extension GenericMessage {
         default:
             break
         }
-        return (message as SwiftProtobuf.Message).debugDescription
+        return message.debugDescription
     }
 }
