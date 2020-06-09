@@ -77,7 +77,7 @@ public extension GenericMessage {
         }
         let description = NSMutableString()
 //        message.writeDescription(to: description, withIndent: "")
-        return message.debugDescription //description as String
+        return (message as! Message).debugDescription 
         
         //        guard let builder = self.toBuilder() else { return "" }
         //
