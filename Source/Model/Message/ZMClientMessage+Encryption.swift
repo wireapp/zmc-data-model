@@ -115,10 +115,8 @@ extension GenericMessage {
         return maybeData.map { ($0, missingClientsStrategy) }
     }
 
-    /// Attempts to generate an encrypted payload for the given recipients.
-    ///
-    /// The payload is intended for a specific set of users, therefore the backend should inform us of missing
-    /// clients from these users only.
+
+    /// Attempts to generate an encrypted payload for the given set of users.
     
     public func encryptedMessagePayloadDataForBroadcast(recipients: Set<ZMUser>,
                                                         in context: NSManagedObjectContext) -> EncryptedPayloadGenerator.Payload? {
@@ -137,17 +135,13 @@ extension GenericMessage {
         return maybeData.map { ($0, missingClientsStrategy) }
     }
 
-    /// Attempts to generate an encrypted payload for the given user client.
+    /// Attempts to generate an encrypted payload for the given collection of user clients.
 
-    public func encryptedMessagePayloadData(client: UserClient,
+    public func encryptedMessagePayloadData(for recipients: [ZMUser: Set<UserClient>],
                                             in context: NSManagedObjectContext) -> EncryptedPayloadGenerator.Payload? {
-
-        guard let user = client.user else { return nil }
 
         // We're targeting a specific client so we want to ignore all missing clients.
         let missingClientsStrategy = MissingClientsStrategy.ignoreAllMissingClients
-
-        let recipients = [user: Set(arrayLiteral: client)]
 
         let maybeData = encryptedMessagePayloadData(for: recipients,
                                                     missingClientsStrategy: missingClientsStrategy,
