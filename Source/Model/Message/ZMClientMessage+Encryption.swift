@@ -398,9 +398,9 @@ extension GenericMessage {
         guard let encryptedDataWithKeys = GenericMessage.encryptedDataWithKeys(from: self) else { return nil }
         let externalGenericMessage = GenericMessage(content: External(withKeyWithChecksum: encryptedDataWithKeys.keys))
         return externalGenericMessage.encryptedPayload(for: recipients,
-                                                                  missingClientsStrategy: missingClientsStrategy,
-                                                                  externalData: encryptedDataWithKeys.data,
-                                                                  context: context)
+                                                       missingClientsStrategy: missingClientsStrategy,
+                                                       externalData: encryptedDataWithKeys.data,
+                                                       context: context)
     }
 }
 
