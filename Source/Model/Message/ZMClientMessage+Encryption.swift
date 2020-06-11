@@ -107,7 +107,9 @@ extension GenericMessage {
         let (users, missingClientsStrategy) = recipientUsersForMessage(in: conversation, selfUser: selfUser)
         let recipients = users.mapToDictionary { $0.clients }
 
-        guard let data = encrypt(for: recipients, with: missingClientsStrategy, in: context) else { return nil }
+        guard let data = encrypt(for: recipients, with: missingClientsStrategy, externalData: externalData, in: context) else {
+            return nil
+        }
 
         return (data, missingClientsStrategy)
     }
