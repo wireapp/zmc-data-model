@@ -43,6 +43,7 @@ public class Team: ZMManagedObject, TeamType {
     @NSManaged public var pictureAssetId: String?
     @NSManaged public var pictureAssetKey: String?
     @NSManaged public var creator: ZMUser?
+    @NSManaged public var featureFlag: FeatureFlag?
 
     @NSManaged public var needsToRedownloadMembers: Bool
     @NSManaged public var needsToDownloadRoles: Bool
