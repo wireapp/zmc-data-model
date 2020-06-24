@@ -40,7 +40,7 @@ public enum PDFSigningState {
 private let log = ZMSLog(tag: "Conversations")
 
 @objc
-public final class SignatureStatus : NSObject {
+public final class SignatureStatus: NSObject {
     
     @objc
     public enum ErrorYpe: Int {
