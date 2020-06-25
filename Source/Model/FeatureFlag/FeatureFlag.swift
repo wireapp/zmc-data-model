@@ -10,8 +10,9 @@ import Foundation
 
 @objcMembers
 public class FeatureFlag: ZMManagedObject {
+    public static let teamKey = #keyPath(FeatureFlag.team.name)
     
-    @NSManaged public var value: Bool
+    @NSManaged public var isEnabled: Bool
     @NSManaged public var updatedTimestamp: Date
     @NSManaged public var team: Team?
     
@@ -37,8 +38,8 @@ public class FeatureFlag: ZMManagedObject {
             return existing
         }
 
-        let featureFlag = insertNewObject(in: context)
-        featureFlag.value = value
+        let featureFlag = FeatureFlag.insertNewObject(in: context)
+        featureFlag.isEnabled = value
         featureFlag.updatedTimestamp = Date()
         featureFlag.team = team
         return featureFlag
@@ -49,9 +50,10 @@ public class FeatureFlag: ZMManagedObject {
                               context: NSManagedObjectContext) {
         precondition(context.zm_isSyncContext)
 
-        let featureFlag = insertNewObject(in: context)
-        featureFlag.value = value
+        let featureFlag = FeatureFlag.insertNewObject(in: context)
+        featureFlag.isEnabled = value
         featureFlag.updatedTimestamp = Date()
         featureFlag.team = team
+        team.featureFlag = featureFlag
     }
 }
