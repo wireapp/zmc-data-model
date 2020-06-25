@@ -43,7 +43,7 @@ public class Team: ZMManagedObject, TeamType {
     @NSManaged public var pictureAssetId: String?
     @NSManaged public var pictureAssetKey: String?
     @NSManaged public var creator: ZMUser?
-    @NSManaged public var featureFlag: FeatureFlag?
+    @NSManaged public var featureFlags: Set<FeatureFlag>
 
     @NSManaged public var needsToRedownloadMembers: Bool
     @NSManaged public var needsToDownloadRoles: Bool
@@ -104,6 +104,12 @@ extension Team {
         }).sorted(by: { (first, second) -> Bool in
             return first.user?.normalizedName < second.user?.normalizedName
         })
+    }
+}
+
+extension Team {
+    public func fetchFeatureFlag(with identifier: String) -> FeatureFlag? {
+        return featureFlags.filter() { $0.identifier == identifier }.first
     }
 }
 
