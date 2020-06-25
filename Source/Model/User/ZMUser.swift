@@ -33,7 +33,7 @@ extension ZMUser: UserType {
     }
     
     public var hasDigitalSignatureEnabled: Bool {
-        return team?.fetchFeatureFlag(with: FeatureFlagType.digitalSignature.rawValue)?.isEnabled ?? false
+        return team?.fetchFeatureFlag(with: .digitalSignature)?.isEnabled ?? false
     }
     
     public var previewImageData: Data? {

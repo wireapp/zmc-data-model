@@ -1,9 +1,19 @@
 //
-//  FeatureFlag.swift
-//  WireDataModel
+// Wire
+// Copyright (C) 2020 Wire Swiss GmbH
 //
-//  Created by Marco Maddalena on 24/06/2020.
-//  Copyright © 2020 Wire Swiss GmbH. All rights reserved.
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
 import Foundation
@@ -40,22 +50,22 @@ public class FeatureFlag: ZMManagedObject {
                                      context: NSManagedObjectContext) -> FeatureFlag {
         precondition(context.zm_isSyncContext)
 
-        if let existing = team.fetchFeatureFlag(with: type.rawValue) {
+        if let existing = team.fetchFeatureFlag(with: type) {
             return existing
         }
 
-        let featureFlag = FeatureFlag.insertNewObject(in: context)
-        featureFlag.identifier = type.rawValue
-        featureFlag.isEnabled = value
-        featureFlag.updatedTimestamp = Date()
-        featureFlag.team = team
+        let featureFlag = insert(with: type,
+                                 value: value,
+                                 team: team,
+                                 context: context)
         return featureFlag
     }
     
+    @discardableResult
     public static func insert(with type: FeatureFlagType,
                               value: Bool,
                               team: Team,
-                              context: NSManagedObjectContext) {
+                              context: NSManagedObjectContext) -> FeatureFlag {
         precondition(context.zm_isSyncContext)
 
         let featureFlag = FeatureFlag.insertNewObject(in: context)
@@ -63,5 +73,6 @@ public class FeatureFlag: ZMManagedObject {
         featureFlag.isEnabled = value
         featureFlag.updatedTimestamp = Date()
         featureFlag.team = team
+        return featureFlag
     }
 }

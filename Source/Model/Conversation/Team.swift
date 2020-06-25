@@ -108,8 +108,8 @@ extension Team {
 }
 
 extension Team {
-    public func fetchFeatureFlag(with identifier: String) -> FeatureFlag? {
-        return featureFlags.filter() { $0.identifier == identifier }.first
+    public func fetchFeatureFlag(with type: FeatureFlagType) -> FeatureFlag? {
+        return featureFlags.first(where: {$0.identifier == type.rawValue})
     }
 }
 
