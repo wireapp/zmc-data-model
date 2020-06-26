@@ -44,6 +44,7 @@ public class FeatureFlag: ZMManagedObject {
         return updatedTimestamp
     }
     
+    @discardableResult
     public static func fetchOrCreate(with type: FeatureFlagType,
                                      value: Bool,
                                      team: Team,
@@ -51,6 +52,10 @@ public class FeatureFlag: ZMManagedObject {
         precondition(context.zm_isSyncContext)
 
         if let existing = team.fetchFeatureFlag(with: type) {
+            existing.identifier = type.rawValue
+            existing.isEnabled = value
+            existing.updatedTimestamp = Date()
+            existing.team = team
             return existing
         }
 
