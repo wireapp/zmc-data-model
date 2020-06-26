@@ -45,7 +45,7 @@ public class FeatureFlag: ZMManagedObject {
     }
     
     @discardableResult
-    public static func fetchOrCreate(with type: FeatureFlagType,
+    public static func updateOrCreate(with type: FeatureFlagType,
                                      value: Bool,
                                      team: Team,
                                      context: NSManagedObjectContext) -> FeatureFlag {
