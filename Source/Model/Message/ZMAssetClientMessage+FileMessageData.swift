@@ -312,7 +312,7 @@ extension ZMAssetClientMessage: ZMFileMessageData {
         }
         
         let token = SignatureStatus.addObserver(observer,
-                                    context: managedObjectContext)
+                                                context: managedObjectContext)
         
         let asset = underlyingMessage?.assetData
         syncContext.performGroupedBlock {
