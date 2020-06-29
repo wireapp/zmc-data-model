@@ -91,7 +91,7 @@ public class FeatureFlag: ZMManagedObject {
         fetchRequest.predicate = NSPredicate(format: "%K == %@ && identifier == %@",
                                              FeatureFlag.teamKey,
                                              team,
-                                             FeatureFlagType.digitalSignature.rawValue)
+                                             type.rawValue)
         fetchRequest.fetchLimit = 1
         return context.fetchOrAssert(request: fetchRequest).first
     }
