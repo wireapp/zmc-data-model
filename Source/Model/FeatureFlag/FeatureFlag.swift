@@ -93,6 +93,6 @@ public class FeatureFlag: ZMManagedObject {
                                              team,
                                              FeatureFlagType.digitalSignature.rawValue)
         fetchRequest.fetchLimit = 1
-        return context.fetchOrAssert(request: fetchRequest).first ?? nil
+        return context.fetchOrAssert(request: fetchRequest).first
     }
 }
