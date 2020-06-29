@@ -24,7 +24,7 @@ public enum FeatureFlagType: String {
 
 @objcMembers
 public class FeatureFlag: ZMManagedObject {
-    public static let teamKey = #keyPath(FeatureFlag.team.name)
+    public static let teamKey = #keyPath(FeatureFlag.team)
     
     @NSManaged public var identifier: String
     @NSManaged public var isEnabled: Bool
@@ -79,5 +79,20 @@ public class FeatureFlag: ZMManagedObject {
         featureFlag.updatedTimestamp = Date()
         featureFlag.team = team
         return featureFlag
+    }
+    
+    @discardableResult
+    public static func fetch(with type: FeatureFlagType,
+                             team: Team,
+                             context: NSManagedObjectContext) -> FeatureFlag? {
+        precondition(context.zm_isSyncContext)
+
+        let fetchRequest = NSFetchRequest<FeatureFlag>(entityName: FeatureFlag.entityName())
+        fetchRequest.predicate = NSPredicate(format: "%K == %@ && identifier == %@",
+                                             FeatureFlag.teamKey,
+                                             team,
+                                             FeatureFlagType.digitalSignature.rawValue)
+        fetchRequest.fetchLimit = 1
+        return context.fetchOrAssert(request: fetchRequest).first ?? nil
     }
 }
