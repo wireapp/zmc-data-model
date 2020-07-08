@@ -33,6 +33,7 @@ public enum PDFSigningState {
     case waitingForConsentURL
     case waitingForCodeVerification
     case waitingForSignature
+    case loadingSignature
     case signatureInvalid
     case finished
 }
@@ -87,6 +88,10 @@ public final class SignatureStatus: NSObject {
     public func retrieveSignature() {
         state = .waitingForSignature
         RequestAvailableNotification.notifyNewRequestsAvailable(nil)
+    }
+    
+    public func updateLoadingSignatureState() {
+        state = .loadingSignature
     }
     
     public func didReceiveConsentURL(_ url: URL?) {
