@@ -32,7 +32,7 @@ extension ZMConversation {
 
         let fetchRequest = sortedFetchRequest(with: predicate)
         fetchRequest?.fetchLimit = 1
-        let result = moc.executeFetchRequestOrAssert(fetchRequest)
-        return result?.first as? ZMConversation
+        let result = moc.executeFetchRequestOrAssert(fetchRequest!)
+        return result.first as? ZMConversation
     }
 }

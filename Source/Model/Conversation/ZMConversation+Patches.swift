@@ -33,7 +33,7 @@ extension ZMConversation {
     static func migrateAllSecureWithIgnored(in moc: NSManagedObjectContext) {
         let predicate = ZMConversation.predicateSecureWithIgnored()
         let request = ZMConversation.sortedFetchRequest(with: predicate)
-        let allConversations = moc.executeFetchRequestOrAssert(request) as! [ZMConversation]
+        let allConversations = moc.executeFetchRequestOrAssert(request!) as! [ZMConversation]
 
         for conversation in allConversations {
             conversation.securityLevel = .notSecure
@@ -54,7 +54,7 @@ extension ZMConversation {
         let selfUser = ZMUser.selfUser(in: moc)
         
         let request = ZMConversation.sortedFetchRequest()
-        let allConversations = moc.executeFetchRequestOrAssert(request) as! [ZMConversation]
+        let allConversations = moc.executeFetchRequestOrAssert(request!) as! [ZMConversation]
         
         for conversation in allConversations {
             
@@ -116,7 +116,7 @@ extension ZMConversation {
                               ZMConversationType.group.rawValue
             )
         )
-        (moc.executeFetchRequestOrAssert(groupConversationsFetch) as! [ZMConversation]).forEach {
+        (moc.executeFetchRequestOrAssert(groupConversationsFetch!) as! [ZMConversation]).forEach {
             guard $0.isSelfAnActiveMember else { return }
             $0.needsToBeUpdatedFromBackend = true
             $0.needsToDownloadRoles = $0.team == nil || $0.team != selfUser.team
@@ -132,7 +132,7 @@ extension ZMConversation {
         
         let oldKey = "lastServerSyncedActiveParticipants"
         
-        (moc.executeFetchRequestOrAssert(ZMConversation.sortedFetchRequest()) as! [ZMConversation]).forEach { convo in
+        (moc.executeFetchRequestOrAssert(ZMConversation.sortedFetchRequest()!) as! [ZMConversation]).forEach { convo in
             let users = (convo.value(forKey: oldKey) as! NSOrderedSet).array as? [ZMUser]
             users?.forEach { user in
                 let participantRole = ParticipantRole.insertNewObject(in: moc)

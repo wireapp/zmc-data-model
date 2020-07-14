@@ -29,7 +29,7 @@ extension UserClient {
             return
         }
         let request = UserClient.sortedFetchRequest()
-        let allClients = moc.executeFetchRequestOrAssert(request) as! [UserClient]
+        let allClients = moc.executeFetchRequestOrAssert(request!) as! [UserClient]
         selfClient.keysStore.encryptionContext.perform { (session) in
             for client in allClients {
                 client.migrateSessionIdentifierFromV1IfNeeded(sessionDirectory: session)
