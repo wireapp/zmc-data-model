@@ -38,8 +38,10 @@ final class SignatureStatusTests: ZMBaseManagedObjectTest {
     }
     
     func testThatItChangesStatusAfterTriggerASignDocumentMethod() {
-        // when
+        // given
         XCTAssertEqual(status.state, .initial)
+        
+        // when
         status.signDocument()
         
         // then
@@ -47,6 +49,9 @@ final class SignatureStatusTests: ZMBaseManagedObjectTest {
     }
     
     func testThatItChangesStatusAfterTriggerARetrieveSignatureMethod() {
+        // given
+        status.state = .waitingForCodeVerification
+        
         // when
         status.retrieveSignature()
         
