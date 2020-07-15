@@ -85,8 +85,9 @@ public final class SignatureStatus: NSObject {
     }
     
     public func retrieveSignature() {
-        state = .waitingForSignature
-        RequestAvailableNotification.notifyNewRequestsAvailable(nil)
+         guard case .waitingForCodeVerification = state else { return }
+         state = .waitingForSignature
+         RequestAvailableNotification.notifyNewRequestsAvailable(nil)
     }
     
     public func didReceiveConsentURL(_ url: URL?) {
