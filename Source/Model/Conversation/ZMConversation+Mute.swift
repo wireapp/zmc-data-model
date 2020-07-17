@@ -161,12 +161,16 @@ extension ZMConversationMessage {
 
 
 public extension ZMConversation {
-    func isMessageSilenced(_ message: GenericMessage, from senderID: UUID, in moc: NSManagedObjectContext) -> Bool {
-        let selfUser = ZMUser.selfUser(in: moc)
-        if let sender = ZMUser.fetch(withRemoteIdentifier: senderID, in: moc), sender.isSelfUser {
-            return true
+    func isMessageSilenced(_ message: GenericMessage, from senderID: UUID) -> Bool {
+        guard let managedObjectContext = self.managedObjectContext else {
+            return false
         }
         
+        let selfUser = ZMUser.selfUser(in: managedObjectContext)
+        if let sender = ZMUser.fetch(withRemoteIdentifier: senderID, in: managedObjectContext), sender.isSelfUser {
+            return true
+        }
+    
         if self.mutedMessageTypesIncludingAvailability == .none {
             return false
         }
@@ -181,7 +185,7 @@ public extension ZMConversation {
         }
         
         let quotedMessageId = UUID(uuidString: textMessageData.quote.quotedMessageID)
-        let quotedMessage = ZMOTRMessage.fetch(withNonce: quotedMessageId, for: self, in: moc)
+        let quotedMessage = ZMOTRMessage.fetch(withNonce: quotedMessageId, for: self, in: managedObjectContext)
         
         if self.mutedMessageTypesIncludingAvailability == .regular && (textMessageData.isMentioningSelf(selfUser) || textMessageData.isQuotingSelf(quotedMessage)) {
             return false
