@@ -158,3 +158,35 @@ extension ZMConversationMessage {
     }
     
 }
+
+
+public extension ZMConversation {
+    func isMessageSilenced(_ message: GenericMessage, from senderID: UUID, in moc: NSManagedObjectContext) -> Bool {
+        let selfUser = ZMUser.selfUser(in: moc)
+        if let sender = ZMUser.fetch(withRemoteIdentifier: senderID, in: moc), sender.isSelfUser {
+            return true
+        }
+        
+        if self.mutedMessageTypesIncludingAvailability == .none {
+            return false
+        }
+        
+        // We assume that all composite messages are alarming messages
+        guard (self as? ConversationCompositeMessage)?.compositeMessageData == nil else {
+            return false
+        }
+        
+        guard let textMessageData = message.textData else {
+            return true
+        }
+        
+        let quotedMessageId = UUID(uuidString: textMessageData.quote.quotedMessageID)
+        let quotedMessage = ZMOTRMessage.fetch(withNonce: quotedMessageId, for: self, in: moc)
+        
+        if self.mutedMessageTypesIncludingAvailability == .regular && (textMessageData.isMentioningSelf(selfUser) || textMessageData.isQuotingSelf(quotedMessage)) {
+            return false
+        } else {
+            return true
+        }
+    }
+}
