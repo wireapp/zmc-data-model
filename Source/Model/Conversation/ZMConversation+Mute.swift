@@ -161,7 +161,7 @@ extension ZMConversationMessage {
 
 
 public extension ZMConversation {
-    func isMessageSilenced(_ message: GenericMessage, from senderID: UUID) -> Bool {
+    func isMessageSilenced(_ message: GenericMessage, senderID: UUID) -> Bool {
         guard let managedObjectContext = self.managedObjectContext else {
             return false
         }
