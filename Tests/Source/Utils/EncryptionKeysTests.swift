@@ -53,10 +53,20 @@ class EncryptionKeysTests: XCTestCase {
 
     func testThatEncryptionKeysAreSuccessfullyCreated() throws {
         // when
-        try EncryptionKeys.createKeys(for: account)
+        let encryptionkeys = try EncryptionKeys.createKeys(for: account)
         
         // then
-        let encryptionkeys = try EncryptionKeys(account: account)
+        XCTAssertEqual(encryptionkeys.databaseKey.count, 256)
+    }
+    
+    func testThatEncryptionKeysAreSuccessfullyFetched() throws {
+        // given
+        _ = try EncryptionKeys.createKeys(for: account)
+        
+        // then
+        let encryptionKeys = try EncryptionKeys(account: account)
+        
+        // then
         XCTAssertEqual(encryptionkeys.databaseKey.count, 256)
     }
     
