@@ -195,6 +195,15 @@ extension GenericMessage {
     }
 }
 
+public extension Text {
+    func isMentioningSelf(_ selfUser: ZMUser) -> Bool {
+        return mentions.any {$0.userID == selfUser.remoteIdentifier.uuidString }
+    }
+    
+    func isQuotingSelf(_ quotedMessage: ZMOTRMessage?) -> Bool {
+        return quotedMessage?.sender?.isSelfUser ?? false
+    }
+}
 
 extension GenericMessage {
     var v3_isImage: Bool {
