@@ -42,7 +42,7 @@ class EncryptionKeysTests: XCTestCase {
     
     func testThatPublicAccountKeyIsReturnedIfItExists() throws {
         // given
-        try EncryptionKeys.createKeys(for: account)
+        _ = try EncryptionKeys.createKeys(for: account)
         
         // when
         let publicKey = try EncryptionKeys.publicKey(for: account)
@@ -67,12 +67,12 @@ class EncryptionKeysTests: XCTestCase {
         let encryptionKeys = try EncryptionKeys(account: account)
         
         // then
-        XCTAssertEqual(encryptionkeys.databaseKey.count, 256)
+        XCTAssertEqual(encryptionKeys.databaseKey.count, 256)
     }
     
     func testThatEncryptionKeysAreSuccessfullyDeleted() throws {
         // given
-        try EncryptionKeys.createKeys(for: account)
+        _ = try EncryptionKeys.createKeys(for: account)
         
         // when
         try EncryptionKeys.deleteKeys(for: account)
@@ -84,11 +84,9 @@ class EncryptionKeysTests: XCTestCase {
     func testThatAsymmetricKeysWorksWithExpectedAlgorithm() throws {
         // given
         let data = "Hello world".data(using: .utf8)!
-        try EncryptionKeys.createKeys(for: account)
+        let encryptionkeys = try EncryptionKeys.createKeys(for: account)
         
         // when
-        let encryptionkeys = try EncryptionKeys(account: account)
-        
         let encryptedData = SecKeyCreateEncryptedData(encryptionkeys.publicKey,
                                                       .eciesEncryptionCofactorX963SHA256AESGCM,
                                                       data as CFData,
@@ -99,6 +97,7 @@ class EncryptionKeysTests: XCTestCase {
                                                       encryptedData,
                                                       nil)!
         
+        // then
         XCTAssertEqual(decryptedData as Data, data)
     }
     
