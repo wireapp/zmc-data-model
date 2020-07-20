@@ -72,12 +72,16 @@ public struct EncryptionKeys {
                 query = [kSecClass: kSecClassGenericPassword,
                          kSecAttrAccount: uniqueIdentifier,
                          kSecReturnData: true]
-            case .privateKey(_, let context, let prompt):
+            case .privateKey(_, var context, let prompt):
                 query = [kSecClass: kSecClassKey,
                          kSecAttrKeyClass: kSecAttrKeyClassPrivate,
                          kSecAttrLabel: tag,
                          kSecReturnRef: true,
                 ]
+                
+                #if targetEnvironment(simulator)
+                context = nil // kSecUseAuthenticationContext doesn't work on simulator
+                #endif
                 
                 if let context = context {
                     query[kSecUseAuthenticationContext] = context
@@ -162,16 +166,26 @@ public struct EncryptionKeys {
         self.databaseKey = try Self.decryptDatabaseKey(Self.fetchItem(.databaseKey(account)), privateKey: privateKey)
     }
     
+    init(publicKey: SecKey, privateKey: SecKey, databaseKey: Data) {
+        self.publicKey = publicKey
+        self.privateKey = privateKey
+        self.databaseKey = databaseKey
+    }
+    
     // MARK: Create & Destroy keys
     
     /// Create all encryption keys and store them in the keychain.
     ///
     /// - Parameters:
     ///   -  account Account for which the encryption keys should created
-    public static func createKeys(for account: Account) throws {
-        let publicKey = try generateAccountKey(identifier: .privateKey(account, nil, nil))
+    public static func createKeys(for account: Account) throws -> EncryptionKeys {
+        let (privateKey, publicKey) = try generateAccountKey(identifier: .privateKey(account, nil, nil))
+        let databaseKey = try generateDatabaseKey()
+        
         try storeItem(.publicKey(account), value: publicKey)
-        try storeItem(.databaseKey(account), value: generateDatabaseKeyEncryptedWithKey(publicKey))
+        try storeItem(.databaseKey(account), value: encryptDatabaseKey(databaseKey, publicKey: publicKey))
+        
+        return EncryptionKeys(publicKey: publicKey, privateKey: privateKey, databaseKey: databaseKey)
     }
     
     /// Delete all encryption keys and from the keychain.
@@ -191,7 +205,7 @@ public struct EncryptionKeys {
         try fetchItem(.publicKey(account))
     }
     
-    private static func generateAccountKey(identifier: KeychainItem) throws -> SecKey {
+    private static func generateAccountKey(identifier: KeychainItem) throws -> (SecKey, SecKey) {
         #if targetEnvironment(simulator)
             return try generateSimulatorAccountKey(identifier: identifier)
         #else
@@ -199,7 +213,7 @@ public struct EncryptionKeys {
         #endif
     }
     
-    private static func generateSecureEnclaveAccountKey(identifier: KeychainItem) throws -> SecKey {
+    private static func generateSecureEnclaveAccountKey(identifier: KeychainItem) throws -> (SecKey, SecKey) {
         var accessError: Unmanaged<CFError>?
         guard let access = SecAccessControlCreateWithFlags(kCFAllocatorDefault,
                                                      kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
@@ -231,10 +245,10 @@ public struct EncryptionKeys {
             throw EncryptionKeysError.failedToCopyPublicAccountKey
         }
         
-        return publicKey
+        return (privateKey, publicKey)
     }
     
-    private static func generateSimulatorAccountKey(identifier: KeychainItem) throws -> SecKey {
+    private static func generateSimulatorAccountKey(identifier: KeychainItem) throws -> (SecKey, SecKey) {
         var accessError: Unmanaged<CFError>?
         guard let access = SecAccessControlCreateWithFlags(kCFAllocatorDefault,
                                                            kSecAttrAccessibleWhenUnlockedThisDeviceOnly,
@@ -265,20 +279,20 @@ public struct EncryptionKeys {
             throw EncryptionKeysError.failedToCopyPublicAccountKey
         }
         
-        return publicKey
+        return (privateKey, publicKey)
     }
     
     // MARK: - Database key
     
-    private static func generateDatabaseKeyEncryptedWithKey(_ key: SecKey) throws -> Data {
+    private static func generateDatabaseKey() throws -> Data {
         var databaseKey = [UInt8](repeating: 0, count: 256)
         let status = SecRandomCopyBytes(kSecRandomDefault, databaseKey.count, &databaseKey)
         
         guard status == errSecSuccess else {
             throw EncryptionKeysError.failedToGenerateDatabaseKey(status)
         }
-                
-        return try encryptDatabaseKey(Data(databaseKey), publicKey: key)
+        
+        return Data(databaseKey)
     }
     
     private static func encryptDatabaseKey(_ databaseKey: Data, publicKey: SecKey) throws -> Data {
@@ -318,13 +332,13 @@ public struct EncryptionKeys {
     }
     
     private static func fetchItem<T>(_ item: KeychainItem) throws -> T {
-        var value: CFTypeRef?
+        var value: CFTypeRef? = nil
         let status = SecItemCopyMatching(item.getQuery as CFDictionary, &value)
         
         guard status == errSecSuccess else {
             throw EncryptionKeysError.failedToFetchItemFromKeychain(status)
         }
-        
+                
         return value as! T
     }
     
