@@ -124,6 +124,16 @@ extension GenericMessage {
         }        
     }
     
+    public var compositeData: Composite? {
+        guard let content = content else { return nil }
+        switch content {
+        case .composite(let data):
+            return data
+        default:
+            return nil
+        }
+    }
+    
     public var imageAssetData: ImageAsset? {
         guard let content = content else { return nil }
         switch content {

@@ -125,48 +125,15 @@ extension ZMUser {
     
 }
 
-extension ZMConversationMessage {
-    
-    public var isSilenced: Bool {
-        guard let conversation = self.conversation else {
-            return false
-        }
-        
-        guard let sender = self.sender, !sender.isSelfUser else {
-            return true
-        }
-        
-        if conversation.mutedMessageTypesIncludingAvailability == .none {
-            return false
-        }
-        
-        // We assume that all composite messages are alarming messages
-        guard (self as? ConversationCompositeMessage)?.compositeMessageData == nil else {
-            return false
-        }
-        
-        guard let textMessageData = self.textMessageData else {
-            return true
-        }
-        
-        if conversation.mutedMessageTypesIncludingAvailability == .regular && (textMessageData.isMentioningSelf || textMessageData.isQuotingSelf) {
-            return false
-        }
-        else {
-            return true
-        }
-    }
-    
-}
-
 public extension ZMConversation {
-    func isMessageSilenced(_ message: GenericMessage, senderID: UUID) -> Bool {
+    func isMessageSilenced(_ message: GenericMessage?, senderID: UUID?) -> Bool {
         guard let managedObjectContext = self.managedObjectContext else {
             return false
         }
 
         let selfUser = ZMUser.selfUser(in: managedObjectContext)
-        if let sender = ZMUser.fetch(withRemoteIdentifier: senderID, in: managedObjectContext), sender.isSelfUser {
+        if let senderID = senderID,
+            let sender = ZMUser.fetch(withRemoteIdentifier: senderID, in: managedObjectContext), sender.isSelfUser {
             return true
         }
 
@@ -175,11 +142,11 @@ public extension ZMConversation {
         }
 
         // We assume that all composite messages are alarming messages
-        guard (self as? ConversationCompositeMessage)?.compositeMessageData == nil else {
+        guard message?.compositeData == nil else {
             return false
         }
 
-        guard let textMessageData = message.textData else {
+        guard let textMessageData = message?.textData else {
             return true
         }
 
