@@ -21,7 +21,7 @@ import Foundation
 
 extension ZMConversation {
     /// Returns true if EAR (encryption at rest) is enabled
-    public var isMessagesEncrypted: Bool {
+    public var areMessagesEncryptedInDatabase: Bool {
         return self.managedObjectContext?.encryptMessagesAtRest ?? false
     }
 }
