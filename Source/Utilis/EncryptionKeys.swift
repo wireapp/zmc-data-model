@@ -196,6 +196,10 @@ public struct EncryptionKeys {
         
         return EncryptionKeys(publicKey: publicKey, privateKey: privateKey, databaseKey: databaseKey)
     }
+
+    public static func storePasscode(data: Data) throws {
+        try storeItem(.passcode, value: data)
+    }
     
     /// Delete all encryption keys and from the keychain.
     ///
