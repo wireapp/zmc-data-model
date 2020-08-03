@@ -284,6 +284,7 @@
 		A982B46623BE1B86001828A6 /* ConversationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A982B46523BE1B86001828A6 /* ConversationTests.swift */; };
 		A995F05C23968D8500FAC3CF /* ParticipantRoleChangeInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A995F05B23968D8500FAC3CF /* ParticipantRoleChangeInfo.swift */; };
 		A995F05E239690B300FAC3CF /* ParticipantRoleObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A995F05D239690B300FAC3CF /* ParticipantRoleObserverTests.swift */; };
+		A9A3B1ED24D8A15F001AF38E /* EncryptionKeys.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9A3B1EC24D8A15F001AF38E /* EncryptionKeys.swift */; };
 		A9EEFEFA23A6D0CB0007828A /* RolesMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9EEFEF923A6D0CB0007828A /* RolesMigrationTests.swift */; };
 		A9FA524823A14E2B003AD4C6 /* RoleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9FA524723A14E2B003AD4C6 /* RoleTests.swift */; };
 		A9FA524A23A1598B003AD4C6 /* ActionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9FA524923A1598B003AD4C6 /* ActionTests.swift */; };
@@ -933,6 +934,7 @@
 		A982B46523BE1B86001828A6 /* ConversationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationTests.swift; sourceTree = "<group>"; };
 		A995F05B23968D8500FAC3CF /* ParticipantRoleChangeInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParticipantRoleChangeInfo.swift; sourceTree = "<group>"; };
 		A995F05D239690B300FAC3CF /* ParticipantRoleObserverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParticipantRoleObserverTests.swift; sourceTree = "<group>"; };
+		A9A3B1EC24D8A15F001AF38E /* EncryptionKeys.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = EncryptionKeys.swift; sourceTree = "<group>"; };
 		A9EEFEF923A6D0CB0007828A /* RolesMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RolesMigrationTests.swift; sourceTree = "<group>"; };
 		A9FA524723A14E2B003AD4C6 /* RoleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RoleTests.swift; sourceTree = "<group>"; };
 		A9FA524923A1598B003AD4C6 /* ActionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ActionTests.swift; sourceTree = "<group>"; };
@@ -1922,6 +1924,7 @@
 		F9A706421CAEE01D00C2F5FE /* Utilis */ = {
 			isa = PBXGroup;
 			children = (
+				A9A3B1EC24D8A15F001AF38E /* EncryptionKeys.swift */,
 				F963E9671D9ADD5A00098AD3 /* Protos */,
 				F9331C851CB419B500139ECC /* NSFetchRequest+ZMRelationshipKeyPaths.h */,
 				F9331C861CB419B500139ECC /* NSFetchRequest+ZMRelationshipKeyPaths.m */,
@@ -2939,6 +2942,7 @@
 				63D41E4F2452EA080076826F /* ZMConversation+SelfConversation.swift in Sources */,
 				F16378511E5C805100898F84 /* ZMConversationSecurityLevel.swift in Sources */,
 				5E9EA4E22243E0D300D401B2 /* ConversationMessage+Attachments.swift in Sources */,
+				A9A3B1ED24D8A15F001AF38E /* EncryptionKeys.swift in Sources */,
 				F93C4C7D1E24E1B1007E9CEE /* NotificationDispatcher.swift in Sources */,
 				06D48735241F930A00881B08 /* GenericMessage+Obfuscation.swift in Sources */,
 				F9A706951CAEE01D00C2F5FE /* UserClient.swift in Sources */,
