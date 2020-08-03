@@ -198,8 +198,14 @@ public struct EncryptionKeys {
     }
 
     public static func storePasscode(data: Data) throws {
+        try deleteItem(.passcode)
         try storeItem(.passcode, value: data)
     }
+
+    public static func fetchPasscode() throws -> Data {
+        return try fetchItem(.passcode)
+    }
+
     
     /// Delete all encryption keys and from the keychain.
     ///
@@ -337,7 +343,9 @@ public struct EncryptionKeys {
     // MARK: - Keychain access
         
     private static func storeItem<T>(_ item: KeychainItem, value: T) throws {
-        let status = SecItemAdd(item.setQuery(value: value) as CFDictionary, nil)
+        let query = item.setQuery(value: value) as CFDictionary
+        
+        let status = SecItemAdd(query, nil)
         
         guard status == errSecSuccess else {
             throw EncryptionKeysError.failedToStoreItemInKeychain(status)
