@@ -30,17 +30,33 @@ class ManagedObjectContextDirectoryTests: DatabaseBaseTest {
         sut.storeDatabaseKeyInAllContexts(databaseKey: databaseKey)
 
         // Then
-        XCTAssertEqual(sut.uiContext.databaseKey, databaseKey)
-        XCTAssertEqual(sut.syncContext.databaseKey, databaseKey)
-        XCTAssertEqual(sut.searchContext.databaseKey, databaseKey)
+        sut.uiContext.performGroupedBlockAndWait {
+            XCTAssertEqual(sut.uiContext.databaseKey, databaseKey)
+        }
+
+        sut.syncContext.performGroupedBlockAndWait {
+            XCTAssertEqual(sut.syncContext.databaseKey, databaseKey)
+        }
+
+        sut.searchContext.performGroupedBlockAndWait {
+            XCTAssertEqual(sut.searchContext.databaseKey, databaseKey)
+        }
 
         // When
         sut.clearDatabaseKeyInAllContexts()
 
         // Then
-        XCTAssertNil(sut.uiContext.databaseKey)
-        XCTAssertNil(sut.syncContext.databaseKey)
-        XCTAssertNil(sut.searchContext.databaseKey)
+        sut.uiContext.performGroupedBlockAndWait {
+            XCTAssertNil(sut.uiContext.databaseKey)
+        }
+
+        sut.syncContext.performGroupedBlockAndWait {
+            XCTAssertNil(sut.syncContext.databaseKey)
+        }
+
+        sut.searchContext.performGroupedBlockAndWait {
+            XCTAssertNil(sut.searchContext.databaseKey)
+        }
     }
 
 }
