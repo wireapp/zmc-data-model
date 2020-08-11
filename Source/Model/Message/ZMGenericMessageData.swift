@@ -52,7 +52,7 @@ import WireCryptobox
             do {
                 return try decryptDataIfNeeded(data: d)
             } catch {
-                Self.log.error("Could not decrypt message data: \(error.localizedDescription)")
+                Self.log.warn("Could not decrypt message data: \(error.localizedDescription)")
             }
 
             return nil
@@ -73,7 +73,7 @@ import WireCryptobox
                 didChangeValue(forKey: Self.dataKey)
                 self.nonce = nonce
             } catch {
-                Self.log.error("Could not encrypt message data: \(error.localizedDescription)")
+                Self.log.warn("Could not encrypt message data: \(error.localizedDescription)")
             }
         }
     }
