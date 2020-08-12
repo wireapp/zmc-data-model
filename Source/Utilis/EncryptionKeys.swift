@@ -285,7 +285,7 @@ public struct EncryptionKeys {
     // MARK: - Database key
     
     private static func generateDatabaseKey() throws -> Data {
-        var databaseKey = [UInt8](repeating: 0, count: 256)
+        var databaseKey = [UInt8](repeating: 0, count: 32)
         let status = SecRandomCopyBytes(kSecRandomDefault, databaseKey.count, &databaseKey)
         
         guard status == errSecSuccess else {
