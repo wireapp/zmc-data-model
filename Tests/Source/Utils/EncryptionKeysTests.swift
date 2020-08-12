@@ -56,7 +56,7 @@ class EncryptionKeysTests: XCTestCase {
         let encryptionkeys = try EncryptionKeys.createKeys(for: account)
         
         // then
-        XCTAssertEqual(encryptionkeys.databaseKey.count, 256)
+        XCTAssertEqual(encryptionkeys.databaseKey.count, 32)
     }
     
     func testThatEncryptionKeysAreSuccessfullyFetched() throws {
@@ -67,7 +67,7 @@ class EncryptionKeysTests: XCTestCase {
         let encryptionKeys = try EncryptionKeys(account: account)
         
         // then
-        XCTAssertEqual(encryptionKeys.databaseKey.count, 256)
+        XCTAssertEqual(encryptionKeys.databaseKey.count, 32)
     }
     
     func testThatEncryptionKeysAreSuccessfullyDeleted() throws {
