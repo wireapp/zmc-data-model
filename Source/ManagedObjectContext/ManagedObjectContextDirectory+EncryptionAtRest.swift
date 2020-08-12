@@ -18,25 +18,22 @@
 
 import Foundation
 
-extension NSManagedObjectContext {
-    
-    public var encryptMessagesAtRest: Bool {
-        set {
-            setPersistentStoreMetadata(NSNumber(booleanLiteral: newValue),
-                                       key: PersistentMetadataKey.encryptMessagesAtRest.rawValue)
-        }
-        get {
-            (persistentStoreMetadata(forKey: PersistentMetadataKey.encryptMessagesAtRest.rawValue) as? NSNumber)?.boolValue ?? false
+public extension ManagedObjectContextDirectory {
+
+    /// Synchronously stores the given database key in each managed object context.
+
+    func storeDatabaseKeyInAllContexts(databaseKey: Data) {
+        for context in [uiContext, syncContext, searchContext] {
+            context?.performAndWait { context?.databaseKey = databaseKey }
         }
     }
 
-    // MARK: - Database Key
+    /// Synchronously clears the database key in each managed object context.
 
-    private static let databaseKeyUserInfoKey = "databaseKey"
-
-    var databaseKey: Data? {
-        set { userInfo[Self.databaseKeyUserInfoKey] = newValue }
-        get { userInfo[Self.databaseKeyUserInfoKey] as? Data }
+    func clearDatabaseKeyInAllContexts() {
+        for context in [uiContext, syncContext, searchContext] {
+            context?.performAndWait { context?.databaseKey = nil }
+        }
     }
 
 }
