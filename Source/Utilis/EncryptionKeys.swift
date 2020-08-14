@@ -85,7 +85,7 @@ public struct EncryptionKeys {
                 
                 if let context = context {
                     query[kSecUseAuthenticationContext] = context
-                    query[kSecUseAuthenticationUISkip] = true
+                    query[kSecUseAuthenticationUI] = kSecUseAuthenticationUISkip
                 } else if let prompt = prompt {
                     query[kSecUseOperationPrompt] = prompt
                 }
