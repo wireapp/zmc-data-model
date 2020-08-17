@@ -45,12 +45,14 @@ import WireCryptobox
 
     private var data: Data? {
         get {
+            guard let moc = managedObjectContext else { return nil }
+
             willAccessValue(forKey: Self.dataKey)
             let d = primitiveData
             didAccessValue(forKey: Self.dataKey)
 
             do {
-                return try decryptDataIfNeeded(data: d)
+                return try decryptDataIfNeeded(data: d, in: moc)
             } catch {
                 Self.log.warn("Could not decrypt message data: \(error.localizedDescription)")
             }
@@ -120,17 +122,34 @@ import WireCryptobox
         self.data = data
     }
 
-    private func decryptDataIfNeeded(data: Data) throws -> Data {
+    private func decryptDataIfNeeded(data: Data, in moc: NSManagedObjectContext) throws -> Data {
         guard let nonce = nonce else { return data }
-        guard let key = managedObjectContext?.databaseKey else { throw EncryptionError.missingDatabaseKey }
-        return try ChaCha20Poly1305.AEADEncryption.decrypt(ciphertext: data, nonce: nonce, context: Data(), key: key)
+        guard let key = moc.databaseKey else { throw EncryptionError.missingDatabaseKey }
+        let context = contextData(for: moc)
+        return try ChaCha20Poly1305.AEADEncryption.decrypt(ciphertext: data, nonce: nonce, context: context, key: key)
     }
 
     private func encryptDataIfNeeded(data: Data, in moc: NSManagedObjectContext) throws -> (data: Data, nonce: Data?) {
         guard moc.encryptMessagesAtRest else { return (data, nonce: nil) }
         guard let key = moc.databaseKey else { throw EncryptionError.missingDatabaseKey }
-        let (ciphertext, nonce) = try ChaCha20Poly1305.AEADEncryption.encrypt(message: data, context: Data(), key: key)
+        let context = contextData(for: moc)
+        let (ciphertext, nonce) = try ChaCha20Poly1305.AEADEncryption.encrypt(message: data, context: context, key: key)
         return (ciphertext, nonce)
+    }
+
+    private func contextData(for moc: NSManagedObjectContext) -> Data {
+        let selfUser = ZMUser.selfUser(in: moc)
+
+        guard
+            let selfClient = selfUser.selfClient(),
+            let selfUserId = selfUser.remoteIdentifier?.transportString(),
+            let selfClientId = selfClient.remoteIdentifier,
+            let context = (selfUserId + selfClientId).data(using: .utf8)
+        else {
+            fatalError("Could not obtain self user id and self client id")
+        }
+
+        return context
     }
 
 }
