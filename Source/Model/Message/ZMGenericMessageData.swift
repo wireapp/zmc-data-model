@@ -124,14 +124,14 @@ import WireCryptobox
 
     private func decryptDataIfNeeded(data: Data, in moc: NSManagedObjectContext) throws -> Data {
         guard let nonce = nonce else { return data }
-        guard let key = moc.databaseKey else { throw EncryptionError.missingDatabaseKey }
+        guard let key = moc.encryptionKeys?.databaseKey else { throw EncryptionError.missingDatabaseKey }
         let context = contextData(for: moc)
         return try ChaCha20Poly1305.AEADEncryption.decrypt(ciphertext: data, nonce: nonce, context: context, key: key)
     }
 
     private func encryptDataIfNeeded(data: Data, in moc: NSManagedObjectContext) throws -> (data: Data, nonce: Data?) {
         guard moc.encryptMessagesAtRest else { return (data, nonce: nil) }
-        guard let key = moc.databaseKey else { throw EncryptionError.missingDatabaseKey }
+        guard let key = moc.encryptionKeys?.databaseKey else { throw EncryptionError.missingDatabaseKey }
         let context = contextData(for: moc)
         let (ciphertext, nonce) = try ChaCha20Poly1305.AEADEncryption.encrypt(message: data, context: context, key: key)
         return (ciphertext, nonce)

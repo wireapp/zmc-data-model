@@ -23,7 +23,7 @@ import LocalAuthentication
 /// EncryptionKeys is responsible for creating / deleting the encryptions keys
 /// which are used for supporting encryption at rest
 ///
-public struct EncryptionKeys {
+public struct EncryptionKeys: Equatable {
     
     enum KeychainItem {
         case privateKey(_ account: Account, _ context: LAContext?, _ prompt: String?)

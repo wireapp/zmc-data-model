@@ -20,19 +20,19 @@ import Foundation
 
 public extension ManagedObjectContextDirectory {
 
-    /// Synchronously stores the given database key in each managed object context.
+    /// Synchronously stores the given encryption keys in each managed object context.
 
-    func storeDatabaseKeyInAllContexts(databaseKey: Data) {
+    func storeEncryptionKeysInAllContexts(encryptionKeys: EncryptionKeys) {
         for context in [uiContext, syncContext, searchContext] {
-            context?.performAndWait { context?.databaseKey = databaseKey }
+            context?.performAndWait { context?.encryptionKeys = encryptionKeys }
         }
     }
 
-    /// Synchronously clears the database key in each managed object context.
+    /// Synchronously clears the encryption keys in each managed object context.
 
-    func clearDatabaseKeyInAllContexts() {
+    func clearEncryptionKeysInAllContexts() {
         for context in [uiContext, syncContext, searchContext] {
-            context?.performAndWait { context?.databaseKey = nil }
+            context?.performAndWait { context?.encryptionKeys = nil }
         }
     }
 
