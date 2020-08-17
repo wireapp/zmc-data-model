@@ -32,6 +32,7 @@ class ZMGenericMessageDataTests: ModelObjectsTests {
         super.setUp()
         uiMOC.encryptMessagesAtRest = false
         uiMOC.databaseKey = nil
+        createSelfClient(onMOC: uiMOC)
     }
 
     // MARK: - Positive Tests
