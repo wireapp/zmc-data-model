@@ -16,6 +16,7 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
+
 import Foundation
 import WireProtos
 
@@ -124,6 +125,16 @@ extension GenericMessage {
         }        
     }
     
+    public var compositeData: Composite? {
+        guard let content = content else { return nil }
+        switch content {
+        case .composite(let data):
+            return data
+        default:
+            return nil
+        }
+    }
+    
     public var imageAssetData: ImageAsset? {
         guard let content = content else { return nil }
         switch content {
@@ -197,9 +208,9 @@ extension GenericMessage {
 
 public extension Text {
     func isMentioningSelf(_ selfUser: ZMUser) -> Bool {
-        return mentions.any {$0.userID == selfUser.remoteIdentifier.uuidString }
+        return mentions.any {$0.userID.uppercased() == selfUser.remoteIdentifier.uuidString }
     }
-    
+
     func isQuotingSelf(_ quotedMessage: ZMOTRMessage?) -> Bool {
         return quotedMessage?.sender?.isSelfUser ?? false
     }
