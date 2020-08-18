@@ -24,39 +24,43 @@ class ManagedObjectContextDirectoryTests: DatabaseBaseTest {
     func testThatItStoresAndClearsDatabaseKeyOnAllContexts() {
         // Given
         let sut = createStorageStackAndWaitForCompletion()
-        let databaseKey = "abc".data(using: .utf8)!
+        let account = Account(userName: "", userIdentifier: UUID())
+        let encryptionKeys = try! EncryptionKeys.createKeys(for: account)
 
         // When
-        sut.storeDatabaseKeyInAllContexts(databaseKey: databaseKey)
+        sut.storeEncryptionKeysInAllContexts(encryptionKeys: encryptionKeys)
 
         // Then
         sut.uiContext.performGroupedBlockAndWait {
-            XCTAssertEqual(sut.uiContext.databaseKey, databaseKey)
+            XCTAssertEqual(sut.uiContext.encryptionKeys, encryptionKeys)
         }
 
         sut.syncContext.performGroupedBlockAndWait {
-            XCTAssertEqual(sut.syncContext.databaseKey, databaseKey)
+            XCTAssertEqual(sut.syncContext.encryptionKeys, encryptionKeys)
         }
 
         sut.searchContext.performGroupedBlockAndWait {
-            XCTAssertEqual(sut.searchContext.databaseKey, databaseKey)
+            XCTAssertEqual(sut.searchContext.encryptionKeys, encryptionKeys)
         }
 
         // When
-        sut.clearDatabaseKeyInAllContexts()
+        sut.clearEncryptionKeysInAllContexts()
 
         // Then
         sut.uiContext.performGroupedBlockAndWait {
-            XCTAssertNil(sut.uiContext.databaseKey)
+            XCTAssertNil(sut.uiContext.encryptionKeys)
         }
 
         sut.syncContext.performGroupedBlockAndWait {
-            XCTAssertNil(sut.syncContext.databaseKey)
+            XCTAssertNil(sut.syncContext.encryptionKeys)
         }
 
         sut.searchContext.performGroupedBlockAndWait {
-            XCTAssertNil(sut.searchContext.databaseKey)
+            XCTAssertNil(sut.searchContext.encryptionKeys)
         }
+        
+        // Clean up
+        try! EncryptionKeys.deleteKeys(for: account)
     }
 
 }

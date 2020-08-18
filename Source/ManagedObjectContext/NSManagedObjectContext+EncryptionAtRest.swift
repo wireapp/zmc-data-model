@@ -32,11 +32,11 @@ extension NSManagedObjectContext {
 
     // MARK: - Database Key
 
-    private static let databaseKeyUserInfoKey = "databaseKey"
+    private static let encryptionKeysUserInfoKey = "encryptionKeys"
 
-    var databaseKey: Data? {
-        set { userInfo[Self.databaseKeyUserInfoKey] = newValue }
-        get { userInfo[Self.databaseKeyUserInfoKey] as? Data }
+    public var encryptionKeys: EncryptionKeys? {
+        set { userInfo[Self.encryptionKeysUserInfoKey] = newValue }
+        get { userInfo[Self.encryptionKeysUserInfoKey] as? EncryptionKeys }
     }
 
 }
