@@ -148,6 +148,11 @@ extension ZMAssetClientMessage: ZMFileMessageData {
         }
         
         filename = (filename as NSString).lastPathComponent
+        
+        guard !filename.isEmpty else {
+            return nil
+        }
+        
         var temporaryFileURL = temporaryDirectoryURL.appendingPathComponent(filename)
         
         if let fileExtension = fileExtension,
