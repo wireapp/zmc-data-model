@@ -139,10 +139,15 @@ extension ZMAssetClientMessage: ZMFileMessageData {
     }
     
     public var fileURL: URL? {
-        guard let assetURL = asset?.fileURL,
-            let filename = filename,
-            let temporaryDirectoryURL = temporaryDirectoryURL else { return nil }
+        guard
+            let assetURL = asset?.fileURL,
+            let temporaryDirectoryURL = temporaryDirectoryURL,
+            var filename = filename
+        else {
+            return nil
+        }
         
+        filename = (filename as NSString).lastPathComponent
         var temporaryFileURL = temporaryDirectoryURL.appendingPathComponent(filename)
         
         if let fileExtension = fileExtension,
