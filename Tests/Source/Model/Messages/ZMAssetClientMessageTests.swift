@@ -117,7 +117,13 @@ extension ZMAssetClientMessageTests {
         // then
         XCTAssertNotNil(sut)
         XCTAssertNotNil(sut?.fileURL)
-        XCTAssertTrue(((sut?.fileURL?.absoluteString.contains("../../")) != nil))
+
+        guard let absoluteString = sut?.fileURL?.absoluteString else {
+            XCTFail("asset doesn't have a file URL")
+            return
+        }
+        
+        XCTAssertFalse(absoluteString.contains("../"))
     }
     
     func testThatItCreatesFileAssetMessageInTheRightStateToBeUploaded()
