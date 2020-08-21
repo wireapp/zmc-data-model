@@ -20,8 +20,8 @@ import Foundation
 
 /// An extension of the NSSecureUnarchiveFromData which supports encoding/decoding our
 /// custom classes.
-@available(iOSApplicationExtension 12.0, *)
-class ExtendedSecureUnarchiveFromData: NSSecureUnarchiveFromDataTransformer {
+@available(iOS 12.0, iOSApplicationExtension 12.0, *)
+public class ExtendedSecureUnarchiveFromData: NSSecureUnarchiveFromDataTransformer {
     
     /// The name of the transformer. This is the name used to register the transformer using ValueTransformer.setValueTrandformer(_"forName:)`.
     static let name = NSValueTransformerName(rawValue: String(describing: ExtendedSecureUnarchiveFromData.self))
@@ -32,7 +32,7 @@ class ExtendedSecureUnarchiveFromData: NSSecureUnarchiveFromDataTransformer {
         ValueTransformer.setValueTransformer(transformer, forName: name)
     }
 
-    override class var allowedTopLevelClasses: [AnyClass] {
+    public override class var allowedTopLevelClasses: [AnyClass] {
         super.allowedTopLevelClasses + [LinkAttachment.self]
     }
     
