@@ -37,48 +37,9 @@ import WireCryptobox
 
     // MARK: - Managed Properties
 
-    /// The underlying storage of `data`.
+    /// The (possibly encrypted) serialized Profobuf data.
 
-    @NSManaged private var primitiveData: Data
-
-    /// The serialized Protobuf data.
-
-    private var data: Data? {
-        get {
-            guard let moc = managedObjectContext else { return nil }
-
-            willAccessValue(forKey: Self.dataKey)
-            let d = primitiveData
-            didAccessValue(forKey: Self.dataKey)
-
-            do {
-                return try decryptDataIfNeeded(data: d, in: moc)
-            } catch {
-                Self.log.warn("Could not decrypt message data: \(error.localizedDescription)")
-            }
-
-            return nil
-        }
-
-        set {
-            guard
-                let newData = newValue,
-                let moc = managedObjectContext
-            else {
-                return
-            }
-
-            do {
-                let (data, nonce) = try encryptDataIfNeeded(data: newData, in: moc)
-                willChangeValue(forKey: Self.dataKey)
-                primitiveData = data
-                didChangeValue(forKey: Self.dataKey)
-                self.nonce = nonce
-            } catch {
-                Self.log.warn("Could not encrypt message data: \(error.localizedDescription)")
-            }
-        }
-    }
+    @NSManaged private var data: Data
 
     /// The nonce used to encrypt `data`, if applicable.
 
@@ -94,11 +55,43 @@ import WireCryptobox
 
     // MARK: - Properties
 
+    /// The unencrypted serialized Protobuf data.
+
+    private var unencryptedData: Data? {
+        get {
+            guard let moc = managedObjectContext else { return nil }
+
+            do {
+                return try decryptDataIfNeeded(data: data, in: moc)
+            } catch {
+                Self.log.warn("Could not decrypt message data: \(error.localizedDescription)")
+                return nil
+            }
+        }
+
+        set {
+            guard
+                let newData = newValue,
+                let moc = managedObjectContext
+            else {
+                return
+            }
+
+            do {
+                let (data, nonce) = try encryptDataIfNeeded(data: newData, in: moc)
+                self.data = data
+                self.nonce = nonce
+            } catch {
+                Self.log.warn("Could not encrypt message data: \(error.localizedDescription)")
+            }
+        }
+    }
+
     /// The deserialized Protobuf object.
 
     public var underlyingMessage: GenericMessage? {
-        guard let data = data else { return nil }
-        return try? GenericMessage(serializedData: data)
+        guard let unencryptedData = unencryptedData else { return nil }
+        return try? GenericMessage(serializedData: unencryptedData)
     }
 
     /// Whether the Protobuf data is encrypted in the database.
@@ -119,12 +112,17 @@ import WireCryptobox
     /// - Parameter data: Serialized data representing a protobuf object.
 
     public func setProtobuf(_ data: Data) {
-        self.data = data
+        self.unencryptedData = data
     }
 
     private func decryptDataIfNeeded(data: Data, in moc: NSManagedObjectContext) throws -> Data {
-        guard let nonce = nonce else { return data }
+        guard isEncrypted else { return data }
         guard let key = moc.encryptionKeys?.databaseKey else { throw EncryptionError.missingDatabaseKey }
+        return try decrypt(data: data, key: key, in: moc)
+    }
+
+    private func decrypt(data: Data, key: Data, in moc: NSManagedObjectContext) throws -> Data {
+        guard let nonce = nonce else { throw EncryptionError.missingNonce }
         let context = contextData(for: moc)
         return try ChaCha20Poly1305.AEADEncryption.decrypt(ciphertext: data, nonce: nonce, context: context, key: key)
     }
@@ -132,6 +130,10 @@ import WireCryptobox
     private func encryptDataIfNeeded(data: Data, in moc: NSManagedObjectContext) throws -> (data: Data, nonce: Data?) {
         guard moc.encryptMessagesAtRest else { return (data, nonce: nil) }
         guard let key = moc.encryptionKeys?.databaseKey else { throw EncryptionError.missingDatabaseKey }
+        return try encrypt(data: data, key: key, in: moc)
+    }
+
+    private func encrypt(data: Data, key: Data, in moc: NSManagedObjectContext) throws -> (data: Data, nonce: Data) {
         let context = contextData(for: moc)
         let (ciphertext, nonce) = try ChaCha20Poly1305.AEADEncryption.encrypt(message: data, context: context, key: key)
         return (ciphertext, nonce)
@@ -161,11 +163,14 @@ private extension ZMGenericMessageData {
     enum EncryptionError: LocalizedError {
 
         case missingDatabaseKey
+        case missingNonce
 
         var errorDescription: String? {
             switch self {
             case .missingDatabaseKey:
                 return "Database key not found. Perhaps the database is locked."
+            case .missingNonce:
+                return "Nonce not found."
             }
         }
 
