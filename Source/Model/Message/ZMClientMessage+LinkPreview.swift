@@ -89,18 +89,22 @@ extension ZMClientMessage {
     }
     
     @nonobjc func applyLinkPreviewUpdate(_ updatedMessage: GenericMessage, from updateEvent: ZMUpdateEvent) {
-        guard let nonce = self.nonce,
-              let senderUUID = updateEvent.senderUUID,
-              let originalText = underlyingMessage?.textData,
-              let updatedText = updatedMessage.textData,
-              senderUUID == sender?.remoteIdentifier,
-              originalText.content == updatedText.content
-        else { return }
+        guard
+            let nonce = self.nonce,
+            let senderUUID = updateEvent.senderUUID,
+            let originalText = underlyingMessage?.textData,
+            let updatedText = updatedMessage.textData,
+            senderUUID == sender?.remoteIdentifier,
+            originalText.content == updatedText.content
+        else {
+            return
+        }
         
         let expiresAfter = deletionTimeout > 0 ? deletionTimeout : nil
         let message = GenericMessage(content: originalText.updateLinkPreview(from: updatedText), nonce: nonce, expiresAfter: expiresAfter)
-        guard let data = try? message.serializedData() else { return }
-        add(data)
+
+        // TODO: Handle this?
+        try? add(message.serializedData())
     }
 }
 
@@ -198,7 +202,8 @@ extension ZMClientMessage: ZMImageOwner {
             }
             
             do {
-                add(try GenericMessage(content: messageUpdate, nonce: nonce).serializedData())
+                let genericMessage = GenericMessage(content: messageUpdate, nonce: nonce)
+                try add(genericMessage.serializedData())
             } catch { return }
         }
         

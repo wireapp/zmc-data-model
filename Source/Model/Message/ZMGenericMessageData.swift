@@ -55,43 +55,10 @@ import WireCryptobox
 
     // MARK: - Properties
 
-    /// The unencrypted serialized Protobuf data.
-
-    private var unencryptedData: Data? {
-        get {
-            guard let moc = managedObjectContext else { return nil }
-
-            do {
-                return try decryptDataIfNeeded(data: data, in: moc)
-            } catch {
-                Self.log.warn("Could not decrypt message data: \(error.localizedDescription)")
-                return nil
-            }
-        }
-
-        set {
-            guard
-                let newData = newValue,
-                let moc = managedObjectContext
-            else {
-                return
-            }
-
-            do {
-                let (data, nonce) = try encryptDataIfNeeded(data: newData, in: moc)
-                self.data = data
-                self.nonce = nonce
-            } catch {
-                Self.log.warn("Could not encrypt message data: \(error.localizedDescription)")
-            }
-        }
-    }
-
-    /// The deserialized Protobuf object.
+    /// The deserialized Protobuf object, if available.
 
     public var underlyingMessage: GenericMessage? {
-        guard let unencryptedData = unencryptedData else { return nil }
-        return try? GenericMessage(serializedData: unencryptedData)
+        return try? GenericMessage(serializedData: getProtobufData())
     }
 
     /// Whether the Protobuf data is encrypted in the database.
@@ -107,12 +74,21 @@ import WireCryptobox
 
     // MARK: - Methods
 
+    private func getProtobufData() throws -> Data {
+        guard let moc = managedObjectContext else { throw EncryptionError.missingManagedObjectContext }
+        return try decryptDataIfNeeded(data: data, in: moc)
+    }
+
     /// Set the protobuf data.
     ///
     /// - Parameter data: Serialized data representing a protobuf object.
+    /// - Throws: `EncryptionError` if the data can't be encrypted in the database.
 
-    public func setProtobuf(_ data: Data) {
-        self.unencryptedData = data
+    public func setProtobuf(_ data: Data) throws {
+        guard let moc = managedObjectContext else { throw EncryptionError.missingManagedObjectContext }
+        let (data, nonce) = try encryptDataIfNeeded(data: data, in: moc)
+        self.data = data
+        self.nonce = nonce
     }
 
     private func decryptDataIfNeeded(data: Data, in moc: NSManagedObjectContext) throws -> Data {
@@ -162,11 +138,14 @@ private extension ZMGenericMessageData {
 
     enum EncryptionError: LocalizedError {
 
+        case missingManagedObjectContext
         case missingDatabaseKey
         case missingNonce
 
         var errorDescription: String? {
             switch self {
+            case .missingManagedObjectContext:
+                return "Missing managed object context."
             case .missingDatabaseKey:
                 return "Database key not found. Perhaps the database is locked."
             case .missingNonce:

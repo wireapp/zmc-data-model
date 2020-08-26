@@ -37,7 +37,7 @@ import Foundation
         let genericMessage = GenericMessage(content: asset, nonce: nonce, expiresAfter: timeout)
         
         do {
-            _ = mergeWithExistingData(data: try genericMessage.serializedData())
+            try mergeWithExistingData(data: genericMessage.serializedData())
         } catch {
             return nil
         }
@@ -414,7 +414,7 @@ struct CacheAsset: Asset {
         }
         
         do {
-            _ = owner.mergeWithExistingData(data: try genericMessage.serializedData())
+            try owner.mergeWithExistingData(data: genericMessage.serializedData())
         } catch {
             return
         }
@@ -442,7 +442,9 @@ struct CacheAsset: Asset {
         case .thumbnail:
             genericMessage.updateAssetPreview(withImageProperties: imageProperties)
         }
-        owner.add(genericMessage)
+
+        // TODO: Handle failure?
+        try? owner.add(genericMessage)
     }
     
     func encrypt() {
@@ -467,8 +469,9 @@ struct CacheAsset: Asset {
                 genericMessage.updateAssetPreview(withUploadedOTRKey: keys.otrKey, sha256: keys.sha256!)
             }
         }
-        
-        owner.add(genericMessage)
+
+        // TODO: Handle failure?
+        try? owner.add(genericMessage)
     }
     
 }

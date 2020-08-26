@@ -47,17 +47,14 @@ extension ZMClientMessage {
         }
         return message
     }
-    
-    @objc(addData:)
-    public func add(_ data: Data?) {
-        guard let data = data else {
-            return
-        }
-        let messageData = mergeWithExistingData(data)
+
+    public func add(_ data: Data) throws {
+        let messageData = try mergeWithExistingData(data)
         
-        if (nonce == nil) {
-            nonce = UUID(uuidString: messageData?.underlyingMessage?.messageID ?? "")
+        if nonce == .none, let messageID = messageData?.underlyingMessage?.messageID {
+            nonce = UUID(uuidString: messageID)
         }
+
         updateCategoryCache()
         setLocallyModifiedKeys([#keyPath(ZMClientMessage.dataSet)])
     }

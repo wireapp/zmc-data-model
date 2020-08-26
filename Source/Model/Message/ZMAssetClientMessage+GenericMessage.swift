@@ -53,39 +53,41 @@ extension ZMAssetClientMessage {
         return cachedUnderlyingAssetMessage
     }
     
-    public func add(_ genericMessage: GenericMessage) {
-        do {
-        _ = self.mergeWithExistingData(data: try genericMessage.serializedData())
-        } catch {
-            return
-        }
+    public func add(_ genericMessage: GenericMessage) throws {
+        try mergeWithExistingData(data: genericMessage.serializedData())
     }
-    
-    func mergeWithExistingData(data: Data) -> ZMGenericMessageData? {
+
+    @discardableResult
+    func mergeWithExistingData(data: Data) throws -> ZMGenericMessageData? {
         cachedUnderlyingAssetMessage = nil
       
-        guard let genericMessage = try? GenericMessage(serializedData: data) else {
-            return nil
-        }
+        let genericMessage = try GenericMessage(serializedData: data)
 
-        if let imageFormat = genericMessage.imageAssetData?.imageFormat(),
+        guard
+            let imageFormat = genericMessage.imageAssetData?.imageFormat(),
             let existingMessageData = genericMessageDataFromDataSet(for: imageFormat)
-        {
-            existingMessageData.setProtobuf(data)
-            return existingMessageData
-        } else {
+        else {
             return createNewGenericMessage(with: data)
         }
+
+        try existingMessageData.setProtobuf(data)
+        return existingMessageData
     }
     
     /// Creates a new generic message from the given data
-    func createNewGenericMessage(with data: Data) -> ZMGenericMessageData {
-        guard let moc = self.managedObjectContext else { fatalError() }
+    func createNewGenericMessage(with data: Data) -> ZMGenericMessageData? {
+        guard let moc = managedObjectContext else { return nil }
         let messageData = ZMGenericMessageData.insertNewObject(in: moc)
-        messageData.setProtobuf(data)
-        messageData.asset = self
-        moc.processPendingChanges()
-        return messageData
+
+        do {
+            try messageData.setProtobuf(data)
+            messageData.asset = self
+            moc.processPendingChanges()
+            return messageData
+        } catch {
+            moc.delete(messageData)
+            return nil
+        }
     }
     
     func underlyingMessageMergedFromDataSet(filter: (GenericMessage)->Bool) -> GenericMessage? {

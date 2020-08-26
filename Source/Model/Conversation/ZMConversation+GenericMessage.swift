@@ -25,20 +25,27 @@ extension ZMConversation {
     /// @param expires wether the message should expire or tried to be send infinitively
     /// @param hidden wether the message should be hidden in the conversation or not
     public func appendClientMessage(with genericMessage: GenericMessage, expires: Bool = true, hidden: Bool = false) -> ZMClientMessage? {
-        guard let nonce = UUID(uuidString: genericMessage.messageID) else { return nil }
-        guard let moc = self.managedObjectContext else { return nil }
+        guard
+            let moc = self.managedObjectContext,
+            let nonce = UUID(uuidString: genericMessage.messageID)
+        else {
+            return nil
+        }
+
+        let message = ZMClientMessage(nonce: nonce, managedObjectContext: moc)
+
         do {
-            let data = try genericMessage.serializedData()
-            let message = ZMClientMessage(nonce: nonce, managedObjectContext: moc)
-            message.add(data)
+            try message.add(genericMessage.serializedData())
             return append(message, expires: expires, hidden: hidden)
         } catch {
+            moc.delete(message)
             return nil
         }
     }
     
     /// Appends a new message to the conversation.
     /// @param client message that should be appended
+    @discardableResult
     public func append(_ message: ZMClientMessage, expires: Bool, hidden: Bool) -> ZMClientMessage? {
         guard let moc = self.managedObjectContext else {
             return nil

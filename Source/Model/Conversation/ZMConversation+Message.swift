@@ -100,29 +100,33 @@ extension ZMConversation {
                        replyingTo quotedMessage: ZMConversationMessage? = nil,
                        fetchLinkPreview: Bool = true,
                        nonce: UUID = UUID()) -> ZMConversationMessage? {
-        
-        guard !(text as NSString).zmHasOnlyWhitespaceCharacters() else { return nil }
+
+        guard
+            let moc = managedObjectContext,
+            !(text as NSString).zmHasOnlyWhitespaceCharacters()
+        else {
+            return nil
+        }
         
         let text = Text(content: text, mentions: mentions, linkPreviews: [], replyingTo: quotedMessage as? ZMOTRMessage)
         let genericMessage = GenericMessage(content: text, nonce: nonce, expiresAfter: messageDestructionTimeoutValue)
-        let clientMessage = ZMClientMessage(nonce: nonce, managedObjectContext: managedObjectContext!)
-        
+        let clientMessage = ZMClientMessage(nonce: nonce, managedObjectContext: moc)
+
         do {
-            clientMessage.add(try genericMessage.serializedData())
+            try clientMessage.add(genericMessage.serializedData())
             clientMessage.linkPreviewState = fetchLinkPreview ? .waitingToBeProcessed : .done
             clientMessage.needsLinkAttachmentsUpdate = fetchLinkPreview
             clientMessage.quote = quotedMessage as? ZMMessage
             
             append(clientMessage, expires: true, hidden: false)
             
-            if let managedObjectContext = managedObjectContext {
-                NotificationInContext(name: ZMConversation.clearTypingNotificationName,
-                                      context: managedObjectContext.notificationContext,
-                                      object: self).post()
-            }
-            
+            NotificationInContext(name: ZMConversation.clearTypingNotificationName,
+                                  context: moc.notificationContext,
+                                  object: self).post()
+
             return clientMessage
         } catch {
+            moc.delete(clientMessage)
             return nil
         }
     }

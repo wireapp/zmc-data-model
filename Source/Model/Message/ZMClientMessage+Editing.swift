@@ -42,18 +42,23 @@ extension ZMClientMessage {
     /// - Returns: true if edit was succesfully applied
     
     func processMessageEdit(_ messageEdit: MessageEdit, from updateEvent: ZMUpdateEvent) -> Bool {
-        guard let nonce = updateEvent.messageNonce,
-              let senderUUID = updateEvent.senderUUID,
-              let originalText = underlyingMessage?.textData,
-              case .text? = messageEdit.content,
-              senderUUID == sender?.remoteIdentifier
-        else { return false }
+        guard
+            let nonce = updateEvent.messageNonce,
+            let senderUUID = updateEvent.senderUUID,
+            let originalText = underlyingMessage?.textData,
+            case .text? = messageEdit.content,
+            senderUUID == sender?.remoteIdentifier
+        else {
+            return false
+        }
         
         do {
-            add(try GenericMessage(content: originalText.applyEdit(from: messageEdit.text), nonce: nonce).serializedData())
+            let genericMessage = GenericMessage(content: originalText.applyEdit(from: messageEdit.text), nonce: nonce)
+            try add(genericMessage.serializedData())
         } catch {
             return false
         }
+
         updateNormalizedText()
         self.nonce = nonce
         updatedTimestamp = updateEvent.timestamp
