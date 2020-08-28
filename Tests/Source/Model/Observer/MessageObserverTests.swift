@@ -126,7 +126,7 @@ class MessageObserverTests : NotificationDispatcherTestBase {
         // when
         self.checkThatItNotifiesTheObserverOfAChange(
             message,
-            modifier: { $0.add(imageMessage) },
+            modifier: { try! $0.add(imageMessage) },
             expectedChangedField: #keyPath(MessageChangeInfo.imageChanged)
         )
     }
@@ -146,7 +146,7 @@ class MessageObserverTests : NotificationDispatcherTestBase {
         let nonce = UUID.create()
         let genericMessage = GenericMessage(content: Text(content: name), nonce: nonce)
         do {
-            clientMessage.add(try genericMessage.serializedData())
+            try clientMessage.setUnderlyingMessage(genericMessage)
         } catch {
             XCTFail()
         }
@@ -166,10 +166,9 @@ class MessageObserverTests : NotificationDispatcherTestBase {
         uiMOC.saveOrRollback()
         
         // when
-        let genericMessageData = try? updateGenericMessage.serializedData()
         checkThatItNotifiesTheObserverOfAChange(
             clientMessage,
-            modifier: { $0.add(genericMessageData) },
+            modifier: { try! $0.setUnderlyingMessage(updateGenericMessage) },
             expectedChangedFields: [#keyPath(MessageChangeInfo.linkPreviewChanged), #keyPath(MessageChangeInfo.underlyingMessageChanged)]
         )
     }
@@ -334,7 +333,7 @@ class MessageObserverTests : NotificationDispatcherTestBase {
         let nonce = UUID.create()
         let genericMessage = GenericMessage(content: Text(content: "foo"), nonce: nonce)
         do {
-            clientMessage.add(try genericMessage.serializedData())
+            try clientMessage.setUnderlyingMessage(genericMessage)
         } catch {
             XCTFail()
         }
@@ -342,10 +341,9 @@ class MessageObserverTests : NotificationDispatcherTestBase {
         uiMOC.saveOrRollback()
         
         // when
-        let genericMessageData = try? update.serializedData()
         self.checkThatItNotifiesTheObserverOfAChange(
             clientMessage,
-            modifier: { $0.add(genericMessageData) },
+            modifier: { try! $0.setUnderlyingMessage(update) },
             expectedChangedFields: [ #keyPath(MessageChangeInfo.underlyingMessageChanged), #keyPath(MessageChangeInfo.linkPreviewChanged)]
         )
 

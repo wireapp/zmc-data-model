@@ -495,7 +495,7 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
             }
             let genericMessage = GenericMessage(content: text, nonce: message.nonce!)
             do {
-                try clientMessage.add(genericMessage.serializedData())
+                try clientMessage.setUnderlyingMessage(genericMessage)
             } catch {
                 XCTFail()
             }

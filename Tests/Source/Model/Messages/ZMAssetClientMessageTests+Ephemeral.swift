@@ -201,7 +201,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
 extension ZMAssetClientMessageTests_Ephemeral {
     
     
-    func testThatItStartsATimerForImageAssetMessagesIfTheMessageIsAMessageOfTheOtherUser(){
+    func testThatItStartsATimerForImageAssetMessagesIfTheMessageIsAMessageOfTheOtherUser() throws {
         // given
         conversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: 10))
         conversation.lastReadServerTimeStamp = Date()
@@ -211,7 +211,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         let fileMetadata = self.createFileMetadata()
         let message = conversation.append(file: fileMetadata) as! ZMAssetClientMessage
         message.sender = sender
-        message.add(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
+        try message.add(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
         XCTAssertTrue(message.underlyingMessage!.assetData!.hasUploaded)
         
         // when
@@ -222,7 +222,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         XCTAssertEqual(self.deletionTimer?.isTimerRunning(for: message), true)
     }
     
-    func testThatItStartsATimerIfTheMessageIsAMessageOfTheOtherUser(){
+    func testThatItStartsATimerIfTheMessageIsAMessageOfTheOtherUser() throws {
         // given
         conversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: 10))
         conversation.lastReadServerTimeStamp = Date()
@@ -236,11 +236,11 @@ extension ZMAssetClientMessageTests_Ephemeral {
         
         let imageData = verySmallJPEGData()
         let assetMessage = GenericMessage(content: WireProtos.Asset(imageSize: .zero, mimeType: "", size: UInt64(imageData.count)), nonce: nonce, expiresAfter: 10)
-        message.add(assetMessage)
+        try message.add(assetMessage)
         
         
         let uploaded = GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: .randomEncryptionKey(), sha256: .zmRandomSHA256Key()), nonce: message.nonce!, expiresAfter: conversation.messageDestructionTimeoutValue)
-        message.add(uploaded)
+        try message.add(uploaded)
         
         // when
         XCTAssertTrue(message.startSelfDestructionIfNeeded())
@@ -263,7 +263,13 @@ extension ZMAssetClientMessageTests_Ephemeral {
         
         
         let imageMessage = GenericMessage(content: ImageAsset(mediumProperties: properties, processedProperties: properties, encryptionKeys: keys, format: .preview))
-        message.add(imageMessage)
+
+        do {
+            try message.add(imageMessage)
+        } catch {
+            XCTFail()
+        }
+
         return message
     }
     
@@ -305,7 +311,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         XCTAssertEqual(self.deletionTimer?.isTimerRunning(for: message), false)
     }
     
-    func testThatItStartsATimerIfTheMessageIsAMessageOfTheOtherUser_UploadCancelled(){
+    func testThatItStartsATimerIfTheMessageIsAMessageOfTheOtherUser_UploadCancelled() throws{
         // given
         conversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: 10))
         conversation.lastReadServerTimeStamp = Date()
@@ -315,7 +321,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         let fileMetadata = self.createFileMetadata()
         let message = conversation.append(file: fileMetadata) as! ZMAssetClientMessage
         message.sender = sender
-        message.add(GenericMessage(content: WireProtos.Asset(withNotUploaded: .cancelled), nonce: message.nonce!))
+        try message.add(GenericMessage(content: WireProtos.Asset(withNotUploaded: .cancelled), nonce: message.nonce!))
         XCTAssertTrue(message.underlyingMessage!.assetData!.hasNotUploaded)
         
         // when
@@ -326,13 +332,13 @@ extension ZMAssetClientMessageTests_Ephemeral {
         XCTAssertEqual(self.deletionTimer?.isTimerRunning(for: message), true)
     }
     
-    func testThatItDoesNotStartATimerForAMessageOfTheSelfuser(){
+    func testThatItDoesNotStartATimerForAMessageOfTheSelfuser() throws {
         // given
         let timeout : TimeInterval = 0.1
         conversation.messageDestructionTimeout =  .local(MessageDestructionTimeoutValue(rawValue: timeout))
         let fileMetadata = self.createFileMetadata()
         let message = conversation.append(file: fileMetadata) as! ZMAssetClientMessage
-        message.add(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
+        try message.add(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
         XCTAssertTrue(message.underlyingMessage!.assetData!.hasUploaded)
         
         // when
@@ -342,7 +348,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         XCTAssertEqual(self.deletionTimer?.runningTimersCount, 0)
     }
     
-    func testThatItCreatesADeleteForAllMessageWhenTheTimerFires(){
+    func testThatItCreatesADeleteForAllMessageWhenTheTimerFires() throws {
         // given
         let timeout : TimeInterval = 0.1
         conversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: timeout))
@@ -352,7 +358,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         conversation.conversationType = .oneOnOne
         message.sender = ZMUser.insertNewObject(in: uiMOC)
         message.sender?.remoteIdentifier = UUID.create()
-        message.add(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
+        try message.add(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
         XCTAssertTrue(message.underlyingMessage!.assetData!.hasUploaded)
         
         // when
@@ -376,7 +382,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         XCTAssertNil(message.destructionDate)
     }
     
-    func testThatItExtendsTheDeletionTimer() {
+    func testThatItExtendsTheDeletionTimer() throws {
         var oldTimer: ZMTimer?
         var message: ZMAssetClientMessage!
         
@@ -389,7 +395,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         message.sender = ZMUser.insertNewObject(in: self.uiMOC)
         message.sender?.remoteIdentifier = UUID.create()
         
-        message.add(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
+        try message.add(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
         XCTAssertTrue(message.underlyingMessage!.assetData!.hasUploaded)
         
         // check a timer was started
@@ -408,7 +414,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         XCTAssertNotEqual(oldTimer, newTimer)
     }
     
-    func testThatItDoesNotExtendTheDeletionTimerWhenNewDateIsEarlier() {
+    func testThatItDoesNotExtendTheDeletionTimerWhenNewDateIsEarlier() throws {
         var oldTimer: ZMTimer?
         var message: ZMAssetClientMessage!
         
@@ -421,7 +427,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         message.sender = ZMUser.insertNewObject(in: self.uiMOC)
         message.sender?.remoteIdentifier = UUID.create()
         
-        message.add(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
+        try message.add(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
         XCTAssertTrue(message.underlyingMessage!.assetData!.hasUploaded)
         
         // check a timer was started
@@ -440,6 +446,3 @@ extension ZMAssetClientMessageTests_Ephemeral {
         XCTAssertEqual(oldTimer, newTimer)
     }
 }
-
-
-

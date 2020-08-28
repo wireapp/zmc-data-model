@@ -31,7 +31,7 @@ extension ZMBaseManagedObjectTest {
         let message = ZMClientMessage.init(nonce: nonce, managedObjectContext: self.uiMOC)
         let textMessage = GenericMessage(content: Text(content: text, mentions: [], linkPreviews: [], replyingTo: nil), nonce: nonce)
         do {
-            try message.add(textMessage.serializedData())
+            try message.setUnderlyingMessage(textMessage)
         } catch {
             XCTFail()
         }

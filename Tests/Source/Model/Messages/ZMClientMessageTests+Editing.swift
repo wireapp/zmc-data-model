@@ -20,7 +20,8 @@ import XCTest
 @testable import WireDataModel
 
 class ZMClientMessageTests_Editing: BaseZMClientMessageTests {
-    func testThatItEditsTheMessage() {
+
+    func testThatItEditsTheMessage() throws {
         // GIVEN
         let conversationID = UUID.create()
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
@@ -32,8 +33,9 @@ class ZMClientMessageTests_Editing: BaseZMClientMessageTests {
         let nonce = UUID.create()
         let message = ZMClientMessage(nonce: nonce, managedObjectContext: uiMOC)
         message.sender = user
-        let data = try? GenericMessage(content: Text(content: "text")).serializedData()
-        message.add(data)
+
+        try message.setUnderlyingMessage(GenericMessage(content: Text(content: "text")))
+
         conversation.append(message)
         
         let edited = MessageEdit.with {
@@ -415,9 +417,9 @@ extension ZMClientMessageTests_Editing {
         genericMessage.setExpectsReadConfirmation(true)
         
         do {
-            message.add(try genericMessage.serializedData())
+            try message.setUnderlyingMessage(genericMessage)
         } catch {
-            return
+            XCTFail()
         }
         
         let updateEvent = createMessageEditUpdateEvent(oldNonce: message.nonce!, newNonce: UUID.create(), conversationID: conversation.remoteIdentifier!, senderID: senderID!, newText: newText)

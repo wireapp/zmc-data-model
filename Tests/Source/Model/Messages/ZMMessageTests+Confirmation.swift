@@ -95,9 +95,9 @@ extension ZMMessageTests_Confirmation {
         genericMessage.setExpectsReadConfirmation(true)
         
         do {
-            message.add(try genericMessage.serializedData())
+            try message.setUnderlyingMessage(genericMessage)
         } catch {
-            return
+            XCTFail()
         }
 
         // when
@@ -120,9 +120,9 @@ extension ZMMessageTests_Confirmation {
         genericMessage.setExpectsReadConfirmation(true)
         
         do {
-            message.add(try genericMessage.serializedData())
+            try message.setUnderlyingMessage(genericMessage)
         } catch {
-            return
+            XCTFail()
         }
         
         // when

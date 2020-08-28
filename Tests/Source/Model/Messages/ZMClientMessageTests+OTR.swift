@@ -387,7 +387,7 @@ extension ClientMessageTests_OTR {
             let genericMessage = GenericMessage(content: Text(content: "yo"), nonce: UUID.create())
             let clientmessage = ZMClientMessage(nonce: UUID(), managedObjectContext: self.syncMOC)
             do {
-                clientmessage.add(try genericMessage.serializedData())
+                try clientmessage.setUnderlyingMessage(genericMessage)
             } catch {
                 XCTFail()
             }
@@ -412,17 +412,17 @@ extension ClientMessageTests_OTR {
             conversation.addParticipantAndUpdateConversationState(user: self.syncUser1, role: nil)
             
             let genericMessage = GenericMessage(content: Text(content: "yo"), nonce: UUID.create())
-            let clientmessage = ZMClientMessage(nonce: UUID(), managedObjectContext: self.syncMOC)
+            let clientMessage = ZMClientMessage(nonce: UUID(), managedObjectContext: self.syncMOC)
             do {
-                clientmessage.add(try genericMessage.serializedData())
+                try clientMessage.setUnderlyingMessage(genericMessage)
             } catch {
                 XCTFail()
             }
-            clientmessage.visibleInConversation = conversation
+            clientMessage.visibleInConversation = conversation
             
             self.syncMOC.saveOrRollback()
             
-            let confirmationMessage = conversation.append(message: Confirmation(messageId: clientmessage.nonce!, type: .delivered), hidden: true)
+            let confirmationMessage = conversation.append(message: Confirmation(messageId: clientMessage.nonce!, type: .delivered), hidden: true)
 
             //when
             guard let _ = confirmationMessage?.encryptForTransport()

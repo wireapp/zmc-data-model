@@ -168,10 +168,20 @@ extension ZMClientMessageTests_Ephemeral {
             
             let imageData = self.verySmallJPEGData()
             let assetMessage = GenericMessage(content: WireProtos.Asset(imageSize: .zero, mimeType: "", size: UInt64(imageData.count)), nonce: nonce, expiresAfter: 10)
-            message.add(assetMessage)
+
+            do {
+                try message.add(assetMessage)
+            } catch {
+                XCTFail()
+            }
             
             let uploaded = GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: .randomEncryptionKey(), sha256: .zmRandomSHA256Key()), nonce: message.nonce!, expiresAfter: self.syncConversation.messageDestructionTimeoutValue)
-            message.add(uploaded)
+
+            do {
+                try message.add(uploaded)
+            } catch {
+                XCTFail()
+            }
             
             // when
             message.markAsSent()
@@ -198,28 +208,33 @@ extension ZMClientMessageTests_Ephemeral {
             )
             article.title = "title"
             article.summary = "summary"
-             let genericMessage = GenericMessage(content: Text(content: "foo", mentions: [], linkPreviews: [article], replyingTo: nil), nonce: UUID.create(), expiresAfter: timeout)
-            let message = self.syncConversation.appendClientMessage(with: genericMessage)!
-            message.linkPreviewState = .processed
-            XCTAssertEqual(message.linkPreviewState, .processed)
-            XCTAssertEqual(self.obfuscationTimer?.runningTimersCount, 0)
-            
-            // when
-            message.markAsSent()
-            
-            // then
-            XCTAssertTrue(message.isEphemeral)
-            XCTAssertEqual(message.deletionTimeout, timeout)
-            XCTAssertNil(message.destructionDate)
-            XCTAssertEqual(self.obfuscationTimer?.runningTimersCount, 0)
-            
-            // and when
-            message.linkPreviewState = .done
-            message.markAsSent()
-            
-            // then 
-            XCTAssertNotNil(message.destructionDate)
-            XCTAssertEqual(self.obfuscationTimer?.runningTimersCount, 1)
+
+            do {
+                let genericMessage = GenericMessage(content: Text(content: "foo", mentions: [], linkPreviews: [article], replyingTo: nil), nonce: UUID.create(), expiresAfter: timeout)
+                let message = try self.syncConversation.appendClientMessage(with: genericMessage)
+                message.linkPreviewState = .processed
+                XCTAssertEqual(message.linkPreviewState, .processed)
+                XCTAssertEqual(self.obfuscationTimer?.runningTimersCount, 0)
+                
+                // when
+                message.markAsSent()
+
+                // then
+                XCTAssertTrue(message.isEphemeral)
+                XCTAssertEqual(message.deletionTimeout, timeout)
+                XCTAssertNil(message.destructionDate)
+                XCTAssertEqual(self.obfuscationTimer?.runningTimersCount, 0)
+                
+                // and when
+                message.linkPreviewState = .done
+                message.markAsSent()
+                
+                // then 
+                XCTAssertNotNil(message.destructionDate)
+                XCTAssertEqual(self.obfuscationTimer?.runningTimersCount, 1)
+            } catch {
+                XCTFail()
+            }
         }
     }
     

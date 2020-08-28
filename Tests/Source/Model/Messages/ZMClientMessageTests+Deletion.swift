@@ -264,14 +264,14 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
         XCTAssertNil(sut.hiddenInConversation)
     }
     
-    func testThatTheInsertedDeleteMessageDoesNotHaveAnExpirationDate() {
+    func testThatTheInsertedDeleteMessageDoesNotHaveAnExpirationDate() throws {
         // given
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
         let nonce = UUID.create()
         let deletedMessage = GenericMessage(content: MessageDelete(messageId: nonce))
         
         // when
-        let sut = conversation.appendClientMessage(with: deletedMessage, expires: false, hidden: true)!
+        let sut = try conversation.appendClientMessage(with: deletedMessage, expires: false, hidden: true)
         
         // then
         XCTAssertNil(sut.expirationDate)

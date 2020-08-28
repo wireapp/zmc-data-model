@@ -83,7 +83,7 @@ class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
         XCTAssertEqual(message.categorization, [MessageCategory.text, MessageCategory.link])
     }
     
-    func testThatItCategorizesALinkPreviewMessage() {
+    func testThatItCategorizesALinkPreviewMessage() throws {
         
         // GIVEN
         let article = ArticleMetadata(
@@ -95,11 +95,11 @@ class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
         article.title = "title"
         article.summary = "summary"
         let genericMessage = GenericMessage(content: Text(content: "foo", mentions: [], linkPreviews: [article], replyingTo: nil), nonce: UUID.create())
-        let message = self.conversation.appendClientMessage(with: genericMessage)
-        message?.linkPreviewState = .processed
+        let message = try self.conversation.appendClientMessage(with: genericMessage)
+        message.linkPreviewState = .processed
         
         // THEN
-        XCTAssertEqual(message?.categorization, [MessageCategory.text, MessageCategory.link, MessageCategory.linkPreview])
+        XCTAssertEqual(message.categorization, [MessageCategory.text, MessageCategory.link, MessageCategory.linkPreview])
     }
     
     func testThatItCategorizesAnImageMessage() {
