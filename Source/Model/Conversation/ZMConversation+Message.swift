@@ -26,7 +26,7 @@ extension ZMConversation {
     @discardableResult
     func append(buttonActionWithId id: String, referenceMessageId: UUID, nonce: UUID = UUID()) -> ZMClientMessage? {
         let buttonAction = ButtonAction(buttonId: id, referenceMessageId: referenceMessageId)
-        return appendClientMessage(with: GenericMessage(content: buttonAction, nonce: nonce), hidden: true)
+        return try? appendClientMessage(with: GenericMessage(content: buttonAction, nonce: nonce), hidden: true)
     }
     
     @discardableResult @objc(appendLocation:nonce:)
@@ -40,12 +40,12 @@ extension ZMConversation {
             $0.zoom = location.zoomLevel
         }
 
-        return appendClientMessage(with: GenericMessage(content: locationContent, nonce: nonce, expiresAfter: messageDestructionTimeoutValue))
+        return try? appendClientMessage(with: GenericMessage(content: locationContent, nonce: nonce, expiresAfter: messageDestructionTimeoutValue))
     }
     
     @discardableResult
     public func appendKnock(nonce: UUID = UUID()) -> ZMConversationMessage? {
-        return appendClientMessage(with: GenericMessage(content: Knock.with({ $0.hotKnock = false }), nonce: nonce, expiresAfter: messageDestructionTimeoutValue))
+        return try? appendClientMessage(with: GenericMessage(content: Knock.with({ $0.hotKnock = false }), nonce: nonce, expiresAfter: messageDestructionTimeoutValue))
     }
     
     @discardableResult @objc(appendSelfConversationWithLastReadOfConversation:)
@@ -61,7 +61,7 @@ extension ZMConversation {
         let genericMessage = GenericMessage(content: lastRead, nonce: nonce)
         let selfConversation = ZMConversation.selfConversation(in: moc)
         
-        let clientMessage = selfConversation.appendClientMessage(with: genericMessage, expires: false, hidden: false)
+        let clientMessage = try? selfConversation.appendClientMessage(with: genericMessage, expires: false, hidden: false)
         return clientMessage
     }
     
@@ -69,7 +69,7 @@ extension ZMConversation {
     @nonobjc
     public static func appendSelfConversation(genericMessage: GenericMessage, managedObjectContext: NSManagedObjectContext) -> ZMClientMessage? {
         let selfConversation = ZMConversation.selfConversation(in: managedObjectContext)
-        let clientMessage = selfConversation.appendClientMessage(with: genericMessage, expires: false, hidden: false)
+        let clientMessage = try? selfConversation.appendClientMessage(with: genericMessage, expires: false, hidden: false)
         return clientMessage
     }
     
@@ -118,7 +118,7 @@ extension ZMConversation {
             clientMessage.needsLinkAttachmentsUpdate = fetchLinkPreview
             clientMessage.quote = quotedMessage as? ZMMessage
             
-            append(clientMessage, expires: true, hidden: false)
+            try append(clientMessage, expires: true, hidden: false)
             
             NotificationInContext(name: ZMConversation.clearTypingNotificationName,
                                   context: moc.notificationContext,
@@ -232,7 +232,7 @@ extension ZMConversation {
     
     @nonobjc
     func append(message: MessageCapable, nonce: UUID = UUID(), hidden: Bool = false, expires: Bool = false) -> ZMClientMessage? {
-        return appendClientMessage(with: GenericMessage(content: message, nonce: nonce), expires: expires, hidden: hidden)
+        return try? appendClientMessage(with: GenericMessage(content: message, nonce: nonce), expires: expires, hidden: hidden)
     }
     
 }

@@ -20,36 +20,70 @@ import Foundation
 import WireProtos
 
 extension ZMConversation {
+
+    public enum AppendMessageError: Error {
+        case missingManagedObjectContext
+        case malformedNonce
+        case failedToProcessMessageData
+
+    }
+
     /// Appends a new message to the conversation.
-    /// @param genericMessage the generic message that should be appended
-    /// @param expires wether the message should expire or tried to be send infinitively
-    /// @param hidden wether the message should be hidden in the conversation or not
-    public func appendClientMessage(with genericMessage: GenericMessage, expires: Bool = true, hidden: Bool = false) -> ZMClientMessage? {
-        guard
-            let moc = self.managedObjectContext,
-            let nonce = UUID(uuidString: genericMessage.messageID)
-        else {
-            return nil
+    ///
+    /// - Parameters:
+    ///     - genericMessage: The generic message that should be appended.
+    ///     - expires: Whether the message should expire or tried to be send infinitively.
+    ///     - hidden: Whether the message should be hidden in the conversation or not
+    ///
+    /// - Throws:
+    ///     - `AppendMessageError` if the message couldn't be appended.
+
+    public func appendClientMessage(with genericMessage: GenericMessage,
+                                    expires: Bool = true,
+                                    hidden: Bool = false) throws -> ZMClientMessage {
+
+        guard let moc = managedObjectContext else {
+            throw AppendMessageError.missingManagedObjectContext
+        }
+
+        guard let nonce = UUID(uuidString: genericMessage.messageID) else {
+            throw AppendMessageError.malformedNonce
         }
 
         let message = ZMClientMessage(nonce: nonce, managedObjectContext: moc)
 
         do {
             try message.add(genericMessage.serializedData())
-            return append(message, expires: expires, hidden: hidden)
         } catch {
             moc.delete(message)
-            return nil
+            throw AppendMessageError.failedToProcessMessageData
         }
+
+        do {
+            try append(message, expires: expires, hidden: hidden)
+        } catch {
+            moc.delete(message)
+            throw error
+        }
+
+        return message
     }
-    
+
     /// Appends a new message to the conversation.
-    /// @param client message that should be appended
-    @discardableResult
-    public func append(_ message: ZMClientMessage, expires: Bool, hidden: Bool) -> ZMClientMessage? {
-        guard let moc = self.managedObjectContext else {
-            return nil
+    ///
+    /// - Parameters:
+    ///     - message: The message that should be appended.
+    ///     - expires: Whether the message should expire or tried to be send infinitively.
+    ///     - hidden: Whether the message should be hidden in the conversation or not
+    ///
+    /// - Throws:
+    ///     - `AppendMessageError` if the message couldn't be appended.
+
+    public func append(_ message: ZMClientMessage, expires: Bool, hidden: Bool) throws {
+        guard let moc = managedObjectContext else {
+            throw AppendMessageError.missingManagedObjectContext
         }
+
         message.sender = ZMUser.selfUser(in: moc)
         
         if expires {
@@ -64,6 +98,5 @@ extension ZMConversation {
             message.updateCategoryCache()
             message.prepareToSend()
         }
-        return message
     }
 }
