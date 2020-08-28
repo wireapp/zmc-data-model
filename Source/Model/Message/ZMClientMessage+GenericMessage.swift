@@ -48,8 +48,8 @@ extension ZMClientMessage {
         return message
     }
 
-    public func add(_ data: Data) throws {
-        let messageData = try mergeWithExistingData(data)
+    public func setUnderlyingMessage(_ message: GenericMessage) throws {
+        let messageData = try mergeWithExistingData(message.serializedData())
         
         if nonce == .none, let messageID = messageData?.underlyingMessage?.messageID {
             nonce = UUID(uuidString: messageID)

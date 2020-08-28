@@ -54,7 +54,7 @@ extension ZMClientMessage {
         
         do {
             let genericMessage = GenericMessage(content: originalText.applyEdit(from: messageEdit.text), nonce: nonce)
-            try add(genericMessage.serializedData())
+            try setUnderlyingMessage(genericMessage)
         } catch {
             return false
         }

@@ -53,7 +53,7 @@ extension ZMConversation {
         let message = ZMClientMessage(nonce: nonce, managedObjectContext: moc)
 
         do {
-            try message.add(genericMessage.serializedData())
+            try message.setUnderlyingMessage(genericMessage)
         } catch {
             moc.delete(message)
             throw AppendMessageError.failedToProcessMessageData

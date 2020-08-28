@@ -55,7 +55,7 @@ extension ZMClientMessage: ZMTextMessageData {
         let updatedMessage = GenericMessage(content: content, nonce: editNonce)
 
         do {
-            try add(updatedMessage.serializedData())
+            try setUnderlyingMessage(updatedMessage)
         } catch {
             return
         }

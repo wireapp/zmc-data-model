@@ -104,7 +104,7 @@ extension ZMClientMessage {
         let message = GenericMessage(content: originalText.updateLinkPreview(from: updatedText), nonce: nonce, expiresAfter: expiresAfter)
 
         // TODO: Handle this?
-        try? add(message.serializedData())
+        try? setUnderlyingMessage(message)
     }
 }
 
@@ -203,7 +203,7 @@ extension ZMClientMessage: ZMImageOwner {
             
             do {
                 let genericMessage = GenericMessage(content: messageUpdate, nonce: nonce)
-                try add(genericMessage.serializedData())
+                try setUnderlyingMessage(genericMessage)
             } catch { return }
         }
         

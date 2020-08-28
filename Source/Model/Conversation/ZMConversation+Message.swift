@@ -113,7 +113,7 @@ extension ZMConversation {
         let clientMessage = ZMClientMessage(nonce: nonce, managedObjectContext: moc)
 
         do {
-            try clientMessage.add(genericMessage.serializedData())
+            try clientMessage.setUnderlyingMessage(genericMessage)
             clientMessage.linkPreviewState = fetchLinkPreview ? .waitingToBeProcessed : .done
             clientMessage.needsLinkAttachmentsUpdate = fetchLinkPreview
             clientMessage.quote = quotedMessage as? ZMMessage

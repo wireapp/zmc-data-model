@@ -26,7 +26,7 @@ extension ZMClientMessage {
             applyLinkPreviewUpdate(message, from: updateEvent)
         } else {
             do {
-                try add(message.serializedData())
+                try setUnderlyingMessage(message)
                 updateNormalizedText()
             } catch {
                 // TODO: Handle?
