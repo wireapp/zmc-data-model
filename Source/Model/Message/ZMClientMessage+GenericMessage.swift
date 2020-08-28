@@ -58,4 +58,34 @@ extension ZMClientMessage {
         updateCategoryCache()
         setLocallyModifiedKeys([#keyPath(ZMClientMessage.dataSet)])
     }
+
+    @discardableResult
+    func mergeWithExistingData(_ data: Data) throws -> ZMGenericMessageData? {
+        cachedUnderlyingMessage = nil
+
+        let existingMessageData = dataSet
+            .compactMap { $0 as? ZMGenericMessageData }
+            .first
+
+        guard let messageData = existingMessageData else {
+            return createNewGenericMessage(with: data)
+        }
+
+        try messageData.setProtobuf(data)
+        return messageData
+    }
+
+    private func createNewGenericMessage(with data: Data) -> ZMGenericMessageData? {
+        guard let moc = managedObjectContext else { return nil }
+        let messageData = ZMGenericMessageData.insertNewObject(in: moc)
+
+        do {
+            try messageData.setProtobuf(data)
+            messageData.message = self
+            return messageData
+        } catch {
+            moc.delete(messageData)
+            return nil
+        }
+    }
 }
