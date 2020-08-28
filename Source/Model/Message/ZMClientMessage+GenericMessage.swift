@@ -48,8 +48,10 @@ extension ZMClientMessage {
         return message
     }
 
+    // TODO: [John] Document and map errors
+
     public func setUnderlyingMessage(_ message: GenericMessage) throws {
-        let messageData = try mergeWithExistingData(message.serializedData())
+        let messageData = try mergeWithExistingData(message)
         
         if nonce == .none, let messageID = messageData?.underlyingMessage?.messageID {
             nonce = UUID(uuidString: messageID)
@@ -59,8 +61,10 @@ extension ZMClientMessage {
         setLocallyModifiedKeys([#keyPath(ZMClientMessage.dataSet)])
     }
 
+    // TODO: [John] rename, remove discardable result, make non optional
+
     @discardableResult
-    func mergeWithExistingData(_ data: Data) throws -> ZMGenericMessageData? {
+    func mergeWithExistingData(_ message: GenericMessage) throws -> ZMGenericMessageData? {
         cachedUnderlyingMessage = nil
 
         let existingMessageData = dataSet
@@ -68,19 +72,21 @@ extension ZMClientMessage {
             .first
 
         guard let messageData = existingMessageData else {
-            return createNewGenericMessage(with: data)
+            return createNewGenericMessage(with: message)
         }
 
-        try messageData.setProtobuf(data)
+        try messageData.setGenericMessage(message)
         return messageData
     }
 
-    private func createNewGenericMessage(with data: Data) -> ZMGenericMessageData? {
+    // TODO: [John] rename, make non optional
+
+    private func createNewGenericMessage(with message: GenericMessage) -> ZMGenericMessageData? {
         guard let moc = managedObjectContext else { return nil }
         let messageData = ZMGenericMessageData.insertNewObject(in: moc)
 
         do {
-            try messageData.setProtobuf(data)
+            try messageData.setGenericMessage(message)
             messageData.message = self
             return messageData
         } catch {

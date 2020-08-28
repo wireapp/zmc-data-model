@@ -87,6 +87,14 @@ import WireCryptobox
         return try decryptDataIfNeeded(data: data, in: moc)
     }
 
+    /// Set the generic message.
+    ///
+    /// This method will attempt to serialize the protobuf object and store its data in this
+    /// instance.
+    ///
+    /// - Parameter message: The protobuf object whose serialized data will be stored.
+    /// - Throws: `ProcessingError`if the data can't be stored.
+
     public func setGenericMessage(_ message: GenericMessage) throws {
         guard let protobufData = try? message.serializedData() else {
             throw ProcessingError.failedToSerializeMessage
@@ -97,21 +105,6 @@ import WireCryptobox
         }
 
         let (data, nonce) = try encryptDataIfNeeded(data: protobufData, in: moc)
-        self.data = data
-        self.nonce = nonce
-    }
-
-    /// Set the protobuf data.
-    ///
-    /// - Parameter data: Serialized data representing a protobuf object.
-    /// - Throws: `EncryptionError` if the data can't be encrypted in the database.
-
-    public func setProtobuf(_ data: Data) throws {
-        guard let moc = managedObjectContext else {
-            throw ProcessingError.missingManagedObjectContext
-        }
-
-        let (data, nonce) = try encryptDataIfNeeded(data: data, in: moc)
         self.data = data
         self.nonce = nonce
     }

@@ -33,8 +33,7 @@ extension ZMClientMessage {
         deleteContent()
 
         do {
-            let data = try obfuscatedMessage.serializedData()
-            try mergeWithExistingData(data)
+            try mergeWithExistingData(obfuscatedMessage)
         } catch {
 
         }

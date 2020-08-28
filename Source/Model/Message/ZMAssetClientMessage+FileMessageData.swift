@@ -250,8 +250,7 @@ extension ZMAssetClientMessage: ZMFileMessageData {
                 continue
             }
 
-            let newMessageData = try genericMessage.serializedData()
-            try messageData.setProtobuf(newMessageData)
+            try messageData.setGenericMessage(genericMessage)
         }
     }
     

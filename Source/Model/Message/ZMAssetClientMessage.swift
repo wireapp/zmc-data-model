@@ -37,7 +37,8 @@ import Foundation
         let genericMessage = GenericMessage(content: asset, nonce: nonce, expiresAfter: timeout)
         
         do {
-            try mergeWithExistingData(data: genericMessage.serializedData())
+            // TODO: [John] check if we need to try.
+            try mergeWithExistingData(message: genericMessage)
         } catch {
             return nil
         }
@@ -414,7 +415,8 @@ struct CacheAsset: Asset {
         }
         
         do {
-            try owner.mergeWithExistingData(data: genericMessage.serializedData())
+            // TODO: [John] Check if we need to try
+            try owner.mergeWithExistingData(message: genericMessage)
         } catch {
             return
         }
