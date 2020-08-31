@@ -93,7 +93,7 @@ import WireCryptobox
     /// instance.
     ///
     /// - Parameter message: The protobuf object whose serialized data will be stored.
-    /// - Throws: `ProcessingError`if the data can't be stored.
+    /// - Throws: `ProcessingError` if the data can't be stored.
 
     public func setGenericMessage(_ message: GenericMessage) throws {
         guard let protobufData = try? message.serializedData() else {
