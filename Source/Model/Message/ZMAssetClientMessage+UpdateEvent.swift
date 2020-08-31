@@ -25,6 +25,7 @@ extension ZMAssetClientMessage {
         do {
             try setUnderlyingMessage(message)
         } catch {
+            // TODO: [John] Handle?
             return
         }
 

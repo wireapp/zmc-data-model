@@ -26,6 +26,7 @@ extension ZMConversation {
     @discardableResult
     func append(buttonActionWithId id: String, referenceMessageId: UUID, nonce: UUID = UUID()) -> ZMClientMessage? {
         let buttonAction = ButtonAction(buttonId: id, referenceMessageId: referenceMessageId)
+        // TODO: [John] handle?
         return try? appendClientMessage(with: GenericMessage(content: buttonAction, nonce: nonce), hidden: true)
     }
     
@@ -40,11 +41,13 @@ extension ZMConversation {
             $0.zoom = location.zoomLevel
         }
 
+        // TODO: [John] handle?
         return try? appendClientMessage(with: GenericMessage(content: locationContent, nonce: nonce, expiresAfter: messageDestructionTimeoutValue))
     }
     
     @discardableResult
     public func appendKnock(nonce: UUID = UUID()) -> ZMConversationMessage? {
+        // TODO: [John] handle?
         return try? appendClientMessage(with: GenericMessage(content: Knock.with({ $0.hotKnock = false }), nonce: nonce, expiresAfter: messageDestructionTimeoutValue))
     }
     
@@ -60,7 +63,8 @@ extension ZMConversation {
         let lastRead = LastRead(conversationID: convID, lastReadTimestamp: lastReadTimeStamp)
         let genericMessage = GenericMessage(content: lastRead, nonce: nonce)
         let selfConversation = ZMConversation.selfConversation(in: moc)
-        
+
+        // TODO: [John] handle?
         let clientMessage = try? selfConversation.appendClientMessage(with: genericMessage, expires: false, hidden: false)
         return clientMessage
     }
@@ -69,6 +73,7 @@ extension ZMConversation {
     @nonobjc
     public static func appendSelfConversation(genericMessage: GenericMessage, managedObjectContext: NSManagedObjectContext) -> ZMClientMessage? {
         let selfConversation = ZMConversation.selfConversation(in: managedObjectContext)
+        // TODO: [John] handle?
         let clientMessage = try? selfConversation.appendClientMessage(with: genericMessage, expires: false, hidden: false)
         return clientMessage
     }
@@ -232,6 +237,7 @@ extension ZMConversation {
     
     @nonobjc
     func append(message: MessageCapable, nonce: UUID = UUID(), hidden: Bool = false, expires: Bool = false) -> ZMClientMessage? {
+        // TODO: [John] handle?
         return try? appendClientMessage(with: GenericMessage(content: message, nonce: nonce), expires: expires, hidden: hidden)
     }
     

@@ -445,7 +445,7 @@ struct CacheAsset: Asset {
             genericMessage.updateAssetPreview(withImageProperties: imageProperties)
         }
 
-        // TODO: Handle failure?
+        // TODO: [John] Handle failure?
         try? owner.setUnderlyingMessage(genericMessage)
     }
     
@@ -472,7 +472,7 @@ struct CacheAsset: Asset {
             }
         }
 
-        // TODO: Handle failure?
+        // TODO: [John] Handle failure?
         try? owner.setUnderlyingMessage(genericMessage)
     }
     
