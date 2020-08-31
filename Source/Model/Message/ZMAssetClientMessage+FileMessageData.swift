@@ -250,7 +250,11 @@ extension ZMAssetClientMessage: ZMFileMessageData {
                 continue
             }
 
-            try messageData.setGenericMessage(genericMessage)
+            do {
+                try messageData.setGenericMessage(genericMessage)
+            } catch {
+                throw ProcessingError.failedToProcessMessageData
+            }
         }
     }
     
