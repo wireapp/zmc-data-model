@@ -33,6 +33,7 @@ extension ZMClientMessage {
         deleteContent()
 
         do {
+            // TODO: [John] how do we handle this?
             try mergeWithExistingData(obfuscatedMessage)
         } catch {
 
