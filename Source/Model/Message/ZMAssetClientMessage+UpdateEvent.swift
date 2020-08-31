@@ -25,7 +25,7 @@ extension ZMAssetClientMessage {
         do {
             try setUnderlyingMessage(message)
         } catch {
-            // TODO: [John] Handle?
+            assertionFailure("Failed to set generic message: \(error.localizedDescription)")
             return
         }
 
