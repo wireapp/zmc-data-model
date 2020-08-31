@@ -57,7 +57,7 @@ extension ZMAssetClientMessage {
         
         if let obfuscatedMessage = obfuscatedMessage {
             // TODO: [John] check if we need to try?
-            _ = try? createNewGenericMessage(with: obfuscatedMessage)
+            _ = try? createNewGenericMessageData(with: obfuscatedMessage)
         }
     }
     

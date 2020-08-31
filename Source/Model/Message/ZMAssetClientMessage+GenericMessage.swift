@@ -19,6 +19,13 @@
 import Foundation
 
 extension ZMAssetClientMessage {
+
+    public enum ProcessingError: Error {
+
+        case missingManagedObjectContext
+        case failedToProcessMessageData
+
+    }
     
     func genericMessageDataFromDataSet(for format: ZMImageFormat) -> ZMGenericMessageData? {
         return self.dataSet.lazy
@@ -59,28 +66,30 @@ extension ZMAssetClientMessage {
         try mergeWithExistingData(message: genericMessage)
     }
 
-    // TODO: [John] clean up
-
     @discardableResult
-    func mergeWithExistingData(message: GenericMessage) throws -> ZMGenericMessageData? {
+    func mergeWithExistingData(message: GenericMessage) throws -> ZMGenericMessageData {
         cachedUnderlyingAssetMessage = nil
 
         guard
             let imageFormat = message.imageAssetData?.imageFormat(),
             let existingMessageData = genericMessageDataFromDataSet(for: imageFormat)
         else {
-            return createNewGenericMessage(with: message)
+            return try createNewGenericMessageData(with: message)
         }
 
-        try existingMessageData.setGenericMessage(message)
-        return existingMessageData
+        do {
+            try existingMessageData.setGenericMessage(message)
+            return existingMessageData
+        } catch {
+            throw ProcessingError.failedToProcessMessageData
+        }
     }
 
-    // TODO: [John] clean up, make it throw?
+    func createNewGenericMessageData(with message: GenericMessage) throws -> ZMGenericMessageData {
+        guard let moc = managedObjectContext else {
+            throw ProcessingError.missingManagedObjectContext
+        }
 
-    /// Creates a new generic message from the given data
-    func createNewGenericMessage(with message: GenericMessage) -> ZMGenericMessageData? {
-        guard let moc = managedObjectContext else { return nil }
         let messageData = ZMGenericMessageData.insertNewObject(in: moc)
 
         do {
@@ -90,7 +99,7 @@ extension ZMAssetClientMessage {
             return messageData
         } catch {
             moc.delete(messageData)
-            return nil
+            throw ProcessingError.failedToProcessMessageData
         }
     }
     
