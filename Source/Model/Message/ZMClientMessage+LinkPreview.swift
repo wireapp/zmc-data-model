@@ -103,8 +103,11 @@ extension ZMClientMessage {
         let expiresAfter = deletionTimeout > 0 ? deletionTimeout : nil
         let message = GenericMessage(content: originalText.updateLinkPreview(from: updatedText), nonce: nonce, expiresAfter: expiresAfter)
 
-        // TODO: Handle this?
-        try? setUnderlyingMessage(message)
+        do {
+            try setUnderlyingMessage(message)
+        } catch {
+            assertionFailure("Failed to set generic message: \(error.localizedDescription)")
+        }
     }
 }
 
