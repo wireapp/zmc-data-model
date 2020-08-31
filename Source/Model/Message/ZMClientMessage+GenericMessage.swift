@@ -19,6 +19,13 @@
 import Foundation
 
 extension ZMClientMessage {
+
+    public enum ProcessingError: Error {
+
+        case missingManagedObjectContext
+        case failedToProcessMessageData
+
+    }
     
     public var underlyingMessage: GenericMessage? {
         guard !isZombieObject else {
@@ -48,12 +55,15 @@ extension ZMClientMessage {
         return message
     }
 
-    // TODO: [John] Document and map errors
+    /// Set the underlying protobuf message data.
+    ///
+    /// - Parameter message: The protobuf message object to be associated with this client message.
+    /// - Throws `ProcessingError` if the protobuf data can't be processed.
 
     public func setUnderlyingMessage(_ message: GenericMessage) throws {
         let messageData = try mergeWithExistingData(message)
         
-        if nonce == .none, let messageID = messageData?.underlyingMessage?.messageID {
+        if nonce == .none, let messageID = messageData.underlyingMessage?.messageID {
             nonce = UUID(uuidString: messageID)
         }
 
@@ -61,10 +71,8 @@ extension ZMClientMessage {
         setLocallyModifiedKeys([#keyPath(ZMClientMessage.dataSet)])
     }
 
-    // TODO: [John] rename, remove discardable result, make non optional
-
     @discardableResult
-    func mergeWithExistingData(_ message: GenericMessage) throws -> ZMGenericMessageData? {
+    func mergeWithExistingData(_ message: GenericMessage) throws -> ZMGenericMessageData {
         cachedUnderlyingMessage = nil
 
         let existingMessageData = dataSet
@@ -72,17 +80,23 @@ extension ZMClientMessage {
             .first
 
         guard let messageData = existingMessageData else {
-            return createNewGenericMessage(with: message)
+            return try createNewGenericMessageData(with: message)
         }
 
-        try messageData.setGenericMessage(message)
+        do {
+            try messageData.setGenericMessage(message)
+        } catch {
+            throw ProcessingError.failedToProcessMessageData
+        }
+
         return messageData
     }
 
-    // TODO: [John] rename, make non optional
+    private func createNewGenericMessageData(with message: GenericMessage) throws -> ZMGenericMessageData {
+        guard let moc = managedObjectContext else {
+            throw ProcessingError.missingManagedObjectContext
+        }
 
-    private func createNewGenericMessage(with message: GenericMessage) -> ZMGenericMessageData? {
-        guard let moc = managedObjectContext else { return nil }
         let messageData = ZMGenericMessageData.insertNewObject(in: moc)
 
         do {
@@ -91,7 +105,7 @@ extension ZMClientMessage {
             return messageData
         } catch {
             moc.delete(messageData)
-            return nil
+            throw ProcessingError.failedToProcessMessageData
         }
     }
 }
