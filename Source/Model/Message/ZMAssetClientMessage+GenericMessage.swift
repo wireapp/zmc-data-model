@@ -60,10 +60,13 @@ extension ZMAssetClientMessage {
         return cachedUnderlyingAssetMessage
     }
 
-    // TODO: [John] clean up
+    /// Set the underlying protobuf message data.
+    ///
+    /// - Parameter message: The protobuf message object to be associated with this asset client message.
+    /// - Throws `ProcessingError` if the protobuf data can't be processed.
     
-    public func add(_ genericMessage: GenericMessage) throws {
-        try mergeWithExistingData(message: genericMessage)
+    public func setUnderlyingMessage(_ message: GenericMessage) throws {
+        try mergeWithExistingData(message: message)
     }
 
     @discardableResult

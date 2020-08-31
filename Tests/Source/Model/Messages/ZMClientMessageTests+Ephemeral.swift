@@ -170,7 +170,7 @@ extension ZMClientMessageTests_Ephemeral {
             let assetMessage = GenericMessage(content: WireProtos.Asset(imageSize: .zero, mimeType: "", size: UInt64(imageData.count)), nonce: nonce, expiresAfter: 10)
 
             do {
-                try message.add(assetMessage)
+                try message.setUnderlyingMessage(assetMessage)
             } catch {
                 XCTFail()
             }
@@ -178,7 +178,7 @@ extension ZMClientMessageTests_Ephemeral {
             let uploaded = GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: .randomEncryptionKey(), sha256: .zmRandomSHA256Key()), nonce: message.nonce!, expiresAfter: self.syncConversation.messageDestructionTimeoutValue)
 
             do {
-                try message.add(uploaded)
+                try message.setUnderlyingMessage(uploaded)
             } catch {
                 XCTFail()
             }

@@ -211,7 +211,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         let fileMetadata = self.createFileMetadata()
         let message = conversation.append(file: fileMetadata) as! ZMAssetClientMessage
         message.sender = sender
-        try message.add(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
+        try message.setUnderlyingMessage(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
         XCTAssertTrue(message.underlyingMessage!.assetData!.hasUploaded)
         
         // when
@@ -236,11 +236,11 @@ extension ZMAssetClientMessageTests_Ephemeral {
         
         let imageData = verySmallJPEGData()
         let assetMessage = GenericMessage(content: WireProtos.Asset(imageSize: .zero, mimeType: "", size: UInt64(imageData.count)), nonce: nonce, expiresAfter: 10)
-        try message.add(assetMessage)
+        try message.setUnderlyingMessage(assetMessage)
         
         
         let uploaded = GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: .randomEncryptionKey(), sha256: .zmRandomSHA256Key()), nonce: message.nonce!, expiresAfter: conversation.messageDestructionTimeoutValue)
-        try message.add(uploaded)
+        try message.setUnderlyingMessage(uploaded)
         
         // when
         XCTAssertTrue(message.startSelfDestructionIfNeeded())
@@ -265,7 +265,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         let imageMessage = GenericMessage(content: ImageAsset(mediumProperties: properties, processedProperties: properties, encryptionKeys: keys, format: .preview))
 
         do {
-            try message.add(imageMessage)
+            try message.setUnderlyingMessage(imageMessage)
         } catch {
             XCTFail()
         }
@@ -321,7 +321,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         let fileMetadata = self.createFileMetadata()
         let message = conversation.append(file: fileMetadata) as! ZMAssetClientMessage
         message.sender = sender
-        try message.add(GenericMessage(content: WireProtos.Asset(withNotUploaded: .cancelled), nonce: message.nonce!))
+        try message.setUnderlyingMessage(GenericMessage(content: WireProtos.Asset(withNotUploaded: .cancelled), nonce: message.nonce!))
         XCTAssertTrue(message.underlyingMessage!.assetData!.hasNotUploaded)
         
         // when
@@ -338,7 +338,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         conversation.messageDestructionTimeout =  .local(MessageDestructionTimeoutValue(rawValue: timeout))
         let fileMetadata = self.createFileMetadata()
         let message = conversation.append(file: fileMetadata) as! ZMAssetClientMessage
-        try message.add(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
+        try message.setUnderlyingMessage(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
         XCTAssertTrue(message.underlyingMessage!.assetData!.hasUploaded)
         
         // when
@@ -358,7 +358,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         conversation.conversationType = .oneOnOne
         message.sender = ZMUser.insertNewObject(in: uiMOC)
         message.sender?.remoteIdentifier = UUID.create()
-        try message.add(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
+        try message.setUnderlyingMessage(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
         XCTAssertTrue(message.underlyingMessage!.assetData!.hasUploaded)
         
         // when
@@ -395,7 +395,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         message.sender = ZMUser.insertNewObject(in: self.uiMOC)
         message.sender?.remoteIdentifier = UUID.create()
         
-        try message.add(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
+        try message.setUnderlyingMessage(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
         XCTAssertTrue(message.underlyingMessage!.assetData!.hasUploaded)
         
         // check a timer was started
@@ -427,7 +427,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         message.sender = ZMUser.insertNewObject(in: self.uiMOC)
         message.sender?.remoteIdentifier = UUID.create()
         
-        try message.add(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
+        try message.setUnderlyingMessage(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
         XCTAssertTrue(message.underlyingMessage!.assetData!.hasUploaded)
         
         // check a timer was started

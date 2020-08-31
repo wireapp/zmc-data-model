@@ -67,8 +67,8 @@ class BaseZMAssetClientMessageTests : BaseZMClientMessageTests {
         let mediumMessage = ImageAsset(mediumProperties: properties, processedProperties: properties, encryptionKeys: keys, format: .medium)
         let previewMessage = ImageAsset(mediumProperties: properties, processedProperties: properties, encryptionKeys: keys, format: .preview)
         
-        try message.add(GenericMessage(content: mediumMessage, nonce: messageNonce))
-        try message.add(GenericMessage(content: previewMessage, nonce: messageNonce))
+        try message.setUnderlyingMessage(GenericMessage(content: mediumMessage, nonce: messageNonce))
+        try message.setUnderlyingMessage(GenericMessage(content: previewMessage, nonce: messageNonce))
     }
     
     func appendImageMessage(to conversation: ZMConversation, imageData: Data? = nil) -> ZMAssetClientMessage {
@@ -79,7 +79,7 @@ class BaseZMAssetClientMessageTests : BaseZMClientMessageTests {
         let uploaded = WireProtos.Asset(withUploadedOTRKey: .randomEncryptionKey(), sha256: .zmRandomSHA256Key())
 
         do {
-            try message.add(GenericMessage(content: uploaded, nonce: nonce))
+            try message.setUnderlyingMessage(GenericMessage(content: uploaded, nonce: nonce))
         } catch {
             XCTFail()
         }
@@ -271,7 +271,7 @@ extension ZMAssetClientMessageTests {
         let previewMessage = GenericMessage(content: previewAsset, nonce: nonce)
         
         // when
-        XCTAssertNoThrow(try sut.add(previewMessage))
+        XCTAssertNoThrow(try sut.setUnderlyingMessage(previewMessage))
         
         // then
         XCTAssertEqual(sut.underlyingMessage?.messageID, nonce.transportString())
@@ -436,7 +436,7 @@ extension ZMAssetClientMessageTests {
             let genericMessage = GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: otrKey, sha256: sha256), nonce: sut.nonce!)
 
             do {
-                try sut.add(genericMessage)
+                try sut.setUnderlyingMessage(genericMessage)
             } catch {
                 XCTFail()
             }
@@ -508,7 +508,7 @@ extension ZMAssetClientMessageTests {
             let original = GenericMessage(content: WireProtos.Asset(imageSize: CGSize(width: 10, height: 10), mimeType: "text/plain", size: 256), nonce: sut.nonce!)
 
             do {
-                try sut.add(original)
+                try sut.setUnderlyingMessage(original)
             } catch {
                 XCTFail()
             }
@@ -618,7 +618,7 @@ extension ZMAssetClientMessageTests {
             let asset = WireProtos.Asset(original: nil, preview: WireProtos.Asset.Preview(size: previewSize, mimeType: previewMimeType, remoteData: remoteData, imageMetadata: imageMetadata))
 
             do {
-                try sut.add(GenericMessage(content: asset, nonce: sut.nonce!))
+                try sut.setUnderlyingMessage(GenericMessage(content: asset, nonce: sut.nonce!))
             } catch {
                 XCTFail()
             }
@@ -881,8 +881,8 @@ extension ZMAssetClientMessageTests {
         }
         
         do {
-            try assetMessage.add(genericMessage[.preview]!)
-            try assetMessage.add(genericMessage[.medium]!)
+            try assetMessage.setUnderlyingMessage(genericMessage[.preview]!)
+            try assetMessage.setUnderlyingMessage(genericMessage[.medium]!)
         } catch {
             XCTFail()
         }

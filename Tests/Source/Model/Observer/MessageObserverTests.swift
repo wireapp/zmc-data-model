@@ -126,7 +126,7 @@ class MessageObserverTests : NotificationDispatcherTestBase {
         // when
         self.checkThatItNotifiesTheObserverOfAChange(
             message,
-            modifier: { try! $0.add(imageMessage) },
+            modifier: { try! $0.setUnderlyingMessage(imageMessage) },
             expectedChangedField: #keyPath(MessageChangeInfo.imageChanged)
         )
     }

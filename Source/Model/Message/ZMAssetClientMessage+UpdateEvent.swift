@@ -23,7 +23,7 @@ extension ZMAssetClientMessage {
         guard let message = GenericMessage(from: updateEvent) else { return }
 
         do {
-            try add(message)
+            try setUnderlyingMessage(message)
         } catch {
             return
         }

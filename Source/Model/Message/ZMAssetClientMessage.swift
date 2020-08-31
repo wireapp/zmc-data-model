@@ -446,7 +446,7 @@ struct CacheAsset: Asset {
         }
 
         // TODO: Handle failure?
-        try? owner.add(genericMessage)
+        try? owner.setUnderlyingMessage(genericMessage)
     }
     
     func encrypt() {
@@ -473,7 +473,7 @@ struct CacheAsset: Asset {
         }
 
         // TODO: Handle failure?
-        try? owner.add(genericMessage)
+        try? owner.setUnderlyingMessage(genericMessage)
     }
     
 }
