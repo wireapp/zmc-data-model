@@ -22,16 +22,16 @@ extension ZMClientMessage {
     override open func update(with updateEvent: ZMUpdateEvent, initialUpdate: Bool) {
         guard let message = GenericMessage(from: updateEvent) else { return }
 
-        if !initialUpdate {
+        guard initialUpdate else {
             applyLinkPreviewUpdate(message, from: updateEvent)
-        } else {
-            do {
-                try setUnderlyingMessage(message)
-                updateNormalizedText()
-            } catch {
-                // TODO: Handle?
-            }
+            return
+        }
 
+        do {
+            try setUnderlyingMessage(message)
+            updateNormalizedText()
+        } catch {
+            assertionFailure("Failed to set generic message: \(error.localizedDescription)")
         }
     }
 }
