@@ -38,19 +38,29 @@ extension ZMConversation {
         return try appendClientMessage(with: GenericMessage(content: buttonAction, nonce: nonce), hidden: true)
     }
 
+    /// Appends a location message.
+    ///
+    /// - Parameters:
+    ///     - locationData: The data describing the location.
+    ///     - nonce: The nonce of the location message.
+    ///
+    /// - Throws:
+    ///     - `AppendMessageError` if the message couldn't be appended.
+
     @discardableResult
-    public func append(location: LocationData, nonce: UUID = UUID()) -> ZMConversationMessage? {
-        let locationContent = Location.with() {
-            $0.latitude = location.latitude
-            $0.longitude = location.longitude
-            if let name = location.name {
+    public func appendLocation(with locationData: LocationData, nonce: UUID = UUID()) throws -> ZMConversationMessage {
+        let locationContent = Location.with {
+            if let name = locationData.name {
                 $0.name = name
             }
-            $0.zoom = location.zoomLevel
+
+            $0.latitude = locationData.latitude
+            $0.longitude = locationData.longitude
+            $0.zoom = locationData.zoomLevel
         }
 
-        // TODO: [John] handle?
-        return try? appendClientMessage(with: GenericMessage(content: locationContent, nonce: nonce, expiresAfter: messageDestructionTimeoutValue))
+        let message = GenericMessage(content: locationContent, nonce: nonce, expiresAfter: messageDestructionTimeoutValue)
+        return try appendClientMessage(with: message)
     }
 
     @discardableResult
@@ -260,7 +270,7 @@ extension ZMConversation {
     
     @discardableResult @objc(appendMessageWithLocationData:)
     public func _append(location: LocationData) -> ZMConversationMessage? {
-        return append(location: location)
+        return try? appendLocation(with: location)
     }
     
     @discardableResult @objc(appendMessageWithImageData:)

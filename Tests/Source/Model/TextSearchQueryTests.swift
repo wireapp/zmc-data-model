@@ -507,11 +507,11 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
         verifyThatItFindsMessage(withText: "Hey, check out this amazing link: www.wire.com", whenSearchingFor: "wire.com")
     }
 
-    func testThatItDoesNotReturnAnyMessagesOtherThanTextInTheResults() {
+    func testThatItDoesNotReturnAnyMessagesOtherThanTextInTheResults() throws {
         // Given
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.remoteIdentifier = .create()
-        _ = conversation.append(location: .init(latitude: 52.520008, longitude: 13.404954, name: "Berlin, Germany", zoomLevel: 8))
+        try conversation.appendLocation(with: LocationData(latitude: 52.520008, longitude: 13.404954, name: "Berlin, Germany", zoomLevel: 8))
         _ = conversation.append(imageFromData: mediumJPEGData())
         _ = conversation.appendKnock()
         _ = conversation.append(imageFromData: verySmallJPEGData())

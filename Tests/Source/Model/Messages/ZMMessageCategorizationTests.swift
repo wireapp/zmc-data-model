@@ -189,10 +189,10 @@ class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
         XCTAssertEqual(message.categorization, [MessageCategory.file, MessageCategory.video])
     }
     
-    func testThatItCategorizesLocation() {
+    func testThatItCategorizesLocation() throws {
         
         // GIVEN
-        let message = self.conversation.append(location: LocationData.locationData(withLatitude: 40.42, longitude: 50.2, name: "Fooland", zoomLevel: Int32(2)))!
+        let message = try self.conversation.appendLocation(with: LocationData.locationData(withLatitude: 40.42, longitude: 50.2, name: "Fooland", zoomLevel: Int32(2)))
         
         // THEN
         XCTAssertEqual(message.categorization, MessageCategory.location)
@@ -549,10 +549,10 @@ extension ZMMessageCategorizationTests {
         XCTAssertEqual(message.primitiveValue(forKey: ZMMessageCachedCategoryKey) as? NSNumber, NSNumber(value: MessageCategory.text.rawValue))
     }
     
-    func testThatItCategorizesALocationMessageOnInsert(){
+    func testThatItCategorizesALocationMessageOnInsert() throws {
         
         // when
-        let message = self.conversation.append(location: LocationData.locationData(withLatitude: 40.42, longitude: 50.2, name: "Fooland", zoomLevel: Int32(2))) as! ZMMessage
+        let message = try self.conversation.appendLocation(with: LocationData.locationData(withLatitude: 40.42, longitude: 50.2, name: "Fooland", zoomLevel: Int32(2))) as! ZMMessage
         
         // then
         XCTAssertEqual(message.primitiveValue(forKey: ZMMessageCachedCategoryKey) as? NSNumber, NSNumber(value: MessageCategory.location.rawValue))

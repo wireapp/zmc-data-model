@@ -402,7 +402,12 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         self.syncMOC.performGroupedBlockAndWait {
             let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
             conversation.remoteIdentifier = UUID()
-            let message = conversation.append(location: locationData) as! ZMMessage
+
+            guard let message = try? conversation.appendLocation(with: locationData) as? ZMMessage else {
+                XCTFail()
+                return
+            }
+
         
             XCTAssertEqual(conversation.lastMessage, message)
     
@@ -417,7 +422,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         }
     }
     
-    func testThatLocationMessageHasNoImage() {
+    func testThatLocationMessageHasNoImage() throws {
         // given
         let locationData = self.locationData()
 
@@ -425,7 +430,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         conversation.messageDestructionTimeout = .local(.fiveMinutes)
         conversation.remoteIdentifier = UUID()
         // when
-        let message = conversation.append(location: locationData) as! ZMClientMessage
+        let message = try conversation.appendLocation(with: locationData) as! ZMClientMessage
         
         // then
         XCTAssertNil(message.underlyingMessage?.imageAssetData)
