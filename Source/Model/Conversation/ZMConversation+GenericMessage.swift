@@ -38,6 +38,7 @@ extension ZMConversation {
     /// - Throws:
     ///     - `AppendMessageError` if the message couldn't be appended.
 
+    @discardableResult
     public func appendClientMessage(with genericMessage: GenericMessage,
                                     expires: Bool = true,
                                     hidden: Bool = false) throws -> ZMClientMessage {
