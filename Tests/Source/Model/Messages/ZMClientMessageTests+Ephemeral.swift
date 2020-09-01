@@ -108,7 +108,7 @@ extension ZMClientMessageTests_Ephemeral {
     
     func testItCreatesAnEphemeralMessageForKnock(){
         checkItCreatesAnEphemeralMessage { (conv) -> ZMMessage in
-            let message = conv.appendKnock() as! ZMClientMessage
+            let message = try! conv.appendKnock() as! ZMClientMessage
             XCTAssertTrue(message.underlyingMessage!.ephemeral.hasKnock)
             return message
         }

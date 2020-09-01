@@ -131,10 +131,10 @@ class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
         XCTAssertEqual(message.categorization, [MessageCategory.image, MessageCategory.GIF])
     }
 
-    func testThatItCategorizesKnocks() {
+    func testThatItCategorizesKnocks() throws {
         
         // GIVEN
-        let message = self.conversation.appendKnock() as! ZMClientMessage
+        let message = try self.conversation.appendKnock() as! ZMClientMessage
         
         // THEN
         XCTAssertEqual(message.categorization, MessageCategory.knock)
@@ -558,10 +558,10 @@ extension ZMMessageCategorizationTests {
         XCTAssertEqual(message.primitiveValue(forKey: ZMMessageCachedCategoryKey) as? NSNumber, NSNumber(value: MessageCategory.location.rawValue))
     }
     
-    func testThatItCategorizesAKnockMessageOnInsert(){
+    func testThatItCategorizesAKnockMessageOnInsert() throws {
         
         // when
-        let message = self.conversation.appendKnock() as! ZMMessage
+        let message = try self.conversation.appendKnock() as! ZMMessage
         // then
         XCTAssertEqual(message.primitiveValue(forKey: ZMMessageCachedCategoryKey) as? NSNumber, NSNumber(value: MessageCategory.knock.rawValue))
     }

@@ -513,7 +513,7 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
         conversation.remoteIdentifier = .create()
         try conversation.appendLocation(with: LocationData(latitude: 52.520008, longitude: 13.404954, name: "Berlin, Germany", zoomLevel: 8))
         _ = conversation.append(imageFromData: mediumJPEGData())
-        _ = conversation.appendKnock()
+        try conversation.appendKnock()
         _ = conversation.append(imageFromData: verySmallJPEGData())
         fillConversationWithMessages(conversation: conversation, messageCount: 10, normalized: true)
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))

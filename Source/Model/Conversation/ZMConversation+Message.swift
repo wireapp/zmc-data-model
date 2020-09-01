@@ -63,10 +63,22 @@ extension ZMConversation {
         return try appendClientMessage(with: message)
     }
 
+    /// Appends a knock message.
+    ///
+    /// - Parameters:
+    ///     - nonce: The nonce of the knock message.
+    ///
+    /// - Throws:
+    ///     `AppendMessageError` if the message couldn't be appended.
+    ///
+    /// - Returns:
+    ///     The appended message.
+
     @discardableResult
-    public func appendKnock(nonce: UUID = UUID()) -> ZMConversationMessage? {
-        // TODO: [John] handle?
-        return try? appendClientMessage(with: GenericMessage(content: Knock.with({ $0.hotKnock = false }), nonce: nonce, expiresAfter: messageDestructionTimeoutValue))
+    public func appendKnock(nonce: UUID = UUID()) throws -> ZMConversationMessage {
+        let content = Knock.with { $0.hotKnock = false }
+        let message = GenericMessage(content: content, nonce: nonce, expiresAfter: messageDestructionTimeoutValue)
+        return try appendClientMessage(with: message)
     }
 
     @discardableResult
@@ -265,7 +277,7 @@ extension ZMConversation {
     
     @discardableResult @objc(appendKnock)
     public func _appendKnock() -> ZMConversationMessage? {
-        return appendKnock()
+        return try? appendKnock()
     }
     
     @discardableResult @objc(appendMessageWithLocationData:)

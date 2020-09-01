@@ -88,11 +88,11 @@ extension ZMConversationTests_Mute {
         XCTAssertTrue(message.isSilenced)
     }
     
-    func testMessageShouldNotCreateNotification_RegularSilenced_NotATextMessage() {
+    func testMessageShouldNotCreateNotification_RegularSilenced_NotATextMessage() throws {
         // GIVEN
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.mutedMessageTypes = .regular
-        let message = conversation.appendKnock()!
+        let message = try conversation.appendKnock()
         let user = ZMUser.insertNewObject(in: self.uiMOC)
         (message as! ZMClientMessage).sender = user
         // THEN
@@ -166,11 +166,11 @@ extension ZMConversationTests_Mute {
         XCTAssertTrue(message.isSilenced)
     }
     
-    func testMessageShouldNotCreateNotification_AvailabilityBusy_NotATextMessage() {
+    func testMessageShouldNotCreateNotification_AvailabilityBusy_NotATextMessage() throws {
         // GIVEN
         selfUser.availability = .busy
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
-        let message = conversation.appendKnock()!
+        let message = try conversation.appendKnock()
         let user = ZMUser.insertNewObject(in: self.uiMOC)
         (message as! ZMClientMessage).sender = user
         // THEN
