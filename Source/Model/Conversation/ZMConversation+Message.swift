@@ -31,6 +31,9 @@ extension ZMConversation {
     ///
     /// - Throws:
     ///     - `AppendMessageError` if the message couldn't be appended.
+    ///     
+    /// - Returns:
+    ///     The appended message.
 
     @discardableResult
     func appendButtonAction(havingId id: String, referenceMessageId: UUID, nonce: UUID = UUID()) throws -> ZMClientMessage {
@@ -46,6 +49,9 @@ extension ZMConversation {
     ///
     /// - Throws:
     ///     - `AppendMessageError` if the message couldn't be appended.
+    ///
+    /// - Returns:
+    ///     The appended message.
 
     @discardableResult
     public func appendLocation(with locationData: LocationData, nonce: UUID = UUID()) throws -> ZMConversationMessage {
