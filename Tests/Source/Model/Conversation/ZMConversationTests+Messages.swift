@@ -594,7 +594,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         let messageId = UUID()
 
         // WHEN
-        let message = conversation.append(buttonActionWithId: buttonId, referenceMessageId: messageId)
+        let message = try? conversation.appendButtonAction(havingId: buttonId, referenceMessageId: messageId)
 
         // THEN
         let expectedMessage = conversation.hiddenMessages.first

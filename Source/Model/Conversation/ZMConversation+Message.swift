@@ -22,11 +22,20 @@ private let log = ZMSLog(tag: "Conversations")
 
 extension ZMConversation {
 
+    /// Appends a button action message.
+    ///
+    /// - Parameters:
+    ///     - id: The id of the button action.
+    ///     - referenceMessageId: The id of the message which this action references.
+    ///     - nonce: The nonce of the button action message.
+    ///
+    /// - Throws:
+    ///     - `AppendMessageError` if the message couldn't be appended.
+
     @discardableResult
-    func append(buttonActionWithId id: String, referenceMessageId: UUID, nonce: UUID = UUID()) -> ZMClientMessage? {
+    func appendButtonAction(havingId id: String, referenceMessageId: UUID, nonce: UUID = UUID()) throws -> ZMClientMessage {
         let buttonAction = ButtonAction(buttonId: id, referenceMessageId: referenceMessageId)
-        // TODO: [John] handle?
-        return try? appendClientMessage(with: GenericMessage(content: buttonAction, nonce: nonce), hidden: true)
+        return try appendClientMessage(with: GenericMessage(content: buttonAction, nonce: nonce), hidden: true)
     }
 
     @discardableResult

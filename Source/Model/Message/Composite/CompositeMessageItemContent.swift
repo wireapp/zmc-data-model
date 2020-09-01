@@ -116,7 +116,7 @@ extension CompositeMessageItemContent: ButtonMessageData {
                 return
             }
             buttonState.state = .selected
-            self.parentMessage.conversation?.append(buttonActionWithId: buttonId, referenceMessageId: messageId)
+            try? self.parentMessage.conversation?.appendButtonAction(havingId: buttonId, referenceMessageId: messageId)
             moc.saveOrRollback()
         }
     }
