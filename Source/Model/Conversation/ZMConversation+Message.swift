@@ -97,8 +97,8 @@ extension ZMConversation {
         guard
             let moc = managedObjectContext,
             !(text as NSString).zmHasOnlyWhitespaceCharacters()
-            else {
-                return nil
+        else {
+            return nil
         }
 
         let text = Text(content: text, mentions: mentions, linkPreviews: [], replyingTo: quotedMessage as? ZMOTRMessage)
@@ -187,6 +187,86 @@ extension ZMConversation {
         message.prepareToSend()
 
         return message
+    }
+
+    public enum AppendMessageError: Error {
+        case missingManagedObjectContext
+        case malformedNonce
+        case failedToProcessMessageData
+
+    }
+
+    /// Appends a new message to the conversation.
+    ///
+    /// - Parameters:
+    ///     - genericMessage: The generic message that should be appended.
+    ///     - expires: Whether the message should expire or tried to be send infinitively.
+    ///     - hidden: Whether the message should be hidden in the conversation or not
+    ///
+    /// - Throws:
+    ///     - `AppendMessageError` if the message couldn't be appended.
+
+    @discardableResult
+    public func appendClientMessage(with genericMessage: GenericMessage,
+                                    expires: Bool = true,
+                                    hidden: Bool = false) throws -> ZMClientMessage {
+
+        guard let moc = managedObjectContext else {
+            throw AppendMessageError.missingManagedObjectContext
+        }
+
+        guard let nonce = UUID(uuidString: genericMessage.messageID) else {
+            throw AppendMessageError.malformedNonce
+        }
+
+        let message = ZMClientMessage(nonce: nonce, managedObjectContext: moc)
+
+        do {
+            try message.setUnderlyingMessage(genericMessage)
+        } catch {
+            moc.delete(message)
+            throw AppendMessageError.failedToProcessMessageData
+        }
+
+        do {
+            try append(message, expires: expires, hidden: hidden)
+        } catch {
+            moc.delete(message)
+            throw error
+        }
+
+        return message
+    }
+
+    /// Appends a new message to the conversation.
+    ///
+    /// - Parameters:
+    ///     - message: The message that should be appended.
+    ///     - expires: Whether the message should expire or tried to be send infinitively.
+    ///     - hidden: Whether the message should be hidden in the conversation or not
+    ///
+    /// - Throws:
+    ///     - `AppendMessageError` if the message couldn't be appended.
+
+    public func append(_ message: ZMClientMessage, expires: Bool, hidden: Bool) throws {
+        guard let moc = managedObjectContext else {
+            throw AppendMessageError.missingManagedObjectContext
+        }
+
+        message.sender = ZMUser.selfUser(in: moc)
+
+        if expires {
+            message.setExpirationDate()
+        }
+
+        if hidden {
+            message.hiddenInConversation = self
+        } else {
+            append(message)
+            unarchiveIfNeeded()
+            message.updateCategoryCache()
+            message.prepareToSend()
+        }
     }
 
 
