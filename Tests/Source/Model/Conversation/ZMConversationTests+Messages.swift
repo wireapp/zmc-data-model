@@ -33,7 +33,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
     
             // when
             let messageText = "foo"
-            let message = conversation.append(text: messageText) as! ZMMessage
+            let message = try! conversation.appendText(content: messageText) as! ZMMessage
     
             // then
             XCTAssertEqual(message.textMessageData?.messageText, messageText)
@@ -51,7 +51,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         conversation.lastModifiedDate = Date(timeIntervalSinceNow: -90000)
         
         // when
-        guard let msg = conversation.append(text: "Foo") as? ZMMessage else {
+        guard let msg = try? conversation.appendText(content: "Foo") as? ZMMessage else {
             XCTFail()
             return
         }
@@ -65,7 +65,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
     {
         // given
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
-        guard let msg1 = conversation.append(text: "Foo") as? ZMMessage else {
+        guard let msg1 = try? conversation.appendText(content: "Foo") as? ZMMessage else {
             XCTFail()
             return
         }
@@ -118,7 +118,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         // when
         let originalText = "foo";
         var messageText = originalText
-        let message = conversation.append(text: messageText)!
+        let message = try! conversation.appendText(content: messageText)
     
         // then
         messageText.append("1234")
@@ -334,7 +334,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         let imageMessage = conversation.append(imageFromData: verySmallJPEGData())
         
         // when
-        let textMessage = conversation.append(text: "Hello World", replyingTo: imageMessage)
+        let textMessage = try? conversation.appendText(content: "Hello World", replyingTo: imageMessage)
         
         // then
         XCTAssertNotNil(textMessage?.textMessageData?.quote)
@@ -550,7 +550,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.remoteIdentifier = UUID()
         
-        let message = conversation.append(text: "Test Message") as! ZMMessage
+        let message = try! conversation.appendText(content: "Test Message") as! ZMMessage
         
         // WHEN
         let lastMessage = conversation.lastMessageSent(by: selfUser)
@@ -564,8 +564,8 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.remoteIdentifier = UUID()
         
-        let _ = conversation.append(text: "Test Message") as! ZMMessage
-        let message2 = conversation.append(text: "Test Message 2") as! ZMMessage
+        let _ = try! conversation.appendText(content: "Test Message") as! ZMMessage
+        let message2 = try! conversation.appendText(content: "Test Message 2") as! ZMMessage
         
         // WHEN
         let lastMessage = conversation.lastMessageSent(by: selfUser)
@@ -579,7 +579,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.remoteIdentifier = UUID()
         
-        let message1 = conversation.append(text: "Test Message") as! ZMMessage
+        let message1 = try! conversation.appendText(content: "Test Message") as! ZMMessage
         message1.sender = self.createUser()
         
         self.uiMOC.processPendingChanges()

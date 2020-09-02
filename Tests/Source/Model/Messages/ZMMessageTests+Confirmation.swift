@@ -157,7 +157,7 @@ extension ZMMessageTests_Confirmation {
         // given
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
         conversation.remoteIdentifier = .create()
-        let message = conversation.append(text: "foo") as! ZMClientMessage
+        let message = try! conversation.appendText(content: "foo") as! ZMClientMessage
         message.markAsSent()
         let confirmationUpdate = createMessageDeliveryConfirmationUpdateEvent(message.nonce!, conversationID: conversation.remoteIdentifier!)
         performPretendingUiMocIsSyncMoc {
@@ -295,7 +295,7 @@ extension ZMMessageTests_Confirmation {
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
         conversation.remoteIdentifier = .create()
         
-        let sut = conversation.append(text: "foo") as! ZMClientMessage
+        let sut = try! conversation.appendText(content: "foo") as! ZMClientMessage
         sut.markAsSent()
         XCTAssertTrue(self.uiMOC.saveOrRollback())
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
@@ -320,7 +320,7 @@ extension ZMMessageTests_Confirmation {
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
         conversation.remoteIdentifier = .create()
         
-        let sut = conversation.append(text: "foo") as! ZMClientMessage
+        let sut = try! conversation.appendText(content: "foo") as! ZMClientMessage
         sut.markAsSent()
         XCTAssertTrue(self.uiMOC.saveOrRollback())
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
@@ -346,9 +346,9 @@ extension ZMMessageTests_Confirmation {
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
         conversation.remoteIdentifier = .create()
         
-        let messsage1 = conversation.append(text: "foo") as! ZMClientMessage
+        let messsage1 = try! conversation.appendText(content: "foo") as! ZMClientMessage
         messsage1.markAsSent()
-        let messsage2 = conversation.append(text: "foo") as! ZMClientMessage
+        let messsage2 = try! conversation.appendText(content: "foo") as! ZMClientMessage
         messsage2.markAsSent()
         XCTAssertTrue(self.uiMOC.saveOrRollback())
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
@@ -377,7 +377,7 @@ extension ZMMessageTests_Confirmation {
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
         conversation.remoteIdentifier = .create()
         
-        let sut = conversation.append(text: "foo") as! ZMClientMessage
+        let sut = try! conversation.appendText(content: "foo") as! ZMClientMessage
         sut.markAsSent()
         XCTAssertTrue(self.uiMOC.saveOrRollback())
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
@@ -413,7 +413,7 @@ extension ZMMessageTests_Confirmation {
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
         conversation.remoteIdentifier = .create()
         
-        let sut = conversation.append(text: "foo") as! ZMClientMessage
+        let sut = try! conversation.appendText(content: "foo") as! ZMClientMessage
         sut.markAsSent()
         XCTAssertTrue(self.uiMOC.saveOrRollback())
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
@@ -475,7 +475,7 @@ extension ZMMessageTests_Confirmation {
         let lastModified = Date(timeIntervalSince1970: 1234567890)
         conversation.lastModifiedDate = lastModified
         
-        let sut = conversation.append(text: "foo") as! ZMClientMessage
+        let sut = try! conversation.appendText(content: "foo") as! ZMClientMessage
         sut.markAsSent()
         XCTAssertTrue(self.uiMOC.saveOrRollback())
         XCTAssertTrue(waitForAllGroupsToBeEmpty(withTimeout: 0.5))

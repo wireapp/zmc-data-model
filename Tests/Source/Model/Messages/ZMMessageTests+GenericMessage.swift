@@ -123,7 +123,7 @@ extension ZMMessageTests_GenericMessage {
         conversation.remoteIdentifier = UUID.create()
 
         // when
-        let message = conversation.append(text: "Test") as! ZMOTRMessage
+        let message = try! conversation.appendText(content: "Test") as! ZMOTRMessage
         let dataSet = message.dataSet
 
         XCTAssertNotNil(message.managedObjectContext)

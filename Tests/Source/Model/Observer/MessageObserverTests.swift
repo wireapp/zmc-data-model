@@ -188,7 +188,7 @@ class MessageObserverTests : NotificationDispatcherTestBase {
     
     func testThatItNotifiesWhenAReactionIsAddedOnMessage() {
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
-        let message = conversation.append(text: "foo") as! ZMClientMessage
+        let message = try! conversation.appendText(content: "foo") as! ZMClientMessage
         uiMOC.saveOrRollback()
 
         // when
@@ -201,7 +201,7 @@ class MessageObserverTests : NotificationDispatcherTestBase {
     
     func testThatItNotifiesWhenAReactionIsAddedOnMessageFromADifferentUser() {
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
-        let message = conversation.append(text: "foo") as! ZMClientMessage
+        let message = try! conversation.appendText(content: "foo") as! ZMClientMessage
 
         let otherUser = ZMUser.insertNewObject(in:uiMOC)
         otherUser.name = "Hans"
@@ -218,7 +218,7 @@ class MessageObserverTests : NotificationDispatcherTestBase {
     
     func testThatItNotifiesWhenAReactionIsUpdateForAUserOnMessage() {
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
-        let message = conversation.append(text: "foo") as! ZMClientMessage
+        let message = try! conversation.appendText(content: "foo") as! ZMClientMessage
 
         let selfUser = ZMUser.selfUser(in: self.uiMOC)
         message.addReaction("LOVE IT, HUH", forUser: selfUser)
@@ -234,7 +234,7 @@ class MessageObserverTests : NotificationDispatcherTestBase {
     
     func testThatItNotifiesWhenAReactionFromADifferentUserIsAddedOnTopOfSelfReaction() {
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
-        let message = conversation.append(text: "foo") as! ZMClientMessage
+        let message = try! conversation.appendText(content: "foo") as! ZMClientMessage
 
         let otherUser = ZMUser.insertNewObject(in:uiMOC)
         otherUser.name = "Hans"
@@ -254,7 +254,7 @@ class MessageObserverTests : NotificationDispatcherTestBase {
 
     func testThatItNotifiesObserversWhenDeliveredChanges(){
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
-        let message = conversation.append(text: "foo") as! ZMClientMessage
+        let message = try! conversation.appendText(content: "foo") as! ZMClientMessage
         XCTAssertFalse(message.delivered)
         uiMOC.saveOrRollback()
         
@@ -298,7 +298,7 @@ class MessageObserverTests : NotificationDispatcherTestBase {
 
     func testThatItNotifiesWhenUserReadsTheMessage() {
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
-        let message = conversation.append(text: "foo") as! ZMClientMessage
+        let message = try! conversation.appendText(content: "foo") as! ZMClientMessage
         uiMOC.saveOrRollback()
         
         
@@ -351,7 +351,7 @@ class MessageObserverTests : NotificationDispatcherTestBase {
 
     func testThatItNotifiesWhenLinkAttachmentIsAdded() {
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
-        let message = conversation.append(text: "foo") as! ZMClientMessage
+        let message = try! conversation.appendText(content: "foo") as! ZMClientMessage
         uiMOC.saveOrRollback()
 
         let attachment = LinkAttachment(type: .youTubeVideo, title: "Pingu Season 1 Episode 1",

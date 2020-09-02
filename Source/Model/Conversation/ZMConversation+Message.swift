@@ -88,39 +88,34 @@ extension ZMConversation {
     }
 
     @discardableResult
-    public func append(text: String,
-                       mentions: [Mention] = [],
-                       replyingTo quotedMessage: ZMConversationMessage? = nil,
-                       fetchLinkPreview: Bool = true,
-                       nonce: UUID = UUID()) -> ZMConversationMessage? {
+    public func appendText(content: String,
+                           mentions: [Mention] = [],
+                           replyingTo quotedMessage: ZMConversationMessage? = nil,
+                           fetchLinkPreview: Bool = true,
+                           nonce: UUID = UUID()) throws -> ZMConversationMessage {
 
-        guard
-            let moc = managedObjectContext,
-            !(text as NSString).zmHasOnlyWhitespaceCharacters()
-        else {
-            return nil
+        guard !(content as NSString).zmHasOnlyWhitespaceCharacters() else {
+            throw AppendMessageError.messageIsEmpty
         }
 
-        let text = Text(content: text, mentions: mentions, linkPreviews: [], replyingTo: quotedMessage as? ZMOTRMessage)
+        let text = Text(content: content, mentions: mentions, linkPreviews: [], replyingTo: quotedMessage as? ZMOTRMessage)
         let genericMessage = GenericMessage(content: text, nonce: nonce, expiresAfter: messageDestructionTimeoutValue)
 
-        do {
-            let clientMessage = try appendClientMessage(with: genericMessage, expires: true, hidden: false, configure: {
-                $0.linkPreviewState = fetchLinkPreview ? .waitingToBeProcessed : .done
-                $0.needsLinkAttachmentsUpdate = fetchLinkPreview
-                $0.quote = quotedMessage as? ZMMessage
-            })
+        let clientMessage = try appendClientMessage(with: genericMessage, expires: true, hidden: false, configure: {
+            $0.linkPreviewState = fetchLinkPreview ? .waitingToBeProcessed : .done
+            $0.needsLinkAttachmentsUpdate = fetchLinkPreview
+            $0.quote = quotedMessage as? ZMMessage
+        })
 
+        if let notificationContext = managedObjectContext?.notificationContext {
             NotificationInContext(
                 name: ZMConversation.clearTypingNotificationName,
-                context: moc.notificationContext,
+                context: notificationContext,
                 object: self
             ).post()
-
-            return clientMessage
-        } catch {
-            return nil
         }
+
+        return clientMessage
     }
 
     @discardableResult
@@ -192,6 +187,7 @@ extension ZMConversation {
         case missingManagedObjectContext
         case malformedNonce
         case failedToProcessMessageData
+        case messageIsEmpty
 
     }
 
@@ -280,12 +276,12 @@ extension ZMConversation {
     
     @discardableResult @objc(appendMessageWithText:)
     public func _append(text: String) -> ZMConversationMessage? {
-        return append(text: text)
+        return try? appendText(content: text)
     }
     
     @discardableResult @objc(appendMessageWithText:fetchLinkPreview:)
     public func _append(text: String, fetchLinkPreview: Bool) -> ZMConversationMessage? {
-        return append(text: text, fetchLinkPreview: fetchLinkPreview)
+        return try? appendText(content: text, fetchLinkPreview: fetchLinkPreview)
     }
 
     @discardableResult @objc(appendText:mentions:fetchLinkPreview:nonce:)
@@ -294,10 +290,10 @@ extension ZMConversation {
                         fetchLinkPreview: Bool,
                         nonce: UUID) -> ZMConversationMessage? {
 
-        return append(text: text,
-                      mentions: mentions,
-                      fetchLinkPreview: fetchLinkPreview,
-                      nonce: nonce)
+        return try? appendText(content: text,
+                               mentions: mentions,
+                               fetchLinkPreview: fetchLinkPreview,
+                               nonce: nonce)
     }
 
     @discardableResult @objc(appendText:mentions:replyingToMessage:fetchLinkPreview:nonce:)
@@ -307,11 +303,11 @@ extension ZMConversation {
                         fetchLinkPreview: Bool,
                         nonce: UUID) -> ZMConversationMessage? {
 
-        return append(text: text,
-                      mentions: mentions,
-                      replyingTo: quotedMessage,
-                      fetchLinkPreview: fetchLinkPreview,
-                      nonce: nonce)
+        return try? appendText(content: text,
+                               mentions: mentions,
+                               replyingTo: quotedMessage,
+                               fetchLinkPreview: fetchLinkPreview,
+                               nonce: nonce)
     }
     
     @discardableResult @objc(appendKnock)

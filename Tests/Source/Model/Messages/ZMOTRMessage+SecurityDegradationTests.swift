@@ -30,7 +30,7 @@ class ZMOTRMessage_SecurityDegradationTests : BaseZMClientMessageTests {
         let convo = createConversation(moc: self.uiMOC)
         
         // WHEN
-        let message = convo.append(text: "Foo")!
+        let message = try! convo.appendText(content: "Foo")
         self.uiMOC.saveOrRollback()
         
         // THEN
@@ -46,7 +46,7 @@ class ZMOTRMessage_SecurityDegradationTests : BaseZMClientMessageTests {
             let convo = self.createConversation(moc: self.syncMOC)
             
             // WHEN
-            let message = convo.append(text: "Foo")!
+            let message = try! convo.appendText(content: "Foo")
             
             // THEN
             XCTAssertFalse(message.causedSecurityLevelDegradation)
@@ -59,7 +59,7 @@ class ZMOTRMessage_SecurityDegradationTests : BaseZMClientMessageTests {
         self.syncMOC.performGroupedBlockAndWait {
             // GIVEN
             let convo = self.createConversation(moc: self.syncMOC)
-            let message = convo.append(text: "Foo") as! ZMOTRMessage
+            let message = try! convo.appendText(content: "Foo") as! ZMOTRMessage
             self.syncMOC.saveOrRollback()
 
             // WHEN
@@ -78,7 +78,7 @@ class ZMOTRMessage_SecurityDegradationTests : BaseZMClientMessageTests {
         self.syncMOC.performGroupedBlockAndWait {
             // GIVEN
             let convo = self.createConversation(moc: self.syncMOC)
-            let message = convo.append(text: "Foo") as! ZMClientMessage
+            let message = try! convo.appendText(content: "Foo") as! ZMClientMessage
             message.markAsSent()
             convo.securityLevel = .secure
             self.syncMOC.saveOrRollback()
@@ -104,7 +104,7 @@ class ZMOTRMessage_SecurityDegradationTests : BaseZMClientMessageTests {
         self.syncMOC.performGroupedBlockAndWait {
             // GIVEN
             let convo = self.createConversation(moc: self.syncMOC)
-            let message = convo.append(text: "Foo") as! ZMOTRMessage
+            let message = try! convo.appendText(content: "Foo") as! ZMOTRMessage
             message.causedSecurityLevelDegradation = true
             self.syncMOC.saveOrRollback()
             
@@ -126,9 +126,9 @@ class ZMOTRMessage_SecurityDegradationTests : BaseZMClientMessageTests {
             
             // GIVEN
             let convo = self.createConversation(moc: self.syncMOC)
-            let message1 = convo.append(text: "Foo") as! ZMOTRMessage
+            let message1 = try! convo.appendText(content: "Foo") as! ZMOTRMessage
             message1.causedSecurityLevelDegradation = true
-            let message2 = convo.append(text: "Foo") as! ZMOTRMessage
+            let message2 = try! convo.appendText(content: "Foo") as! ZMOTRMessage
             message2.causedSecurityLevelDegradation = true
             
             // WHEN
@@ -157,9 +157,9 @@ class ZMOTRMessage_SecurityDegradationTests : BaseZMClientMessageTests {
             
             // GIVEN
             let convo = self.createConversation(moc: self.syncMOC)
-            let message1 = convo.append(text: "Foo") as! ZMOTRMessage
+            let message1 = try! convo.appendText(content: "Foo") as! ZMOTRMessage
             message1.causedSecurityLevelDegradation = true
-            let message2 = convo.append(text: "Foo") as! ZMOTRMessage
+            let message2 = try! convo.appendText(content: "Foo") as! ZMOTRMessage
             message2.causedSecurityLevelDegradation = true
             
             // WHEN
@@ -179,13 +179,13 @@ class ZMOTRMessage_SecurityDegradationTests : BaseZMClientMessageTests {
             
             // GIVEN
             let convo = self.createConversation(moc: self.syncMOC)
-            let message1 = convo.append(text: "Foo") as! ZMOTRMessage
+            let message1 = try! convo.appendText(content: "Foo") as! ZMOTRMessage
             message1.causedSecurityLevelDegradation = true
-            let message2 = convo.append(text: "Foo") as! ZMOTRMessage
+            let message2 = try! convo.appendText(content: "Foo") as! ZMOTRMessage
             message2.causedSecurityLevelDegradation = true
             
             let otherConvo = self.createConversation(moc: self.syncMOC)
-            let otherMessage = otherConvo.append(text: "Foo") as! ZMOTRMessage
+            let otherMessage = try! otherConvo.appendText(content: "Foo") as! ZMOTRMessage
             otherMessage.causedSecurityLevelDegradation = true
             
             // WHEN
@@ -210,7 +210,7 @@ extension ZMOTRMessage_SecurityDegradationTests {
     func testThatMessageIsNotMarkedOnUIMOCBeforeMerge() {
         // GIVEN
         let convo = createConversation(moc: self.uiMOC)
-        let message = convo.append(text: "Foo")! as! ZMOTRMessage
+        let message = try! convo.appendText(content: "Foo") as! ZMOTRMessage
         self.uiMOC.saveOrRollback()
         
         // WHEN
@@ -227,7 +227,7 @@ extension ZMOTRMessage_SecurityDegradationTests {
     func testThatMessageIsMarkedOnUIMOCAfterMerge() {
         // GIVEN
         let convo = createConversation(moc: self.uiMOC)
-        let message = convo.append(text: "Foo")! as! ZMOTRMessage
+        let message = try! convo.appendText(content: "Foo") as! ZMOTRMessage
         self.uiMOC.saveOrRollback()
         var userInfo : [String: Any] = [:]
         self.syncMOC.performGroupedBlockAndWait {
@@ -248,7 +248,7 @@ extension ZMOTRMessage_SecurityDegradationTests {
         self.syncMOC.performGroupedBlockAndWait {
             // GIVEN
             let convo = self.createConversation(moc: self.syncMOC)
-            let message = convo.append(text: "Foo")! as! ZMOTRMessage
+            let message = try! convo.appendText(content: "Foo") as! ZMOTRMessage
             message.causedSecurityLevelDegradation = true
             
             // WHEN

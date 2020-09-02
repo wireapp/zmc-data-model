@@ -66,12 +66,12 @@ final class ClientMessageTests_Cleared: BaseZMClientMessageTests {
         self.syncMOC.performGroupedBlockAndWait {
 
             self.syncConversation.remoteIdentifier = UUID()
-            let message1 = self.syncConversation.append(text: "B") as! ZMMessage
+            let message1 = try! self.syncConversation.appendText(content: "B") as! ZMMessage
             message1.expire()
 
-            self.syncConversation.append(text: "A")
+            try! self.syncConversation.appendText(content: "A")
 
-            let message3 = self.syncConversation.append(text: "B") as! ZMMessage
+            let message3 = try! self.syncConversation.appendText(content: "B") as! ZMMessage
             message3.expire()
 
             self.syncConversation.lastServerTimeStamp = message3.serverTimestamp

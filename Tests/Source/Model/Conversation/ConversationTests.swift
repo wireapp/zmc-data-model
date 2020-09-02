@@ -102,7 +102,7 @@ extension ConversationTests {
         sender.remoteIdentifier = UUID.create()
         
         // when
-        let message = conversation.append(text: "Test Message") as! ZMMessage
+        let message = try! conversation.appendText(content: "Test Message") as! ZMMessage
         message.sender = sender
         message.markAsSent()
         
@@ -180,7 +180,7 @@ extension ConversationTests {
             
             let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
             conversation.remoteIdentifier = UUID.create()
-            conversation.append(text: "Le fromage c'est delicieux", mentions: [], fetchLinkPreview: true, nonce: messageID)
+            try! conversation.appendText(content: "Le fromage c'est delicieux", mentions: [], fetchLinkPreview: true, nonce: messageID)
             
             let message = GenericMessage(content: MessageHide(conversationId: conversation.remoteIdentifier!, messageId: messageID), nonce: UUID.create())
             let contentData = try? message.serializedData()
@@ -305,7 +305,7 @@ extension ConversationTests {
             self.syncMOC.saveOrRollback()
             
             // re-create message with same nonce to access the cache
-            let lookupMessage = conversation.append(text: "123") as! ZMConversationMessage
+            let lookupMessage = try! conversation.appendText(content: "123")
             
             // then
             
@@ -324,7 +324,7 @@ extension ConversationTests {
             let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
             conversation.remoteIdentifier = UUID.create()
                         
-            conversation.append(text: "Le fromage c'est delicieux", mentions: [], fetchLinkPreview: true, nonce: UUID.create())
+            try! conversation.appendText(content: "Le fromage c'est delicieux", mentions: [], fetchLinkPreview: true, nonce: UUID.create())
             let previusMessagesCount = conversation.allMessages.count
 
             let message = GenericMessage(content: MessageHide(conversationId: conversation.remoteIdentifier!, messageId: UUID.create()), nonce: UUID.create())
@@ -362,7 +362,7 @@ extension ConversationTests {
             let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
             conversation.remoteIdentifier = UUID.create()
 
-            conversation.append(text: "Le fromage c'est delicieux", mentions: [], fetchLinkPreview: true, nonce: messageID)
+            try! conversation.appendText(content: "Le fromage c'est delicieux", mentions: [], fetchLinkPreview: true, nonce: messageID)
             let previusMessagesCount = conversation.allMessages.count
                         
             let message = GenericMessage(content: MessageHide(conversationId: conversation.remoteIdentifier!, messageId: UUID.create()), nonce: UUID.create())
@@ -400,7 +400,7 @@ extension ConversationTests {
             let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
             conversation.remoteIdentifier = UUID.create()
 
-            conversation.append(text: "Le fromage c'est delicieux", mentions: [], fetchLinkPreview: true, nonce: messageID)
+            try! conversation.appendText(content: "Le fromage c'est delicieux", mentions: [], fetchLinkPreview: true, nonce: messageID)
             let previusMessagesCount = conversation.allMessages.count
                         
             let message = GenericMessage(content: MessageHide(conversationId: conversation.remoteIdentifier!, messageId: UUID.create()), nonce: UUID.create())

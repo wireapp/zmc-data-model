@@ -294,7 +294,7 @@ class AssetColletionBatchedTests : ModelObjectsTests {
     func testThatItFetchesImagesAndTextMessages(){
         // given
         insertAssetMessages(count: 10)
-        conversation.append(text: "foo")
+        try! conversation.appendText(content: "foo")
         uiMOC.saveOrRollback()
         
         // when

@@ -75,7 +75,7 @@ extension ClientMessageTests_OTR {
         self.syncMOC.performGroupedBlockAndWait {
             
             //given
-            let message = self.syncConversation.append(text: self.name, fetchLinkPreview: true, nonce: UUID.create()) as! ZMClientMessage
+            let message = try! self.syncConversation.appendText(content: self.name, fetchLinkPreview: true, nonce: UUID.create()) as! ZMClientMessage
             self.syncUser3Client1.failedToEstablishSession = true
             
             //when
@@ -101,7 +101,7 @@ extension ClientMessageTests_OTR {
             
             //given
             let messageRequiringExternal = self.textMessageRequiringExternalMessage(6)
-            let message = self.syncConversation.append(text: messageRequiringExternal) as! ZMClientMessage
+            let message = try! self.syncConversation.appendText(content: messageRequiringExternal) as! ZMClientMessage
             self.syncUser3Client1.failedToEstablishSession = true
             
             //when
@@ -126,7 +126,7 @@ extension ClientMessageTests_OTR {
         self.syncMOC.performGroupedBlockAndWait {
             
             //given
-            let message = self.syncConversation.append(text: self.name, fetchLinkPreview: true, nonce: UUID.create()) as! ZMClientMessage
+            let message = try! self.syncConversation.appendText(content: self.name, fetchLinkPreview: true, nonce: UUID.create()) as! ZMClientMessage
             
             //when
             guard let payloadAndStrategy = message.encryptForTransport() else {
@@ -150,7 +150,7 @@ extension ClientMessageTests_OTR {
             
             //given
             self.syncConversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: 10))
-            guard let message = self.syncConversation.append(text: self.name, fetchLinkPreview: true, nonce: UUID.create()) as? ZMClientMessage else { XCTFail(); return }
+            let message = try! self.syncConversation.appendText(content: self.name, fetchLinkPreview: true, nonce: UUID.create()) as! ZMClientMessage
             XCTAssertTrue(message.isEphemeral)
             
             //when
@@ -174,7 +174,7 @@ extension ClientMessageTests_OTR {
         self.syncMOC.performGroupedBlockAndWait {
             //given
             self.syncConversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: 10))
-            syncMessage = self.syncConversation.append(text: self.name, fetchLinkPreview: true, nonce: UUID.create()) as? ZMClientMessage
+            syncMessage = try! self.syncConversation.appendText(content: self.name, fetchLinkPreview: true, nonce: UUID.create()) as? ZMClientMessage
             syncMessage.sender = self.syncUser1
             XCTAssertTrue(syncMessage.isEphemeral)
             self.syncMOC.saveOrRollback()
@@ -211,7 +211,7 @@ extension ClientMessageTests_OTR {
         self.syncMOC.performGroupedBlockAndWait {
             //given
             self.syncConversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: 10))
-            syncMessage = self.syncConversation.append(text: self.name, fetchLinkPreview: true, nonce: UUID.create()) as? ZMClientMessage
+            syncMessage = try! self.syncConversation.appendText(content: self.name, fetchLinkPreview: true, nonce: UUID.create()) as? ZMClientMessage
             syncMessage.sender = self.syncUser1
             XCTAssertTrue(syncMessage.isEphemeral)
             self.syncMOC.saveOrRollback()
@@ -315,7 +315,7 @@ extension ClientMessageTests_OTR {
             
             self.syncMOC.saveOrRollback()
                         
-            let textMessage = conversation.append(text: self.stringLargeEnoughToRequireExternal, fetchLinkPreview: true, nonce: UUID.create()) as! ZMClientMessage
+            let textMessage = try! conversation.appendText(content: self.stringLargeEnoughToRequireExternal, fetchLinkPreview: true, nonce: UUID.create()) as! ZMClientMessage
             
             textMessage.sender = self.syncUser1
             textMessage.senderClientID = senderID
@@ -360,7 +360,7 @@ extension ClientMessageTests_OTR {
             
             self.syncMOC.saveOrRollback()
                                     
-            let textMessage = conversation.append(text: self.stringLargeEnoughToRequireExternal, fetchLinkPreview: true, nonce: UUID.create()) as! ZMClientMessage
+            let textMessage = try! conversation.appendText(content: self.stringLargeEnoughToRequireExternal, fetchLinkPreview: true, nonce: UUID.create()) as! ZMClientMessage
             
             textMessage.sender = self.syncUser1
             textMessage.senderClientID = senderID

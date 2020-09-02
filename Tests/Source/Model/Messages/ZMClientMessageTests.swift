@@ -743,7 +743,7 @@ extension ClientMessageTests {
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.remoteIdentifier = UUID.create()
         
-        let existingMessage = conversation.append(text: "Initial") as! ZMClientMessage
+        let existingMessage = try! conversation.appendText(content: "Initial") as! ZMClientMessage
         existingMessage.nonce = nonce
         existingMessage.visibleInConversation = conversation
         let message = GenericMessage(content: Text(content: self.name, mentions: [], linkPreviews: [], replyingTo: nil), nonce: nonce)
