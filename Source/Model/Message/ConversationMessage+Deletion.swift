@@ -29,7 +29,8 @@ extension ZMConversation {
         }
         
         let genericMessage = GenericMessage(content: MessageHide(conversationId: conversationId, messageId: messageId))
-        ZMConversation.appendSelfConversation(genericMessage: genericMessage, managedObjectContext: message.managedObjectContext!)
+        // TODO [John] Handle?
+        try? ZMConversation.appendMessageToSelfConversation(genericMessage, in: message.managedObjectContext!)
     }
 }
 

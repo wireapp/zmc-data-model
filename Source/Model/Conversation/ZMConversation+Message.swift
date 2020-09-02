@@ -129,13 +129,21 @@ extension ZMConversation {
         return try selfConversation.appendClientMessage(with: genericMessage, expires: false, hidden: false)
     }
 
-    /// Create and append to self conversation a ClientMessage that has generic message data built with the given data
+    /// Append a generic message to the self conversation.
+    ///
+    /// - Parameters:
+    ///     - message: The generic message to append.
+    ///     - moc: The managed object context in which the self conversatino should be fetched.
+    ///
+    /// - Throws:
+    ///     - `AppendMessageError` if the message couldn't be appended.
+    ///
+    /// - Returns:
+    ///     The appended message.
 
-    public static func appendSelfConversation(genericMessage: GenericMessage, managedObjectContext: NSManagedObjectContext) -> ZMClientMessage? {
-        let selfConversation = ZMConversation.selfConversation(in: managedObjectContext)
-        // TODO: [John] handle?
-        let clientMessage = try? selfConversation.appendClientMessage(with: genericMessage, expires: false, hidden: false)
-        return clientMessage
+    public static func appendMessageToSelfConversation(_ message: GenericMessage, in moc: NSManagedObjectContext) throws -> ZMClientMessage {
+        let selfConversation = ZMConversation.selfConversation(in: moc)
+        return try selfConversation.appendClientMessage(with: message, expires: false, hidden: false)
     }
 
 
@@ -147,7 +155,7 @@ extension ZMConversation {
                 return nil
         }
         let message = GenericMessage(content: Cleared(timestamp: cleared, conversationID: convID), nonce: UUID())
-        return appendSelfConversation(genericMessage: message, managedObjectContext: managedObjectContext)
+        return try? appendMessageToSelfConversation(message, in: managedObjectContext)
     }
 
     @discardableResult
