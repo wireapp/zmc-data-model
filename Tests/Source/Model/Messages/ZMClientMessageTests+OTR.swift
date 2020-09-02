@@ -253,7 +253,7 @@ extension ClientMessageTests_OTR {
             // given
             self.syncConversation.lastReadServerTimeStamp = Date()
             self.syncConversation.remoteIdentifier = UUID()
-            guard let message = ZMConversation.appendSelfConversation(withLastReadOf: self.syncConversation) else { return XCTFail() }
+            guard let message = try? ZMConversation.updateSelfConversation(withLastReadOf: self.syncConversation) else { return XCTFail() }
             
             self.expectedRecipients = [self.syncSelfUser.remoteIdentifier!.transportString(): [self.syncSelfClient2.remoteIdentifier!]]
             

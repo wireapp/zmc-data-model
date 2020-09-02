@@ -31,7 +31,7 @@ extension ZMConversation {
     ///
     /// - Throws:
     ///     - `AppendMessageError` if the message couldn't be appended.
-    ///     
+    ///
     /// - Returns:
     ///     The appended message.
 
@@ -87,22 +87,46 @@ extension ZMConversation {
         return try appendClientMessage(with: message)
     }
 
-    @discardableResult
-    public static func appendSelfConversation(withLastReadOf theConversation: ZMConversation) -> ZMClientMessage? {
-        guard let moc = theConversation.managedObjectContext,
-            let lastReadTimeStamp = theConversation.lastReadServerTimeStamp,
-            let convID = theConversation.remoteIdentifier,
-            convID != ZMConversation.selfConversationIdentifier(in: moc)
-            else { return nil }
+    public enum UpdateSelfConversationError: Error {
 
-        let nonce: UUID = UUID()
+        case missingLastReadTimestamp
+        case invalidConversation
+
+    }
+
+    // TODO: Move these to a new file
+
+    /// Append a `LastRead` message derived from a given conversation to the self conversation.
+    ///
+    /// - Parameters:
+    ///     - conversation: The conversation from which the last read message is derived.
+    ///
+    /// - Throws:
+    ///     - `UpdateSelfConversationError` if last read can't or shouldn't be derived from `conversation`.
+    ///     - `AppendMessageError` if the last read message couldn't be appended.
+    ///
+    /// - Returns:
+    ///     The appended message.
+
+    @discardableResult
+    public static func updateSelfConversation(withLastReadOf conversation: ZMConversation) throws -> ZMClientMessage {
+        guard let lastReadTimeStamp = conversation.lastReadServerTimeStamp else {
+            throw UpdateSelfConversationError.missingLastReadTimestamp
+        }
+
+        guard
+            let moc = conversation.managedObjectContext,
+            let convID = conversation.remoteIdentifier,
+            convID != ZMConversation.selfConversationIdentifier(in: moc)
+        else {
+            throw UpdateSelfConversationError.invalidConversation
+        }
+
         let lastRead = LastRead(conversationID: convID, lastReadTimestamp: lastReadTimeStamp)
-        let genericMessage = GenericMessage(content: lastRead, nonce: nonce)
+        let genericMessage = GenericMessage(content: lastRead, nonce: .init())
         let selfConversation = ZMConversation.selfConversation(in: moc)
 
-        // TODO: [John] handle?
-        let clientMessage = try? selfConversation.appendClientMessage(with: genericMessage, expires: false, hidden: false)
-        return clientMessage
+        return try selfConversation.appendClientMessage(with: genericMessage, expires: false, hidden: false)
     }
 
     /// Create and append to self conversation a ClientMessage that has generic message data built with the given data

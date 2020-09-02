@@ -284,7 +284,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
             conversation.lastReadServerTimeStamp = Date()
             
             // when
-            guard let message = ZMConversation.appendSelfConversation(withLastReadOf: conversation) else {
+            guard let message = try? ZMConversation.updateSelfConversation(withLastReadOf: conversation) else {
                 XCTFail()
                 return
             }
