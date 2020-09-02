@@ -28,7 +28,7 @@ final class ClientMessageTests_Cleared: BaseZMClientMessageTests {
             // given
             self.syncConversation.clearedTimeStamp = Date()
             self.syncConversation.remoteIdentifier = UUID()
-            guard let message = ZMConversation.appendSelfConversation(withClearedOf: self.syncConversation) else { return XCTFail() }
+            guard let message = try? ZMConversation.updateSelfConversation(withClearedOf: self.syncConversation) else { return XCTFail() }
             
             // when
             guard let payloadAndStrategy = message.encryptForTransport() else { return XCTFail() }
@@ -51,7 +51,7 @@ final class ClientMessageTests_Cleared: BaseZMClientMessageTests {
             self.syncConversation.clearedTimeStamp = Date()
 
             // when
-            guard let message = ZMConversation.appendSelfConversation(withClearedOf: self.syncConversation) else {
+            guard let message = try? ZMConversation.updateSelfConversation(withClearedOf: self.syncConversation) else {
                 XCTFail()
                 return
             }

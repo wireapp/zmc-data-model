@@ -89,8 +89,9 @@ extension ZMConversation {
 
     public enum UpdateSelfConversationError: Error {
 
-        case missingLastReadTimestamp
         case invalidConversation
+        case missingLastReadTimestamp
+        case missingClearedTimestamp
 
     }
 
@@ -129,6 +130,35 @@ extension ZMConversation {
         return try selfConversation.appendClientMessage(with: genericMessage, expires: false, hidden: false)
     }
 
+    /// Append a `Cleared` message derived from a given conversation to the self conversation.
+    ///
+    /// - Parameters:
+    ///     - conversation: The conversation from which the cleared message is derived.
+    ///
+    /// - Throws:
+    ///     - `UpdateSelfConversationError` if cleared message can't or shouldn't be derived from `conversation`.
+    ///     - `AppendMessageError` if the cleared message couldn't be appended.
+    ///
+    /// - Returns:
+    ///     The appended message.
+
+    public static func updateSelfConversation(withClearedOf conversation: ZMConversation) throws -> ZMClientMessage {
+        guard let clearedTimestamp = conversation.clearedTimeStamp else {
+            throw UpdateSelfConversationError.missingClearedTimestamp
+        }
+
+        guard
+            let moc = conversation.managedObjectContext,
+            let convId = conversation.remoteIdentifier,
+            convId != ZMConversation.selfConversationIdentifier(in: moc)
+        else {
+            throw UpdateSelfConversationError.invalidConversation
+        }
+
+        let message = GenericMessage(content: Cleared(timestamp: clearedTimestamp, conversationID: convId), nonce: UUID())
+        return try appendMessageToSelfConversation(message, in: moc)
+    }
+
     /// Append a generic message to the self conversation.
     ///
     /// - Parameters:
@@ -144,18 +174,6 @@ extension ZMConversation {
     public static func appendMessageToSelfConversation(_ message: GenericMessage, in moc: NSManagedObjectContext) throws -> ZMClientMessage {
         let selfConversation = ZMConversation.selfConversation(in: moc)
         return try selfConversation.appendClientMessage(with: message, expires: false, hidden: false)
-    }
-
-
-    public static func appendSelfConversation(withClearedOf conversation: ZMConversation) -> ZMClientMessage? {
-        guard let convID = conversation.remoteIdentifier,
-            let cleared = conversation.clearedTimeStamp,
-            let managedObjectContext = conversation.managedObjectContext,
-            convID != ZMConversation.selfConversationIdentifier(in: managedObjectContext) else {
-                return nil
-        }
-        let message = GenericMessage(content: Cleared(timestamp: cleared, conversationID: convID), nonce: UUID())
-        return try? appendMessageToSelfConversation(message, in: managedObjectContext)
     }
 
     @discardableResult
