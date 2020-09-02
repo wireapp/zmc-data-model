@@ -90,15 +90,6 @@ extension ZMConversation {
     @discardableResult
     public func append(text: String,
                        mentions: [Mention] = [],
-                       fetchLinkPreview: Bool = true,
-                       nonce: UUID = UUID()) -> ZMConversationMessage? {
-
-        return append(text: text, mentions: mentions, replyingTo: nil, fetchLinkPreview: fetchLinkPreview, nonce: nonce)
-    }
-
-    @discardableResult
-    public func append(text: String,
-                       mentions: [Mention] = [],
                        replyingTo quotedMessage: ZMConversationMessage? = nil,
                        fetchLinkPreview: Bool = true,
                        nonce: UUID = UUID()) -> ZMConversationMessage? {
