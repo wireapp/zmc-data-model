@@ -249,7 +249,7 @@ extension ZMConversation {
     /// - Throws:
     ///     - `AppendMessageError` if the message couldn't be appended.
 
-    public func append(_ message: ZMClientMessage, expires: Bool, hidden: Bool) throws {
+    private func append(_ message: ZMClientMessage, expires: Bool, hidden: Bool) throws {
         guard let moc = managedObjectContext else {
             throw AppendMessageError.missingManagedObjectContext
         }
