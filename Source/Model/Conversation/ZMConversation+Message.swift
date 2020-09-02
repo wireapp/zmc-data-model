@@ -103,23 +103,22 @@ extension ZMConversation {
 
         let text = Text(content: text, mentions: mentions, linkPreviews: [], replyingTo: quotedMessage as? ZMOTRMessage)
         let genericMessage = GenericMessage(content: text, nonce: nonce, expiresAfter: messageDestructionTimeoutValue)
-        let clientMessage = ZMClientMessage(nonce: nonce, managedObjectContext: moc)
 
         do {
-            try clientMessage.setUnderlyingMessage(genericMessage)
-            clientMessage.linkPreviewState = fetchLinkPreview ? .waitingToBeProcessed : .done
-            clientMessage.needsLinkAttachmentsUpdate = fetchLinkPreview
-            clientMessage.quote = quotedMessage as? ZMMessage
+            let clientMessage = try appendClientMessage(with: genericMessage, expires: true, hidden: false, configure: {
+                $0.linkPreviewState = fetchLinkPreview ? .waitingToBeProcessed : .done
+                $0.needsLinkAttachmentsUpdate = fetchLinkPreview
+                $0.quote = quotedMessage as? ZMMessage
+            })
 
-            try append(clientMessage, expires: true, hidden: false)
-
-            NotificationInContext(name: ZMConversation.clearTypingNotificationName,
-                                  context: moc.notificationContext,
-                                  object: self).post()
+            NotificationInContext(
+                name: ZMConversation.clearTypingNotificationName,
+                context: moc.notificationContext,
+                object: self
+            ).post()
 
             return clientMessage
         } catch {
-            moc.delete(clientMessage)
             return nil
         }
     }
@@ -209,7 +208,8 @@ extension ZMConversation {
     @discardableResult
     public func appendClientMessage(with genericMessage: GenericMessage,
                                     expires: Bool = true,
-                                    hidden: Bool = false) throws -> ZMClientMessage {
+                                    hidden: Bool = false,
+                                    configure: ((ZMClientMessage) -> Void)? = nil) throws -> ZMClientMessage {
 
         guard let moc = managedObjectContext else {
             throw AppendMessageError.missingManagedObjectContext
@@ -220,6 +220,7 @@ extension ZMConversation {
         }
 
         let message = ZMClientMessage(nonce: nonce, managedObjectContext: moc)
+        configure?(message)
 
         do {
             try message.setUnderlyingMessage(genericMessage)
