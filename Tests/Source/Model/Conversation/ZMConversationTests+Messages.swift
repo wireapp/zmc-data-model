@@ -307,7 +307,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
 
         // when
         let fileMetaData = ZMFileMetadata(fileURL: fileURL)
-        let fileMessage = conversation.append(file: fileMetaData) as! ZMAssetClientMessage
+        let fileMessage = try! conversation.appendFile(with: fileMetaData) as! ZMAssetClientMessage
     
         // then
         XCTAssertEqual(conversation.lastMessage, fileMessage)
@@ -355,7 +355,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
 
         // when
         let fileMetaData = ZMFileMetadata(fileURL: fileURL)
-        let fileMessage = conversation.append(file: fileMetaData) as! ZMAssetClientMessage
+        let fileMessage = try! conversation.appendFile(with: fileMetaData) as! ZMAssetClientMessage
 
         // then
         XCTAssertEqual(conversation.lastMessage, fileMessage)
@@ -459,7 +459,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
                                             dimensions: dimensions,
                                             thumbnail: thumbnailData)
         
-        guard let fileMessage = conversation.append(file: videoMetadata) as? ZMAssetClientMessage else {
+        guard let fileMessage = try? conversation.appendFile(with: videoMetadata) as? ZMAssetClientMessage else {
             XCTFail()
             return
         }
@@ -509,7 +509,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
                                             normalizedLoudness: [],
                                             thumbnail: thumbnailData)
         
-        let fileMessage = conversation.append(file: audioMetadata) as! ZMAssetClientMessage
+        let fileMessage = try! conversation.appendFile(with: audioMetadata) as! ZMAssetClientMessage
         
         // then
         XCTAssertEqual(conversation.lastMessage, fileMessage)

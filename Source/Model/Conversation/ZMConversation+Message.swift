@@ -153,15 +153,20 @@ extension ZMConversation {
     }
 
     @discardableResult
-    public func append(file fileMetadata: ZMFileMetadata, nonce: UUID = UUID()) -> ZMConversationMessage? {
-        guard let data = try? Data.init(contentsOf: fileMetadata.fileURL, options: .mappedIfSafe),
-            let managedObjectContext = managedObjectContext else { return nil }
+    public func appendFile(with fileMetadata: ZMFileMetadata, nonce: UUID = UUID()) throws -> ZMConversationMessage {
+        guard let moc = managedObjectContext else {
+            throw AppendMessageError.missingManagedObjectContext
+        }
 
-        return try? append(asset: fileMetadata.asset, nonce: nonce, expires: false) { (message) in
-            managedObjectContext.zm_fileAssetCache.storeAssetData(message, encrypted: false, data: data)
+        guard let data = try? Data.init(contentsOf: fileMetadata.fileURL, options: .mappedIfSafe) else {
+            throw AppendMessageError.invalidFileUrl
+        }
+
+        return try append(asset: fileMetadata.asset, nonce: nonce, expires: false) { (message) in
+            moc.zm_fileAssetCache.storeAssetData(message, encrypted: false, data: data)
 
             if let thumbnailData = fileMetadata.thumbnail {
-                managedObjectContext.zm_fileAssetCache.storeAssetData(message, format: .original, encrypted: false, data: thumbnailData)
+                moc.zm_fileAssetCache.storeAssetData(message, format: .original, encrypted: false, data: thumbnailData)
             }
         }
     }
@@ -207,6 +212,7 @@ extension ZMConversation {
         case messageIsEmpty
         case failedToRemoveImageMetadata
         case invalidImageUrl
+        case invalidFileUrl
 
     }
 
@@ -356,12 +362,12 @@ extension ZMConversation {
 
     @discardableResult @objc(appendMessageWithFileMetadata:)
     public func _append(file fileMetadata: ZMFileMetadata) -> ZMConversationMessage? {
-        return append(file: fileMetadata)
+        return try? appendFile(with: fileMetadata)
     }
 
     @discardableResult @objc(appendFile:nonce:)
     public func _append(file fileMetadata: ZMFileMetadata, nonce: UUID) -> ZMConversationMessage? {
-        return append(file: fileMetadata, nonce: nonce)
+        return try? appendFile(with: fileMetadata, nonce: nonce)
     }
 
     // MARK: - Helper methods

@@ -109,7 +109,7 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
 
         try? data.write(to: url, options: [.atomic])
         let fileMetaData = ZMFileMetadata(fileURL: url, thumbnail: verySmallJPEGData())
-        let sut = conversation.append(file: fileMetaData, nonce: .create())  as! ZMAssetClientMessage
+        let sut = try! conversation.appendFile(with: fileMetaData, nonce: .create())  as! ZMAssetClientMessage
 
         let cache = uiMOC.zm_fileAssetCache
         

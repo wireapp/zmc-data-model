@@ -49,7 +49,7 @@ class BaseZMAssetClientMessageTests : BaseZMClientMessageTests {
         let nonce = UUID.create()
         let data = fileMetaData ?? createFileMetadata()
         
-        return conversation.append(file: data, nonce: nonce) as? ZMAssetClientMessage
+        return try? conversation.appendFile(with: data, nonce: nonce) as? ZMAssetClientMessage
     }
     
     func appendV2ImageMessage(to conversation: ZMConversation) throws {
