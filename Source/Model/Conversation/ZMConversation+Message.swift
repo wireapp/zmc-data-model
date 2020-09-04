@@ -22,6 +22,40 @@ private let log = ZMSLog(tag: "Conversations")
 
 extension ZMConversation {
 
+    /// An error describing why a message couldn't be appended to the conversation.
+
+    public enum AppendMessageError: LocalizedError {
+
+        case missingManagedObjectContext
+        case malformedNonce
+        case failedToProcessMessageData
+        case messageIsEmpty
+        case failedToRemoveImageMetadata
+        case invalidImageUrl
+        case invalidFileUrl
+
+        public var errorDescription: String? {
+            switch self {
+            case .missingManagedObjectContext:
+                return "The managed object context is missing."
+            case .malformedNonce:
+                return "Encountered a malformed nonce."
+            case .failedToProcessMessageData:
+                return "Failed to process generic message data."
+            case .messageIsEmpty:
+                return "Can not send empty text messages."
+            case .failedToRemoveImageMetadata:
+                return "Failed to remove image metatdata."
+            case .invalidImageUrl:
+                return "Invalid image url."
+            case .invalidFileUrl:
+                return "Invalid file url."
+            }
+        }
+
+    }
+
+
     /// Appends a button action message.
     ///
     /// - Parameters:
@@ -254,17 +288,6 @@ extension ZMConversation {
         message.prepareToSend()
 
         return message
-    }
-
-    public enum AppendMessageError: Error {
-        case missingManagedObjectContext
-        case malformedNonce
-        case failedToProcessMessageData
-        case messageIsEmpty
-        case failedToRemoveImageMetadata
-        case invalidImageUrl
-        case invalidFileUrl
-
     }
 
     /// Appends a new message to the conversation.
