@@ -21,11 +21,6 @@ import XCTest
 
 class ZMGenericMessageDataTests: ModelObjectsTests {
 
-    // MARK: - Properties
-    
-    private var encryptionKeys: EncryptionKeys!
-    private var malformedEncryptionKeys: EncryptionKeys!
-    
     // MARK: - Set Up
 
     override func setUp() {
@@ -34,26 +29,8 @@ class ZMGenericMessageDataTests: ModelObjectsTests {
         createSelfClient(onMOC: uiMOC)
         uiMOC.encryptMessagesAtRest = false
         uiMOC.encryptionKeys = nil
-        
-        var publicKeySec, privateKeySec: SecKey?
-        let keyattribute = [
-            kSecAttrKeyType as String: kSecAttrKeyTypeECSECPrimeRandom,
-            kSecAttrKeySizeInBits as String : 256
-            ] as CFDictionary
-        SecKeyGeneratePair(keyattribute, &publicKeySec, &privateKeySec)
-        
-        let databaseKey = Data.zmRandomSHA256Key()
-        encryptionKeys = EncryptionKeys(publicKey: publicKeySec!, privateKey: privateKeySec!, databaseKey: databaseKey)
-        malformedEncryptionKeys = EncryptionKeys(publicKey: publicKeySec!, privateKey: privateKeySec!, databaseKey: databaseKey.dropFirst())
     }
     
-    override func tearDown() {
-        encryptionKeys = nil
-        malformedEncryptionKeys = nil
-        
-        super.tearDown()
-    }
-
     // MARK: - Positive Tests
 
     func test_ItDoesNotEncryptProtobufData_IfEncryptionAtRest_IsDisabled() throws {
@@ -78,7 +55,7 @@ class ZMGenericMessageDataTests: ModelObjectsTests {
         let genericMessage = createGenericMessage(text: "Hello, world")
 
         uiMOC.encryptMessagesAtRest = true
-        uiMOC.encryptionKeys = encryptionKeys
+        uiMOC.encryptionKeys = validEncryptionKeys
 
         // When
         try sut.setGenericMessage(genericMessage)
@@ -95,6 +72,7 @@ class ZMGenericMessageDataTests: ModelObjectsTests {
         // Given
         let sut = ZMGenericMessageData.insertNewObject(in: uiMOC)
         let oldGenericMessage = try createAndStoreEncryptedData(sut: sut, text: "Hello, world")
+        let encryptionKeys = uiMOC.encryptionKeys
 
         // When
         let newGenericMessage = createGenericMessage(text: "Goodbye!")
@@ -125,6 +103,7 @@ class ZMGenericMessageDataTests: ModelObjectsTests {
         // Given
         let sut = ZMGenericMessageData.insertNewObject(in: uiMOC)
         let oldGenericMessage = try createAndStoreEncryptedData(sut: sut, text: "Hello, world")
+        let encryptionKeys = uiMOC.encryptionKeys
 
         // When
         let newGenericMessage = createGenericMessage(text: "Goodbye!")
@@ -162,7 +141,7 @@ class ZMGenericMessageDataTests: ModelObjectsTests {
         let genericMessage = createGenericMessage(text: text)
 
         uiMOC.encryptMessagesAtRest = true
-        uiMOC.encryptionKeys = encryptionKeys
+        uiMOC.encryptionKeys = validEncryptionKeys
 
         try sut.setGenericMessage(genericMessage)
 

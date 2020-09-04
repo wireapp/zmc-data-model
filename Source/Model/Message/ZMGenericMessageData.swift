@@ -109,74 +109,24 @@ import WireCryptobox
         self.nonce = nonce
     }
 
-    private func decryptDataIfNeeded(data: Data, in moc: NSManagedObjectContext) throws -> Data {
-        guard isEncrypted else { return data }
-
-        guard let key = moc.encryptionKeys?.databaseKey else {
-            throw ProcessingError.failedToDecrypt(reason: .missingDatabaseKey)
-        }
-
-        do {
-            return try decrypt(data: data, key: key, in: moc)
-        } catch let error as EncryptionError {
-            throw ProcessingError.failedToDecrypt(reason: error)
-        }
-    }
-
-    private func decrypt(data: Data, key: Data, in moc: NSManagedObjectContext) throws -> Data {
-        guard let nonce = nonce else {
-            throw EncryptionError.missingNonce
-        }
-
-        let context = contextData(for: moc)
-
-        do {
-            return try ChaCha20Poly1305.AEADEncryption.decrypt(ciphertext: data, nonce: nonce, context: context, key: key)
-        } catch let error as ChaCha20Poly1305.AEADEncryption.EncryptionError {
-            throw EncryptionError.cryptobox(error: error)
-        }
-    }
-
     private func encryptDataIfNeeded(data: Data, in moc: NSManagedObjectContext) throws -> (data: Data, nonce: Data?) {
-        guard moc.encryptMessagesAtRest else {
-            return (data, nonce: nil)
-        }
-
-        guard let key = moc.encryptionKeys?.databaseKey else {
-            throw ProcessingError.failedToEncrypt(reason: .missingDatabaseKey)
-        }
+        guard moc.encryptMessagesAtRest else { return (data, nonce: nil) }
 
         do {
-            return try encrypt(data: data, key: key, in: moc)
-        } catch let error as EncryptionError {
+            return try moc.encryptData(data: data)
+        } catch let error as NSManagedObjectContext.EncryptionError {
             throw ProcessingError.failedToEncrypt(reason: error)
         }
     }
 
-    private func encrypt(data: Data, key: Data, in moc: NSManagedObjectContext) throws -> (data: Data, nonce: Data) {
-        let context = contextData(for: moc)
+    private func decryptDataIfNeeded(data: Data, in moc: NSManagedObjectContext) throws -> Data {
+        guard let nonce = nonce else { return data }
 
         do {
-            let (ciphertext, nonce) = try ChaCha20Poly1305.AEADEncryption.encrypt(message: data, context: context, key: key)
-            return (ciphertext, nonce)
-        } catch let error as ChaCha20Poly1305.AEADEncryption.EncryptionError {
-            throw EncryptionError.cryptobox(error: error)
+            return try moc.decryptData(data: data, nonce: nonce)
+        } catch let error as NSManagedObjectContext.EncryptionError {
+            throw ProcessingError.failedToDecrypt(reason: error)
         }
-    }
-
-    private func contextData(for moc: NSManagedObjectContext) -> Data {
-        let selfUser = ZMUser.selfUser(in: moc)
-
-        guard
-            let selfClient = selfUser.selfClient(),
-            let selfUserId = selfUser.remoteIdentifier?.transportString(),
-            let selfClientId = selfClient.remoteIdentifier,
-            let context = (selfUserId + selfClientId).data(using: .utf8)
-        else {
-            fatalError("Could not obtain self user id and self client id")
-        }
-
-        return context
     }
 
 }
@@ -189,8 +139,8 @@ extension ZMGenericMessageData {
 
         case missingManagedObjectContext
         case failedToSerializeMessage
-        case failedToEncrypt(reason: EncryptionError)
-        case failedToDecrypt(reason: EncryptionError)
+        case failedToEncrypt(reason: NSManagedObjectContext.EncryptionError)
+        case failedToDecrypt(reason: NSManagedObjectContext.EncryptionError)
 
         var errorDescription: String? {
             switch self {
@@ -202,25 +152,6 @@ extension ZMGenericMessageData {
                 return "The message data could not be encrypted. \(encryptionError.errorDescription ?? "")"
             case .failedToDecrypt(reason: let encryptionError):
                 return "The message data could not be decrypted. \(encryptionError.errorDescription ?? "")"
-            }
-        }
-
-    }
-
-    enum EncryptionError: LocalizedError {
-
-        case missingDatabaseKey
-        case missingNonce
-        case cryptobox(error: ChaCha20Poly1305.AEADEncryption.EncryptionError)
-
-        var errorDescription: String? {
-            switch self {
-            case .missingDatabaseKey:
-                return "Database key not found. Perhaps the database is locked."
-            case .missingNonce:
-                return "Nonce not found."
-            case .cryptobox(let error):
-                return error.errorDescription
             }
         }
 

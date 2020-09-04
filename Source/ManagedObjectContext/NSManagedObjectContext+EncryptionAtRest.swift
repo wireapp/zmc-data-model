@@ -17,6 +17,27 @@
 //
 
 import Foundation
+import WireCryptobox
+
+extension NSManagedObjectContext {
+    
+    enum EncryptionError: LocalizedError {
+
+        case missingDatabaseKey
+        case cryptobox(error: ChaCha20Poly1305.AEADEncryption.EncryptionError)
+
+        var errorDescription: String? {
+            switch self {
+            case .missingDatabaseKey:
+                return "Database key not found. Perhaps the database is locked."
+            case .cryptobox(let error):
+                return error.errorDescription
+            }
+        }
+
+    }
+
+}
 
 extension NSManagedObjectContext {
     
@@ -28,6 +49,47 @@ extension NSManagedObjectContext {
         get {
             (persistentStoreMetadata(forKey: PersistentMetadataKey.encryptMessagesAtRest.rawValue) as? NSNumber)?.boolValue ?? false
         }
+    }
+    
+    // MARK: - Encryption / Decryption
+    
+    func encryptData(data: Data) throws -> (data: Data, nonce: Data) {
+        guard let key = encryptionKeys?.databaseKey else { throw EncryptionError.missingDatabaseKey }
+        let context = contextData()
+
+        do {
+            let (ciphertext, nonce) = try ChaCha20Poly1305.AEADEncryption.encrypt(message: data, context: context, key: key)
+            return (ciphertext, nonce)
+        } catch let error as ChaCha20Poly1305.AEADEncryption.EncryptionError {
+            throw EncryptionError.cryptobox(error: error)
+        }
+
+    }
+    
+    func decryptData(data: Data, nonce: Data) throws -> Data {
+        guard let key = encryptionKeys?.databaseKey else { throw EncryptionError.missingDatabaseKey }
+        let context = contextData()
+
+        do {
+            return try ChaCha20Poly1305.AEADEncryption.decrypt(ciphertext: data, nonce: nonce, context: context, key: key)
+        } catch let error as ChaCha20Poly1305.AEADEncryption.EncryptionError {
+            throw EncryptionError.cryptobox(error: error)
+        }
+    }
+    
+    private func contextData() -> Data {
+        let selfUser = ZMUser.selfUser(in: self)
+
+        guard
+            let selfClient = selfUser.selfClient(),
+            let selfUserId = selfUser.remoteIdentifier?.transportString(),
+            let selfClientId = selfClient.remoteIdentifier,
+            let context = (selfUserId + selfClientId).data(using: .utf8)
+        else {
+            fatalError("Could not obtain self user id and self client id")
+        }
+
+        return context
     }
 
     // MARK: - Database Key
