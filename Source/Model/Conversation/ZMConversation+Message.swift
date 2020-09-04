@@ -108,11 +108,9 @@ extension ZMConversation {
         })
 
         if let notificationContext = managedObjectContext?.notificationContext {
-            NotificationInContext(
-                name: ZMConversation.clearTypingNotificationName,
-                context: notificationContext,
-                object: self
-            ).post()
+            NotificationInContext(name: ZMConversation.clearTypingNotificationName,
+                                  context: notificationContext,
+                                  object: self).post()
         }
 
         return clientMessage
