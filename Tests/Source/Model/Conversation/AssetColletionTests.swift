@@ -82,7 +82,7 @@ class AssetColletionTests : ModelObjectsTests {
         var offset : TimeInterval = 0
         var messages = [ZMMessage]()
         (0..<count).forEach{ _ in
-            let message = conversation.append(imageFromData: verySmallJPEGData()) as! ZMMessage
+            let message = conversation.appendImage(from: verySmallJPEGData()) as! ZMMessage
             offset = offset + 5
             message.setValue(Date().addingTimeInterval(offset), forKey: "serverTimestamp")
             messages.append(message)
@@ -284,7 +284,7 @@ class AssetColletionTests : ModelObjectsTests {
     func testThatItExcludesDefinedCategories_PreCategorized(){
         // given
         let data = self.data(forResource: "animated", extension: "gif")!
-        _ = conversation.append(imageFromData: data) as! ZMAssetClientMessage
+        _ = conversation.appendImage(from: data) as! ZMAssetClientMessage
         
         // when
         conversation.allMessages.forEach{_ = $0.cachedCategory}
@@ -304,7 +304,7 @@ class AssetColletionTests : ModelObjectsTests {
         // given
         insertAssetMessages(count: 1)
         let data = self.data(forResource: "animated", extension: "gif")!
-        _ = conversation.append(imageFromData: data) as! ZMAssetClientMessage
+        _ = conversation.appendImage(from: data) as! ZMAssetClientMessage
         uiMOC.saveOrRollback()
         
         // when
@@ -325,7 +325,7 @@ class AssetColletionTests : ModelObjectsTests {
         insertAssetMessages(count: 1)
         
         let data = self.data(forResource: "animated", extension: "gif")!
-        _ = conversation.append(imageFromData: data) as! ZMAssetClientMessage
+        _ = conversation.appendImage(from: data) as! ZMAssetClientMessage
         uiMOC.saveOrRollback()
         
         // when

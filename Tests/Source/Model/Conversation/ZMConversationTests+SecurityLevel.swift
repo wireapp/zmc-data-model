@@ -665,7 +665,7 @@ class ZMConversationTests_SecurityLevel: ZMConversationTestsBase {
             conversation.addParticipantsAndUpdateConversationState(users: Set([user, selfUser]), role: nil)
             conversation.securityLevel = .secure
             
-            let message1 = conversation.append(imageFromData: self.verySmallJPEGData()) as! ZMOTRMessage
+            let message1 = conversation.appendImage(from: self.verySmallJPEGData()) as! ZMOTRMessage
             Thread.sleep(forTimeInterval: 0.1)  // cause system time to advance
             let message2 = try! conversation.appendText(content: "foo 2") as! ZMOTRMessage
             
@@ -698,7 +698,7 @@ class ZMConversationTests_SecurityLevel: ZMConversationTestsBase {
             let user = self.insertUser(conversation: conversation, userIsTrusted: true, moc: self.syncMOC)
             conversation.securityLevel = .secure
             
-            let message1 = conversation.append(imageFromData: self.verySmallJPEGData())! as! ZMOTRMessage
+            let message1 = conversation.appendImage(from: self.verySmallJPEGData())! as! ZMOTRMessage
             Thread.sleep(forTimeInterval: 0.1) // cause system time to advance
             let message2 = try! conversation.appendText(content: "foo 2") as! ZMOTRMessage
             Thread.sleep(forTimeInterval: 0.1) // cause system time to advance
@@ -706,7 +706,7 @@ class ZMConversationTests_SecurityLevel: ZMConversationTestsBase {
             Thread.sleep(forTimeInterval: 0.1) // cause system time to advance
             let message4 = try! conversation.appendText(content: "foo 4") as! ZMOTRMessage
             Thread.sleep(forTimeInterval: 0.1) // cause system time to advance
-            let message5 = conversation.append(imageFromData: self.verySmallJPEGData())! as! ZMOTRMessage
+            let message5 = conversation.appendImage(from: self.verySmallJPEGData())! as! ZMOTRMessage
             
             
             let client = UserClient.insertNewObject(in: self.syncMOC)
@@ -752,7 +752,7 @@ class ZMConversationTests_SecurityLevel: ZMConversationTestsBase {
             Thread.sleep(forTimeInterval: 0.1) // cause system time to advance
             message2 = (try! conversation.appendText(content: "foo 3") as! ZMOTRMessage)
             Thread.sleep(forTimeInterval: 0.1) // cause system time to advance
-            message3 = (conversation.append(imageFromData: self.verySmallJPEGData())! as! ZMOTRMessage)
+            message3 = (conversation.appendImage(from: self.verySmallJPEGData())! as! ZMOTRMessage)
             
             
             let client = UserClient.insertNewObject(in: self.syncMOC)
@@ -826,7 +826,7 @@ class ZMConversationTests_SecurityLevel: ZMConversationTestsBase {
             Thread.sleep(forTimeInterval: 0.1) // cause system time to advance
             message2 = (try! conversation.appendText(content: "foo 3") as! ZMOTRMessage)
             Thread.sleep(forTimeInterval: 0.1) // cause system time to advance
-            message3 = (conversation.append(imageFromData: self.verySmallJPEGData())! as! ZMOTRMessage)
+            message3 = (conversation.appendImage(from: self.verySmallJPEGData())! as! ZMOTRMessage)
             
             
             let client = UserClient.insertNewObject(in: self.syncMOC)

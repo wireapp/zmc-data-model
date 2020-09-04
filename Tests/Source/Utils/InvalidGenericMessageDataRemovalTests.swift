@@ -63,7 +63,7 @@ class InvalidGenericMessageDataRemovalTests: DiskDatabaseTest {
     func testThatItDoesNotRemoveValidGenericMessageData_Asset() throws {
         // Given
         let conversation = createConversation()
-        let assetMessage = conversation.append(imageFromData: self.verySmallJPEGData()) as! ZMAssetClientMessage
+        let assetMessage = conversation.appendImage(from: self.verySmallJPEGData()) as! ZMAssetClientMessage
         let genericMessageData = assetMessage.dataSet.firstObject! as! ZMGenericMessageData
         try self.moc.save()
 
@@ -78,7 +78,7 @@ class InvalidGenericMessageDataRemovalTests: DiskDatabaseTest {
     func testThatItDoesRemoveInvalidGenericMessageData_Asset() throws {
         // Given
         let conversation = createConversation()
-        let assetMessage = conversation.append(imageFromData: self.verySmallJPEGData()) as! ZMAssetClientMessage
+        let assetMessage = conversation.appendImage(from: self.verySmallJPEGData()) as! ZMAssetClientMessage
         let genericMessageData = assetMessage.dataSet.firstObject! as! ZMGenericMessageData
         try self.moc.save()
         

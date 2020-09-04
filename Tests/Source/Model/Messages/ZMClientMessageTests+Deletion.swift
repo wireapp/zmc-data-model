@@ -65,7 +65,7 @@ class ZMClientMessageTests_Deletion: BaseZMClientMessageTests {
     func testThatItDeletesAnAssetMessage_Image() {
         // given
         let conversation = ZMConversation.insertNewObject(in:uiMOC)
-        let sut = conversation.append(imageFromData: mediumJPEGData(), nonce: .create())! as! ZMAssetClientMessage
+        let sut = conversation.appendImage(from: mediumJPEGData(), nonce: .create())! as! ZMAssetClientMessage
         
         let cache = uiMOC.zm_fileAssetCache
         cache.storeAssetData(sut, format: .preview, encrypted: false, data: verySmallJPEGData())

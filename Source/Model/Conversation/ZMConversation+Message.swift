@@ -117,22 +117,30 @@ extension ZMConversation {
     }
 
     @discardableResult
-    public func append(imageAtURL URL: URL, nonce: UUID = UUID()) -> ZMConversationMessage?  {
-        guard URL.isFileURL,
+    public func appendImage(at URL: URL, nonce: UUID = UUID()) -> ZMConversationMessage?  {
+        guard
+            URL.isFileURL,
             ZMImagePreprocessor.sizeOfPrerotatedImage(at: URL) != .zero,
-            let imageData = try? Data.init(contentsOf: URL, options: []) else { return nil }
+            let imageData = try? Data.init(contentsOf: URL, options: [])
+        else {
+            return nil
+        }
 
-        return append(imageFromData: imageData)
+        return appendImage(from: imageData)
     }
 
     @discardableResult
-    public func append(imageFromData imageData: Data, nonce: UUID = UUID()) -> ZMConversationMessage? {
-        guard let managedObjectContext = managedObjectContext,
-            let imageData = try? imageData.wr_removingImageMetadata() else { return nil }
-
+    public func appendImage(from imageData: Data, nonce: UUID = UUID()) -> ZMConversationMessage? {
+        guard
+            let managedObjectContext = managedObjectContext,
+            let imageData = try? imageData.wr_removingImageMetadata()
+        else {
+            return nil
+        }
 
         // mimeType is assigned first, to make sure UI can handle animated GIF file correctly
         let mimeType = ZMAssetMetaDataEncoder.contentType(forImageData: imageData) ?? ""
+
         // We update the size again when the the preprocessing is done
         let imageSize = ZMImagePreprocessor.sizeOfPrerotatedImage(with: imageData)
 
@@ -320,17 +328,17 @@ extension ZMConversation {
     
     @discardableResult @objc(appendMessageWithImageData:)
     public func _append(imageFromData imageData: Data) -> ZMConversationMessage? {
-        return append(imageFromData: imageData)
+        return appendImage(from: imageData)
     }
 
     @discardableResult @objc(appendImageFromData:nonce:)
     public func _append(imageFromData imageData: Data, nonce: UUID) -> ZMConversationMessage? {
-        return append(imageFromData: imageData, nonce: nonce)
+        return appendImage(from: imageData, nonce: nonce)
     }
 
     @discardableResult @objc(appendImageAtURL:nonce:)
     public func _append(imageAtURL URL: URL, nonce: UUID) -> ZMConversationMessage? {
-        return append(imageAtURL: URL, nonce: nonce)
+        return appendImage(at: URL, nonce: nonce)
     }
 
     @discardableResult @objc(appendMessageWithFileMetadata:)

@@ -73,7 +73,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         conversation.lastModifiedDate = msg1.serverTimestamp
     
         // when
-        guard let msg2 = conversation.append(imageFromData: self.verySmallJPEGData()) as? ZMAssetClientMessage else {
+        guard let msg2 = conversation.appendImage(from: self.verySmallJPEGData()) as? ZMAssetClientMessage else {
             XCTFail()
             return
         }
@@ -134,7 +134,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         conversation.remoteIdentifier = UUID()
     
         // when
-        let message = conversation.append(imageAtURL: imageFileURL)! as! ZMAssetClientMessage
+        let message = conversation.appendImage(at: imageFileURL)! as! ZMAssetClientMessage
     
         // then
         XCTAssertNotNil(message)
@@ -158,7 +158,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         conversation.remoteIdentifier = UUID()
     
         // when
-        let message = conversation.append(imageAtURL: imageFileURL)! as! ZMAssetClientMessage
+        let message = conversation.appendImage(at: imageFileURL)! as! ZMAssetClientMessage
     
         // then
         XCTAssertNotNil(message)
@@ -184,7 +184,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         // when
         var message: Any? = nil
         self.performIgnoringZMLogError {
-            message = conversation.append(imageAtURL: imageURL)
+            message = conversation.appendImage(at: imageURL)
         }
     
         // then
@@ -203,7 +203,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         // when
         var message: Any? = nil
         self.performIgnoringZMLogError {
-            message = conversation.append(imageAtURL: textFileURL)
+            message = conversation.appendImage(at: textFileURL)
         }
     
         // then
@@ -221,7 +221,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         conversation.remoteIdentifier = UUID()
     
         // when
-        guard let message = conversation.append(imageFromData: imageData) as? ZMAssetClientMessage else {
+        guard let message = conversation.appendImage(from: imageData) as? ZMAssetClientMessage else {
             XCTFail()
             return
         }
@@ -246,7 +246,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         conversation.remoteIdentifier = UUID()
     
         // when
-        guard let message = conversation.append(imageFromData: imageData) as? ZMAssetClientMessage else {
+        guard let message = conversation.appendImage(from: imageData) as? ZMAssetClientMessage else {
             XCTFail()
             return
         }
@@ -267,7 +267,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         // when
         var message: ZMConversationMessage? = nil
         self.performIgnoringZMLogError {
-            message = conversation.append(imageFromData: textData)
+            message = conversation.appendImage(from: textData)
         }
 
         // then
@@ -331,7 +331,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         // given
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.remoteIdentifier = UUID()
-        let imageMessage = conversation.append(imageFromData: verySmallJPEGData())
+        let imageMessage = conversation.appendImage(from: verySmallJPEGData())
         
         // when
         let textMessage = try? conversation.appendText(content: "Hello World", replyingTo: imageMessage)
