@@ -82,19 +82,20 @@ class ZMOTRMessage_SecurityDegradationTests : BaseZMClientMessageTests {
             message.markAsSent()
             convo.securityLevel = .secure
             self.syncMOC.saveOrRollback()
-            
-            let confirmation = convo.append(message: Confirmation(messageId: message.nonce!, type: .delivered), hidden: true)!
+
+            let confirmation = GenericMessage(content: Confirmation(messageId: message.nonce!, type: .delivered))
+            let confirmationMessage = try! convo.appendClientMessage(with: confirmation, expires: false, hidden: true)
 
             // WHEN
             let newClient = UserClient.insertNewObject(in: self.syncMOC)
-            convo.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [newClient], causedBy: confirmation)
+            convo.decreaseSecurityLevelIfNeededAfterDiscovering(clients: [newClient], causedBy: confirmationMessage)
             self.syncMOC.saveOrRollback()
             
             // THEN
             XCTAssertEqual(convo.securityLevel, .secureWithIgnored)
             XCTAssertFalse(message.causedSecurityLevelDegradation)
-            XCTAssertFalse(confirmation.causedSecurityLevelDegradation)
-            XCTAssertFalse(convo.messagesThatCausedSecurityLevelDegradation.contains(confirmation))
+            XCTAssertFalse(confirmationMessage.causedSecurityLevelDegradation)
+            XCTAssertFalse(convo.messagesThatCausedSecurityLevelDegradation.contains(confirmationMessage))
             XCTAssertFalse(self.syncMOC.zm_hasChanges)
         }
     }

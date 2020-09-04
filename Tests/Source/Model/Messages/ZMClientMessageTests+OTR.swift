@@ -319,7 +319,9 @@ extension ClientMessageTests_OTR {
             
             textMessage.sender = self.syncUser1
             textMessage.senderClientID = senderID
-            let confirmationMessage = conversation.append(message: Confirmation(messageId: textMessage.nonce!, type: .delivered), hidden: true)
+
+            let genericMessage = GenericMessage(content: Confirmation(messageId: textMessage.nonce!, type: .delivered))
+            let confirmationMessage = try? conversation.appendClientMessage(with: genericMessage, expires: false, hidden: true)
             
             //when
             guard let payloadAndStrategy = confirmationMessage?.encryptForTransport()
@@ -364,7 +366,9 @@ extension ClientMessageTests_OTR {
             
             textMessage.sender = self.syncUser1
             textMessage.senderClientID = senderID
-            let confirmationMessage = conversation.append(message: Confirmation(messageId: textMessage.nonce!, type: .delivered), hidden: true)
+
+            let confirmation = GenericMessage(content: Confirmation(messageId: textMessage.nonce!, type: .delivered))
+            let confirmationMessage = try? conversation.appendClientMessage(with: confirmation, expires: false, hidden: true)
             
             //when
             guard let _ = confirmationMessage?.encryptForTransport()
@@ -394,8 +398,9 @@ extension ClientMessageTests_OTR {
             clientmessage.visibleInConversation = conversation
             
             self.syncMOC.saveOrRollback()
-            
-            let confirmationMessage = conversation.append(message: Confirmation(messageId: clientmessage.nonce!, type: .delivered), hidden: true)
+
+            let confirmation = GenericMessage(content: Confirmation(messageId: clientmessage.nonce!, type: .delivered))
+            let confirmationMessage = try? conversation.appendClientMessage(with: confirmation, expires: false, hidden: true)
 
             //when
             guard let _ = confirmationMessage?.encryptForTransport()
@@ -421,8 +426,9 @@ extension ClientMessageTests_OTR {
             clientMessage.visibleInConversation = conversation
             
             self.syncMOC.saveOrRollback()
-            
-            let confirmationMessage = conversation.append(message: Confirmation(messageId: clientMessage.nonce!, type: .delivered), hidden: true)
+
+            let confirmation = GenericMessage(content: Confirmation(messageId: clientMessage.nonce!, type: .delivered))
+            let confirmationMessage = try? conversation.appendClientMessage(with: confirmation, expires: false, hidden: true)
 
             //when
             guard let _ = confirmationMessage?.encryptForTransport()

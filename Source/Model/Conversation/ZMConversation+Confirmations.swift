@@ -33,8 +33,12 @@ extension ZMConversation {
         
         for messages in unreadMessagesNeedingConfirmation.partition(by: \.sender).values {
             guard !messages.isEmpty else { continue }
-            
-            if let confirmation = Confirmation.init(messageIds: messages.compactMap(\.nonce), type: .read), let confirmationMessage = append(message: confirmation, hidden: true) {
+
+            // TODO: [John] Handle failure?
+            if
+                let confirmation = Confirmation.init(messageIds: messages.compactMap(\.nonce), type: .read),
+                let confirmationMessage = try? appendClientMessage(with: GenericMessage(content: confirmation), expires: false, hidden: true)
+            {
                 confirmationMessages.append(confirmationMessage)
             }
         }

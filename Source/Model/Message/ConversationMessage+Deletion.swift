@@ -62,8 +62,10 @@ extension ZMMessage {
     @discardableResult @objc func deleteForEveryone() -> ZMClientMessage? {
         guard !isZombieObject, let sender = sender , (sender.isSelfUser || isEphemeral) else { return nil }
         guard let conversation = conversation, let messageNonce = nonce else { return nil}
-        
-        let message =  conversation.append(message: MessageDelete(messageId: messageNonce), hidden: true)
+
+        // TODO: [John] Handle?
+        let genericMessage = GenericMessage(content: MessageDelete(messageId: messageNonce))
+        let message = try? conversation.appendClientMessage(with: genericMessage, expires: false, hidden: true)
         
         removeClearingSender(false)
         updateCategoryCache()

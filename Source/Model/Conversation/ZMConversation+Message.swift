@@ -370,12 +370,4 @@ extension ZMConversation {
         return try? appendFile(with: fileMetadata, nonce: nonce)
     }
 
-    // MARK: - Helper methods
-    
-    @nonobjc
-    func append(message: MessageCapable, nonce: UUID = UUID(), hidden: Bool = false, expires: Bool = false) -> ZMClientMessage? {
-        // TODO: [John] handle?
-        return try? appendClientMessage(with: GenericMessage(content: message, nonce: nonce), expires: expires, hidden: hidden)
-    }
-    
 }
