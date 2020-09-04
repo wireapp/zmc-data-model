@@ -105,7 +105,7 @@ class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
     func testThatItCategorizesAnImageMessage() {
         
         // GIVEN
-        let message = self.conversation.appendImage(from: self.verySmallJPEGData())!
+        let message = try! self.conversation.appendImage(from: self.verySmallJPEGData())
         
         // THEN
         XCTAssertEqual(message.categorization, MessageCategory.image)
@@ -114,7 +114,7 @@ class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
     func testThatItCategorizesAnImageMessage_WithoutData() {
         
         // GIVEN
-        let message = self.conversation.appendImage(from: self.verySmallJPEGData())!
+        let message = try! self.conversation.appendImage(from: self.verySmallJPEGData())
         uiMOC.zm_fileAssetCache.deleteAssetData(message, format: .original, encrypted: false)
         
         // THEN
@@ -125,7 +125,7 @@ class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
 
         // GIVEN
         let data = self.data(forResource: "animated", extension: "gif")!
-        let message = conversation.appendImage(from: data) as! ZMAssetClientMessage
+        let message = try! conversation.appendImage(from: data) as! ZMAssetClientMessage
 
         // THEN
         XCTAssertEqual(message.categorization, [MessageCategory.image, MessageCategory.GIF])
@@ -201,7 +201,7 @@ class ZMMessageCategorizationTests : ZMBaseManagedObjectTest {
     func testThatItCategorizesV3Images() {
         
         // GIVEN
-        let message = self.conversation.appendImage(from: self.verySmallJPEGData())!
+        let message = try! self.conversation.appendImage(from: self.verySmallJPEGData())
         
         // THEN
         XCTAssertEqual(message.categorization, MessageCategory.image)
@@ -569,7 +569,7 @@ extension ZMMessageCategorizationTests {
     func testThatItCategorizesAnImageMessageOnInsert(){
         
         // when
-        let message = self.conversation.appendImage(from: verySmallJPEGData()) as! ZMMessage
+        let message = try! self.conversation.appendImage(from: verySmallJPEGData()) as! ZMMessage
         
         // then
         XCTAssertEqual(message.primitiveValue(forKey: ZMMessageCachedCategoryKey) as? NSNumber, NSNumber(value: MessageCategory.image.rawValue))

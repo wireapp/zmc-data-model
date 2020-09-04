@@ -56,7 +56,7 @@ class BaseZMAssetClientMessageTests : BaseZMClientMessageTests {
         let imageData = verySmallJPEGData()
         let messageNonce = UUID.create()
         
-        message = conversation.appendImage(from: imageData, nonce: messageNonce) as? ZMAssetClientMessage
+        message = try conversation.appendImage(from: imageData, nonce: messageNonce) as? ZMAssetClientMessage
         
         let imageSize = ZMImagePreprocessor.sizeOfPrerotatedImage(with: imageData)
         let properties = ZMIImageProperties(size:imageSize, length:UInt(imageData.count), mimeType:"image/jpeg")!
@@ -74,7 +74,7 @@ class BaseZMAssetClientMessageTests : BaseZMClientMessageTests {
     func appendImageMessage(to conversation: ZMConversation, imageData: Data? = nil) -> ZMAssetClientMessage {
         let data = imageData ?? verySmallJPEGData()
         let nonce = UUID.create()
-        let message = conversation.appendImage(from: data, nonce: nonce) as! ZMAssetClientMessage
+        let message = try! conversation.appendImage(from: data, nonce: nonce) as! ZMAssetClientMessage
 
         let uploaded = WireProtos.Asset(withUploadedOTRKey: .randomEncryptionKey(), sha256: .zmRandomSHA256Key())
 

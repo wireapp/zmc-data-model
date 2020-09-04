@@ -145,7 +145,7 @@ extension ZMMessageTests_GenericMessage {
         conversation.remoteIdentifier = UUID.create()
 
         // when
-        let message = conversation.appendImage(from: self.verySmallJPEGData()) as! ZMOTRMessage
+        let message = try! conversation.appendImage(from: self.verySmallJPEGData()) as! ZMOTRMessage
         let dataSet = message.dataSet
 
         XCTAssertNotNil(message.managedObjectContext)
