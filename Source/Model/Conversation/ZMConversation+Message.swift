@@ -87,6 +87,21 @@ extension ZMConversation {
         return try appendClientMessage(with: message)
     }
 
+    /// Appends a text message.
+    ///
+    /// - Parameters:
+    ///     - content: The message content.
+    ///     - mentions: The list of mentioned participants.
+    ///     - quotedMessage: The message being replied to.
+    ///     - fetchLinkPreview: Whether link previews should be fetched.
+    ///     - nonce: The nonce of the message.
+    ///
+    /// - Throws:
+    ///     - `AppendMessageError` if the message couldn't be appended.
+    ///
+    /// - Returns:
+    ///     The appended message.
+
     @discardableResult
     public func appendText(content: String,
                            mentions: [Mention] = [],
@@ -116,6 +131,18 @@ extension ZMConversation {
         return clientMessage
     }
 
+    /// Append an image message.
+    ///
+    /// - Parameters:
+    ///     - url: A url locating some image data.
+    ///     - nonce: The nonce of the message.
+    ///
+    /// - Throws:
+    ///     - `AppendMessageError` if the message couldn't be appended.
+    ///
+    /// - Returns:
+    ///     The appended message.
+
     @discardableResult
     public func appendImage(at URL: URL, nonce: UUID = UUID()) throws -> ZMConversationMessage  {
         guard
@@ -128,6 +155,18 @@ extension ZMConversation {
 
         return try appendImage(from: imageData)
     }
+
+    /// Append an image message.
+    ///
+    /// - Parameters:
+    ///     - imageData: Data representing an image.
+    ///     - nonce: The nonce of the message.
+    ///
+    /// - Throws:
+    ///     - `AppendMessageError` if the message couldn't be appended.
+    ///
+    /// - Returns:
+    ///     The appended message.
 
     @discardableResult
     public func appendImage(from imageData: Data, nonce: UUID = UUID()) throws -> ZMConversationMessage {
@@ -151,6 +190,18 @@ extension ZMConversation {
             moc.zm_fileAssetCache.storeAssetData(message, format: .original, encrypted: false, data: imageData)
         })
     }
+
+    /// Append a file message.
+    ///
+    /// - Parameters:
+    ///     - fileMetadata: Data describing the file.
+    ///     - nonce: The nonce of the message.
+    ///
+    /// - Throws:
+    ///     - `AppendMessageError` if the message couldn't be appended.
+    ///
+    /// - Returns:
+    ///     The appended message.
 
     @discardableResult
     public func appendFile(with fileMetadata: ZMFileMetadata, nonce: UUID = UUID()) throws -> ZMConversationMessage {
