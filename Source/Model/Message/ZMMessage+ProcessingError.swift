@@ -23,14 +23,14 @@ extension ZMMessage {
     public enum ProcessingError: LocalizedError {
 
         case missingManagedObjectContext
-        case failedToProcessMessageData
+        case failedToProcessMessageData(reason: String)
 
         public var errorDescription: String? {
             switch self {
             case .missingManagedObjectContext:
                 return "Missing managed object context."
-            case .failedToProcessMessageData:
-                return "Failed to process message data."
+            case .failedToProcessMessageData(let reason):
+                return "Failed to process message data. Reason: \(reason)"
             }
         }
 

@@ -253,7 +253,7 @@ extension ZMAssetClientMessage: ZMFileMessageData {
             do {
                 try messageData.setGenericMessage(genericMessage)
             } catch {
-                throw ProcessingError.failedToProcessMessageData
+                throw ProcessingError.failedToProcessMessageData(reason: error.localizedDescription)
             }
         }
     }

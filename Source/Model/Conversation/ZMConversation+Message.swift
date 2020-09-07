@@ -28,7 +28,7 @@ extension ZMConversation {
 
         case missingManagedObjectContext
         case malformedNonce
-        case failedToProcessMessageData
+        case failedToProcessMessageData(reason: String)
         case messageIsEmpty
         case failedToRemoveImageMetadata
         case invalidImageUrl
@@ -40,8 +40,8 @@ extension ZMConversation {
                 return "The managed object context is missing."
             case .malformedNonce:
                 return "Encountered a malformed nonce."
-            case .failedToProcessMessageData:
-                return "Failed to process generic message data."
+            case .failedToProcessMessageData(let reason):
+                return "Failed to process generic message data. Reason: \(reason)"
             case .messageIsEmpty:
                 return "Can not send empty text messages."
             case .failedToRemoveImageMetadata:
@@ -266,13 +266,15 @@ extension ZMConversation {
             throw AppendMessageError.missingManagedObjectContext
         }
 
-        let assetMessage = ZMAssetClientMessage(asset: asset,
-                                                nonce: nonce,
-                                                managedObjectContext: moc,
-                                                expiresAfter: messageDestructionTimeoutValue)
+        let message: ZMAssetClientMessage
 
-        guard let message = assetMessage else {
-            throw AppendMessageError.failedToProcessMessageData
+        do {
+            message = try ZMAssetClientMessage(asset: asset,
+                                               nonce: nonce,
+                                               managedObjectContext: moc,
+                                               expiresAfter: messageDestructionTimeoutValue)
+        } catch {
+            throw AppendMessageError.failedToProcessMessageData(reason: error.localizedDescription)
         }
 
         message.sender = ZMUser.selfUser(in: moc)
@@ -321,7 +323,7 @@ extension ZMConversation {
             try message.setUnderlyingMessage(genericMessage)
         } catch {
             moc.delete(message)
-            throw AppendMessageError.failedToProcessMessageData
+            throw AppendMessageError.failedToProcessMessageData(reason: error.localizedDescription)
         }
 
         do {

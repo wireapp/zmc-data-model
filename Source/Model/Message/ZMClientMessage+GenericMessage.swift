@@ -79,7 +79,7 @@ extension ZMClientMessage {
         do {
             try messageData.setGenericMessage(message)
         } catch {
-            throw ProcessingError.failedToProcessMessageData
+            throw ProcessingError.failedToProcessMessageData(reason: error.localizedDescription)
         }
 
         return messageData
@@ -98,7 +98,7 @@ extension ZMClientMessage {
             return messageData
         } catch {
             moc.delete(messageData)
-            throw ProcessingError.failedToProcessMessageData
+            throw ProcessingError.failedToProcessMessageData(reason: error.localizedDescription)
         }
     }
 }

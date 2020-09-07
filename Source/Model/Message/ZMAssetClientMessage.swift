@@ -25,23 +25,18 @@ import Foundation
     /// In memory cache
     var cachedUnderlyingAssetMessage: GenericMessage? = nil
     
-    internal convenience init?(asset: WireProtos.Asset,
-                               nonce: UUID,
-                               managedObjectContext: NSManagedObjectContext,
-                               expiresAfter timeout: TimeInterval = 0) {
+    internal convenience init(asset: WireProtos.Asset,
+                              nonce: UUID,
+                              managedObjectContext: NSManagedObjectContext,
+                              expiresAfter timeout: TimeInterval = 0) throws {
+
         self.init(nonce: nonce, managedObjectContext: managedObjectContext)
         
         transferState = .uploading
         version = 3
         
         let genericMessage = GenericMessage(content: asset, nonce: nonce, expiresAfter: timeout)
-        
-        do {            
-            try mergeWithExistingData(message: genericMessage)
-        } catch {
-            Logging.messageProcessing.warn("Failed to create asset message. Reason: \(error.localizedDescription)")
-            return nil
-        }
+        try mergeWithExistingData(message: genericMessage)
     }
     
     public override var hashOfContent: Data? {

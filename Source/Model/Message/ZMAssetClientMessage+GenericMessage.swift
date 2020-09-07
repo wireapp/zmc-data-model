@@ -19,7 +19,7 @@
 import Foundation
 
 extension ZMAssetClientMessage {
-    
+
     func genericMessageDataFromDataSet(for format: ZMImageFormat) -> ZMGenericMessageData? {
         return self.dataSet.lazy
             .compactMap { $0 as? ZMGenericMessageData }
@@ -77,7 +77,7 @@ extension ZMAssetClientMessage {
             try existingMessageData.setGenericMessage(message)
             return existingMessageData
         } catch {
-            throw ProcessingError.failedToProcessMessageData
+            throw ProcessingError.failedToProcessMessageData(reason: error.localizedDescription)
         }
     }
 
@@ -95,7 +95,7 @@ extension ZMAssetClientMessage {
             return messageData
         } catch {
             moc.delete(messageData)
-            throw ProcessingError.failedToProcessMessageData
+            throw ProcessingError.failedToProcessMessageData(reason: error.localizedDescription)
         }
     }
     
