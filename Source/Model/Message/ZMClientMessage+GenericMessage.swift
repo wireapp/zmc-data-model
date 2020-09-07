@@ -19,13 +19,6 @@
 import Foundation
 
 extension ZMClientMessage {
-
-    public enum ProcessingError: Error {
-
-        case missingManagedObjectContext
-        case failedToProcessMessageData
-
-    }
     
     public var underlyingMessage: GenericMessage? {
         guard !isZombieObject else {

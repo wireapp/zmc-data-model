@@ -19,13 +19,6 @@
 import Foundation
 
 extension ZMAssetClientMessage {
-
-    public enum ProcessingError: Error {
-
-        case missingManagedObjectContext
-        case failedToProcessMessageData
-
-    }
     
     func genericMessageDataFromDataSet(for format: ZMImageFormat) -> ZMGenericMessageData? {
         return self.dataSet.lazy
