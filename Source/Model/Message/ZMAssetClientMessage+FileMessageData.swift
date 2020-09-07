@@ -233,7 +233,7 @@ extension ZMAssetClientMessage: ZMFileMessageData {
                 message.update(asset: assetData)
                 try replaceGenericMessageForThumbnail(with: message)
             } catch {
-                // No op
+                Logging.messageProcessing.warn("Failed to set thumbnail asset id. Reason: \(error.localizedDescription)")
             }
         }
     }
