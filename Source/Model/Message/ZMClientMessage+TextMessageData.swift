@@ -57,6 +57,7 @@ extension ZMClientMessage: ZMTextMessageData {
         do {
             try setUnderlyingMessage(updatedMessage)
         } catch {
+            Logging.messageProcessing.warn("Failed to edit text message. Reason: \(error.localizedDescription)")
             return
         }
 

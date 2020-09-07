@@ -56,6 +56,7 @@ extension ZMClientMessage {
             let genericMessage = GenericMessage(content: originalText.applyEdit(from: messageEdit.text), nonce: nonce)
             try setUnderlyingMessage(genericMessage)
         } catch {
+            Logging.messageProcessing.warn("Failed to process message edit. Reason: \(error.localizedDescription)")
             return false
         }
 

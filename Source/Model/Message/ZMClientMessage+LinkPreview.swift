@@ -207,7 +207,10 @@ extension ZMClientMessage: ZMImageOwner {
             do {
                 let genericMessage = GenericMessage(content: messageUpdate, nonce: nonce)
                 try setUnderlyingMessage(genericMessage)
-            } catch { return }
+            } catch {
+                Logging.messageProcessing.warn("Failed to link preview image data. Reason: \(error.localizedDescription)")
+                return
+            }
         }
         
         moc.enqueueDelayedSave()
