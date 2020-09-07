@@ -38,15 +38,15 @@ extension ZMMessage {
         let reaction = WireProtos.Reaction(emoji: emoji, messageID: messageID)
         let genericMessage = GenericMessage(content: reaction)
 
-        guard
-            let conversation = message.conversation,
-            let clientMessage = try? conversation.appendClientMessage(with: genericMessage, expires: false, hidden: true)
-        else {
-            return nil
-        }
+        guard let conversation = message.conversation else { return nil }
 
-        message.addReaction(unicodeValue, forUser: .selfUser(in: context))
-        return clientMessage
+        do {
+            let clientMessage = try conversation.appendClientMessage(with: genericMessage, expires: false, hidden: true)
+            message.addReaction(unicodeValue, forUser: .selfUser(in: context))
+            return clientMessage
+        } catch {
+            Logging.messageProcessing.warn("Failed to append reaction. Reason: \(error.localizedDescription)")
+        }
     }
     
     @discardableResult
