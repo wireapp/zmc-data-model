@@ -46,6 +46,7 @@ extension ZMMessage {
             return clientMessage
         } catch {
             Logging.messageProcessing.warn("Failed to append reaction. Reason: \(error.localizedDescription)")
+            return nil
         }
     }
     
