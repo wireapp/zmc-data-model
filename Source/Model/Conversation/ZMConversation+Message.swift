@@ -376,35 +376,35 @@ extension ZMConversation {
     // MARK: - Objective-C compability methods
     
     @discardableResult @objc(appendMessageWithText:)
-    public func _append(text: String) -> ZMConversationMessage? {
-        return try? appendText(content: text)
+    public func _appendText(content: String) -> ZMConversationMessage? {
+        return try? appendText(content: content)
     }
     
     @discardableResult @objc(appendMessageWithText:fetchLinkPreview:)
-    public func _append(text: String, fetchLinkPreview: Bool) -> ZMConversationMessage? {
-        return try? appendText(content: text, fetchLinkPreview: fetchLinkPreview)
+    public func _appendText(content: String, fetchLinkPreview: Bool) -> ZMConversationMessage? {
+        return try? appendText(content: content, fetchLinkPreview: fetchLinkPreview)
     }
 
     @discardableResult @objc(appendText:mentions:fetchLinkPreview:nonce:)
-    public func _append(text: String,
-                        mentions: [Mention],
-                        fetchLinkPreview: Bool,
-                        nonce: UUID) -> ZMConversationMessage? {
+    public func _appendText(content: String,
+                            mentions: [Mention],
+                            fetchLinkPreview: Bool,
+                            nonce: UUID) -> ZMConversationMessage? {
 
-        return try? appendText(content: text,
+        return try? appendText(content: content,
                                mentions: mentions,
                                fetchLinkPreview: fetchLinkPreview,
                                nonce: nonce)
     }
 
     @discardableResult @objc(appendText:mentions:replyingToMessage:fetchLinkPreview:nonce:)
-    public func _append(text: String,
-                        mentions: [Mention],
-                        replyingTo quotedMessage: ZMConversationMessage?,
-                        fetchLinkPreview: Bool,
-                        nonce: UUID) -> ZMConversationMessage? {
+    public func _appendText(content: String,
+                            mentions: [Mention],
+                            replyingTo quotedMessage: ZMConversationMessage?,
+                            fetchLinkPreview: Bool,
+                            nonce: UUID) -> ZMConversationMessage? {
 
-        return try? appendText(content: text,
+        return try? appendText(content: content,
                                mentions: mentions,
                                replyingTo: quotedMessage,
                                fetchLinkPreview: fetchLinkPreview,
@@ -417,32 +417,32 @@ extension ZMConversation {
     }
     
     @discardableResult @objc(appendMessageWithLocationData:)
-    public func _append(location: LocationData) -> ZMConversationMessage? {
-        return try? appendLocation(with: location)
+    public func _appendLocation(with locationData: LocationData) -> ZMConversationMessage? {
+        return try? appendLocation(with: locationData)
     }
     
     @discardableResult @objc(appendMessageWithImageData:)
-    public func _append(imageFromData imageData: Data) -> ZMConversationMessage? {
+    public func _appendImage(from imageData: Data) -> ZMConversationMessage? {
         return try? appendImage(from: imageData)
     }
 
     @discardableResult @objc(appendImageFromData:nonce:)
-    public func _append(imageFromData imageData: Data, nonce: UUID) -> ZMConversationMessage? {
+    public func _appendImage(from imageData: Data, nonce: UUID) -> ZMConversationMessage? {
         return try? appendImage(from: imageData, nonce: nonce)
     }
 
     @discardableResult @objc(appendImageAtURL:nonce:)
-    public func _append(imageAtURL URL: URL, nonce: UUID) -> ZMConversationMessage? {
+    public func _appendImage(at URL: URL, nonce: UUID) -> ZMConversationMessage? {
         return try? appendImage(at: URL, nonce: nonce)
     }
 
     @discardableResult @objc(appendMessageWithFileMetadata:)
-    public func _append(file fileMetadata: ZMFileMetadata) -> ZMConversationMessage? {
+    public func _appendFile(with fileMetadata: ZMFileMetadata) -> ZMConversationMessage? {
         return try? appendFile(with: fileMetadata)
     }
 
     @discardableResult @objc(appendFile:nonce:)
-    public func _append(file fileMetadata: ZMFileMetadata, nonce: UUID) -> ZMConversationMessage? {
+    public func _appendFile(with fileMetadata: ZMFileMetadata, nonce: UUID) -> ZMConversationMessage? {
         return try? appendFile(with: fileMetadata, nonce: nonce)
     }
 
