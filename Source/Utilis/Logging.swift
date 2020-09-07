@@ -18,26 +18,8 @@
 
 import Foundation
 
-extension ZMClientMessage {
+enum Logging {
 
-    override open func obfuscate() {
-        super.obfuscate()
-
-        guard
-            let underlyingMessage = underlyingMessage,
-            !underlyingMessage.hasKnock,
-            let obfuscatedMessage = underlyingMessage.obfuscatedMessage()
-        else {
-            return
-        }
-
-        deleteContent()
-
-        do {
-            try mergeWithExistingData(obfuscatedMessage)
-        } catch {
-            Logging.messageProcessing.warn("Failed to merge obfuscated message. Reason: \(error.localizedDescription)")
-        }
-    }
+    static let messageProcessing = ZMSLog(tag: "Message Processing")
 
 }

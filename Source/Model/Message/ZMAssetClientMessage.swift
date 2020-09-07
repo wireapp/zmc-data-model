@@ -36,10 +36,10 @@ import Foundation
         
         let genericMessage = GenericMessage(content: asset, nonce: nonce, expiresAfter: timeout)
         
-        do {
-            // TODO: [John] check if we need to try.
+        do {            
             try mergeWithExistingData(message: genericMessage)
         } catch {
+            Logging.messageProcessing.warn("Failed to create asset message. Reason: \(error.localizedDescription)")
             return nil
         }
     }
@@ -415,9 +415,9 @@ struct CacheAsset: Asset {
         }
         
         do {
-            // TODO: [John] Check if we need to try
             try owner.mergeWithExistingData(message: genericMessage)
         } catch {
+            Logging.messageProcessing.warn("Failed to update asset id. Reason: \(error.localizedDescription)")
             return
         }
         
@@ -445,8 +445,11 @@ struct CacheAsset: Asset {
             genericMessage.updateAssetPreview(withImageProperties: imageProperties)
         }
 
-        // TODO: [John] Handle failure?
-        try? owner.setUnderlyingMessage(genericMessage)
+        do {
+            try owner.setUnderlyingMessage(genericMessage)
+        } catch {
+            Logging.messageProcessing.warn("Failed to update preprocessed image data. Reason: \(error.localizedDescription)")
+        }
     }
     
     func encrypt() {
@@ -472,8 +475,11 @@ struct CacheAsset: Asset {
             }
         }
 
-        // TODO: [John] Handle failure?
-        try? owner.setUnderlyingMessage(genericMessage)
+        do {
+            try owner.setUnderlyingMessage(genericMessage)
+        } catch {
+            Logging.messageProcessing.warn("Failed to encrypt asset message data. Reason: \(error.localizedDescription)")
+        }
     }
     
 }
