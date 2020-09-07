@@ -110,7 +110,7 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
         conversation.remoteIdentifier = .create()
         
         // When
-        let message = conversation.append(text: "This is the first message in the conversation") as! ZMMessage
+        let message = try! conversation.appendText(content: "This is the first message in the conversation") as! ZMMessage
         XCTAssert(uiMOC.saveOrRollback())
         
         // Then
