@@ -21,7 +21,7 @@ import Foundation
 import WireCryptobox
 
 extension ZMConversation {
-    static func appendHideMessageToSelfConversation(_ message: ZMMessage) {
+    static func appendHideMessageToSelfConversation(_ message: ZMMessage) throws {
         guard
             let messageId = message.nonce,
             let conversation = message.conversation,
@@ -30,12 +30,8 @@ extension ZMConversation {
             return
         }
         
-        do {
-            let genericMessage = GenericMessage(content: MessageHide(conversationId: conversationId, messageId: messageId))
-            _ = try ZMConversation.appendMessageToSelfConversation(genericMessage, in: message.managedObjectContext!)
-        } catch {
-            Logging.messageProcessing.warn("Failed to append hide message. Reason: \(error.localizedDescription)")
-        }
+        let genericMessage = GenericMessage(content: MessageHide(conversationId: conversationId, messageId: messageId))
+        _ = try ZMConversation.appendMessageToSelfConversation(genericMessage, in: message.managedObjectContext!)
     }
 }
 
@@ -52,7 +48,13 @@ extension ZMMessage {
     
     @objc public func hideForSelfUser() {
         guard !isZombieObject else { return }
-        ZMConversation.appendHideMessageToSelfConversation(self)
+
+        do {
+            try ZMConversation.appendHideMessageToSelfConversation(self)
+        } catch {
+            Logging.messageProcessing.warn("Failed to append hide message. Reason: \(error.localizedDescription)")
+            return
+        }
 
         // To avoid reinserting when receiving an edit we delete the message locally
         removeClearingSender(true)
