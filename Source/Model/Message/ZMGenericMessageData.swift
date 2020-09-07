@@ -22,8 +22,6 @@ import WireCryptobox
 @objc(ZMGenericMessageData)
 @objcMembers public class ZMGenericMessageData: ZMManagedObject {
 
-    private static let log = ZMSLog(tag: "EAR")
-
     // MARK: - Static
 
     override open class func entityName() -> String {
@@ -61,7 +59,7 @@ import WireCryptobox
         do {
             return try GenericMessage(serializedData: getProtobufData())
         } catch {
-            Self.log.warn("Could not retrieve GenericMessage: \(error.localizedDescription)")
+            Logging.messageProcessing.warn("Could not retrieve GenericMessage: \(error.localizedDescription)")
             return nil
         }
     }
