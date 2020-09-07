@@ -71,6 +71,7 @@ extension ZMConversation {
     /// - Returns:
     ///     The appended message.
 
+    @discardableResult
     public static func updateSelfConversation(withClearedOf conversation: ZMConversation) throws -> ZMClientMessage {
         guard let clearedTimestamp = conversation.clearedTimeStamp else {
             throw UpdateSelfConversationError.missingClearedTimestamp
