@@ -49,11 +49,11 @@ public struct PushToken: Equatable, Codable {
 }
 
 extension PushToken {
-    
+
     public init(deviceToken: Data, appIdentifier: String, transportType: String, isRegistered: Bool) {
         self.init(deviceToken: deviceToken, appIdentifier: appIdentifier, transportType: transportType, isRegistered: isRegistered, isMarkedForDeletion: false, isMarkedForDownload: false)
     }
-    
+
     public var deviceTokenString: String {
         return deviceToken.zmHexEncodedString()
     }
