@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="16119" systemVersion="19E287" minimumToolsVersion="Xcode 4.3" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="2.84.0">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="16119" systemVersion="19G2021" minimumToolsVersion="Xcode 4.3" sourceLanguage="Objective-C" userDefinedModelVersionIdentifier="2.84.0">
     <entity name="Action" representedClassName=".Action" syncable="YES">
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="role" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Role" inverseName="actions" inverseEntity="Role" syncable="YES"/>
@@ -246,6 +246,7 @@
     </entity>
     <entity name="User" representedClassName="ZMUser" syncable="YES">
         <attribute name="accentColorValue" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="analysticIdentifier" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="availability" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="completeProfileAssetIdentifier" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="emailAddress" optional="YES" attributeType="String" syncable="YES"/>
@@ -345,7 +346,7 @@
         <element name="SystemMessage" positionX="0" positionY="0" width="128" height="255"/>
         <element name="Team" positionX="9" positionY="153" width="128" height="238"/>
         <element name="TextMessage" positionX="-153" positionY="-117" width="128" height="60"/>
-        <element name="User" positionX="-434" positionY="-72" width="128" height="688"/>
+        <element name="User" positionX="-434" positionY="-72" width="128" height="703"/>
         <element name="UserClient" positionX="9" positionY="153" width="128" height="508"/>
     </elements>
 </model>
