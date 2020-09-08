@@ -46,26 +46,14 @@ public struct PushToken: Equatable, Codable {
     public var isRegistered: Bool
     public var isMarkedForDeletion: Bool = false
     public var isMarkedForDownload: Bool = false
-    
-    public init(deviceToken: Data,
-                appIdentifier: String,
-                transportType: String,
-                type: PushTokenType,
-                isRegistered: Bool,
-                isMarkedForDeletion: Bool,
-                isMarkedForDownload: Bool) {
-        self.deviceToken = deviceToken
-        self.appIdentifier = appIdentifier
-        self.transportType = transportType
-        self.type = type
-        self.isRegistered = isRegistered
-        self.isMarkedForDeletion = isMarkedForDeletion
-        self.isMarkedForDownload = isMarkedForDownload
-    }
 }
 
 extension PushToken {
-
+    
+    public init(deviceToken: Data, appIdentifier: String, transportType: String, isRegistered: Bool) {
+        self.init(deviceToken: deviceToken, appIdentifier: appIdentifier, transportType: transportType, isRegistered: isRegistered, isMarkedForDeletion: false, isMarkedForDownload: false)
+    }
+    
     public var deviceTokenString: String {
         return deviceToken.zmHexEncodedString()
     }
