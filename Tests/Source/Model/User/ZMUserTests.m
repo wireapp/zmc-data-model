@@ -1201,7 +1201,7 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     XCTAssertEqual(user.keysTrackedForLocalModifications.count, 0u);
 }
 
-- (void)testThatSpecialKeysAreNotPartOfTheLocallyModifiedKeysForSelfUser
+- (void)testThatSpecialKeysAreNotPartOfTheLocallyModifiedKeysForSelfUser//TODO
 {
     // given
     NSSet *expected = [NSSet setWithArray:@[@"accentColorValue",
