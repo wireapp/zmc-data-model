@@ -18,23 +18,14 @@
 
 import Foundation
 
-public struct PushTokenType: Equatable, Encodable, Decodable {
+public enum PushTokenType: Int, Codable {
+    case standard, voip
     
-    public enum TokenType: Int, Decodable, Encodable {
-        case standard, voip
-        
-        public var transportType: String {
-            switch self {
-            case .standard: return "APNS"
-            case .voip: return "APNS_VOIP"
-            }
+    public var transportType: String {
+        switch self {
+        case .standard: return "APNS"
+        case .voip: return "APNS_VOIP"
         }
-    }
-    
-    public let tokenType: TokenType
-    
-    public init(tokenType: TokenType) {
-        self.tokenType = tokenType
     }
 }
 
