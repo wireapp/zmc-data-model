@@ -20,17 +20,21 @@ import Foundation
 
 public struct PushTokenType: Equatable, Encodable, Decodable {
     
-    public let tokenType: TokenType
-    
-    public var transportType: String {
-        switch tokenType {
-        case .standard: return "APNS"
-        case .voip: return "APNS_VOIP"
+    public enum TokenType: Int, Decodable, Encodable {
+        case standard, voip
+        
+        public var transportType: String {
+            switch self {
+            case .standard: return "APNS"
+            case .voip: return "APNS_VOIP"
+            }
         }
     }
     
-    public enum TokenType: Int, Decodable, Encodable {
-        case standard, voip
+    public let tokenType: TokenType
+    
+    public init(tokenType: TokenType) {
+        self.tokenType = tokenType
     }
 }
 
@@ -42,6 +46,22 @@ public struct PushToken: Equatable, Codable {
     public var isRegistered: Bool
     public var isMarkedForDeletion: Bool = false
     public var isMarkedForDownload: Bool = false
+    
+    public init(deviceToken: Data,
+                appIdentifier: String,
+                transportType: String,
+                type: PushTokenType,
+                isRegistered: Bool,
+                isMarkedForDeletion: Bool,
+                isMarkedForDownload: Bool) {
+        self.deviceToken = deviceToken
+        self.appIdentifier = appIdentifier
+        self.transportType = transportType
+        self.type = type
+        self.isRegistered = isRegistered
+        self.isMarkedForDeletion = isMarkedForDeletion
+        self.isMarkedForDownload = isMarkedForDownload
+    }
 }
 
 extension PushToken {
