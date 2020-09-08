@@ -179,7 +179,7 @@ extension ZMUser {
     @objc static let completeProfileAssetIdentifierKey = #keyPath(ZMUser.completeProfileAssetIdentifier)
     
     /// Analytics
-    @NSManaged public var analysticIdentifier: String?
+    @NSManaged public var analyticsIdentifier: String?
 
     @NSManaged public var previewProfileAssetIdentifier: String?
     @NSManaged public var completeProfileAssetIdentifier: String?
