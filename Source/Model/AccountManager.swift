@@ -38,7 +38,7 @@ fileprivate extension UserDefaults {
 
 
 /// Class used to safely access and change stored accounts and the current selected account.
-@objcMembers public final class AccountManager: NSObject {
+public final class AccountManager: NSObject {
 
     private let defaults = UserDefaults.shared()
     private(set) public var accounts = [Account]()
@@ -53,7 +53,7 @@ fileprivate extension UserDefaults {
 
     /// Creates a new `AccountManager`.
     /// - parameter sharedDirectory: The directory of the shared container.
-    @objc(initWithSharedDirectory:) public init(sharedDirectory: URL) {
+    public init(sharedDirectory: URL) {
         store = AccountStore(root: sharedDirectory)
         super.init()
         updateAccounts()
