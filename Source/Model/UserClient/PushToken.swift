@@ -124,5 +124,13 @@ extension PushToken {
         token.isMarkedForDeletion = true
         return token
     }
+    
+    public static func createVOIPToken(from deviceToken: Data) -> PushToken {
+        return PushToken(deviceToken: deviceToken, tokenType: .voip)
+    }
+    
+    public static func createAPNSToken(from deviceToken: Data) -> PushToken  {
+         return PushToken(deviceToken: deviceToken, tokenType: .standard)
+    }
 
 }
