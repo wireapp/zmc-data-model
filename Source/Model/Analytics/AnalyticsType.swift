@@ -19,26 +19,18 @@
 
 import Foundation
 
-@objc public protocol AnalyticsType: NSObjectProtocol {
+public protocol AnalyticsType: class {
+    func tagEvent(_ event: String, attributes: [String: NSObject]?)
 
-    func tagEvent(_ event: String)
-    func tagEvent(_ event: String, attributes: [String: NSObject])
-
-    @objc(setPersistedAttributes:forEvent:)
     func setPersistedAttributes(_ attributes: [String: NSObject]?, for event: String)
-    @objc(persistedAttributesForEvent:)
     func persistedAttributes(for event: String) -> [String: NSObject]?
 }
 
 // Used for debugging only
-@objc public final class DebugAnalytics: NSObject, AnalyticsType {
+public final class DebugAnalytics: AnalyticsType {
 
-    public func tagEvent(_ event: String) {
-        print(Date(), "[ANALYTICS]", #function, event)
-    }
-
-    public func tagEvent(_ event: String, attributes: [String : NSObject]) {
-        print(Date(), "[ANALYTICS]", #function, event, attributes)
+    public func tagEvent(_ event: String, attributes: [String : NSObject]?) {
+        print(Date(), "[ANALYTICS]", #function, event, attributes ?? [])
     }
 
     var eventAttributes = [String : [String : NSObject]]()

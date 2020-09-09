@@ -25,16 +25,15 @@ extension AnalyticsType {
     /// This method should be used to track messages which are not reported to 
     /// be `known`, c.f. `knownMessage` in `ZMGenericMessage+Utils.m`.
     func tagUnknownMessageReceived() {
-        tagEvent(unknownMessageEventName)
+        tagEvent(unknownMessageEventName, attributes: nil)
     }
 
 }
 
 
 /// Objective-C compatibility wrapper for the unknown message event
-class UnknownMessageAnalyticsTracker: NSObject {
+final class UnknownMessageAnalyticsTracker {
 
-    @objc(tagUnknownMessageWithAnalytics:)
     class func tagUnknownMessage(with analytics: AnalyticsType?) {
         analytics?.tagUnknownMessageReceived()
     }
