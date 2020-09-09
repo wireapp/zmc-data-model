@@ -309,11 +309,11 @@ final class DatabaseMigrationTests: DatabaseBaseTest {
     }
     
     func testThatItPerformsMigrationFrom_Between_2_24_1_and_PreLast_ToCurrentModelVersion() {
-        // NOTICE: When a new version of data model is created, please change the last number of the array.
+        // NOTICE: When a new version of data model is created, please increase the last number of the array.
         let allVersions = ["2-24-1"] +
-            ([Int](25...31) +
-             [Int](39...57) +
-             [Int](59...85)).map { "2-\($0)-0" }
+            [(25...31),
+             (39...57),
+             (59...85)].joined().map { "2-\($0)-0" }
         
         let modelVersion = NSManagedObjectModel.loadModel().version
         let fixtureVersion = String(databaseFixtureFileName(for: modelVersion).dropFirst("store".count))
