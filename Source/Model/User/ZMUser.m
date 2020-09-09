@@ -92,6 +92,7 @@ static NSString *const NeedsToAcknowledgeLegalHoldStatusKey = @"needsToAcknowled
 static NSString *const NeedsToRefetchLabelsKey = @"needsToRefetchLabels";
 static NSString *const ParticipantRolesKey = @"participantRoles";
 
+static NSString *const AnalyticsIdentifierKey = @"analyticsIdentifier";
 
 @interface ZMBoxedSelfUser : NSObject
 
@@ -373,6 +374,7 @@ static NSString *const ParticipantRolesKey = @"participantRoles";
     dispatch_once(&onceToken, ^{
         NSMutableSet *ignoredKeys = [[super ignoredKeys] mutableCopy];
         [ignoredKeys addObjectsFromArray:@[
+                                           AnalyticsIdentifierKey,
                                            NormalizedNameKey,
                                            ConversationsCreatedKey,
                                            ActiveCallConversationsKey,
