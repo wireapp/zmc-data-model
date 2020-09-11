@@ -40,8 +40,72 @@ extension NSManagedObjectContext {
 }
 
 extension NSManagedObjectContext {
+
+    // TODO: [John] would be good to have some more granularity.
+
+    enum MigrationError: LocalizedError {
+
+        case missingDatabaseKey
+        case failedToEncryptDatabase
+        case failedToDecryptDatabase
+
+        var errorDescription: String? {
+            switch self {
+            case .missingDatabaseKey:
+                return "The database key is missing, encryption / decryption is not possible."
+            case .failedToEncryptDatabase:
+                return "The database couldn't be encrypted."
+            case .failedToDecryptDatabase:
+                return "The database couldn't be decrypted."
+            }
+        }
+
+    }
+
+    // Question: do we discard the dirty state if we fail? Or that is the responsibility of the caller?
+    // I think it makes sense to give responsibility to the caller to save the context.
+
+    /// Enables encryption at rest after sucessfuly encrypting the existing database.
+    ///
+    /// Depending on the size of the database, the migration may take a long time and will block the
+    /// thread. If the migration fails for any reason, the feature is not enabled, but the context may
+    /// be in a dirty, partially migrated state.
+    ///
+    /// - Throws: `MigrationError` if the migration failed.
+
+    public func enableEncryptionAtRest() throws {
+        guard let databaseKey = encryptionKeys?.databaseKey else { throw MigrationError.missingDatabaseKey }
+
+        do {
+            try ZMGenericMessageData.migrateTowardEncryptionAtRest(withKey: databaseKey, in: self)
+        } catch {
+            throw MigrationError.failedToEncryptDatabase
+        }
+
+        encryptMessagesAtRest = true
+    }
+
+    /// Disables encryption at rest after sucessfuly decrypting the existing database.
+    ///
+    /// Depending on the size of the database, the migration may take a long time and will block the
+    /// thread. If the migration fails for any reason, the feature is not disabled, but the context may
+    /// be in a dirty, partially migrated state.
+    ///
+    /// - Throws: `MigrationError` if the migration failed.
+
+    public func disableEncryptionAtRest() throws {
+        guard let databaseKey = encryptionKeys?.databaseKey else { throw MigrationError.missingDatabaseKey }
+
+        do {
+            try ZMGenericMessageData.migrateAwayFromEncryptionAtRest(withKey: databaseKey, in: self)
+        } catch {
+            throw MigrationError.failedToDecryptDatabase
+        }
+
+        encryptMessagesAtRest = false
+    }
     
-    public var encryptMessagesAtRest: Bool {
+    private(set) public var encryptMessagesAtRest: Bool {
         set {
             setPersistentStoreMetadata(NSNumber(booleanLiteral: newValue),
                                        key: PersistentMetadataKey.encryptMessagesAtRest.rawValue)
@@ -76,7 +140,7 @@ extension NSManagedObjectContext {
             throw EncryptionError.cryptobox(error: error)
         }
     }
-    
+
     private func contextData() -> Data {
         let selfUser = ZMUser.selfUser(in: self)
 

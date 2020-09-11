@@ -152,7 +152,56 @@ extension ZMGenericMessageData {
                 return "The message data could not be decrypted. \(encryptionError.errorDescription ?? "")"
             }
         }
+    }
 
+}
+
+extension ZMGenericMessageData {
+
+    public static func migrateTowardEncryptionAtRest(withKey key: Data, in moc: NSManagedObjectContext) throws {
+        do {
+            for instance in try fetchRequest(batchSize: 100).execute() {
+                try instance.migrateTowardEncryptionAtRest(withKey: key, in: moc)
+            }
+        } catch {
+            // TODO: [John] Map the error
+            Logging.messageProcessing.warn("Error migrating toward encryption at rest: \(error.localizedDescription)")
+        }
+    }
+
+    public static func migrateAwayFromEncryptionAtRest(withKey key: Data, in moc: NSManagedObjectContext) throws {
+        do {
+            for instance in try fetchRequest(batchSize: 100).execute() {
+                try instance.migrateAwayFromEncryptionAtRest(withKey: key, in: moc)
+            }
+        } catch {
+            // TODO: [John] Map the error
+            Logging.messageProcessing.warn("Error migrating away from encryption at rest: \(error.localizedDescription)")
+        }
+    }
+
+    private static func fetchRequest(batchSize: Int) -> NSFetchRequest<ZMGenericMessageData> {
+        let fetchRequest = NSFetchRequest<ZMGenericMessageData>(entityName: entityName())
+        fetchRequest.returnsObjectsAsFaults = false
+        fetchRequest.fetchBatchSize = batchSize
+        return fetchRequest
+    }
+
+    private static func predicate(whereDataIsEncrypted isEncrypted: Bool) -> NSPredicate {
+        return NSPredicate(format: "%K == \(isEncrypted ? "YES" : "NO")", #keyPath(ZMGenericMessageData.isEncrypted))
+    }
+
+    private func migrateTowardEncryptionAtRest(withKey key: Data, in moc: NSManagedObjectContext) throws {
+        let (ciphertext, nonce) = try moc.encryptData(data: data)
+        self.data = ciphertext
+        self.nonce = nonce
+    }
+
+    private func migrateAwayFromEncryptionAtRest(withKey key: Data, in moc: NSManagedObjectContext) throws {
+        guard let nonce = nonce else { return }
+        let plaintext = try moc.decryptData(data: data, nonce: nonce)
+        self.data = plaintext
+        self.nonce = nil
     }
 
 }
