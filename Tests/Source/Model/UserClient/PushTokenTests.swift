@@ -21,6 +21,15 @@ import XCTest
 
 final class PushTokenTests: XCTestCase {
 
+    struct MockOldPushToken: Encodable {
+        public let deviceToken: Data
+        public let appIdentifier: String
+        public let transportType: String
+        public var isRegistered: Bool
+        public var isMarkedForDeletion: Bool
+        public var isMarkedForDownload: Bool
+    }
+    
     var sut: PushToken!
     
     override func setUp() {
@@ -63,5 +72,52 @@ final class PushTokenTests: XCTestCase {
 
         XCTAssertFalse(reset.isMarkedForDownload)
         XCTAssertFalse(reset.isMarkedForDownload)
+    }
+    
+    func testThatItCreatesAPushTokenWithDefaultVoipTokenType() {
+        // given
+        let mockPushToken = MockOldPushToken(deviceToken: Data([0x01, 0x02, 0x03]),
+                             appIdentifier: "com.wire.zclient",
+                             transportType: "APNS_VOIP",
+                             isRegistered: true,
+                             isMarkedForDeletion: false,
+                             isMarkedForDownload: false)
+        
+        let pushTokenData = try! JSONEncoder().encode(mockPushToken)
+       
+        // when
+        let decodedPushToken = try! JSONDecoder().decode(PushToken.self, from: pushTokenData)
+        
+        // then
+        let expectedPushToken = PushToken(deviceToken: Data([0x01, 0x02, 0x03]),
+                                          appIdentifier: "com.wire.zclient",
+                                          transportType: "APNS_VOIP",
+                                          type: .voip,
+                                          isRegistered: true)
+        
+        XCTAssertEqual(decodedPushToken, expectedPushToken)
+    }
+    
+    func testThatItDecodesPushToken() {
+        // given
+        let mockPushToken = PushToken(deviceToken: Data([0x01, 0x02, 0x03]),
+                                      appIdentifier: "com.wire.zclient",
+                                      transportType: "APNS",
+                                      type: .standard,
+                                      isRegistered: true)
+        
+        let pushTokenData = try! JSONEncoder().encode(mockPushToken)
+        
+        // when
+        let decodedPushToken = try! JSONDecoder().decode(PushToken.self, from: pushTokenData)
+        
+        // then
+        let expectedPushToken = PushToken(deviceToken: Data([0x01, 0x02, 0x03]),
+                                          appIdentifier: "com.wire.zclient",
+                                          transportType: "APNS",
+                                          type: .standard,
+                                          isRegistered: true)
+        
+        XCTAssertEqual(decodedPushToken, expectedPushToken)
     }
 }
