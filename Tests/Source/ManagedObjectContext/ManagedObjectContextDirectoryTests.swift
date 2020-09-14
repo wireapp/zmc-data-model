@@ -64,3 +64,13 @@ class ManagedObjectContextDirectoryTests: DatabaseBaseTest {
     }
 
 }
+
+extension EncryptionKeys: Equatable {
+
+    public static func == (lhs: EncryptionKeys, rhs: EncryptionKeys) -> Bool {
+        return
+            lhs.publicKey == rhs.publicKey &&
+                lhs.privateKey == rhs.privateKey &&
+                lhs.databaseKey._storage == rhs.databaseKey._storage
+    }
+}
