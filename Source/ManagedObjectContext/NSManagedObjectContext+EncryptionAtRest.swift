@@ -78,6 +78,8 @@ extension NSManagedObjectContext {
 
         do {
             try ZMGenericMessageData.migrateTowardEncryptionAtRest(withKey: databaseKey, in: self)
+            // TODO: [John] Set normalized text to nil for all instances of ZMMessage.
+            // TODO: [John] Migrate all instances of ZMConversation that have a draftMessage
         } catch {
             throw MigrationError.failedToEncryptDatabase
         }
@@ -98,6 +100,8 @@ extension NSManagedObjectContext {
 
         do {
             try ZMGenericMessageData.migrateAwayFromEncryptionAtRest(withKey: databaseKey, in: self)
+            // TODO: [John] Call "updateNormalizedText" for all instances of ZMMessage
+            // TODO: [John] Migrate all instances of ZMConversation that have a draftMessage
         } catch {
             throw MigrationError.failedToDecryptDatabase
         }
