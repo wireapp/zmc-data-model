@@ -351,3 +351,15 @@ public struct EncryptionKeys {
     }
     
 }
+
+// MARK: - Equatable
+
+extension EncryptionKeys: Equatable {
+
+    public static func == (lhs: EncryptionKeys, rhs: EncryptionKeys) -> Bool {
+        return
+            lhs.publicKey == rhs.publicKey &&
+            lhs.privateKey == rhs.privateKey &&
+            lhs.databaseKey._storage == rhs.databaseKey._storage
+    }
+}
