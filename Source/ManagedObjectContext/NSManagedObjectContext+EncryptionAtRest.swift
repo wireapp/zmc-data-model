@@ -80,7 +80,7 @@ extension NSManagedObjectContext {
         do {
             try ZMGenericMessageData.migrateTowardEncryptionAtRest(in: self)
             try ZMMessage.migrateTowardEncryptionAtRest(in: self)
-            // TODO: [John] Migrate all instances of ZMConversation that have a draftMessage
+            try ZMConversation.migrateTowardEncryptionAtRest(in: self)
         } catch {
             encryptMessagesAtRest = false
             throw error
@@ -101,7 +101,7 @@ extension NSManagedObjectContext {
         do {
             try ZMGenericMessageData.migrateAwayFromEncryptionAtRest(in: self)
             try ZMMessage.migrateAwayFromEncryptionAtRest(in: self)
-            // TODO: [John] Migrate all instances of ZMConversation that have a draftMessage
+            try ZMConversation.migrateAwayFromEncryptionAtRest(in: self)
         } catch {
             encryptMessagesAtRest = true
             throw error
