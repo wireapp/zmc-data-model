@@ -158,7 +158,7 @@ extension ZMGenericMessageData {
 
 extension ZMGenericMessageData {
 
-    public static func migrateTowardEncryptionAtRest(in moc: NSManagedObjectContext) throws {
+    static func migrateTowardEncryptionAtRest(in moc: NSManagedObjectContext) throws {
         do {
             for instance in try fetchRequest(batchSize: 100).execute() {
                 try instance.migrateTowardEncryptionAtRest(in: moc)
@@ -168,7 +168,7 @@ extension ZMGenericMessageData {
         }
     }
 
-    public static func migrateAwayFromEncryptionAtRest(in moc: NSManagedObjectContext) throws {
+    static func migrateAwayFromEncryptionAtRest(in moc: NSManagedObjectContext) throws {
         do {
             for instance in try fetchRequest(batchSize: 100).execute() {
                 try instance.migrateAwayFromEncryptionAtRest(in: moc)

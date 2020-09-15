@@ -20,7 +20,7 @@ import Foundation
 
 extension ZMMessage {
 
-    public static func migrateTowardEncryptionAtRest(in moc: NSManagedObjectContext) throws {
+    static func migrateTowardEncryptionAtRest(in moc: NSManagedObjectContext) throws {
         do {
             for instance in try fetchRequest(batchSize: 100).execute() {
                 instance.migrateTowardEncryptionAtRest()
@@ -30,7 +30,7 @@ extension ZMMessage {
         }
     }
 
-    public static func migrateAwayFromEncryptionAtRest(in moc: NSManagedObjectContext) throws {
+    static func migrateAwayFromEncryptionAtRest(in moc: NSManagedObjectContext) throws {
         do {
             for instance in try fetchRequest(batchSize: 100).execute() {
                 instance.migrateAwayFromEncryptionAtRest()
