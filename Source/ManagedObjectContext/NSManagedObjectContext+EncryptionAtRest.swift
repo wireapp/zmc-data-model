@@ -41,22 +41,23 @@ extension NSManagedObjectContext {
 
 extension NSManagedObjectContext {
 
-    // TODO: [John] would be good to have some more granularity.
-
     enum MigrationError: LocalizedError {
 
         case missingDatabaseKey
-        case failedToEncryptDatabase
-        case failedToDecryptDatabase
+        case failedToEncryptDatabase(reason: String)
+        case failedToDecryptDatabase(reason: String)
+        case failedToMigrateZMMessage(reason: String)
 
         var errorDescription: String? {
             switch self {
             case .missingDatabaseKey:
                 return "The database key is missing, encryption / decryption is not possible."
-            case .failedToEncryptDatabase:
-                return "The database couldn't be encrypted."
-            case .failedToDecryptDatabase:
-                return "The database couldn't be decrypted."
+            case .failedToEncryptDatabase(let reason):
+                return "The database couldn't be encrypted. Reason: \(reason)"
+            case .failedToDecryptDatabase(let reason):
+                return "The database couldn't be decrypted. Reason: \(reason)"
+            case .failedToMigrateZMMessage(let reason):
+                return "Failed to migrate all instances of ZMMessage. Reason: \(reason)"
             }
         }
 
@@ -74,17 +75,16 @@ extension NSManagedObjectContext {
     /// - Throws: `MigrationError` if the migration failed.
 
     public func enableEncryptionAtRest() throws {
-        guard let databaseKey = encryptionKeys?.databaseKey else { throw MigrationError.missingDatabaseKey }
+        encryptMessagesAtRest = true
 
         do {
-            try ZMGenericMessageData.migrateTowardEncryptionAtRest(withKey: databaseKey, in: self)
-            // TODO: [John] Set normalized text to nil for all instances of ZMMessage.
+            try ZMGenericMessageData.migrateTowardEncryptionAtRest(in: self)
+            try ZMMessage.migrateTowardEncryptionAtRest(in: self)
             // TODO: [John] Migrate all instances of ZMConversation that have a draftMessage
         } catch {
-            throw MigrationError.failedToEncryptDatabase
+            encryptMessagesAtRest = false
+            throw error
         }
-
-        encryptMessagesAtRest = true
     }
 
     /// Disables encryption at rest after sucessfuly decrypting the existing database.
@@ -96,17 +96,17 @@ extension NSManagedObjectContext {
     /// - Throws: `MigrationError` if the migration failed.
 
     public func disableEncryptionAtRest() throws {
-        guard let databaseKey = encryptionKeys?.databaseKey else { throw MigrationError.missingDatabaseKey }
+        encryptMessagesAtRest = false
 
         do {
-            try ZMGenericMessageData.migrateAwayFromEncryptionAtRest(withKey: databaseKey, in: self)
-            // TODO: [John] Call "updateNormalizedText" for all instances of ZMMessage
+            try ZMGenericMessageData.migrateAwayFromEncryptionAtRest(in: self)
+            try ZMMessage.migrateAwayFromEncryptionAtRest(in: self)
             // TODO: [John] Migrate all instances of ZMConversation that have a draftMessage
         } catch {
-            throw MigrationError.failedToDecryptDatabase
+            encryptMessagesAtRest = true
+            throw error
         }
 
-        encryptMessagesAtRest = false
     }
     
     private(set) public var encryptMessagesAtRest: Bool {
