@@ -26,10 +26,13 @@ extension NSManagedObjectContext {
 
     enum MigrationError: LocalizedError {
 
+        case missingDatabaseKey
         case failedToMigrateInstances(type: ZMManagedObject.Type, reason: String)
 
         var errorDescription: String? {
             switch self {
+            case .missingDatabaseKey:
+                return "A database key is required to migrate."
             case let .failedToMigrateInstances(type, reason):
                 return "Failed to migrate all instances of \(type). Reason: \(reason)"
             }
@@ -49,6 +52,8 @@ extension NSManagedObjectContext {
     /// - Throws: `MigrationError` if the migration failed.
 
     public func enableEncryptionAtRest() throws {
+        guard encryptionKeys?.databaseKey != nil else { throw MigrationError.missingDatabaseKey }
+
         encryptMessagesAtRest = true
 
         do {
@@ -70,6 +75,8 @@ extension NSManagedObjectContext {
     /// - Throws: `MigrationError` if the migration failed.
 
     public func disableEncryptionAtRest() throws {
+        guard encryptionKeys?.databaseKey != nil else { throw MigrationError.missingDatabaseKey }
+
         encryptMessagesAtRest = false
 
         do {
