@@ -27,7 +27,7 @@ class ZMGenericMessageDataTests: ModelObjectsTests {
         super.setUp()
         
         createSelfClient(onMOC: uiMOC)
-        uiMOC.encryptMessagesAtRest = false
+        setEncryptionAtRest(enabled: false, in: uiMOC)
         uiMOC.encryptionKeys = nil
     }
     
@@ -38,7 +38,7 @@ class ZMGenericMessageDataTests: ModelObjectsTests {
         let sut = ZMGenericMessageData.insertNewObject(in: uiMOC)
         let genericMessage = createGenericMessage(text: "Hello, world")
 
-        uiMOC.encryptMessagesAtRest = false
+        XCTAssertFalse(uiMOC.encryptMessagesAtRest)
 
         // When
         try sut.setGenericMessage(genericMessage)
@@ -54,7 +54,7 @@ class ZMGenericMessageDataTests: ModelObjectsTests {
         let sut = ZMGenericMessageData.insertNewObject(in: uiMOC)
         let genericMessage = createGenericMessage(text: "Hello, world")
 
-        uiMOC.encryptMessagesAtRest = true
+        setEncryptionAtRest(enabled: true, in: uiMOC)
         uiMOC.encryptionKeys = validEncryptionKeys
 
         // When
@@ -140,7 +140,7 @@ class ZMGenericMessageDataTests: ModelObjectsTests {
     private func createAndStoreEncryptedData(sut: ZMGenericMessageData, text: String) throws -> GenericMessage {
         let genericMessage = createGenericMessage(text: text)
 
-        uiMOC.encryptMessagesAtRest = true
+        setEncryptionAtRest(enabled: true, in: uiMOC)
         uiMOC.encryptionKeys = validEncryptionKeys
 
         try sut.setGenericMessage(genericMessage)
