@@ -19,45 +19,19 @@
 import Foundation
 import WireCryptobox
 
-extension NSManagedObjectContext {
-    
-    enum EncryptionError: LocalizedError {
-
-        case missingDatabaseKey
-        case cryptobox(error: ChaCha20Poly1305.AEADEncryption.EncryptionError)
-
-        var errorDescription: String? {
-            switch self {
-            case .missingDatabaseKey:
-                return "Database key not found. Perhaps the database is locked."
-            case .cryptobox(let error):
-                return error.errorDescription
-            }
-        }
-
-    }
-
-}
 
 extension NSManagedObjectContext {
+
+    // MARK: - Migration
 
     enum MigrationError: LocalizedError {
 
-        case missingDatabaseKey
-        case failedToEncryptDatabase(reason: String)
-        case failedToDecryptDatabase(reason: String)
-        case failedToMigrateZMMessage(reason: String)
+        case failedToMigrateInstances(type: ZMManagedObject.Type, reason: String)
 
         var errorDescription: String? {
             switch self {
-            case .missingDatabaseKey:
-                return "The database key is missing, encryption / decryption is not possible."
-            case .failedToEncryptDatabase(let reason):
-                return "The database couldn't be encrypted. Reason: \(reason)"
-            case .failedToDecryptDatabase(let reason):
-                return "The database couldn't be decrypted. Reason: \(reason)"
-            case .failedToMigrateZMMessage(let reason):
-                return "Failed to migrate all instances of ZMMessage. Reason: \(reason)"
+            case let .failedToMigrateInstances(type, reason):
+                return "Failed to migrate all instances of \(type). Reason: \(reason)"
             }
         }
 
@@ -78,9 +52,9 @@ extension NSManagedObjectContext {
         encryptMessagesAtRest = true
 
         do {
-            try ZMGenericMessageData.migrateTowardEncryptionAtRest(in: self)
-            try ZMMessage.migrateTowardEncryptionAtRest(in: self)
-            try ZMConversation.migrateTowardEncryptionAtRest(in: self)
+            try migrateInstancesTowardEncryptionAtRest(type: ZMGenericMessageData.self)
+            try migrateInstancesTowardEncryptionAtRest(type: ZMMessage.self)
+            try migrateInstancesTowardEncryptionAtRest(type: ZMConversation.self)
         } catch {
             encryptMessagesAtRest = false
             throw error
@@ -99,14 +73,48 @@ extension NSManagedObjectContext {
         encryptMessagesAtRest = false
 
         do {
-            try ZMGenericMessageData.migrateAwayFromEncryptionAtRest(in: self)
-            try ZMMessage.migrateAwayFromEncryptionAtRest(in: self)
-            try ZMConversation.migrateAwayFromEncryptionAtRest(in: self)
+            try migrateInstancesAwayFromEncryptionAtRest(type: ZMGenericMessageData.self)
+            try migrateInstancesAwayFromEncryptionAtRest(type: ZMMessage.self)
+            try migrateInstancesAwayFromEncryptionAtRest(type: ZMConversation.self)
         } catch {
             encryptMessagesAtRest = true
             throw error
         }
 
+    }
+
+    private func migrateInstancesTowardEncryptionAtRest<T>(type: T.Type) throws
+        where T: MigratableEntity
+    {
+        do {
+            for instance in try fetchRequest(forType: type, batchSize: 100).execute() {
+                try instance.migrateTowardEncryptionAtRest(in: self)
+            }
+        } catch {
+            throw MigrationError.failedToMigrateInstances(type: type, reason: error.localizedDescription)
+        }
+    }
+
+    private func migrateInstancesAwayFromEncryptionAtRest<T>(type: T.Type) throws
+        where T: MigratableEntity
+    {
+        do {
+            for instance in try fetchRequest(forType: type, batchSize: 100).execute() {
+                try instance.migrateAwayFromEncryptionAtRest(in: self)
+            }
+        } catch {
+            throw MigrationError.failedToMigrateInstances(type: type, reason: error.localizedDescription)
+        }
+    }
+
+    private func fetchRequest<T>(forType type: T.Type, batchSize: Int) -> NSFetchRequest<T>
+        where T: MigratableEntity
+    {
+        let fetchRequest = NSFetchRequest<T>(entityName: T.entityName())
+        fetchRequest.predicate = type.predicateForAffectedInstances
+        fetchRequest.returnsObjectsAsFaults = false
+        fetchRequest.fetchBatchSize = batchSize
+        return fetchRequest
     }
     
     private(set) public var encryptMessagesAtRest: Bool {
@@ -120,6 +128,22 @@ extension NSManagedObjectContext {
     }
     
     // MARK: - Encryption / Decryption
+
+    enum EncryptionError: LocalizedError {
+
+        case missingDatabaseKey
+        case cryptobox(error: ChaCha20Poly1305.AEADEncryption.EncryptionError)
+
+        var errorDescription: String? {
+            switch self {
+            case .missingDatabaseKey:
+                return "Database key not found. Perhaps the database is locked."
+            case .cryptobox(let error):
+                return error.errorDescription
+            }
+        }
+
+    }
     
     func encryptData(data: Data) throws -> (data: Data, nonce: Data) {
         guard let key = encryptionKeys?.databaseKey else { throw EncryptionError.missingDatabaseKey }
@@ -168,5 +192,31 @@ extension NSManagedObjectContext {
         set { userInfo[Self.encryptionKeysUserInfoKey] = newValue }
         get { userInfo[Self.encryptionKeysUserInfoKey] as? EncryptionKeys }
     }
+
+}
+
+// MARK: - Migratable
+
+private typealias MigratableEntity = ZMManagedObject & EncryptionAtRestMigratable
+
+/// A type that needs to be migrated when encryption at rest is enabled / disabled.
+
+protocol EncryptionAtRestMigratable {
+
+    /// The predicate to use to fetch specific instances for migration.
+
+    static var predicateForAffectedInstances: NSPredicate? { get }
+
+    /// Migrate necessary data to adhere to encryption at rest feature.
+    ///
+    /// For example, encrypt sensitve data and set a nonce.
+
+    func migrateTowardEncryptionAtRest(in moc: NSManagedObjectContext) throws
+
+    /// Migrate necessary data to make it available under normal circumstances.
+    ///
+    /// For example, decrypt sensitive data and clear the nonce.
+
+    func migrateAwayFromEncryptionAtRest(in moc: NSManagedObjectContext) throws
 
 }

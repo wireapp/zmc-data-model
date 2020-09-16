@@ -156,42 +156,18 @@ extension ZMGenericMessageData {
 
 }
 
-extension ZMGenericMessageData {
+extension ZMGenericMessageData: EncryptionAtRestMigratable {
 
-    static func migrateTowardEncryptionAtRest(in moc: NSManagedObjectContext) throws {
-        do {
-            for instance in try fetchRequest(batchSize: 100).execute() {
-                try instance.migrateTowardEncryptionAtRest(in: moc)
-            }
-        } catch {
-            throw NSManagedObjectContext.MigrationError.failedToEncryptDatabase(reason: error.localizedDescription)
-        }
-    }
 
-    static func migrateAwayFromEncryptionAtRest(in moc: NSManagedObjectContext) throws {
-        do {
-            for instance in try fetchRequest(batchSize: 100).execute() {
-                try instance.migrateAwayFromEncryptionAtRest(in: moc)
-            }
-        } catch {
-            throw NSManagedObjectContext.MigrationError.failedToDecryptDatabase(reason: error.localizedDescription)
-        }
-    }
+    static let predicateForAffectedInstances: NSPredicate? = nil
 
-    private static func fetchRequest(batchSize: Int) -> NSFetchRequest<ZMGenericMessageData> {
-        let fetchRequest = NSFetchRequest<ZMGenericMessageData>(entityName: entityName())
-        fetchRequest.returnsObjectsAsFaults = false
-        fetchRequest.fetchBatchSize = batchSize
-        return fetchRequest
-    }
-
-    private func migrateTowardEncryptionAtRest(in moc: NSManagedObjectContext) throws {
+    func migrateTowardEncryptionAtRest(in moc: NSManagedObjectContext) throws {
         let (ciphertext, nonce) = try moc.encryptData(data: data)
         self.data = ciphertext
         self.nonce = nonce
     }
 
-    private func migrateAwayFromEncryptionAtRest(in moc: NSManagedObjectContext) throws {
+    func migrateAwayFromEncryptionAtRest(in moc: NSManagedObjectContext) throws {
         guard let nonce = nonce else { return }
         let plaintext = try moc.decryptData(data: data, nonce: nonce)
         self.data = plaintext

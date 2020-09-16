@@ -18,42 +18,16 @@
 
 import Foundation
 
-extension ZMMessage {
+extension ZMMessage: EncryptionAtRestMigratable {
 
-    static func migrateTowardEncryptionAtRest(in moc: NSManagedObjectContext) throws {
-        do {
-            for instance in try fetchRequest(batchSize: 100).execute() {
-                instance.migrateTowardEncryptionAtRest()
-            }
-        } catch {
-            throw NSManagedObjectContext.MigrationError.failedToMigrateZMMessage(reason: error.localizedDescription)
-        }
-    }
+    static let predicateForAffectedInstances: NSPredicate? = nil
 
-    static func migrateAwayFromEncryptionAtRest(in moc: NSManagedObjectContext) throws {
-        do {
-            for instance in try fetchRequest(batchSize: 100).execute() {
-                instance.migrateAwayFromEncryptionAtRest()
-            }
-        } catch {
-            throw NSManagedObjectContext.MigrationError.failedToMigrateZMMessage(reason: error.localizedDescription)
-        }
-    }
-
-    private static func fetchRequest(batchSize: Int) -> NSFetchRequest<ZMMessage> {
-        let fetchRequest = NSFetchRequest<ZMMessage>(entityName: entityName())
-        fetchRequest.returnsObjectsAsFaults = false
-        fetchRequest.fetchBatchSize = batchSize
-        return fetchRequest
-    }
-
-    private func migrateTowardEncryptionAtRest() {
+    func migrateTowardEncryptionAtRest(in moc: NSManagedObjectContext) {
         normalizedText = ""
     }
 
-    private func migrateAwayFromEncryptionAtRest() {
+    func migrateAwayFromEncryptionAtRest(in moc: NSManagedObjectContext) {
         updateNormalizedText()
     }
-
 
 }

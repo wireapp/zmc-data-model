@@ -19,44 +19,19 @@
 
 import Foundation
 
-extension ZMConversation {
+extension ZMConversation: EncryptionAtRestMigratable {
 
-    static func migrateTowardEncryptionAtRest(in moc: NSManagedObjectContext) throws {
-        do {
-            for instance in try fetchRequest(batchSize: 100).execute() {
-                try instance.migrateTowardEncryptionAtRest(in: moc)
-            }
-        } catch {
-            throw NSManagedObjectContext.MigrationError.failedToEncryptDatabase(reason: error.localizedDescription)
-        }
-    }
+    static let predicateForAffectedInstances: NSPredicate? =
+        NSPredicate(format: "%K == YES", #keyPath(ZMConversation.hasDraftMessage))
 
-    static func migrateAwayFromEncryptionAtRest(in moc: NSManagedObjectContext) throws {
-        do {
-            for instance in try fetchRequest(batchSize: 100).execute() {
-                try instance.migrateAwayFromEncryptionAtRest(in: moc)
-            }
-        } catch {
-            throw NSManagedObjectContext.MigrationError.failedToDecryptDatabase(reason: error.localizedDescription)
-        }
-    }
-
-    private static func fetchRequest(batchSize: Int) -> NSFetchRequest<ZMConversation> {
-        let fetchRequest = NSFetchRequest<ZMConversation>(entityName: entityName())
-        fetchRequest.predicate = NSPredicate(format: "%K == YES", #keyPath(ZMConversation.hasDraftMessage))
-        fetchRequest.returnsObjectsAsFaults = false
-        fetchRequest.fetchBatchSize = batchSize
-        return fetchRequest
-    }
-
-    private func migrateTowardEncryptionAtRest(in moc: NSManagedObjectContext) throws {
+    func migrateTowardEncryptionAtRest(in moc: NSManagedObjectContext) throws {
         guard let data = draftMessageData else { return }
         let (ciphertext, nonce) = try moc.encryptData(data: data)
         draftMessageData = ciphertext
         draftMessageNonce = nonce
     }
 
-    private func migrateAwayFromEncryptionAtRest(in moc: NSManagedObjectContext) throws {
+    func migrateAwayFromEncryptionAtRest(in moc: NSManagedObjectContext) throws {
         guard
             let data = draftMessageData,
             let nonce = draftMessageNonce
