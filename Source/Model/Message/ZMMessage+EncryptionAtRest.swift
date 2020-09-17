@@ -20,7 +20,7 @@ import Foundation
 
 extension ZMMessage: EncryptionAtRestMigratable {
 
-    static let predicateForAffectedInstances: NSPredicate? = nil
+    static let predicateForObjectsNeedingMigration: NSPredicate? = nil
 
     func migrateTowardEncryptionAtRest(in moc: NSManagedObjectContext) {
         normalizedText = ""

@@ -114,7 +114,7 @@ extension NSManagedObjectContext {
         where T: MigratableEntity
     {
         let fetchRequest = NSFetchRequest<T>(entityName: T.entityName())
-        fetchRequest.predicate = type.predicateForAffectedInstances
+        fetchRequest.predicate = type.predicateForObjectsNeedingMigration
         fetchRequest.returnsObjectsAsFaults = false
         fetchRequest.fetchBatchSize = batchSize
         return fetchRequest
@@ -208,7 +208,7 @@ protocol EncryptionAtRestMigratable {
 
     /// The predicate to use to fetch specific instances for migration.
 
-    static var predicateForAffectedInstances: NSPredicate? { get }
+    static var predicateForObjectsNeedingMigration: NSPredicate? { get }
 
     /// Migrate necessary data to adhere to encryption at rest feature.
     ///

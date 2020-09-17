@@ -158,8 +158,7 @@ extension ZMGenericMessageData {
 
 extension ZMGenericMessageData: EncryptionAtRestMigratable {
 
-
-    static let predicateForAffectedInstances: NSPredicate? = nil
+    static let predicateForObjectsNeedingMigration: NSPredicate? = nil
 
     func migrateTowardEncryptionAtRest(in moc: NSManagedObjectContext) throws {
         let (ciphertext, nonce) = try moc.encryptData(data: data)
