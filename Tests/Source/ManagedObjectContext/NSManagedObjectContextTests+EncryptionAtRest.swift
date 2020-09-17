@@ -1,0 +1,300 @@
+//
+// Wire
+// Copyright (C) 2017 Wire Swiss GmbH
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see http://www.gnu.org/licenses/.
+//
+
+import Foundation
+import XCTest
+@testable import WireDataModel
+
+
+class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
+
+    private typealias MigrationError = NSManagedObjectContext.MigrationError
+
+    override func setUp() {
+        super.setUp()
+        createSelfClient(onMOC: uiMOC)
+    }
+
+    private func fetchObjects<T: ZMManagedObject>() throws -> [T]{
+        let request = NSFetchRequest<T>(entityName: T.entityName())
+        request.returnsObjectsAsFaults = false
+        return try request.execute()
+    }
+
+    // MARK: - Positive Tests
+
+    // MARK: - Message Content
+
+    func test_existing_message_content_is_encrypted_when_ear_is_enabled() throws {
+        // Given
+        let conversation = createConversation(in: uiMOC)
+        try conversation.appendText(content: "Beep bloop")
+
+        try uiMOC.performGroupedAndWait { moc in
+            let results: [ZMGenericMessageData] = try self.fetchObjects()
+
+            guard let messageData = results.first else {
+                XCTFail("Could not find message data.")
+                return
+            }
+
+            // Then
+            XCTAssertFalse(messageData.isEncrypted)
+            XCTAssertEqual(messageData.unencryptedContent, "Beep bloop")
+            XCTAssertFalse(moc.encryptMessagesAtRest)
+
+            // When
+            moc.encryptionKeys = self.validEncryptionKeys
+            XCTAssertNoThrow(try moc.enableEncryptionAtRest())
+
+            // Then
+            XCTAssertTrue(messageData.isEncrypted)
+            XCTAssertEqual(messageData.unencryptedContent, "Beep bloop")
+            XCTAssertTrue(moc.encryptMessagesAtRest)
+        }
+    }
+
+    func test_existing_message_content_is_decrypted_when_ear_is_disabled() throws {
+        // Given
+        uiMOC.encryptionKeys = self.validEncryptionKeys
+        setEncryptionAtRest(enabled: true, in: uiMOC)
+
+        let conversation = createConversation(in: uiMOC)
+        try conversation.appendText(content: "Beep bloop")
+
+        try uiMOC.performGroupedAndWait { moc in
+            let results: [ZMGenericMessageData] = try self.fetchObjects()
+
+            guard let messageData = results.first else {
+                XCTFail("Could not find message data.")
+                return
+            }
+
+            // Then
+            XCTAssertTrue(messageData.isEncrypted)
+            XCTAssertEqual(messageData.unencryptedContent, "Beep bloop")
+            XCTAssertTrue(moc.encryptMessagesAtRest)
+
+            // When
+            XCTAssertNoThrow(try moc.disableEncryptionAtRest())
+
+            // Then
+            XCTAssertFalse(messageData.isEncrypted)
+            XCTAssertEqual(messageData.unencryptedContent, "Beep bloop")
+            XCTAssertFalse(moc.encryptMessagesAtRest)
+        }
+    }
+
+    // MARK: - Normalized Text
+
+    func test_normalized_message_content_is_cleared_when_ear_is_enabled() throws {
+        // Given
+        let conversation = createConversation(in: uiMOC)
+        let message = try conversation.appendText(content: "Beep bloop") as! ZMMessage
+
+        try uiMOC.performGroupedAndWait { moc in
+            // Then
+            XCTAssertNotNil(message.normalizedText)
+            XCTAssertEqual(message.normalizedText?.isEmpty, false)
+            XCTAssertFalse(moc.encryptMessagesAtRest)
+
+            // When
+            moc.encryptionKeys = self.validEncryptionKeys
+            XCTAssertNoThrow(try moc.enableEncryptionAtRest())
+
+            // Then
+            XCTAssertNotNil(message.normalizedText)
+            XCTAssertEqual(message.normalizedText?.isEmpty, true)
+            XCTAssertTrue(moc.encryptMessagesAtRest)
+        }
+    }
+
+    func test_normalized_message_content_is_updated_when_ear_is_disabled() throws {
+        // Given
+        uiMOC.encryptionKeys = self.validEncryptionKeys
+        setEncryptionAtRest(enabled: true, in: uiMOC)
+
+        let conversation = createConversation(in: uiMOC)
+        let message = try conversation.appendText(content: "Beep bloop") as! ZMMessage
+
+        try uiMOC.performGroupedAndWait { moc in
+            // Then
+            XCTAssertNotNil(message.normalizedText)
+            XCTAssertEqual(message.normalizedText?.isEmpty, true)
+            XCTAssertTrue(moc.encryptMessagesAtRest)
+
+            // When
+            XCTAssertNoThrow(try moc.disableEncryptionAtRest())
+
+            // Then
+            XCTAssertNotNil(message.normalizedText)
+            XCTAssertEqual(message.normalizedText?.isEmpty, false)
+            XCTAssertFalse(moc.encryptMessagesAtRest)
+        }
+    }
+
+    // MARK: - Draft messages
+
+    func test_draft_message_content_is_encrypted_when_ear_is_enabled() throws {
+        // Given
+        let conversation = createConversation(in: uiMOC)
+        conversation.draftMessage = DraftMessage(text: "Beep bloop", mentions: [], quote: nil)
+
+        try uiMOC.performGroupedAndWait { moc in
+            // Then
+            XCTAssertTrue(conversation.hasDraftMessage)
+            XCTAssertFalse(conversation.hasEncryptedDraftMessageData)
+            XCTAssertEqual(conversation.unencryptedDraftMessageContent, "Beep bloop")
+            XCTAssertFalse(moc.encryptMessagesAtRest)
+
+            // When
+            moc.encryptionKeys = self.validEncryptionKeys
+            XCTAssertNoThrow(try moc.enableEncryptionAtRest())
+
+            // Then
+            XCTAssertTrue(conversation.hasEncryptedDraftMessageData)
+            XCTAssertEqual(conversation.unencryptedDraftMessageContent, "Beep bloop")
+            XCTAssertTrue(moc.encryptMessagesAtRest)
+        }
+    }
+
+    func test_draft_message_content_is_decrypted_when_ear_is_disabled() throws {
+        // Given
+        uiMOC.encryptionKeys = validEncryptionKeys
+        setEncryptionAtRest(enabled: true, in: uiMOC)
+
+        let conversation = createConversation(in: uiMOC)
+        conversation.draftMessage = DraftMessage(text: "Beep bloop", mentions: [], quote: nil)
+
+        try uiMOC.performGroupedAndWait { moc in
+            // Then
+            XCTAssertTrue(conversation.hasDraftMessage)
+            XCTAssertTrue(conversation.hasEncryptedDraftMessageData)
+            XCTAssertEqual(conversation.unencryptedDraftMessageContent, "Beep bloop")
+            XCTAssertTrue(moc.encryptMessagesAtRest)
+
+            // When
+            XCTAssertNoThrow(try moc.disableEncryptionAtRest())
+
+            // Then
+            XCTAssertTrue(conversation.hasDraftMessage)
+            XCTAssertFalse(conversation.hasEncryptedDraftMessageData)
+            XCTAssertEqual(conversation.unencryptedDraftMessageContent, "Beep bloop")
+            XCTAssertFalse(moc.encryptMessagesAtRest)
+        }
+    }
+
+    // MARK: - Negative Tests
+
+    func test_it_throws_an_error_when_database_key_is_missing_when_ear_is_enabled() throws {
+        // Given
+        uiMOC.encryptionKeys = nil
+
+        try uiMOC.performGroupedAndWait { moc in
+            // When
+            XCTAssertThrowsError(try moc.enableEncryptionAtRest()) { error in
+                // Then
+                guard case MigrationError.missingDatabaseKey = error else {
+                    return XCTFail("Unexpected error thrown: \(error.localizedDescription)")
+                }
+            }
+
+            XCTAssertFalse(moc.encryptMessagesAtRest)
+        }
+    }
+
+    func test_it_throws_an_error_when_database_key_is_missing_when_ear_is_disabled() throws {
+        // Given
+        uiMOC.encryptionKeys = nil
+        setEncryptionAtRest(enabled: true, in: uiMOC)
+
+        try uiMOC.performGroupedAndWait { moc in
+            // When
+            XCTAssertThrowsError(try moc.disableEncryptionAtRest()) { error in
+                // Then
+                guard case MigrationError.missingDatabaseKey = error else {
+                    return XCTFail("Unexpected error thrown: \(error.localizedDescription)")
+                }
+            }
+
+            XCTAssertTrue(moc.encryptMessagesAtRest)
+        }
+    }
+
+    func test_migration_is_canceled_when_a_single_instance_fails_to_migrate() throws {
+        // Given
+        let encryptionKeys1 = validEncryptionKeys
+        let encryptionKeys2 = validEncryptionKeys
+
+        setEncryptionAtRest(enabled: true, in: uiMOC)
+
+        let conversation = createConversation(in: uiMOC)
+
+        uiMOC.encryptionKeys = encryptionKeys1
+        try conversation.appendText(content: "Beep bloop")
+
+        uiMOC.encryptionKeys = encryptionKeys2
+        try conversation.appendText(content: "buzz buzzz")
+
+        try uiMOC.performGroupedAndWait { moc in
+            let results: [ZMGenericMessageData] = try self.fetchObjects()
+
+            XCTAssertEqual(results.count, 2)
+            XCTAssertTrue(moc.encryptMessagesAtRest)
+
+            // When
+            moc.encryptionKeys = encryptionKeys1
+
+            XCTAssertThrowsError(try moc.disableEncryptionAtRest()) { error in
+                // Then
+                switch error {
+                case let MigrationError.failedToMigrateInstances(type, _):
+                    XCTAssertEqual(type.entityName(), ZMGenericMessageData.entityName())
+                default:
+                    XCTFail("Unexpected error thrown: \(error.localizedDescription)")
+                }
+            }
+
+            // Then
+            XCTAssertTrue(moc.encryptMessagesAtRest)
+        }
+    }
+
+}
+
+// MARK: - Helper Extensions
+
+private extension ZMGenericMessageData {
+
+    var unencryptedContent: String? {
+        return underlyingMessage?.text.content
+    }
+
+}
+
+private extension ZMConversation {
+
+    var hasEncryptedDraftMessageData: Bool {
+        return draftMessageData != nil && draftMessageNonce != nil
+    }
+
+    var unencryptedDraftMessageContent: String? {
+        return draftMessage?.text
+    }
+
+}
