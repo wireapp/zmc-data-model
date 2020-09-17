@@ -40,10 +40,7 @@ extension NSManagedObjectContext {
 
     }
 
-    // Question: do we discard the dirty state if we fail? Or that is the responsibility of the caller?
-    // I think it makes sense to give responsibility to the caller to save the context.
-
-    /// Enables encryption at rest after sucessfuly encrypting the existing database.
+    /// Enables encryption at rest after successfully migrating the database.
     ///
     /// Depending on the size of the database, the migration may take a long time and will block the
     /// thread. If the migration fails for any reason, the feature is not enabled, but the context may
@@ -66,7 +63,7 @@ extension NSManagedObjectContext {
         }
     }
 
-    /// Disables encryption at rest after sucessfuly decrypting the existing database.
+    /// Disables encryption at rest after successfully migrating the database.
     ///
     /// Depending on the size of the database, the migration may take a long time and will block the
     /// thread. If the migration fails for any reason, the feature is not disabled, but the context may
@@ -87,7 +84,6 @@ extension NSManagedObjectContext {
             encryptMessagesAtRest = true
             throw error
         }
-
     }
 
     private func migrateInstancesTowardEncryptionAtRest<T>(type: T.Type) throws
