@@ -72,7 +72,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
     func test_existing_message_content_is_decrypted_when_ear_is_disabled() throws {
         // Given
         uiMOC.encryptionKeys = self.validEncryptionKeys
-        setEncryptionAtRest(enabled: true, in: uiMOC)
+        uiMOC.setEncryptionAtRestWithoutMigration(enabled: true)
 
         let conversation = createConversation(in: uiMOC)
         try conversation.appendText(content: "Beep bloop")
@@ -127,7 +127,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
     func test_normalized_message_content_is_updated_when_ear_is_disabled() throws {
         // Given
         uiMOC.encryptionKeys = self.validEncryptionKeys
-        setEncryptionAtRest(enabled: true, in: uiMOC)
+        uiMOC.setEncryptionAtRestWithoutMigration(enabled: true)
 
         let conversation = createConversation(in: uiMOC)
         let message = try conversation.appendText(content: "Beep bloop") as! ZMMessage
@@ -176,7 +176,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
     func test_draft_message_content_is_decrypted_when_ear_is_disabled() throws {
         // Given
         uiMOC.encryptionKeys = validEncryptionKeys
-        setEncryptionAtRest(enabled: true, in: uiMOC)
+        uiMOC.setEncryptionAtRestWithoutMigration(enabled: true)
 
         let conversation = createConversation(in: uiMOC)
         conversation.draftMessage = DraftMessage(text: "Beep bloop", mentions: [], quote: nil)
@@ -221,7 +221,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
     func test_it_throws_an_error_when_database_key_is_missing_when_ear_is_disabled() throws {
         // Given
         uiMOC.encryptionKeys = nil
-        setEncryptionAtRest(enabled: true, in: uiMOC)
+        uiMOC.setEncryptionAtRestWithoutMigration(enabled: true)
 
         try uiMOC.performGroupedAndWait { moc in
             // When
@@ -241,7 +241,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
         let encryptionKeys1 = validEncryptionKeys
         let encryptionKeys2 = validEncryptionKeys
 
-        setEncryptionAtRest(enabled: true, in: uiMOC)
+        uiMOC.setEncryptionAtRestWithoutMigration(enabled: true)
 
         let conversation = createConversation(in: uiMOC)
 

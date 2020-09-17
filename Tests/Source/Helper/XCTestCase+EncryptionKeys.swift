@@ -46,11 +46,4 @@ extension XCTestCase {
         return EncryptionKeys(publicKey: publicKeySec, privateKey: privateKeySec, databaseKey: databaseKey.dropFirst())
     }
     
-    func setEncryptionAtRest(enabled: Bool, in moc: NSManagedObjectContext) {
-        moc.setPersistentStoreMetadata(
-            NSNumber(booleanLiteral: enabled),
-            key: PersistentMetadataKey.encryptMessagesAtRest.rawValue
-        )
-    }
-    
 }
