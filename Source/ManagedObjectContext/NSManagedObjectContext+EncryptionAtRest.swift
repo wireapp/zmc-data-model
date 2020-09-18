@@ -55,7 +55,7 @@ extension NSManagedObjectContext {
 
         do {
             try migrateInstancesTowardEncryptionAtRest(type: ZMGenericMessageData.self)
-            try migrateInstancesTowardEncryptionAtRest(type: ZMMessage.self)
+            try migrateInstancesTowardEncryptionAtRest(type: ZMClientMessage.self)
             try migrateInstancesTowardEncryptionAtRest(type: ZMConversation.self)
         } catch {
             encryptMessagesAtRest = false
@@ -78,7 +78,7 @@ extension NSManagedObjectContext {
 
         do {
             try migrateInstancesAwayFromEncryptionAtRest(type: ZMGenericMessageData.self)
-            try migrateInstancesAwayFromEncryptionAtRest(type: ZMMessage.self)
+            try migrateInstancesAwayFromEncryptionAtRest(type: ZMClientMessage.self)
             try migrateInstancesAwayFromEncryptionAtRest(type: ZMConversation.self)
         } catch {
             encryptMessagesAtRest = true

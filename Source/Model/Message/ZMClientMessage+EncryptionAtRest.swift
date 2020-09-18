@@ -18,7 +18,7 @@
 
 import Foundation
 
-extension ZMMessage: EncryptionAtRestMigratable {
+extension ZMClientMessage: EncryptionAtRestMigratable {
 
     static let predicateForObjectsNeedingMigration: NSPredicate? = nil
 
