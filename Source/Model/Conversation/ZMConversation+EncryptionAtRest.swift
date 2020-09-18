@@ -22,7 +22,7 @@ import Foundation
 extension ZMConversation: EncryptionAtRestMigratable {
 
     static let predicateForObjectsNeedingMigration: NSPredicate? =
-        NSPredicate(format: "%K == YES", #keyPath(ZMConversation.hasDraftMessage))
+        NSPredicate(format: "%K != nil", #keyPath(ZMConversation.draftMessageData))
 
     func migrateTowardEncryptionAtRest(in moc: NSManagedObjectContext) throws {
         guard let data = draftMessageData else { return }
