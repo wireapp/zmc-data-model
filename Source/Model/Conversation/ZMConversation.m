@@ -431,12 +431,19 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     // 2. Has no name given.
     // 3. Conversation has only one other participant.
     // 4. This participant is not a service user (bot).
+
     if (conversationType == ZMConversationTypeGroup &&
         self.teamRemoteIdentifier != nil &&
-        self.localParticipantsExcludingSelf.count == 1 &&
-        !self.localParticipantsExcludingSelf.anyObject.isServiceUser &&
-        self.userDefinedName.length == 0) {
-        conversationType = ZMConversationTypeOneOnOne;
+        self.userDefinedName.length == 0 &&
+        self.localParticipantRoles.count == 1)
+    {
+        // Note: it's more efficient to use localParticipantRoles rather than
+        // localParticipants because we don't convert every role to a user.
+        ZMUser *otherParticipant = self.localParticipantRoles.anyObject.user;
+
+        if (!otherParticipant.isSelfUser && !otherParticipant.isServiceUser) {
+            conversationType = ZMConversationTypeOneOnOne;
+        }
     }
     
     return conversationType;
