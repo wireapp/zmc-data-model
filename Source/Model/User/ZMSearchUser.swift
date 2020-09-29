@@ -659,4 +659,7 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         self.internalTeamCreatedBy = createdBy
     }
     
+    public func createAnalyticsIdentifier() {
+        // no op
+    }
 }
