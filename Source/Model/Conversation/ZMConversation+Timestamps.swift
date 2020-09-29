@@ -208,7 +208,7 @@ extension ZMConversation {
             updateLastRead(timestamp, synchronize: false)
         }
         
-        calculateLastUnreadMessages()
+        self.needsToCalculateUnreadMessages = true
     }
     
     /// Update timetamps after an message has been inserted locally by the self user
