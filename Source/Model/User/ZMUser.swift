@@ -302,10 +302,6 @@ extension ZMUser {
         removeFromAllConversations(at: timestamp)
     }
     
-    @objc public func createAnalyticsIdentifier() {
-        analyticsIdentifier = UUID().uuidString
-    }
-    
     /// Remove user from all group conversations he is a participant of
     fileprivate func removeFromAllConversations(at timestamp: Date) {
         let allGroupConversations: [ZMConversation] = participantRoles.compactMap {

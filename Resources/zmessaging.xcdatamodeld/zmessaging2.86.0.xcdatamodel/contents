@@ -47,7 +47,6 @@
     <entity name="Conversation" representedClassName="ZMConversation" syncable="YES">
         <attribute name="accessModeStrings" optional="YES" attributeType="Transformable" valueTransformerName="NSSecureUnarchiveFromData" syncable="YES"/>
         <attribute name="accessRoleString" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="analyticsIdentifier" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="archivedChangedTimestamp" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="clearedTimeStamp" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="conversationType" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
@@ -248,6 +247,7 @@
     </entity>
     <entity name="User" representedClassName="ZMUser" syncable="YES">
         <attribute name="accentColorValue" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="analyticsIdentifier" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="availability" optional="YES" attributeType="Integer 16" defaultValueString="0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="completeProfileAssetIdentifier" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="emailAddress" optional="YES" attributeType="String" syncable="YES"/>
@@ -331,7 +331,7 @@
         <element name="ButtonState" positionX="-225" positionY="36" width="128" height="105"/>
         <element name="ClientMessage" positionX="9" positionY="153" width="128" height="90"/>
         <element name="Connection" positionX="0" positionY="0" width="128" height="163"/>
-        <element name="Conversation" positionX="0" positionY="0" width="128" height="748"/>
+        <element name="Conversation" positionX="0" positionY="0" width="128" height="733"/>
         <element name="FeatureFlag" positionX="-225" positionY="36" width="128" height="118"/>
         <element name="GenericMessageData" positionX="18" positionY="162" width="128" height="103"/>
         <element name="ImageMessage" positionX="0" positionY="0" width="128" height="165"/>
@@ -347,7 +347,7 @@
         <element name="SystemMessage" positionX="0" positionY="0" width="128" height="255"/>
         <element name="Team" positionX="9" positionY="153" width="128" height="238"/>
         <element name="TextMessage" positionX="-153" positionY="-117" width="128" height="60"/>
-        <element name="User" positionX="-434" positionY="-72" width="128" height="688"/>
+        <element name="User" positionX="-434" positionY="-72" width="128" height="703"/>
         <element name="UserClient" positionX="9" positionY="153" width="128" height="508"/>
     </elements>
 </model>

@@ -128,7 +128,6 @@ public protocol UserType: NSObjectProtocol {
     
     func requestPreviewProfileImage()
     func requestCompleteProfileImage()
-    func createAnalyticsIdentifier()
     
     /// Whether this user is a guest in a conversation
     func isGuest(in conversation: ZMConversation) -> Bool
