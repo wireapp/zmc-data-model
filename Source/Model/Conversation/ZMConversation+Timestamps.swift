@@ -357,6 +357,7 @@ extension ZMConversation {
         internalEstimatedUnreadCount = unreadCount
         internalEstimatedUnreadSelfMentionCount = unreadSelfMentionCount
         internalEstimatedUnreadSelfReplyCount = unreadSelfReplyCount
+        needsToCalculateUnreadMessages = false
     }
     
     /// Returns the first unread message in a converation. If the first unread message is child message of system message the parent message will be returned.
