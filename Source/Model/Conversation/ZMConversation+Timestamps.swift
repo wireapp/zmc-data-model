@@ -319,7 +319,7 @@ extension ZMConversation {
     /// Calculates the the last unread knock, missed call and total unread unread count. This should be re-calculated
     /// when the last read timetamp changes or a message is inserted / deleted.
     @objc
-    public func calculateLastUnreadMessages() {
+    func calculateLastUnreadMessages() {
         guard let managedObjectContext = managedObjectContext, managedObjectContext.zm_isSyncContext else { return } // We only calculate unread message on the sync MOC
         
         let messages = unreadMessagesIncludingInvisible().filter(ZMMessage.isVisible)
