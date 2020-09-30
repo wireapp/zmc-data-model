@@ -96,9 +96,6 @@ extern NSString * _Null_unspecified const ZMIsDimmedKey; ///< Specifies that a r
 /// For group conversation this will be nil, for one to one or connection conversation this will be the other user
 @property (nonatomic, readonly, nullable) ZMUser *connectedUser;
 
-/// Returns whether unread messages should be re-calculated
-@property (nonatomic) BOOL needsToCalculateUnreadMessages;
-
 - (BOOL)canMarkAsUnread;
 - (void)markAsUnread;
 
