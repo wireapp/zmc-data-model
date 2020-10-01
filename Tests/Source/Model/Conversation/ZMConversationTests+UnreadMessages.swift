@@ -22,16 +22,34 @@ import XCTest
 class ZMConversationTests_UnreadMessages: ZMConversationTestsBase {
     func testThatItCalculatesLastUnreadMessages() {
         // given
-        let sut = ZMConversation.insertNewObject(in: uiMOC)
-        sut.needsToCalculateUnreadMessages = true
-        
-        // when
-        //XCTAssertEqual(sut.estimatedUnreadCount, 0)
-        ZMConversation.calculateLastUnreadMessages(in: uiMOC)
-        
-        // then
-        XCTAssertEqual(sut.estimatedUnreadCount, 0)
-        XCTAssertFalse(sut.needsToCalculateUnreadMessages)
-        
+        syncMOC.performGroupedBlockAndWait {
+            let conversation = ZMConversation.insertNewObject(in:self.syncMOC)
+            conversation.conversationType = .group
+            conversation.remoteIdentifier = UUID.create()
+            
+            // when
+           let knock = GenericMessage(content: Knock.with { $0.hotKnock = false })
+            let message = ZMClientMessage(nonce: UUID(), managedObjectContext: self.syncMOC)
+            do {
+                try message.setUnderlyingMessage(knock)
+            } catch {
+                XCTFail()
+            }
+            message.serverTimestamp = Date()
+            message.visibleInConversation = conversation
+            conversation.updateTimestampsAfterUpdatingMessage(message)
+            
+            // then
+            XCTAssertTrue(conversation.needsToCalculateUnreadMessages)
+            XCTAssertEqual(conversation.estimatedUnreadCount, 0)
+            
+            // when
+            ZMConversation.calculateLastUnreadMessages(in: self.syncMOC)
+            XCTAssertTrue(self.syncMOC.saveOrRollback())
+            
+            // then
+            XCTAssertEqual(conversation.estimatedUnreadCount, 1)
+            XCTAssertFalse(conversation.needsToCalculateUnreadMessages)
+        }
     }
 }
