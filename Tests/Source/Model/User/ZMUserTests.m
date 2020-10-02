@@ -2545,5 +2545,21 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     XCTAssertFalse(untrusted);
 }
 
+- (void)testThatItCanParseLowercaseUUID
+{
+    // given
+    NSString *string = [@"E3F77380-A03E-45BB-A598-D361E3220001" lowercaseString];
+    NSUUID *expected = [[NSUUID alloc] initWithUUIDString:@"E3F77380-A03E-45BB-A598-D361E3220001"];
+    
+    // when
+    NSString *analyticsIdentifier = [expected transportString];
+    ZMUser *sut = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
+    sut.analyticsIdentifier = analyticsIdentifier;
+    
+    // then
+    XCTAssertNotNil(sut);
+    XCTAssertEqualObjects(string, sut.analyticsIdentifier.lowercaseString);
+}
+
 @end
 
