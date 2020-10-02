@@ -159,7 +159,7 @@ class ZMConversationTests_Timestamps: ZMConversationTestsBase {
         }
     }
     
-    func testThatUnreadCountIsUpdatedWhenMessageIsInsertedFromUpdateEvent() {
+    func testThatNeedsToCalculateUnreadMessagesFlagIsUpdatedWhenMessageFromUpdateEventIsInserted() {
         
         // given
         syncMOC.performGroupedBlockAndWait {
@@ -182,49 +182,22 @@ class ZMConversationTests_Timestamps: ZMConversationTestsBase {
             // then
             XCTAssertEqual(sut?.conversation, conversation)
             XCTAssertTrue(conversation.needsToCalculateUnreadMessages)
-           XCTAssertEqual(conversation.estimatedUnreadCount, 0)
-            
-            // when
-            conversation.calculateLastUnreadMessages()
-            
-            // then
-            XCTAssertFalse(conversation.needsToCalculateUnreadMessages)
-            XCTAssertEqual(conversation.estimatedUnreadCount, 1)
         }
     }
     
-    func testThatUnreadSelfMentionCountIsUpdatedWhenMessageIsInsertedFromUpdateEvent() {
+    func testThatNeedsToCalculateUnreadMessagesFlagIsUpdatedAfterCallingtTheCalculateLastUnreadMessages() {
         
         // given
         syncMOC.performGroupedBlockAndWait {
             let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
             conversation.remoteIdentifier = UUID.create()
-            
-            let nonce = UUID.create()
-            let mention = Mention(range: NSRange(location: 0, length: 4), user: self.selfUser)
-            let message = GenericMessage(content: Text(content: self.name, mentions: [mention], linkPreviews: [], replyingTo: nil), nonce: nonce)
-            let contentData = try? message.serializedData()
-            let data = contentData?.base64String()
-            
-            let payload = self.payloadForMessage(in: conversation, type: EventConversationAddClientMessage , data: data!)
-            let event = ZMUpdateEvent.eventFromEventStreamPayload(payload, uuid: nil)
-            XCTAssertNotNil(event)
-            
-            // when
-            var sut: ZMClientMessage?
-            sut = ZMClientMessage.createOrUpdate(from: event!, in: self.syncMOC, prefetchResult: nil)
-            
-            // then
-            XCTAssertEqual(sut?.conversation, conversation)
-            XCTAssertTrue(conversation.needsToCalculateUnreadMessages)
-            XCTAssertEqual(conversation.internalEstimatedUnreadSelfMentionCount, 0)
-            
+            conversation.needsToCalculateUnreadMessages = true
+                        
             // when
             conversation.calculateLastUnreadMessages()
             
             // then
             XCTAssertFalse(conversation.needsToCalculateUnreadMessages)
-            XCTAssertEqual(conversation.internalEstimatedUnreadSelfMentionCount, 1)
         }
     }
     
