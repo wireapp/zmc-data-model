@@ -2561,10 +2561,5 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     XCTAssertEqualObjects(string, sut.analyticsIdentifier.lowercaseString);
 }
 
-- (void)testThatAnalyticsIdentifierIsNotNill {
-    ZMUser *sut = [ZMUser selfUserInContext:self.uiMOC];
-    XCTAssertNotNil(sut.analyticsIdentifier);
-}
-
 @end
 

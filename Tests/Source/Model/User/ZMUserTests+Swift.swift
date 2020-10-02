@@ -920,6 +920,27 @@ extension ZMUserTests_Swift {
         // THEN
         XCTAssert(user.readReceiptsEnabled)
     }
+    
+    func testThatAnalyticsIdentifierIsNotNillAndValid() {
+        // GIVEN
+        let selfUser = ZMUser.selfUser(in: uiMOC)
+        
+        // WHEN
+        XCTAssertNotNil(selfUser.analyticsIdentifier)
+        
+        guard let analyticsIdentifier = selfUser.analyticsIdentifier else {
+            XCTFail()
+            return
+        }
+        
+        // THEN
+        let range = NSRange(location: 0, length: analyticsIdentifier.utf16.count)
+        let regex = try! NSRegularExpression(pattern: "[0-9a-fA-F]{8}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{4}\\-[0-9a-fA-F]{12}")
+        let sut = regex.firstMatch(in: analyticsIdentifier,
+                                   options: [],
+                                   range: range)
+        XCTAssertNotNil(sut)
+    }
 }
 
 // MARK: - Verifying user
