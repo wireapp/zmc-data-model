@@ -26,32 +26,6 @@ protocol OpaqueConversationToken: NSObjectProtocol {}
 let ChangedKeysAndNewValuesKey = "ZMChangedKeysAndNewValues"
 
 
-struct Changes: Mergeable {
-
-    let changedKeys: Set<String>
-    let originalChanges: [String: NSObject?]
-
-    init(
-        changedKeys: Set<String>,
-        originalChanges: [String: NSObject?] = [:]
-    ) {
-        self.changedKeys = changedKeys
-        self.originalChanges = originalChanges
-    }
-    
-    func merged(with other: Changes) -> Changes {
-        guard other.hasChangeInfo else { return self }
-
-        return Changes(
-            changedKeys: changedKeys.union(other.changedKeys),
-            originalChanges: originalChanges.updated(other: other.originalChanges)
-        )
-    }
-    
-    var hasChangeInfo: Bool {
-        return !changedKeys.isEmpty || !originalChanges.isEmpty
-    }
-}
 
 
 public typealias ClassIdentifier = String
