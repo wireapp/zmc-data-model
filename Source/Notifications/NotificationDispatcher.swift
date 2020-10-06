@@ -19,8 +19,6 @@
 import Foundation
 import CoreData
 
-private var zmLog = ZMSLog(tag: "notifications")
-
 
 /// The `NotificationDispatcher` listens for changes to observable entities (e.g message, users, and conversations),
 /// extracts information about those changes (e.g which properties changed), and posts notifications about those
@@ -30,6 +28,8 @@ private var zmLog = ZMSLog(tag: "notifications")
 /// Core Data notifications or manually for non Core Data changes.
 
 @objcMembers public class NotificationDispatcher: NSObject, TearDownCapable {
+
+    static var log = ZMSLog(tag: "notifications")
 
     // MARK: - Properties
 
@@ -263,36 +263,15 @@ private var zmLog = ZMSLog(tag: "notifications")
     }
 
     private func process(note: Notification) {
-        guard let userInfo = note.userInfo as? [String: Any] else { return }
+        guard let objects = ExtractedObjects(notification: note) else { return }
 
-        let updatedObjects = extractObjects(for: NSUpdatedObjectsKey, from: userInfo)
-        let refreshedObjects = extractObjects(for: NSRefreshedObjectsKey, from: userInfo)
-        let insertedObjects = extractObjects(for: NSInsertedObjectsKey, from: userInfo)
-        let deletedObjects = extractObjects(for: NSDeletedObjectsKey, from: userInfo)
-        
-        snapshotCenter.createSnapshots(for: insertedObjects)
-        
-        let allUpdated = updatedObjects.union(refreshedObjects)
+        snapshotCenter.createSnapshots(for: objects.inserted)
 
-        extractChanges(from: allUpdated)
-        extractChangesCausedByInsertionOrDeletion(of: insertedObjects)
-        extractChangesCausedByInsertionOrDeletion(of: deletedObjects)
+        extractChanges(from: objects.updated.union(objects.refreshed))
+        extractChangesCausedByInsertionOrDeletion(of: objects.inserted)
+        extractChangesCausedByInsertionOrDeletion(of: objects.deleted)
 
-        checkForUnreadMessages(insertedObjects: insertedObjects, updatedObjects: updatedObjects)
-    }
-    
-    private func extractObjects(for key: String, from userInfo: [String: Any]) -> Set<ZMManagedObject> {
-        guard let objects = userInfo[key] else { return Set() }
-
-        if let expectedObjects = objects as? Set<ZMManagedObject> {
-            return expectedObjects
-        } else if let mappedObjects = (objects as? Set<NSObject>) {
-            zmLog.warn("Unable to cast userInfo content to Set of ZMManagedObject. Is there a new entity that does not inherit form it?")
-            return Set(mappedObjects.compactMap{$0 as? ZMManagedObject})
-        }
-
-        assertionFailure("Uh oh... Unable to map objects in userInfo")
-        return Set()
+        checkForUnreadMessages(insertedObjects: objects.inserted, updatedObjects: objects.updated)
     }
 
     private func extractChanges(from changedObjects: Set<ZMManagedObject>) {
@@ -436,39 +415,7 @@ private var zmLog = ZMSLog(tag: "notifications")
 }
 
 
-struct ExtractedObjects {
 
-    let updated: Set<ZMManagedObject>
-    let refreshed: Set<ZMManagedObject>
-    let inserted: Set<ZMManagedObject>
-    let deleted: Set<ZMManagedObject>
-
-    init?(notification: Notification) {
-        guard let userInfo = notification.userInfo as? [String: Any] else { return nil }
-        updated = Self.extractObjects(for: NSUpdatedObjectsKey, from: userInfo)
-        refreshed = Self.extractObjects(for: NSRefreshedObjectsKey, from: userInfo)
-        inserted = Self.extractObjects(for: NSInsertedObjectsKey, from: userInfo)
-        deleted = Self.extractObjects(for: NSDeletedObjectsKey, from: userInfo)
-    }
-
-    private static func extractObjects(for key: String, from userInfo: [String: Any]) -> Set<ZMManagedObject> {
-        guard let objects = userInfo[key] else { return Set() }
-
-        switch objects {
-        case let managedObjects as Set<ZMManagedObject>:
-            zmLog.warn("Unable to cast userInfo content to Set of ZMManagedObject. Is there a new entity that does not inherit form it?")
-            return managedObjects
-
-        case let nsObjects as Set<NSObject>:
-            let managedObjects = nsObjects.compactMap { $0 as? ZMManagedObject }
-            return Set(managedObjects)
-
-        default:
-            assertionFailure("Unable to extract objects in userInfo")
-            return Set()
-        }
-    }
-}
 
 
 private extension LazySequenceProtocol {
