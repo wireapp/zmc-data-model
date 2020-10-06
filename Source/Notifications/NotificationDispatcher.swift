@@ -358,19 +358,17 @@ private var zmLog = ZMSLog(tag: "notifications")
             .filter { $0.deliveryState == .failedToSend }
             .collect()
 
-        let (newUnreadMessages, newUnreadKnocks) = insertedObjects.reduce(([ZMMessage](), [ZMMessage]())) {
-            guard let msg = $1 as? ZMMessage, msg.isUnreadMessage else { return $0 }
+        let newUnreads = insertedObjects.lazy
+            .compactMap { $0 as? ZMMessage }
+            .filter { $0.isUnreadMessage }
 
-            var (messages, knocks) = $0
+        let newUnreadMessages = newUnreads
+            .filter { $0.knockMessageData == nil }
+            .collect()
 
-            if msg.knockMessageData == nil {
-                messages.append(msg)
-            } else {
-                knocks.append(msg)
-            }
-
-            return (messages, knocks)
-        }
+        let newUnreadKnocks = newUnreads
+            .filter { $0.knockMessageData != nil }
+            .collect()
 
         unreadMessages.unsent.formUnion(unreadUnsent)
         unreadMessages.messages.formUnion(newUnreadMessages)
