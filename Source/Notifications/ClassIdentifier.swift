@@ -16,12 +16,8 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
+
 import Foundation
 
-@objc public protocol ChangeInfoConsumer: NSObjectProtocol {
 
-    func objectsDidChange(changes: [ClassIdentifier: [ObjectChangeInfo]])
-    func startObserving()
-    func stopObserving()
-
-}
+public typealias ClassIdentifier = String

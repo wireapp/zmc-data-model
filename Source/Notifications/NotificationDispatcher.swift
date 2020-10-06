@@ -90,7 +90,10 @@ import CoreData
     // MARK: - Life cycle
     
     public init(managedObjectContext: NSManagedObjectContext) {
-        assert(managedObjectContext.zm_isUserInterfaceContext, "NotificationDispatcher needs to be initialized with uiMOC")
+        assert(
+            managedObjectContext.zm_isUserInterfaceContext,
+            "NotificationDispatcher needs to be initialized with uiMOC"
+        )
 
         self.managedObjectContext = managedObjectContext
 
@@ -433,14 +436,3 @@ private extension Collection {
 
 typealias ObjectAndChanges = [ZMManagedObject: Changes]
 
-extension ZMManagedObject {
-
-    static var classIdentifier: String {
-        return entityName()
-    }
-
-    var classIdentifier: String {
-        return type(of: self).entityName()
-    }
-
-}
