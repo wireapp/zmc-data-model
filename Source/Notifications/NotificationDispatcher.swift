@@ -61,7 +61,6 @@ private var zmLog = ZMSLog(tag: "notifications")
     }
     
     private var allChanges = [ZMManagedObject: Changes]()
-    private var userChanges = [ZMManagedObject: Set<String>]()
     private var unreadMessages = [Notification.Name: Set<ZMMessage>]()
 
     private var shouldStartObserving: Bool {
@@ -243,7 +242,6 @@ private var zmLog = ZMSLog(tag: "notifications")
     private func stopObserving() {
         unreadMessages = [:]
         allChanges = [:]
-        userChanges = [:]
         snapshotCenter.clearAllSnapshots()
         allChangeInfoConsumers.forEach { $0.stopObserving() }
     }
@@ -281,8 +279,6 @@ private var zmLog = ZMSLog(tag: "notifications")
         extractChangesCausedByInsertionOrDeletion(of: deletedObjects)
 
         checkForUnreadMessages(insertedObjects: insertedObjects, updatedObjects:updatedObjects )
-        
-        userChanges = [:]
     }
     
     private func extractObjects(for key: String, from userInfo: [String: Any]) -> Set<ZMManagedObject> {
@@ -311,10 +307,6 @@ private var zmLog = ZMSLog(tag: "notifications")
                 changedKeys = snapshotCenter.extractChangedKeysFromSnapshot(for: object)
             } else {
                 snapshotCenter.updateSnapshot(for: object)
-            }
-
-            if let knownKeys = userChanges[object] {
-                changedKeys = changedKeys.union(knownKeys)
             }
 
             return changedKeys
