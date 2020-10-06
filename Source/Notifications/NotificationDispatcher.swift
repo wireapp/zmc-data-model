@@ -31,6 +31,25 @@ import CoreData
 
     static var log = ZMSLog(tag: "notifications")
 
+    // MARK: - Public properties
+
+    /// The mode in which the dispatcher operates.
+    ///
+    /// Setting this value will affect the detail and frequency of notifications.
+
+    public var operationMode = OperationMode.normal
+
+    /// Whether the dispatcher is enabled.
+    ///
+    /// If set to `false`, all pending changes are discarded and no new notifications are posted.
+
+    public var isEnabled = true {
+        didSet {
+            guard oldValue != isEnabled else { return }
+            isEnabled ? startObserving() : stopObserving()
+        }
+    }
+
     // MARK: - Properties
 
     private unowned var managedObjectContext: NSManagedObjectContext
@@ -63,29 +82,6 @@ import CoreData
     private var allChanges = [ZMManagedObject: Changes]()
     private var unreadMessages = UnreadMessages()
 
-    private var shouldStartObserving: Bool {
-        return !isDisabled && !isInBackground
-    }
-    
-    private var isObserving : Bool = true {
-        didSet {
-            guard oldValue != isObserving else { return }
-            isObserving ? startObserving() : stopObserving()
-        }
-    }
-    
-    private var isInBackground: Bool = false {
-        didSet {
-            isObserving = shouldStartObserving
-        }
-    }
-    
-    /// If `isDisabled` is true no change notifications will be generated
-    @objc public var isDisabled: Bool = false {
-        didSet {
-            isObserving = shouldStartObserving
-        }
-    }
 
     // MARK: - Life cycle
     
@@ -158,25 +154,25 @@ import CoreData
     /// Call this when the application enters the background to stop sending notifications and clear current changes.
 
     @objc func applicationDidEnterBackground() {
-        isInBackground = true
+        isEnabled = false
     }
     
     /// Call this when the application will enter the foreground to start sending notifications again.
 
     @objc func applicationWillEnterForeground() {
-        isInBackground = false
+        isEnabled = true
     }
 
     // Called when objects in the context change, it may be called several times between saves.
 
     @objc func objectsDidChange(_ note: Notification) {
-        guard isObserving else { return }
+        guard isEnabled else { return }
         forwardChangesToConversationListObserver(note: note)
         process(note: note)
     }
 
     @objc func contextDidSave(_ note: Notification) {
-        guard isObserving else { return }
+        guard isEnabled else { return }
         fireAllNotifications()
     }
     
@@ -184,7 +180,7 @@ import CoreData
 
     func nonCoreDataChange(_ note: NotificationInContext) {
         guard
-            isObserving,
+            isEnabled,
             let changedKeys = note.changedKeys,
             let object = note.object as? ZMManagedObject
         else {
@@ -217,7 +213,7 @@ import CoreData
     /// Call this AFTER merging the changes from syncMOC into uiMOC.
 
     public func didMergeChanges(_ changedObjectIDs: Set<NSManagedObjectID>) {
-        guard isObserving else { return }
+        guard isEnabled else { return }
 
         let changedObjects = changedObjectIDs.compactMap {
             try? managedObjectContext.existingObject(with: $0) as? ZMManagedObject
