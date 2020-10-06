@@ -414,10 +414,6 @@ import CoreData
 
 }
 
-
-
-
-
 private extension LazySequenceProtocol {
 
     func collect() -> [Element] {
@@ -431,12 +427,8 @@ private extension Collection {
     var isNotEmpty: Bool {
         return !isEmpty
     }
+
 }
-
-
-protocol OpaqueConversationToken: NSObjectProtocol {}
-
-let ChangedKeysAndNewValuesKey = "ZMChangedKeysAndNewValues"
 
 
 typealias ObjectAndChanges = [ZMManagedObject: Changes]
