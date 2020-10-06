@@ -63,7 +63,7 @@ import CoreData
         }
     }
 
-    // MARK: - Properties
+    // MARK: - Private properties
 
     private unowned var managedObjectContext: NSManagedObjectContext
 
@@ -185,7 +185,13 @@ import CoreData
     }
 
     @objc func contextDidSave(_ note: Notification) {
-        guard isEnabled else { return }
+        guard
+            isEnabled,
+            operationMode != .economical
+        else {
+            return
+        }
+
         fireAllNotifications()
     }
     
