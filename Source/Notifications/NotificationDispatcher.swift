@@ -61,7 +61,7 @@ private var zmLog = ZMSLog(tag: "notifications")
     }
     
     private var allChanges = [ZMManagedObject: Changes]()
-    private var unreadMessages = [Notification.Name: Set<ZMMessage>]()
+    private var unreadMessages = UnreadMessages()
 
     private var shouldStartObserving: Bool {
         return !isDisabled && !isInBackground
@@ -240,7 +240,7 @@ private var zmLog = ZMSLog(tag: "notifications")
     }
 
     private func stopObserving() {
-        unreadMessages = [:]
+        unreadMessages = UnreadMessages()
         allChanges = [:]
         snapshotCenter.clearAllSnapshots()
         allChangeInfoConsumers.forEach { $0.stopObserving() }
@@ -278,7 +278,7 @@ private var zmLog = ZMSLog(tag: "notifications")
         extractChangesCausedByInsertionOrDeletion(of: insertedObjects)
         extractChangesCausedByInsertionOrDeletion(of: deletedObjects)
 
-        checkForUnreadMessages(insertedObjects: insertedObjects, updatedObjects:updatedObjects )
+        checkForUnreadMessages(insertedObjects: insertedObjects, updatedObjects: updatedObjects)
     }
     
     private func extractObjects(for key: String, from userInfo: [String: Any]) -> Set<ZMManagedObject> {
@@ -372,21 +372,16 @@ private var zmLog = ZMSLog(tag: "notifications")
             return (messages, knocks)
         }
 
-        updateExisting(name: .NewUnreadUnsentMessage, newSet: unreadUnsent)
-        updateExisting(name: .NewUnreadMessage, newSet: newUnreadMessages)
-        updateExisting(name: .NewUnreadKnock, newSet: newUnreadKnocks)
+        unreadMessages.unsent.formUnion(unreadUnsent)
+        unreadMessages.messages.formUnion(newUnreadMessages)
+        unreadMessages.knocks.formUnion(newUnreadKnocks)
     }
 
-    private func updateExisting(name: Notification.Name, newSet: [ZMMessage]) {
-        let existingUnreadUnsent = unreadMessages[name]
-        unreadMessages[name] = existingUnreadUnsent?.union(newSet) ?? Set(newSet)
-    }
-    
     private func fireAllNotifications() {
         let changes = allChanges
         let unreads = unreadMessages
         
-        unreadMessages = [:]
+        unreadMessages = UnreadMessages()
         allChanges = [:]
         
         var allChangeInfos = [ClassIdentifier: [ObjectChangeInfo]]()
@@ -415,17 +410,9 @@ private var zmLog = ZMSLog(tag: "notifications")
         fireNewUnreadMessagesNotifications(unreadMessages: unreads)
     }
 
-    private func fireNewUnreadMessagesNotifications(unreadMessages: [Notification.Name: Set<ZMMessage>]) {
-        for (notificationName, messages) in unreadMessages where messages.isNotEmpty {
-            guard let changeInfo = ObjectChangeInfo.changeInfoForNewMessageNotification(with: notificationName, changedMessages: messages) else {
-                zmLog.warn("Did you forget to add the mapping for that?")
-                return
-            }
-
-            postNotification(
-                name: notificationName,
-                changeInfo: changeInfo
-            )
+    private func fireNewUnreadMessagesNotifications(unreadMessages: UnreadMessages) {
+        unreadMessages.changeInfoByNotification.forEach {
+            postNotification(name: $0, changeInfo: $1)
         }
     }
     
@@ -446,6 +433,36 @@ private var zmLog = ZMSLog(tag: "notifications")
             object: object,
             changeInfo: changeInfo
         ).post()
+    }
+
+}
+
+private extension NotificationDispatcher {
+
+    struct UnreadMessages {
+
+        var unsent = Set<ZMMessage>()
+        var messages = Set<ZMMessage>()
+        var knocks = Set<ZMMessage>()
+
+        var changeInfoByNotification: [Notification.Name: ObjectChangeInfo] {
+            var result = [Notification.Name: ObjectChangeInfo]()
+
+            if unsent.isNotEmpty {
+                result[.NewUnreadUnsentMessage] = NewUnreadUnsentMessageChangeInfo(messages: Array(unsent))
+            }
+
+            if messages.isNotEmpty {
+                result[.NewUnreadMessage] = NewUnreadMessagesChangeInfo(messages: Array(messages))
+            }
+
+            if knocks.isNotEmpty {
+                result[.NewUnreadKnock] = NewUnreadKnockMessagesChangeInfo(messages: Array(knocks))
+            }
+
+            return result
+        }
+
     }
 
 }
