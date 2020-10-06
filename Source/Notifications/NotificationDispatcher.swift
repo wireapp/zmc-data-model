@@ -25,41 +25,6 @@ protocol OpaqueConversationToken: NSObjectProtocol {}
 
 let ChangedKeysAndNewValuesKey = "ZMChangedKeysAndNewValues"
 
-/// Creates an object that registers an observer in NSNotificationCenter
-/// When this object is deallocated, it automatically unregisters from NSNotificationCenter
-/// To receive notifications, make sure to hold a strong reference to this object
-/// Note: We keep strong reference to the `object` because the notifications would not get delivered
-/// if no one has references to it anymore. This could happen with faulted NSManagedObject.
-public class ManagedObjectObserverToken : NSObject {
-
-    // MARK: - Properties
-    
-    let token: Any
-
-    // We keep strong reference to the `object` because the notifications would not get delivered
-    // if no one has references to it anymore. This could happen with faulted NSManagedObject.
-
-    private let object: AnyObject?
-
-    // MARK: - Life cycle
-    
-    public init(
-        name: NSNotification.Name,
-        managedObjectContext: NSManagedObjectContext,
-        object: AnyObject? = nil,
-        queue: OperationQueue? = nil,
-        block: @escaping (NotificationInContext) -> Void
-    ) {
-        self.object = object
-        self.token =  NotificationInContext.addObserver(
-            name: name,
-            context: managedObjectContext.notificationContext,
-            object: object,
-            queue: queue,
-            using: block
-        )
-    }
-}
 
 struct Changes: Mergeable {
 
