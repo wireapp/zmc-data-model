@@ -37,7 +37,20 @@ import CoreData
     ///
     /// Setting this value will affect the detail and frequency of notifications.
 
-    public var operationMode = OperationMode.normal
+    public var operationMode = OperationMode.normal {
+        didSet {
+            switch (oldValue, operationMode) {
+            case (.economical, .normal):
+                // TODO: [John] test
+                fireAllNotifications()
+            case (.normal, .economical):
+                // TODO: [John] test
+                snapshotCenter.clearAllSnapshots()
+            default:
+                break
+            }
+        }
+    }
 
     /// Whether the dispatcher is enabled.
     ///
