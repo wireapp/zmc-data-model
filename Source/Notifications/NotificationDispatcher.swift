@@ -26,19 +26,7 @@ protocol OpaqueConversationToken: NSObjectProtocol {}
 let ChangedKeysAndNewValuesKey = "ZMChangedKeysAndNewValues"
 
 
-
-
-public typealias ClassIdentifier = String
-
 typealias ObjectAndChanges = [ZMManagedObject: Changes]
-
-@objc public protocol ChangeInfoConsumer: NSObjectProtocol {
-
-    func objectsDidChange(changes: [ClassIdentifier: [ObjectChangeInfo]])
-    func startObserving()
-    func stopObserving()
-
-}
 
 extension ZMManagedObject {
     
