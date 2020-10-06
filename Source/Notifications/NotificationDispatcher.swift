@@ -25,28 +25,6 @@ protocol OpaqueConversationToken: NSObjectProtocol {}
 
 let ChangedKeysAndNewValuesKey = "ZMChangedKeysAndNewValues"
 
-extension Notification.Name {
-    
-    static let ConversationChange = Notification.Name("ZMConversationChangedNotification")
-    static let MessageChange = Notification.Name("ZMMessageChangedNotification")
-    static let UserChange = Notification.Name("ZMUserChangedNotification")
-    static let SearchUserChange = Notification.Name("ZMSearchUserChangedNotification")
-    static let ConnectionChange = Notification.Name("ZMConnectionChangeNotification")
-    static let UserClientChange = Notification.Name("ZMUserClientChangeNotification")
-    static let NewUnreadMessage = Notification.Name("ZMNewUnreadMessageNotification")
-    static let NewUnreadKnock = Notification.Name("ZMNewUnreadKnockNotification")
-    static let NewUnreadUnsentMessage = Notification.Name("ZMNewUnreadUnsentMessageNotification")
-    static let VoiceChannelStateChange = Notification.Name("ZMVoiceChannelStateChangeNotification")
-    static let VoiceChannelParticipantStateChange = Notification.Name("ZMVoiceChannelParticipantStateChangeNotification")
-    static let TeamChange = Notification.Name("TeamChangeNotification")
-    static let LabelChange = Notification.Name("LabelChangeNotification")
-    static let ParticipantRoleChange = Notification.Name("ParticipantRoleChange")
-
-    public static let NonCoreDataChangeInManagedObject = Notification.Name("NonCoreDataChangeInManagedObject")
-    
-}
-
-
 /// Creates an object that registers an observer in NSNotificationCenter
 /// When this object is deallocated, it automatically unregisters from NSNotificationCenter
 /// To receive notifications, make sure to hold a strong reference to this object
