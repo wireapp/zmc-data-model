@@ -435,36 +435,6 @@ private var zmLog = ZMSLog(tag: "notifications")
 
 }
 
-private extension NotificationDispatcher {
-
-    struct UnreadMessages {
-
-        var unsent = Set<ZMMessage>()
-        var messages = Set<ZMMessage>()
-        var knocks = Set<ZMMessage>()
-
-        var changeInfoByNotification: [Notification.Name: ObjectChangeInfo] {
-            var result = [Notification.Name: ObjectChangeInfo]()
-
-            if unsent.isNotEmpty {
-                result[.NewUnreadUnsentMessage] = NewUnreadUnsentMessageChangeInfo(messages: Array(unsent))
-            }
-
-            if messages.isNotEmpty {
-                result[.NewUnreadMessage] = NewUnreadMessagesChangeInfo(messages: Array(messages))
-            }
-
-            if knocks.isNotEmpty {
-                result[.NewUnreadKnock] = NewUnreadKnockMessagesChangeInfo(messages: Array(knocks))
-            }
-
-            return result
-        }
-
-    }
-
-}
-
 
 struct ExtractedObjects {
 
