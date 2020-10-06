@@ -197,6 +197,8 @@ import CoreData
     
     /// This will be called if a change to an object does not cause a change in Core Data, e.g. downloading the asset and adding it to the cache.
 
+    // TODO: [JOhn] handle operation mode
+
     func nonCoreDataChange(_ note: NotificationInContext) {
         guard
             isEnabled,
@@ -232,6 +234,9 @@ import CoreData
     /// Call this AFTER merging the changes from syncMOC into uiMOC.
 
     public func didMergeChanges(_ changedObjectIDs: Set<NSManagedObjectID>) {
+
+        // TODO: [John] Handle operation mode
+
         guard isEnabled else { return }
 
         let changedObjects = changedObjectIDs.compactMap {
@@ -267,6 +272,8 @@ import CoreData
     private func startObserving() {
         allChangeInfoConsumers.forEach { $0.startObserving() }
     }
+
+    // TODO: [John] Consider operation mode
 
     private func forwardChangesToConversationListObserver(note: Notification) {
         guard let userInfo = note.userInfo as? [String: Any] else { return }
