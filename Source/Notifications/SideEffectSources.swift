@@ -18,6 +18,7 @@
 
 import Foundation
 
+typealias ObjectAndChanges = [ZMManagedObject: Changes]
 
 protocol SideEffectSource {
     

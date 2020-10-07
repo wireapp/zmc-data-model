@@ -359,9 +359,6 @@ import CoreData
 }
 
 
-typealias ObjectAndChanges = [ZMManagedObject: Changes]
-
-
 // MARK: - Helper extensions
 
 private extension LazySequenceProtocol {
