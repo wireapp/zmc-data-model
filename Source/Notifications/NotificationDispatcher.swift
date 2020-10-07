@@ -33,16 +33,6 @@ import CoreData
 
     // MARK: - Public properties
 
-    /// The mode in which the dispatcher operates.
-    ///
-    /// Setting this value will affect the detail and frequency of notifications.
-
-    public var operationMode = OperationMode.normal {
-        didSet {
-            // TODO: [John] update change detector
-        }
-    }
-
     /// Whether the dispatcher is enabled.
     ///
     /// If set to `false`, all pending changes are discarded and no new notifications are posted.
@@ -111,15 +101,10 @@ import CoreData
             ParticipantRole.classIdentifier
         ]
 
-        // TODO: [JOHN] Use different detector for economical.
-
-        switch operationMode {
-        case .normal, .economical:
-            changeDetector = DetailedChangeDetector(
-                classIdentifiers: classIdentifiers,
-                managedObjectContext: managedObjectContext
-            )
-        }
+        changeDetector = DetailedChangeDetector(
+            classIdentifiers: classIdentifiers,
+            managedObjectContext: managedObjectContext
+        )
 
         super.init()
 
@@ -181,13 +166,7 @@ import CoreData
     }
 
     @objc func contextDidSave(_ note: Notification) {
-        guard
-            isEnabled,
-            operationMode != .economical
-        else {
-            return
-        }
-
+        guard isEnabled else { return }
         fireAllNotifications()
     }
     
@@ -260,8 +239,6 @@ import CoreData
     private func startObserving() {
         allChangeInfoConsumers.forEach { $0.startObserving() }
     }
-
-    // TODO: [John] Consider operation mode
 
     private func forwardChangesToConversationListObserver(note: Notification) {
         guard let userInfo = note.userInfo as? [String: Any] else { return }
