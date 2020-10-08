@@ -20,16 +20,18 @@ import Foundation
 
 class DetailedChangeDetector: ChangeDetector {
 
+    private typealias ObservableChangesByObject = [ZMManagedObject: Changes]
+
     // MARK: - Properties
 
     private unowned let context: NSManagedObjectContext
 
-    private var allChanges = [ZMManagedObject: Changes]()
+    private var accumulatedChanges = ObservableChangesByObject()
     private let snapshotCenter: SnapshotCenter
     private let affectingKeysStore: DependencyKeyStore
 
     var changeInfo: [ObjectChangeInfo] {
-        return allChanges.compactMap {
+        return accumulatedChanges.compactMap {
             ObjectChangeInfo.changeInfo(for: $0, changes: $1)
         }
     }
@@ -45,76 +47,172 @@ class DetailedChangeDetector: ChangeDetector {
     // MARK: - Methods
 
     func reset() {
-        allChanges = [:]
+        accumulatedChanges = [:]
         snapshotCenter.clearAllSnapshots()
     }
 
     func add(changes: Changes, for object: ZMManagedObject) {
-        allChanges = allChanges.merged(with: [object: changes])
+        merge(changes: [object: changes])
     }
 
     func detectChanges(for objects: ModifiedObjects) {
         snapshotCenter.createSnapshots(for: objects.inserted)
-        detectChanges(for: objects.updated.union(objects.refreshed))
-        detectChangesCausedByInsertionOrDeletion(for: objects.inserted)
-        detectChangesCausedByInsertionOrDeletion(for: objects.deleted)
+
+        merge(changes:
+            observableChanges(for: objects.updatedAndRefreshed),
+            observableChangesCausedByInsertionOrDeletion(for: objects.inserted),
+            observableChangesCausedByInsertionOrDeletion(for: objects.deleted)
+        )
     }
 
-    private func detectChanges(for changedObjects: Set<ZMManagedObject>) {
+    // MARK: - Private methods
 
-        func getChangedKeysSinceLastSave(object: ZMManagedObject) -> Set<String> {
-            var changedKeys = Set(object.changedValues().keys)
+    /// Detect all observable changes for the given objects and their dependencies.
+    ///
+    /// - Parameters:
+    ///     - objects: A set of modified objects.
+    ///     
+    /// - Returns:
+    ///     A mapping of all objects and their changed keys.
 
-            if changedKeys.isEmpty || object.isFault  {
-                // If the object is a fault, calling changedValues() will return an empty set.
-                // Luckily we created a snapshot of the object before the merge happend which
-                // we can use to compare the values.
-                changedKeys = snapshotCenter.extractChangedKeysFromSnapshot(for: object)
-            } else {
-                snapshotCenter.updateSnapshot(for: object)
-            }
+    private func observableChanges(for objects: Set<ZMManagedObject>) -> ObservableChangesByObject {
+        let allChanges = objects.lazy
+            .map(getChangedKeysSinceLastSave)
+            .filter(\.hasChanges)
+            .map(observableChangesCausedByChange)
 
-            return changedKeys
-        }
-
-        // Check for changed keys and affected keys.
-        let changes: [ZMManagedObject: Changes] = changedObjects.mapToDictionary{ object in
-            // (1) Get all the changed keys since last Save.
-            let changedKeys = getChangedKeysSinceLastSave(object: object)
-            guard !changedKeys.isEmpty else { return nil }
-
-            // (2) Get affected changes.
-            detectChangesCausedByChangeInObjects(updatedObject: object, knownKeys: changedKeys)
-
-            // (3) Map the changed keys to affected keys, remove the ones that we are not reporting.
-            let affectedKeys = changedKeys
-                .map { affectingKeysStore.observableKeysAffectedByValue(object.classIdentifier, key: $0) }
-                .reduce(Set()) { $0.union($1) }
-
-            guard !affectedKeys.isEmpty else { return nil }
-            return Changes(changedKeys: affectedKeys)
-        }
-
-        // (4) Merge the changes with the other ones.
-        allChanges = allChanges.merged(with: changes)
+        return allChanges.reduce([:], combine)
     }
 
-    private func detectChangesCausedByChangeInObjects(updatedObject: ZMManagedObject, knownKeys: Set<String>) {
-        // (1) All Updates in other objects resulting in changes on others,
-        // e.g. changing a users name affects the conversation displayName.
-        guard let object = updatedObject as? SideEffectSource else { return }
-        let changedObjectsAndKeys = object.affectedObjectsAndKeys(keyStore: affectingKeysStore, knownKeys: knownKeys)
-        allChanges = allChanges.merged(with: changedObjectsAndKeys)
+    private func getChangedKeysSinceLastSave(object: ZMManagedObject) -> UpdatedObject {
+        var changedKeys = object.changedKeys
+
+        if changedKeys.isEmpty || object.isFault  {
+            // If the object is a fault, calling changedValues() will return an empty set.
+            // Luckily we created a snapshot of the object before the merge happend which
+            // we can use to compare the values.
+            changedKeys = snapshotCenter.extractChangedKeysFromSnapshot(for: object)
+        } else {
+            snapshotCenter.updateSnapshot(for: object)
+        }
+
+        return UpdatedObject(object: object, changedKeys: changedKeys)
     }
 
-    private func detectChangesCausedByInsertionOrDeletion(for objects: Set<ZMManagedObject>) {
-        // All inserts or deletes of other objects resulting in changes in others,
-        // e.g. inserting a user affects the conversation displayName.
-        objects.forEach { obj in
-            guard let object = obj as? SideEffectSource else { return }
-            let changedObjectsAndKeys = object.affectedObjectsForInsertionOrDeletion(keyStore: affectingKeysStore)
-            allChanges = allChanges.merged(with: changedObjectsAndKeys)
+    /// Identify which objects and their observable keys have changed as a result of changes to the given object.
+    ///
+    /// E.g if `user.fullName` and `conversation.name` both depend on `user.firstName`, then a change to `user.firstName`
+    /// causes means `user.fullName` and `conversation.name` must be considered changed too. The result of this method
+    /// would then be `[user: firstName, user: fullName, conversation: name]`.
+    ///
+    /// - Parameters:
+    ///     - updatedObject: An object that has changed.
+    ///     - changedKeys: The key paths that changed on `updatedObject`.
+    ///
+    /// - Returns:
+    ///     All objects and their observable keys that have changed.
+
+    private func observableChangesCausedByChange(in updatedObject: UpdatedObject) -> ObservableChangesByObject {
+        let (object, changedKeys) = (updatedObject.object, updatedObject.changedKeys)
+
+        var result = ObservableChangesByObject()
+
+        let affectedKeysOfUpdatedObject = changedKeys
+            .map { affectingKeysStore.observableKeysAffectedByValue(object.classIdentifier, key: $0) }
+            .flattened
+
+        if !affectedKeysOfUpdatedObject.isEmpty {
+            result[object] = Changes(changedKeys: affectedKeysOfUpdatedObject)
         }
+
+        if let sideEffectSource = updatedObject as? SideEffectSource {
+            let affectedKeysOfOtherObjects = sideEffectSource.affectedObjectsAndKeys(keyStore: affectingKeysStore, knownKeys: changedKeys)
+            result = result.merged(with: affectedKeysOfOtherObjects)
+        }
+
+        return result
+    }
+
+    /// Identify which objects and their observable keys have changed as a result of insertion or deletion
+    /// of the given objects.
+    ///
+    /// E.g insertion of a new conversation participant may affect the conversation name.
+    ///
+    /// - Parameters:
+    ///     - objects: Objects that have been inserted or deleted.
+    ///
+    /// - Returns:
+    ///     All objects and their observable keys that have changed.
+
+    private func observableChangesCausedByInsertionOrDeletion(for objects: Set<ZMManagedObject>) -> ObservableChangesByObject {
+        objects.lazy
+            .compactMap { $0 as? SideEffectSource }
+            .map { $0.affectedObjectsForInsertionOrDeletion(keyStore: self.affectingKeysStore) }
+            .reduce(ObservableChangesByObject(), combine)
+    }
+
+    // MARK: - Helper methods
+
+    private func merge(changes: ObservableChangesByObject) {
+        accumulatedChanges = accumulatedChanges.merged(with: changes)
+    }
+
+    private func merge(changes: ObservableChangesByObject...) {
+        accumulatedChanges = changes.reduce(accumulatedChanges, combine)
+    }
+
+    private func combine(lhs: ObservableChangesByObject, rhs: ObservableChangesByObject) -> ObservableChangesByObject {
+        return lhs.merged(with: rhs)
+    }
+
+}
+
+// MARK: - Helper extensions
+
+fileprivate extension DetailedChangeDetector {
+
+    struct UpdatedObject {
+
+        let object: ZMManagedObject
+        let changedKeys: Set<String>
+
+        var hasChanges: Bool {
+            return !changedKeys.isEmpty
+        }
+
+    }
+
+}
+
+extension Collection where Element: Mergeable {
+
+    var merged: Element? {
+        guard let first = first else { return nil }
+        return reduce(first) { $0.merged(with: $1) }
+    }
+
+}
+
+private extension Sequence where Element: SetAlgebra {
+
+    var flattened: Element {
+        reduce(Element()) { $0.union($1) }
+    }
+
+}
+
+private extension LazySequence {
+
+    func collect() -> [Self.Element] {
+        return Array(self)
+    }
+
+}
+
+private extension NSManagedObject {
+
+    var changedKeys: Set<String> {
+        return Set(changedValues().keys)
     }
 
 }
