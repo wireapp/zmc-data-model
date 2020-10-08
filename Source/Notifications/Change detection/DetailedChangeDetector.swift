@@ -125,7 +125,7 @@ class DetailedChangeDetector: ChangeDetector {
             result[object] = Changes(changedKeys: affectedKeysOfUpdatedObject)
         }
 
-        if let sideEffectSource = updatedObject as? SideEffectSource {
+        if let sideEffectSource = object as? SideEffectSource {
             let affectedKeysOfOtherObjects = sideEffectSource.affectedObjectsAndKeys(keyStore: affectingKeysStore, knownKeys: changedKeys)
             result = result.merged(with: affectedKeysOfOtherObjects)
         }
