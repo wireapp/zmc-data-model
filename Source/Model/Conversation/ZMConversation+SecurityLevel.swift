@@ -708,7 +708,7 @@ extension ZMSystemMessage {
         let compound = NSCompoundPredicate(andPredicateWithSubpredicates: [conversationPredicate, newClientPredicate, containsSelfClient])
         
         let fetchRequest = ZMSystemMessage.sortedFetchRequest(with: compound)!
-        let result = conversation.managedObjectContext!.executeFetchRequestOrAssert(fetchRequest)!
+        let result = conversation.managedObjectContext!.executeFetchRequestOrAssert(fetchRequest)
         return result.first as? ZMSystemMessage
     }
 }

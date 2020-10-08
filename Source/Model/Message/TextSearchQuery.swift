@@ -245,7 +245,7 @@ public class TextSearchQuery: NSObject {
             request?.fetchLimit = self.fetchConfiguration.indexedBatchSize
             request?.fetchOffset = callCount * self.fetchConfiguration.indexedBatchSize
 
-            guard let matches = self.syncMOC.executeFetchRequestOrAssert(request) as? [ZMClientMessage] else { return completion() }
+            guard let matches = self.syncMOC.executeFetchRequestOrAssert(request!) as? [ZMClientMessage] else { return completion() }
 
             // Notify the delegate
             let nextOffset = (callCount + 1) * self.fetchConfiguration.indexedBatchSize
@@ -272,7 +272,7 @@ public class TextSearchQuery: NSObject {
             let request = ZMClientMessage.descendingFetchRequest(with: self.predicateForNotIndexedMessages)
             request?.fetchLimit = self.fetchConfiguration.notIndexedBatchSize
 
-            guard let messagesToIndex = self.syncMOC.executeFetchRequestOrAssert(request) as? [ZMClientMessage] else { return }
+            guard let messagesToIndex = self.syncMOC.executeFetchRequestOrAssert(request!) as? [ZMClientMessage] else { return }
             messagesToIndex.forEach {
                 // We populate the `normalizedText` field, so the search can be 
                 // performed faster on the normalized field the next time.

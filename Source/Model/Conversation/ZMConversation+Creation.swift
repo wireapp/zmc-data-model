@@ -176,6 +176,6 @@ extension ZMConversation {
             sameParticipant
         ])
         let request = self.sortedFetchRequest(with: compoundPredicate)
-        return moc.executeFetchRequestOrAssert(request)?.first as? ZMConversation
+        return moc.executeFetchRequestOrAssert(request!).first as? ZMConversation
     }
 }
