@@ -44,14 +44,6 @@ import CoreData
         }
     }
 
-    /// Determines how detailed and frequent change notifications are fired.
-
-    public var operationMode = OperationMode.normal {
-        didSet {
-            // TODO: [JOHN] switch detectors.
-        }
-    }
-
     // MARK: - Private properties
 
     private unowned var managedObjectContext: NSManagedObjectContext

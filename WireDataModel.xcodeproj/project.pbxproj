@@ -374,7 +374,6 @@
 		EE3EFE9725305A84009499E5 /* ModifiedObjects+Mergeable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3EFE9625305A84009499E5 /* ModifiedObjects+Mergeable.swift */; };
 		EE3EFE9925306428009499E5 /* ChangeInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3EFE9825306428009499E5 /* ChangeInfo.swift */; };
 		EE3EFE9B25306541009499E5 /* PotentialObjectChangeInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3EFE9A25306541009499E5 /* PotentialObjectChangeInfo.swift */; };
-		EE3EFE9F2530833D009499E5 /* NotificationDispatcher.OperationMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3EFE9E2530833D009499E5 /* NotificationDispatcher.OperationMode.swift */; };
 		EE42938A252C437900E70670 /* Notification.Name+ManagedObjectObservation.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE429389252C437900E70670 /* Notification.Name+ManagedObjectObservation.swift */; };
 		EE42938C252C443000E70670 /* ManagedObjectObserverToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE42938B252C443000E70670 /* ManagedObjectObserverToken.swift */; };
 		EE42938E252C460000E70670 /* Changes.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE42938D252C460000E70670 /* Changes.swift */; };
@@ -1067,7 +1066,6 @@
 		EE3EFE9625305A84009499E5 /* ModifiedObjects+Mergeable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ModifiedObjects+Mergeable.swift"; sourceTree = "<group>"; };
 		EE3EFE9825306428009499E5 /* ChangeInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeInfo.swift; sourceTree = "<group>"; };
 		EE3EFE9A25306541009499E5 /* PotentialObjectChangeInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PotentialObjectChangeInfo.swift; sourceTree = "<group>"; };
-		EE3EFE9E2530833D009499E5 /* NotificationDispatcher.OperationMode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationDispatcher.OperationMode.swift; sourceTree = "<group>"; };
 		EE429389252C437900E70670 /* Notification.Name+ManagedObjectObservation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notification.Name+ManagedObjectObservation.swift"; sourceTree = "<group>"; };
 		EE42938B252C443000E70670 /* ManagedObjectObserverToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedObjectObserverToken.swift; sourceTree = "<group>"; };
 		EE42938D252C460000E70670 /* Changes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Changes.swift; sourceTree = "<group>"; };
@@ -1960,7 +1958,6 @@
 				F9A706261CAEE01D00C2F5FE /* ObjectObserverTokens */,
 				5451DE361F604CD500C82E75 /* ZMMoveIndex.swift */,
 				F93C4C7C1E24E1B1007E9CEE /* NotificationDispatcher.swift */,
-				EE3EFE9E2530833D009499E5 /* NotificationDispatcher.OperationMode.swift */,
 				EE68EECC252DCAB80013B242 /* Change detection */,
 				EEAAD75D252C711800E6A44E /* ZMManagedObject+ClassIdentifier.swift */,
 				EEAAD75F252C713E00E6A44E /* ClassIdentifier.swift */,
@@ -3103,7 +3100,6 @@
 				EEF4010723A9213B007B1A97 /* UserType+Team.swift in Sources */,
 				54E3EE411F616BA600A261E3 /* ZMAssetClientMessage.swift in Sources */,
 				EE429390252C466500E70670 /* ChangeInfoConsumer.swift in Sources */,
-				EE3EFE9F2530833D009499E5 /* NotificationDispatcher.OperationMode.swift in Sources */,
 				16F6BB3A1EDEC2D6009EA803 /* ZMConversation+ObserverHelper.swift in Sources */,
 				16E0FBC923326B72000E3235 /* ConversationDirectory.swift in Sources */,
 				F99C5B8A1ED460E20049CCD7 /* TeamChangeInfo.swift in Sources */,
