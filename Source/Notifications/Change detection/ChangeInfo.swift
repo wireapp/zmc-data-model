@@ -33,4 +33,14 @@ public enum ChangeInfo {
         }
     }
 
+    var explicitChanges: ObjectChangeInfo? {
+        guard case let .explicit(changes) = self else { return nil }
+        return changes
+    }
+
+    var potentialChanges: PotentialObjectChangeInfo? {
+        guard case let .potential(changes) = self else { return nil }
+        return changes
+    }
+
 }
