@@ -18,7 +18,7 @@
 
 import Foundation
 
-class DetailedChangeDetector: ChangeDetector {
+class ExplicitChangeDetector: ChangeDetector {
 
     private typealias ObservableChangesByObject = [ZMManagedObject: Changes]
 
@@ -172,7 +172,7 @@ class DetailedChangeDetector: ChangeDetector {
 
 // MARK: - Helper extensions
 
-fileprivate extension DetailedChangeDetector {
+fileprivate extension ExplicitChangeDetector {
 
     struct UpdatedObject {
 

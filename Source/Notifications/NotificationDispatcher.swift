@@ -101,7 +101,7 @@ import CoreData
             ParticipantRole.classIdentifier
         ]
 
-        changeDetector = DetailedChangeDetector(
+        changeDetector = ExplicitChangeDetector(
             classIdentifiers: classIdentifiers,
             managedObjectContext: managedObjectContext
         )
