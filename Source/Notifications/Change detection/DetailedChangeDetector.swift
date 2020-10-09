@@ -79,12 +79,11 @@ class DetailedChangeDetector: ChangeDetector {
     ///     A mapping of all objects and their changed keys.
 
     private func observableChanges(for objects: Set<ZMManagedObject>) -> ObservableChangesByObject {
-        let allChanges = objects.lazy
+        objects.lazy
             .map(getChangedKeysSinceLastSave)
             .filter(\.hasChanges)
             .map(observableChangesCausedByChange)
-
-        return allChanges.reduce([:], combine)
+            .reduce([:], combine)
     }
 
     private func getChangedKeysSinceLastSave(object: ZMManagedObject) -> UpdatedObject {
@@ -151,7 +150,7 @@ class DetailedChangeDetector: ChangeDetector {
         objects.lazy
             .compactMap { $0 as? SideEffectSource }
             .map { $0.affectedObjectsForInsertionOrDeletion(keyStore: self.dependencyKeyStore) }
-            .reduce(ObservableChangesByObject(), combine)
+            .reduce([:], combine)
     }
 
     // MARK: - Helper methods
@@ -183,15 +182,6 @@ fileprivate extension DetailedChangeDetector {
             return !changedKeys.isEmpty
         }
 
-    }
-
-}
-
-extension Collection where Element: Mergeable {
-
-    var merged: Element? {
-        guard let first = first else { return nil }
-        return reduce(first) { $0.merged(with: $1) }
     }
 
 }
