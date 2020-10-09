@@ -215,7 +215,7 @@ extension ConversationChangeInfo {
                                           object: conversation)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                let changeInfo = note.changeInfo as? ConversationChangeInfo
+                let changeInfo = note.changeInfo?.explicitChanges as? ConversationChangeInfo
                 else { return }
             
             observer.conversationDidChange(changeInfo)

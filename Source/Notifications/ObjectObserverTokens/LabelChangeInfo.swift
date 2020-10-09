@@ -88,7 +88,7 @@ extension LabelChangeInfo {
         return ManagedObjectObserverToken(name: .LabelChange, managedObjectContext: managedObjectContext, object: label)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                let changeInfo = note.changeInfo as? LabelChangeInfo
+                let changeInfo = note.changeInfo?.explicitChanges as? LabelChangeInfo
                 else { return }
             
             observer.labelDidChange(changeInfo)

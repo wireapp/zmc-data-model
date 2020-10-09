@@ -95,7 +95,7 @@ extension TeamChangeInfo {
         return ManagedObjectObserverToken(name: .TeamChange, managedObjectContext: managedObjectContext, object: team)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                let changeInfo = note.changeInfo as? TeamChangeInfo
+                let changeInfo = note.changeInfo?.explicitChanges as? TeamChangeInfo
                 else { return }
             
             observer.teamDidChange(changeInfo)
