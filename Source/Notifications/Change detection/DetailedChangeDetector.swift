@@ -28,14 +28,14 @@ class DetailedChangeDetector: ChangeDetector {
 
     private var accumulatedChanges = ObservableChangesByObject()
     private let snapshotCenter: SnapshotCenter
-    private let affectingKeysStore: DependencyKeyStore
+    private let dependencyKeyStore: DependencyKeyStore
 
     // MARK: - Life cycle
 
     init(classIdentifiers: [ClassIdentifier], managedObjectContext: NSManagedObjectContext) {
         context = managedObjectContext
         snapshotCenter = SnapshotCenter(managedObjectContext: context)
-        affectingKeysStore = DependencyKeyStore(classIdentifiers: classIdentifiers)
+        dependencyKeyStore = DependencyKeyStore(classIdentifiers: classIdentifiers)
     }
 
     // MARK: - Methods
@@ -121,7 +121,7 @@ class DetailedChangeDetector: ChangeDetector {
         var result = ObservableChangesByObject()
 
         let affectedKeysOfUpdatedObject = changedKeys
-            .map { affectingKeysStore.observableKeysAffectedByValue(object.classIdentifier, key: $0) }
+            .map { dependencyKeyStore.observableKeysAffectedByValue(object.classIdentifier, key: $0) }
             .flattened
 
         if !affectedKeysOfUpdatedObject.isEmpty {
@@ -129,7 +129,7 @@ class DetailedChangeDetector: ChangeDetector {
         }
 
         if let sideEffectSource = object as? SideEffectSource {
-            let affectedKeysOfOtherObjects = sideEffectSource.affectedObjectsAndKeys(keyStore: affectingKeysStore, knownKeys: changedKeys)
+            let affectedKeysOfOtherObjects = sideEffectSource.affectedObjectsAndKeys(keyStore: dependencyKeyStore, knownKeys: changedKeys)
             result = result.merged(with: affectedKeysOfOtherObjects)
         }
 
@@ -150,7 +150,7 @@ class DetailedChangeDetector: ChangeDetector {
     private func observableChangesCausedByInsertionOrDeletion(for objects: Set<ZMManagedObject>) -> ObservableChangesByObject {
         objects.lazy
             .compactMap { $0 as? SideEffectSource }
-            .map { $0.affectedObjectsForInsertionOrDeletion(keyStore: self.affectingKeysStore) }
+            .map { $0.affectedObjectsForInsertionOrDeletion(keyStore: self.dependencyKeyStore) }
             .reduce(ObservableChangesByObject(), combine)
     }
 
