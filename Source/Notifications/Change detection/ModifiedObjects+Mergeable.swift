@@ -16,21 +16,17 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-
 import Foundation
 
-public enum ChangeInfo {
+extension ModifiedObjects: Mergeable {
 
-    case explicit(changes: ObjectChangeInfo)
-    case potential(changes: PotentialObjectChangeInfo)
-
-    var object: NSObject {
-        switch self {
-        case let .explicit(changes):
-            return changes.object
-        case let .potential(changes):
-            return changes.object
-        }
+    func merged(with other: ModifiedObjects) -> ModifiedObjects {
+        return ModifiedObjects(
+            updated: updated.union(other.updated),
+            refreshed: refreshed.union(other.refreshed),
+            inserted: inserted.union(other.inserted),
+            deleted: deleted.union(other.deleted)
+        )
     }
 
 }
