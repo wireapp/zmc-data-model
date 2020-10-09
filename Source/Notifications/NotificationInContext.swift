@@ -112,7 +112,7 @@ import WireUtilities
 }
 
 extension NotificationInContext {
-    
+
     private enum UserInfoKeys: String {
         case changedKeys
         case changeInfo
@@ -121,7 +121,7 @@ extension NotificationInContext {
     convenience public init(name: Notification.Name,
                 context: NotificationContext,
                 object: AnyObject? = nil,
-                changeInfo: ObjectChangeInfo,
+                changeInfo: ChangeInfo,
                 userInfo: [String: Any]? = nil)
     {
         var userInfo = userInfo ?? [:]
@@ -150,8 +150,8 @@ extension NotificationInContext {
             userInfo: userInfo)
     }
     
-    public var changeInfo: ObjectChangeInfo? {
-        return self.userInfo[UserInfoKeys.changeInfo.rawValue] as? ObjectChangeInfo
+    public var changeInfo: ChangeInfo? {
+        return self.userInfo[UserInfoKeys.changeInfo.rawValue] as? ChangeInfo
     }
     
     public var changedKeys: [String]? {
