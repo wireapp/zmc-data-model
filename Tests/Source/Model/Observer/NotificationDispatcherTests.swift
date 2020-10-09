@@ -314,7 +314,7 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         withExtendedLifetime(UserChangeInfo.add(observer: observer, for: user, in: self.uiMOC)) { () -> () in
             
             // when
-            sut.isDisabled = true
+            sut.isEnabled = false
             user.name = "bar"
             uiMOC.saveOrRollback()
             XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
@@ -329,13 +329,13 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         let user = ZMUser.insertNewObject(in: uiMOC)
         user.name = "foo"
         uiMOC.saveOrRollback()
-        sut.isDisabled = true
+        sut.isEnabled = false
         
         let observer = UserObserver()
         withExtendedLifetime(UserChangeInfo.add(observer: observer, for: user, in: self.uiMOC)) { () -> () in
             
             // when
-            sut.isDisabled = false
+            sut.isEnabled = true
             user.name = "bar"
             uiMOC.saveOrRollback()
             XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5))
@@ -446,7 +446,7 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
         XCTAssertFalse(consumer.didCallStopObserving)
         
         // when
-        sut.isDisabled = true
+        sut.isEnabled = false
         
         // then
         XCTAssertTrue(consumer.didCallStopObserving)
@@ -455,12 +455,12 @@ class NotificationDispatcherTests : NotificationDispatcherTestBase {
     func testThatItNotifiesChangeInfoConsumersWhenObservationStarts_enabled(){
         // given
         let consumer = ChangeConsumer()
-        sut.isDisabled = true
+        sut.isEnabled = false
         sut.addChangeInfoConsumer(consumer)
         XCTAssertFalse(consumer.didCallStartObserving)
         
         // when
-        sut.isDisabled = false
+        sut.isEnabled = true
         
         // then
         XCTAssertTrue(consumer.didCallStartObserving)
