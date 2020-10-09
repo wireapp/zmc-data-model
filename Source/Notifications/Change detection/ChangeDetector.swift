@@ -21,12 +21,20 @@ import Foundation
 
 protocol ChangeDetector {
 
-    var changeInfo: [ObjectChangeInfo] { get }
+    /// Inspect the given objects and store detected changes in local state.
 
-    func reset()
+    func detectChanges(for objects: ModifiedObjects)
+
+    /// Explicitly add the given changes to the local state.
 
     func add(changes: Changes, for object: ZMManagedObject)
 
-    func detectChanges(for objects: ModifiedObjects)
+    /// Consume the accumulated changes.
+
+    func consumeChanges() -> [ObjectChangeInfo]
+
+    /// Reset the local state.
+
+    func reset()
 
 }

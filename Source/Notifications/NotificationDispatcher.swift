@@ -282,9 +282,7 @@ import CoreData
     }
 
     private func fireAllNotifications() {
-        let changeInfo = changeDetector.changeInfo
-        changeDetector.reset()
-
+        let changeInfo = changeDetector.consumeChanges()
         var changeInfosByClass = [ClassIdentifier: [ObjectChangeInfo]]()
 
         changeInfo.forEach { info in

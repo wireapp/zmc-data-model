@@ -30,12 +30,6 @@ class DetailedChangeDetector: ChangeDetector {
     private let snapshotCenter: SnapshotCenter
     private let affectingKeysStore: DependencyKeyStore
 
-    var changeInfo: [ObjectChangeInfo] {
-        return accumulatedChanges.compactMap {
-            ObjectChangeInfo.changeInfo(for: $0, changes: $1)
-        }
-    }
-
     // MARK: - Life cycle
 
     init(classIdentifiers: [ClassIdentifier], managedObjectContext: NSManagedObjectContext) {
@@ -45,6 +39,15 @@ class DetailedChangeDetector: ChangeDetector {
     }
 
     // MARK: - Methods
+
+    func consumeChanges() -> [ObjectChangeInfo] {
+        let changes = accumulatedChanges.compactMap {
+            ObjectChangeInfo.changeInfo(for: $0, changes: $1)
+        }
+
+        accumulatedChanges = [:]
+        return changes
+    }
 
     func reset() {
         accumulatedChanges = [:]
