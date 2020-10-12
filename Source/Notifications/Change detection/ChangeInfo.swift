@@ -19,22 +19,28 @@
 
 import Foundation
 
-protocol ChangeDetector {
+public enum ChangeInfo {
 
-    /// Inspect the given objects and store detected changes in local state.
+    case explicit(changes: ObjectChangeInfo)
+    case potential(changes: PotentialObjectChangeInfo)
 
-    func detectChanges(for objects: ModifiedObjects)
+    var object: NSObject {
+        switch self {
+        case let .explicit(changes):
+            return changes.object
+        case let .potential(changes):
+            return changes.object
+        }
+    }
 
-    /// Explicitly add the given changes to the local state.
+    var explicitChanges: ObjectChangeInfo? {
+        guard case let .explicit(changes) = self else { return nil }
+        return changes
+    }
 
-    func add(changes: Changes, for object: ZMManagedObject)
-
-    /// Consume the accumulated changes.
-
-    func consumeChanges() -> [ChangeInfo]
-
-    /// Reset the local state.
-
-    func reset()
+    var potentialChanges: PotentialObjectChangeInfo? {
+        guard case let .potential(changes) = self else { return nil }
+        return changes
+    }
 
 }

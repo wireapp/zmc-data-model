@@ -211,7 +211,7 @@ extension UserChangeInfo {
         return ManagedObjectObserverToken(name: .SearchUserChange, managedObjectContext: managedObjectContext, object: user) { [weak observer] (note) in
             guard
                 let `observer` = observer,
-                let changeInfo = note.changeInfo as? UserChangeInfo
+                let changeInfo = note.changeInfo?.explicitChanges as? UserChangeInfo
             else {
                 return
             }
@@ -235,7 +235,7 @@ extension UserChangeInfo {
         return ManagedObjectObserverToken(name: .UserChange, managedObjectContext: managedObjectContext, object: user) { [weak observer] (note) in
             guard
                 let `observer` = observer,
-                let changeInfo = note.changeInfo as? UserChangeInfo
+                let changeInfo = note.changeInfo?.explicitChanges as? UserChangeInfo
             else {
                 return
             }

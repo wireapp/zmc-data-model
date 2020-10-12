@@ -16,25 +16,35 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-
 import Foundation
 
-protocol ChangeDetector {
+public class PotentialObjectChangeInfo {
 
-    /// Inspect the given objects and store detected changes in local state.
+    let object: NSObject
+    let changes: Changes
 
-    func detectChanges(for objects: ModifiedObjects)
+    init(object: NSObject, changes: Changes) {
+        self.object = object
+        self.changes = changes
+    }
 
-    /// Explicitly add the given changes to the local state.
+}
 
-    func add(changes: Changes, for object: ZMManagedObject)
+extension PotentialObjectChangeInfo {
 
-    /// Consume the accumulated changes.
+    public struct Changes: OptionSet {
 
-    func consumeChanges() -> [ChangeInfo]
+        static let none = Changes(rawValue: 0 << 0)
+        static let updated = Changes(rawValue: 0 << 1)
+        static let inserted = Changes(rawValue: 0 << 2)
+        static let deleted = Changes(rawValue: 0 << 3)
 
-    /// Reset the local state.
+        public let rawValue: Int
 
-    func reset()
+        public init(rawValue: Int) {
+            self.rawValue = rawValue
+        }
+
+    }
 
 }

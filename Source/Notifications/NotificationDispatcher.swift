@@ -101,7 +101,7 @@ import CoreData
             ParticipantRole.classIdentifier
         ]
 
-        changeDetector = DetailedChangeDetector(
+        changeDetector = ExplicitChangeDetector(
             classIdentifiers: classIdentifiers,
             managedObjectContext: managedObjectContext
         )
@@ -282,33 +282,38 @@ import CoreData
     }
 
     private func fireAllNotifications() {
-        let changeInfo = changeDetector.consumeChanges()
-        var changeInfosByClass = [ClassIdentifier: [ObjectChangeInfo]]()
+        let detectedChanges = changeDetector.consumeChanges()
+        var explicitChangesByClass = [ClassIdentifier: [ObjectChangeInfo]]()
 
-        changeInfo.forEach { info in
-            guard let objectInSnapshot = info.object as? ObjectInSnapshot else { return }
+        detectedChanges.forEach { changeInfo in
+            guard let objectInSnapshot = changeInfo.object as? ObjectInSnapshot else { return }
 
             postNotification(
                 name: objectInSnapshot.notificationName,
-                object: info.object,
-                changeInfo: info
+                object: changeInfo.object,
+                changeInfo: changeInfo
             )
 
-            guard let managedObject = info.object as? ZMManagedObject else { return }
+            guard
+                let managedObject = changeInfo.object as? ZMManagedObject,
+                let explicitChanges = changeInfo.explicitChanges
+            else {
+                return
+            }
 
             let classIdentifier = managedObject.classIdentifier
-            var previousChanges = changeInfosByClass[classIdentifier] ?? []
-            previousChanges.append(info)
-            changeInfosByClass[classIdentifier] = previousChanges
+            var previousChanges = explicitChangesByClass[classIdentifier] ?? []
+            previousChanges.append(explicitChanges)
+            explicitChangesByClass[classIdentifier] = previousChanges
         }
 
-        forwardNotificationToObserverCenters(changeInfos: changeInfosByClass)
+        forwardNotificationToObserverCenters(changeInfos: explicitChangesByClass)
         fireNewUnreadMessagesNotifications(unreadMessages: unreadMessages)
     }
 
     private func fireNewUnreadMessagesNotifications(unreadMessages: UnreadMessages) {
         unreadMessages.changeInfoByNotification.forEach {
-            postNotification(name: $0, changeInfo: $1)
+            postNotification(name: $0, changeInfo: .explicit(changes: $1))
         }
     }
     
@@ -321,7 +326,7 @@ import CoreData
     private func postNotification(
         name: Notification.Name,
         object: AnyObject? = nil,
-        changeInfo: ObjectChangeInfo
+        changeInfo: ChangeInfo
     ) {
         NotificationInContext(
             name: name,

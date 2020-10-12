@@ -16,25 +16,17 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-
 import Foundation
 
-protocol ChangeDetector {
+extension ModifiedObjects: Mergeable {
 
-    /// Inspect the given objects and store detected changes in local state.
-
-    func detectChanges(for objects: ModifiedObjects)
-
-    /// Explicitly add the given changes to the local state.
-
-    func add(changes: Changes, for object: ZMManagedObject)
-
-    /// Consume the accumulated changes.
-
-    func consumeChanges() -> [ChangeInfo]
-
-    /// Reset the local state.
-
-    func reset()
+    func merged(with other: ModifiedObjects) -> ModifiedObjects {
+        return ModifiedObjects(
+            updated: updated.union(other.updated),
+            refreshed: refreshed.union(other.refreshed),
+            inserted: inserted.union(other.inserted),
+            deleted: deleted.union(other.deleted)
+        )
+    }
 
 }

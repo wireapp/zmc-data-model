@@ -99,7 +99,7 @@ public class SearchUserSnapshot  {
         NotificationInContext(name: .SearchUserChange,
                               context: moc.notificationContext,
                               object: searchUser,
-                              changeInfo: userChange).post()
+                              changeInfo: .explicit(changes: userChange)).post()
     }
 }
 

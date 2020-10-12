@@ -76,7 +76,7 @@ final public class ParticipantRoleChangeInfo : ObjectChangeInfo {
         return ManagedObjectObserverToken(name: .ParticipantRoleChange, managedObjectContext: managedObjectContext, object: participantRole)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                let changeInfo = note.changeInfo as? ParticipantRoleChangeInfo
+                let changeInfo = note.changeInfo?.explicitChanges as? ParticipantRoleChangeInfo
                 else { return }
             
             observer.participantRoleDidChange(changeInfo)
