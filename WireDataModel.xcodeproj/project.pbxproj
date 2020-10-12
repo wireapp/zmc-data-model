@@ -374,6 +374,7 @@
 		EE3EFE9725305A84009499E5 /* ModifiedObjects+Mergeable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3EFE9625305A84009499E5 /* ModifiedObjects+Mergeable.swift */; };
 		EE3EFE9925306428009499E5 /* ChangeInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3EFE9825306428009499E5 /* ChangeInfo.swift */; };
 		EE3EFE9B25306541009499E5 /* PotentialObjectChangeInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3EFE9A25306541009499E5 /* PotentialObjectChangeInfo.swift */; };
+		EE3EFEA1253090E0009499E5 /* PotentialChangeDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3EFEA0253090E0009499E5 /* PotentialChangeDetectorTests.swift */; };
 		EE42938A252C437900E70670 /* Notification.Name+ManagedObjectObservation.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE429389252C437900E70670 /* Notification.Name+ManagedObjectObservation.swift */; };
 		EE42938C252C443000E70670 /* ManagedObjectObserverToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE42938B252C443000E70670 /* ManagedObjectObserverToken.swift */; };
 		EE42938E252C460000E70670 /* Changes.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE42938D252C460000E70670 /* Changes.swift */; };
@@ -1066,6 +1067,7 @@
 		EE3EFE9625305A84009499E5 /* ModifiedObjects+Mergeable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ModifiedObjects+Mergeable.swift"; sourceTree = "<group>"; };
 		EE3EFE9825306428009499E5 /* ChangeInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeInfo.swift; sourceTree = "<group>"; };
 		EE3EFE9A25306541009499E5 /* PotentialObjectChangeInfo.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PotentialObjectChangeInfo.swift; sourceTree = "<group>"; };
+		EE3EFEA0253090E0009499E5 /* PotentialChangeDetectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PotentialChangeDetectorTests.swift; sourceTree = "<group>"; };
 		EE429389252C437900E70670 /* Notification.Name+ManagedObjectObservation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notification.Name+ManagedObjectObservation.swift"; sourceTree = "<group>"; };
 		EE42938B252C443000E70670 /* ManagedObjectObserverToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedObjectObserverToken.swift; sourceTree = "<group>"; };
 		EE42938D252C460000E70670 /* Changes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Changes.swift; sourceTree = "<group>"; };
@@ -2305,6 +2307,7 @@
 				F929C17A1E423B620018ADA4 /* SnapshotCenterTests.swift */,
 				F9DD60BF1E8916000019823F /* ChangedIndexesTests.swift */,
 				F93C4C7E1E24F832007E9CEE /* NotificationDispatcherTests.swift */,
+				EE3EFEA0253090E0009499E5 /* PotentialChangeDetectorTests.swift */,
 				F920AE391E3B8445001BC14F /* SearchUserObserverCenterTests.swift */,
 			);
 			path = Observer;
@@ -3341,6 +3344,7 @@
 				5476BA3E1DEDABCC00D047F8 /* AddressBookEntryTests.swift in Sources */,
 				F93A302F1D6F2633005CCB1D /* ZMMessageTests+Confirmation.swift in Sources */,
 				F9331C561CB3BCF300139ECC /* OtrBaseTest.swift in Sources */,
+				EE3EFEA1253090E0009499E5 /* PotentialChangeDetectorTests.swift in Sources */,
 				1684141722282A1A00FCB9BC /* TransferStateMigrationTests.swift in Sources */,
 				16DF3B5F2289510600D09365 /* ZMConversationTests+Legalhold.swift in Sources */,
 				BFE3A96E1ED301020024A05B /* ZMConversationListTests+Teams.swift in Sources */,
