@@ -190,12 +190,7 @@ extension ZMConversation : ObjectInSnapshot {
     }
     
     static func changeInfo(for conversation: ZMConversation, changes: Changes) -> ConversationChangeInfo? {
-        guard changes.hasChangeInfo else { return nil }
-
-        let changeInfo = ConversationChangeInfo(object: conversation)
-        changeInfo.changeInfos = changes.originalChanges
-        changeInfo.changedKeys = changes.changedKeys
-        return changeInfo
+        return ConversationChangeInfo(object: conversation, changes: changes)
     }
 }
 
@@ -215,7 +210,7 @@ extension ConversationChangeInfo {
                                           object: conversation)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                let changeInfo = note.changeInfo?.explicitChanges as? ConversationChangeInfo
+                let changeInfo = note.changeInfo as? ConversationChangeInfo
                 else { return }
             
             observer.conversationDidChange(changeInfo)

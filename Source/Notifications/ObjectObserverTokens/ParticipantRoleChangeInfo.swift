@@ -39,12 +39,7 @@ final public class ParticipantRoleChangeInfo : ObjectChangeInfo {
     static let ParticipantRoleChangeInfoKey = "participantRoleChanges"
 
     static func changeInfo(for participantRole: ParticipantRole, changes: Changes) -> ParticipantRoleChangeInfo? {
-        guard changes.hasChangeInfo else { return nil }
-        
-        let changeInfo = ParticipantRoleChangeInfo(object: participantRole)
-        changeInfo.changeInfos = changes.originalChanges
-        changeInfo.changedKeys = changes.changedKeys
-        return changeInfo
+        return ParticipantRoleChangeInfo(object: participantRole, changes: changes)
     }
     
     public required init(object: NSObject) {
@@ -76,7 +71,7 @@ final public class ParticipantRoleChangeInfo : ObjectChangeInfo {
         return ManagedObjectObserverToken(name: .ParticipantRoleChange, managedObjectContext: managedObjectContext, object: participantRole)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                let changeInfo = note.changeInfo?.explicitChanges as? ParticipantRoleChangeInfo
+                let changeInfo = note.changeInfo as? ParticipantRoleChangeInfo
                 else { return }
             
             observer.participantRoleDidChange(changeInfo)

@@ -85,7 +85,7 @@ class SearchUserSnapshotTests : ZMBaseManagedObjectTest, ZMManagedObjectContextP
             context: self.uiMOC.notificationContext,
             object: searchUser
         ) { note in
-            guard let changeInfo = note.changeInfo?.explicitChanges as? UserChangeInfo else { return }
+            guard let changeInfo = note.changeInfo as? UserChangeInfo else { return }
             XCTAssertTrue(changeInfo.imageSmallProfileDataChanged)
             expectation.fulfill()
         }
@@ -117,7 +117,7 @@ class SearchUserSnapshotTests : ZMBaseManagedObjectTest, ZMManagedObjectContextP
             context: self.uiMOC.notificationContext,
             object: searchUser
         ) { note in
-            guard let changeInfo = note.changeInfo?.explicitChanges as? UserChangeInfo else { return }
+            guard let changeInfo = note.changeInfo as? UserChangeInfo else { return }
             XCTAssertTrue(changeInfo.connectionStateChanged)
             expectation.fulfill()
         }
@@ -152,7 +152,7 @@ class SearchUserSnapshotTests : ZMBaseManagedObjectTest, ZMManagedObjectContextP
             context: self.uiMOC.notificationContext,
             object: searchUser
         ) { note in
-            guard let changeInfo = note.changeInfo?.explicitChanges as? UserChangeInfo else { return }
+            guard let changeInfo = note.changeInfo as? UserChangeInfo else { return }
             XCTAssertTrue(changeInfo.connectionStateChanged)
             expectation.fulfill()
         }
@@ -306,7 +306,7 @@ class SearchUserObserverCenterTests : ModelObjectsTests, ZMManagedObjectContextP
             context: self.uiMOC.notificationContext,
             object: searchUser
         ) { note in
-            guard let changeInfo = note.changeInfo?.explicitChanges as? UserChangeInfo else { return }
+            guard let changeInfo = note.changeInfo as? UserChangeInfo else { return }
             XCTAssertTrue(changeInfo.imageMediumDataChanged)
             expectation.fulfill()
         }

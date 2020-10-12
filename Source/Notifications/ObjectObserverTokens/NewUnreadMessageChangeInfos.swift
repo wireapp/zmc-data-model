@@ -51,7 +51,7 @@ extension NewUnreadMessagesChangeInfo {
         return ManagedObjectObserverToken(name: .NewUnreadMessage, managedObjectContext: managedObjectContext)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                let changeInfo = note.changeInfo?.explicitChanges as? NewUnreadMessagesChangeInfo
+                let changeInfo = note.changeInfo as? NewUnreadMessagesChangeInfo
                 else { return }
             observer.didReceiveNewUnreadMessages(changeInfo)
         }
@@ -92,7 +92,7 @@ extension NewUnreadKnockMessagesChangeInfo {
         return ManagedObjectObserverToken(name: .NewUnreadKnock, managedObjectContext: managedObjectContext)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                let changeInfo = note.changeInfo?.explicitChanges as? NewUnreadKnockMessagesChangeInfo
+                let changeInfo = note.changeInfo as? NewUnreadKnockMessagesChangeInfo
                 else { return }
             observer.didReceiveNewUnreadKnockMessages(changeInfo)
         } 
@@ -135,7 +135,7 @@ extension NewUnreadUnsentMessageChangeInfo {
         return ManagedObjectObserverToken(name: .NewUnreadUnsentMessage, managedObjectContext: managedObjectContext)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                let changeInfo = note.changeInfo?.explicitChanges as? NewUnreadUnsentMessageChangeInfo
+                let changeInfo = note.changeInfo as? NewUnreadUnsentMessageChangeInfo
                 else { return }
             observer.didReceiveNewUnreadUnsentMessages(changeInfo)
         }

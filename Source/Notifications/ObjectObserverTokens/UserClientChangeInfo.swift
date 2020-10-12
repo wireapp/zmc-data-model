@@ -75,11 +75,7 @@ public enum UserClientChangeInfoKey: String {
     
     
     static func changeInfo(for client: UserClient, changes: Changes) -> UserClientChangeInfo? {
-        guard changes.changedKeys.count > 0 || changes.originalChanges.count > 0 else { return nil }
-        let changeInfo = UserClientChangeInfo(object: client)
-        changeInfo.changeInfos = changes.originalChanges
-        changeInfo.changedKeys = changes.changedKeys
-        return changeInfo
+        return UserClientChangeInfo(object: client, changes: changes)
     }
     
 }
@@ -99,7 +95,7 @@ extension UserClientChangeInfo {
         return ManagedObjectObserverToken(name: .UserClientChange, managedObjectContext: client.managedObjectContext!, object: client)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                let changeInfo = note.changeInfo?.explicitChanges as? UserClientChangeInfo
+                let changeInfo = note.changeInfo as? UserClientChangeInfo
                 else { return }
             
             observer.userClientDidChange(changeInfo)
