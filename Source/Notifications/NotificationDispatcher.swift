@@ -50,6 +50,10 @@ import CoreData
         didSet {
             guard operationMode != oldValue else { return }
             changeDetector = changeDetectorBuilder(operationMode)
+
+            if oldValue == .economical {
+                fireAllNotifications()
+            }
         }
     }
 
