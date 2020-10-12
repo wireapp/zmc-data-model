@@ -46,9 +46,10 @@ import CoreData
 
     /// Determines how detailed and frequent change notifications are fired.
 
-    public var operationMode = OperationMode.normal {
+    public var operationMode: OperationMode {
         didSet {
-            // TODO: [JOHN] switch detectors.
+            guard operationMode != oldValue else { return }
+            changeDetector = changeDetectorBuilder(operationMode)
         }
     }
 
@@ -79,6 +80,8 @@ import CoreData
 
     private var changeDetector: ChangeDetector
 
+    private let changeDetectorBuilder: (OperationMode) -> ChangeDetector
+
     private var unreadMessages = UnreadMessages()
 
 
@@ -92,27 +95,38 @@ import CoreData
 
         self.managedObjectContext = managedObjectContext
 
-        let classIdentifiers = [
-            ZMConversation.classIdentifier,
-            ZMUser.classIdentifier,
-            ZMConnection.classIdentifier,
-            UserClient.classIdentifier,
-            ZMMessage.classIdentifier,
-            ZMClientMessage.classIdentifier,
-            ZMAssetClientMessage.classIdentifier,
-            ZMSystemMessage.classIdentifier,
-            Reaction.classIdentifier,
-            ZMGenericMessageData.classIdentifier,
-            Team.classIdentifier,
-            Member.classIdentifier,
-            Label.classIdentifier,
-            ParticipantRole.classIdentifier
-        ]
+        changeDetectorBuilder = { operationMode in
+            switch operationMode {
+            case .normal:
+                let classIdentifiers = [
+                    ZMConversation.classIdentifier,
+                    ZMUser.classIdentifier,
+                    ZMConnection.classIdentifier,
+                    UserClient.classIdentifier,
+                    ZMMessage.classIdentifier,
+                    ZMClientMessage.classIdentifier,
+                    ZMAssetClientMessage.classIdentifier,
+                    ZMSystemMessage.classIdentifier,
+                    Reaction.classIdentifier,
+                    ZMGenericMessageData.classIdentifier,
+                    Team.classIdentifier,
+                    Member.classIdentifier,
+                    Label.classIdentifier,
+                    ParticipantRole.classIdentifier
+                ]
 
-        changeDetector = ExplicitChangeDetector(
-            classIdentifiers: classIdentifiers,
-            managedObjectContext: managedObjectContext
-        )
+                return ExplicitChangeDetector(
+                    classIdentifiers: classIdentifiers,
+                    managedObjectContext: managedObjectContext
+                )
+
+            case .economical:
+                return PotentialChangeDetector()
+            }
+        }
+
+        operationMode = .normal
+        changeDetector = changeDetectorBuilder(operationMode)
 
         super.init()
 
