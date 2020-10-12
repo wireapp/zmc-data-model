@@ -29,6 +29,10 @@ struct ModifiedObjects {
         return updated.union(refreshed)
     }
 
+    var allObjects: Set<ZMManagedObject> {
+        return [updated, refreshed, inserted, deleted].reduce(Set()) { $0.union($1) }
+    }
+
     init?(notification: Notification) {
         guard let userInfo = notification.userInfo as? [String: Any] else { return nil }
 

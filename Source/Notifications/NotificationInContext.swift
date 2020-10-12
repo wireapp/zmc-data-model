@@ -121,7 +121,7 @@ extension NotificationInContext {
     convenience public init(name: Notification.Name,
                 context: NotificationContext,
                 object: AnyObject? = nil,
-                changeInfo: ChangeInfo,
+                changeInfo: ObjectChangeInfo,
                 userInfo: [String: Any]? = nil)
     {
         var userInfo = userInfo ?? [:]
@@ -150,8 +150,8 @@ extension NotificationInContext {
             userInfo: userInfo)
     }
     
-    public var changeInfo: ChangeInfo? {
-        return self.userInfo[UserInfoKeys.changeInfo.rawValue] as? ChangeInfo
+    public var changeInfo: ObjectChangeInfo? {
+        return self.userInfo[UserInfoKeys.changeInfo.rawValue] as? ObjectChangeInfo
     }
     
     public var changedKeys: [String]? {

@@ -25,21 +25,24 @@ struct Changes: Mergeable {
 
     let changedKeys: Set<String>
     let originalChanges: [String: NSObject?]
+    let mayHaveUnknownChanges: Bool
 
     // MARK: - Life cycle
 
     init(
-        changedKeys: Set<String>,
-        originalChanges: [String: NSObject?] = [:]
+        changedKeys: Set<String> = [],
+        originalChanges: [String: NSObject?] = [:],
+        mayHaveUnknownChanges: Bool = false
     ) {
         self.changedKeys = changedKeys
         self.originalChanges = originalChanges
+        self.mayHaveUnknownChanges = mayHaveUnknownChanges
     }
 
     // MARK: - Methods
 
     var hasChangeInfo: Bool {
-        return !changedKeys.isEmpty || !originalChanges.isEmpty
+        return !changedKeys.isEmpty || !originalChanges.isEmpty || mayHaveUnknownChanges
     }
 
     func merged(with other: Changes) -> Changes {
@@ -47,7 +50,8 @@ struct Changes: Mergeable {
 
         return Changes(
             changedKeys: changedKeys.union(other.changedKeys),
-            originalChanges: originalChanges.updated(other: other.originalChanges)
+            originalChanges: originalChanges.updated(other: other.originalChanges),
+            mayHaveUnknownChanges: mayHaveUnknownChanges || other.mayHaveUnknownChanges
         )
     }
 

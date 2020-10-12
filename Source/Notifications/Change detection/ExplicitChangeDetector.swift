@@ -40,14 +40,14 @@ class ExplicitChangeDetector: ChangeDetector {
 
     // MARK: - Methods
 
-    func consumeChanges() -> [ChangeInfo] {
-        let changes = accumulatedChanges.compactMap { object, changes -> ChangeInfo? in
-            guard let changeInfo = ObjectChangeInfo.changeInfo(for: object, changes: changes) else { return nil }
-            return ChangeInfo.explicit(changes: changeInfo)
+    func consumeChanges() -> [ObjectChangeInfo] {
+        defer {
+            accumulatedChanges = [:]
         }
 
-        accumulatedChanges = [:]
-        return Array(changes)
+        return  accumulatedChanges.compactMap {
+            ObjectChangeInfo.changeInfo(for: $0, changes: $1)
+        }
     }
 
     func reset() {

@@ -40,11 +40,7 @@ extension Team : ObjectInSnapshot {
 @objcMembers public class TeamChangeInfo : ObjectChangeInfo {
     
     static func changeInfo(for team: Team, changes: Changes) -> TeamChangeInfo? {
-        guard changes.changedKeys.count > 0 || changes.originalChanges.count > 0 else { return nil }
-        let changeInfo = TeamChangeInfo(object: team)
-        changeInfo.changeInfos = changes.originalChanges
-        changeInfo.changedKeys = changes.changedKeys
-        return changeInfo
+        return TeamChangeInfo(object: team, changes: changes)
     }
     
     public required init(object: NSObject) {
@@ -95,7 +91,7 @@ extension TeamChangeInfo {
         return ManagedObjectObserverToken(name: .TeamChange, managedObjectContext: managedObjectContext, object: team)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                let changeInfo = note.changeInfo?.explicitChanges as? TeamChangeInfo
+                let changeInfo = note.changeInfo as? TeamChangeInfo
                 else { return }
             
             observer.teamDidChange(changeInfo)

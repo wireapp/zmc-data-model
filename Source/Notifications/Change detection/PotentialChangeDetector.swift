@@ -26,25 +26,13 @@ class PotentialChangeDetector: ChangeDetector {
 
     // MARK: - Methods
 
-    func consumeChanges() -> [ChangeInfo] {
-        var potentialChangesByObject = [ZMManagedObject: PotentialObjectChangeInfo.Changes]()
-
-        modifiedObjects.updatedAndRefreshed.forEach {
-            potentialChangesByObject[$0, default: []].insert(.updated)
+    func consumeChanges() -> [ObjectChangeInfo] {
+        defer {
+            reset()
         }
 
-        modifiedObjects.inserted.forEach {
-            potentialChangesByObject[$0, default: []].insert(.inserted)
-        }
-
-        modifiedObjects.deleted.forEach {
-            potentialChangesByObject[$0, default: []].insert(.deleted)
-        }
-
-        reset()
-
-        return potentialChangesByObject.map {
-            ChangeInfo.potential(changes: .init(object: $0, changes: $1))
+        return modifiedObjects.allObjects.compactMap {
+            ObjectChangeInfo.changeInfo(for: $0, changes: Changes(mayHaveUnknownChanges: true))
         }
     }
 

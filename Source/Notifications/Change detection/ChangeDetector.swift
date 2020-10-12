@@ -31,7 +31,7 @@ protocol ChangeDetector {
 
     /// Consume the accumulated changes.
 
-    func consumeChanges() -> [ChangeInfo]
+    func consumeChanges() -> [ObjectChangeInfo]
 
     /// Reset the local state.
 

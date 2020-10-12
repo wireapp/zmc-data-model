@@ -294,16 +294,11 @@ import CoreData
                 changeInfo: changeInfo
             )
 
-            guard
-                let managedObject = changeInfo.object as? ZMManagedObject,
-                let explicitChanges = changeInfo.explicitChanges
-            else {
-                return
-            }
+            guard let managedObject = changeInfo.object as? ZMManagedObject else { return }
 
             let classIdentifier = managedObject.classIdentifier
             var previousChanges = explicitChangesByClass[classIdentifier] ?? []
-            previousChanges.append(explicitChanges)
+            previousChanges.append(changeInfo)
             explicitChangesByClass[classIdentifier] = previousChanges
         }
 
@@ -313,7 +308,7 @@ import CoreData
 
     private func fireNewUnreadMessagesNotifications(unreadMessages: UnreadMessages) {
         unreadMessages.changeInfoByNotification.forEach {
-            postNotification(name: $0, changeInfo: .explicit(changes: $1))
+            postNotification(name: $0, changeInfo: $1)
         }
     }
     
@@ -326,7 +321,7 @@ import CoreData
     private func postNotification(
         name: Notification.Name,
         object: AnyObject? = nil,
-        changeInfo: ChangeInfo
+        changeInfo: ObjectChangeInfo
     ) {
         NotificationInContext(
             name: name,

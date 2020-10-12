@@ -37,11 +37,7 @@ extension Label : ObjectInSnapshot {
     public let label: LabelType
     
     static func changeInfo(for label: Label, changes: Changes) -> LabelChangeInfo? {
-        guard changes.changedKeys.count > 0 || changes.originalChanges.count > 0 else { return nil }
-        let changeInfo = LabelChangeInfo(object: label)
-        changeInfo.changeInfos = changes.originalChanges
-        changeInfo.changedKeys = changes.changedKeys
-        return changeInfo
+        return LabelChangeInfo(object: label, changes: changes)
     }
     
     public required init(object: NSObject) {
@@ -88,7 +84,7 @@ extension LabelChangeInfo {
         return ManagedObjectObserverToken(name: .LabelChange, managedObjectContext: managedObjectContext, object: label)
         { [weak observer] (note) in
             guard let `observer` = observer,
-                let changeInfo = note.changeInfo?.explicitChanges as? LabelChangeInfo
+                let changeInfo = note.changeInfo as? LabelChangeInfo
                 else { return }
             
             observer.labelDidChange(changeInfo)

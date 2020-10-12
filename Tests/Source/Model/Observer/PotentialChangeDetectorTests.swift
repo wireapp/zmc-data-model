@@ -78,13 +78,14 @@ final class PotentialChangeDetectorTests: BaseZMMessageTests {
         sut.detectChanges(for: modifiedObjects)
 
         // Then
-        let changes = sut.consumeChanges().compactMap(\.potentialChanges)
+        let changes = sut.consumeChanges()
 
         XCTAssertEqual(changes.count, 4)
-        XCTAssertTrue(changes.contains(.init(object: updatedObject, changes: .updated)))
-        XCTAssertTrue(changes.contains(.init(object: refreshedObject, changes: .updated)))
-        XCTAssertTrue(changes.contains(.init(object: insertedObject, changes: .inserted)))
-        XCTAssertTrue(changes.contains(.init(object: deletedObject, changes: .deleted)))
+        XCTAssertTrue(changes.allSatisfy(\.considerAllKeysChanged))
+        XCTAssertTrue(changes.contains { $0.object === updatedObject })
+        XCTAssertTrue(changes.contains { $0.object === refreshedObject })
+        XCTAssertTrue(changes.contains { $0.object === insertedObject })
+        XCTAssertTrue(changes.contains { $0.object === deletedObject })
     }
 
     func test_it_accumulates_detected_changes() {
@@ -99,54 +100,44 @@ final class PotentialChangeDetectorTests: BaseZMMessageTests {
         sut.detectChanges(for:
             ModifiedObjects(
                 updated: [object1],
-                refreshed: [object2],
-                inserted: [object3],
-                deleted: [object4]
+                refreshed: [object2]
             )
         )
 
         sut.detectChanges(for:
             ModifiedObjects(
-                updated: [object4],
-                refreshed: [object3],
-                inserted: [object2],
-                deleted: [object1]
+                inserted: [object3],
+                deleted: [object4]
             )
         )
 
         // Then
-        let changes = sut.consumeChanges().compactMap(\.potentialChanges)
+        let changes = sut.consumeChanges()
 
         XCTAssertEqual(changes.count, 4)
-        XCTAssertTrue(changes.contains(.init(object: object1, changes: [.updated, .deleted])))
-        XCTAssertTrue(changes.contains(.init(object: object2, changes: [.updated, .inserted])))
-        XCTAssertTrue(changes.contains(.init(object: object3, changes: [.inserted, .updated])))
-        XCTAssertTrue(changes.contains(.init(object: object4, changes: [.deleted, .updated])))
+        XCTAssertTrue(changes.allSatisfy(\.considerAllKeysChanged))
+        XCTAssertTrue(changes.contains { $0.object === object1 })
+        XCTAssertTrue(changes.contains { $0.object === object2 })
+        XCTAssertTrue(changes.contains { $0.object === object3 })
+        XCTAssertTrue(changes.contains { $0.object === object4 })
     }
 
     func test_it_adds_changes() {
         // Given
         let sut = Sut()
-        let object1 = createObject()
+        let object = createObject()
 
         // When
         // Changed keys are irrelevant because we're only interested that there was a change.
-        sut.add(changes: Changes(changedKeys: []), for: object1)
+        sut.add(changes: Changes(changedKeys: []), for: object)
 
         // Then
-        let changes = sut.consumeChanges().compactMap(\.potentialChanges)
+        let changes = sut.consumeChanges()
 
         XCTAssertEqual(changes.count, 1)
-        XCTAssertTrue(changes.contains(.init(object: object1, changes: .updated)))
+        XCTAssertTrue(changes[0].considerAllKeysChanged)
+        XCTAssertTrue(changes[0].object === object)
     }
 
-
-}
-
-extension PotentialObjectChangeInfo: Equatable {
-
-    public static func == (lhs: PotentialObjectChangeInfo, rhs: PotentialObjectChangeInfo) -> Bool {
-        return lhs.object === rhs.object && lhs.changes == rhs.changes
-    }
 
 }
