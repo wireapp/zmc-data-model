@@ -188,7 +188,6 @@ import CoreData
 
     @objc func objectsDidChange(_ note: Notification) {
         guard isEnabled else { return }
-        forwardChangesToConversationListObserver(note: note)
         process(note: note)
     }
 
@@ -269,22 +268,21 @@ import CoreData
         allChangeInfoConsumers.forEach { $0.startObserving() }
     }
 
-    private func forwardChangesToConversationListObserver(note: Notification) {
-        guard let userInfo = note.userInfo as? [String: Any] else { return }
-        
-        let insertedLabels = (userInfo[NSInsertedObjectsKey] as? Set<NSManagedObject>)?.compactMap{$0 as? Label} ?? []
-        let deletedLabels = (userInfo[NSDeletedObjectsKey] as? Set<NSManagedObject>)?.compactMap{$0 as? Label} ?? []
-        conversationListObserverCenter.folderChanges(inserted: insertedLabels, deleted: deletedLabels)
-        
-        let insertedConversations = (userInfo[NSInsertedObjectsKey] as? Set<NSManagedObject>)?.compactMap{$0 as? ZMConversation} ?? []
-        let deletedConversations = (userInfo[NSDeletedObjectsKey] as? Set<NSManagedObject>)?.compactMap{$0 as? ZMConversation} ?? []
-        conversationListObserverCenter.conversationsChanges(inserted: insertedConversations, deleted: deletedConversations)
-    }
-
     private func process(note: Notification) {
         guard let objects = ModifiedObjects(notification: note) else { return }
-        changeDetector.detectChanges(for: objects)
+        forwardChangesToConversationListObserver(modifiedObjects: objects)
         checkForUnreadMessages(insertedObjects: objects.inserted, updatedObjects: objects.updated)
+        changeDetector.detectChanges(for: objects)
+    }
+
+    private func forwardChangesToConversationListObserver(modifiedObjects: ModifiedObjects) {
+        let insertedLabels = modifiedObjects.inserted.compactMap { $0 as? Label }
+        let deletedLabels = modifiedObjects.deleted.compactMap { $0 as? Label }
+        conversationListObserverCenter.folderChanges(inserted: insertedLabels, deleted: deletedLabels)
+
+        let insertedConversations = modifiedObjects.inserted.compactMap { $0 as? ZMConversation }
+        let deletedConversations = modifiedObjects.deleted.compactMap { $0 as? ZMConversation }
+        conversationListObserverCenter.conversationsChanges(inserted: insertedConversations, deleted: deletedConversations)
     }
 
     private func checkForUnreadMessages(insertedObjects: Set<ZMManagedObject>, updatedObjects: Set<ZMManagedObject>){
