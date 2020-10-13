@@ -223,7 +223,6 @@ import CoreData
 
     // MARK: - Methods
 
-    // FIXME: [John] This is only used in Swift test. Either make non objc or remove entirely.
     /// Add the given consumer to receive forwarded `ChangeInfo`s.
 
     @objc public func addChangeInfoConsumer(_ consumer: ChangeInfoConsumer) {

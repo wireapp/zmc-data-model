@@ -27,7 +27,6 @@ public extension NotificationDispatcher {
     /// The normal operation mode is a relatively expensive operation and may cause
     /// a considerably large amount of observer code to be triggered. If several
     /// changes are made to the database, you may wish to switch to the `econmical` mode.
-    ///
 
     enum OperationMode {
 
