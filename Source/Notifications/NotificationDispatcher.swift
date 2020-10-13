@@ -49,11 +49,12 @@ import CoreData
     public var operationMode: OperationMode {
         didSet {
             guard operationMode != oldValue else { return }
-            changeDetector = changeDetectorBuilder(operationMode)
 
             if oldValue == .economical {
                 fireAllNotifications()
             }
+
+            changeDetector = changeDetectorBuilder(operationMode)
         }
     }
 
