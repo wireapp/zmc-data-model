@@ -193,7 +193,7 @@ import CoreData
 
     @objc func contextDidSave(_ note: Notification) {
         guard isEnabled else { return }
-        fireAllNotifications()
+        fireAllNotificationsIfAllowed()
     }
     
     /// This will be called if a change to an object does not cause a change in Core Data,
@@ -209,6 +209,8 @@ import CoreData
         }
 
         changeDetector.add(changes: Changes(changedKeys: Set(changedKeys)), for: object)
+
+        guard shouldFireNotifications else { return }
 
         if managedObjectContext.zm_hasChanges {
             // Fire notifications via a save.
@@ -238,7 +240,8 @@ import CoreData
         }
 
         changeDetector.detectChanges(for: ModifiedObjects(updated: Set(changedObjects)))
-        fireAllNotifications()
+
+        fireAllNotificationsIfAllowed()
     }
 
     /// This can safely be called from any thread as it will switch to uiContext internally.
@@ -305,6 +308,15 @@ import CoreData
         unreadMessages.unsent.formUnion(unreadUnsent)
         unreadMessages.messages.formUnion(newUnreadMessages)
         unreadMessages.knocks.formUnion(newUnreadKnocks)
+    }
+
+    private func fireAllNotificationsIfAllowed() {
+        guard shouldFireNotifications else { return }
+        fireAllNotifications()
+    }
+
+    private var shouldFireNotifications: Bool {
+        return operationMode != .economical
     }
 
     private func fireAllNotifications() {
