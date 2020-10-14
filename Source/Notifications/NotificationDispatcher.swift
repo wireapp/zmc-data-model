@@ -44,6 +44,20 @@ import CoreData
         }
     }
 
+    /// Determines how detailed and frequent change notifications are fired.
+
+    public var operationMode: OperationMode {
+        didSet {
+            guard operationMode != oldValue else { return }
+
+            if oldValue == .economical {
+                fireAllNotifications()
+            }
+
+            changeDetector = changeDetectorBuilder(operationMode)
+        }
+    }
+
     // MARK: - Private properties
 
     private unowned var managedObjectContext: NSManagedObjectContext
@@ -71,6 +85,8 @@ import CoreData
 
     private var changeDetector: ChangeDetector
 
+    private let changeDetectorBuilder: (OperationMode) -> ChangeDetector
+
     private var unreadMessages = UnreadMessages()
 
 
@@ -84,27 +100,38 @@ import CoreData
 
         self.managedObjectContext = managedObjectContext
 
-        let classIdentifiers = [
-            ZMConversation.classIdentifier,
-            ZMUser.classIdentifier,
-            ZMConnection.classIdentifier,
-            UserClient.classIdentifier,
-            ZMMessage.classIdentifier,
-            ZMClientMessage.classIdentifier,
-            ZMAssetClientMessage.classIdentifier,
-            ZMSystemMessage.classIdentifier,
-            Reaction.classIdentifier,
-            ZMGenericMessageData.classIdentifier,
-            Team.classIdentifier,
-            Member.classIdentifier,
-            Label.classIdentifier,
-            ParticipantRole.classIdentifier
-        ]
+        changeDetectorBuilder = { operationMode in
+            switch operationMode {
+            case .normal:
+                let classIdentifiers = [
+                    ZMConversation.classIdentifier,
+                    ZMUser.classIdentifier,
+                    ZMConnection.classIdentifier,
+                    UserClient.classIdentifier,
+                    ZMMessage.classIdentifier,
+                    ZMClientMessage.classIdentifier,
+                    ZMAssetClientMessage.classIdentifier,
+                    ZMSystemMessage.classIdentifier,
+                    Reaction.classIdentifier,
+                    ZMGenericMessageData.classIdentifier,
+                    Team.classIdentifier,
+                    Member.classIdentifier,
+                    Label.classIdentifier,
+                    ParticipantRole.classIdentifier
+                ]
 
-        changeDetector = ExplicitChangeDetector(
-            classIdentifiers: classIdentifiers,
-            managedObjectContext: managedObjectContext
-        )
+                return ExplicitChangeDetector(
+                    classIdentifiers: classIdentifiers,
+                    managedObjectContext: managedObjectContext
+                )
+
+            case .economical:
+                return PotentialChangeDetector()
+            }
+        }
+
+        operationMode = .normal
+        changeDetector = changeDetectorBuilder(operationMode)
 
         super.init()
 
@@ -161,13 +188,12 @@ import CoreData
 
     @objc func objectsDidChange(_ note: Notification) {
         guard isEnabled else { return }
-        forwardChangesToConversationListObserver(note: note)
         process(note: note)
     }
 
     @objc func contextDidSave(_ note: Notification) {
         guard isEnabled else { return }
-        fireAllNotifications()
+        fireAllNotificationsIfAllowed()
     }
     
     /// This will be called if a change to an object does not cause a change in Core Data,
@@ -184,6 +210,8 @@ import CoreData
 
         changeDetector.add(changes: Changes(changedKeys: Set(changedKeys)), for: object)
 
+        guard shouldFireNotifications else { return }
+
         if managedObjectContext.zm_hasChanges {
             // Fire notifications via a save.
             managedObjectContext.enqueueDelayedSave()
@@ -194,7 +222,6 @@ import CoreData
 
     // MARK: - Methods
 
-    // FIXME: [John] This is only used in Swift test. Either make non objc or remove entirely.
     /// Add the given consumer to receive forwarded `ChangeInfo`s.
 
     @objc public func addChangeInfoConsumer(_ consumer: ChangeInfoConsumer) {
@@ -212,7 +239,8 @@ import CoreData
         }
 
         changeDetector.detectChanges(for: ModifiedObjects(updated: Set(changedObjects)))
-        fireAllNotifications()
+
+        fireAllNotificationsIfAllowed()
     }
 
     /// This can safely be called from any thread as it will switch to uiContext internally.
@@ -240,22 +268,21 @@ import CoreData
         allChangeInfoConsumers.forEach { $0.startObserving() }
     }
 
-    private func forwardChangesToConversationListObserver(note: Notification) {
-        guard let userInfo = note.userInfo as? [String: Any] else { return }
-        
-        let insertedLabels = (userInfo[NSInsertedObjectsKey] as? Set<NSManagedObject>)?.compactMap{$0 as? Label} ?? []
-        let deletedLabels = (userInfo[NSDeletedObjectsKey] as? Set<NSManagedObject>)?.compactMap{$0 as? Label} ?? []
-        conversationListObserverCenter.folderChanges(inserted: insertedLabels, deleted: deletedLabels)
-        
-        let insertedConversations = (userInfo[NSInsertedObjectsKey] as? Set<NSManagedObject>)?.compactMap{$0 as? ZMConversation} ?? []
-        let deletedConversations = (userInfo[NSDeletedObjectsKey] as? Set<NSManagedObject>)?.compactMap{$0 as? ZMConversation} ?? []
-        conversationListObserverCenter.conversationsChanges(inserted: insertedConversations, deleted: deletedConversations)
-    }
-
     private func process(note: Notification) {
         guard let objects = ModifiedObjects(notification: note) else { return }
-        changeDetector.detectChanges(for: objects)
+        forwardChangesToConversationListObserver(modifiedObjects: objects)
         checkForUnreadMessages(insertedObjects: objects.inserted, updatedObjects: objects.updated)
+        changeDetector.detectChanges(for: objects)
+    }
+
+    private func forwardChangesToConversationListObserver(modifiedObjects: ModifiedObjects) {
+        let insertedLabels = modifiedObjects.inserted.compactMap { $0 as? Label }
+        let deletedLabels = modifiedObjects.deleted.compactMap { $0 as? Label }
+        conversationListObserverCenter.folderChanges(inserted: insertedLabels, deleted: deletedLabels)
+
+        let insertedConversations = modifiedObjects.inserted.compactMap { $0 as? ZMConversation }
+        let deletedConversations = modifiedObjects.deleted.compactMap { $0 as? ZMConversation }
+        conversationListObserverCenter.conversationsChanges(inserted: insertedConversations, deleted: deletedConversations)
     }
 
     private func checkForUnreadMessages(insertedObjects: Set<ZMManagedObject>, updatedObjects: Set<ZMManagedObject>){
@@ -279,6 +306,15 @@ import CoreData
         unreadMessages.unsent.formUnion(unreadUnsent)
         unreadMessages.messages.formUnion(newUnreadMessages)
         unreadMessages.knocks.formUnion(newUnreadKnocks)
+    }
+
+    private func fireAllNotificationsIfAllowed() {
+        guard shouldFireNotifications else { return }
+        fireAllNotifications()
+    }
+
+    private var shouldFireNotifications: Bool {
+        return operationMode != .economical
     }
 
     private func fireAllNotifications() {
