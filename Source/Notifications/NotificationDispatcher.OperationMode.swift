@@ -30,7 +30,7 @@ public extension NotificationDispatcher {
 
     enum OperationMode {
 
-        /// Change detection is highly detailed and observers are notified infrequntly.
+        /// Change detection is highly detailed and observers are notified frequently.
 
         case normal
 
