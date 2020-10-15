@@ -319,7 +319,7 @@ import CoreData
 
     private func fireAllNotifications() {
         let detectedChanges = changeDetector.consumeChanges()
-        var explicitChangesByClass = [ClassIdentifier: [ObjectChangeInfo]]()
+        var changesByClass = [ClassIdentifier: [ObjectChangeInfo]]()
 
         detectedChanges.forEach { changeInfo in
             guard let objectInSnapshot = changeInfo.object as? ObjectInSnapshot else { return }
@@ -333,12 +333,12 @@ import CoreData
             guard let managedObject = changeInfo.object as? ZMManagedObject else { return }
 
             let classIdentifier = managedObject.classIdentifier
-            var previousChanges = explicitChangesByClass[classIdentifier] ?? []
+            var previousChanges = changesByClass[classIdentifier] ?? []
             previousChanges.append(changeInfo)
-            explicitChangesByClass[classIdentifier] = previousChanges
+            changesByClass[classIdentifier] = previousChanges
         }
 
-        forwardNotificationToObserverCenters(changeInfos: explicitChangesByClass)
+        forwardNotificationToObserverCenters(changeInfos: changesByClass)
         fireNewUnreadMessagesNotifications(unreadMessages: unreadMessages)
     }
 
