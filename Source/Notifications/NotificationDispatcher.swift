@@ -50,8 +50,13 @@ import CoreData
         didSet {
             guard operationMode != oldValue else { return }
 
+            if operationMode == .economical {
+                conversationListObserverCenter.stopObserving()
+            }
+
             if oldValue == .economical {
                 fireAllNotifications()
+                conversationListObserverCenter.startObserving()
             }
 
             changeDetector = changeDetectorBuilder(operationMode)
