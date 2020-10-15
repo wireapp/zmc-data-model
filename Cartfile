@@ -1,6 +1,6 @@
-github "wireapp/wire-ios-cryptobox" ~> 23.0
-github "wireapp/wire-ios-protos" ~> "chore/xcode12"
+github "wireapp/wire-ios-cryptobox" ~> 23.3
+github "wireapp/wire-ios-protos" "chore/xcode12"
 github "wireapp/wire-ios-images" ~> 31.0
 github "wireapp/PINCache" "2.3-swift3.1"
-github "wireapp/wire-ios-transport" ~> 71.0
-github "wireapp/wire-ios-link-preview" ~> 27.1
+github "wireapp/wire-ios-transport" "chore/xcode12"
+github "wireapp/wire-ios-link-preview" "chore/xcode12"
