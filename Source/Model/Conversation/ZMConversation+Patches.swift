@@ -32,8 +32,12 @@ extension ZMConversation {
     /// at any point in the past had been secure
     static func migrateAllSecureWithIgnored(in moc: NSManagedObjectContext) {
         let predicate = ZMConversation.predicateSecureWithIgnored()
-        let request = ZMConversation.sortedFetchRequest(with: predicate)
-        let allConversations = moc.executeFetchRequestOrAssert(request) as! [ZMConversation]
+
+        guard let request = ZMConversation.sortedFetchRequest(with: predicate),
+              let allConversations = moc.fetchOrAssert(request: request) as? [ZMConversation] else {
+                fatal("fetchOrAssert failed")
+                return
+        }
 
         for conversation in allConversations {
             conversation.securityLevel = .notSecure
@@ -53,9 +57,12 @@ extension ZMConversation {
     static func migrateIsSelfAnActiveMemberToTheParticipantRoles(in moc: NSManagedObjectContext) {
         let selfUser = ZMUser.selfUser(in: moc)
         
-        let request = ZMConversation.sortedFetchRequest()
-        let allConversations = moc.executeFetchRequestOrAssert(request) as! [ZMConversation]
-        
+        guard let request = ZMConversation.sortedFetchRequest(),
+              let allConversations = moc.fetchOrAssert(request: request) as? [ZMConversation] else {
+                fatal("fetchOrAssert failed")
+            return
+        }
+                
         for conversation in allConversations {
             
             let oldKey = "isSelfAnActiveMember"
