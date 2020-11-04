@@ -121,7 +121,7 @@ extension ZMConversation {
                     with: NSPredicate(format: "%K == %d",
                               ZMConversationConversationTypeKey,
                               ZMConversationType.group.rawValue)),
-            let conversations = moc.executeFetchRequestOrAssert(groupConversationsFetch) as? [ZMConversation] else {
+            let conversations = moc.fetchOrAssert(request: groupConversationsFetch) as? [ZMConversation] else {
                 fatal("fetchOrAssert failed")
         }
         
@@ -142,7 +142,7 @@ extension ZMConversation {
         let oldKey = "lastServerSyncedActiveParticipants"
         
         guard let request = ZMConversation.sortedFetchRequest(),
-              let conversations = moc.executeFetchRequestOrAssert(request) as? [ZMConversation] else {
+            let conversations = moc.fetchOrAssert(request: request) as? [ZMConversation] else {
                 fatal("fetchOrAssert failed")
         }
         
