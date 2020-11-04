@@ -40,7 +40,7 @@ final class ConversationTests: ZMConversationTestsBase {
         // when
         
         let request = ZMConversation.sortedFetchRequest(with: ZMConversation.predicate(forSearchQuery: "@Sømebôdy", selfUser: selfUser))
-        let result = uiMOC.executeFetchRequestOrAssert(request!)
+        let result = uiMOC.executeFetchRequestOrAssert(request)
         
         // then
         XCTAssertEqual(result.count, 1)
@@ -54,7 +54,7 @@ final class ConversationTests: ZMConversationTestsBase {
         // when
         
         let request = ZMConversation.sortedFetchRequest(with: ZMConversation.predicate(forSearchQuery: "Sømebôdy", selfUser: selfUser))
-        let result = uiMOC.executeFetchRequestOrAssert(request!)
+        let result = uiMOC.executeFetchRequestOrAssert(request)
         
         // then
         XCTAssertEqual(result.count, 1)
@@ -68,7 +68,7 @@ final class ConversationTests: ZMConversationTestsBase {
         // when
         
         let request = ZMConversation.sortedFetchRequest(with: ZMConversation.predicate(forSearchQuery: "Sømebôdy ", selfUser: selfUser))
-        let result = uiMOC.executeFetchRequestOrAssert(request!)
+        let result = uiMOC.executeFetchRequestOrAssert(request)
         
         // then
         XCTAssertEqual(result.count, 1)
@@ -83,7 +83,7 @@ final class ConversationTests: ZMConversationTestsBase {
         // when
         
         let request = ZMConversation.sortedFetchRequest(with: ZMConversation.predicate(forSearchQuery: "Sømebôdy to", selfUser: selfUser))
-        let result = uiMOC.executeFetchRequestOrAssert(request!)
+        let result = uiMOC.executeFetchRequestOrAssert(request)
         
         // then
         XCTAssertEqual(result.count, 1)
@@ -218,7 +218,7 @@ extension ConversationTests {
             
             let conversation = ZMConversation.insertNewObject(in: self.syncMOC)
             conversation.remoteIdentifier = UUID.create()
-            let message = try! conversation.appendImage(from: self.verySmallJPEGData(), nonce: messageID) as! ZMConversationMessage
+            let message = try! conversation.appendImage(from: self.verySmallJPEGData(), nonce: messageID) 
             
             // store asset data
             self.syncMOC.zm_fileAssetCache.storeAssetData(message, format: ZMImageFormat.original, encrypted: false, data: imageData)

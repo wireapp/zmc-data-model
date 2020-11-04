@@ -33,8 +33,9 @@ extension ZMConversation {
     static func migrateAllSecureWithIgnored(in moc: NSManagedObjectContext) {
         let predicate = ZMConversation.predicateSecureWithIgnored()
 
-        guard let request = ZMConversation.sortedFetchRequest(with: predicate),
-              let allConversations = moc.fetchOrAssert(request: request) as? [ZMConversation] else {
+        let request = ZMConversation.sortedFetchRequest(with: predicate)
+        
+        guard let allConversations = moc.fetchOrAssert(request: request) as? [ZMConversation] else {
             fatal("fetchOrAssert failed")
         }
 
@@ -56,8 +57,9 @@ extension ZMConversation {
     static func migrateIsSelfAnActiveMemberToTheParticipantRoles(in moc: NSManagedObjectContext) {
         let selfUser = ZMUser.selfUser(in: moc)
         
-        guard let request = ZMConversation.sortedFetchRequest(),
-              let allConversations = moc.fetchOrAssert(request: request) as? [ZMConversation] else {
+        let request = ZMConversation.sortedFetchRequest()
+        
+        guard let allConversations = moc.fetchOrAssert(request: request) as? [ZMConversation] else {
             fatal("fetchOrAssert failed")
         }
                 
@@ -116,12 +118,12 @@ extension ZMConversation {
         // Mark group conversation membership to be refetched
         let selfUser = ZMUser.selfUser(in: moc)
         
-        
-        guard let groupConversationsFetch = ZMConversation.sortedFetchRequest(
-                    with: NSPredicate(format: "%K == %d",
+        let groupConversationsFetch = ZMConversation.sortedFetchRequest(
+            with: NSPredicate(format: "%K == %d",
                               ZMConversationConversationTypeKey,
-                              ZMConversationType.group.rawValue)),
-            let conversations = moc.fetchOrAssert(request: groupConversationsFetch) as? [ZMConversation] else {
+                              ZMConversationType.group.rawValue))
+        
+        guard let conversations = moc.fetchOrAssert(request: groupConversationsFetch) as? [ZMConversation] else {
                 fatal("fetchOrAssert failed")
         }
         
@@ -141,8 +143,9 @@ extension ZMConversation {
         
         let oldKey = "lastServerSyncedActiveParticipants"
         
-        guard let request = ZMConversation.sortedFetchRequest(),
-            let conversations = moc.fetchOrAssert(request: request) as? [ZMConversation] else {
+        let request = ZMConversation.sortedFetchRequest()
+        
+        guard let conversations = moc.fetchOrAssert(request: request) as? [ZMConversation] else {
                 fatal("fetchOrAssert failed")
         }
         

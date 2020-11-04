@@ -176,9 +176,8 @@ extension ZMConversation {
             sameParticipant
         ])
         
-        guard let request = self.sortedFetchRequest(with: compoundPredicate) else {
-            fatal("fetchOrAssert failed")
-        }
+        let request = self.sortedFetchRequest(with: compoundPredicate)
+
         return moc.fetchOrAssert(request: request).first as? ZMConversation
     }
 }

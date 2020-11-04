@@ -707,9 +707,7 @@ extension ZMSystemMessage {
         let containsSelfClient = NSPredicate(format: "ANY %K == %@", ZMMessageSystemMessageClientsKey, selfClient)
         let compound = NSCompoundPredicate(andPredicateWithSubpredicates: [conversationPredicate, newClientPredicate, containsSelfClient])
         
-        guard let fetchRequest = ZMSystemMessage.sortedFetchRequest(with: compound) else {
-            fatal("fetchOrAssert failed")
-        }
+        let fetchRequest = ZMSystemMessage.sortedFetchRequest(with: compound)
         
         let result = conversation.managedObjectContext!.fetchOrAssert(request: fetchRequest)
         return result.first as? ZMSystemMessage

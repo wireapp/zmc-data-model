@@ -26,8 +26,9 @@ extension Team {
     // a multi account setup, we need to delete all local teams. Members will be deleted due to the cascade
     // deletion rule (Team → Member). Conversations will be preserved but their teams realtion will be nullified.
     static func deleteLocalTeamsAndMembers(in context: NSManagedObjectContext) {
-        guard let request = Team.sortedFetchRequest(),
-              let teams = context.fetchOrAssert(request: request) as? [NSManagedObject] else { return                
+        let request = Team.sortedFetchRequest()
+        
+        guard let teams = context.fetchOrAssert(request: request) as? [NSManagedObject] else { return                
         }
         teams.forEach(context.delete)
     }
