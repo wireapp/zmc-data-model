@@ -55,7 +55,7 @@ final class DatabaseMigrationTests: DatabaseBaseTest {
         let userFetchRequest = ZMUser.sortedFetchRequest()!
         userFetchRequest.resultType = .dictionaryResultType
         userFetchRequest.propertiesToFetch = self.userPropertiesToFetch
-        let userDictionaries = directory.uiContext.executeFetchRequestOrAssert(userFetchRequest)!
+        let userDictionaries = directory.uiContext.executeFetchRequestOrAssert(userFetchRequest)
         
         XCTAssertEqual(conversationCount, 13)
         XCTAssertEqual(messageCount, 1681)
@@ -90,7 +90,7 @@ final class DatabaseMigrationTests: DatabaseBaseTest {
         let userFetchRequest = ZMUser.sortedFetchRequest()!
         userFetchRequest.resultType = .dictionaryResultType
         userFetchRequest.propertiesToFetch = self.userPropertiesToFetch
-        let userDictionaries = directory.uiContext.executeFetchRequestOrAssert(userFetchRequest)!
+        let userDictionaries = directory.uiContext.executeFetchRequestOrAssert(userFetchRequest)
         
         // THEN
         XCTAssertEqual(conversationCount, 18)
@@ -122,7 +122,7 @@ final class DatabaseMigrationTests: DatabaseBaseTest {
         let userFetchRequest = ZMUser.sortedFetchRequest()!
         userFetchRequest.resultType = .dictionaryResultType
         userFetchRequest.propertiesToFetch = self.userPropertiesToFetch
-        let userDictionaries = directory.uiContext.executeFetchRequestOrAssert(userFetchRequest)!
+        let userDictionaries = directory.uiContext.executeFetchRequestOrAssert(userFetchRequest)
         
         // THEN
         XCTAssertEqual(conversationCount, 3)
@@ -154,7 +154,7 @@ final class DatabaseMigrationTests: DatabaseBaseTest {
         let userFetchRequest = ZMUser.sortedFetchRequest()!
         userFetchRequest.resultType = .dictionaryResultType
         userFetchRequest.propertiesToFetch = self.userPropertiesToFetch
-        let userDictionaries = directory.uiContext.executeFetchRequestOrAssert(userFetchRequest)!
+        let userDictionaries = directory.uiContext.executeFetchRequestOrAssert(userFetchRequest)
         
         // THEN
         XCTAssertEqual(conversationCount, 2)
@@ -186,7 +186,7 @@ final class DatabaseMigrationTests: DatabaseBaseTest {
         let userFetchRequest = ZMUser.sortedFetchRequest()!
         userFetchRequest.resultType = .dictionaryResultType
         userFetchRequest.propertiesToFetch = self.userPropertiesToFetch
-        let userDictionaries = directory.uiContext.executeFetchRequestOrAssert(userFetchRequest)!
+        let userDictionaries = directory.uiContext.executeFetchRequestOrAssert(userFetchRequest)
         
         // THEN
         XCTAssertEqual(conversationCount, 2)
@@ -219,7 +219,7 @@ final class DatabaseMigrationTests: DatabaseBaseTest {
         let userFetchRequest = ZMUser.sortedFetchRequest()!
         userFetchRequest.resultType = .dictionaryResultType
         userFetchRequest.propertiesToFetch = self.userPropertiesToFetch
-        let userDictionaries = directory.uiContext.executeFetchRequestOrAssert(userFetchRequest)!
+        let userDictionaries = directory.uiContext.executeFetchRequestOrAssert(userFetchRequest)
         
         // THEN
         XCTAssertEqual(assetClientMessagesCount, 5)
@@ -253,7 +253,7 @@ final class DatabaseMigrationTests: DatabaseBaseTest {
         let userFetchRequest = ZMUser.sortedFetchRequest()!
         userFetchRequest.resultType = .dictionaryResultType
         userFetchRequest.propertiesToFetch = self.userPropertiesToFetch
-        let userDictionaries = directory.uiContext.executeFetchRequestOrAssert(userFetchRequest)!
+        let userDictionaries = directory.uiContext.executeFetchRequestOrAssert(userFetchRequest)
         
         // THEN
         XCTAssertEqual(assetClientMessagesCount, 0)
@@ -288,7 +288,7 @@ final class DatabaseMigrationTests: DatabaseBaseTest {
             let userFetchRequest = ZMUser.sortedFetchRequest()!
             userFetchRequest.resultType = .dictionaryResultType
             userFetchRequest.propertiesToFetch = self.userPropertiesToFetch
-            let userDictionaries = directory.uiContext.executeFetchRequestOrAssert(userFetchRequest)!
+            let userDictionaries = directory.uiContext.executeFetchRequestOrAssert(userFetchRequest)
             
             // THEN
             XCTAssertEqual(assetClientMessagesCount, 0)
@@ -358,14 +358,14 @@ final class DatabaseMigrationTests: DatabaseBaseTest {
             let connectionCount = try! directory.uiContext.count(for: ZMConnection.sortedFetchRequest()!)
             let userClientCount = try! directory.uiContext.count(for: UserClient.sortedFetchRequest()!)
             let assetClientMessagesCount = try! directory.uiContext.count(for: ZMAssetClientMessage.sortedFetchRequest()!)
-            let messages = directory.uiContext.executeFetchRequestOrAssert(ZMMessage.sortedFetchRequest()!)! as! [ZMMessage]
+            let messages = directory.uiContext.executeFetchRequestOrAssert(ZMMessage.sortedFetchRequest()!) as! [ZMMessage]
             let users = directory.uiContext.fetchOrAssert(request: NSFetchRequest<ZMUser>(entityName: ZMUser.entityName()))
 
 
             let userFetchRequest = ZMUser.sortedFetchRequest()!
             userFetchRequest.resultType = .dictionaryResultType
             userFetchRequest.propertiesToFetch = self.userPropertiesToFetch
-            let userDictionaries = directory.uiContext.executeFetchRequestOrAssert(userFetchRequest)!
+            let userDictionaries = directory.uiContext.executeFetchRequestOrAssert(userFetchRequest)
 
             // THEN
             XCTAssertEqual(assetClientMessagesCount, 0)
