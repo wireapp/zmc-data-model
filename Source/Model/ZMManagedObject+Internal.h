@@ -57,8 +57,8 @@ extern NSString * _Nonnull const ZMManagedObjectLocallyModifiedKeysKey;
 /// The order in which objects are updated to / from the backend. ZMSyncOperationSet uses this.
 + (nullable NSArray <NSSortDescriptor *> *)sortDescriptorsForUpdating;
 + (nullable NSPredicate *)predicateForFilteringResults;
-+ (nullable NSFetchRequest *)sortedFetchRequest;
-+ (nullable NSFetchRequest *)sortedFetchRequestWithPredicate:(nonnull NSPredicate *)predicate;
++ (nonnull NSFetchRequest *)sortedFetchRequest;
++ (nonnull NSFetchRequest *)sortedFetchRequestWithPredicate:(nonnull NSPredicate *)predicate;
 + (nullable NSFetchRequest *)sortedFetchRequestWithPredicateFormat:(nonnull NSString *)format, ...;
 
 + (void)enumerateObjectsInContext:(nonnull NSManagedObjectContext *)moc withBlock:(nonnull ObjectsEnumerationBlock)block;
