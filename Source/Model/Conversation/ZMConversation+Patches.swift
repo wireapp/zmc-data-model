@@ -35,8 +35,7 @@ extension ZMConversation {
 
         guard let request = ZMConversation.sortedFetchRequest(with: predicate),
               let allConversations = moc.fetchOrAssert(request: request) as? [ZMConversation] else {
-                fatal("fetchOrAssert failed")
-                return
+            fatal("fetchOrAssert failed")
         }
 
         for conversation in allConversations {
@@ -59,8 +58,7 @@ extension ZMConversation {
         
         guard let request = ZMConversation.sortedFetchRequest(),
               let allConversations = moc.fetchOrAssert(request: request) as? [ZMConversation] else {
-                fatal("fetchOrAssert failed")
-            return
+            fatal("fetchOrAssert failed")
         }
                 
         for conversation in allConversations {
@@ -117,13 +115,17 @@ extension ZMConversation {
         
         // Mark group conversation membership to be refetched
         let selfUser = ZMUser.selfUser(in: moc)
-        let groupConversationsFetch = ZMConversation.sortedFetchRequest(
-            with: NSPredicate(format: "%K == %d",
+        
+        
+        guard let groupConversationsFetch = ZMConversation.sortedFetchRequest(
+                    with: NSPredicate(format: "%K == %d",
                               ZMConversationConversationTypeKey,
-                              ZMConversationType.group.rawValue
-            )
-        )
-        (moc.executeFetchRequestOrAssert(groupConversationsFetch) as! [ZMConversation]).forEach {
+                              ZMConversationType.group.rawValue)),
+            let conversations = moc.executeFetchRequestOrAssert(groupConversationsFetch) as? [ZMConversation] else {
+                fatal("fetchOrAssert failed")
+        }
+        
+        conversations.forEach {
             guard $0.isSelfAnActiveMember else { return }
             $0.needsToBeUpdatedFromBackend = true
             $0.needsToDownloadRoles = $0.team == nil || $0.team != selfUser.team
@@ -139,7 +141,12 @@ extension ZMConversation {
         
         let oldKey = "lastServerSyncedActiveParticipants"
         
-        (moc.executeFetchRequestOrAssert(ZMConversation.sortedFetchRequest()) as! [ZMConversation]).forEach { convo in
+        guard let request = ZMConversation.sortedFetchRequest(),
+              let conversations = moc.executeFetchRequestOrAssert(request) as? [ZMConversation] else {
+                fatal("fetchOrAssert failed")
+        }
+        
+        conversations.forEach { convo in
             let users = (convo.value(forKey: oldKey) as! NSOrderedSet).array as? [ZMUser]
             users?.forEach { user in
                 let participantRole = ParticipantRole.insertNewObject(in: moc)
