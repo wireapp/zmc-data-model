@@ -30,9 +30,13 @@ extension ZMConversation {
         let noUserDefinedName = NSPredicate(format: "%K == nil", #keyPath(ZMConversation.userDefinedName))
         let predicate = NSCompoundPredicate(andPredicateWithSubpredicates: [sameTeam, groupConversation, selfIsActiveMember, onlyOneOtherParticipant, hasParticipantWithServiceIdentifier, noUserDefinedName])
 
-        let fetchRequest = sortedFetchRequest(with: predicate)
-        fetchRequest?.fetchLimit = 1
-        let result = moc.executeFetchRequestOrAssert(fetchRequest)
-        return result?.first as? ZMConversation
+        guard let fetchRequest = sortedFetchRequest(with: predicate) else {
+            return nil
+        }
+        
+        fetchRequest.fetchLimit = 1
+        let result = moc.fetchOrAssert(request: fetchRequest)
+        
+        return result.first as? ZMConversation
     }
 }

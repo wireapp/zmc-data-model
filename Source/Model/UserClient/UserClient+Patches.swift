@@ -28,11 +28,18 @@ extension UserClient {
             // no client? no migration needed
             return
         }
-        let request = UserClient.sortedFetchRequest()
-        let allClients = moc.executeFetchRequestOrAssert(request) as! [UserClient]
+        
+        guard let request = UserClient.sortedFetchRequest() else {
+            fatal("fetchOrAssert failed")
+        }
+        
+        let allClients = moc.fetchOrAssert(request: request) as? [UserClient]
+        
         selfClient.keysStore.encryptionContext.perform { (session) in
-            for client in allClients {
-                client.migrateSessionIdentifierFromV1IfNeeded(sessionDirectory: session)
+            if let unwrappedAllClients = allClients {
+                for client in unwrappedAllClients {
+                    client.migrateSessionIdentifierFromV1IfNeeded(sessionDirectory: session)
+                }
             }
         }
     }
