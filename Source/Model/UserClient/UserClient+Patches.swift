@@ -29,9 +29,7 @@ extension UserClient {
             return
         }
         
-        guard let request = UserClient.sortedFetchRequest() else {
-            fatal("fetchOrAssert failed")
-        }
+        let request = UserClient.sortedFetchRequest()
         
         let allClients = moc.fetchOrAssert(request: request) as? [UserClient]
         

@@ -85,7 +85,7 @@ extension ZMClientMessage {
 
     static func descendingFetchRequest(with predicate: NSPredicate) -> NSFetchRequest<NSFetchRequestResult>? {
         let request = sortedFetchRequest(with: predicate)
-        request?.sortDescriptors = [NSSortDescriptor(key: #keyPath(ZMMessage.serverTimestamp), ascending: false)]
+        request.sortDescriptors = [NSSortDescriptor(key: #keyPath(ZMMessage.serverTimestamp), ascending: false)]
         return request
     }
 
@@ -316,14 +316,16 @@ public class TextSearchQuery: NSObject {
     /// Returns the count of indexed messages in the conversation. 
     /// Needs to be called from the syncMOC's Queue.
     private func countForIndexedMessages() -> Int {
-        guard let request = ZMClientMessage.sortedFetchRequest(with: predicateForIndexedMessages) else { return 0 }
+        let request = ZMClientMessage.sortedFetchRequest(with: predicateForIndexedMessages)
+
         return (try? self.syncMOC.count(for: request)) ?? 0
     }
 
     /// Returns the count of not indexed indexed messages in the conversation. 
     /// Needs to be called from the syncMOC's Queue.
     private func countForNonIndexedMessages() -> Int {
-        guard let request = ZMClientMessage.sortedFetchRequest(with: predicateForNotIndexedMessages) else { return 0 }
+        let request = ZMClientMessage.sortedFetchRequest(with: predicateForNotIndexedMessages)
+
         return (try? self.syncMOC.count(for: request)) ?? 0
     }
 

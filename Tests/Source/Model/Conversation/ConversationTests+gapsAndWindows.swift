@@ -66,7 +66,7 @@ final class ConversationGapsAndWindowTests: ZMConversationTestsBase {
         // then
         XCTAssertNotNil(conversation)
         
-        let fetchRequest = ZMConversation.sortedFetchRequest()!
+        let fetchRequest = ZMConversation.sortedFetchRequest()
         let conversations = uiMOC.executeFetchRequestOrAssert(fetchRequest)
         
         XCTAssertEqual(conversations.count, 1)
