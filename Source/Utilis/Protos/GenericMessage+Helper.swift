@@ -105,6 +105,8 @@ extension GenericMessage {
             return data
         case .buttonActionConfirmation(let data):
             return data
+        case .dataTransfer(let data):
+            return data
         }
     }
     
@@ -664,5 +666,25 @@ public extension Tweet {
 extension ImageAsset {
     public func imageFormat() -> ZMImageFormat {
         return ImageFormatFromString(self.tag)
+    }
+}
+
+// MARK: - DataTransfer
+
+extension DataTransfer {
+    init(trackingIdentifier: UUID) {
+        self = DataTransfer.with {
+            $0.trackingIdentifier = TrackingIdentifier(trackingIdentifier)
+        }
+    }
+}
+
+// MARK: - TrackingIdentifier
+
+extension TrackingIdentifier {
+    init(_ uuid: UUID) {
+        self = TrackingIdentifier.with {
+            $0.identifier = uuid.transportString()
+        }
     }
 }
