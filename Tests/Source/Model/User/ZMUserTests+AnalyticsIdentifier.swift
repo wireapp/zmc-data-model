@@ -40,10 +40,20 @@ class ZMUserTests_AnalyticsIdentifier: ModelObjectsTests {
     func test_the_analytics_identifier_is_not_regenerated_if_a_value_exists() {
         // Given
         let sut = createUser(selfUser: true, inTeam: true)
-        let existingIdentifier = UUID.create().transportString()
+        let existingIdentifier = sut.analyticsIdentifier
+        XCTAssertNotNil(existingIdentifier)
 
         // Then
         XCTAssertEqual(sut.analyticsIdentifier, existingIdentifier)
+    }
+
+    func test_the_analytics_identifier_is_encoded_as_uuid_transport_string() {
+        // Given
+        let sut = createUser(selfUser: true, inTeam: true)
+
+        // Then
+        XCTAssertNotNil(sut.analyticsIdentifier)
+        XCTAssertNotNil(UUID(uuidString: sut.analyticsIdentifier!))
     }
 
     // MARK: - Helpers
