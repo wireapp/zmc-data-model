@@ -60,26 +60,31 @@ class ZMUserTests_AnalyticsIdentifier: ModelObjectsTests {
         // Given
         let sut = createUser(selfUser: true, inTeam: true)
 
+        let selfConversation = ZMConversation.selfConversation(in: uiMOC)
+        XCTAssertTrue(selfConversation.allMessages.isEmpty)
+
         // When
         let identifier = sut.analyticsIdentifier
         XCTAssertNotNil(identifier)
 
         // Then
-        let selfConversation = ZMConversation.selfConversation(in: uiMOC)
         XCTAssertEqual(selfConversation.numberOfDataTransferMessagesContaining(analyticsIdentifier: identifier!), 1)
     }
 
     func testTheAnalyticsIdentifierIsNotRebroadcastedInSelfConversation() {
         // Given
         let sut = createUser(selfUser: true, inTeam: true)
+
         let identifier = sut.analyticsIdentifier
         XCTAssertNotNil(identifier)
+
+        let selfConversation = ZMConversation.selfConversation(in: uiMOC)
+        XCTAssertEqual(selfConversation.numberOfDataTransferMessagesContaining(analyticsIdentifier: identifier!), 1)
 
         // When
         _ = sut.analyticsIdentifier
 
         // Then
-        let selfConversation = ZMConversation.selfConversation(in: uiMOC)
         XCTAssertEqual(selfConversation.numberOfDataTransferMessagesContaining(analyticsIdentifier: identifier!), 1)
     }
 
