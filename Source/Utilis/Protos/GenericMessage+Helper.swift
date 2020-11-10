@@ -677,6 +677,17 @@ extension DataTransfer {
             $0.trackingIdentifier = TrackingIdentifier(trackingIdentifier)
         }
     }
+
+    var trackingIdentifierData: String? {
+        guard
+            hasTrackingIdentifier,
+            trackingIdentifier.hasIdentifier
+        else {
+            return nil
+        }
+
+        return trackingIdentifier.identifier
+    }
 }
 
 // MARK: - TrackingIdentifier
