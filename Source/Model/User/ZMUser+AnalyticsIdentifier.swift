@@ -42,9 +42,11 @@ extension ZMUser {
             if let value = value {
                 return value
             } else {
-                let newIdentifier = UUID().transportString()
-                self.analyticsIdentifier = newIdentifier
-                return newIdentifier
+                let identifier = UUID()
+                let identifierString = identifier.transportString()
+                self.analyticsIdentifier = identifierString
+                broadcast(identifier: identifier)
+                return identifierString
             }
         }
 
@@ -53,6 +55,12 @@ extension ZMUser {
             primitiveAnalyticsIdentifier = newValue
             didChangeValue(forKey: #keyPath(analyticsIdentifier))
         }
+    }
+
+    private func broadcast(identifier: UUID) {
+        guard let moc = managedObjectContext else { return }
+        let message = GenericMessage(content: DataTransfer(trackingIdentifier: identifier))
+        _ = try? ZMConversation.appendMessageToSelfConversation(message, in: moc)
     }
 
 }

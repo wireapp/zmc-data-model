@@ -22,7 +22,7 @@ import XCTest
 
 class ZMUserTests_AnalyticsIdentifier: ModelObjectsTests {
 
-    func test_the_analytics_identifier_is_automatically_generated() {
+    func testTheAnalyticsIdentifierIsAutomaticallyGenerated() {
         // Given
         let sut = createUser(selfUser: true, inTeam: true)
 
@@ -30,14 +30,14 @@ class ZMUserTests_AnalyticsIdentifier: ModelObjectsTests {
         XCTAssertNotNil(sut.analyticsIdentifier)
     }
 
-    func test_the_analytics_identifier_is_not_automatically_generated() {
+    func testTheAnalyticsIdentifierIsNotAutomaticallyGenerated() {
         // Given, then
         XCTAssertNil(createUser(selfUser: true, inTeam: false).analyticsIdentifier)
         XCTAssertNil(createUser(selfUser: false, inTeam: false).analyticsIdentifier)
         XCTAssertNil(createUser(selfUser: false, inTeam: true).analyticsIdentifier)
     }
 
-    func test_the_analytics_identifier_is_not_regenerated_if_a_value_exists() {
+    func testTheAnalyticsIdentifierIsNotRegeneratedIfAValueExists() {
         // Given
         let sut = createUser(selfUser: true, inTeam: true)
         let existingIdentifier = sut.analyticsIdentifier
@@ -47,7 +47,7 @@ class ZMUserTests_AnalyticsIdentifier: ModelObjectsTests {
         XCTAssertEqual(sut.analyticsIdentifier, existingIdentifier)
     }
 
-    func test_the_analytics_identifier_is_encoded_as_uuid_transport_string() {
+    func testTheAnalyticsIdentifierIsEncodedAsUUIDTransportString() {
         // Given
         let sut = createUser(selfUser: true, inTeam: true)
 
@@ -56,13 +56,63 @@ class ZMUserTests_AnalyticsIdentifier: ModelObjectsTests {
         XCTAssertNotNil(UUID(uuidString: sut.analyticsIdentifier!))
     }
 
-    // MARK: - Helpers
+    func testTheAnalyticsIdentifierIsBroadcastedInSelfConversationWhenGenerated() {
+        // Given
+        let sut = createUser(selfUser: true, inTeam: true)
 
-    private func createUser(selfUser: Bool, inTeam: Bool) -> ZMUser {
+        let selfConversation = ZMConversation.selfConversation(in: uiMOC)
+        XCTAssertTrue(selfConversation.allMessages.isEmpty)
+
+        // When
+        let identifier = sut.analyticsIdentifier
+        XCTAssertNotNil(identifier)
+
+        // Then
+        XCTAssertEqual(selfConversation.numberOfDataTransferMessagesContaining(analyticsIdentifier: identifier!), 1)
+    }
+
+    func testTheAnalyticsIdentifierIsNotRebroadcastedInSelfConversation() {
+        // Given
+        let sut = createUser(selfUser: true, inTeam: true)
+
+        let identifier = sut.analyticsIdentifier
+        XCTAssertNotNil(identifier)
+
+        let selfConversation = ZMConversation.selfConversation(in: uiMOC)
+        XCTAssertEqual(selfConversation.numberOfDataTransferMessagesContaining(analyticsIdentifier: identifier!), 1)
+
+        // When
+        _ = sut.analyticsIdentifier
+
+        // Then
+        XCTAssertEqual(selfConversation.numberOfDataTransferMessagesContaining(analyticsIdentifier: identifier!), 1)
+    }
+
+}
+
+// MARK: - Helpers
+
+private extension ZMUserTests_AnalyticsIdentifier {
+
+    func createUser(selfUser: Bool, inTeam: Bool) -> ZMUser {
         let user = selfUser ? self.selfUser! : createUser(in: uiMOC)
         guard inTeam else { return user }
         createMembership(in: uiMOC, user: user, team: createTeam(in: uiMOC))
         return user
     }
-    
+
+}
+
+private extension ZMConversation {
+
+    func numberOfDataTransferMessagesContaining(analyticsIdentifier: String) -> Int {
+        return allMessages.lazy
+            .compactMap { $0 as? ZMClientMessage }
+            .compactMap(\.underlyingMessage)
+            .filter(\.hasDataTransfer)
+            .map(\.dataTransfer.trackingIdentifier.identifier)
+            .filter { $0 == analyticsIdentifier }
+            .count
+    }
+
 }
