@@ -56,13 +56,58 @@ class ZMUserTests_AnalyticsIdentifier: ModelObjectsTests {
         XCTAssertNotNil(UUID(uuidString: sut.analyticsIdentifier!))
     }
 
-    // MARK: - Helpers
+    func testTheAnalyticsIdentifierIsBroadcastedInSelfConversationWhenGenerated() {
+        // Given
+        let sut = createUser(selfUser: true, inTeam: true)
 
-    private func createUser(selfUser: Bool, inTeam: Bool) -> ZMUser {
+        // When
+        let identifier = sut.analyticsIdentifier
+        XCTAssertNotNil(identifier)
+
+        // Then
+        let selfConversation = ZMConversation.selfConversation(in: uiMOC)
+        XCTAssertEqual(selfConversation.numberOfDataTransferMessagesContaining(analyticsIdentifier: identifier!), 1)
+    }
+
+    func testTheAnalyticsIdentifierIsNotRebroadcastedInSelfConversation() {
+        // Given
+        let sut = createUser(selfUser: true, inTeam: true)
+        let identifier = sut.analyticsIdentifier
+        XCTAssertNotNil(identifier)
+
+        // When
+        _ = sut.analyticsIdentifier
+
+        // Then
+        let selfConversation = ZMConversation.selfConversation(in: uiMOC)
+        XCTAssertEqual(selfConversation.numberOfDataTransferMessagesContaining(analyticsIdentifier: identifier!), 1)
+    }
+
+}
+
+// MARK: - Helpers
+
+private extension ZMUserTests_AnalyticsIdentifier {
+
+    func createUser(selfUser: Bool, inTeam: Bool) -> ZMUser {
         let user = selfUser ? self.selfUser! : createUser(in: uiMOC)
         guard inTeam else { return user }
         createMembership(in: uiMOC, user: user, team: createTeam(in: uiMOC))
         return user
     }
-    
+
+}
+
+private extension ZMConversation {
+
+    func numberOfDataTransferMessagesContaining(analyticsIdentifier: String) -> Int {
+        return allMessages.lazy
+            .compactMap { $0 as? ZMClientMessage }
+            .compactMap(\.underlyingMessage)
+            .filter(\.hasDataTransfer)
+            .map(\.dataTransfer.trackingIdentifier.identifier)
+            .filter { $0 == analyticsIdentifier }
+            .count
+    }
+
 }
