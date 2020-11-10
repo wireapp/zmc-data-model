@@ -19,6 +19,39 @@
 import Foundation
 import WireCryptobox
 
+extension Sequence where Element: NSManagedObject {
+    
+    /// Perform changes on a sequence of NSManagedObjects and save at a regular internal and fault
+    /// objects in order to keep memory consumption low.
+    ///
+    /// - Parameters:
+    ///   - batchLimit: Number of changes we are performed before the context is saved
+    ///   - block: Change which should be performed on the objects
+    func modifyAndSaveInBatches(saveInterval: Int = 10000, _ block: (Element) throws -> Void) throws {
+        var processed: [Element] = []
+        
+        for element in self {
+            try autoreleasepool {
+                try block(element)
+                
+                processed.append(element)
+                     
+                if processed.count > saveInterval {
+                    let context = element.managedObjectContext
+                    
+                    try context?.save()
+                    processed.forEach({
+                        context?.refresh($0, mergeChanges: false)
+                    })
+                    processed = []
+                }
+            }
+        }
+        
+        try processed.last?.managedObjectContext?.save()
+    }
+    
+}
 
 extension NSManagedObjectContext {
 
@@ -90,19 +123,19 @@ extension NSManagedObjectContext {
         where T: MigratableEntity
     {
         do {
-            for instance in try fetchRequest(forType: type, batchSize: 100).execute() {
+            try fetchRequest(forType: type, batchSize: 100).execute().modifyAndSaveInBatches { (instance) in
                 try instance.migrateTowardEncryptionAtRest(in: self)
             }
         } catch {
             throw MigrationError.failedToMigrateInstances(type: type, reason: error.localizedDescription)
         }
     }
-
+    
     private func migrateInstancesAwayFromEncryptionAtRest<T>(type: T.Type) throws
         where T: MigratableEntity
     {
         do {
-            for instance in try fetchRequest(forType: type, batchSize: 100).execute() {
+            try fetchRequest(forType: type, batchSize: 100).execute().modifyAndSaveInBatches { (instance) in
                 try instance.migrateAwayFromEncryptionAtRest(in: self)
             }
         } catch {
@@ -205,6 +238,14 @@ extension NSManagedObjectContext {
     public var encryptionKeys: EncryptionKeys? {
         set { userInfo[Self.encryptionKeysUserInfoKey] = newValue }
         get { userInfo[Self.encryptionKeysUserInfoKey] as? EncryptionKeys }
+    }
+    
+    public func getEncryptionKeys() throws -> EncryptionKeys {
+        guard let encryptionKeys = self.encryptionKeys else {
+            throw MigrationError.missingDatabaseKey
+        }
+        
+        return encryptionKeys
     }
 
 }

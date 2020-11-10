@@ -20,7 +20,7 @@ import Foundation
 import XCTest
 @testable import WireDataModel
 
-class StorageStackBackupTests: DatabaseBaseTest {
+class StorageStackTests_Backup: DatabaseBaseTest {
 
     override func setUp() {
         super.setUp()
