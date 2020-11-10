@@ -22,7 +22,7 @@ import XCTest
 
 class ZMUserTests_AnalyticsIdentifier: ModelObjectsTests {
 
-    func test_the_analytics_identifier_is_automatically_generated() {
+    func testTheAnalyticsIdentifierIsAutomaticallyGenerated() {
         // Given
         let sut = createUser(selfUser: true, inTeam: true)
 
@@ -30,14 +30,14 @@ class ZMUserTests_AnalyticsIdentifier: ModelObjectsTests {
         XCTAssertNotNil(sut.analyticsIdentifier)
     }
 
-    func test_the_analytics_identifier_is_not_automatically_generated() {
+    func testTheAnalyticsIdentifierIsNotAutomaticallyGenerated() {
         // Given, then
         XCTAssertNil(createUser(selfUser: true, inTeam: false).analyticsIdentifier)
         XCTAssertNil(createUser(selfUser: false, inTeam: false).analyticsIdentifier)
         XCTAssertNil(createUser(selfUser: false, inTeam: true).analyticsIdentifier)
     }
 
-    func test_the_analytics_identifier_is_not_regenerated_if_a_value_exists() {
+    func testTheAnalyticsIdentifierIsNotRegeneratedIfAValueExists() {
         // Given
         let sut = createUser(selfUser: true, inTeam: true)
         let existingIdentifier = sut.analyticsIdentifier
@@ -47,7 +47,7 @@ class ZMUserTests_AnalyticsIdentifier: ModelObjectsTests {
         XCTAssertEqual(sut.analyticsIdentifier, existingIdentifier)
     }
 
-    func test_the_analytics_identifier_is_encoded_as_uuid_transport_string() {
+    func testTheAnalyticsIdentifierIsEncodedAsUUIDTransportString() {
         // Given
         let sut = createUser(selfUser: true, inTeam: true)
 
