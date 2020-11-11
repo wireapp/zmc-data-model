@@ -31,7 +31,7 @@ extension ZMUser {
     /// A new identifier will be automatically generated the very first time this is accessed.
 
     @objc
-    public private(set) var analyticsIdentifier: String? {
+    public internal(set) var analyticsIdentifier: String? {
         get {
             guard isSelfUser && isTeamMember else { return nil }
 
