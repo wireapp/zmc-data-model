@@ -16,15 +16,21 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
-import Foundation
 
-extension ZMConnection {
-    @objc(connectionsInMangedObjectContext:)
-    class func connections(inMangedObjectContext moc: NSManagedObjectContext) -> [NSFetchRequestResult] {
-        
-        let request = sortedFetchRequest()
-        
-        let result = moc.fetchOrAssert(request: request)
-        return result
+import XCTest
+@testable import WireDataModel
+
+class GenericMessageHelperTests: XCTestCase {
+
+    func testCreatingADataTransferMessageWithATrackingIdentifier() {
+        // Given
+        let id = UUID.create()
+
+        // When
+        let sut = DataTransfer(trackingIdentifier: id)
+
+        // Then
+        XCTAssertEqual(sut.trackingIdentifier.identifier, id.transportString())
     }
+
 }
