@@ -59,8 +59,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
             XCTAssertFalse(moc.encryptMessagesAtRest)
 
             // When
-            moc.encryptionKeys = self.validEncryptionKeys
-            XCTAssertNoThrow(try moc.enableEncryptionAtRest())
+            XCTAssertNoThrow(try moc.enableEncryptionAtRest(encryptionKeys: self.validEncryptionKeys))
 
             // Then
             XCTAssertTrue(messageData.isEncrypted)
@@ -71,8 +70,9 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
 
     func test_existing_message_content_is_decrypted_when_ear_is_disabled() throws {
         // Given
-        uiMOC.encryptionKeys = self.validEncryptionKeys
-        uiMOC.setEncryptionAtRestWithoutMigration(enabled: true)
+        let validEncryptionKeys = self.validEncryptionKeys
+        try uiMOC.enableEncryptionAtRest(encryptionKeys: validEncryptionKeys, skipMigration: true)
+        
 
         let conversation = createConversation(in: uiMOC)
         try conversation.appendText(content: "Beep bloop")
@@ -91,7 +91,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
             XCTAssertTrue(moc.encryptMessagesAtRest)
 
             // When
-            XCTAssertNoThrow(try moc.disableEncryptionAtRest())
+            XCTAssertNoThrow(try moc.disableEncryptionAtRest(encryptionKeys: validEncryptionKeys))
 
             // Then
             XCTAssertFalse(messageData.isEncrypted)
@@ -114,8 +114,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
             XCTAssertFalse(moc.encryptMessagesAtRest)
 
             // When
-            moc.encryptionKeys = self.validEncryptionKeys
-            XCTAssertNoThrow(try moc.enableEncryptionAtRest())
+            XCTAssertNoThrow(try moc.enableEncryptionAtRest(encryptionKeys: self.validEncryptionKeys))
 
             // Then
             XCTAssertNotNil(message.normalizedText)
@@ -126,8 +125,8 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
 
     func test_normalized_message_content_is_updated_when_ear_is_disabled() throws {
         // Given
-        uiMOC.encryptionKeys = self.validEncryptionKeys
-        uiMOC.setEncryptionAtRestWithoutMigration(enabled: true)
+        let validEncryptionKeys = self.validEncryptionKeys
+        try uiMOC.enableEncryptionAtRest(encryptionKeys: validEncryptionKeys, skipMigration: true)
 
         let conversation = createConversation(in: uiMOC)
         let message = try conversation.appendText(content: "Beep bloop") as! ZMMessage
@@ -139,7 +138,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
             XCTAssertTrue(moc.encryptMessagesAtRest)
 
             // When
-            XCTAssertNoThrow(try moc.disableEncryptionAtRest())
+            XCTAssertNoThrow(try moc.disableEncryptionAtRest(encryptionKeys: validEncryptionKeys))
 
             // Then
             XCTAssertNotNil(message.normalizedText)
@@ -163,8 +162,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
             XCTAssertFalse(moc.encryptMessagesAtRest)
 
             // When
-            moc.encryptionKeys = self.validEncryptionKeys
-            XCTAssertNoThrow(try moc.enableEncryptionAtRest())
+            XCTAssertNoThrow(try moc.enableEncryptionAtRest(encryptionKeys: self.validEncryptionKeys))
 
             // Then
             XCTAssertTrue(conversation.hasEncryptedDraftMessageData)
@@ -175,8 +173,8 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
 
     func test_draft_message_content_is_decrypted_when_ear_is_disabled() throws {
         // Given
-        uiMOC.encryptionKeys = validEncryptionKeys
-        uiMOC.setEncryptionAtRestWithoutMigration(enabled: true)
+        let validEncryptionKeys = self.validEncryptionKeys
+        try uiMOC.enableEncryptionAtRest(encryptionKeys: validEncryptionKeys, skipMigration: true)
 
         let conversation = createConversation(in: uiMOC)
         conversation.draftMessage = DraftMessage(text: "Beep bloop", mentions: [], quote: nil)
@@ -189,7 +187,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
             XCTAssertTrue(moc.encryptMessagesAtRest)
 
             // When
-            XCTAssertNoThrow(try moc.disableEncryptionAtRest())
+            XCTAssertNoThrow(try moc.disableEncryptionAtRest(encryptionKeys: validEncryptionKeys))
 
             // Then
             XCTAssertTrue(conversation.hasDraftMessage)
@@ -207,7 +205,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
 
         try uiMOC.performGroupedAndWait { moc in
             // When
-            XCTAssertThrowsError(try moc.enableEncryptionAtRest()) { error in
+            XCTAssertThrowsError(try moc.enableEncryptionAtRest(encryptionKeys: try moc.getEncryptionKeys())) { error in
                 // Then
                 guard case MigrationError.missingDatabaseKey = error else {
                     return XCTFail("Unexpected error thrown: \(error.localizedDescription)")
@@ -220,12 +218,13 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
 
     func test_it_throws_an_error_when_database_key_is_missing_when_ear_is_disabled() throws {
         // Given
+        let validEncryptionKeys = self.validEncryptionKeys
+        try uiMOC.enableEncryptionAtRest(encryptionKeys: validEncryptionKeys, skipMigration: true)
         uiMOC.encryptionKeys = nil
-        uiMOC.setEncryptionAtRestWithoutMigration(enabled: true)
 
         try uiMOC.performGroupedAndWait { moc in
             // When
-            XCTAssertThrowsError(try moc.disableEncryptionAtRest()) { error in
+            XCTAssertThrowsError(try moc.disableEncryptionAtRest(encryptionKeys: try self.uiMOC.getEncryptionKeys())) { error in
                 // Then
                 guard case MigrationError.missingDatabaseKey = error else {
                     return XCTFail("Unexpected error thrown: \(error.localizedDescription)")
@@ -258,9 +257,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
             XCTAssertTrue(moc.encryptMessagesAtRest)
 
             // When
-            moc.encryptionKeys = encryptionKeys1
-
-            XCTAssertThrowsError(try moc.disableEncryptionAtRest()) { error in
+            XCTAssertThrowsError(try moc.disableEncryptionAtRest(encryptionKeys: encryptionKeys1)) { error in
                 // Then
                 switch error {
                 case let MigrationError.failedToMigrateInstances(type, _):

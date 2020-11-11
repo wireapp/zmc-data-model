@@ -79,12 +79,19 @@ extension NSManagedObjectContext {
     /// thread. If the migration fails for any reason, the feature is not enabled, but the context may
     /// be in a dirty, partially migrated state.
     ///
+    /// - Parameters:
+    ///   - encryptionKeys: encryption keys that will be used to during migration
+    ///   - skipMigration: if `true` the existing content in the database will not be encrypted.
+    ///
+    ///     **Warning**: not migrating the database can cause data to be lost.
+    ///
     /// - Throws: `MigrationError` if the migration failed.
 
-    public func enableEncryptionAtRest() throws {
-        guard encryptionKeys?.databaseKey != nil else { throw MigrationError.missingDatabaseKey }
-
+    public func enableEncryptionAtRest(encryptionKeys: EncryptionKeys, skipMigration: Bool = false) throws {
+        self.encryptionKeys = encryptionKeys
         encryptMessagesAtRest = true
+        
+        guard !skipMigration else { return }
 
         do {
             try migrateInstancesTowardEncryptionAtRest(type: ZMGenericMessageData.self)
@@ -102,12 +109,19 @@ extension NSManagedObjectContext {
     /// thread. If the migration fails for any reason, the feature is not disabled, but the context may
     /// be in a dirty, partially migrated state.
     ///
+    /// - Parameters:
+    ///   - encryptionKeys: encryption keys that will be used to during migration
+    ///   - skipMigration: if `true` the existing content in the database will not be decrypted.
+    ///
+    ///     **Warning**: not migrating the database can cause data to be lost.
+    ///
     /// - Throws: `MigrationError` if the migration failed.
 
-    public func disableEncryptionAtRest() throws {
-        guard encryptionKeys?.databaseKey != nil else { throw MigrationError.missingDatabaseKey }
-
+    public func disableEncryptionAtRest(encryptionKeys: EncryptionKeys, skipMigration: Bool = false) throws {
+        self.encryptionKeys = encryptionKeys
         encryptMessagesAtRest = false
+        
+        guard !skipMigration else { return }
 
         do {
             try migrateInstancesAwayFromEncryptionAtRest(type: ZMGenericMessageData.self)
@@ -240,7 +254,7 @@ extension NSManagedObjectContext {
         get { userInfo[Self.encryptionKeysUserInfoKey] as? EncryptionKeys }
     }
     
-    public func getEncryptionKeys() throws -> EncryptionKeys {
+    func getEncryptionKeys() throws -> EncryptionKeys {
         guard let encryptionKeys = self.encryptionKeys else {
             throw MigrationError.missingDatabaseKey
         }
