@@ -31,7 +31,7 @@ class ConversationTests_DraftMessage: ZMConversationTestsBase {
     
     func testThatItEncryptsDraftMessage_WhenEncryptionAtRestIsEnabled() {
         // GIVEN
-        uiMOC.setEncryptionAtRestWithoutMigration(enabled: true)
+        uiMOC.encryptMessagesAtRest = true
         uiMOC.encryptionKeys = validEncryptionKeys
         
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
@@ -46,7 +46,7 @@ class ConversationTests_DraftMessage: ZMConversationTestsBase {
     
     func testThatItDiscardsDraftMessage_WhenEncryptionAtRestIsEnabled_And_DatabaseKeyIsMissing() {
         // GIVEN
-        uiMOC.setEncryptionAtRestWithoutMigration(enabled: true)
+        uiMOC.encryptMessagesAtRest = true
         uiMOC.encryptionKeys = nil
         
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
@@ -63,7 +63,7 @@ class ConversationTests_DraftMessage: ZMConversationTestsBase {
     
     func testThatEncryptedDraftMessageCanBeAccessed_WhenDatabaseKeyIsAvailable() {
         // GIVEN
-        uiMOC.setEncryptionAtRestWithoutMigration(enabled: true)
+        uiMOC.encryptMessagesAtRest = true
         uiMOC.encryptionKeys = validEncryptionKeys
         
         let draftText = "Draft test"
@@ -79,7 +79,7 @@ class ConversationTests_DraftMessage: ZMConversationTestsBase {
     
     func testThatEncryptedDraftMessageCantBeAccessed_WhenDatabaseKeyIsMissing() {
         // GIVEN
-        uiMOC.setEncryptionAtRestWithoutMigration(enabled: true)
+        uiMOC.encryptMessagesAtRest = true
         uiMOC.encryptionKeys = validEncryptionKeys
         
         let draftText = "Draft test"

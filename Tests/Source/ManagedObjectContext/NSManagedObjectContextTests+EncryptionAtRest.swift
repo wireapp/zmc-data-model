@@ -240,7 +240,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
         let encryptionKeys1 = validEncryptionKeys
         let encryptionKeys2 = validEncryptionKeys
 
-        uiMOC.setEncryptionAtRestWithoutMigration(enabled: true)
+        uiMOC.encryptMessagesAtRest = true
 
         let conversation = createConversation(in: uiMOC)
 

@@ -167,18 +167,9 @@ extension NSManagedObjectContext {
         return fetchRequest
     }
 
-    /// Set the internal feature flag without performing any migration of the database.
-    ///
-    /// **Warning**: not migrating the database can cause data to be lost. This method is exposed
-    /// for testing purposes.
-
-    public func setEncryptionAtRestWithoutMigration(enabled: Bool) {
-        encryptMessagesAtRest = enabled
-    }
-
     /// Whether the encryption at rest feature is enabled.
     
-    private(set) public var encryptMessagesAtRest: Bool {
+    internal(set) public var encryptMessagesAtRest: Bool {
         set {
             setPersistentStoreMetadata(NSNumber(booleanLiteral: newValue),
                                        key: PersistentMetadataKey.encryptMessagesAtRest.rawValue)

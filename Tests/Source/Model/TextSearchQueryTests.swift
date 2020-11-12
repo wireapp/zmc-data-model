@@ -103,7 +103,7 @@ class TextSearchQueryTests: BaseZMClientMessageTests {
     }
     
     func testThatItDoesntPopulateTheNormalizedTextField_WhenEncryptMessagesAtRestIsEnabled() {
-        uiMOC.setEncryptionAtRestWithoutMigration(enabled: true)
+        uiMOC.encryptMessagesAtRest = true
         uiMOC.encryptionKeys = validEncryptionKeys
         
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
