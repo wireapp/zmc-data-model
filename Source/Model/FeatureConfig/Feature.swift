@@ -18,64 +18,12 @@
 
 import Foundation
 
-//public enum FeatureName_Old: String, CaseIterable {
-//    case applock = "applock"
-//    case unknown = "unknown"
-//}
-//
-//public enum FeatureStatus: String, CaseIterable {
-//    case enabled = "enabled"
-//    case disabled = "disabled"
-//
-//    var status: Bool {
-//        switch self {
-//        case .enabled:
-//            return true
-//        case .disabled:
-//            return false
-//        }
-//    }
-//}
-
 @objcMembers
 public class Feature: ZMManagedObject {
    
     @NSManaged public var name: String
     @NSManaged public var status: String
     @NSManaged public var config: Data?
-    
-//    var name: FeatureName_Old {
-//        get {
-//            return FeatureName_Old.allCases.first(where: { $0.rawValue == rawName }) ?? .unknown
-//        }
-//        set {
-//            rawName = newValue.rawValue
-//        }
-//    }
-//
-//    var status: Bool {
-//        get {
-//            return FeatureStatus.allCases.first(where: { $0.rawValue == rawStatus })?.status ?? false
-//        }
-//        set {
-//            rawStatus = newValue
-//                ? FeatureStatus.enabled.rawValue
-//                : FeatureStatus.disabled.rawValue
-//        }
-//    }
-//
-//    var config: ConfigType? {
-//        get {
-//            guard let rawConfig = rawConfig else {
-//                return nil
-//            }
-//            return try? JSONDecoder().decode(ConfigType.self, from: rawConfig)
-//
-//        }
-//        set {
-//            rawConfig = try? JSONEncoder().encode(newValue)
-//        }
-//    }
     
     public override static func entityName() -> String {
         return "Feature"
@@ -121,13 +69,3 @@ public class Feature: ZMManagedObject {
         return feature
     }
 }
-
-//public struct AppLockConfig: Codable {
-//    let enforceAppLock: Bool
-//    let inactivityTimeoutSecs: UInt
-//
-//    private enum CodingKeys: String, CodingKey {
-//        case enforceAppLock = "enforce_app_lock"
-//        case inactivityTimeoutSecs = "inactivity_timeout_secs"
-//    }
-//}
