@@ -100,9 +100,9 @@
         </compoundIndexes>
     </entity>
     <entity name="Feature" representedClassName=".Feature" syncable="YES">
-        <attribute name="rawConfig" optional="YES" attributeType="Binary" syncable="YES"/>
-        <attribute name="rawName" attributeType="String" syncable="YES"/>
-        <attribute name="rawStatus" attributeType="String" syncable="YES"/>
+        <attribute name="config" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="name" attributeType="String" syncable="YES"/>
+        <attribute name="status" attributeType="String" syncable="YES"/>
     </entity>
     <entity name="FeatureFlag" representedClassName=".FeatureFlag" syncable="YES">
         <attribute name="identifier" optional="YES" attributeType="String" syncable="YES"/>
