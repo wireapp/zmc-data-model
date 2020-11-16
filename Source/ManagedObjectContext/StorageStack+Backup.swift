@@ -46,6 +46,7 @@ extension StorageStack {
     public enum BackupError: Error {
         case failedToRead
         case failedToWrite(Error)
+        case missingEAREncryptionKey
     }
     
     public struct BackupInfo {
@@ -152,9 +153,13 @@ extension StorageStack {
         context.persistentStoreCoordinator = coordinator
         var storeMetadata = store.metadata
         
-        if context.encryptMessagesAtRest, let encryptionKeys = encryptionKeys {
-            try context.performGroupedAndWait { context in
-                try context.disableEncryptionAtRest(encryptionKeys: encryptionKeys)
+        if context.encryptMessagesAtRest {
+            if let encryptionKeys = encryptionKeys {
+                try context.performGroupedAndWait { context in
+                    try context.disableEncryptionAtRest(encryptionKeys: encryptionKeys)
+                }
+            } else {
+                throw BackupError.missingEAREncryptionKey
             }
         }
         
