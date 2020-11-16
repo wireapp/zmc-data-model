@@ -84,7 +84,7 @@ public class Feature<ConfigType: Codable>: ZMManagedObject {
     @discardableResult
     public static func fetch(with name: FeatureName,
                              context: NSManagedObjectContext) -> Feature<ConfigType>? {
-        precondition(context.zm_isSyncContext)
+       // precondition(context.zm_isSyncContext)
         
         let fetchRequest = NSFetchRequest<Feature>(entityName: Feature.entityName())
         fetchRequest.predicate = NSPredicate(format: "rawName == %@",
@@ -118,12 +118,26 @@ public class Feature<ConfigType: Codable>: ZMManagedObject {
                               status: Bool,
                               config: ConfigType,
                               context: NSManagedObjectContext) -> Feature<ConfigType> {
-        precondition(context.zm_isSyncContext)
+       // precondition(context.zm_isSyncContext)
         
+        let feat = Feature<ConfigType>()
+        feat.name = name
+        feat.status = status
+        feat.config = config
         let feature = Feature<ConfigType>.insertNewObject(in: context)
-        feature.name = name
-        feature.status = status
-        feature.config = config
+        feature.rawStatus = "enabled"
+        feature.rawName = feat.rawName
+        feature.rawConfig = try? JSONEncoder().encode(config)
         return feature
+    }
+}
+
+public struct AppLockConfig: Codable {
+    let enforceAppLock: Bool
+    let inactivityTimeoutSecs: UInt
+    
+    private enum CodingKeys: String, CodingKey {
+        case enforceAppLock = "enforce_app_lock"
+        case inactivityTimeoutSecs = "inactivity_timeout_secs"
     }
 }
