@@ -21,17 +21,6 @@ import WireUtilities
 
 private let log = ZMSLog(tag: "Backup")
 
-enum StorageError: LocalizedError {
-    case missingEAREncryptionKey
-
-    var errorDescription: String? {
-        switch self {
-        case .missingEAREncryptionKey:
-            return "Failed to export backup when encryption at rest is enabled and the encryption key are missing ."
-        }
-    }
-}
-
 extension StorageStack {
 
     private static let metadataFilename = "export.json"
