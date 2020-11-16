@@ -70,7 +70,7 @@ public class Feature<ConfigType: Codable>: ZMManagedObject {
                 return nil
             }
             return try? JSONDecoder().decode(ConfigType.self, from: rawConfig)
-
+            
         }
         set {
             rawConfig = try? JSONEncoder().encode(newValue)
@@ -79,5 +79,51 @@ public class Feature<ConfigType: Codable>: ZMManagedObject {
     
     public override static func entityName() -> String {
         return "Feature"
+    }
+    
+    @discardableResult
+    public static func fetch(with name: FeatureName,
+                             context: NSManagedObjectContext) -> Feature<ConfigType>? {
+        precondition(context.zm_isSyncContext)
+        
+        let fetchRequest = NSFetchRequest<Feature>(entityName: Feature.entityName())
+        fetchRequest.predicate = NSPredicate(format: "rawName == %@",
+                                             name.rawValue)
+        fetchRequest.fetchLimit = 1
+        return context.fetchOrAssert(request: fetchRequest).first
+    }
+    
+    @discardableResult
+    public static func createOrUpdate(with name: FeatureName,
+                                      status: Bool,
+                                      config: ConfigType,
+                                      context: NSManagedObjectContext) -> Feature<ConfigType>? {
+        precondition(context.zm_isSyncContext)
+        
+        if let existing = fetch(with: name, context: context) {
+            existing.status = status
+            existing.config = config
+            return existing
+        }
+        
+        let feature = insert(with: name,
+                             status: status,
+                             config: config,
+                             context: context)
+        return feature
+    }
+    
+    @discardableResult
+    public static func insert(with name: FeatureName,
+                              status: Bool,
+                              config: ConfigType,
+                              context: NSManagedObjectContext) -> Feature<ConfigType> {
+        precondition(context.zm_isSyncContext)
+        
+        let feature = Feature<ConfigType>.insertNewObject(in: context)
+        feature.name = name
+        feature.status = status
+        feature.config = config
+        return feature
     }
 }
