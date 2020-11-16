@@ -18,64 +18,12 @@
 
 import Foundation
 
-public enum FeatureName: String, CaseIterable {
-    case applock = "applock"
-    case unknown = "unknown"
-}
-
-public enum FeatureStatus: String, CaseIterable {
-    case enabled = "enabled"
-    case disabled = "disabled"
-    
-    var status: Bool {
-        switch self {
-        case .enabled:
-            return true
-        case .disabled:
-            return false
-        }
-    }
-}
-
 @objcMembers
-public class Feature<ConfigType: Codable>: ZMManagedObject {
+public class Feature: ZMManagedObject {
    
-    @NSManaged public var rawName: String
-    @NSManaged public var rawStatus: String
-    @NSManaged public var rawConfig: Data?
-    
-    var name: FeatureName {
-        get {
-            return FeatureName.allCases.first(where: { $0.rawValue == rawName }) ?? .unknown
-        }
-        set {
-            rawName = newValue.rawValue
-        }
-    }
-    
-    var status: Bool {
-        get {
-            return FeatureStatus.allCases.first(where: { $0.rawValue == rawStatus })?.status ?? false
-        }
-        set {
-            rawStatus = newValue
-                ? FeatureStatus.enabled.rawValue
-                : FeatureStatus.disabled.rawValue
-        }
-    }
-    
-    var config: ConfigType? {
-        get {
-            guard let rawConfig = rawConfig else {
-                return nil
-            }
-            return try? JSONDecoder().decode(ConfigType.self, from: rawConfig)
-
-        }
-        set {
-            rawConfig = try? JSONEncoder().encode(newValue)
-        }
-    }
+    @NSManaged public var name: String
+    @NSManaged public var status: String
+    @NSManaged public var config: Data?
     
     public override static func entityName() -> String {
         return "Feature"
