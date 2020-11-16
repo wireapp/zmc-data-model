@@ -40,7 +40,7 @@ final class ConversationTests: ZMConversationTestsBase {
         // when
         
         let request = ZMConversation.sortedFetchRequest(with: ZMConversation.predicate(forSearchQuery: "@Sømebôdy", selfUser: selfUser))
-        let result = uiMOC.executeFetchRequestOrAssert(request!)
+        let result = uiMOC.executeFetchRequestOrAssert(request)
         
         // then
         XCTAssertEqual(result.count, 1)
@@ -54,7 +54,7 @@ final class ConversationTests: ZMConversationTestsBase {
         // when
         
         let request = ZMConversation.sortedFetchRequest(with: ZMConversation.predicate(forSearchQuery: "Sømebôdy", selfUser: selfUser))
-        let result = uiMOC.executeFetchRequestOrAssert(request!)
+        let result = uiMOC.executeFetchRequestOrAssert(request)
         
         // then
         XCTAssertEqual(result.count, 1)
@@ -67,7 +67,7 @@ final class ConversationTests: ZMConversationTestsBase {
 
         // when
         
-        let request = ZMConversation.sortedFetchRequest(with: ZMConversation.predicate(forSearchQuery: "Sømebôdy ", selfUser: selfUser))!
+        let request = ZMConversation.sortedFetchRequest(with: ZMConversation.predicate(forSearchQuery: "Sømebôdy ", selfUser: selfUser))
         let result = uiMOC.executeFetchRequestOrAssert(request)
         
         // then
@@ -83,7 +83,7 @@ final class ConversationTests: ZMConversationTestsBase {
         // when
         
         let request = ZMConversation.sortedFetchRequest(with: ZMConversation.predicate(forSearchQuery: "Sømebôdy to", selfUser: selfUser))
-        let result = uiMOC.executeFetchRequestOrAssert(request!)
+        let result = uiMOC.executeFetchRequestOrAssert(request)
         
         // then
         XCTAssertEqual(result.count, 1)
