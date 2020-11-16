@@ -21,6 +21,17 @@ import WireUtilities
 
 private let log = ZMSLog(tag: "Backup")
 
+enum StorageError: LocalizedError {
+    case missingEAREncryptionKey
+
+    var errorDescription: String? {
+        switch self {
+        case .missingEAREncryptionKey:
+            return "Failed to export backup when encryption at rest is enabled and the encryption key are missing ."
+        }
+    }
+}
+
 extension StorageStack {
 
     private static let metadataFilename = "export.json"
@@ -77,6 +88,7 @@ extension StorageStack {
     ///   - accountIdentifier: identifier of account being backed up
     ///   - applicationContainer: shared application container
     ///   - dispatchGroup: group for testing
+    ///   - encryptionKeys: EAR encryption keys
     ///   - completion: called on main thread when done. Result will contain the folder where all data was written to.
     public static func backupLocalStorage(
         accountIdentifier: UUID,
@@ -122,10 +134,10 @@ extension StorageStack {
                 )
 
                 // Mark the database as imported from a history backup
-                try markAsImported(coordinator: coordinator,
-                                   location: backupLocation,
-                                   options: options,
-                                   encryptionKeys: encryptionKeys)
+                try prepareStoreForBackup(coordinator: coordinator,
+                                          location: backupLocation,
+                                          options: options,
+                                          encryptionKeys: encryptionKeys)
 
                 // Create & write metadata
                 let metadata = BackupMetadata(userIdentifier: accountIdentifier, clientIdentifier: clientIdentifier)
@@ -141,23 +153,19 @@ extension StorageStack {
         }
     }
     
-    private static func markAsImported(coordinator: NSPersistentStoreCoordinator,
-                                       location: URL,
-                                       options: [String: Any],
-                                       encryptionKeys: EncryptionKeys? = nil) throws {
+    private static func prepareStoreForBackup(coordinator: NSPersistentStoreCoordinator,
+                                              location: URL,
+                                              options: [String: Any],
+                                              encryptionKeys: EncryptionKeys? = nil) throws {
         // Add persistent store at the new location to allow creation of NSManagedObjectContext
         let store = try coordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: location, options: options)
         let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         context.persistentStoreCoordinator = coordinator
         var storeMetadata = store.metadata
         
-        if let encryptionKeys = encryptionKeys {
-            context.performAndWait {
-                do {
-                    try context.disableEncryptionAtRest(encryptionKeys: encryptionKeys)
-                } catch {
-                    print("failure to disable encryption at rest")
-                }
+        if context.encryptMessagesAtRest, let encryptionKeys = encryptionKeys {
+            try context.performGroupedAndWait { context in
+                try context.disableEncryptionAtRest(encryptionKeys: encryptionKeys)
             }
         }
         

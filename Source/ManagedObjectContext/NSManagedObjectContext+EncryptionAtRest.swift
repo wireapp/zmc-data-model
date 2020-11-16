@@ -245,7 +245,7 @@ extension NSManagedObjectContext {
         get { userInfo[Self.encryptionKeysUserInfoKey] as? EncryptionKeys }
     }
     
-    func getEncryptionKeys() throws -> EncryptionKeys {
+    public func getEncryptionKeys() throws -> EncryptionKeys {
         guard let encryptionKeys = self.encryptionKeys else {
             throw MigrationError.missingDatabaseKey
         }

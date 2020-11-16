@@ -38,10 +38,6 @@ public extension ManagedObjectContextDirectory {
         
         return encryptionKeys
     }
-
-    func getEncryptionKeys() throws -> EncryptionKeys {
-        try uiContext.getEncryptionKeys()
-    }
     
     /// Synchronously stores the given encryption keys in each managed object context.
 
