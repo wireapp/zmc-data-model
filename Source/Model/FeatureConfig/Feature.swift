@@ -18,95 +18,91 @@
 
 import Foundation
 
-public enum FeatureName: String, CaseIterable {
-    case applock = "applock"
-    case unknown = "unknown"
-}
-
-public enum FeatureStatus: String, CaseIterable {
-    case enabled = "enabled"
-    case disabled = "disabled"
-    
-    var status: Bool {
-        switch self {
-        case .enabled:
-            return true
-        case .disabled:
-            return false
-        }
-    }
-}
+//public enum FeatureName_Old: String, CaseIterable {
+//    case applock = "applock"
+//    case unknown = "unknown"
+//}
+//
+//public enum FeatureStatus: String, CaseIterable {
+//    case enabled = "enabled"
+//    case disabled = "disabled"
+//
+//    var status: Bool {
+//        switch self {
+//        case .enabled:
+//            return true
+//        case .disabled:
+//            return false
+//        }
+//    }
+//}
 
 @objcMembers
-public class Feature<ConfigType: Codable>: ZMManagedObject {
+public class Feature: ZMManagedObject {
    
-    @NSManaged public var rawName: String
-    @NSManaged public var rawStatus: String
-    @NSManaged public var rawConfig: Data?
+    @NSManaged public var name: String
+    @NSManaged public var status: String
+    @NSManaged public var config: Data?
     
-    var name: FeatureName {
-        get {
-            return FeatureName.allCases.first(where: { $0.rawValue == rawName }) ?? .unknown
-        }
-        set {
-            rawName = newValue.rawValue
-        }
-    }
-    
-    var status: Bool {
-        get {
-            return FeatureStatus.allCases.first(where: { $0.rawValue == rawStatus })?.status ?? false
-        }
-        set {
-            rawStatus = newValue
-                ? FeatureStatus.enabled.rawValue
-                : FeatureStatus.disabled.rawValue
-        }
-    }
-    
-    var config: ConfigType? {
-        get {
-            guard let rawConfig = rawConfig else {
-                return nil
-            }
-            return try? JSONDecoder().decode(ConfigType.self, from: rawConfig)
-            
-        }
-        set {
-            rawConfig = try? JSONEncoder().encode(newValue)
-        }
-    }
+//    var name: FeatureName_Old {
+//        get {
+//            return FeatureName_Old.allCases.first(where: { $0.rawValue == rawName }) ?? .unknown
+//        }
+//        set {
+//            rawName = newValue.rawValue
+//        }
+//    }
+//
+//    var status: Bool {
+//        get {
+//            return FeatureStatus.allCases.first(where: { $0.rawValue == rawStatus })?.status ?? false
+//        }
+//        set {
+//            rawStatus = newValue
+//                ? FeatureStatus.enabled.rawValue
+//                : FeatureStatus.disabled.rawValue
+//        }
+//    }
+//
+//    var config: ConfigType? {
+//        get {
+//            guard let rawConfig = rawConfig else {
+//                return nil
+//            }
+//            return try? JSONDecoder().decode(ConfigType.self, from: rawConfig)
+//
+//        }
+//        set {
+//            rawConfig = try? JSONEncoder().encode(newValue)
+//        }
+//    }
     
     public override static func entityName() -> String {
         return "Feature"
     }
     
     @discardableResult
-    public static func fetch(with name: FeatureName,
-                             context: NSManagedObjectContext) -> Feature<ConfigType>? {
-       // precondition(context.zm_isSyncContext)
+    public static func fetch(_ featureName: String,
+                                   context: NSManagedObjectContext) -> Feature? {
         
         let fetchRequest = NSFetchRequest<Feature>(entityName: Feature.entityName())
-        fetchRequest.predicate = NSPredicate(format: "rawName == %@",
-                                             name.rawValue)
+        fetchRequest.predicate = NSPredicate(format: "name == %@", featureName)
         fetchRequest.fetchLimit = 1
         return context.fetchOrAssert(request: fetchRequest).first
     }
     
     @discardableResult
-    public static func createOrUpdate(with name: FeatureName,
-                                      status: Bool,
-                                      config: ConfigType,
-                                      context: NSManagedObjectContext) -> Feature<ConfigType>? {
-        precondition(context.zm_isSyncContext)
-        
-        if let existing = fetch(with: name, context: context) {
+    public static func createOrUpdate(_ featureName: String,
+                                      status: String,
+                                      config: Data?,
+                                      context: NSManagedObjectContext) -> Feature? {
+        if let existing = fetch(featureName, context: context) {
             existing.status = status
             existing.config = config
             return existing
         }
-        
-        let feature = insert(with: name,
+
+        let feature = insert(featureName,
                              status: status,
                              config: config,
                              context: context)
@@ -114,30 +110,24 @@ public class Feature<ConfigType: Codable>: ZMManagedObject {
     }
     
     @discardableResult
-    public static func insert(with name: FeatureName,
-                              status: Bool,
-                              config: ConfigType,
-                              context: NSManagedObjectContext) -> Feature<ConfigType> {
-       // precondition(context.zm_isSyncContext)
-        
-        let feat = Feature<ConfigType>()
-        feat.name = name
-        feat.status = status
-        feat.config = config
-        let feature = Feature<ConfigType>.insertNewObject(in: context)
-        feature.rawStatus = "enabled"
-        feature.rawName = feat.rawName
-        feature.rawConfig = try? JSONEncoder().encode(config)
+    public static func insert(_ featureName: String,
+                              status: String,
+                              config: Data?,
+                              context: NSManagedObjectContext) -> Feature {
+        let feature = Feature.insertNewObject(in: context)
+        feature.name = featureName
+        feature.status = status
+        feature.config = config
         return feature
     }
 }
 
-public struct AppLockConfig: Codable {
-    let enforceAppLock: Bool
-    let inactivityTimeoutSecs: UInt
-    
-    private enum CodingKeys: String, CodingKey {
-        case enforceAppLock = "enforce_app_lock"
-        case inactivityTimeoutSecs = "inactivity_timeout_secs"
-    }
-}
+//public struct AppLockConfig: Codable {
+//    let enforceAppLock: Bool
+//    let inactivityTimeoutSecs: UInt
+//
+//    private enum CodingKeys: String, CodingKey {
+//        case enforceAppLock = "enforce_app_lock"
+//        case inactivityTimeoutSecs = "inactivity_timeout_secs"
+//    }
+//}
