@@ -19,18 +19,8 @@
 import Foundation
 
 public enum FeatureName: String, CaseIterable {
-    
     case applock = "applock"
     case unknown = "unknown"
-    
-    public var configType: BaseConfig.Type {
-        switch self {
-        case .applock:
-            return AppLockConfig.self
-        default:
-            return AppLockConfig.self
-        }
-    }
 }
 
 public enum FeatureStatus: String, CaseIterable {
@@ -53,7 +43,6 @@ public class Feature<ConfigType: Codable>: ZMManagedObject {
     @NSManaged public var rawName: String
     @NSManaged public var rawStatus: String
     @NSManaged public var rawConfig: Data?
-    @NSManaged public var team: Team?
     
     var name: FeatureName {
         get {
@@ -90,69 +79,5 @@ public class Feature<ConfigType: Codable>: ZMManagedObject {
     
     public override static func entityName() -> String {
         return "Feature"
-    }
-    
-    @discardableResult
-    public static func fetch(with name: FeatureName,
-                             team: Team,
-                             context: NSManagedObjectContext) -> Feature<ConfigType>? {
-        precondition(context.zm_isSyncContext)
-        
-        let fetchRequest = NSFetchRequest<Feature>(entityName: Feature.entityName())
-        fetchRequest.predicate = NSPredicate(format: "team == %@ && rawName == %@",
-                                             team,
-                                             name.rawValue)
-        fetchRequest.fetchLimit = 1
-        return context.fetchOrAssert(request: fetchRequest).first
-    }
-    
-    @discardableResult
-    public static func createOrUpdate(with name: FeatureName,
-                                      status: Bool,
-                                      config: ConfigType,
-                                      team: Team,
-                                      context: NSManagedObjectContext) -> Feature<ConfigType>? {
-        precondition(context.zm_isSyncContext)
-        
-        if let existing = fetch(with: name, team: team, context: context) {
-            existing.status = status
-            existing.config = config
-            return existing
-        }
-        
-        let feature = insert(with: name,
-                             status: status,
-                             config: config,
-                             team: team,
-                             context: context)
-        return feature
-    }
-    
-    @discardableResult
-    public static func insert(with name: FeatureName,
-                              status: Bool,
-                              config: ConfigType,
-                              team: Team,
-                              context: NSManagedObjectContext) -> Feature<ConfigType> {
-        precondition(context.zm_isSyncContext)
-
-        let feature = Feature<ConfigType>.insertNewObject(in: context)
-        feature.name = name
-        feature.status = status
-        feature.config = config
-        feature.team = team
-        return feature
-    }
-}
-
-public protocol BaseConfig {}
-
-public struct AppLockConfig: Decodable, BaseConfig {
-    let enforceAppLock: Bool
-    let inactivityTimeoutSecs: UInt
-    
-    private enum CodingKeys: String, CodingKey {
-        case enforceAppLock = "enforce_app_lock"
-        case inactivityTimeoutSecs = "inactivity_timeout_secs"
     }
 }
