@@ -21,8 +21,9 @@ import XCTest
 
 final class FeatureTest: ZMBaseManagedObjectTest {
     
-    let config = AppLockConfig(enforceAppLock: true,
-                               inactivityTimeoutSecs: 30)
+    let jsonConfig = [ "enforce_app_lock": true,
+                       "inactivity_timeout_secs": 30
+        ] as [String : Any]
     
     override func setUp() {
         super.setUp()
@@ -32,25 +33,68 @@ final class FeatureTest: ZMBaseManagedObjectTest {
         super.tearDown()
     }
     
-    func testThatCreateOrUpdate_FetchesAnExistingRole() {
+    func testThatItCreatesFeature() {
         // given
-       // let feature = Feature<AppLockConfig>.fetch(with: .applock, context: uiMOC)
-        let feature1 = Feature<AppLockConfig>.insert(with: .applock,
-                                                     status: true,
-                                                     config: config,
-                                                     context: uiMOC)
-//        let feature = Feature.createOrUpdate(with: .applock,
-//                                             status: true,
-//                                             config: config,
-//                                             context: syncMOC)
-//
-//        // when
-//        let fetchedFeature = Feature.createOrUpdate(with: .applock,
-//                                                    status: true,
-//                                                    config: config,
-//                                                    context: syncMOC)
-//
-//        // then
-//        XCTAssertEqual(feature, fetchedFeature)
+        let configData = try? JSONEncoder().encode(jsonToData(json: jsonConfig))
+        let feature = Feature.createOrUpdate("applock",
+                                             status: "enabled",
+                                             config: configData,
+                                             context: uiMOC)
+        
+        // when
+        let fetchedFeature = Feature.createOrUpdate("applock",
+                                                    status: "enabled",
+                                                    config: configData,
+                                                    context: uiMOC)
+        
+        // then
+        XCTAssertEqual(feature, fetchedFeature)
+    }
+    
+    func testThatItUpdatesFeature() {
+        // given
+        let configData = try? JSONEncoder().encode(jsonToData(json: jsonConfig))
+        let feature = Feature.createOrUpdate("applock",
+                                             status: "enabled",
+                                             config: configData,
+                                             context: uiMOC)
+        XCTAssertEqual(feature?.status, "enabled")
+        
+        // when
+        let _ = Feature.createOrUpdate("applock",
+                                                    status: "disabled",
+                                                    config: configData,
+                                                    context: uiMOC)
+        
+        // then
+        XCTAssertEqual(feature?.status, "disabled")
+    }
+    
+    func testThatItFetchesFeature() {
+        // given
+        let configData = try? JSONEncoder().encode(jsonToData(json: jsonConfig))
+        let _ = Feature.createOrUpdate("applock",
+                                             status: "enabled",
+                                             config: configData,
+                                             context: uiMOC)
+        
+        
+        // when
+        let fetchedFeature = Feature.fetch("applock", context: uiMOC)
+        
+        // then
+        XCTAssertNotNil(fetchedFeature)
+    }
+}
+
+extension FeatureTest {
+    private func jsonToData(json: Any) -> Data? {
+        do {
+            return try JSONSerialization.data(withJSONObject: json, options: JSONSerialization.WritingOptions.prettyPrinted)
+        } catch let myJSONError {
+            print(myJSONError)
+        }
+        return nil;
+        
     }
 }
