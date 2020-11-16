@@ -40,7 +40,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
 
     // MARK: - Message Content
 
-    func test_existing_message_content_is_encrypted_when_ear_is_enabled() throws {
+    func testExistingMessageContentIsEncrypted_WhenEarIsEnabled() throws {
         // Given
         let conversation = createConversation(in: uiMOC)
         try conversation.appendText(content: "Beep bloop")
@@ -68,7 +68,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
         }
     }
 
-    func test_existing_message_content_is_decrypted_when_ear_is_disabled() throws {
+    func testExistingMessageContentIsDecrypted_WhenEarIsDisabled() throws {
         // Given
         let validEncryptionKeys = self.validEncryptionKeys
         try uiMOC.enableEncryptionAtRest(encryptionKeys: validEncryptionKeys, skipMigration: true)
@@ -102,7 +102,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
 
     // MARK: - Normalized Text
 
-    func test_normalized_message_content_is_cleared_when_ear_is_enabled() throws {
+    func testNormalizedMessageContentIsCleared_WhenEarIsEnabled() throws {
         // Given
         let conversation = createConversation(in: uiMOC)
         let message = try conversation.appendText(content: "Beep bloop") as! ZMMessage
@@ -123,7 +123,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
         }
     }
 
-    func test_normalized_message_content_is_updated_when_ear_is_disabled() throws {
+    func testNormalizedMessageContentIsUpdated_WhenEarIsDisabled() throws {
         // Given
         let validEncryptionKeys = self.validEncryptionKeys
         try uiMOC.enableEncryptionAtRest(encryptionKeys: validEncryptionKeys, skipMigration: true)
@@ -149,7 +149,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
 
     // MARK: - Draft messages
 
-    func test_draft_message_content_is_encrypted_when_ear_is_enabled() throws {
+    func testDraftMessageContentIsEncrypted_WhenEarIsEnabled() throws {
         // Given
         let conversation = createConversation(in: uiMOC)
         conversation.draftMessage = DraftMessage(text: "Beep bloop", mentions: [], quote: nil)
@@ -171,7 +171,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
         }
     }
 
-    func test_draft_message_content_is_decrypted_when_ear_is_disabled() throws {
+    func testDraftMessageContentIsDecrypted_WhenEarIsDisabled() throws {
         // Given
         let validEncryptionKeys = self.validEncryptionKeys
         try uiMOC.enableEncryptionAtRest(encryptionKeys: validEncryptionKeys, skipMigration: true)
@@ -199,7 +199,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
 
     // MARK: - Negative Tests
 
-    func test_it_throws_an_error_when_database_key_is_missing_when_ear_is_enabled() throws {
+    func testItThrowsAnError_WhenDatabaseKeyIsMissing_WhenEarIsEnabled() throws {
         // Given
         uiMOC.encryptionKeys = nil
 
@@ -216,7 +216,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
         }
     }
 
-    func test_it_throws_an_error_when_database_key_is_missing_when_ear_is_disabled() throws {
+    func testItThrowsAnError_WhenDatabaseKeyIsMissing_WhenEarIsDisabled() throws {
         // Given
         let validEncryptionKeys = self.validEncryptionKeys
         try uiMOC.enableEncryptionAtRest(encryptionKeys: validEncryptionKeys, skipMigration: true)
@@ -235,7 +235,7 @@ class NSManagedObjectContextTests_EncryptionAtRest: ZMBaseManagedObjectTest {
         }
     }
 
-    func test_migration_is_canceled_when_a_single_instance_fails_to_migrate() throws {
+    func testMigrationIsCanceled_WhenASingleInstanceFailsToMigrate() throws {
         // Given
         let encryptionKeys1 = validEncryptionKeys
         let encryptionKeys2 = validEncryptionKeys
