@@ -152,7 +152,13 @@ extension StorageStack {
         var storeMetadata = store.metadata
         
         if let encryptionKeys = encryptionKeys {
-            try context.disableEncryptionAtRest(encryptionKeys: encryptionKeys)
+            context.performAndWait {
+                do {
+                    try context.disableEncryptionAtRest(encryptionKeys: encryptionKeys)
+                } catch {
+                    print("failure to disable encryption at rest")
+                }
+            }
         }
         
         // Mark the db as backed up
