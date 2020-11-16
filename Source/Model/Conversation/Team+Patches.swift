@@ -28,8 +28,10 @@ extension Team {
     static func deleteLocalTeamsAndMembers(in context: NSManagedObjectContext) {
         let request = Team.sortedFetchRequest()
         
-        guard let teams = context.fetchOrAssert(request: request) as? [NSManagedObject] else { return                
+        guard let teams = context.fetchOrAssert(request: request) as? [NSManagedObject] else {
+            return
         }
+        
         teams.forEach(context.delete)
     }
 

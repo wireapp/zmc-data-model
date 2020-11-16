@@ -24,20 +24,17 @@ extension UserClient {
     /// to new client sessions  useing user identifier + client identifier as session identifier.
     /// These have less chances of collision.
     static func migrateAllSessionsClientIdentifiers(in moc: NSManagedObjectContext) {
-        guard let selfClient = ZMUser.selfUser(in: moc).selfClient() else {
-            // no client? no migration needed
-            return
-        }
-        
         let request = UserClient.sortedFetchRequest()
         
-        let allClients = moc.fetchOrAssert(request: request) as? [UserClient]
-        
+        guard let selfClient = ZMUser.selfUser(in: moc).selfClient(),
+            let allClients = moc.fetchOrAssert(request: request) as? [UserClient] else {
+                // no client? no migration needed
+                return
+        }
+
         selfClient.keysStore.encryptionContext.perform { (session) in
-            if let unwrappedAllClients = allClients {
-                for client in unwrappedAllClients {
-                    client.migrateSessionIdentifierFromV1IfNeeded(sessionDirectory: session)
-                }
+            for client in allClients {
+                client.migrateSessionIdentifierFromV1IfNeeded(sessionDirectory: session)
             }
         }
     }
