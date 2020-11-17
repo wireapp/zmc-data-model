@@ -32,7 +32,8 @@ public class Feature: ZMManagedObject {
     
     public var status: Status {
         get {
-            return Status(rawValue: statusValue) ?? .disabled
+            guard let status = Status(rawValue: statusValue) else { fatalError() }
+            return status
         }
         set {
             statusValue = newValue.rawValue
