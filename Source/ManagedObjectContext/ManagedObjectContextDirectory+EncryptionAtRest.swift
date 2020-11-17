@@ -38,7 +38,7 @@ public extension ManagedObjectContextDirectory {
         
         return encryptionKeys
     }
-
+    
     /// Synchronously stores the given encryption keys in each managed object context.
 
     func storeEncryptionKeysInAllContexts(encryptionKeys: EncryptionKeys) {
