@@ -21,7 +21,7 @@ import WireCryptobox
 
 extension Sequence where Element: NSManagedObject {
     
-    /// Perform changes on a sequence of NSManagedObjects and save at a regular internal and fault
+    /// Perform changes on a sequence of NSManagedObjects and save at a regular interval and fault
     /// objects in order to keep memory consumption low.
     ///
     /// - Parameters:
