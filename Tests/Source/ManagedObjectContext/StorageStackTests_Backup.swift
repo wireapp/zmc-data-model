@@ -35,11 +35,14 @@ class StorageStackTests_Backup: DatabaseBaseTest {
         super.tearDown()
     }
     
-    func createBackup(accountIdentifier: UUID, file: StaticString =
-        #file, line: UInt = #line) -> Result<URL>? {
+    func createBackup(accountIdentifier: UUID, encryptionKeys: EncryptionKeys? = nil, file: StaticString = #file, line: UInt = #line) -> Result<URL>? {
 
         var result: Result<URL>?
-        StorageStack.backupLocalStorage(accountIdentifier: accountIdentifier, clientIdentifier: name, applicationContainer: applicationContainer, dispatchGroup: self.dispatchGroup) {
+        StorageStack.backupLocalStorage(accountIdentifier: accountIdentifier,
+                                        clientIdentifier: name,
+                                        applicationContainer: applicationContainer,
+                                        dispatchGroup: self.dispatchGroup,
+                                        encryptionKeys: encryptionKeys) {
             result = $0.map { $0.url }
         }
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.5), file: file, line: line)
@@ -130,7 +133,90 @@ class StorageStackTests_Backup: DatabaseBaseTest {
         default: XCTFail("unexpected error type")
         }
     }
+    
+    func testThatItFindsTheStorage_WhenEARIsEnableAndEncryptionKeysAreValid() throws {
+        // given
+        let uuid = UUID()
+        let directory = createStorageStackAndWaitForCompletion(userID: uuid)
+        directory.uiContext.encryptMessagesAtRest = true
+        directory.uiContext.encryptionKeys = validEncryptionKeys
+        directory.uiContext.saveOrRollback()
+        
+        // when
+        guard let result = createBackup(accountIdentifier: uuid,
+                                        encryptionKeys: validEncryptionKeys) else {
+            return XCTFail()
+        }
 
+        // then
+        guard case let .success(url) = result else { return XCTFail() }
+
+        let fm = FileManager.default
+        XCTAssertTrue(fm.fileExists(atPath: url.path))
+        let databaseDirectory = url.appendingPathComponent("data")
+        let metadataURL = url.appendingPathComponent("export.json")
+        
+        XCTAssertTrue(fm.fileExists(atPath: databaseDirectory.path))
+        XCTAssertTrue(fm.fileExists(atPath: metadataURL.path))
+        XCTAssertTrue(try fm.contentsOfDirectory(atPath: databaseDirectory.path).count > 1)
+        XCTAssertTrue(try fm.contentsOfDirectory(atPath: url.path).count > 1)
+    }
+    
+    func testThaItFindsTheStorage_WhenEARIsDisabledAndEncryptionKeysAreNil() throws {
+        // given
+        let uuid = UUID()
+        let directory = createStorageStackAndWaitForCompletion(userID: uuid)
+        directory.uiContext.encryptMessagesAtRest = false
+        directory.uiContext.encryptionKeys = nil
+        directory.uiContext.saveOrRollback()
+        
+        // when
+        guard let result = createBackup(accountIdentifier: uuid,
+                                        encryptionKeys: nil) else {
+            return XCTFail()
+        }
+
+        // then
+        guard case let .success(url) = result else { return XCTFail() }
+
+        let fm = FileManager.default
+        XCTAssertTrue(fm.fileExists(atPath: url.path))
+        let databaseDirectory = url.appendingPathComponent("data")
+        let metadataURL = url.appendingPathComponent("export.json")
+        
+        XCTAssertTrue(fm.fileExists(atPath: databaseDirectory.path))
+        XCTAssertTrue(fm.fileExists(atPath: metadataURL.path))
+        XCTAssertTrue(try fm.contentsOfDirectory(atPath: databaseDirectory.path).count > 1)
+        XCTAssertTrue(try fm.contentsOfDirectory(atPath: url.path).count > 1)
+    }
+    
+    func testThaItNotFindsTheStorage_WhenEARIsEnabledAndEncryptionKeysAreNil() throws {
+        // given
+        let uuid = UUID()
+        let directory = createStorageStackAndWaitForCompletion(userID: uuid)
+        directory.uiContext.encryptMessagesAtRest = true
+        directory.uiContext.encryptionKeys = nil
+        directory.uiContext.saveOrRollback()
+        
+        // when
+        guard let result = createBackup(accountIdentifier: uuid,
+                                        encryptionKeys: nil) else {
+            return XCTFail()
+        }
+
+        guard case let .failure(error) = result else { return XCTFail() }
+        
+        // then
+        switch error as? StorageStack.BackupError {
+        case .failedToWrite(let failureError):
+            switch failureError as? StorageStack.BackupError {
+            case .missingEAREncryptionKey: break
+            default: XCTFail("unexpected error type")
+        }
+        default: XCTFail("unexpected error type")
+        }
+    }
+    
     func testThatItPreservesOriginalDataAfterBackup() {
         // given
         let uuid = UUID()
@@ -146,12 +232,54 @@ class StorageStackTests_Backup: DatabaseBaseTest {
         let fetchConversations = ZMConversation.sortedFetchRequest()
         XCTAssertEqual(try directory.uiContext.count(for: fetchConversations), 1)
     }
+    
+    func testThatItPreservesOriginalDataAfterBackup_WhenEARIsEnableAndEncryptionKeysAreValid() {
+        // given
+        let uuid = UUID()
+        let directory = createStorageStackAndWaitForCompletion(userID: uuid)
+        _ = ZMConversation.insertGroupConversation(moc: directory.uiContext, participants: [])
+        directory.uiContext.encryptMessagesAtRest = true
+        directory.uiContext.encryptionKeys = validEncryptionKeys
+        directory.uiContext.saveOrRollback()
+        directory.uiContext.saveOrRollback()
+
+        // when
+        guard let result = createBackup(accountIdentifier: uuid,
+                                        encryptionKeys: validEncryptionKeys) else {
+            return XCTFail()
+        }
+
+        // then
+        guard case .success = result else { return XCTFail() }
+        let fetchConversations = ZMConversation.sortedFetchRequest()
+        XCTAssertEqual(try directory.uiContext.count(for: fetchConversations), 1)
+    }
 
     func testThatItPreservesOriginaDataAfterBackupIfStackIsNotActive() throws {
         // given
         let uuid = UUID()
         let directory = createStorageStackAndWaitForCompletion(userID: uuid)
         _ = ZMConversation.insertGroupConversation(moc: directory.uiContext, participants: [])
+        directory.uiContext.saveOrRollback()
+        StorageStack.reset()
+
+        // when
+        guard let result = createBackup(accountIdentifier: uuid) else { return XCTFail() }
+
+        // then
+        guard case .success = result else { return XCTFail() }
+        let anotherDirectory = createStorageStackAndWaitForCompletion(userID: uuid)
+        let fetchConversations = ZMConversation.sortedFetchRequest()
+        XCTAssertEqual(try anotherDirectory.uiContext.count(for: fetchConversations), 1)
+    }
+    
+    func testThatItPreservesOriginaDataAfterBackupIfStackIsNotActive_WhenEARIsDisabledAndEncryptionKeysAreNil() throws {
+        // given
+        let uuid = UUID()
+        let directory = createStorageStackAndWaitForCompletion(userID: uuid)
+        _ = ZMConversation.insertGroupConversation(moc: directory.uiContext, participants: [])
+        directory.uiContext.encryptMessagesAtRest = false
+        directory.uiContext.encryptionKeys = nil
         directory.uiContext.saveOrRollback()
         StorageStack.reset()
 
