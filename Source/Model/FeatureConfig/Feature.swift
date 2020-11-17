@@ -30,10 +30,6 @@ public class Feature: ZMManagedObject {
     @NSManaged public var config: Data?
     @NSManaged private var statusValue: String
     
-    public override static func entityName() -> String {
-        return "Feature"
-    }
-    
     public var status: Status {
         get {
             return Status(rawValue: statusValue) ?? .disabled
@@ -41,5 +37,9 @@ public class Feature: ZMManagedObject {
         set {
             statusValue = newValue.rawValue
         }
+    }
+    
+    public override static func entityName() -> String {
+        return "Feature"
     }
 }
