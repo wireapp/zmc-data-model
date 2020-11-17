@@ -34,7 +34,7 @@ public class Feature: ZMManagedObject {
         return "Feature"
     }
     
-    var status: FeatureStatus {
+    public var status: FeatureStatus {
         get {
             return FeatureStatus(rawValue: statusValue) ?? .disabled
         }
