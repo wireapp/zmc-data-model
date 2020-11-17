@@ -36,47 +36,44 @@ final class FeatureTest: ZMBaseManagedObjectTest {
     func testThatItCreatesFeature() {
         // given
         let configData = try? JSONEncoder().encode(jsonToData(json: jsonConfig))
+        
+        // when
         let feature = Feature.createOrUpdate("applock",
-                                             status: "enabled",
+                                             status: .enabled,
                                              config: configData,
                                              context: uiMOC)
         
-        // when
-        let fetchedFeature = Feature.createOrUpdate("applock",
-                                                    status: "enabled",
-                                                    config: configData,
-                                                    context: uiMOC)
-        
         // then
+        let fetchedFeature = Feature.fetch("applock", context: uiMOC)
         XCTAssertEqual(feature, fetchedFeature)
     }
     
     func testThatItUpdatesFeature() {
         // given
         let configData = try? JSONEncoder().encode(jsonToData(json: jsonConfig))
-        let feature = Feature.createOrUpdate("applock",
-                                             status: "enabled",
-                                             config: configData,
-                                             context: uiMOC)
-        XCTAssertEqual(feature?.status, "enabled")
+        let feature = Feature.insert("applock",
+                                      status: .enabled,
+                                      config: configData,
+                                      context: uiMOC)
+        XCTAssertEqual(feature.status, .enabled)
         
         // when
         let _ = Feature.createOrUpdate("applock",
-                                                    status: "disabled",
-                                                    config: configData,
-                                                    context: uiMOC)
+                                       status: .disabled,
+                                       config: configData,
+                                       context: uiMOC)
         
         // then
-        XCTAssertEqual(feature?.status, "disabled")
+        XCTAssertEqual(feature.status, .disabled)
     }
     
     func testThatItFetchesFeature() {
         // given
         let configData = try? JSONEncoder().encode(jsonToData(json: jsonConfig))
         let _ = Feature.createOrUpdate("applock",
-                                             status: "enabled",
-                                             config: configData,
-                                             context: uiMOC)
+                                       status: .enabled,
+                                       config: configData,
+                                       context: uiMOC)
         
         
         // when
