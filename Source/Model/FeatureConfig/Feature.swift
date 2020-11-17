@@ -18,12 +18,26 @@
 
 import Foundation
 
+public enum FeatureStatus: String, Codable {
+  case enabled
+  case disabled
+}
+
 @objcMembers
 public class Feature: ZMManagedObject {
-   
+    
     @NSManaged public var name: String
-    @NSManaged public var status: String
+    @NSManaged public var statusValue: String
     @NSManaged public var config: Data?
+    
+    var status: FeatureStatus {
+        get {
+            return FeatureStatus(rawValue: statusValue) ?? .disabled
+        }
+        set {
+            statusValue = newValue.rawValue
+        }
+    }
     
     public override static func entityName() -> String {
         return "Feature"
@@ -31,7 +45,7 @@ public class Feature: ZMManagedObject {
     
     @discardableResult
     public static func fetch(_ featureName: String,
-                                   context: NSManagedObjectContext) -> Feature? {
+                             context: NSManagedObjectContext) -> Feature? {
         
         let fetchRequest = NSFetchRequest<Feature>(entityName: Feature.entityName())
         fetchRequest.predicate = NSPredicate(format: "name == %@", featureName)
@@ -41,7 +55,7 @@ public class Feature: ZMManagedObject {
     
     @discardableResult
     public static func createOrUpdate(_ featureName: String,
-                                      status: String,
+                                      status: FeatureStatus,
                                       config: Data?,
                                       context: NSManagedObjectContext) -> Feature? {
         if let existing = fetch(featureName, context: context) {
@@ -49,7 +63,7 @@ public class Feature: ZMManagedObject {
             existing.config = config
             return existing
         }
-
+        
         let feature = insert(featureName,
                              status: status,
                              config: config,
@@ -59,7 +73,7 @@ public class Feature: ZMManagedObject {
     
     @discardableResult
     public static func insert(_ featureName: String,
-                              status: String,
+                              status: FeatureStatus,
                               config: Data?,
                               context: NSManagedObjectContext) -> Feature {
         let feature = Feature.insertNewObject(in: context)
