@@ -18,21 +18,21 @@
 
 import Foundation
 
-public enum FeatureStatus: String, Codable {
-  case enabled
-  case disabled
-}
-
 @objcMembers
 public class Feature: ZMManagedObject {
     
-    @NSManaged public var name: String
-    @NSManaged public var statusValue: String
-    @NSManaged public var config: Data?
+   public enum Status: String, Codable {
+     case enabled
+     case disabled
+   }
     
-    public var status: FeatureStatus {
+    @NSManaged public var name: String
+    @NSManaged public var config: Data?
+    @NSManaged private var statusValue: String
+    
+    public var status: Status {
         get {
-            return FeatureStatus(rawValue: statusValue) ?? .disabled
+            return Status(rawValue: statusValue) ?? .disabled
         }
         set {
             statusValue = newValue.rawValue
@@ -55,7 +55,7 @@ public class Feature: ZMManagedObject {
     
     @discardableResult
     public static func createOrUpdate(_ featureName: String,
-                                      status: FeatureStatus,
+                                      status: Status,
                                       config: Data?,
                                       context: NSManagedObjectContext) -> Feature? {
         if let existing = fetch(featureName, context: context) {
@@ -73,7 +73,7 @@ public class Feature: ZMManagedObject {
     
     @discardableResult
     public static func insert(_ featureName: String,
-                              status: FeatureStatus,
+                              status: Status,
                               config: Data?,
                               context: NSManagedObjectContext) -> Feature {
         let feature = Feature.insertNewObject(in: context)
