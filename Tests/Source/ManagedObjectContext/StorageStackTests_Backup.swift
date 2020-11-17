@@ -205,53 +205,12 @@ class StorageStackTests_Backup: DatabaseBaseTest {
         let fetchConversations = ZMConversation.sortedFetchRequest()
         XCTAssertEqual(try directory.uiContext.count(for: fetchConversations), 1)
     }
-    
-    func testThatItPreservesOriginalDataAfterBackup_WhenEARIsEnableAndEncryptionKeysAreValid() {
-        // given
-        let uuid = UUID()
-        let directory = createStorageStackAndWaitForCompletion(userID: uuid)
-        _ = ZMConversation.insertGroupConversation(moc: directory.uiContext, participants: [])
-        directory.uiContext.encryptMessagesAtRest = true
-        directory.uiContext.encryptionKeys = validEncryptionKeys
-        directory.uiContext.saveOrRollback()
-
-        // when
-        guard let result = createBackup(accountIdentifier: uuid,
-                                        encryptionKeys: validEncryptionKeys) else {
-            return XCTFail()
-        }
-
-        // then
-        guard case .success = result else { return XCTFail() }
-        let fetchConversations = ZMConversation.sortedFetchRequest()
-        XCTAssertEqual(try directory.uiContext.count(for: fetchConversations), 1)
-    }
 
     func testThatItPreservesOriginaDataAfterBackupIfStackIsNotActive() throws {
         // given
         let uuid = UUID()
         let directory = createStorageStackAndWaitForCompletion(userID: uuid)
         _ = ZMConversation.insertGroupConversation(moc: directory.uiContext, participants: [])
-        directory.uiContext.saveOrRollback()
-        StorageStack.reset()
-
-        // when
-        guard let result = createBackup(accountIdentifier: uuid) else { return XCTFail() }
-
-        // then
-        guard case .success = result else { return XCTFail() }
-        let anotherDirectory = createStorageStackAndWaitForCompletion(userID: uuid)
-        let fetchConversations = ZMConversation.sortedFetchRequest()
-        XCTAssertEqual(try anotherDirectory.uiContext.count(for: fetchConversations), 1)
-    }
-    
-    func testThatItPreservesOriginaDataAfterBackupIfStackIsNotActive_WhenEARIsDisabledAndEncryptionKeysAreNil() throws {
-        // given
-        let uuid = UUID()
-        let directory = createStorageStackAndWaitForCompletion(userID: uuid)
-        _ = ZMConversation.insertGroupConversation(moc: directory.uiContext, participants: [])
-        directory.uiContext.encryptMessagesAtRest = false
-        directory.uiContext.encryptionKeys = nil
         directory.uiContext.saveOrRollback()
         StorageStack.reset()
 
