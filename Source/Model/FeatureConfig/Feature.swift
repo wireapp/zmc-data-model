@@ -57,7 +57,7 @@ public class Feature: ZMManagedObject {
     public static func createOrUpdate(_ featureName: String,
                                       status: Status,
                                       config: Data?,
-                                      context: NSManagedObjectContext) -> Feature? {
+                                      context: NSManagedObjectContext) -> Feature {
         if let existing = fetch(featureName, context: context) {
             existing.status = status
             existing.config = config
