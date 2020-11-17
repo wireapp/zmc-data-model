@@ -30,7 +30,7 @@ public class Feature: ZMManagedObject {
     @NSManaged public var statusValue: String
     @NSManaged public var config: Data?
     
-    var status: FeatureStatus {
+    public var status: FeatureStatus {
         get {
             return FeatureStatus(rawValue: statusValue) ?? .disabled
         }
