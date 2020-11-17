@@ -18,14 +18,28 @@
 
 import Foundation
 
+public enum FeatureStatus: String, Codable {
+  case enabled
+  case disabled
+}
+
 @objcMembers
 public class Feature: ZMManagedObject {
    
     @NSManaged public var name: String
-    @NSManaged public var status: String
+    @NSManaged public var statusValue: String
     @NSManaged public var config: Data?
     
     public override static func entityName() -> String {
         return "Feature"
+    }
+    
+    var status: FeatureStatus {
+        get {
+            return FeatureStatus(rawValue: statusValue) ?? .disabled
+        }
+        set {
+            statusValue = newValue.rawValue
+        }
     }
 }
