@@ -21,21 +21,20 @@ import XCTest
 
 final class FeatureTest: ZMBaseManagedObjectTest {
     
-    let jsonConfig = [ "enforce_app_lock": true,
-                       "inactivity_timeout_secs": 30
-        ] as [String : Any]
-    
-    override func setUp() {
-        super.setUp()
-    }
+    let config: Data = {
+      let json = """
+      {
+        "enforceAppLock": true,
+        "inactivityTimeoutSecs": 30
+      }
+      """
 
-    override func tearDown() {
-        super.tearDown()
-    }
+      return json.data(using: .utf8)!
+    }()
     
     func testThatItCreatesFeature() {
         // given
-        let configData = try? JSONEncoder().encode(jsonToData(json: jsonConfig))
+        let configData = try? JSONEncoder().encode(config)
         
         // when
         let feature = Feature.createOrUpdate("applock",
@@ -50,7 +49,7 @@ final class FeatureTest: ZMBaseManagedObjectTest {
     
     func testThatItUpdatesFeature() {
         // given
-        let configData = try? JSONEncoder().encode(jsonToData(json: jsonConfig))
+        let configData = try? JSONEncoder().encode(config)
         let feature = Feature.insert("applock",
                                       status: .enabled,
                                       config: configData,
@@ -69,7 +68,7 @@ final class FeatureTest: ZMBaseManagedObjectTest {
     
     func testThatItFetchesFeature() {
         // given
-        let configData = try? JSONEncoder().encode(jsonToData(json: jsonConfig))
+        let configData = try? JSONEncoder().encode(config)
         let _ = Feature.createOrUpdate("applock",
                                        status: .enabled,
                                        config: configData,
@@ -81,17 +80,5 @@ final class FeatureTest: ZMBaseManagedObjectTest {
         
         // then
         XCTAssertNotNil(fetchedFeature)
-    }
-}
-
-extension FeatureTest {
-    private func jsonToData(json: Any) -> Data? {
-        do {
-            return try JSONSerialization.data(withJSONObject: json, options: JSONSerialization.WritingOptions.prettyPrinted)
-        } catch let myJSONError {
-            print(myJSONError)
-        }
-        return nil;
-        
     }
 }
