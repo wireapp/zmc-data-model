@@ -153,13 +153,11 @@ extension StorageStack {
         context.persistentStoreCoordinator = coordinator
         var storeMetadata = store.metadata
         
-        if context.encryptMessagesAtRest {
-            if let encryptionKeys = encryptionKeys {
-                try context.performGroupedAndWait { context in
-                    try context.disableEncryptionAtRest(encryptionKeys: encryptionKeys)
-                }
-            } else {
-                throw BackupError.missingEAREncryptionKey
+        
+        try context.performGroupedAndWait { context in
+            if context.encryptMessagesAtRest {
+                guard let encryptionKeys = encryptionKeys else { throw BackupError.missingEAREncryptionKey }
+                try context.disableEncryptionAtRest(encryptionKeys: encryptionKeys)
             }
         }
         
