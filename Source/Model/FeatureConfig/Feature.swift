@@ -34,8 +34,7 @@ public class Feature: ZMManagedObject {
     public var status: Status {
         get {
             guard let status = Status(rawValue: statusValue) else {
-                zmLog.error("Failed to retrieve status: \(statusValue)")
-                fatalError()
+                fatalError("Failed to decode Feature statusValue: \(statusValue)")
             }
             return status
         }
