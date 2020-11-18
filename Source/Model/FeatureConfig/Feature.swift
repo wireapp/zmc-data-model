@@ -25,6 +25,7 @@ public class Feature: ZMManagedObject {
      case enabled
      case disabled
    }
+    private let zmLog = ZMSLog(tag: "Feature")
     
     @NSManaged public var name: String
     @NSManaged public var config: Data?
@@ -32,7 +33,10 @@ public class Feature: ZMManagedObject {
     
     public var status: Status {
         get {
-            guard let status = Status(rawValue: statusValue) else { fatalError() }
+            guard let status = Status(rawValue: statusValue) else {
+                zmLog.error("Failed to retrieve status: \(statusValue)")
+                fatalError()
+            }
             return status
         }
         set {
