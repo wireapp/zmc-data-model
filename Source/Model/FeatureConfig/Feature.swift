@@ -21,10 +21,10 @@ import Foundation
 @objcMembers
 public class Feature: ZMManagedObject {
     
-   public enum Status: String, Codable {
-     case enabled
-     case disabled
-   }
+    public enum Status: String, Codable {
+        case enabled
+        case disabled
+    }
     private let zmLog = ZMSLog(tag: "Feature")
     
     @NSManaged public var name: String
@@ -46,5 +46,44 @@ public class Feature: ZMManagedObject {
     public override static func entityName() -> String {
         return "Feature"
     }
+    
+    @discardableResult
+    public static func fetch(_ featureName: String,
+                             context: NSManagedObjectContext) -> Feature? {
+        
+        let fetchRequest = NSFetchRequest<Feature>(entityName: Feature.entityName())
+        fetchRequest.predicate = NSPredicate(format: "name == %@", featureName)
+        fetchRequest.fetchLimit = 1
+        return context.fetchOrAssert(request: fetchRequest).first
+    }
+    
+    @discardableResult
+    public static func createOrUpdate(_ featureName: String,
+                                      status: Status,
+                                      config: Data?,
+                                      context: NSManagedObjectContext) -> Feature {
+        if let existing = fetch(featureName, context: context) {
+            existing.status = status
+            existing.config = config
+            return existing
+        }
+        
+        let feature = insert(featureName,
+                             status: status,
+                             config: config,
+                             context: context)
+        return feature
+    }
+    
+    @discardableResult
+    public static func insert(_ featureName: String,
+                              status: Status,
+                              config: Data?,
+                              context: NSManagedObjectContext) -> Feature {
+        let feature = Feature.insertNewObject(in: context)
+        feature.name = featureName
+        feature.status = status
+        feature.config = config
+        return feature
+    }
 }
-
