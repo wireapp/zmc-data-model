@@ -48,6 +48,9 @@ import UIKit
     /// This is mostly useful for testing.
     public var createStorageAsInMemory: Bool = false
 
+    /// Whether the storage is imported from A backup.
+    public var isImportedFromBackup: Bool = false
+    
     private let isolationQueue = DispatchQueue(label: "StorageStack")
     
     /// Attempts to access the legacy store and fetch the user ID of the self user.
@@ -175,13 +178,14 @@ import UIKit
                 applicationContainer: applicationContainer,
                 dispatchGroup: dispatchGroup)
             MemoryReferenceDebugger.register(directory)
-
-            directory.syncContext.performAndWait {
-                if let imported = directory.syncContext.persistentStoreMetadata(forKey: PersistentMetadataKey.importedFromBackup.rawValue) as? NSNumber, imported.boolValue {
-                    directory.syncContext.prepareToImportBackup()
+            
+            directory.syncContext.performGroupedAndWait { context in
+                guard StorageStack.shared.isImportedFromBackup else {
+                    return
                 }
+                context.prepareToImportBackup()
             }
-
+    
             completionHandler(directory)
         }
     }

@@ -120,13 +120,13 @@ extension StorageStack {
                     ofType: NSSQLiteStoreType
                 )
 
-                // Mark the database as imported from a history backup
-                try markAsImported(coordinator: coordinator, location: backupLocation, options: options)
-
                 // Create & write metadata
                 let metadata = BackupMetadata(userIdentifier: accountIdentifier, clientIdentifier: clientIdentifier)
                 try metadata.write(to: metadataURL)
+                
                 log.info("successfully created backup at: \(backupDirectory.path), metadata: \(metadata)")
+                
+                print("successfully created backup at: \(backupDirectory.path), metadata: \(metadata)")
                 
                 DispatchQueue.main.async(group: dispatchGroup) {
                     completion(.success(.init(url: backupDirectory, metadata: metadata)))
@@ -134,23 +134,6 @@ extension StorageStack {
             } catch {
                 fail(.failedToWrite(error))
             }
-        }
-    }
-    
-    private static func markAsImported(coordinator: NSPersistentStoreCoordinator, location: URL, options: [String: Any]) throws {
-        // Add persistent store at the new location to allow creation of NSManagedObjectContext
-        let store = try coordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: location, options: options)
-        let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
-        context.persistentStoreCoordinator = coordinator
-        var storeMetadata = store.metadata
-        
-        // Mark the db as backed up
-        storeMetadata?[PersistentMetadataKey.importedFromBackup.rawValue] = NSNumber(booleanLiteral: true)
-        store.metadata = storeMetadata
-
-        // Save context & forward error
-        try context.performGroupedAndWait { context in
-            try context.save()
         }
     }
     
@@ -197,6 +180,7 @@ extension StorageStack {
                 }
                 
                 let coordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
+                print("metadata: \(coordinator.persistentStores.first?.metadata)")
                 
                 // Create target directory
                 try fileManager.createDirectory(at: accountStoreFile.deletingLastPathComponent(), withIntermediateDirectories: true, attributes: nil)
@@ -210,7 +194,9 @@ extension StorageStack {
                     sourceOptions: options,
                     ofType: NSSQLiteStoreType
                 )
-
+                
+                StorageStack.shared.isImportedFromBackup = true
+                
                 log.info("succesfully imported backup with metadata: \(metadata)")
 
                 DispatchQueue.main.async(group: dispatchGroup) {

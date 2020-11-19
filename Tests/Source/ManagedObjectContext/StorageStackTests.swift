@@ -615,7 +615,6 @@ extension StorageStackTests {
         
         // Set metadata on DB which we expect to be cleared when importing from a backup
         contextDirectory.uiContext.setPersistentStoreMetadata("1234567890", key: ZMPersistedClientIdKey)
-        contextDirectory.uiContext.setPersistentStoreMetadata(NSNumber(booleanLiteral: true), key: PersistentMetadataKey.importedFromBackup.rawValue)
         contextDirectory.uiContext.setPersistentStoreMetadata("1234567890", key: PersistentMetadataKey.pushToken.rawValue)
         contextDirectory.uiContext.setPersistentStoreMetadata("1234567890", key: PersistentMetadataKey.pushKitToken.rawValue)
         contextDirectory.uiContext.setPersistentStoreMetadata("1234567890", key: PersistentMetadataKey.lastUpdateEventID.rawValue)
