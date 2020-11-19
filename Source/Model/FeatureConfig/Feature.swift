@@ -21,10 +21,10 @@ import Foundation
 @objcMembers
 public class Feature: ZMManagedObject {
     
-   public enum Status: String, Codable {
-     case enabled
-     case disabled
-   }
+    public enum Status: String, Codable {
+        case enabled
+        case disabled
+    }
     private let zmLog = ZMSLog(tag: "Feature")
     
     @NSManaged public var name: String
