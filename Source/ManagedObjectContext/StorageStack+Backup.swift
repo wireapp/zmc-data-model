@@ -152,6 +152,9 @@ extension StorageStack {
         try context.performGroupedAndWait { context in
             try context.save()
         }
+        
+        // Close the store, not doing so could lead to data loss when copying the store files.
+        try coordinator.remove(store)
     }
     
     public enum BackupImportError: Error {
