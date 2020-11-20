@@ -49,10 +49,14 @@ class StorageStackTests_Backup: DatabaseBaseTest {
         return result
     }
     
-    func importBackup(accountIdentifier: UUID, backup: URL, file: StaticString = #file, line: UInt = #line) -> Result<URL>? {
+    func importBackup(accountIdentifier: UUID, backup: URL, encryptionKeys: EncryptionKeys? = nil, file: StaticString = #file, line: UInt = #line) -> Result<URL>? {
         
         var result: Result<URL>?
-        StorageStack.importLocalStorage(accountIdentifier: accountIdentifier, from: backup, applicationContainer: applicationContainer, dispatchGroup: dispatchGroup) {
+        StorageStack.importLocalStorage(accountIdentifier: accountIdentifier,
+                                        from: backup,
+                                        applicationContainer: applicationContainer,
+                                        dispatchGroup: dispatchGroup,
+                                        encryptionKeys: encryptionKeys) {
              result = $0
         }
         
@@ -269,6 +273,61 @@ class StorageStackTests_Backup: DatabaseBaseTest {
         XCTAssertNil(importedDirectory.uiContext.persistentStoreMetadata(forKey: PersistentMetadataKey.pushToken.rawValue))
         XCTAssertNil(importedDirectory.uiContext.persistentStoreMetadata(forKey: PersistentMetadataKey.pushKitToken.rawValue))
         XCTAssertNil(importedDirectory.uiContext.persistentStoreMetadata(forKey: PersistentMetadataKey.lastUpdateEventID.rawValue))
+    }
+    
+    func testThatItEnableEncryptionAtRest_WhenImportBackupAndEARIsEnableAndEncryptionKeysAreValid() throws {
+        // given
+        let uuid = UUID()
+        let directory = createStorageStackAndWaitForCompletion(userID: uuid)
+        
+        guard let backup = createBackup(accountIdentifier: uuid)?.value else { return XCTFail() }
+        
+        directory.uiContext.encryptMessagesAtRest = true
+        directory.uiContext.encryptionKeys = validEncryptionKeys
+        directory.uiContext.forceSaveOrRollback()
+        
+        // when
+        guard let result = importBackup(accountIdentifier: uuid,
+                                        backup: backup,
+                                        encryptionKeys: validEncryptionKeys) else { return XCTFail() }
+        
+        // then
+        guard case .success = result else { return XCTFail() }
+        
+        let importDirectory = createStorageStackAndWaitForCompletion(userID: uuid)
+        XCTAssertTrue(importDirectory.uiContext.encryptMessagesAtRest)
+    }
+    
+    func testThatItFailsImportBackupWhenEARIsEnabledAndEncryptionKeysAreNil() throws {
+        // given
+        let uuid = UUID()
+        let directory = createStorageStackAndWaitForCompletion(userID: uuid)
+        
+        // when
+        guard let backup = createBackup(accountIdentifier: uuid,
+                                        encryptionKeys: nil)?.value else {
+                return XCTFail()
+        }
+        
+        directory.uiContext.encryptMessagesAtRest = true
+        directory.uiContext.encryptionKeys = nil
+        directory.uiContext.forceSaveOrRollback()
+        
+        guard let result = importBackup(accountIdentifier: uuid,
+                                        backup: backup,
+                                        encryptionKeys: nil) else { return XCTFail() }
+        
+        guard case let .failure(error) = result else { return XCTFail() }
+        
+        // then
+        switch error as? StorageStack.BackupImportError {
+        case .failedToCopy(let failureError):
+            switch failureError as? StorageStack.BackupError {
+            case .missingEAREncryptionKey: break
+            default: XCTFail("unexpected error type")
+        }
+        default: XCTFail("unexpected error type")
+        }
     }
     
     func testThatItFailsWhenImportingBackupIntoWrongAccount() {

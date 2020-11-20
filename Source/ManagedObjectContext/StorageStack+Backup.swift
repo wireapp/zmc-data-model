@@ -160,6 +160,7 @@ extension StorageStack {
         from backupDirectory: URL,
         applicationContainer: URL,
         dispatchGroup: ZMSDispatchGroup? = nil,
+        encryptionKeys: EncryptionKeys? = nil,
         completion: @escaping ((Result<URL>) -> Void)
         ) {
         
@@ -190,7 +191,10 @@ extension StorageStack {
                 try fileManager.createDirectory(at: accountStoreFile.deletingLastPathComponent(), withIntermediateDirectories: true, attributes: nil)
                 let options = NSPersistentStoreCoordinator.persistentStoreOptions(supportsMigration: false)
                 
-                try prepareStoreForBackupImport(coordinator: coordinator, location: backupStoreFile, options: options)
+                try prepareStoreForBackupImport(coordinator: coordinator,
+                                                location: backupStoreFile,
+                                                options: options,
+                                                encryptionKeys: encryptionKeys)
                 
                 // Import the persistent store to the account data directory
                 try coordinator.replacePersistentStore(
@@ -233,13 +237,20 @@ extension StorageStack {
         try coordinator.remove(store)
     }
     
-    private static func prepareStoreForBackupImport(coordinator: NSPersistentStoreCoordinator, location: URL, options: [String: Any]) throws {
+    private static func prepareStoreForBackupImport(coordinator: NSPersistentStoreCoordinator,
+                                                    location: URL,
+                                                    options: [String: Any],
+                                                    encryptionKeys: EncryptionKeys? = nil) throws {
         // Add persistent store at the new location to allow creation of NSManagedObjectContext
         let store = try coordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: location, options: options)
         let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
         context.persistentStoreCoordinator = coordinator
         
         try context.performGroupedAndWait { context in
+            if context.encryptMessagesAtRest {
+                guard let encryptionKeys = encryptionKeys else { throw BackupError.missingEAREncryptionKey }
+                try context.enableEncryptionAtRest(encryptionKeys: encryptionKeys)
+            }
             context.prepareToImportBackup()
             try context.save()
         }
