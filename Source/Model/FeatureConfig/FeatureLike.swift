@@ -20,7 +20,7 @@ import Foundation
 
 /// Describes the shape of an a type that represents a feature.
 
-public protocol FeatureLike {
+public protocol FeatureLike: Codable {
 
     associatedtype Config: Codable
 

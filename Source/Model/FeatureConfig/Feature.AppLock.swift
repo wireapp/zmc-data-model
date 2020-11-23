@@ -20,7 +20,7 @@ import Foundation
 
 public extension Feature {
 
-    struct AppLock: FeatureLike {
+    struct AppLock: FeatureLike, Codable {
 
         // MARK: - Properties
 
