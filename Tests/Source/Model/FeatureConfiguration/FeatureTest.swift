@@ -37,27 +37,27 @@ final class FeatureTest: ZMBaseManagedObjectTest {
         let configData = try? JSONEncoder().encode(config)
         
         // when
-        let feature = Feature.createOrUpdate("applock",
+        let feature = Feature.createOrUpdate(name: .appLock,
                                              status: .enabled,
                                              config: configData,
                                              context: uiMOC)
         
         // then
-        let fetchedFeature = Feature.fetch("applock", context: uiMOC)
+        let fetchedFeature = Feature.fetch(name: .appLock, context: uiMOC)
         XCTAssertEqual(feature, fetchedFeature)
     }
     
     func testThatItUpdatesFeature() {
         // given
         let configData = try? JSONEncoder().encode(config)
-        let feature = Feature.insert("applock",
-                                      status: .enabled,
-                                      config: configData,
-                                      context: uiMOC)
+        let feature = Feature.insert(name: .appLock,
+                                     status: .enabled,
+                                     config: configData,
+                                     context: uiMOC)
         XCTAssertEqual(feature.status, .enabled)
         
         // when
-        let _ = Feature.createOrUpdate("applock",
+        let _ = Feature.createOrUpdate(name: .appLock,
                                        status: .disabled,
                                        config: configData,
                                        context: uiMOC)
@@ -69,14 +69,14 @@ final class FeatureTest: ZMBaseManagedObjectTest {
     func testThatItFetchesFeature() {
         // given
         let configData = try? JSONEncoder().encode(config)
-        let _ = Feature.createOrUpdate("applock",
+        let _ = Feature.createOrUpdate(name: .appLock,
                                        status: .enabled,
                                        config: configData,
                                        context: uiMOC)
         
         
         // when
-        let fetchedFeature = Feature.fetch("applock", context: uiMOC)
+        let fetchedFeature = Feature.fetch(name: .appLock, context: uiMOC)
         
         // then
         XCTAssertNotNil(fetchedFeature)
