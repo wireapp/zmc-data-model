@@ -45,3 +45,17 @@ public protocol FeatureLike: Codable {
 
 }
 
+public extension FeatureLike {
+
+    /// Store the feature in the given context as an instance of `Feature`.
+
+    func store(in context: NSManagedObjectContext) throws {
+        Feature.createOrUpdate(
+            name: Self.name,
+            status: status,
+            config: try JSONEncoder().encode(config),
+            context: context
+        )
+    }
+
+}
