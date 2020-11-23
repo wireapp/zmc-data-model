@@ -50,6 +50,11 @@ public extension Feature {
 
             public let inactivityTimeoutSecs: UInt
 
+            public init(enforceAppLock: Bool, inactivityTimeoutSecs: UInt) {
+                self.enforceAppLock = enforceAppLock
+                self.inactivityTimeoutSecs = inactivityTimeoutSecs
+            }
+
         }
 
     }
