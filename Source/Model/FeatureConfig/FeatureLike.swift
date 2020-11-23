@@ -18,29 +18,30 @@
 
 import Foundation
 
-extension Team {
+/// Describes the shape of an a type that represents a feature.
 
-    @NSManaged private var features: Set<Feature>
+public protocol FeatureLike {
 
-    /// Fetch a particular team feature.
+    associatedtype Config: Codable
+
+    /// The name of the feature.
+
+    static var name: Feature.Name { get }
+
+    /// The status of the feature.
     ///
-    /// - Parameters:
-    ///     - type: The type of the desired feature. The available features
-    ///             are typically found in the namespace `Feature`.
-    ///
-    /// - Returns:
-    ///     The feature object.
+    /// If `enabled` then the feature is available to the user.
+    /// If `disabled` then it is not available and not visible.
 
-    public func feature<T: FeatureLike>(for type: T.Type) -> T? {
-        guard
-            let feature = features.first(where: { $0.name == T.name }),
-            let data = feature.configData,
-            let config = try? JSONDecoder().decode(T.Config.self, from: data)
-        else {
-            return nil
-        }
+    var status: Feature.Status { get }
 
-        return T(status: feature.status, config: config)
-    }
+    /// The object used to configure the feature.
+
+    var config: Config { get }
+
+    /// Initializes the feature with the given status and config.
+
+    init(status: Feature.Status, config: Config)
 
 }
+
