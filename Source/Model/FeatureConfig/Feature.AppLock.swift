@@ -31,6 +31,19 @@ public extension Feature {
 
         // MARK: - Life cycle
 
+        public init?(feature: Feature) {
+            guard
+                feature.name == Self.name,
+                let data = feature.configData,
+                let config = try? JSONDecoder().decode(Config.self, from: data)
+            else {
+                return nil
+            }
+
+            self.status = feature.status
+            self.config = config
+        }
+
         public init(status: Feature.Status, config: Config) {
             self.status = status
             self.config = config

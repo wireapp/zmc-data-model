@@ -32,15 +32,8 @@ extension Team {
     ///     The feature object.
 
     public func feature<T: FeatureLike>(for type: T.Type) -> T? {
-        guard
-            let feature = features.first(where: { $0.name == T.name }),
-            let data = feature.configData,
-            let config = try? JSONDecoder().decode(T.Config.self, from: data)
-        else {
-            return nil
-        }
-
-        return T(status: feature.status, config: config)
+        guard let feature = features.first(where: { $0.name == T.name }) else { return nil }
+        return T(feature: feature)
     }
 
 }
