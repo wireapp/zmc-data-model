@@ -98,6 +98,7 @@ public class Feature: ZMManagedObject {
         if let existing = fetch(name: name, context: context) {
             existing.status = status
             existing.configData = config
+            existing.needsToBeUpdatedFromBackend = false
             return existing
         }
         
