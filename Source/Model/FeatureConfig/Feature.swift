@@ -18,57 +18,90 @@
 
 import Foundation
 
+private let zmLog = ZMSLog(tag: "Feature")
+
 @objcMembers
 public class Feature: ZMManagedObject {
-    
+
+    // MARK: - Types
+
+    // IMPORTANT
+    //
+    // Only add new cases to these enums. Deleting or modifying the raw values
+    // of these cases may lead to a corrupt database.
+
+    public enum Name: String, Codable {
+        case appLock
+    }
+
     public enum Status: String, Codable {
         case enabled
         case disabled
     }
-    private let zmLog = ZMSLog(tag: "Feature")
-    
-    @NSManaged public var name: String
-    @NSManaged public var config: Data?
+
+    // MARK: - Properties
+
+    @NSManaged private var nameValue: String
     @NSManaged private var statusValue: String
+    @NSManaged public var configData: Data?
+
+    @NSManaged public var team: Team?
+
+    public var name: Name {
+        get {
+            guard let name = Name(rawValue: nameValue) else {
+                fatalError("Failed to decode nameValue: \(nameValue)")
+            }
+
+            return name
+        }
+
+        set {
+            nameValue = newValue.rawValue
+        }
+    }
     
     public var status: Status {
         get {
             guard let status = Status(rawValue: statusValue) else {
-                fatalError("Failed to decode Feature statusValue: \(statusValue)")
+                fatalError("Failed to decode statusValue: \(statusValue)")
             }
+
             return status
         }
         set {
             statusValue = newValue.rawValue
         }
     }
+
+    // MARK: - Methods
     
     public override static func entityName() -> String {
         return "Feature"
     }
-    
+
     @discardableResult
-    public static func fetch(_ featureName: String,
+    public static func fetch(name: Name,
                              context: NSManagedObjectContext) -> Feature? {
         
         let fetchRequest = NSFetchRequest<Feature>(entityName: Feature.entityName())
-        fetchRequest.predicate = NSPredicate(format: "name == %@", featureName)
+        fetchRequest.predicate = NSPredicate(format: "nameValue == %@", name.rawValue)
         fetchRequest.fetchLimit = 1
         return context.fetchOrAssert(request: fetchRequest).first
     }
-    
+
     @discardableResult
-    public static func createOrUpdate(_ featureName: String,
+    public static func createOrUpdate(name: Name,
                                       status: Status,
                                       config: Data?,
                                       context: NSManagedObjectContext) -> Feature {
-        if let existing = fetch(featureName, context: context) {
+        if let existing = fetch(name: name, context: context) {
             existing.status = status
-            existing.config = config
+            existing.configData = config
             return existing
         }
         
-        let feature = insert(featureName,
+        let feature = insert(name: name,
                              status: status,
                              config: config,
                              context: context)
@@ -76,14 +109,14 @@ public class Feature: ZMManagedObject {
     }
     
     @discardableResult
-    public static func insert(_ featureName: String,
+    public static func insert(name: Name,
                               status: Status,
                               config: Data?,
                               context: NSManagedObjectContext) -> Feature {
         let feature = Feature.insertNewObject(in: context)
-        feature.name = featureName
+        feature.name = name
         feature.status = status
-        feature.config = config
+        feature.configData = config
         return feature
     }
 }
