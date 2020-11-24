@@ -40,8 +40,7 @@ public extension Feature {
                 return nil
             }
 
-            self.status = feature.status
-            self.config = config
+            self.init(status: feature.status, config: config)
         }
 
         public init(status: Feature.Status, config: Config) {

@@ -39,6 +39,10 @@ public protocol FeatureLike: Codable {
 
     var config: Config { get }
 
+    /// Initializes the feature with the given status and config.
+
+    init(status: Feature.Status, config: Config)
+
     /// Initializes the feature with the given `Feature` instance.
 
     init?(feature: Feature)
