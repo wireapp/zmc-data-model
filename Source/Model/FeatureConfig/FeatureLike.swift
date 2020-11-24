@@ -53,13 +53,15 @@ public extension FeatureLike {
 
     /// Store the feature in the given context as an instance of `Feature`.
 
-    func store(in context: NSManagedObjectContext) throws {
-        Feature.createOrUpdate(
+    func store(for team: Team, in context: NSManagedObjectContext) throws {
+        let feature = Feature.createOrUpdate(
             name: Self.name,
             status: status,
             config: try JSONEncoder().encode(config),
             context: context
         )
+
+        feature.team = team
     }
 
 }

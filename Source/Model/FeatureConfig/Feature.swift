@@ -45,6 +45,8 @@ public class Feature: ZMManagedObject {
     @NSManaged private var statusValue: String
     @NSManaged public var configData: Data?
 
+    @NSManaged public var team: Team?
+
     public var name: Name {
         get {
             guard let name = Name(rawValue: nameValue) else {
