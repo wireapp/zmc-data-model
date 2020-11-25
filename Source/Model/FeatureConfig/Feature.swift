@@ -80,6 +80,10 @@ public class Feature: ZMManagedObject {
         return "Feature"
     }
 
+    public override static func sortKey() -> String {
+        return #keyPath(Feature.nameValue)
+    }
+
     @discardableResult
     public static func fetch(name: Name,
                              context: NSManagedObjectContext) -> Feature? {
