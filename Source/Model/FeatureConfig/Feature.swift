@@ -30,7 +30,7 @@ public class Feature: ZMManagedObject {
     // Only add new cases to these enums. Deleting or modifying the raw values
     // of these cases may lead to a corrupt database.
 
-    public enum Name: String, Codable {
+    public enum Name: String, Codable, CaseIterable {
         case appLock
     }
 
@@ -90,18 +90,23 @@ public class Feature: ZMManagedObject {
         
         let fetchRequest = NSFetchRequest<Feature>(entityName: Feature.entityName())
         fetchRequest.predicate = NSPredicate(format: "nameValue == %@", name.rawValue)
-        fetchRequest.fetchLimit = 1
-        return context.fetchOrAssert(request: fetchRequest).first
+        fetchRequest.fetchLimit = 2
+
+        let results = context.fetchOrAssert(request: fetchRequest)
+        require(results.count <= 1, "More than instance for feature: \(name.rawValue)")
+        return results.first
     }
 
     @discardableResult
     public static func createOrUpdate(name: Name,
                                       status: Status,
                                       config: Data?,
+                                      team: Team,
                                       context: NSManagedObjectContext) -> Feature {
         if let existing = fetch(name: name, context: context) {
             existing.status = status
             existing.configData = config
+            existing.team = team
             existing.needsToBeUpdatedFromBackend = false
             return existing
         }
@@ -109,6 +114,7 @@ public class Feature: ZMManagedObject {
         let feature = insert(name: name,
                              status: status,
                              config: config,
+                             team: team,
                              context: context)
         return feature
     }
@@ -117,11 +123,14 @@ public class Feature: ZMManagedObject {
     public static func insert(name: Name,
                               status: Status,
                               config: Data?,
+                              team: Team,
                               context: NSManagedObjectContext) -> Feature {
         let feature = Feature.insertNewObject(in: context)
         feature.name = name
         feature.status = status
         feature.configData = config
+        feature.team = team
         return feature
     }
+
 }

@@ -24,6 +24,9 @@ extension Team {
 
     /// Fetch a particular team feature.
     ///
+    /// If no instance exists yet in the database, a default one will be created
+    /// using the parameterless initializer for `T`.
+    ///
     /// - Parameters:
     ///     - type: The type of the desired feature. The available features
     ///             are typically found in the namespace `Feature`.
@@ -31,9 +34,29 @@ extension Team {
     /// - Returns:
     ///     The feature object.
 
-    public func feature<T: FeatureLike>(for type: T.Type) -> T? {
-        guard let feature = features.first(where: { $0.name == T.name }) else { return nil }
-        return T(feature: feature)
+    public func feature<T: FeatureLike>(for featureType: T.Type) -> T {
+        guard let feature = features.first(where: { $0.name == T.name }) else {
+            return createAndStoreDefault(for: featureType)
+        }
+
+        guard let result = T(feature: feature) else {
+            fatalError("Failed to create feature wrapper for name: \(T.name)")
+        }
+
+        return result
+    }
+
+    private func createAndStoreDefault<T: FeatureLike>(for type: T.Type) -> T {
+        let defaultInstance = T()
+
+        guard
+            let context = managedObjectContext,
+            let _ = try? defaultInstance.store(for: self, in: context)
+        else {
+            fatalError("Failed to store default instance for feature: \(T.name)")
+        }
+
+        return defaultInstance
     }
 
 }

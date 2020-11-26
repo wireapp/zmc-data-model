@@ -20,6 +20,8 @@ import XCTest
 @testable import WireDataModel
 
 final class FeatureTest: ZMBaseManagedObjectTest {
+
+    var team: Team!
     
     let config: Data = {
       let json = """
@@ -31,6 +33,36 @@ final class FeatureTest: ZMBaseManagedObjectTest {
 
       return json.data(using: .utf8)!
     }()
+
+    override func setUp() {
+        super.setUp()
+        team = createTeam(in: uiMOC)
+    }
+
+    override func tearDown() {
+        team = nil
+        super.tearDown()
+    }
+
+    // MARK: - Tests
+
+    func testItCreatesDefaultsUponFirstAccess() {
+        for name in Feature.Name.allCases {
+            switch name {
+            case .appLock:
+                // Given
+                XCTAssertNil(Feature.fetch(name: .appLock, context: uiMOC))
+
+                // When
+                let appLock1 = team.feature(for: Feature.AppLock.self)
+
+                // Then
+                XCTAssertEqual(appLock1.status, .enabled)
+                XCTAssertEqual(appLock1.config.enforceAppLock, false)
+                XCTAssertEqual(appLock1.config.inactivityTimeoutSecs, 60)
+            }
+        }
+    }
     
     func testThatItCreatesFeature() {
         // given
@@ -40,11 +72,13 @@ final class FeatureTest: ZMBaseManagedObjectTest {
         let feature = Feature.createOrUpdate(name: .appLock,
                                              status: .enabled,
                                              config: configData,
+                                             team: team,
                                              context: uiMOC)
         
         // then
         let fetchedFeature = Feature.fetch(name: .appLock, context: uiMOC)
         XCTAssertEqual(feature, fetchedFeature)
+        XCTAssertEqual(feature.team?.remoteIdentifier, team.remoteIdentifier!)
     }
     
     func testThatItUpdatesFeature() {
@@ -53,6 +87,7 @@ final class FeatureTest: ZMBaseManagedObjectTest {
         let feature = Feature.insert(name: .appLock,
                                      status: .enabled,
                                      config: configData,
+                                     team: team,
                                      context: uiMOC)
         XCTAssertEqual(feature.status, .enabled)
         
@@ -60,6 +95,7 @@ final class FeatureTest: ZMBaseManagedObjectTest {
         let _ = Feature.createOrUpdate(name: .appLock,
                                        status: .disabled,
                                        config: configData,
+                                       team: team,
                                        context: uiMOC)
         
         // then
@@ -72,6 +108,7 @@ final class FeatureTest: ZMBaseManagedObjectTest {
         let _ = Feature.createOrUpdate(name: .appLock,
                                        status: .enabled,
                                        config: configData,
+                                       team: team,
                                        context: uiMOC)
         
         
