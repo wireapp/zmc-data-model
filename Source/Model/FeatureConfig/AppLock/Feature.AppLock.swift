@@ -43,6 +43,10 @@ public extension Feature {
             self.init(status: feature.status, config: config)
         }
 
+        public init() {
+            self.init(status: .enabled, config: .init())
+        }
+
         public init(status: Feature.Status, config: Config) {
             self.status = status
             self.config = config
@@ -62,7 +66,7 @@ public extension Feature {
 
             public let inactivityTimeoutSecs: UInt
 
-            public init(enforceAppLock: Bool, inactivityTimeoutSecs: UInt) {
+            public init(enforceAppLock: Bool = false, inactivityTimeoutSecs: UInt = 60) {
                 self.enforceAppLock = enforceAppLock
                 self.inactivityTimeoutSecs = inactivityTimeoutSecs
             }

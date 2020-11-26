@@ -101,7 +101,9 @@
     </entity>
     <entity name="Feature" representedClassName=".Feature" syncable="YES">
         <attribute name="configData" optional="YES" attributeType="Binary" syncable="YES"/>
+        <attribute name="modifiedKeys" optional="YES" attributeType="Transformable" valueTransformerName="ExtendedSecureUnarchiveFromData" syncable="YES"/>
         <attribute name="nameValue" attributeType="String" syncable="YES"/>
+        <attribute name="needsToBeUpdatedFromBackend" attributeType="Boolean" defaultValueString="NO" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="statusValue" attributeType="String" syncable="YES"/>
         <relationship name="team" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Team" inverseName="features" inverseEntity="Team" syncable="YES"/>
     </entity>
@@ -246,7 +248,7 @@
         <relationship name="conversations" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Conversation" inverseName="team" inverseEntity="Conversation" syncable="YES"/>
         <relationship name="creator" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="User" inverseName="createdTeams" inverseEntity="User" syncable="YES"/>
         <relationship name="featureFlags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="FeatureFlag" inverseName="team" inverseEntity="FeatureFlag" syncable="YES"/>
-        <relationship name="features" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Feature" inverseName="team" inverseEntity="Feature" syncable="YES"/>
+        <relationship name="features" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Feature" inverseName="team" inverseEntity="Feature" syncable="YES"/>
         <relationship name="members" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Member" inverseName="team" inverseEntity="Member" syncable="YES"/>
         <relationship name="roles" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Role" inverseName="team" inverseEntity="Role" syncable="YES"/>
     </entity>
@@ -340,7 +342,7 @@
         <element name="ClientMessage" positionX="9" positionY="153" width="128" height="90"/>
         <element name="Connection" positionX="0" positionY="0" width="128" height="163"/>
         <element name="Conversation" positionX="0" positionY="0" width="128" height="748"/>
-        <element name="Feature" positionX="-286.9609375" positionY="-65" width="128" height="89"/>
+        <element name="Feature" positionX="-286.9609375" positionY="-65" width="128" height="119"/>
         <element name="FeatureFlag" positionX="-225" positionY="36" width="128" height="118"/>
         <element name="GenericMessageData" positionX="18" positionY="162" width="128" height="103"/>
         <element name="ImageMessage" positionX="0" positionY="0" width="128" height="165"/>

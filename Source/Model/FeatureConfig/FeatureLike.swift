@@ -39,6 +39,10 @@ public protocol FeatureLike: Codable {
 
     var config: Config { get }
 
+    /// Initializes the feature with default values.
+
+    init()
+
     /// Initializes the feature with the given status and config.
 
     init(status: Feature.Status, config: Config)
@@ -53,15 +57,15 @@ public extension FeatureLike {
 
     /// Store the feature in the given context as an instance of `Feature`.
 
-    func store(for team: Team, in context: NSManagedObjectContext) throws {
-        let feature = Feature.createOrUpdate(
+    @discardableResult
+    func store(for team: Team, in context: NSManagedObjectContext) throws -> Feature {
+        return Feature.createOrUpdate(
             name: Self.name,
             status: status,
             config: try JSONEncoder().encode(config),
+            team: team,
             context: context
         )
-
-        feature.team = team
     }
 
 }
