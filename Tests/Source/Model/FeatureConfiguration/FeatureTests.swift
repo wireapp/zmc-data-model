@@ -19,7 +19,7 @@
 import XCTest
 @testable import WireDataModel
 
-final class FeatureTest: ZMBaseManagedObjectTest {
+final class FeatureTests: ZMBaseManagedObjectTest {
 
     var team: Team!
     
