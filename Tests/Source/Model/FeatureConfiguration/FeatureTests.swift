@@ -46,24 +46,6 @@ final class FeatureTests: ZMBaseManagedObjectTest {
 
     // MARK: - Tests
 
-    func testItCreatesDefaultsUponFirstAccess() {
-        for name in Feature.Name.allCases {
-            switch name {
-            case .appLock:
-                // Given
-                XCTAssertNil(Feature.fetch(name: .appLock, context: uiMOC))
-
-                // When
-                let appLock1 = team.feature(for: Feature.AppLock.self)
-
-                // Then
-                XCTAssertEqual(appLock1.status, .enabled)
-                XCTAssertEqual(appLock1.config.enforceAppLock, false)
-                XCTAssertEqual(appLock1.config.inactivityTimeoutSecs, 60)
-            }
-        }
-    }
-    
     func testThatItCreatesFeature() {
         // given
         let configData = try? JSONEncoder().encode(config)

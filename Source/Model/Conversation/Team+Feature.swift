@@ -59,4 +59,16 @@ extension Team {
         return defaultInstance
     }
 
+    /// Enqueue a backend refresh for the feature with the given name.
+    ///
+    /// To trigger the request immediately, post a `RequestAvailableNotification`.
+    ///
+    /// - Parameter name: The name of the feature to refresh.
+
+    public func enqueueBackendRefresh(for name: Feature.Name) {
+        guard let context = managedObjectContext else { return }
+        let feature = Feature.fetch(name: name, context: context)
+        feature?.needsToBeUpdatedFromBackend = true
+    }
+
 }

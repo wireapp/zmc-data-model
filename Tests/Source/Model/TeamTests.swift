@@ -271,5 +271,48 @@ final class TeamTests: ZMConversationTestsBase {
         // then
         XCTAssertEqual(result, [membership])
     }
+
+    // MARK: - Features
+
+    func testItCreatesDefaultsUponFirstAccess() {
+        let sut = createTeam(in: uiMOC)
+
+        for name in Feature.Name.allCases {
+            switch name {
+            case .appLock:
+                // Given
+                XCTAssertNil(Feature.fetch(name: .appLock, context: uiMOC))
+
+                // When
+                let appLock1 = sut.feature(for: Feature.AppLock.self)
+
+                // Then
+                XCTAssertEqual(appLock1.status, .enabled)
+                XCTAssertEqual(appLock1.config.enforceAppLock, false)
+                XCTAssertEqual(appLock1.config.inactivityTimeoutSecs, 60)
+            }
+        }
+    }
+
+    func testItEnqueuesBackendRefreshForFeature() {
+        // Given
+        let sut = createTeam(in: uiMOC)
+
+        let feature = Feature.createOrUpdate(
+            name: .appLock,
+            status: .enabled,
+            config: nil,
+            team: sut,
+            context: uiMOC
+        )
+
+        XCTAssertFalse(feature.needsToBeUpdatedFromBackend)
+
+        // When
+        sut.enqueueBackendRefresh(for: .appLock)
+
+        // Then
+        XCTAssertTrue(feature.needsToBeUpdatedFromBackend)
+    }
     
 }
