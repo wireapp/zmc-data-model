@@ -32,17 +32,13 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
                                               forceAppLock: true,
                                               appLockTimeout: 900)
         let sut = AppLockController(config: config)
+        XCTAssertTrue(sut.config.forceAppLock)
         
         //when
-        XCTAssertFalse(sut.config.useBiometricsOrAccountPassword)
-        XCTAssertTrue(sut.config.forceAppLock)
-        XCTAssertEqual(sut.config.appLockTimeout, 900)
-        
-        //then
         XCTAssertTrue(sut.isActive)
         sut.isActive = false
-        XCTAssertTrue(sut.isActive)
-        sut.isActive = true
+        
+        //then
         XCTAssertTrue(sut.isActive)
     }
     
@@ -54,17 +50,15 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
                                               forceAppLock: false,
                                               appLockTimeout: 10)
         let sut = AppLockController(config: config)
+        XCTAssertFalse(sut.config.forceAppLock)
+        sut.isActive = true
 
         //when
-        XCTAssertFalse(sut.config.useBiometricsOrAccountPassword)
-        XCTAssertFalse(sut.config.forceAppLock)
-        XCTAssertEqual(sut.config.appLockTimeout, 10)
+        XCTAssertTrue(sut.isActive)
+        sut.isActive = false
 
         //then
-        sut.isActive = false
         XCTAssertFalse(sut.isActive)
-        sut.isActive = true
-        XCTAssertTrue(sut.isActive)
     }
     
     
