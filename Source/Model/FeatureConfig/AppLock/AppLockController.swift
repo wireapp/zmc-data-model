@@ -107,6 +107,16 @@ public final class AppLockController {
         public let useCustomCodeInsteadOfAccountPassword: Bool
         public let forceAppLock: Bool
         public let appLockTimeout: UInt
+        
+        public init(useBiometricsOrAccountPassword: Bool,
+                    useCustomCodeInsteadOfAccountPassword: Bool,
+                    forceAppLock: Bool,
+                    timeOut: UInt) {
+            self.useBiometricsOrAccountPassword = useBiometricsOrAccountPassword
+            self.useCustomCodeInsteadOfAccountPassword = useCustomCodeInsteadOfAccountPassword
+            self.forceAppLock = forceAppLock
+            self.appLockTimeout = timeOut
+        }
     }
     
     public enum AuthenticationResult {
