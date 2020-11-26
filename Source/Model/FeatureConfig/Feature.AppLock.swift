@@ -44,7 +44,7 @@ public extension Feature {
         }
 
         public init() {
-            self.init(status: .enabled, config: .init(enforceAppLock: false, inactivityTimeoutSecs: 60))
+            self.init(status: .enabled, config: .init())
         }
 
         public init(status: Feature.Status, config: Config) {
