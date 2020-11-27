@@ -23,7 +23,24 @@ private let zmLog = ZMSLog(tag: "AppLockController")
 
 public final class AppLockController {
     
-    public let config: Config
+    private let selfUser: ZMUser
+    private let configFromBundle: Config
+    
+    public var config: Config {
+        guard let team = selfUser.team else {
+            return configFromBundle
+        }
+        
+        let configFromCoreData = team.feature(for: Feature.AppLock.self)
+        let forceAppLock = !configFromBundle.forceAppLock
+            ? configFromCoreData.config.enforceAppLock
+            : configFromBundle.forceAppLock
+        
+        return Config(useBiometricsOrAccountPassword: configFromBundle.useBiometricsOrAccountPassword,
+                      useCustomCodeInsteadOfAccountPassword: configFromBundle.useCustomCodeInsteadOfAccountPassword,
+                                forceAppLock: forceAppLock,
+                                timeOut: configFromCoreData.config.inactivityTimeoutSecs)
+    }
     
     // Returns true if user enabled the app lock feature or it has been forced by the team manager.
     public var isActive: Bool {
@@ -52,8 +69,9 @@ public final class AppLockController {
     
     // MARK: - Life cycle
     
-    public init(config: Config) {
-        self.config = config
+    public init(config: Config, selfUser: ZMUser) {
+        self.configFromBundle = config
+        self.selfUser = selfUser
     }
     
     // MARK: - Methods
@@ -105,8 +123,8 @@ public final class AppLockController {
     public struct Config {
         public let useBiometricsOrAccountPassword: Bool
         public let useCustomCodeInsteadOfAccountPassword: Bool
-        public let forceAppLock: Bool
-        public let appLockTimeout: UInt
+        public var forceAppLock: Bool
+        public var appLockTimeout: UInt
         
         public init(useBiometricsOrAccountPassword: Bool,
                     useCustomCodeInsteadOfAccountPassword: Bool,

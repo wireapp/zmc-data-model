@@ -27,11 +27,12 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
     func testThatForcedAppLockDoesntAffectSettings() {
         
         //given
+        let selfUser = ZMUser.selfUser(in: uiMOC)
         let config = AppLockController.Config(useBiometricsOrAccountPassword: false,
                                               useCustomCodeInsteadOfAccountPassword: false,
                                               forceAppLock: true,
                                               timeOut: 900)
-        let sut = AppLockController(config: config)
+        let sut = AppLockController(config: config, selfUser: selfUser)
         XCTAssertTrue(sut.config.forceAppLock)
         
         //when
@@ -45,11 +46,12 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
     func testThatAppLockAffectsSettings() {
 
         //given
+        let selfUser = ZMUser.selfUser(in: uiMOC)
         let config = AppLockController.Config(useBiometricsOrAccountPassword: false,
                                               useCustomCodeInsteadOfAccountPassword: false,
                                               forceAppLock: false,
                                               timeOut: 10)
-        let sut = AppLockController(config: config)
+        let sut = AppLockController(config: config, selfUser: selfUser)
         XCTAssertFalse(sut.config.forceAppLock)
         sut.isActive = true
 
@@ -99,5 +101,66 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
         XCTAssertEqual(context.evaluatedPolicyDomainState, UserDefaults.standard.object(forKey: "DomainStateKey") as? Data)
     }
 
+    func testThatConfigIsUpdatedFromRemovedData_WhenSelfUserIsATeamUser() {
+        
+        //given
+        let selfUser = ZMUser.selfUser(in: self.uiMOC)
+        let configFromBundle = AppLockController.Config(useBiometricsOrAccountPassword: false,
+                                                        useCustomCodeInsteadOfAccountPassword: false,
+                                                        forceAppLock: false,
+                                                        timeOut: 10)
+        let sut = AppLockController(config: configFromBundle, selfUser: selfUser)
+        XCTAssertFalse(sut.config.forceAppLock)
+        XCTAssertEqual(sut.config.appLockTimeout, 10)
+        
+        //when
+        let team = createTeam(in: uiMOC)
+        _ = createMembership(in: uiMOC, user: selfUser, team: team)
+        
+        let config = Feature.AppLock.Config.init(enforceAppLock: true, inactivityTimeoutSecs: 30)
+        let configData = try? JSONEncoder().encode(config)
+        _ = Feature.createOrUpdate(
+            name: .appLock,
+            status: .enabled,
+            config: configData,
+            team: team,
+            context: uiMOC
+        )
+        
+        //then
+        XCTAssertTrue(sut.config.forceAppLock)
+        XCTAssertEqual(sut.config.appLockTimeout, 30)
+    }
+    
+    func testThatConfigIsNotUpdatedFromRemovedData_WhenSelfUserIsNotATeamUser() {
+        
+        //given
+        let selfUser = ZMUser.selfUser(in: self.uiMOC)
+        let configFromBundle = AppLockController.Config(useBiometricsOrAccountPassword: false,
+                                                        useCustomCodeInsteadOfAccountPassword: false,
+                                                        forceAppLock: false,
+                                                        timeOut: 10)
+        let sut = AppLockController(config: configFromBundle, selfUser: selfUser)
+        XCTAssertFalse(sut.config.forceAppLock)
+        XCTAssertEqual(sut.config.appLockTimeout, 10)
+        
+        //when
+        let team = createTeam(in: uiMOC)
+        XCTAssertNil(selfUser.team)
+        
+        let config = Feature.AppLock.Config.init(enforceAppLock: true, inactivityTimeoutSecs: 30)
+        let configData = try? JSONEncoder().encode(config)
+        _ = Feature.createOrUpdate(
+            name: .appLock,
+            status: .enabled,
+            config: configData,
+            team: team,
+            context: uiMOC
+        )
+        
+        //then
+        XCTAssertFalse(sut.config.forceAppLock)
+        XCTAssertNotEqual(sut.config.appLockTimeout, 30)
+    }
 }
 
