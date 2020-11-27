@@ -101,7 +101,7 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
         XCTAssertEqual(context.evaluatedPolicyDomainState, UserDefaults.standard.object(forKey: "DomainStateKey") as? Data)
     }
 
-    func testThatConfigIsUpdatedFromRemovedData_WhenSelfUserIsATeamUser() {
+    func testThatItHonorsTheTeamConfiguration_WhenSelfUserIsATeamUser() {
         
         //given
         let selfUser = ZMUser.selfUser(in: self.uiMOC)
@@ -111,6 +111,7 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
                                                         timeOut: 10)
         let sut = AppLockController(config: configFromBundle, selfUser: selfUser)
         XCTAssertFalse(sut.config.forceAppLock)
+        XCTAssertTrue(sut.config.isEnabled)
         XCTAssertEqual(sut.config.appLockTimeout, 10)
         
         //when
@@ -121,7 +122,7 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
         let configData = try? JSONEncoder().encode(config)
         _ = Feature.createOrUpdate(
             name: .appLock,
-            status: .enabled,
+            status: .disabled,
             config: configData,
             team: team,
             context: uiMOC
@@ -129,10 +130,11 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
         
         //then
         XCTAssertTrue(sut.config.forceAppLock)
+        XCTAssertFalse(sut.config.isEnabled)
         XCTAssertEqual(sut.config.appLockTimeout, 30)
     }
     
-    func testThatConfigIsNotUpdatedFromRemovedData_WhenSelfUserIsNotATeamUser() {
+    func testThatItDoesNotHonorTheTeamConfiguration_WhenSelfUserIsNotATeamUser() {
         
         //given
         let selfUser = ZMUser.selfUser(in: self.uiMOC)
@@ -142,6 +144,7 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
                                                         timeOut: 10)
         let sut = AppLockController(config: configFromBundle, selfUser: selfUser)
         XCTAssertFalse(sut.config.forceAppLock)
+        XCTAssertTrue(sut.config.isEnabled)
         XCTAssertEqual(sut.config.appLockTimeout, 10)
         
         //when
@@ -152,7 +155,7 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
         let configData = try? JSONEncoder().encode(config)
         _ = Feature.createOrUpdate(
             name: .appLock,
-            status: .enabled,
+            status: .disabled,
             config: configData,
             team: team,
             context: uiMOC
@@ -160,6 +163,7 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
         
         //then
         XCTAssertFalse(sut.config.forceAppLock)
+        XCTAssertTrue(sut.config.isEnabled)
         XCTAssertNotEqual(sut.config.appLockTimeout, 30)
     }
 }
