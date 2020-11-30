@@ -134,6 +134,35 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
         XCTAssertEqual(sut.config.appLockTimeout, 30)
     }
     
+    func testThatItHonorsForcedAppLockFromTheBaseConfiguration() {
+        
+        //given
+        let selfUser = ZMUser.selfUser(in: self.uiMOC)
+        let configFromBundle = AppLockController.Config(useBiometricsOrAccountPassword: false,
+                                                        useCustomCodeInsteadOfAccountPassword: false,
+                                                        forceAppLock: true,
+                                                        timeOut: 10)
+        let sut = AppLockController(config: configFromBundle, selfUser: selfUser)
+        XCTAssertTrue(sut.config.forceAppLock)
+        
+        //when
+        let team = createTeam(in: uiMOC)
+        _ = createMembership(in: uiMOC, user: selfUser, team: team)
+        
+        let config = Feature.AppLock.Config.init(enforceAppLock: false, inactivityTimeoutSecs: 30)
+        let configData = try? JSONEncoder().encode(config)
+        _ = Feature.createOrUpdate(
+            name: .appLock,
+            status: .disabled,
+            config: configData,
+            team: team,
+            context: uiMOC
+        )
+        
+        //then
+        XCTAssertTrue(sut.config.forceAppLock)
+    }
+    
     func testThatItDoesNotHonorTheTeamConfiguration_WhenSelfUserIsNotATeamUser() {
         
         //given
