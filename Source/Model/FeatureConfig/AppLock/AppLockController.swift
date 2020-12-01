@@ -23,7 +23,23 @@ private let zmLog = ZMSLog(tag: "AppLockController")
 
 public final class AppLockController {
     
-    public let config: Config
+    private let selfUser: ZMUser
+    private let baseConfig: Config
+    
+    public var config: Config {
+        guard let team = selfUser.team else {
+            return baseConfig
+        }
+        
+        let feature = team.feature(for: Feature.AppLock.self)
+        
+        var result = baseConfig
+        result.forceAppLock = baseConfig.forceAppLock || feature.config.enforceAppLock
+        result.appLockTimeout = feature.config.inactivityTimeoutSecs
+        result.isAvailable = (feature.status == .enabled)
+        
+        return result
+    }
     
     // Returns true if user enabled the app lock feature or it has been forced by the team manager.
     public var isActive: Bool {
@@ -52,8 +68,11 @@ public final class AppLockController {
     
     // MARK: - Life cycle
     
-    public init(config: Config) {
-        self.config = config
+    public init(config: Config, selfUser: ZMUser) {
+        precondition(selfUser.isSelfUser, "AppLockController initialized with non-self user")
+        
+        self.baseConfig = config
+        self.selfUser = selfUser
     }
     
     // MARK: - Methods
@@ -105,8 +124,9 @@ public final class AppLockController {
     public struct Config {
         public let useBiometricsOrAccountPassword: Bool
         public let useCustomCodeInsteadOfAccountPassword: Bool
-        public let forceAppLock: Bool
-        public let appLockTimeout: UInt
+        public var forceAppLock: Bool
+        public var appLockTimeout: UInt
+        public var isAvailable: Bool
         
         public init(useBiometricsOrAccountPassword: Bool,
                     useCustomCodeInsteadOfAccountPassword: Bool,
@@ -116,6 +136,7 @@ public final class AppLockController {
             self.useCustomCodeInsteadOfAccountPassword = useCustomCodeInsteadOfAccountPassword
             self.forceAppLock = forceAppLock
             self.appLockTimeout = timeOut
+            self.isAvailable = true
         }
     }
     
