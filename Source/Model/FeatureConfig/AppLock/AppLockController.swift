@@ -21,7 +21,7 @@ import LocalAuthentication
 
 private let zmLog = ZMSLog(tag: "AppLockController")
 
-public final class AppLockController {
+public class AppLockController {
     
     private let selfUser: ZMUser
     private let baseConfig: Config
