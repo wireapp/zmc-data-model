@@ -60,7 +60,7 @@ public final class AppLockController {
     }
     
     // Returns the time since last lock happened.
-    public let lastUnlockedDate: Date = Date(timeIntervalSince1970: 0)
+    public var lastUnlockedDate: Date = Date(timeIntervalSince1970: 0)
     
     /// a weak reference to LAContext, it should be nil when evaluatePolicy is done.
     private weak var weakLAContext: LAContext? = nil 
