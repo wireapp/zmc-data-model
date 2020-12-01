@@ -36,7 +36,7 @@ public final class AppLockController {
         var result = baseConfig
         result.forceAppLock = baseConfig.forceAppLock || feature.config.enforceAppLock
         result.appLockTimeout = feature.config.inactivityTimeoutSecs
-        result.isEnabled = (feature.status == .enabled)
+        result.isAvailable = (feature.status == .enabled)
         
         return result
     }
@@ -126,7 +126,7 @@ public final class AppLockController {
         public let useCustomCodeInsteadOfAccountPassword: Bool
         public var forceAppLock: Bool
         public var appLockTimeout: UInt
-        public var isEnabled: Bool
+        public var isAvailable: Bool
         
         public init(useBiometricsOrAccountPassword: Bool,
                     useCustomCodeInsteadOfAccountPassword: Bool,
@@ -136,7 +136,7 @@ public final class AppLockController {
             self.useCustomCodeInsteadOfAccountPassword = useCustomCodeInsteadOfAccountPassword
             self.forceAppLock = forceAppLock
             self.appLockTimeout = timeOut
-            self.isEnabled = true
+            self.isAvailable = true
         }
     }
     

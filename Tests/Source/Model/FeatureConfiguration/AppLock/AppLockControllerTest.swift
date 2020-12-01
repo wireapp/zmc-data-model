@@ -111,7 +111,7 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
                                                         timeOut: 10)
         let sut = AppLockController(config: configFromBundle, selfUser: selfUser)
         XCTAssertFalse(sut.config.forceAppLock)
-        XCTAssertTrue(sut.config.isEnabled)
+        XCTAssertTrue(sut.config.isAvailable)
         XCTAssertEqual(sut.config.appLockTimeout, 10)
         
         //when
@@ -130,7 +130,7 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
         
         //then
         XCTAssertTrue(sut.config.forceAppLock)
-        XCTAssertFalse(sut.config.isEnabled)
+        XCTAssertFalse(sut.config.isAvailable)
         XCTAssertEqual(sut.config.appLockTimeout, 30)
     }
     
@@ -173,7 +173,7 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
                                                         timeOut: 10)
         let sut = AppLockController(config: configFromBundle, selfUser: selfUser)
         XCTAssertFalse(sut.config.forceAppLock)
-        XCTAssertTrue(sut.config.isEnabled)
+        XCTAssertTrue(sut.config.isAvailable)
         XCTAssertEqual(sut.config.appLockTimeout, 10)
         
         //when
@@ -192,7 +192,7 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
         
         //then
         XCTAssertFalse(sut.config.forceAppLock)
-        XCTAssertTrue(sut.config.isEnabled)
+        XCTAssertTrue(sut.config.isAvailable)
         XCTAssertNotEqual(sut.config.appLockTimeout, 30)
     }
 }
