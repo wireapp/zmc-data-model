@@ -42,10 +42,16 @@ extension StorageStack {
         let tempURL = URL(fileURLWithPath: NSTemporaryDirectory(), isDirectory: true)
         return tempURL.appendingPathComponent("imports")
     }
+    
+    public enum BackupImportError: Error {
+           case incompatibleBackup(Error)
+           case failedToCopy(Error)
+       }
 
     public enum BackupError: Error {
         case failedToRead
         case failedToWrite(Error)
+        case missingEAREncryptionKey
     }
     
     public struct BackupInfo {
@@ -77,12 +83,14 @@ extension StorageStack {
     ///   - accountIdentifier: identifier of account being backed up
     ///   - applicationContainer: shared application container
     ///   - dispatchGroup: group for testing
+    ///   - encryptionKeys: EAR encryption keys
     ///   - completion: called on main thread when done. Result will contain the folder where all data was written to.
     public static func backupLocalStorage(
         accountIdentifier: UUID,
         clientIdentifier: String,
         applicationContainer: URL,
         dispatchGroup: ZMSDispatchGroup? = nil,
+        encryptionKeys: EncryptionKeys? = nil,
         completion: @escaping (Result<BackupInfo>) -> Void
         ) {
 
@@ -119,9 +127,11 @@ extension StorageStack {
                     sourceOptions: options,
                     ofType: NSSQLiteStoreType
                 )
-
-                // Mark the database as imported from a history backup
-                try markAsImported(coordinator: coordinator, location: backupLocation, options: options)
+                
+                try prepareStoreForBackupExport(coordinator: coordinator,
+                                                location: backupLocation,
+                                                options: options,
+                                                encryptionKeys: encryptionKeys)
 
                 // Create & write metadata
                 let metadata = BackupMetadata(userIdentifier: accountIdentifier, clientIdentifier: clientIdentifier)
@@ -136,29 +146,7 @@ extension StorageStack {
             }
         }
     }
-    
-    private static func markAsImported(coordinator: NSPersistentStoreCoordinator, location: URL, options: [String: Any]) throws {
-        // Add persistent store at the new location to allow creation of NSManagedObjectContext
-        let store = try coordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: location, options: options)
-        let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
-        context.persistentStoreCoordinator = coordinator
-        var storeMetadata = store.metadata
         
-        // Mark the db as backed up
-        storeMetadata?[PersistentMetadataKey.importedFromBackup.rawValue] = NSNumber(booleanLiteral: true)
-        store.metadata = storeMetadata
-
-        // Save context & forward error
-        try context.performGroupedAndWait { context in
-            try context.save()
-        }
-    }
-    
-    public enum BackupImportError: Error {
-        case incompatibleBackup(Error)
-        case failedToCopy(Error)
-    }
-    
     /// Will import a backup for a given account
     ///
     /// - Parameters:
@@ -202,6 +190,8 @@ extension StorageStack {
                 try fileManager.createDirectory(at: accountStoreFile.deletingLastPathComponent(), withIntermediateDirectories: true, attributes: nil)
                 let options = NSPersistentStoreCoordinator.persistentStoreOptions(supportsMigration: false)
                 
+                try prepareStoreForBackupImport(coordinator: coordinator, location: backupStoreFile, options: options)
+                
                 // Import the persistent store to the account data directory
                 try coordinator.replacePersistentStore(
                     at: accountStoreFile,
@@ -210,8 +200,8 @@ extension StorageStack {
                     sourceOptions: options,
                     ofType: NSSQLiteStoreType
                 )
-
-                log.info("succesfully imported backup with metadata: \(metadata)")
+                
+                log.info("successfully imported backup with metadata: \(metadata)")
 
                 DispatchQueue.main.async(group: dispatchGroup) {
                     completion(.success(accountDirectory))
@@ -220,6 +210,43 @@ extension StorageStack {
                 fail(.failedToCopy(error))
             }
         }
+    }
+    
+    private static func prepareStoreForBackupExport(coordinator: NSPersistentStoreCoordinator,
+                                                    location: URL,
+                                                    options: [String: Any],
+                                                    encryptionKeys: EncryptionKeys? = nil) throws {
+        // Add persistent store at the new location to allow creation of NSManagedObjectContext
+        let store = try coordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: location, options: options)
+        let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        context.persistentStoreCoordinator = coordinator
+        
+        try context.performGroupedAndWait { context in
+            if context.encryptMessagesAtRest {
+                guard let encryptionKeys = encryptionKeys else { throw BackupError.missingEAREncryptionKey }
+                try context.disableEncryptionAtRest(encryptionKeys: encryptionKeys)
+                _ = context.makeMetadataPersistent()
+                try context.save()
+            }
+        }
+        
+        // Close the store, not doing so could lead to data loss when copying the store files.
+        try coordinator.remove(store)
+    }
+    
+    private static func prepareStoreForBackupImport(coordinator: NSPersistentStoreCoordinator, location: URL, options: [String: Any]) throws {
+        // Add persistent store at the new location to allow creation of NSManagedObjectContext
+        let store = try coordinator.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: location, options: options)
+        let context = NSManagedObjectContext(concurrencyType: .privateQueueConcurrencyType)
+        context.persistentStoreCoordinator = coordinator
+        
+        try context.performGroupedAndWait { context in
+            context.prepareToImportBackup()
+            try context.save()
+        }
+        
+        // Close the store, not doing so could lead to data loss when copying the store files.
+        try coordinator.remove(store)
     }
 
 }
