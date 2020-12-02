@@ -21,7 +21,7 @@ import LocalAuthentication
 
 private let zmLog = ZMSLog(tag: "AppLockController")
 
-public class AppLockController {
+open class AppLockController {
     
     private let selfUser: ZMUser
     private let baseConfig: Config
@@ -42,7 +42,7 @@ public class AppLockController {
     }
     
     // Returns true if user enabled the app lock feature or it has been forced by the team manager.
-    public var isActive: Bool {
+    open var isActive: Bool {
         get {
             guard !config.forceAppLock else { return true }
             guard let data = ZMKeychain.data(forAccount: SettingsPropertyName.lockApp.rawValue),
@@ -63,7 +63,7 @@ public class AppLockController {
     public var lastUnlockedDate: Date = Date(timeIntervalSince1970: 0)
     
     /// a weak reference to LAContext, it should be nil when evaluatePolicy is done.
-    private weak var weakLAContext: LAContext? = nil 
+    private weak var weakLAContext: LAContext? = nil
     
     
     // MARK: - Life cycle
@@ -78,7 +78,7 @@ public class AppLockController {
     // MARK: - Methods
     
     // Creates a new LAContext and evaluates the authentication settings of the user.
-    public func evaluateAuthentication(scenario: AuthenticationScenario,
+    open func evaluateAuthentication(scenario: AuthenticationScenario,
                                              description: String,
                                              with callback: @escaping (AuthenticationResult, LAContext) -> Void) {
         guard self.weakLAContext == nil else { return }
@@ -114,7 +114,7 @@ public class AppLockController {
         }
     }
     
-    public func persistBiometrics() {
+    open func persistBiometrics() {
         BiometricsState.persist()
     }
     
