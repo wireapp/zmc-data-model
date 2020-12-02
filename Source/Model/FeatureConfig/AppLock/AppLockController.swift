@@ -21,7 +21,19 @@ import LocalAuthentication
 
 private let zmLog = ZMSLog(tag: "AppLockController")
 
-open class AppLockController {
+public protocol AppLockType {
+    var isActive: Bool { get set }
+    var lastUnlockedDate: Date { get set }
+    var isCustomPasscodeNotSet: Bool { get }
+    var config: AppLockController.Config { get }
+    
+    func evaluateAuthentication(scenario: AppLockController.AuthenticationScenario,
+                                description: String,
+                                with callback: @escaping (AppLockController.AuthenticationResult, LAContext) -> Void)
+    func persistBiometrics()
+}
+
+public final class AppLockController: AppLockType {
     
     private let selfUser: ZMUser
     private let baseConfig: Config
@@ -42,7 +54,7 @@ open class AppLockController {
     }
     
     // Returns true if user enabled the app lock feature or it has been forced by the team manager.
-    open var isActive: Bool {
+    public var isActive: Bool {
         get {
             guard !config.forceAppLock else { return true }
             guard let data = ZMKeychain.data(forAccount: SettingsPropertyName.lockApp.rawValue),
@@ -62,8 +74,12 @@ open class AppLockController {
     // Returns the time since last lock happened.
     public var lastUnlockedDate: Date = Date(timeIntervalSince1970: 0)
     
+    public var isCustomPasscodeNotSet: Bool {
+        return config.useCustomCodeInsteadOfAccountPassword && Keychain.fetchPasscode() == nil
+    }
+    
     /// a weak reference to LAContext, it should be nil when evaluatePolicy is done.
-    private weak var weakLAContext: LAContext? = nil
+    private weak var weakLAContext: LAContext? = nil 
     
     
     // MARK: - Life cycle
@@ -78,7 +94,7 @@ open class AppLockController {
     // MARK: - Methods
     
     // Creates a new LAContext and evaluates the authentication settings of the user.
-    open func evaluateAuthentication(scenario: AuthenticationScenario,
+    public func evaluateAuthentication(scenario: AuthenticationScenario,
                                              description: String,
                                              with callback: @escaping (AuthenticationResult, LAContext) -> Void) {
         guard self.weakLAContext == nil else { return }
@@ -114,7 +130,7 @@ open class AppLockController {
         }
     }
     
-    open func persistBiometrics() {
+    public func persistBiometrics() {
         BiometricsState.persist()
     }
     
