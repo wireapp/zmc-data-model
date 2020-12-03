@@ -64,11 +64,19 @@ extension Team {
     /// To trigger the request immediately, post a `RequestAvailableNotification`.
     ///
     /// - Parameter name: The name of the feature to refresh.
-
+    
     public func enqueueBackendRefresh(for name: Feature.Name) {
         guard let context = managedObjectContext else { return }
-        let feature = Feature.fetch(name: name, context: context)
-        feature?.needsToBeUpdatedFromBackend = true
+        
+        if let feature = Feature.fetch(name: name, context: context) {
+            feature.needsToBeUpdatedFromBackend = true
+        } else {
+            switch name {
+            case .appLock:
+                let defaultInstance = try? Feature.AppLock().store(for: self, in: context)
+                defaultInstance?.needsToBeUpdatedFromBackend = true
+            }
+        }
     }
 
 }
