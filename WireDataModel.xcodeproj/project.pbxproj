@@ -347,7 +347,6 @@
 		BF8F3A831E4B61C70079E9E7 /* TextSearchQuery.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF8F3A821E4B61C70079E9E7 /* TextSearchQuery.swift */; };
 		BF949E5B1D3D17FB00587597 /* LinkPreview+ProtobufTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF949E5A1D3D17FB00587597 /* LinkPreview+ProtobufTests.swift */; };
 		BF989D0A1E8A6A120052BF8F /* SearchUserAsset.swift in Sources */ = {isa = PBXBuildFile; fileRef = BF989D091E8A6A120052BF8F /* SearchUserAsset.swift */; };
-		BFABEB8C1E647054003BE9F3 /* GenericMessageScheduleNotification.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFABEB8B1E647054003BE9F3 /* GenericMessageScheduleNotification.swift */; };
 		BFB3BA731E28D38F0032A84F /* SharedObjectStoreTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFB3BA721E28D38F0032A84F /* SharedObjectStoreTests.swift */; };
 		BFC183E2210F57EA00601E5D /* store2-51-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = BFC183E1210F57EA00601E5D /* store2-51-0.wiredatabase */; };
 		BFCD502D21511D58008CD845 /* DraftMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = BFCD502C21511D58008CD845 /* DraftMessage.swift */; };
@@ -1044,7 +1043,6 @@
 		BF8F3A821E4B61C70079E9E7 /* TextSearchQuery.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = TextSearchQuery.swift; sourceTree = "<group>"; };
 		BF949E5A1D3D17FB00587597 /* LinkPreview+ProtobufTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "LinkPreview+ProtobufTests.swift"; sourceTree = "<group>"; };
 		BF989D091E8A6A120052BF8F /* SearchUserAsset.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SearchUserAsset.swift; sourceTree = "<group>"; };
-		BFABEB8B1E647054003BE9F3 /* GenericMessageScheduleNotification.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = GenericMessageScheduleNotification.swift; sourceTree = "<group>"; };
 		BFB3BA721E28D38F0032A84F /* SharedObjectStoreTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = SharedObjectStoreTests.swift; sourceTree = "<group>"; };
 		BFC183E0210F389900601E5D /* zmessaging2.52.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = zmessaging2.52.0.xcdatamodel; sourceTree = "<group>"; };
 		BFC183E1210F57EA00601E5D /* store2-51-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; name = "store2-51-0.wiredatabase"; path = "Tests/Resources/store2-51-0.wiredatabase"; sourceTree = SOURCE_ROOT; };
@@ -1915,7 +1913,6 @@
 				165E0F68217F871400E36D08 /* ZMOTRMessage+ContentHashing.swift */,
 				165124D121886EDB006A3C75 /* ZMOTRMessage+Quotes.swift */,
 				63370C6B242A510A0072C37F /* ZMOTRMessage+UpdateEvent.swift */,
-				BFABEB8B1E647054003BE9F3 /* GenericMessageScheduleNotification.swift */,
 				CE4EDC0A1D6DC2D2002A20AA /* ConversationMessage+Reaction.swift */,
 			);
 			path = Message;
@@ -3049,7 +3046,6 @@
 				F93A30251D6EFB47005CCB1D /* ZMMessageConfirmation.swift in Sources */,
 				EFD0B02D21087DC80065EBF3 /* ZMConversation+Language.swift in Sources */,
 				F137EEBE212C14300043FDEB /* ZMConversation+Services.swift in Sources */,
-				BFABEB8C1E647054003BE9F3 /* GenericMessageScheduleNotification.swift in Sources */,
 				54EDE6801CBBF1860044A17E /* PINCache+ZMessaging.swift in Sources */,
 				06E8AAB4242BAA6A008929B1 /* SignatureStatus.swift in Sources */,
 				F963E9811D9C09E700098AD3 /* ZMMessageTimer.m in Sources */,
