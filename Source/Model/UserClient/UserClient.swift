@@ -318,10 +318,11 @@ public class UserClient: ZMManagedObject, UserClientType {
             
             // Mark clients as needing to be refetched
             selfClient.missesClient(syncClient)
-            syncMOC.saveOrRollback()
             
             // Mark that we need notify the other party about the session reset
             syncClient.needsToNotifyOtherUserAboutSessionReset = true
+            
+            syncMOC.saveOrRollback()
         }
     }
 
