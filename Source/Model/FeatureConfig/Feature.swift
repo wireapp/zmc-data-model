@@ -44,6 +44,7 @@ public class Feature: ZMManagedObject {
     @NSManaged private var nameValue: String
     @NSManaged private var statusValue: String
     @NSManaged public var configData: Data?
+    @NSManaged public var needsToInformUserOfFeatureChange: Bool
 
     @NSManaged public var team: Team?
 
