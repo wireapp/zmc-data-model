@@ -27,8 +27,7 @@ public protocol AppLockType {
     var isCustomPasscodeNotSet: Bool { get }
     var config: AppLockController.Config { get }
     
-    func evaluateAuthentication(scenario: AppLockController.AuthenticationScenario,
-                                description: String,
+    func evaluateAuthentication(description: String,
                                 with callback: @escaping (AppLockController.AuthenticationResult, LAContext) -> Void)
     func persistBiometrics()
 }
@@ -75,7 +74,7 @@ public final class AppLockController: AppLockType {
     public var lastUnlockedDate: Date = Date(timeIntervalSince1970: 0)
     
     public var isCustomPasscodeNotSet: Bool {
-        return config.useCustomCodeInsteadOfAccountPassword && Keychain.fetchPasscode() == nil
+        return Keychain.fetchPasscode() == nil
     }
     
     /// a weak reference to LAContext, it should be nil when evaluatePolicy is done.
@@ -94,9 +93,9 @@ public final class AppLockController: AppLockType {
     // MARK: - Methods
     
     // Creates a new LAContext and evaluates the authentication settings of the user.
-    public func evaluateAuthentication(scenario: AuthenticationScenario,
-                                             description: String,
-                                             with callback: @escaping (AuthenticationResult, LAContext) -> Void) {
+    public func evaluateAuthentication(description: String,
+                                       with callback: @escaping (AuthenticationResult, LAContext) -> Void) {
+        
         guard self.weakLAContext == nil else { return }
         
         let context: LAContext = LAContext()
@@ -104,28 +103,19 @@ public final class AppLockController: AppLockType {
         
         self.weakLAContext = context
         
-        let canEvaluatePolicy = context.canEvaluatePolicy(scenario.policy, error: &error)
-        
-        if scenario.supportsUserFallback && (BiometricsState.biometricsChanged(in: context) || !canEvaluatePolicy) {
-            callback(.needAccountPassword, context)
-            return
-        }
-        
+        let canEvaluatePolicy = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
         if canEvaluatePolicy {
-            context.evaluatePolicy(scenario.policy, localizedReason: description, reply: { (success, error) -> Void in
+            context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: description, reply: { (success, error) -> Void in
                 var authResult: AuthenticationResult = success ? .granted : .denied
                 
-                if scenario.supportsUserFallback, let laError = error as? LAError, laError.code == .userFallback {
+                if let laError = error as? LAError, laError.code == .userFallback {
                     authResult = .needAccountPassword
                 }
                 
                 callback(authResult, context)
             })
         } else {
-            // If the policy can't be evaluated automatically grant access unless app lock
-            // is a requirement to run the app. This will for example allow a user to access
-            // the app if he/she has disabled his/her passcode.
-            callback(scenario.grantAccessIfPolicyCannotBeEvaluated ? .granted : .unavailable, context)
+            callback(.needAccountPassword, context)
             zmLog.error("Local authentication error: \(String(describing: error?.localizedDescription))")
         }
     }
@@ -203,6 +193,8 @@ public final class AppLockController: AppLockType {
          case lockApp = "lockApp"
     }
 }
+
+// MARK: - BiometricsState
 
 public class BiometricsState {
     private static let UserDefaultsDomainStateKey = "DomainStateKey"
