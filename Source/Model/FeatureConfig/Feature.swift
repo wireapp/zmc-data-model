@@ -112,9 +112,13 @@ public class Feature: ZMManagedObject {
             switch name {
             case .appLock:
                 let defaultInstance = Feature.AppLock()
+                guard let defaultConfigData = try? JSONEncoder().encode(defaultInstance.config) else {
+                    fatalError("Failed to encode default config for: \(name)")
+                }
+
                 let feature = insert(name: name,
                                      status: defaultInstance.status,
-                                     config: try? JSONEncoder().encode(defaultInstance.config),
+                                     config: defaultConfigData,
                                      team: team,
                                      context: context)
                 return feature
