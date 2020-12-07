@@ -59,7 +59,7 @@ public extension FeatureLike {
 
     @discardableResult
     func store(for team: Team, in context: NSManagedObjectContext) throws -> Feature {
-        return Feature.insert(name: Self.name,
+        return Feature.createOrUpdate(name: Self.name,
                               status: status,
                               config: try JSONEncoder().encode(config),
                               team: team,

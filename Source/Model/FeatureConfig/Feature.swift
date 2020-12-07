@@ -96,6 +96,32 @@ public class Feature: ZMManagedObject {
         require(results.count <= 1, "More than instance for feature: \(name.rawValue)")
         return results.first
     }
+    
+    // Fetch or create the default feature
+    static func fetchOrCreate(name: Name,
+                              team: Team,
+                              context: NSManagedObjectContext) -> Feature {
+        
+        let fetchRequest = NSFetchRequest<Feature>(entityName: Feature.entityName())
+        fetchRequest.predicate = NSPredicate(format: "nameValue == %@", name.rawValue)
+        fetchRequest.fetchLimit = 2
+        
+        let results = context.fetchOrAssert(request: fetchRequest)
+        require(results.count <= 1, "More than instance for feature: \(name.rawValue)")
+        guard let feature = results.first else {
+            switch name {
+            case .appLock:
+                let defaultInstance = Feature.AppLock()
+                let feature = insert(name: name,
+                                     status: defaultInstance.status,
+                                     config: try? JSONEncoder().encode(defaultInstance.config),
+                                     team: team,
+                                     context: context)
+                return feature
+            }
+        }
+        return feature
+    }
 
     @discardableResult
     public static func createOrUpdate(name: Name,
