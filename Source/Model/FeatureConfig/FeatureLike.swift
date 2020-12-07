@@ -64,7 +64,8 @@ public extension FeatureLike {
             status: status,
             config: try JSONEncoder().encode(config),
             team: team,
-            context: context)
+            context: context
+        )
     }
 
 }
