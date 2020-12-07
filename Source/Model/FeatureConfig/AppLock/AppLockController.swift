@@ -94,7 +94,7 @@ public final class AppLockController: AppLockType {
     // MARK: - Methods
     
     // Creates a new LAContext and evaluates the authentication settings of the user.
-    public func evaluateAuthentication(scenario: AppLockController.AuthenticationScenario,
+    public func evaluateAuthentication(scenario: AuthenticationScenario,
                                        description: String,
                                        with callback: @escaping (AuthenticationResult, LAContext) -> Void) {
         
