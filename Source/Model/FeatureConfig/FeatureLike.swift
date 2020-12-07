@@ -38,6 +38,10 @@ public protocol FeatureLike: Codable {
     /// The object used to configure the feature.
 
     var config: Config { get }
+    
+    /// Notify user that feature  has been a changed
+    
+    var needsToInformUserOfChange: Bool { get }
 
     /// Initializes the feature with default values.
 
@@ -45,7 +49,7 @@ public protocol FeatureLike: Codable {
 
     /// Initializes the feature with the given status and config.
 
-    init(status: Feature.Status, config: Config)
+    init(status: Feature.Status, config: Config, needsToInformUserOfChange: Bool)
 
     /// Initializes the feature with the given `Feature` instance.
 
