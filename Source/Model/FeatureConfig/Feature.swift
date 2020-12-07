@@ -107,7 +107,7 @@ public class Feature: ZMManagedObject {
         fetchRequest.fetchLimit = 2
         
         let results = context.fetchOrAssert(request: fetchRequest)
-        require(results.count <= 1, "More than instance for feature: \(name.rawValue)")
+        require(results.count <= 1, "More than one instance for feature: \(name.rawValue)")
         guard let feature = results.first else {
             switch name {
             case .appLock:
