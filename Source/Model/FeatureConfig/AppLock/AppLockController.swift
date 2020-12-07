@@ -27,7 +27,8 @@ public protocol AppLockType {
     var isCustomPasscodeNotSet: Bool { get }
     var config: AppLockController.Config { get }
     
-    func evaluateAuthentication(description: String,
+    func evaluateAuthentication(scenario: AppLockController.AuthenticationScenario,
+                                description: String,
                                 with callback: @escaping (AppLockController.AuthenticationResult, LAContext) -> Void)
     func persistBiometrics()
 }
@@ -93,7 +94,8 @@ public final class AppLockController: AppLockType {
     // MARK: - Methods
     
     // Creates a new LAContext and evaluates the authentication settings of the user.
-    public func evaluateAuthentication(description: String,
+    public func evaluateAuthentication(scenario: AppLockController.AuthenticationScenario,
+                                       description: String,
                                        with callback: @escaping (AuthenticationResult, LAContext) -> Void) {
         
         guard self.weakLAContext == nil else { return }
@@ -103,21 +105,22 @@ public final class AppLockController: AppLockType {
         
         self.weakLAContext = context
         
-        let canEvaluatePolicy = context.canEvaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, error: &error)
-        if canEvaluatePolicy {
-            context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: description, reply: { (success, error) -> Void in
-                var authResult: AuthenticationResult = success ? .granted : .denied
-                
-                if let laError = error as? LAError, laError.code == .userFallback {
-                    authResult = .needAccountPassword
-                }
-                
-                callback(authResult, context)
-            })
-        } else {
+        let canEvaluatePolicy = context.canEvaluatePolicy(scenario.policy, error: &error)
+        
+        if scenario.supportsUserFallback && (BiometricsState.biometricsChanged(in: context) || !canEvaluatePolicy) {
             callback(.needAccountPassword, context)
-            zmLog.error("Local authentication error: \(String(describing: error?.localizedDescription))")
+            return
         }
+
+        context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: description, reply: { (success, error) -> Void in
+            var authResult: AuthenticationResult = success ? .granted : .denied
+            
+            if let laError = error as? LAError, laError.code == .userFallback {
+                authResult = .needAccountPassword
+            }
+            
+            callback(authResult, context)
+        })
     }
     
     public func persistBiometrics() {
