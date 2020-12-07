@@ -294,7 +294,7 @@ final class TeamTests: ZMConversationTestsBase {
         }
     }
 
-    func testItEnqueuesBackendRefreshForFeature() {
+    func testItEnqueuesBackendRefreshForFeature_WhenFeatureExistsInCoreData() {
         // Given
         let sut = createTeam(in: uiMOC)
 
@@ -312,6 +312,23 @@ final class TeamTests: ZMConversationTestsBase {
         sut.enqueueBackendRefresh(for: .appLock)
 
         // Then
+        XCTAssertTrue(feature.needsToBeUpdatedFromBackend)
+    }
+    
+    func testItEnqueuesBackendRefreshForFeature_WhenThereIsNoFeatureInCoreData() {
+        // Given
+        let sut = createTeam(in: uiMOC)
+        XCTAssertNil(Feature.fetch(name: .appLock, context: uiMOC))
+        
+        // When
+        sut.enqueueBackendRefresh(for: .appLock)
+
+        // Then
+        guard let feature = Feature.fetch(name: .appLock, context: uiMOC) else {
+            XCTFail()
+            return
+        }
+        
         XCTAssertTrue(feature.needsToBeUpdatedFromBackend)
     }
     
