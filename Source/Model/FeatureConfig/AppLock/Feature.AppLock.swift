@@ -45,10 +45,10 @@ public extension Feature {
         }
 
         public init() {
-            self.init(status: .enabled, config: .init(), needsToNotifyUser: false)
+            self.init(status: .enabled, config: .init())
         }
 
-        public init(status: Feature.Status, config: Config, needsToNotifyUser: Bool) {
+        public init(status: Feature.Status, config: Config, needsToNotifyUser: Bool = false) {
             self.status = status
             self.config = config
             self.needsToNotifyUser = needsToNotifyUser
