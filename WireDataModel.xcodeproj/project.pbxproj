@@ -12,6 +12,8 @@
 		0617001323E2FC14005C262D /* GenericMessageTests+LinkMetaData.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0617001123E2FBC0005C262D /* GenericMessageTests+LinkMetaData.swift */; };
 		0630E4B6257F888600C75BFB /* NSManagedObjectContext+AppLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0630E4B5257F888600C75BFB /* NSManagedObjectContext+AppLock.swift */; };
 		0630E4B8257F8C0B00C75BFB /* ZMUser+Applock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0630E4B7257F8C0B00C75BFB /* ZMUser+Applock.swift */; };
+		0630E4BB257F975E00C75BFB /* PasscodeKeychainItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0630E4BA257F975E00C75BFB /* PasscodeKeychainItem.swift */; };
+		0630E4BD257F977F00C75BFB /* Keychain+Passcode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0630E4BC257F977F00C75BFB /* Keychain+Passcode.swift */; };
 		0634C3A924643A400006081D /* ZMUpdateEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0634C3A824643A400006081D /* ZMUpdateEvent.swift */; };
 		06392CF923BF9DA9003186E6 /* store2-79-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 06392CF823BF9DA9003186E6 /* store2-79-0.wiredatabase */; };
 		063D2928242128D300FA6FEE /* ZMClientMessage+Ephemeral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063D2927242128D200FA6FEE /* ZMClientMessage+Ephemeral.swift */; };
@@ -680,6 +682,8 @@
 		0617001123E2FBC0005C262D /* GenericMessageTests+LinkMetaData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GenericMessageTests+LinkMetaData.swift"; sourceTree = "<group>"; };
 		0630E4B5257F888600C75BFB /* NSManagedObjectContext+AppLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSManagedObjectContext+AppLock.swift"; sourceTree = "<group>"; };
 		0630E4B7257F8C0B00C75BFB /* ZMUser+Applock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMUser+Applock.swift"; sourceTree = "<group>"; };
+		0630E4BA257F975E00C75BFB /* PasscodeKeychainItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasscodeKeychainItem.swift; sourceTree = "<group>"; };
+		0630E4BC257F977F00C75BFB /* Keychain+Passcode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Keychain+Passcode.swift"; sourceTree = "<group>"; };
 		0634C3A824643A400006081D /* ZMUpdateEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMUpdateEvent.swift; sourceTree = "<group>"; };
 		06392CF723BF9C22003186E6 /* zmessaging2.79.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = zmessaging2.79.0.xcdatamodel; sourceTree = "<group>"; };
 		06392CF823BF9DA9003186E6 /* store2-79-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; path = "store2-79-0.wiredatabase"; sourceTree = "<group>"; };
@@ -1456,6 +1460,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0630E4B9257F974600C75BFB /* Keychain */ = {
+			isa = PBXGroup;
+			children = (
+				0630E4BA257F975E00C75BFB /* PasscodeKeychainItem.swift */,
+				0630E4BC257F977F00C75BFB /* Keychain+Passcode.swift */,
+			);
+			path = Keychain;
+			sourceTree = "<group>";
+		};
 		0686649D256FB087001C8747 /* AppLock */ = {
 			isa = PBXGroup;
 			children = (
@@ -2094,6 +2107,7 @@
 		F9A706421CAEE01D00C2F5FE /* Utilis */ = {
 			isa = PBXGroup;
 			children = (
+				0630E4B9257F974600C75BFB /* Keychain */,
 				F963E9671D9ADD5A00098AD3 /* Protos */,
 				F9331C851CB419B500139ECC /* NSFetchRequest+ZMRelationshipKeyPaths.h */,
 				F9331C861CB419B500139ECC /* NSFetchRequest+ZMRelationshipKeyPaths.m */,
@@ -2975,6 +2989,7 @@
 				638805652410FE920043B641 /* ButtonState.swift in Sources */,
 				16460A46206544B00096B616 /* PersistentMetadataKeys.swift in Sources */,
 				5E67168E2174B9AF00522E61 /* LoginCredentials.swift in Sources */,
+				0630E4BD257F977F00C75BFB /* Keychain+Passcode.swift in Sources */,
 				CE4EDC0B1D6DC2D2002A20AA /* ConversationMessage+Reaction.swift in Sources */,
 				EEAAD75A252C6D2700E6A44E /* UnreadMessages.swift in Sources */,
 				A90676EB238EB05F006417AC /* Role.swift in Sources */,
@@ -3028,6 +3043,7 @@
 				A90D62C823A159B600F680CC /* ZMConversation+Transport.swift in Sources */,
 				F9A706941CAEE01D00C2F5FE /* UserClient+Protobuf.swift in Sources */,
 				63370CBD242CBA0A0072C37F /* CompositeMessageData.swift in Sources */,
+				0630E4BB257F975E00C75BFB /* PasscodeKeychainItem.swift in Sources */,
 				BF8F3A831E4B61C70079E9E7 /* TextSearchQuery.swift in Sources */,
 				5E771F382080BB0000575629 /* PBMessage+Validation.swift in Sources */,
 				BF10B5971E64591600E7036E /* AnalyticsType.swift in Sources */,

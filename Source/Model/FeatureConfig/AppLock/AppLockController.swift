@@ -68,7 +68,7 @@ public final class AppLockController: AppLockType {
     public var lastUnlockedDate: Date = Date(timeIntervalSince1970: 0)
     
     public var isCustomPasscodeNotSet: Bool {
-        return config.useCustomCodeInsteadOfAccountPassword && Keychain.fetchPasscode() == nil
+        return config.useCustomCodeInsteadOfAccountPassword && Keychain.fetchPasscode(for: selfUser.remoteIdentifier) == nil
     }
     
     /// a weak reference to LAContext, it should be nil when evaluatePolicy is done.
@@ -227,6 +227,11 @@ public class BiometricsState {
 // MARK: - Migration rules
 
 extension AppLockController {
+    
+    static func migrateKeychainItems(in moc: NSManagedObjectContext) {
+        AppLockController.migrateIsApplockActiveState(in: moc)
+        PasscodeKeychainItem.migratePasscode(in: moc)
+    }
     
     // Save the enable state of the applock feature in the managedObjectContext instead of the keychain
     static func migrateIsApplockActiveState(in moc: NSManagedObjectContext) {
