@@ -28,7 +28,7 @@ public extension Feature {
 
         public let status: Status
         public let config: Config
-        public let needsToInformUserOfChange: Bool
+        public var needsToNotifyUser: Bool
 
         // MARK: - Life cycle
 
@@ -41,17 +41,17 @@ public extension Feature {
                 return nil
             }
 
-            self.init(status: feature.status, config: config, needsToInformUserOfChange: feature.needsToInformUserOfFeatureChange)
+            self.init(status: feature.status, config: config, needsToNotifyUser: feature.needsToNotifyUser)
         }
 
         public init() {
-            self.init(status: .enabled, config: .init(), needsToInformUserOfChange: false)
+            self.init(status: .enabled, config: .init(), needsToNotifyUser: false)
         }
 
-        public init(status: Feature.Status, config: Config, needsToInformUserOfChange: Bool) {
+        public init(status: Feature.Status, config: Config, needsToNotifyUser: Bool) {
             self.status = status
             self.config = config
-            self.needsToInformUserOfChange = needsToInformUserOfChange
+            self.needsToNotifyUser = needsToNotifyUser
         }
 
         // MARK: - Types

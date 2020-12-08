@@ -25,7 +25,7 @@ public protocol AppLockType {
     var isActive: Bool { get set }
     var lastUnlockedDate: Date { get set }
     var isCustomPasscodeNotSet: Bool { get }
-    var needsToInformUserOfFeatureChange: Bool { get }
+    var needsToNotifyUserOfFeatureChange: Bool { get set }
     var config: AppLockController.Config { get }
     
     func evaluateAuthentication(description: String,
@@ -49,7 +49,7 @@ public final class AppLockController: AppLockType {
         result.forceAppLock = baseConfig.forceAppLock || feature.config.enforceAppLock
         result.appLockTimeout = feature.config.inactivityTimeoutSecs
         result.isAvailable = (feature.status == .enabled)
-        result.needsToInformUserOfChange = feature.needsToInformUserOfChange
+        result.needsToNotifyUserOfFeatureChange = feature.needsToNotifyUser
         
         return result
     }
@@ -79,14 +79,19 @@ public final class AppLockController: AppLockType {
         return Keychain.fetchPasscode() == nil
     }
     
-    public var needsToInformUserOfFeatureChange: Bool {
-        guard let team = selfUser.team else {
-            return false
+    public var needsToNotifyUserOfFeatureChange: Bool {
+        get {
+            guard let team = selfUser.team else {
+                return false
+            }
+            let feature = team.feature(for: Feature.AppLock.self)
+            
+            return feature.needsToNotifyUser
         }
-        
-        let feature = team.feature(for: Feature.AppLock.self)
-        
-        return feature.needsToInformUserOfChange
+        set {
+            var feature = selfUser.team?.feature(for: Feature.AppLock.self)
+            feature?.needsToNotifyUser = newValue
+        }
     }
     
     /// a weak reference to LAContext, it should be nil when evaluatePolicy is done.
@@ -145,7 +150,7 @@ public final class AppLockController: AppLockType {
         public var forceAppLock: Bool
         public var appLockTimeout: UInt
         public var isAvailable: Bool
-        public var needsToInformUserOfChange: Bool
+        public var needsToNotifyUserOfFeatureChange: Bool
         
         public init(useBiometricsOrAccountPassword: Bool,
                     useCustomCodeInsteadOfAccountPassword: Bool,
@@ -156,7 +161,7 @@ public final class AppLockController: AppLockType {
             self.forceAppLock = forceAppLock
             self.appLockTimeout = timeOut
             self.isAvailable = true
-            self.needsToInformUserOfChange = false
+            self.needsToNotifyUserOfFeatureChange = false
         }
     }
     

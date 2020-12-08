@@ -69,7 +69,7 @@ final class FeatureTests: ZMBaseManagedObjectTest {
         let feature = Feature.insert(name: .appLock,
                                      status: .enabled,
                                      config: configData,
-                                     team: team,
+                                     team: team, needsToNotifyUser: false,
                                      context: uiMOC)
         XCTAssertEqual(feature.status, .enabled)
         

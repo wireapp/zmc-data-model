@@ -23,7 +23,7 @@ class FeatureLikeTests: ZMBaseManagedObjectTest {
 
     func testThatItStoresAFeatureLikeObject() throws {
         // Given
-        let appLock = Feature.AppLock(status: .enabled, config: .init(enforceAppLock: true, inactivityTimeoutSecs: 10))
+        let appLock = Feature.AppLock(status: .enabled, config: .init(enforceAppLock: true, inactivityTimeoutSecs: 10), needsToNotifyUser: true)
 
         let team = Team.insertNewObject(in: uiMOC)
         team.remoteIdentifier = .create()
@@ -37,7 +37,7 @@ class FeatureLikeTests: ZMBaseManagedObjectTest {
         XCTAssertEqual(result.status, .enabled)
         XCTAssertEqual(result.configData, appLock.configData)
         XCTAssertEqual(result.team?.remoteIdentifier, team.remoteIdentifier!)
-
+        XCTAssertEqual(result.needsToNotifyUser, true)
     }
 }
 
