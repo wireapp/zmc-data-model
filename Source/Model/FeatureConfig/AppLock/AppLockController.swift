@@ -115,7 +115,7 @@ public final class AppLockController: AppLockType {
         context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: description, reply: { (success, error) -> Void in
             var authResult: AuthenticationResult = success ? .granted : .denied
             
-            if let laError = error as? LAError, laError.code == .userFallback {
+            if scenario.supportsUserFallback, let laError = error as? LAError, laError.code == .userFallback {
                 authResult = .needAccountPassword
             }
             
@@ -161,35 +161,26 @@ public final class AppLockController: AppLockType {
     }
     
     public enum AuthenticationScenario {
-        case screenLock(requireBiometrics: Bool, grantAccessIfPolicyCannotBeEvaluated: Bool)
+        case screenLock(requireBiometrics: Bool)
         case databaseLock
         
         var policy: LAPolicy {
             switch self {
-            case .screenLock(requireBiometrics: let requireBiometrics, grantAccessIfPolicyCannotBeEvaluated: _):
+            case .screenLock(requireBiometrics: let requireBiometrics):
                 return requireBiometrics ? .deviceOwnerAuthenticationWithBiometrics : .deviceOwnerAuthentication
             case .databaseLock:
                 return .deviceOwnerAuthentication
-                
             }
         }
         
         var supportsUserFallback: Bool {
-            if case .screenLock(requireBiometrics: true, grantAccessIfPolicyCannotBeEvaluated: _) = self {
+            switch self {
+            case .screenLock:
                 return true
+            case .databaseLock:
+                return false
             }
-            
-            return false
         }
-        
-        var grantAccessIfPolicyCannotBeEvaluated: Bool {
-            if case .screenLock(requireBiometrics: _, grantAccessIfPolicyCannotBeEvaluated: true) = self {
-                return true
-            }
-            
-            return false
-        }
-        
     }
     
     private enum SettingsPropertyName: String {
