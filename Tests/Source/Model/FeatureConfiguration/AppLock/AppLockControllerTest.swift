@@ -196,3 +196,4 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
         XCTAssertNotEqual(sut.config.appLockTimeout, 30)
     }
 }
+
