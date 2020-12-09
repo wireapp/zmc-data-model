@@ -107,20 +107,28 @@ public final class AppLockController: AppLockType {
         
         let canEvaluatePolicy = context.canEvaluatePolicy(scenario.policy, error: &error)
         
-        if scenario.supportsUserFallback && (BiometricsState.biometricsChanged(in: context) || !canEvaluatePolicy) {
+        if scenario.supportsUserFallback && (/*BiometricsState.biometricsChanged(in: context) || */!canEvaluatePolicy) {
             callback(.needAccountPassword, context)
             return
         }
-
-        context.evaluatePolicy(.deviceOwnerAuthentication, localizedReason: description, reply: { (success, error) -> Void in
-            var authResult: AuthenticationResult = success ? .granted : .denied
-            
-            if scenario.supportsUserFallback, let laError = error as? LAError, laError.code == .userFallback {
-                authResult = .needAccountPassword
-            }
-            
-            callback(authResult, context)
-        })
+        
+        if canEvaluatePolicy {
+            context.evaluatePolicy(scenario.policy, localizedReason: description, reply: { (success, error) -> Void in
+                var authResult: AuthenticationResult = success ? .granted : .denied
+                
+                if scenario.supportsUserFallback, let laError = error as? LAError, laError.code == .userFallback {
+                    authResult = .needAccountPassword
+                }
+                
+                callback(authResult, context)
+            })
+        } else {
+            // If the policy can't be evaluated automatically grant access unless app lock
+            // is a requirement to run the app. This will for example allow a user to access
+            // the app if he/she has disabled his/her passcode.
+            callback(.unavailable, context)
+            zmLog.error("Local authentication error: \(String(describing: error?.localizedDescription))")
+        }
     }
     
     public func persistBiometrics() {
