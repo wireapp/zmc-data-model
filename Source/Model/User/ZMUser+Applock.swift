@@ -24,7 +24,7 @@ public extension ZMUser {
             return managedObjectContext?.appLock ?? false
         }
         set {
-            self.managedObjectContext?.appLock = newValue
+            managedObjectContext?.appLock = newValue
         }
     }
 }
