@@ -760,6 +760,7 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
 @dynamic parentMessage;
 @dynamic messageTimer;
 @dynamic relevantForConversationStatus;
+@dynamic decryptionErrorCode;
 
 - (instancetype)initWithNonce:(NSUUID *)nonce managedObjectContext:(NSManagedObjectContext *)managedObjectContext
 {

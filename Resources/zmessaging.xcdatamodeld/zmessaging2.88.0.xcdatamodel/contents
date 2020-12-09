@@ -214,6 +214,7 @@
     </entity>
     <entity name="SystemMessage" representedClassName="ZMSystemMessage" parentEntity="Message" syncable="YES">
         <attribute name="allTeamUsersAdded" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
+        <attribute name="decryptionErrorCode" optional="YES" attributeType="Integer 32" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="duration" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="messageTimer" optional="YES" attributeType="Double" defaultValueString="0.0" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="needsUpdatingUsers" optional="YES" attributeType="Boolean" usesScalarValueType="NO" syncable="YES"/>
@@ -346,7 +347,7 @@
         <element name="Reaction" positionX="18" positionY="162" width="128" height="103"/>
         <element name="Role" positionX="-198" positionY="63" width="128" height="120"/>
         <element name="Session" positionX="9" positionY="153" width="128" height="60"/>
-        <element name="SystemMessage" positionX="0" positionY="0" width="128" height="255"/>
+        <element name="SystemMessage" positionX="0" positionY="0" width="128" height="268"/>
         <element name="Team" positionX="9" positionY="153" width="128" height="238"/>
         <element name="TextMessage" positionX="-153" positionY="-117" width="128" height="60"/>
         <element name="User" positionX="-434" positionY="-72" width="128" height="703"/>
