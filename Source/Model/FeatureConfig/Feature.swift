@@ -123,6 +123,7 @@ public class Feature: ZMManagedObject {
             existing.status = status
             existing.configData = config
             existing.team = team
+            existing.needsToBeUpdatedFromBackend = false
             return existing
         }
         
