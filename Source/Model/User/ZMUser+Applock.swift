@@ -21,7 +21,7 @@ import Foundation
 public extension ZMUser {
     var isAppLockActive: Bool {
         get {
-            return self.managedObjectContext?.appLock ?? false
+            return managedObjectContext?.appLock ?? false
         }
         set {
             self.managedObjectContext?.appLock = newValue
