@@ -37,6 +37,7 @@ class FeatureLikeTests: ZMBaseManagedObjectTest {
         XCTAssertEqual(result.status, .enabled)
         XCTAssertEqual(result.configData, appLock.configData)
         XCTAssertEqual(result.team?.remoteIdentifier, team.remoteIdentifier!)
+        
     }
 }
 
