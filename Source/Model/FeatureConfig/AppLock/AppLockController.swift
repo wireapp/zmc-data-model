@@ -223,30 +223,3 @@ public class BiometricsState {
         lastPolicyDomainState = currentPolicyDomainState
     }
 }
-
-// MARK: - Migration rules
-
-extension AppLockController {
-    
-    static func migrateKeychainItems(in moc: NSManagedObjectContext) {
-        AppLockController.migrateIsApplockActiveState(in: moc)
-        PasscodeKeychainItem.migratePasscode(in: moc)
-    }
-    
-    // Save the enable state of the applock feature in the managedObjectContext instead of the keychain
-    static func migrateIsApplockActiveState(in moc: NSManagedObjectContext) {
-        let selfUser = ZMUser.selfUser(in: moc)
-        
-        guard let data = ZMKeychain.data(forAccount: FeatureName.lockApp.rawValue),
-            data.count != 0 else {
-                selfUser.isAppLockActive = false
-                return
-        }
-        
-        selfUser.isAppLockActive = String(data: data, encoding: .utf8) == "YES"
-    }
-    
-    enum FeatureName: String {
-        case lockApp = "lockApp"
-    }
-}

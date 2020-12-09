@@ -22,7 +22,7 @@ extension NSManagedObjectContext {
     
     /// Whether the applock feature is enabled.
     
-    internal(set) public var appLock: Bool {
+    internal(set) public var isAppLockEnabled: Bool {
         set {
             setPersistentStoreMetadata(NSNumber(booleanLiteral: newValue),
                                        key: PersistentMetadataKey.appLock.rawValue)

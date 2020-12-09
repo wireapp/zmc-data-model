@@ -14,7 +14,7 @@
 		0630E4B8257F8C0B00C75BFB /* ZMUser+Applock.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0630E4B7257F8C0B00C75BFB /* ZMUser+Applock.swift */; };
 		0630E4BB257F975E00C75BFB /* PasscodeKeychainItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0630E4BA257F975E00C75BFB /* PasscodeKeychainItem.swift */; };
 		0630E4BD257F977F00C75BFB /* Keychain+Passcode.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0630E4BC257F977F00C75BFB /* Keychain+Passcode.swift */; };
-		0630E4BF257FA2BD00C75BFB /* PasscodeKeychainItem+Migration.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0630E4BE257FA2BD00C75BFB /* PasscodeKeychainItem+Migration.swift */; };
+		0630E4BF257FA2BD00C75BFB /* TransferApplockKeychainTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0630E4BE257FA2BD00C75BFB /* TransferApplockKeychainTests.swift */; };
 		0634C3A924643A400006081D /* ZMUpdateEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0634C3A824643A400006081D /* ZMUpdateEvent.swift */; };
 		06392CF923BF9DA9003186E6 /* store2-79-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 06392CF823BF9DA9003186E6 /* store2-79-0.wiredatabase */; };
 		063D2928242128D300FA6FEE /* ZMClientMessage+Ephemeral.swift in Sources */ = {isa = PBXBuildFile; fileRef = 063D2927242128D200FA6FEE /* ZMClientMessage+Ephemeral.swift */; };
@@ -25,6 +25,7 @@
 		0651D00623FC481B00411A22 /* ZMAssetClientMessage+Confirmations.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0651D00523FC481B00411A22 /* ZMAssetClientMessage+Confirmations.swift */; };
 		0651D00823FC4FDD00411A22 /* GenericMessageTests+LegalHoldStatus.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0651D00723FC4FDC00411A22 /* GenericMessageTests+LegalHoldStatus.swift */; };
 		065D7501239FAB1200275114 /* SelfUserParticipantMigrationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 065D7500239FAB1200275114 /* SelfUserParticipantMigrationTests.swift */; };
+		0660FEBD2580E4A900F4C19F /* TransferApplockKeychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0660FEBC2580E4A900F4C19F /* TransferApplockKeychain.swift */; };
 		0663285E2428CEC3005BB3BE /* ZMClientMessage+Deletion.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0663285D2428CEC3005BB3BE /* ZMClientMessage+Deletion.swift */; };
 		066328602428D01C005BB3BE /* ZMClientMessage+GenericMessage.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0663285F2428D01C005BB3BE /* ZMClientMessage+GenericMessage.swift */; };
 		0680A9C324600306000F80F3 /* ZMClientMessageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0680A9C1246002DC000F80F3 /* ZMClientMessageTests.swift */; };
@@ -685,7 +686,7 @@
 		0630E4B7257F8C0B00C75BFB /* ZMUser+Applock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMUser+Applock.swift"; sourceTree = "<group>"; };
 		0630E4BA257F975E00C75BFB /* PasscodeKeychainItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PasscodeKeychainItem.swift; sourceTree = "<group>"; };
 		0630E4BC257F977F00C75BFB /* Keychain+Passcode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Keychain+Passcode.swift"; sourceTree = "<group>"; };
-		0630E4BE257FA2BD00C75BFB /* PasscodeKeychainItem+Migration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PasscodeKeychainItem+Migration.swift"; sourceTree = "<group>"; };
+		0630E4BE257FA2BD00C75BFB /* TransferApplockKeychainTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferApplockKeychainTests.swift; sourceTree = "<group>"; };
 		0634C3A824643A400006081D /* ZMUpdateEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMUpdateEvent.swift; sourceTree = "<group>"; };
 		06392CF723BF9C22003186E6 /* zmessaging2.79.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = zmessaging2.79.0.xcdatamodel; sourceTree = "<group>"; };
 		06392CF823BF9DA9003186E6 /* store2-79-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; path = "store2-79-0.wiredatabase"; sourceTree = "<group>"; };
@@ -698,6 +699,7 @@
 		0651D00523FC481B00411A22 /* ZMAssetClientMessage+Confirmations.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMAssetClientMessage+Confirmations.swift"; sourceTree = "<group>"; };
 		0651D00723FC4FDC00411A22 /* GenericMessageTests+LegalHoldStatus.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "GenericMessageTests+LegalHoldStatus.swift"; sourceTree = "<group>"; };
 		065D7500239FAB1200275114 /* SelfUserParticipantMigrationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SelfUserParticipantMigrationTests.swift; sourceTree = "<group>"; };
+		0660FEBC2580E4A900F4C19F /* TransferApplockKeychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TransferApplockKeychain.swift; sourceTree = "<group>"; };
 		0663285D2428CEC3005BB3BE /* ZMClientMessage+Deletion.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMClientMessage+Deletion.swift"; sourceTree = "<group>"; };
 		0663285F2428D01C005BB3BE /* ZMClientMessage+GenericMessage.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMClientMessage+GenericMessage.swift"; sourceTree = "<group>"; };
 		0680A9C1246002DC000F80F3 /* ZMClientMessageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMClientMessageTests.swift; sourceTree = "<group>"; };
@@ -1526,6 +1528,7 @@
 				163D01DF2472DE6200984999 /* InvalidConnectionRemoval.swift */,
 				168413EC2225965500FCB9BC /* TransferStateMigration.swift */,
 				1639A8122260916E00868AB9 /* AlertAvailabilityBehaviourChange.swift */,
+				0660FEBC2580E4A900F4C19F /* TransferApplockKeychain.swift */,
 			);
 			path = Patches;
 			sourceTree = "<group>";
@@ -1593,7 +1596,7 @@
 				871DD79E2084A316006B1C56 /* BatchDeleteTests.swift */,
 				54F84D001F995A1F00ABD7D5 /* DiskDatabaseTests.swift */,
 				16E6F26524B8952F0015B249 /* EncryptionKeysTests.swift */,
-				0630E4BE257FA2BD00C75BFB /* PasscodeKeychainItem+Migration.swift */,
+				0630E4BE257FA2BD00C75BFB /* TransferApplockKeychainTests.swift */,
 			);
 			name = Utils;
 			path = Tests/Source/Utils;
@@ -3147,6 +3150,7 @@
 				547E664B1F750E4A008CB1FA /* ZMConnection+Notification.swift in Sources */,
 				BF10B59D1E645A3300E7036E /* Analytics+UnknownMessage.swift in Sources */,
 				D5D10DA9203B161700145497 /* ZMConversation+AccessMode.swift in Sources */,
+				0660FEBD2580E4A900F4C19F /* TransferApplockKeychain.swift in Sources */,
 				EF1F850422FD71BB0020F6DC /* ZMOTRMessage+VerifySender.swift in Sources */,
 				165DC523214A614100090B7B /* ZMConversation+Message.swift in Sources */,
 				F9A706811CAEE01D00C2F5FE /* ZMMessage.m in Sources */,
@@ -3281,7 +3285,7 @@
 				1689FD462194A63E00A656E2 /* ZMClientMessageTests+Editing.swift in Sources */,
 				F19550392040628400338E91 /* ZMUpdateEvent+Helper.swift in Sources */,
 				F9B71F9C1CB2BF18001DB03F /* ZMCallStateTests.swift in Sources */,
-				0630E4BF257FA2BD00C75BFB /* PasscodeKeychainItem+Migration.swift in Sources */,
+				0630E4BF257FA2BD00C75BFB /* TransferApplockKeychainTests.swift in Sources */,
 				BF491CEB1F063F480055EE44 /* AccountManagerTests.swift in Sources */,
 				544E8C0F1E2F69EB00F9B8B8 /* ZMOTRMessage+SecurityDegradationTests.swift in Sources */,
 				F9B720041CB2C770001DB03F /* UserClientTests.swift in Sources */,

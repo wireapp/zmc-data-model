@@ -21,10 +21,10 @@ import Foundation
 public extension ZMUser {
     var isAppLockActive: Bool {
         get {
-            return managedObjectContext?.appLock ?? false
+            return managedObjectContext?.isAppLockEnabled ?? false
         }
         set {
-            managedObjectContext?.appLock = newValue
+            managedObjectContext?.isAppLockEnabled = newValue
         }
     }
 }
