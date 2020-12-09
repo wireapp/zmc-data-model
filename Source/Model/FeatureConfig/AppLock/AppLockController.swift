@@ -107,8 +107,8 @@ public final class AppLockController: AppLockType {
         
         let canEvaluatePolicy = context.canEvaluatePolicy(scenario.policy, error: &error)
         
-        if scenario.supportsUserFallback && (/*BiometricsState.biometricsChanged(in: context) || */!canEvaluatePolicy) {
-            callback(.needAccountPassword, context)
+        if scenario.supportsUserFallback && (BiometricsState.biometricsChanged(in: context) || !canEvaluatePolicy) {
+            callback(.needCustomPasscode, context)
             return
         }
         
@@ -117,15 +117,12 @@ public final class AppLockController: AppLockType {
                 var authResult: AuthenticationResult = success ? .granted : .denied
                 
                 if scenario.supportsUserFallback, let laError = error as? LAError, laError.code == .userFallback {
-                    authResult = .needAccountPassword
+                    authResult = .needCustomPasscode
                 }
                 
                 callback(authResult, context)
             })
         } else {
-            // If the policy can't be evaluated automatically grant access unless app lock
-            // is a requirement to run the app. This will for example allow a user to access
-            // the app if he/she has disabled his/her passcode.
             callback(.unavailable, context)
             zmLog.error("Local authentication error: \(String(describing: error?.localizedDescription))")
         }
@@ -164,8 +161,8 @@ public final class AppLockController: AppLockType {
         case denied
         /// There's no authenticated method available (no passcode is set)
         case unavailable
-        /// Biometrics failed and account password is needed instead of device PIN
-        case needAccountPassword
+        /// Biometrics failed and custom passcode is needed
+        case needCustomPasscode
     }
     
     public enum AuthenticationScenario {
