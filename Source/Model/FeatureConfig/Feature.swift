@@ -50,15 +50,19 @@ public class Feature: ZMManagedObject {
     @objc
     public var configData: Data? {
         didSet {
-            guard let oldValue = oldValue,
-                let newValue = configData else {
-                    return
-            }
-            let decoder = JSONDecoder()
-            let oldConfig = try? decoder.decode(Feature.AppLock.Config.self, from: oldValue)
-            let newConfig = try? decoder.decode(Feature.AppLock.Config.self, from: newValue)
-            if oldConfig?.enforceAppLock != newConfig?.enforceAppLock {
-                needsToNotifyUser = true
+            switch name {
+            case .appLock:
+                let decoder = JSONDecoder()
+                guard let oldValue = oldValue,
+                    let newValue = configData,
+                    let oldConfig = try? decoder.decode(Feature.AppLock.Config.self, from: oldValue),
+                    let newConfig = try? decoder.decode(Feature.AppLock.Config.self, from: newValue) else {
+                        return
+                }
+                /// Set needsToNotifyUser to false only when the user confirms it from the UI.
+                if oldConfig.enforceAppLock != newConfig.enforceAppLock {
+                    needsToNotifyUser = true
+                }
             }
         }
     }
