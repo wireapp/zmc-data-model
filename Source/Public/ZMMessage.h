@@ -69,6 +69,7 @@ typedef NS_ENUM(int16_t, ZMSystemMessageType) {
     ZMSystemMessageTypeConnectionUpdate,
     ZMSystemMessageTypeMissedCall,
     ZMSystemMessageTypeNewClient,
+    ZMSystemMessageTypeSessionReset,
     ZMSystemMessageTypeIgnoredClient,
     ZMSystemMessageTypeConversationIsSecure,
     ZMSystemMessageTypePotentialGap,
