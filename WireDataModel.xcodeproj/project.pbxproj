@@ -1473,7 +1473,7 @@
 			isa = PBXGroup;
 			children = (
 				068664A0256FB814001C8747 /* AppLock */,
-				069D07B72562671D00DBA592 /* FeatureTest.swift */,
+				069D07B72562671D00DBA592 /* FeatureTests.swift */,
 				EE715B7C256D153E00087A22 /* FeatureLikeTests.swift */,
 			);
 			path = FeatureConfiguration;
