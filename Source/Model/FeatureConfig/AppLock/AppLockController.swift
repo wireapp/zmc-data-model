@@ -68,7 +68,7 @@ public final class AppLockController: AppLockType {
     public var lastUnlockedDate: Date = Date(timeIntervalSince1970: 0)
     
     public var isCustomPasscodeNotSet: Bool {
-        return config.useCustomCodeInsteadOfAccountPassword && Keychain.fetchPasscode() == nil
+        return Keychain.fetchPasscode() == nil
     }
     
     /// a weak reference to LAContext, it should be nil when evaluatePolicy is done.
@@ -88,8 +88,9 @@ public final class AppLockController: AppLockType {
     
     // Creates a new LAContext and evaluates the authentication settings of the user.
     public func evaluateAuthentication(scenario: AuthenticationScenario,
-                                             description: String,
-                                             with callback: @escaping (AuthenticationResult, LAContext) -> Void) {
+                                       description: String,
+                                       with callback: @escaping (AuthenticationResult, LAContext) -> Void) {
+        
         guard self.weakLAContext == nil else { return }
         
         let context: LAContext = LAContext()
@@ -100,7 +101,7 @@ public final class AppLockController: AppLockType {
         let canEvaluatePolicy = context.canEvaluatePolicy(scenario.policy, error: &error)
         
         if scenario.supportsUserFallback && (BiometricsState.biometricsChanged(in: context) || !canEvaluatePolicy) {
-            callback(.needAccountPassword, context)
+            callback(.needCustomPasscode, context)
             return
         }
         
@@ -109,16 +110,13 @@ public final class AppLockController: AppLockType {
                 var authResult: AuthenticationResult = success ? .granted : .denied
                 
                 if scenario.supportsUserFallback, let laError = error as? LAError, laError.code == .userFallback {
-                    authResult = .needAccountPassword
+                    authResult = .needCustomPasscode
                 }
                 
                 callback(authResult, context)
             })
         } else {
-            // If the policy can't be evaluated automatically grant access unless app lock
-            // is a requirement to run the app. This will for example allow a user to access
-            // the app if he/she has disabled his/her passcode.
-            callback(scenario.grantAccessIfPolicyCannotBeEvaluated ? .granted : .unavailable, context)
+            callback(.unavailable, context)
             zmLog.error("Local authentication error: \(String(describing: error?.localizedDescription))")
         }
     }
@@ -156,41 +154,35 @@ public final class AppLockController: AppLockType {
         case denied
         /// There's no authenticated method available (no passcode is set)
         case unavailable
-        /// Biometrics failed and account password is needed instead of device PIN
-        case needAccountPassword
+        /// Biometrics failed and custom passcode is needed
+        case needCustomPasscode
     }
     
     public enum AuthenticationScenario {
-        case screenLock(requireBiometrics: Bool, grantAccessIfPolicyCannotBeEvaluated: Bool)
+        case screenLock(requireBiometrics: Bool)
         case databaseLock
         
         var policy: LAPolicy {
             switch self {
-            case .screenLock(requireBiometrics: let requireBiometrics, grantAccessIfPolicyCannotBeEvaluated: _):
+            case .screenLock(requireBiometrics: let requireBiometrics):
                 return requireBiometrics ? .deviceOwnerAuthenticationWithBiometrics : .deviceOwnerAuthentication
             case .databaseLock:
                 return .deviceOwnerAuthentication
-                
             }
         }
         
         var supportsUserFallback: Bool {
-            if case .screenLock(requireBiometrics: true, grantAccessIfPolicyCannotBeEvaluated: _) = self {
+            switch self {
+            case .screenLock:
                 return true
+            case .databaseLock:
+                return false
             }
-            
-            return false
-        }
-        
-        var grantAccessIfPolicyCannotBeEvaluated: Bool {
-            if case .screenLock(requireBiometrics: _, grantAccessIfPolicyCannotBeEvaluated: true) = self {
-                return true
-            }
-            
-            return false
         }
     }
 }
+
+// MARK: - BiometricsState
 
 public class BiometricsState {
     private static let UserDefaultsDomainStateKey = "DomainStateKey"
