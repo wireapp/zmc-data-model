@@ -68,15 +68,8 @@ extension Team {
     public func enqueueBackendRefresh(for name: Feature.Name) {
         guard let context = managedObjectContext else { return }
         
-        if let feature = Feature.fetch(name: name, context: context) {
-            feature.needsToBeUpdatedFromBackend = true
-        } else {
-            switch name {
-            case .appLock:
-                let defaultInstance = try? Feature.AppLock().store(for: self, in: context)
-                defaultInstance?.needsToBeUpdatedFromBackend = true
-            }
-        }
+        let feature = Feature.fetchOrCreate(name: name, team: self, context: context)
+        feature.needsToBeUpdatedFromBackend = true
     }
 
 }
