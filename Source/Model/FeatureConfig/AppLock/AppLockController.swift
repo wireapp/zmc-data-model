@@ -68,7 +68,7 @@ public final class AppLockController: AppLockType {
     public var lastUnlockedDate: Date = Date(timeIntervalSince1970: 0)
     
     public var isCustomPasscodeNotSet: Bool {
-        return config.useCustomCodeInsteadOfAccountPassword && Keychain.fetchPasscode(for: selfUser.remoteIdentifier) == nil
+        return config.useCustomCodeInsteadOfAccountPassword && Keychain.fetchPasscode() == nil
     }
     
     /// a weak reference to LAContext, it should be nil when evaluatePolicy is done.
