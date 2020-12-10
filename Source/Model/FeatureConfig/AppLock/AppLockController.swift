@@ -25,7 +25,7 @@ public protocol AppLockType {
     var isActive: Bool { get set }
     var lastUnlockedDate: Date { get set }
     var isCustomPasscodeNotSet: Bool { get }
-    var needsToNotifyUserOfFeatureChange: Bool { get set }
+    var needsToNotifyUser: Bool { get set }
     var config: AppLockController.Config { get }
     
     func evaluateAuthentication(scenario: AppLockController.AuthenticationScenario,
@@ -50,7 +50,6 @@ public final class AppLockController: AppLockType {
         result.forceAppLock = baseConfig.forceAppLock || feature.config.enforceAppLock
         result.appLockTimeout = feature.config.inactivityTimeoutSecs
         result.isAvailable = (feature.status == .enabled)
-        result.needsToNotifyUserOfFeatureChange = feature.needsToNotifyUser
         
         return result
     }
@@ -80,7 +79,7 @@ public final class AppLockController: AppLockType {
         return Keychain.fetchPasscode() == nil
     }
     
-    public var needsToNotifyUserOfFeatureChange: Bool {
+    public var needsToNotifyUser: Bool {
         get {
             guard let team = selfUser.team else {
                 return false
@@ -161,7 +160,6 @@ public final class AppLockController: AppLockType {
         public var forceAppLock: Bool
         public var appLockTimeout: UInt
         public var isAvailable: Bool
-        public var needsToNotifyUserOfFeatureChange: Bool
         
         public init(useBiometricsOrAccountPassword: Bool,
                     useCustomCodeInsteadOfAccountPassword: Bool,
@@ -172,7 +170,6 @@ public final class AppLockController: AppLockType {
             self.forceAppLock = forceAppLock
             self.appLockTimeout = timeOut
             self.isAvailable = true
-            self.needsToNotifyUserOfFeatureChange = false
         }
     }
     
