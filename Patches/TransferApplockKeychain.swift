@@ -22,7 +22,6 @@ struct TransferApplockKeychain {
     
     static func migrateKeychainItems(in moc: NSManagedObjectContext) {
         migrateIsApplockActiveState(in: moc)
-        migratePasscode(in: moc)
     }
     
     // Save the enable state of the applock feature in the managedObjectContext instead of the keychain
@@ -36,59 +35,6 @@ struct TransferApplockKeychain {
         }
         
         selfUser.isAppLockActive = String(data: data, encoding: .utf8) == "YES"
-    }
-    
-    static func migratePasscode(in moc: NSManagedObjectContext) {
-        let selfUser = ZMUser.selfUser(in: moc)
-        
-        guard let data = try? Keychain.fetchItem(Deprecated_PasscodeKeychainItem.passcode) else {
-            return
-        }
-        
-        do {
-            try Keychain.updateItem(PasscodeKeychainItem.passcode(selfUser.remoteIdentifier), value: data)
-        } catch {
-            fatalError("Failed to migrate passcode: \(error)")
-        }
-    }
-}
-
-// MARK: - Helpers
-
-extension TransferApplockKeychain {
-    
-    enum Deprecated_PasscodeKeychainItem: KeychainItem {
-        case passcode
-        
-        public var uniqueIdentifier: String {
-            return "com.wire.passcode"
-        }
-        
-        public var queryForGettingValue: [CFString: Any] {
-            let query: [CFString: Any]
-            
-            switch self {
-            case .passcode:
-                query = [kSecClass: kSecClassGenericPassword,
-                         kSecAttrAccount: uniqueIdentifier,
-                         kSecReturnData: true]
-            }
-            
-            return query
-        }
-        
-        public func queryForSetting(value: Data) -> [CFString: Any] {
-            let query: [CFString: Any]
-            
-            switch self {
-            case .passcode:
-                query = [kSecClass: kSecClassGenericPassword,
-                         kSecAttrAccount: uniqueIdentifier,
-                         kSecValueData: value]
-            }
-            
-            return query
-        }
     }
     
     enum FeatureName: String {

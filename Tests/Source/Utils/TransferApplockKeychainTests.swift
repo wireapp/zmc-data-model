@@ -29,25 +29,9 @@ class TransferApplockKeychain: DiskDatabaseTest {
     }
     
     override func tearDown() {
-        Keychain.deletePasscode(for: selfUser.remoteIdentifier)
         selfUser = nil
         
         super.tearDown()
-    }
-    
-    func testThatItMigratesAPasscode() {
-        // given
-        let passcode = Keychain.fetchPasscode(for: selfUser.remoteIdentifier)
-        XCTAssertNil(passcode)
-        
-        // when
-        let data = ("123456").data(using: .utf8)!
-        try? Keychain.updateItem(WireDataModel.TransferApplockKeychain.Deprecated_PasscodeKeychainItem.passcode, value: data)
-        
-        WireDataModel.TransferApplockKeychain.migratePasscode(in: moc)
-        
-        // then
-        XCTAssertNotNil(Keychain.fetchPasscode(for: selfUser.remoteIdentifier))
     }
     
     func testItMigratesIsActiveStateFromTheKeychainToTheMOC() {
