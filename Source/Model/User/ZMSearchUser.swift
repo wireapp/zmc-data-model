@@ -137,7 +137,7 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
     
     /// Whether all user's devices are verified by the selfUser
     public var isTrusted: Bool {
-        return false
+        return user?.isTrusted ?? false
     }
     
     public var teamCreatedBy: UUID? {
@@ -148,7 +148,7 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
 
     public var emailAddress: String? {
         get {
-            return user?.emailAddress
+            return (user as? ZMUser)?.emailAddress
         }
     }
 
