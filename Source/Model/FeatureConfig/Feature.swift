@@ -43,29 +43,42 @@ public class Feature: ZMManagedObject {
 
     @NSManaged private var nameValue: String
     @NSManaged private var statusValue: String
+    @NSManaged public var configData: Data?
     @NSManaged var needsToNotifyUser: Bool
 
     @NSManaged public var team: Team?
     
-    @objc
-    public var configData: Data? {
-        didSet {
-            switch name {
-            case .appLock:
-                let decoder = JSONDecoder()
-                guard let oldValue = oldValue,
-                    let newValue = configData,
-                    let oldConfig = try? decoder.decode(Feature.AppLock.Config.self, from: oldValue),
-                    let newConfig = try? decoder.decode(Feature.AppLock.Config.self, from: newValue) else {
-                        return
-                }
-                /// Set needsToNotifyUser to false only when the user confirms it from the UI.
-                if oldConfig.enforceAppLock != newConfig.enforceAppLock {
-                    needsToNotifyUser = true
-                }
-            }
-        }
-    }
+//    @objc
+//    public var configData: Data? {
+//        get {
+//            willAccessValue(forKey: #keyPath(configData))
+//            let value = primitiveConfigData
+//            didAccessValue(forKey: #keyPath(configData))
+//            return value
+//        }
+//        set {
+//            willChangeValue(forKey: #keyPath(configData))
+//            primitiveConfigData = newValue
+//            didChangeValue(forKey: #keyPath(configData))
+//        }
+        
+//        didSet {
+//            switch name {
+//            case .appLock:
+//                let decoder = JSONDecoder()
+//                guard let oldValue = oldValue,
+//                    let newValue = configData,
+//                    let oldConfig = try? decoder.decode(Feature.AppLock.Config.self, from: oldValue),
+//                    let newConfig = try? decoder.decode(Feature.AppLock.Config.self, from: newValue) else {
+//                        return
+//                }
+//                /// Set needsToNotifyUser to false only when the user confirms it from the UI.
+//                if oldConfig.enforceAppLock != newConfig.enforceAppLock {
+//                    needsToNotifyUser = true
+//                }
+//            }
+//        }
+//    }
     
     public var name: Name {
         get {

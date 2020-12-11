@@ -53,6 +53,13 @@ public extension Feature {
             self.config = config
             self.needsToNotifyUser = needsToNotifyUser
         }
+        
+        public init(from decoder: Decoder) throws {
+            let container = try decoder.container(keyedBy: CodingKeys.self)
+            status = try container.decode(Status.self, forKey: .status)
+            config = try container.decode(Config.self, forKey: .config)
+            needsToNotifyUser = try container.decodeIfPresent(Bool.self, forKey: .needsToNotifyUser) ?? false
+        }
 
         // MARK: - Types
 
