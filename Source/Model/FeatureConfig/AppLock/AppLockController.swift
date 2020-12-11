@@ -56,18 +56,11 @@ public final class AppLockController: AppLockType {
     // Returns true if user enabled the app lock feature or it has been forced by the team manager.
     public var isActive: Bool {
         get {
-            guard !config.forceAppLock else { return true }
-            guard let data = ZMKeychain.data(forAccount: SettingsPropertyName.lockApp.rawValue),
-                data.count != 0 else {
-                    return false
-            }
-
-            return String(data: data, encoding: .utf8) == "YES"
+            return config.forceAppLock || selfUser.isAppLockActive
         }
         set {
             guard !config.forceAppLock else { return }
-            let data = (newValue ? "YES" : "NO").data(using: .utf8)!
-            ZMKeychain.setData(data, forAccount: SettingsPropertyName.lockApp.rawValue)
+            selfUser.isAppLockActive = newValue
         }
     }
     
@@ -186,10 +179,6 @@ public final class AppLockController: AppLockType {
                 return false
             }
         }
-    }
-    
-    private enum SettingsPropertyName: String {
-         case lockApp = "lockApp"
     }
 }
 
