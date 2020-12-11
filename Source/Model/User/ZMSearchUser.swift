@@ -148,7 +148,7 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
 
     public var emailAddress: String? {
         get {
-            return (user as? ZMUser)?.emailAddress
+            return user?.emailAddress
         }
     }
 
