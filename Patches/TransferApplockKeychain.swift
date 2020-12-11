@@ -21,7 +21,7 @@ import Foundation
 struct TransferApplockKeychain {
     
     static func migrateKeychainItems(in moc: NSManagedObjectContext) {
-        migrateIsApplockActiveState(in: moc)
+       // migrateIsApplockActiveState(in: moc)
     }
     
     // Save the enable state of the applock feature in the managedObjectContext instead of the keychain
