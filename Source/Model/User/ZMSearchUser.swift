@@ -135,6 +135,11 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
     fileprivate var internalPreviewImageData: Data?
     fileprivate var internalCompleteImageData: Data?
     
+    /// Whether all user's devices are verified by the selfUser
+    public var isTrusted: Bool {
+        return false
+    }
+    
     public var teamCreatedBy: UUID? {
         get {
             return user?.membership?.createdBy?.remoteIdentifier ?? internalTeamCreatedBy
