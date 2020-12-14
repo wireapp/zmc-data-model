@@ -74,16 +74,18 @@ public final class AppLockController: AppLockType {
     
     public var needsToNotifyUser: Bool {
         get {
-            guard let team = selfUser.team else {
-                return false
+            guard let team = selfUser.team,
+                let feature = team.feature(for: .appLock) else {
+                    return false
             }
-            let feature = team.feature(for: Feature.AppLock.self)
-            
             return feature.needsToNotifyUser
         }
         set {
-            var feature = selfUser.team?.feature(for: Feature.AppLock.self)
-            feature?.needsToNotifyUser = newValue
+            guard let team = selfUser.team,
+                let feature = team.feature(for: .appLock) else {
+                    return
+            }
+            feature.needsToNotifyUser =  newValue
         }
     }
     

@@ -38,10 +38,6 @@ public protocol FeatureLike: Codable {
     /// The object used to configure the feature.
 
     var config: Config { get }
-    
-    /// Notify user that feature has been changed
-    
-    var needsToNotifyUser: Bool { get set }
 
     /// Initializes the feature with default values.
 
@@ -68,10 +64,5 @@ public extension FeatureLike {
                               config: try JSONEncoder().encode(config),
                               team: team,
                               context: context)
-    }
-
-    func update(needsToNotifyUser: Bool, in context: NSManagedObjectContext) {
-        let feature = Feature.fetch(name: Self.name, context: context)
-        feature?.needsToNotifyUser = needsToNotifyUser
     }
 }

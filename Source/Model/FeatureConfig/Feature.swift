@@ -43,10 +43,20 @@ public class Feature: ZMManagedObject {
 
     @NSManaged private var nameValue: String
     @NSManaged private var statusValue: String
-    @NSManaged public var configData: Data?
+    @NSManaged private var configData: Data?
     @NSManaged public var needsToNotifyUser: Bool
 
     @NSManaged public var team: Team?
+    
+    public var config: Data? {
+        get {
+            return configData
+        }
+        set {
+            updateNeedsToNotifyUser(oldData: configData, newData: newValue)
+            configData = newValue
+        }
+    }
     
     public var name: Name {
         get {
@@ -136,7 +146,7 @@ public class Feature: ZMManagedObject {
                                       context: NSManagedObjectContext) -> Feature {
         if let existing = fetch(name: name, context: context) {
             existing.status = status
-            existing.configData = config
+            existing.config = config
             existing.team = team
             existing.needsToBeUpdatedFromBackend = false
             return existing
@@ -159,7 +169,7 @@ public class Feature: ZMManagedObject {
         let feature = Feature.insertNewObject(in: context)
         feature.name = name
         feature.status = status
-        feature.configData = config
+        feature.config = config
         feature.team = team
         return feature
     }

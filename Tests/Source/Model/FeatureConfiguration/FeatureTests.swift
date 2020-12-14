@@ -99,7 +99,7 @@ final class FeatureTests: ZMBaseManagedObjectTest {
     func testThatItUpdatesNeedsToNotifyUserFlag_IfEnforceAppLockHasBeenChanged() {
         // given
         let decoder = JSONDecoder()
-        let featureOld = Feature.insert(name: .appLock,
+        let feature = Feature.insert(name: .appLock,
                                      status: .enabled,
                                      config: configData,
                                      team: team,
@@ -108,7 +108,7 @@ final class FeatureTests: ZMBaseManagedObjectTest {
         let oldConfig = try? decoder.decode(Feature.AppLock.Config.self, from: configData)
         XCTAssertFalse(oldConfig!.enforceAppLock)
         
-        XCTAssertFalse(featureOld.needsToNotifyUser)
+        XCTAssertFalse(feature.needsToNotifyUser)
         
         // when
         let newConfigData: Data = {
@@ -121,7 +121,7 @@ final class FeatureTests: ZMBaseManagedObjectTest {
 
           return json.data(using: .utf8)!
         }()
-        let featureNew = Feature.createOrUpdate(name: .appLock,
+        let _ = Feature.createOrUpdate(name: .appLock,
                                        status: .enabled,
                                        config: newConfigData,
                                        team: team,
@@ -129,7 +129,6 @@ final class FeatureTests: ZMBaseManagedObjectTest {
         
         let newConfig = try? decoder.decode(Feature.AppLock.Config.self, from: newConfigData)
         XCTAssertTrue(newConfig!.enforceAppLock)
-        featureNew.updateNeedsToNotifyUser(oldData: configData, newData: newConfigData)
         
         let fetchedFeature = Feature.fetch(name: .appLock, context: uiMOC)
         

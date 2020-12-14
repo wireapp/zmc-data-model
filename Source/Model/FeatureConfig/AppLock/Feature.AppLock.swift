@@ -24,41 +24,23 @@ public extension Feature {
 
         // MARK: - Properties
 
-        private static var managedObjectContext: NSManagedObjectContext?
         public static let name: Feature.Name = .appLock
 
         public let status: Status
         public let config: Config
-        
-        public var needsToNotifyUser: Bool {
-            get {
-                guard let context = Self.managedObjectContext,
-                    let feature = Feature.fetch(name: Self.name, context: context) else {
-                        return false
-                }
-                return feature.needsToNotifyUser
-            }
-            set {
-                guard let context = Self.managedObjectContext else {
-                        return
-                }
-                update(needsToNotifyUser: newValue, in: context)
-            }
-        }
 
         // MARK: - Life cycle
 
         public init?(feature: Feature) {
             guard
                 feature.name == Self.name,
-                let data = feature.configData,
+                let data = feature.config,
                 let config = try? JSONDecoder().decode(Config.self, from: data)
             else {
                 return nil
             }
             
             self.init(status: feature.status, config: config)
-            Self.managedObjectContext = feature.managedObjectContext
         }
 
         public init() {

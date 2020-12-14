@@ -35,7 +35,7 @@ class FeatureLikeTests: ZMBaseManagedObjectTest {
         guard let result = Feature.fetch(name: .appLock, context: uiMOC) else { return XCTFail() }
         XCTAssertEqual(result.name, .appLock)
         XCTAssertEqual(result.status, .enabled)
-        XCTAssertEqual(result.configData, appLock.configData)
+        XCTAssertEqual(result.config, appLock.configData)
         XCTAssertEqual(result.team?.remoteIdentifier, team.remoteIdentifier!)
 
     }

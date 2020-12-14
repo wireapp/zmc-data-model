@@ -45,6 +45,10 @@ extension Team {
 
         return result
     }
+    
+    func feature(for name: Feature.Name) -> Feature? {
+        return features.first(where: { $0.name == name })
+    }
 
     private func createAndStoreDefault<T: FeatureLike>(for type: T.Type) -> T {
         let defaultInstance = T()
