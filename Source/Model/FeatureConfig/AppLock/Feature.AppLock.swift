@@ -24,11 +24,27 @@ public extension Feature {
 
         // MARK: - Properties
 
+        private static var managedObjectContext: NSManagedObjectContext?
         public static let name: Feature.Name = .appLock
 
         public let status: Status
         public let config: Config
-        public var needsToNotifyUser: Bool
+        
+        public var needsToNotifyUser: Bool {
+            get {
+                guard let context = Self.managedObjectContext,
+                    let feature = Feature.fetch(name: Self.name, context: context) else {
+                        return false
+                }
+                return feature.needsToNotifyUser
+            }
+            set {
+                guard let context = Self.managedObjectContext else {
+                        return
+                }
+                update(needsToNotifyUser: newValue, in: context)
+            }
+        }
 
         // MARK: - Life cycle
 
@@ -40,25 +56,18 @@ public extension Feature {
             else {
                 return nil
             }
-
-            self.init(status: feature.status, config: config, needsToNotifyUser: feature.needsToNotifyUser)
+            
+            self.init(status: feature.status, config: config)
+            Self.managedObjectContext = feature.managedObjectContext
         }
 
         public init() {
             self.init(status: .enabled, config: .init())
         }
 
-        public init(status: Feature.Status, config: Config, needsToNotifyUser: Bool = false) {
+        public init(status: Feature.Status, config: Config) {
             self.status = status
             self.config = config
-            self.needsToNotifyUser = needsToNotifyUser
-        }
-        
-        public init(from decoder: Decoder) throws {
-            let container = try decoder.container(keyedBy: CodingKeys.self)
-            status = try container.decode(Status.self, forKey: .status)
-            config = try container.decode(Config.self, forKey: .config)
-            needsToNotifyUser = try container.decodeIfPresent(Bool.self, forKey: .needsToNotifyUser) ?? false
         }
 
         // MARK: - Types

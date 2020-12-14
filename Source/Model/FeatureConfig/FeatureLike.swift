@@ -41,7 +41,7 @@ public protocol FeatureLike: Codable {
     
     /// Notify user that feature has been changed
     
-    var needsToNotifyUser: Bool { get }
+    var needsToNotifyUser: Bool { get set }
 
     /// Initializes the feature with default values.
 
@@ -49,7 +49,7 @@ public protocol FeatureLike: Codable {
 
     /// Initializes the feature with the given status and config.
 
-    init(status: Feature.Status, config: Config, needsToNotifyUser: Bool)
+    init(status: Feature.Status, config: Config)
 
     /// Initializes the feature with the given `Feature` instance.
 
@@ -70,4 +70,8 @@ public extension FeatureLike {
                               context: context)
     }
 
+    func update(needsToNotifyUser: Bool, in context: NSManagedObjectContext) {
+        let feature = Feature.fetch(name: Self.name, context: context)
+        feature?.needsToNotifyUser = needsToNotifyUser
+    }
 }
