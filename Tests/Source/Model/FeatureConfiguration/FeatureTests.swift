@@ -23,17 +23,6 @@ final class FeatureTests: ZMBaseManagedObjectTest {
 
     var team: Team!
     
-    let config: Data = {
-      let json = """
-      {
-        "enforceAppLock": true,
-        "inactivityTimeoutSecs": 30
-      }
-      """
-
-      return json.data(using: .utf8)!
-    }()
-
     override func setUp() {
         super.setUp()
         team = createTeam(in: uiMOC)
@@ -47,13 +36,10 @@ final class FeatureTests: ZMBaseManagedObjectTest {
     // MARK: - Tests
 
     func testThatItCreatesFeature() {
-        // given
-        let configData = try? JSONEncoder().encode(config)
-        
         // when
         let feature = Feature.createOrUpdate(name: .appLock,
                                              status: .enabled,
-                                             config: configData,
+                                             config: configData(enforced: false),
                                              team: team,
                                              context: uiMOC)
         
@@ -65,18 +51,17 @@ final class FeatureTests: ZMBaseManagedObjectTest {
     
     func testThatItUpdatesFeature() {
         // given
-        let configData = try? JSONEncoder().encode(config)
         let feature = Feature.insert(name: .appLock,
                                      status: .enabled,
-                                     config: configData,
-                                     team: team,
+                                     config: configData(enforced: false),
+                                     team: team, 
                                      context: uiMOC)
         XCTAssertEqual(feature.status, .enabled)
         
         // when
         let _ = Feature.createOrUpdate(name: .appLock,
                                        status: .disabled,
-                                       config: configData,
+                                       config: configData(enforced: false),
                                        team: team,
                                        context: uiMOC)
         
@@ -86,10 +71,9 @@ final class FeatureTests: ZMBaseManagedObjectTest {
     
     func testThatItFetchesFeature() {
         // given
-        let configData = try? JSONEncoder().encode(config)
         let _ = Feature.createOrUpdate(name: .appLock,
                                        status: .enabled,
-                                       config: configData,
+                                       config: configData(enforced: false),
                                        team: team,
                                        context: uiMOC)
         
@@ -99,5 +83,85 @@ final class FeatureTests: ZMBaseManagedObjectTest {
         
         // then
         XCTAssertNotNil(fetchedFeature)
+    }
+    
+    func testThatItUpdatesNeedsToNotifyUserFlag_IfAppLockBecameForced() {
+        // given
+        let oldConfigData = configData(enforced: false)
+        let decoder = JSONDecoder()
+        let feature = Feature.insert(name: .appLock,
+                                     status: .enabled,
+                                     config: oldConfigData,
+                                     team: team,
+                                     context: uiMOC)
+
+        let oldConfig = try? decoder.decode(Feature.AppLock.Config.self, from: oldConfigData)
+        XCTAssertFalse(oldConfig!.enforceAppLock)
+        
+        XCTAssertFalse(feature.needsToNotifyUser)
+        
+        // when
+        let newConfigData = configData(enforced: true)
+        let _ = Feature.createOrUpdate(name: .appLock,
+                                       status: .enabled,
+                                       config: newConfigData,
+                                       team: team,
+                                       context: uiMOC)
+        
+        let newConfig = try? decoder.decode(Feature.AppLock.Config.self, from: newConfigData)
+        XCTAssertTrue(newConfig!.enforceAppLock)
+        
+        let fetchedFeature = Feature.fetch(name: .appLock, context: uiMOC)
+        
+        // then
+        XCTAssertTrue(fetchedFeature!.needsToNotifyUser)
+    }
+    
+    func testThatItUpdatesNeedsToNotifyUserFlag_IfAppLockBecameNonForced() {
+        // given
+        let oldConfigData = configData(enforced: true)
+        let decoder = JSONDecoder()
+        let feature = Feature.insert(name: .appLock,
+                                     status: .enabled,
+                                     config: oldConfigData,
+                                     team: team,
+                                     context: uiMOC)
+
+        let oldConfig = try? decoder.decode(Feature.AppLock.Config.self, from: oldConfigData)
+        XCTAssertTrue(oldConfig!.enforceAppLock)
+        
+        XCTAssertFalse(feature.needsToNotifyUser)
+        
+        // when
+        let newConfigData = configData(enforced: false)
+        let _ = Feature.createOrUpdate(name: .appLock,
+                                       status: .enabled,
+                                       config: newConfigData,
+                                       team: team,
+                                       context: uiMOC)
+        
+        let newConfig = try? decoder.decode(Feature.AppLock.Config.self, from: newConfigData)
+        XCTAssertFalse(newConfig!.enforceAppLock)
+        
+        let fetchedFeature = Feature.fetch(name: .appLock, context: uiMOC)
+        
+        // then
+        XCTAssertTrue(fetchedFeature!.needsToNotifyUser)
+    }
+}
+
+// MARK: - Helpers
+extension FeatureTests {
+    func configData(enforced: Bool) -> Data {
+        return {
+          let json = """
+          {
+            "enforceAppLock": \(enforced),
+            "inactivityTimeoutSecs": 30
+          }
+          """
+
+          return json.data(using: .utf8)!
+        }()
     }
 }

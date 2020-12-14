@@ -34,12 +34,12 @@ public extension Feature {
         public init?(feature: Feature) {
             guard
                 feature.name == Self.name,
-                let data = feature.configData,
+                let data = feature.config,
                 let config = try? JSONDecoder().decode(Config.self, from: data)
             else {
                 return nil
             }
-
+            
             self.init(status: feature.status, config: config)
         }
 

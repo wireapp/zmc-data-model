@@ -25,6 +25,7 @@ public protocol AppLockType {
     var isActive: Bool { get set }
     var lastUnlockedDate: Date { get set }
     var isCustomPasscodeNotSet: Bool { get }
+    var needsToNotifyUser: Bool { get set }
     var config: AppLockController.Config { get }
     
     func evaluateAuthentication(scenario: AppLockController.AuthenticationScenario,
@@ -69,6 +70,23 @@ public final class AppLockController: AppLockType {
     
     public var isCustomPasscodeNotSet: Bool {
         return Keychain.fetchPasscode() == nil
+    }
+    
+    public var needsToNotifyUser: Bool {
+        get {
+            guard let team = selfUser.team,
+                let feature = team.feature(for: .appLock) else {
+                    return false
+            }
+            return feature.needsToNotifyUser
+        }
+        set {
+            guard let team = selfUser.team,
+                let feature = team.feature(for: .appLock) else {
+                    return
+            }
+            feature.needsToNotifyUser =  newValue
+        }
     }
     
     /// a weak reference to LAContext, it should be nil when evaluatePolicy is done.
