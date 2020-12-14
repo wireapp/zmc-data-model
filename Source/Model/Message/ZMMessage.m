@@ -873,6 +873,8 @@ NSString * const ZMMessageDecryptionErrorCodeKey = @"decryptionErrorCode";
             case ZMSystemMessageTypeReadReceiptsOn:
             case ZMSystemMessageTypeLegalHoldEnabled:
             case ZMSystemMessageTypeLegalHoldDisabled:
+            case ZMSystemMessageTypeSessionReset:
+                
                 return YES;
             case ZMSystemMessageTypeInvalid:
             case ZMSystemMessageTypeConversationNameChanged:
