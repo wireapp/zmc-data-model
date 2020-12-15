@@ -173,8 +173,20 @@ public class Feature: ZMManagedObject {
         feature.team = team
         return feature
     }
+    
+    func update(needsToNotifyUser: Bool) {
+        guard let context = managedObjectContext else {
+            return
+        }
+        self.needsToNotifyUser = needsToNotifyUser
+        context.saveOrRollback()
+    }
+}
 
-    public func updateNeedsToNotifyUser(oldData: Data?, newData: Data?) {
+// MARK: - Private methods
+
+extension Feature {
+    private func updateNeedsToNotifyUser(oldData: Data?, newData: Data?) {
         switch name {
         case .appLock:
             guard !needsToNotifyUser else { return }

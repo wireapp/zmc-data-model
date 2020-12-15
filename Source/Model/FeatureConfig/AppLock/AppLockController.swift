@@ -85,7 +85,7 @@ public final class AppLockController: AppLockType {
                 let feature = team.feature(for: .appLock) else {
                     return
             }
-            feature.needsToNotifyUser =  newValue
+            feature.update(needsToNotifyUser: newValue)
         }
     }
     
