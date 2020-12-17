@@ -36,8 +36,7 @@ class TransferApplockKeychain: DiskDatabaseTest {
     
     func testItMigratesIsActiveStateFromTheKeychainToTheMOC() {
         //given
-        let config = AppLockController.Config(useBiometricsOrAccountPassword: false,
-                                              useCustomCodeInsteadOfAccountPassword: false,
+        let config = AppLockController.Config(useBiometricsOrCustomPasscode: false,
                                               forceAppLock: false,
                                               timeOut: 900)
         let sut = AppLockController(config: config, selfUser: selfUser)
@@ -55,8 +54,7 @@ class TransferApplockKeychain: DiskDatabaseTest {
     
     func testItDoesNotMigrateIsActiveStateFromTheKeychainToTheMOC_IfKeychainIsEmpty() {
         //given
-        let config = AppLockController.Config(useBiometricsOrAccountPassword: false,
-                                              useCustomCodeInsteadOfAccountPassword: false,
+        let config = AppLockController.Config(useBiometricsOrCustomPasscode: false,
                                               forceAppLock: false,
                                               timeOut: 900)
         let sut = AppLockController(config: config, selfUser: selfUser)

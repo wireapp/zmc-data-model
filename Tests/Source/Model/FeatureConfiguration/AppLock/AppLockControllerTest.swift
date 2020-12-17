@@ -28,8 +28,7 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
         
         //given
         let selfUser = ZMUser.selfUser(in: uiMOC)
-        let config = AppLockController.Config(useBiometricsOrAccountPassword: false,
-                                              useCustomCodeInsteadOfAccountPassword: false,
+        let config = AppLockController.Config(useBiometricsOrCustomPasscode: false,
                                               forceAppLock: true,
                                               timeOut: 900)
         let sut = AppLockController(config: config, selfUser: selfUser)
@@ -47,8 +46,7 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
 
         //given
         let selfUser = ZMUser.selfUser(in: uiMOC)
-        let config = AppLockController.Config(useBiometricsOrAccountPassword: false,
-                                              useCustomCodeInsteadOfAccountPassword: false,
+        let config = AppLockController.Config(useBiometricsOrCustomPasscode: false,
                                               forceAppLock: false,
                                               timeOut: 10)
         let sut = AppLockController(config: config, selfUser: selfUser)
@@ -105,8 +103,7 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
         
         //given
         let selfUser = ZMUser.selfUser(in: self.uiMOC)
-        let configFromBundle = AppLockController.Config(useBiometricsOrAccountPassword: false,
-                                                        useCustomCodeInsteadOfAccountPassword: false,
+        let configFromBundle = AppLockController.Config(useBiometricsOrCustomPasscode: false,
                                                         forceAppLock: false,
                                                         timeOut: 10)
         let sut = AppLockController(config: configFromBundle, selfUser: selfUser)
@@ -138,8 +135,7 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
         
         //given
         let selfUser = ZMUser.selfUser(in: self.uiMOC)
-        let configFromBundle = AppLockController.Config(useBiometricsOrAccountPassword: false,
-                                                        useCustomCodeInsteadOfAccountPassword: false,
+        let configFromBundle = AppLockController.Config(useBiometricsOrCustomPasscode: false,
                                                         forceAppLock: true,
                                                         timeOut: 10)
         let sut = AppLockController(config: configFromBundle, selfUser: selfUser)
@@ -167,8 +163,7 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
         
         //given
         let selfUser = ZMUser.selfUser(in: self.uiMOC)
-        let configFromBundle = AppLockController.Config(useBiometricsOrAccountPassword: false,
-                                                        useCustomCodeInsteadOfAccountPassword: false,
+        let configFromBundle = AppLockController.Config(useBiometricsOrCustomPasscode: false,
                                                         forceAppLock: false,
                                                         timeOut: 10)
         let sut = AppLockController(config: configFromBundle, selfUser: selfUser)
