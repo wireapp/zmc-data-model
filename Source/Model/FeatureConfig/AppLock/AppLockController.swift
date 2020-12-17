@@ -147,18 +147,15 @@ public final class AppLockController: AppLockType {
     // MARK: - Types
     
     public struct Config {
-        public let useBiometricsOrAccountPassword: Bool
-        public let useCustomCodeInsteadOfAccountPassword: Bool
+        public let useBiometricsOrCustomPasscode: Bool
         public var forceAppLock: Bool
         public var appLockTimeout: UInt
         public var isAvailable: Bool
         
-        public init(useBiometricsOrAccountPassword: Bool,
-                    useCustomCodeInsteadOfAccountPassword: Bool,
+        public init(useBiometricsOrCustomPasscode: Bool,
                     forceAppLock: Bool,
                     timeOut: UInt) {
-            self.useBiometricsOrAccountPassword = useBiometricsOrAccountPassword
-            self.useCustomCodeInsteadOfAccountPassword = useCustomCodeInsteadOfAccountPassword
+            self.useBiometricsOrCustomPasscode = useBiometricsOrCustomPasscode
             self.forceAppLock = forceAppLock
             self.appLockTimeout = timeOut
             self.isAvailable = true
