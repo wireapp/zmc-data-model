@@ -23,6 +23,8 @@ import UIKit
 /// Singleton to manage the creation of the CoreData stack
 @objcMembers public class StorageStack: NSObject {
     
+    fileprivate static let fileManager = FileManager()
+    
     /// Root folder for account specific data
     fileprivate static let accountDataFolder = "AccountData"
     
@@ -176,12 +178,6 @@ import UIKit
                 dispatchGroup: dispatchGroup)
             MemoryReferenceDebugger.register(directory)
 
-            directory.syncContext.performAndWait {
-                if let imported = directory.syncContext.persistentStoreMetadata(forKey: PersistentMetadataKey.importedFromBackup.rawValue) as? NSNumber, imported.boolValue {
-                    directory.syncContext.prepareToImportBackup()
-                }
-            }
-
             completionHandler(directory)
         }
     }
@@ -192,6 +188,15 @@ import UIKit
     public static func reset() {
         StorageStack.currentStack?.managedObjectContextDirectory?.tearDown()
         StorageStack.currentStack = nil
+    }
+    
+    static func removeDirectory(at url: URL) {
+        do {
+            guard StorageStack.fileManager.fileExists(atPath: url.path) else { return }
+            try StorageStack.fileManager.removeItem(at: url)
+        } catch {
+            Logging.localStorage.debug("error removing directory: \(error)")
+        }
     }
 }
 

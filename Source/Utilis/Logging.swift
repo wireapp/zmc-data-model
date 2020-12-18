@@ -21,5 +21,6 @@ import Foundation
 enum Logging {
 
     static let messageProcessing = ZMSLog(tag: "Message Processing")
+    static let localStorage = ZMSLog(tag: "local-storage")
 
 }
