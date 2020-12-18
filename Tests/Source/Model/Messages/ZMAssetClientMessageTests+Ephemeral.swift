@@ -357,7 +357,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         let message = try! conversation.appendFile(with: fileMetadata) as! ZMAssetClientMessage
         conversation.conversationType = .oneOnOne
         message.sender = ZMUser.insertNewObject(in: uiMOC)
-        (message.sender as? ZMUser)?.remoteIdentifier! = UUID.create()
+        (message.sender as? ZMUser)?.remoteIdentifier = UUID.create()
         try message.setUnderlyingMessage(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
         XCTAssertTrue(message.underlyingMessage!.assetData!.hasUploaded)
         
@@ -393,7 +393,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         let fileMetadata = self.createFileMetadata()
         message = try! self.conversation.appendFile(with: fileMetadata) as? ZMAssetClientMessage
         message.sender = ZMUser.insertNewObject(in: self.uiMOC)
-        (message.sender as? ZMUser)?.remoteIdentifier! = UUID.create()
+        (message.sender as? ZMUser)?.remoteIdentifier = UUID.create()
         
         try message.setUnderlyingMessage(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
         XCTAssertTrue(message.underlyingMessage!.assetData!.hasUploaded)
@@ -425,7 +425,7 @@ extension ZMAssetClientMessageTests_Ephemeral {
         let fileMetadata = self.createFileMetadata()
         message = try! self.conversation.appendFile(with: fileMetadata) as? ZMAssetClientMessage
         message.sender = ZMUser.insertNewObject(in: self.uiMOC)
-        (message.sender as? ZMUser)?.remoteIdentifier! = UUID.create()
+        (message.sender as? ZMUser)?.remoteIdentifier = UUID.create()
         
         try message.setUnderlyingMessage(GenericMessage(content: WireProtos.Asset(withUploadedOTRKey: Data(), sha256: Data()), nonce: message.nonce!))
         XCTAssertTrue(message.underlyingMessage!.assetData!.hasUploaded)

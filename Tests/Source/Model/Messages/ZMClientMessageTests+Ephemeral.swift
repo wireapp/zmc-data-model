@@ -405,7 +405,7 @@ extension ZMClientMessageTests_Ephemeral {
         conversation.conversationType = .oneOnOne
         let message = try! conversation.appendText(content: "foo") as! ZMClientMessage
         message.sender = ZMUser.insertNewObject(in: uiMOC)
-        (message.sender as? ZMUser)?.remoteIdentifier! = UUID.create()
+        (message.sender as? ZMUser)?.remoteIdentifier = UUID.create()
 
         // when
         XCTAssertTrue(message.startDestructionIfNeeded())
@@ -457,7 +457,7 @@ extension ZMClientMessageTests_Ephemeral {
         conversation.messageDestructionTimeout = .local(MessageDestructionTimeoutValue(rawValue: timeout))
         let message = try! conversation.appendText(content: "foo") as! ZMClientMessage
         message.sender = ZMUser.insertNewObject(in: uiMOC)
-        (message.sender as? ZMUser)?.remoteIdentifier! = UUID.create()
+        (message.sender as? ZMUser)?.remoteIdentifier = UUID.create()
         uiMOC.saveOrRollback()
         return message
     }
