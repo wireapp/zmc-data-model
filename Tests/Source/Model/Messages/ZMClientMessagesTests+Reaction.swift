@@ -38,14 +38,14 @@ extension ZMClientMessageTests_Reaction {
     func updateEventForAddingReaction(to message: ZMMessage, sender: ZMUser? = nil) -> ZMUpdateEvent {
         let sender = sender ?? message.sender!
         let genericMessage = GenericMessage(content: WireProtos.Reaction(emoji: "❤️", messageID: message.nonce!))
-        let event = createUpdateEvent(UUID(), conversationID: conversation.remoteIdentifier!, genericMessage: genericMessage, senderID: sender.remoteIdentifier!)
+        let event = createUpdateEvent(UUID(), conversationID: conversation.remoteIdentifier!, genericMessage: genericMessage, senderID: (sender as! ZMUser).remoteIdentifier!)
         return event
     }
     
     func updateEventForRemovingReaction(to message: ZMMessage, sender: ZMUser? = nil) -> ZMUpdateEvent {
         let sender = sender ?? message.sender!
         let genericMessage = GenericMessage(content: WireProtos.Reaction(emoji: "", messageID: message.nonce!))
-        let event = createUpdateEvent(UUID(), conversationID: conversation.remoteIdentifier!, genericMessage: genericMessage, senderID: sender.remoteIdentifier!)
+        let event = createUpdateEvent(UUID(), conversationID: conversation.remoteIdentifier!, genericMessage: genericMessage, senderID: (sender as! ZMUser).remoteIdentifier!)
         return event
     }
     
@@ -88,7 +88,7 @@ extension ZMClientMessageTests_Reaction {
         
         let message = insertMessage()
         let genericMessage = GenericMessage(content: WireProtos.Reaction(emoji: "TROP BIEN", messageID: message.nonce!))
-        let event = createUpdateEvent(UUID(), conversationID: conversation.remoteIdentifier!, genericMessage: genericMessage, senderID: message.sender!.remoteIdentifier!)
+        let event = createUpdateEvent(UUID(), conversationID: conversation.remoteIdentifier!, genericMessage: genericMessage, senderID: (message.sender as? ZMUser)!.remoteIdentifier!)
         
         // when
         performPretendingUiMocIsSyncMoc {
@@ -105,7 +105,7 @@ extension ZMClientMessageTests_Reaction {
     func testThatItRemovesAReactionWhenReceivingUpdateEventWithValidReaction() {
         
         let message = insertMessage()
-        message.addReaction("❤️", forUser: message.sender!)
+        message.addReaction("❤️", forUser: message.sender! as! ZMUser)
         uiMOC.saveOrRollback()
         
         let event = updateEventForRemovingReaction(to: message)

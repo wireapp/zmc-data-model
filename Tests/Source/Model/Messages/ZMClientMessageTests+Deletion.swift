@@ -353,7 +353,7 @@ extension ZMClientMessageTests_Deletion {
         conversation.lastModifiedDate = lastModified
 
         // when
-        let updateEvent = createMessageDeletedUpdateEvent(sut.nonce!, conversationID: conversation.remoteIdentifier!, senderID: sut.sender!.remoteIdentifier!)
+        let updateEvent = createMessageDeletedUpdateEvent(sut.nonce!, conversationID: conversation.remoteIdentifier!, senderID: (sut.sender as! ZMUser).remoteIdentifier!)
 
         performPretendingUiMocIsSyncMoc {
             ZMOTRMessage.createOrUpdate(from: updateEvent, in: self.uiMOC, prefetchResult: nil)
@@ -380,7 +380,7 @@ extension ZMClientMessageTests_Deletion {
         XCTAssertEqual(sut.cachedCategory, .text)
 
         // when
-        let updateEvent = createMessageDeletedUpdateEvent(sut.nonce!, conversationID: conversation.remoteIdentifier!, senderID: sut.sender!.remoteIdentifier!)
+        let updateEvent = createMessageDeletedUpdateEvent(sut.nonce!, conversationID: conversation.remoteIdentifier!, senderID: (sut.sender as! ZMUser).remoteIdentifier!)
         
         performPretendingUiMocIsSyncMoc {
             ZMOTRMessage.createOrUpdate(from: updateEvent, in: self.uiMOC, prefetchResult: nil)
@@ -427,7 +427,7 @@ extension ZMClientMessageTests_Deletion {
         }
         
         XCTAssertEqual(systemMessage.serverTimestamp, timestamp)
-        XCTAssertEqual(systemMessage.sender, otherUser)
+        XCTAssertEqual(systemMessage.sender as? ZMUser, otherUser)
     }
     
     
@@ -441,7 +441,7 @@ extension ZMClientMessageTests_Deletion {
         let nonce = sut.nonce!
         
         // when
-        let updateEvent = createMessageDeletedUpdateEvent(nonce, conversationID: conversation.remoteIdentifier!, senderID: sut.sender!.remoteIdentifier!)
+        let updateEvent = createMessageDeletedUpdateEvent(nonce, conversationID: conversation.remoteIdentifier!, senderID: (sut.sender as! ZMUser).remoteIdentifier!)
         performPretendingUiMocIsSyncMoc {
             ZMOTRMessage.createOrUpdate(from: updateEvent, in: self.uiMOC, prefetchResult: nil)
         }

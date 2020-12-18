@@ -45,7 +45,7 @@ class ZMClientMessageTests_Editing: BaseZMClientMessageTests {
         
         let genericMessage = GenericMessage(content: edited)
         
-        let updateEvent = createUpdateEvent(nonce, conversationID: conversationID, genericMessage: genericMessage, senderID: message.sender!.remoteIdentifier)
+        let updateEvent = createUpdateEvent(nonce, conversationID: conversationID, genericMessage: genericMessage, senderID: (message.sender as? ZMUser)!.remoteIdentifier!)
         
         // WHEN
         var editedMessage: ZMClientMessage?
@@ -126,7 +126,7 @@ extension ZMClientMessageTests_Editing {
             : ZMUser.insertNewObject(in:self.uiMOC)
         
         if !sameSender {
-            sender?.remoteIdentifier = UUID.create()
+            (sender as? ZMUser)?.remoteIdentifier = UUID.create()
         }
         
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
@@ -600,7 +600,7 @@ extension ZMClientMessageTests_Editing {
         let updateEvent = createMessageEditUpdateEvent(oldNonce: message.nonce!,
                                                        newNonce: UUID.create(),
                                                        conversationID: conversation.remoteIdentifier!,
-                                                       senderID: message.sender!.remoteIdentifier!,
+                                                       senderID: (message.sender as? ZMUser)!.remoteIdentifier!,
                                                        newText: "Hello")
         
         // when
@@ -635,7 +635,7 @@ extension ZMClientMessageTests_Editing {
         let updateEvent = createMessageEditUpdateEvent(oldNonce: message.nonce!,
                                                        newNonce: UUID.create(),
                                                        conversationID: conversation.remoteIdentifier!,
-                                                       senderID: message.sender!.remoteIdentifier,
+                                                       senderID: (message.sender as? ZMUser)!.remoteIdentifier!,
                                                        newText: "Hello")
         
         // when
@@ -670,7 +670,7 @@ extension ZMClientMessageTests_Editing {
         let updateEvent = createMessageEditUpdateEvent(oldNonce: message.nonce!,
                                                        newNonce: UUID.create(),
                                                        conversationID: conversation.remoteIdentifier!,
-                                                       senderID: message.sender!.remoteIdentifier!,
+                                                       senderID: (message.sender as? ZMUser)!.remoteIdentifier!,
                                                        newText: newText)
         
         // when

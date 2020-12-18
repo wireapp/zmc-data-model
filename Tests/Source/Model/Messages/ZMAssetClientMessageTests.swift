@@ -215,7 +215,7 @@ extension ZMAssetClientMessageTests {
     func testThatItSetsTheGenericAssetMessageWhenCreatingMessage()
     {
         // given
-        let nonce = UUID.create()
+        _ = UUID.create()
         let mimeType = "text/plain"
         let filename = "document.txt"
         let url = testURLWithFilename(filename)
@@ -1018,7 +1018,7 @@ extension ZMAssetClientMessageTests {
         // then
         XCTAssertNotNil(sut)
         XCTAssertEqual(sut.conversation?.remoteIdentifier, conversation.remoteIdentifier)
-        XCTAssertEqual(sut.sender?.remoteIdentifier!.transportString(), payload["from"] as? String)
+        XCTAssertEqual((sut.sender as? ZMUser)?.remoteIdentifier!.transportString(), payload["from"] as? String)
         XCTAssertEqual(sut.serverTimestamp?.transportString(), payload["time"] as? String)
         XCTAssertEqual(sut.nonce, nonce)
         XCTAssertNotNil(sut.fileMessageData)
@@ -1056,7 +1056,7 @@ extension ZMAssetClientMessageTests {
         // then
         XCTAssertNotNil(sut)
         XCTAssertEqual(sut.conversation?.remoteIdentifier, conversation.remoteIdentifier)
-        XCTAssertEqual(sut.sender?.remoteIdentifier!.transportString(), payload["from"] as? String)
+        XCTAssertEqual((sut.sender as? ZMUser)?.remoteIdentifier!.transportString(), payload["from"] as? String)
         XCTAssertEqual(sut.serverTimestamp?.transportString(), payload["time"] as? String)
         XCTAssertEqual(sut.nonce, nonce)
         XCTAssertNotNil(sut.fileMessageData)
@@ -1178,7 +1178,7 @@ extension ZMAssetClientMessageTests {
             message.expire()
         }
         if state == .delivered {
-            _ = ZMMessageConfirmation(type: .delivered, message: message, sender: message.sender!, serverTimestamp: Date(), managedObjectContext: message.managedObjectContext!)
+            _ = ZMMessageConfirmation(type: .delivered, message: message, sender: message.sender! as! ZMUser, serverTimestamp: Date(), managedObjectContext: message.managedObjectContext!)
             message.managedObjectContext?.saveOrRollback()
         }
     }

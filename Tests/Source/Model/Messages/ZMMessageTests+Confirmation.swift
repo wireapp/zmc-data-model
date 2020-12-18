@@ -490,7 +490,7 @@ extension ZMMessageTests_Confirmation {
         // when
         let updateEvent = createMessageDeliveryConfirmationUpdateEvent(
             sut.nonce!,
-            conversationID: conversation.remoteIdentifier!, senderID: sender.remoteIdentifier!)
+            conversationID: conversation.remoteIdentifier!, senderID: sender .remoteIdentifier!)
         performPretendingUiMocIsSyncMoc {
             ZMOTRMessage.createOrUpdate(from: updateEvent, in: self.uiMOC, prefetchResult: nil)
         }

@@ -160,7 +160,7 @@ class ZMOTRMessage_SelfConversationUpdateEventTests: BaseZMClientMessageTests {
             conversationID: conversation.remoteIdentifier!,
             timestamp: Date(),
             genericMessage: message,
-            senderID: sender.remoteIdentifier!,
+            senderID: (sender as! ZMUser).remoteIdentifier!,
             eventSource: ZMUpdateEventSource.download
         )
     }

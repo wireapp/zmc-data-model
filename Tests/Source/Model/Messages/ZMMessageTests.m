@@ -262,7 +262,7 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
 
         ZMMessage *message2 = (id) [self.syncMOC existingObjectWithID:message.objectID error:&errorOnSync];
         XCTAssertNotNil(message2, @"Failed to load into other context: %@", errorOnSync);
-        ZMUser *user2 = message2.sender;
+        ZMUser *user2 = (ZMUser *)message2.sender;
         XCTAssertNotNil(user2);
         XCTAssertEqualObjects(user2.objectID, user.objectID);
     }];

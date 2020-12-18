@@ -75,7 +75,7 @@ class ZMMessageTests_Removal: BaseZMClientMessageTests {
         
         // WHEN
         performPretendingUiMocIsSyncMoc {
-            ZMMessage.remove(remotelyDeletedMessage: deleted, inConversation: conversation, senderID: textMessage!.sender!.remoteIdentifier, inContext: self.uiMOC)
+            ZMMessage.remove(remotelyDeletedMessage: deleted, inConversation: conversation, senderID: (textMessage!.sender as? ZMUser)!.remoteIdentifier, inContext: self.uiMOC)
         }
         uiMOC.saveOrRollback()
         
@@ -142,7 +142,7 @@ class ZMMessageTests_Removal: BaseZMClientMessageTests {
         // WHEN
         performPretendingUiMocIsSyncMoc {
             self.performIgnoringZMLogError {
-                ZMMessage.remove(remotelyDeletedMessage: deleted, inConversation: conversation, senderID: textMessage!.sender!.remoteIdentifier, inContext: self.uiMOC)
+                ZMMessage.remove(remotelyDeletedMessage: deleted, inConversation: conversation, senderID: (textMessage!.sender as? ZMUser)!.remoteIdentifier, inContext: self.uiMOC)
             }
         }
         uiMOC.saveOrRollback()

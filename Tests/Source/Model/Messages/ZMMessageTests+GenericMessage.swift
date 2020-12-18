@@ -89,7 +89,7 @@ extension ZMMessageTests_GenericMessage {
         // then
         XCTAssertNotNil(message)
         XCTAssertEqual(message?.conversation, conversation)
-        XCTAssertEqual(message?.sender?.remoteIdentifier.transportString(), payload["from"] as? String)
+        XCTAssertEqual((message?.sender as? ZMUser)?.remoteIdentifier.transportString(), payload["from"] as? String)
         XCTAssertEqual(message?.serverTimestamp?.transportString(), payload["time"] as? String)
         XCTAssertEqual(message?.senderClientID, senderClientID)
         XCTAssertEqual(message?.nonce, nonce)

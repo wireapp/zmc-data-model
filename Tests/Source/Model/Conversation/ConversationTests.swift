@@ -110,7 +110,7 @@ extension ConversationTests {
         let genericMessageData = try? genericMessage.serializedData()
         let payload: NSDictionary = [
             "conversation": conversation.remoteIdentifier?.transportString(),
-            "from": message.sender?.remoteIdentifier.transportString(),
+            "from": (message.sender as? ZMUser)?.remoteIdentifier!.transportString(),
             "time": Date().transportString(),
             "data": [
                 "text": genericMessageData?.base64String()
