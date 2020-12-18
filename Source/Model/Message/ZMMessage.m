@@ -396,7 +396,7 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
             self.objectID.URIRepresentation.lastPathComponent,
             self.conversation.objectID.URIRepresentation.lastPathComponent,
             [self.nonce.UUIDString.lowercaseString substringToIndex:4],
-            self.sender.objectID.URIRepresentation.lastPathComponent,
+            ((ZMUser *)self.sender).objectID.URIRepresentation.lastPathComponent,
             [formatter stringFromNumber:@(self.serverTimestamp.timeIntervalSinceNow)]
             ];
 }

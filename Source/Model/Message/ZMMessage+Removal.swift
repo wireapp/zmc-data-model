@@ -85,7 +85,7 @@ extension ZMMessage {
         }
 
         // Only the sender of the original message can delete it
-        if senderID != message.sender?.remoteIdentifier && !message.isEphemeral {
+        if senderID != (message.sender as? ZMUser)?.remoteIdentifier && !message.isEphemeral {
             return
         }
         
@@ -94,11 +94,11 @@ extension ZMMessage {
         // Only clients other than self should see the system message
         if senderID != selfUser.remoteIdentifier && !message.isEphemeral, let sender = message.sender {
             let timestamp = message.serverTimestamp ?? Date()
-            conversation.appendDeletedForEveryoneSystemMessage(at: timestamp, sender: sender)
+            conversation.appendDeletedForEveryoneSystemMessage(at: timestamp, sender: sender as! ZMUser)
         }
         
         // If we receive a delete for an ephemeral message that was not originally sent by the selfUser, we need to stop the deletion timer
-        if message.isEphemeral && message.sender?.remoteIdentifier != selfUser.remoteIdentifier {
+        if message.isEphemeral && (message.sender as? ZMUser)?.remoteIdentifier != selfUser.remoteIdentifier {
             message.removeClearingSender(true)
             stopDeletionTimer(for: message)
         } else {

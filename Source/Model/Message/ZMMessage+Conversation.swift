@@ -20,7 +20,7 @@ import Foundation
 
 extension ZMMessage {
     var isSenderInConversation: Bool {
-        return conversation?.has(participantWithId: sender?.userId) ?? false
+        return conversation?.has(participantWithId: (sender as? ZMUser)?.userId) ?? false
     }
 }
 

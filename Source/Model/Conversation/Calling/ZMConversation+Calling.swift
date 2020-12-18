@@ -68,7 +68,7 @@ public extension ZMConversation {
     private func associatedSystemMessage(of type: ZMSystemMessageType, sender: ZMUser) -> ZMSystemMessage? {
         guard let lastMessage = lastMessage as? ZMSystemMessage,
               lastMessage.systemMessageType == type,
-              lastMessage.sender == sender
+              lastMessage.sender as? ZMUser == sender
         else { return nil }
         
         return lastMessage

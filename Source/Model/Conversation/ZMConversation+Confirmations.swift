@@ -31,7 +31,7 @@ extension ZMConversation {
         let unreadMessagesNeedingConfirmation = unreadMessages(until: timestamp).filter({ $0.needsReadConfirmation })
         var confirmationMessages: [ZMClientMessage] = []
         
-        for messages in unreadMessagesNeedingConfirmation.partition(by: \.sender).values {
+        for messages in unreadMessagesNeedingConfirmation.partition(by: \.zmSender).values {
             guard
                 !messages.isEmpty,
                 let confirmation = Confirmation(messageIds: messages.compactMap(\.nonce), type: .read)

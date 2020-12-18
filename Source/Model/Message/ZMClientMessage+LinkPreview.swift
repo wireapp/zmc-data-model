@@ -94,7 +94,7 @@ extension ZMClientMessage {
             let senderUUID = updateEvent.senderUUID,
             let originalText = underlyingMessage?.textData,
             let updatedText = updatedMessage.textData,
-            senderUUID == sender?.remoteIdentifier,
+            senderUUID == (sender as? ZMUser)?.remoteIdentifier,
             originalText.content == updatedText.content
         else {
             return

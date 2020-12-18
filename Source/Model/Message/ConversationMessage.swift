@@ -47,7 +47,7 @@ public protocol ZMConversationMessage : NSObjectProtocol {
     var nonce: UUID? { get }
         
     /// The user who sent the message
-    var sender: ZMUser? { get }
+    var sender: UserType? { get }
     
     /// The timestamp as received by the server
     var serverTimestamp: Date? { get }
@@ -157,7 +157,7 @@ public extension ZMConversationMessage {
 
     func isUserSender(_ user: UserType) -> Bool {
         guard let zmUser = user as? ZMUser else { return false }
-        return zmUser == sender
+        return zmUser == sender as? ZMUser
     }
 }
 
@@ -198,6 +198,10 @@ extension ZMMessage : ZMConversationMessage {
     @NSManaged public var linkAttachments: [LinkAttachment]?
     @NSManaged public var needsLinkAttachmentsUpdate: Bool
     @NSManaged public var replies: Set<ZMMessage>
+    
+    var zmSender: ZMUser? {
+        return sender as? ZMUser
+    }
     
     public var readReceipts: [ReadReceipt] {
         return confirmations.filter({ $0.type == .read }).sorted(by: { a, b in  a.serverTimestamp < b.serverTimestamp })
@@ -250,13 +254,13 @@ extension ZMMessage : ZMConversationMessage {
     }
     
     public var isSilenced: Bool {
-        return conversation?.isMessageSilenced(nil, senderID: sender?.remoteIdentifier) ?? true
+        return conversation?.isMessageSilenced(nil, senderID: (sender as? ZMUser)?.remoteIdentifier) ?? true
     }
 }
 
 extension ZMMessage {
     
-    @NSManaged public var sender : ZMUser?
+    @NSManaged public var sender : UserType?
     @NSManaged public var serverTimestamp : Date?
 
     @objc public var textMessageData : ZMTextMessageData? {

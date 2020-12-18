@@ -274,7 +274,7 @@ extension GenericMessage {
                 fatal("buttonAction needs a recipient")
             }
 
-            return Set(arrayLiteral: sender)
+            return Set(arrayLiteral: sender as! ZMUser)
         }
 
         func recipientForConfirmationMessage() -> Set<ZMUser>? {
@@ -287,7 +287,7 @@ extension GenericMessage {
                     return nil
             }
 
-            return Set(arrayLiteral: sender)
+            return Set(arrayLiteral: sender as! ZMUser)
         }
 
         func recipientForOtherUsers() -> Set<ZMUser>? {
@@ -323,7 +323,7 @@ extension GenericMessage {
             guard !sender.isSelfUser else { return nil }
 
             // Otherwise we delete only for self and the sender, all other recipients are unaffected.
-            return Set(arrayLiteral: sender, selfUser)
+            return Set(arrayLiteral: sender as! ZMUser, selfUser)
         }
 
         func allAuthorizedRecipients() -> Set<ZMUser> {

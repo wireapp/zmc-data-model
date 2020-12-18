@@ -232,7 +232,7 @@ import Foundation
     }
     
     public override var isSilenced: Bool {
-        return conversation?.isMessageSilenced(underlyingMessage, senderID: sender?.remoteIdentifier) ?? true
+        return conversation?.isMessageSilenced(underlyingMessage, senderID: (sender as? ZMUser)?.remoteIdentifier) ?? true
     } 
     
     // Private implementation
