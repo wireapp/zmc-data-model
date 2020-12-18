@@ -3491,6 +3491,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Tests/WireDataModelTestTarget/Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = com.wire.WireDataModelTestTarget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALIDATE_WORKSPACE = YES;
 			};
 			name = Debug;
 		};
@@ -3501,6 +3502,7 @@
 				INFOPLIST_FILE = "$(SRCROOT)/Tests/WireDataModelTestTarget/Info.plist";
 				PRODUCT_BUNDLE_IDENTIFIER = com.wire.WireDataModelTestTarget;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				VALIDATE_WORKSPACE = YES;
 			};
 			name = Release;
 		};
