@@ -236,7 +236,7 @@ extension ConversationTests_Teams {
         guard let message = conversation.lastMessage as? ZMSystemMessage else { XCTFail("Last message should be system message"); return }
         
         XCTAssertEqual(message.systemMessageType, .teamMemberLeave)
-        XCTAssertEqual(message.sender as? ZMUser, otherUser)
+        XCTAssert(message.sender?.isEqualTo(otherUser) == true)
         XCTAssertEqual(message.users, [otherUser])
         XCTAssertEqual(message.serverTimestamp, timestamp)
         XCTAssertFalse(message.shouldGenerateUnreadCount())

@@ -39,7 +39,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
             XCTAssertEqual(message.textMessageData?.messageText, messageText)
             XCTAssertEqual(message.conversation, conversation)
             XCTAssertEqual(conversation.lastMessage, message)
-            XCTAssertEqual(selfUser, message.sender as? ZMUser)
+            XCTAssert(selfUser.isEqualTo(message.sender))
         }
     }
 
@@ -147,7 +147,7 @@ class ZMConversationMessagesTests: ZMConversationTestsBase {
         let expectedData = try! (try! Data(contentsOf: imageFileURL)).wr_removingImageMetadata()
         XCTAssertNotNil(expectedData)
         XCTAssertEqual(message.imageMessageData?.imageData, expectedData)
-        XCTAssertEqual(selfUser as? ZMUser, message.sender as? ZMUser)
+        XCTAssert(selfUser.isEqualTo(message.sender))
     }
     
     func testThatNoMessageIsInsertedWhenTheImageFileURLIsPointingToSomethingThatIsNotAnImage()

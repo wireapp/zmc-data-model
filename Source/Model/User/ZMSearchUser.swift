@@ -135,7 +135,7 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
     fileprivate var internalPreviewImageData: Data?
     fileprivate var internalCompleteImageData: Data?
     
-    public func isEqualTo(_ other: UserType) -> Bool {
+    public func isEqualTo(_ other: UserType?) -> Bool {
         if let otherSearchUser = other as? ZMSearchUser {
             return user == otherSearchUser.user
         }

@@ -156,8 +156,7 @@ public extension ZMConversationMessage {
     /// Whether the given user is the sender of the message.
 
     func isUserSender(_ user: UserType) -> Bool {
-        guard let zmUser = user as? ZMUser else { return false }
-        return zmUser == sender as? ZMUser
+        sender?.isEqualTo(user) == true
     }
 }
 

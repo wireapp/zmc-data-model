@@ -184,10 +184,8 @@ extension ZMSystemMessage {
     }
 
     public var senderChanged : Bool {
-        if self.usersChanged && (self.userChangeInfo?.user as? ZMUser == message.sender as? ZMUser){
-            return true
-        }
-        return false
+        return usersChanged &&
+           userChangeInfo?.user.isEqualTo(message.sender) == true
     }
     
     public var isObfuscatedChanged : Bool {

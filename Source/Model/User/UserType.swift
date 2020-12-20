@@ -233,5 +233,5 @@ public protocol UserType: NSObjectProtocol {
     /// Whether all user's devices are verified by the selfUser
     var isTrusted: Bool { get }
     
-    func isEqualTo(_ other: UserType) -> Bool
+    func isEqualTo(_ other: UserType?) -> Bool
 }

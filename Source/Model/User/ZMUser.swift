@@ -23,7 +23,7 @@ import WireSystem
 extension ZMUser: UserConnectionType { }
 
 extension ZMUser: UserType {
-    public func isEqualTo(_ other: UserType) -> Bool {
+    public func isEqualTo(_ other: UserType?) -> Bool {
         guard let otherUser = other as? ZMUser else { return false }
         
         return self == otherUser

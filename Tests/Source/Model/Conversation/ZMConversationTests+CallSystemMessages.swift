@@ -39,7 +39,7 @@ class ZMConversationCallSystemMessageTests: ZMConversationTestsBase {
                 return XCTFail("No system message")
             }
 
-            XCTAssertEqual(message.sender as? ZMUser, user)
+            XCTAssert(message.sender?.isEqualTo(user) == true)
             XCTAssertEqual(message.users, [user])
             XCTAssertEqual(message.serverTimestamp, timestamp)
             XCTAssertEqual(message.systemMessageType, .missedCall)
@@ -173,7 +173,7 @@ class ZMConversationCallSystemMessageTests: ZMConversationTestsBase {
             return XCTFail("No system message")
         }
 
-        XCTAssertEqual(message.sender as? ZMUser, user)
+        XCTAssert(message.sender?.isEqualTo(user) == true)
         XCTAssertEqual(message.users, [user])
         XCTAssertEqual(message.duration, 42)
         XCTAssertEqual(message.systemMessageType, .performedCall)

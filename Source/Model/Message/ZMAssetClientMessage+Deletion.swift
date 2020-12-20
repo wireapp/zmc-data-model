@@ -54,7 +54,7 @@ extension ZMAssetClientMessage {
     }
     
     private func markRemoteAssetToBeDeleted() {
-        guard sender as? ZMUser == ZMUser.selfUser(in: managedObjectContext!) else {
+        guard sender?.isEqualTo(ZMUser.selfUser(in: managedObjectContext!)) == true else {
             return
         }
         

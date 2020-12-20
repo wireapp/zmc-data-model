@@ -504,7 +504,7 @@ extension ZMConversation {
             
             guard let systemMessage = msg as? ZMSystemMessage,
                 systemMessage.systemMessageType == .newClient,
-                systemMessage.sender as? ZMUser == selfUser else {
+            systemMessage.sender?.isEqualTo(selfUser) == true else {
                     return
             }
             
