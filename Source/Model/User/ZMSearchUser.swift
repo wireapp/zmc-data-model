@@ -136,15 +136,11 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
     fileprivate var internalCompleteImageData: Data?
     
     public func isEqualTo(_ other: UserType?) -> Bool {
-        if let otherSearchUser = other as? ZMSearchUser {
-            return user == otherSearchUser.user
-        }
-
-        guard let otherUser = other as? ZMUser else {
+        guard let otherSearchUser = other as? ZMSearchUser else {
             return false
         }
 
-        return user == otherUser
+        return self == otherSearchUser
     }
 
     /// Whether all user's devices are verified by the selfUser

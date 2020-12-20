@@ -292,6 +292,7 @@
 		A927F52723A029250058D744 /* ParticipantRoleTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A927F52623A029250058D744 /* ParticipantRoleTests.swift */; };
 		A949418F23E1DB79001B0373 /* ZMConnection.swift in Sources */ = {isa = PBXBuildFile; fileRef = A949418E23E1DB78001B0373 /* ZMConnection.swift */; };
 		A9536FD323ACD23100CFD528 /* ConversationTests+gapsAndWindows.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9536FD223ACD23100CFD528 /* ConversationTests+gapsAndWindows.swift */; };
+		A95A3593258F785F00BC089A /* UserTypeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95A3592258F785F00BC089A /* UserTypeTests.swift */; };
 		A95E7BF5239134E600935B88 /* ZMConversation+Participants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95E7BF4239134E600935B88 /* ZMConversation+Participants.swift */; };
 		A96524BA23CDE07700303C60 /* String+WordTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A96524B823CDE07200303C60 /* String+WordTests.swift */; };
 		A9676D7623A30BEF001CD41D /* ZMTestSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9676D7323A30ABA001CD41D /* ZMTestSession.swift */; };
@@ -985,6 +986,7 @@
 		A927F52623A029250058D744 /* ParticipantRoleTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ParticipantRoleTests.swift; sourceTree = "<group>"; };
 		A949418E23E1DB78001B0373 /* ZMConnection.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMConnection.swift; sourceTree = "<group>"; };
 		A9536FD223ACD23100CFD528 /* ConversationTests+gapsAndWindows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConversationTests+gapsAndWindows.swift"; sourceTree = "<group>"; };
+		A95A3592258F785F00BC089A /* UserTypeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserTypeTests.swift; sourceTree = "<group>"; };
 		A95E7BF4239134E600935B88 /* ZMConversation+Participants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZMConversation+Participants.swift"; sourceTree = "<group>"; };
 		A96524B823CDE07200303C60 /* String+WordTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+WordTests.swift"; sourceTree = "<group>"; };
 		A9676D7323A30ABA001CD41D /* ZMTestSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMTestSession.swift; sourceTree = "<group>"; };
@@ -2296,6 +2298,7 @@
 				1645ECC1243B643B007A82D6 /* ZMSearchUserTests+TeamUser.swift */,
 				872A2E891FFD2FBF00900B22 /* ZMSearchUserPayloadParsingTests.swift */,
 				F9B71F631CB2BC85001DB03F /* UserImageLocalCacheTests.swift */,
+				A95A3592258F785F00BC089A /* UserTypeTests.swift */,
 				1645ECC3243B69A1007A82D6 /* UserTypeTests+Materialize.swift */,
 				F9B71F661CB2BC85001DB03F /* ZMPersonNameTests.m */,
 				F18998871E7AF0BE00E579A2 /* ZMUserTests.h */,
@@ -3208,6 +3211,7 @@
 				A982B46623BE1B86001828A6 /* ConversationTests.swift in Sources */,
 				F16F8EBF2063E9CC009A9D6F /* StorageStackTests_Backup.swift in Sources */,
 				F929C17B1E423B620018ADA4 /* SnapshotCenterTests.swift in Sources */,
+				A95A3593258F785F00BC089A /* UserTypeTests.swift in Sources */,
 				A995F05E239690B300FAC3CF /* ParticipantRoleObserverTests.swift in Sources */,
 				F9A708521CAEEB7500C2F5FE /* ZMFetchRequestBatchTests.m in Sources */,
 				166E47BD255A98D900C161C8 /* StorageStackTests_Migration.swift in Sources */,
