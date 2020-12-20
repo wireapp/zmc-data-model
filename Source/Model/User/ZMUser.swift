@@ -23,6 +23,11 @@ import WireSystem
 extension ZMUser: UserConnectionType { }
 
 extension ZMUser: UserType {
+    public func isEqualTo(_ other: UserType) -> Bool {
+        guard let otherUser = other as? ZMUser else { return false }
+        
+        return self == otherUser
+    }
 
     /// Whether all user's devices are verified by the selfUser
     public var isTrusted: Bool {
