@@ -54,7 +54,14 @@ final class UserTypeTests: ModelObjectsTests {
         XCTAssert(selfUser.isEqualTo(selfUser))
     }
 
-    func testThatIsEqualToReturnFalseForDifferentUsers() {
+    func testThatDifferentZMUserReturnFalseWhenComparing() {
+        let otherUser = ZMUser.insertNewObject(in: uiMOC)
+        otherUser.remoteIdentifier = UUID()
+        
+        XCTAssertFalse(selfUser.isEqualTo(otherUser))
+    }
+
+    func testThatIsEqualToReturnFalseForDifferentTypesOfUsers() {
         XCTAssertFalse(searchUser.isEqualTo(selfUser))
     }
 }
