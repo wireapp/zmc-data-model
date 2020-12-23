@@ -27,11 +27,25 @@ public protocol AppLockType {
     var isCustomPasscodeNotSet: Bool { get }
     var needsToNotifyUser: Bool { get set }
     var config: AppLockController.Config { get }
-    
+
     func evaluateAuthentication(scenario: AppLockController.AuthenticationScenario,
                                 description: String,
                                 with callback: @escaping (AppLockController.AuthenticationResult, LAContext) -> Void)
     func persistBiometrics()
+
+    func deletePasscode() throws
+    func storePasscode(_ passcode: String) throws
+    func fetchPasscode() -> Data?
+
+}
+
+public extension AppLockType {
+
+    func updatePasscode(_ passcode: String) throws {
+        try deletePasscode()
+        try storePasscode(passcode)
+    }
+
 }
 
 public final class AppLockController: AppLockType {
@@ -69,7 +83,7 @@ public final class AppLockController: AppLockType {
     public var lastUnlockedDate: Date = Date(timeIntervalSince1970: 0)
     
     public var isCustomPasscodeNotSet: Bool {
-        return Keychain.fetchPasscode() == nil
+        return fetchPasscode() == nil
     }
     
     public var needsToNotifyUser: Bool {
@@ -91,7 +105,8 @@ public final class AppLockController: AppLockType {
     
     /// a weak reference to LAContext, it should be nil when evaluatePolicy is done.
     private weak var weakLAContext: LAContext? = nil 
-    
+
+    let keychainItem: PasscodeKeychainItem
     
     // MARK: - Life cycle
     
@@ -100,6 +115,7 @@ public final class AppLockController: AppLockType {
         
         self.baseConfig = config
         self.selfUser = selfUser
+        keychainItem = PasscodeKeychainItem(user: selfUser)
     }
     
     // MARK: - Methods
