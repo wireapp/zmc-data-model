@@ -22,16 +22,20 @@ struct TransferApplockKeychain {
     
     static func migrateKeychainItems(in moc: NSManagedObjectContext) {
         migrateIsApplockActiveState(in: moc)
+        migrateIsAppLockActiveState(in: moc)
     }
     
-    // Save the enable state of the applock feature in the managedObjectContext instead of the keychain
-    static func migrateIsApplockActiveState(in moc: NSManagedObjectContext) {
+    /// Save the enable state of the applock feature in the managedObjectContext instead of the keychain.
+
+    static func migrateIsAppLockActiveState(in moc: NSManagedObjectContext) {
         let selfUser = ZMUser.selfUser(in: moc)
         
-        guard let data = ZMKeychain.data(forAccount: FeatureName.lockApp.rawValue),
-            data.count != 0 else {
-                selfUser.isAppLockActive = false
-                return
+        guard
+            let data = ZMKeychain.data(forAccount: "lockApp"),
+            data.count != 0
+        else {
+            selfUser.isAppLockActive = false
+            return
         }
         
         selfUser.isAppLockActive = String(data: data, encoding: .utf8) == "YES"

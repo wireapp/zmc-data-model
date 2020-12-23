@@ -19,52 +19,50 @@
 import XCTest
 @testable import WireDataModel
 
-class TransferApplockKeychain: DiskDatabaseTest {
-    
-    var selfUser: ZMUser!
-    
+class TransferAppLockKeychainTests: DiskDatabaseTest {
+
+    var appLock: AppLockController!
+
     override func setUp() {
         super.setUp()
-        selfUser = ZMUser.selfUser(in: moc)
+
+        let config = AppLockController.Config(
+            useBiometricsOrCustomPasscode: false,
+            forceAppLock: false,
+            timeOut: 900
+        )
+
+        appLock = AppLockController(config: config, selfUser: ZMUser.selfUser(in: moc))
     }
     
     override func tearDown() {
-        selfUser = nil
-        
+        appLock = nil
         super.tearDown()
     }
     
     func testItMigratesIsActiveStateFromTheKeychainToTheMOC() {
-        //given
-        let config = AppLockController.Config(useBiometricsOrCustomPasscode: false,
-                                              forceAppLock: false,
-                                              timeOut: 900)
-        let sut = AppLockController(config: config, selfUser: selfUser)
-        XCTAssertFalse(sut.isActive)
+        // Given
+        XCTAssertFalse(appLock.isActive)
         
-        //when
-        let data = ("YES").data(using: .utf8)!
-        ZMKeychain.setData(data, forAccount: WireDataModel.TransferApplockKeychain.FeatureName.lockApp.rawValue)
+        // When
+        let data = "YES".data(using: .utf8)!
+        ZMKeychain.setData(data, forAccount: "lockApp")
+
+        TransferApplockKeychain.migrateIsAppLockActiveState(in: moc)
         
-        WireDataModel.TransferApplockKeychain.migrateIsApplockActiveState(in: moc)
-        
-        //then
-        XCTAssertTrue(sut.isActive)
+        // Then
+        XCTAssertTrue(appLock.isActive)
     }
     
     func testItDoesNotMigrateIsActiveStateFromTheKeychainToTheMOC_IfKeychainIsEmpty() {
-        //given
-        let config = AppLockController.Config(useBiometricsOrCustomPasscode: false,
-                                              forceAppLock: false,
-                                              timeOut: 900)
-        let sut = AppLockController(config: config, selfUser: selfUser)
-        XCTAssertFalse(sut.isActive)
+        // Given
+        XCTAssertFalse(appLock.isActive)
         
-        //when
-        ZMKeychain.deleteAllKeychainItems(withAccountName: WireDataModel.TransferApplockKeychain.FeatureName.lockApp.rawValue)
-        WireDataModel.TransferApplockKeychain.migrateIsApplockActiveState(in: moc)
+        // When
+        ZMKeychain.deleteAllKeychainItems(withAccountName: "lockApp")
+        TransferApplockKeychain.migrateIsAppLockActiveState(in: moc)
         
-        //then
-        XCTAssertFalse(sut.isActive)
+        // Then
+        XCTAssertFalse(appLock.isActive)
     }
 }
