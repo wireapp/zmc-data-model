@@ -21,8 +21,13 @@ import Foundation
 struct TransferApplockKeychain {
     
     static func migrateKeychainItems(in moc: NSManagedObjectContext) {
-        migrateIsApplockActiveState(in: moc)
         migrateIsAppLockActiveState(in: moc)
+
+        guard let accountManager = Bundle.main.sharedContainerURL.map(AccountManager.init) else {
+            fatalError("Failed to migrated app lock passcode. Reason: couldn't initialize AccountManager,")
+        }
+
+        migrateAppLockPasscodes(forAccountIds: accountManager.accounts.map(\.userIdentifier))
     }
     
     /// Save the enable state of the applock feature in the managedObjectContext instead of the keychain.
@@ -40,8 +45,42 @@ struct TransferApplockKeychain {
         
         selfUser.isAppLockActive = String(data: data, encoding: .utf8) == "YES"
     }
-    
-    enum FeatureName: String {
-        case lockApp = "lockApp"
+
+    /// Migrate the single legacy passcode (account agnostic) to potentially several (account specific)
+    /// keychain entries.
+
+    static func migrateAppLockPasscodes(forAccountIds ids: [UUID]) {
+        let legacyKeychainItem = AppLockController.PasscodeKeychainItem.legacyItem
+
+        guard
+            let passcode = try? Keychain.fetchItem(legacyKeychainItem),
+            !passcode.isEmpty
+        else {
+            return
+        }
+
+        do {
+            for id in ids {
+                let item = AppLockController.PasscodeKeychainItem(userId: id)
+                try Keychain.storeItem(item, value: passcode)
+            }
+
+            try Keychain.deleteItem(legacyKeychainItem)
+
+        } catch {
+            fatalError("Failed to migrate app lock passcode. Reason: \(error.localizedDescription)")
+        }
+    }
+
+}
+
+private extension Bundle {
+
+    var sharedContainerURL: URL? {
+        return appGroupIdentifier.map(FileManager.sharedContainerDirectory)
+    }
+
+    var appGroupIdentifier: String? {
+        return bundleIdentifier.map { "group." + $0 }
     }
 }

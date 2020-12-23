@@ -65,4 +65,26 @@ class TransferAppLockKeychainTests: DiskDatabaseTest {
         // Then
         XCTAssertFalse(appLock.isActive)
     }
+
+    func testItMigratesPasscodes() throws {
+        // Given
+        let legacyItem = AppLockController.PasscodeKeychainItem.legacyItem
+        let passcode = "hello".data(using: .utf8)!
+        let userIds = (1...3).map { _ in UUID.create() }
+
+        try Keychain.updateItem(legacyItem, value: passcode)
+        XCTAssertEqual(try? Keychain.fetchItem(legacyItem), passcode)
+
+        // When
+        TransferApplockKeychain.migrateAppLockPasscodes(forAccountIds: userIds)
+
+        // Then
+        let items = userIds.map(AppLockController.PasscodeKeychainItem.init)
+        for item in items { XCTAssertEqual(try Keychain.fetchItem(item), passcode) }
+        XCTAssertNil(try? Keychain.fetchItem(legacyItem))
+
+        // Clean up
+        for item in items { try Keychain.deleteItem(item) }
+    }
+
 }
