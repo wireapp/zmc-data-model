@@ -65,7 +65,7 @@ extension ZMOTRMessage {
             }
 
             let readReceiptsEnabled = ZMUser.selfUser(in: managedObjectContext).readReceiptsEnabled
-            return expectsReadConfirmation && readReceiptsEnabledf
+            return expectsReadConfirmation && readReceiptsEnabled
 
         } else if conversation.conversationType == .group {
             return expectsReadConfirmation
