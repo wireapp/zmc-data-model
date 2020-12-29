@@ -106,7 +106,7 @@ public final class AppLockController: AppLockType {
     /// a weak reference to LAContext, it should be nil when evaluatePolicy is done.
     private weak var weakLAContext: LAContext? = nil 
 
-    let keychainItem: PasscodeKeychainItem
+    lazy var keychainItem: PasscodeKeychainItem = .init(user: selfUser)
     
     // MARK: - Life cycle
     
@@ -115,7 +115,6 @@ public final class AppLockController: AppLockType {
         
         self.baseConfig = config
         self.selfUser = selfUser
-        keychainItem = PasscodeKeychainItem(user: selfUser)
     }
     
     // MARK: - Methods
