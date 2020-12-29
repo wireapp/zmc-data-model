@@ -48,7 +48,10 @@ public protocol ZMConversationMessage : NSObjectProtocol {
         
     /// The user who sent the message
     var sender: ZMUser? { get }
-    
+
+    /// Wrapper for UI mocking ZMConversationMessage without creating ZMUser
+    var senderUser: UserType? { get }
+
     /// The timestamp as received by the server
     var serverTimestamp: Date? { get }
     
@@ -195,6 +198,10 @@ extension ZMMessage {
 // MARK:- Conversation Message protocol implementation
 
 extension ZMMessage : ZMConversationMessage {
+    public var senderUser: UserType? {
+        return sender
+    }
+    
     @NSManaged public var linkAttachments: [LinkAttachment]?
     @NSManaged public var needsLinkAttachmentsUpdate: Bool
     @NSManaged public var replies: Set<ZMMessage>
