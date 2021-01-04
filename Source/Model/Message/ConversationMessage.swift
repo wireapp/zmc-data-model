@@ -47,7 +47,7 @@ public protocol ZMConversationMessage : NSObjectProtocol {
     var nonce: UUID? { get }
         
     /// The user who sent the message (internal)
-    @available(iOS, unavailable, message: "Use `senderUser` instead")
+    @available(*, deprecated, message: "Use `senderUser` instead")
     var sender: ZMUser? { get }
 
     /// The user who sent the message
@@ -160,8 +160,7 @@ public extension ZMConversationMessage {
     /// Whether the given user is the sender of the message.
 
     func isUserSender(_ user: UserType) -> Bool {
-        guard let zmUser = user as? ZMUser else { return false }
-        return zmUser == sender
+        return user as? ZMUser == senderUser as? ZMUser
     }
 }
 
