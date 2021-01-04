@@ -46,10 +46,11 @@ public protocol ZMConversationMessage : NSObjectProtocol {
     /// Unique identifier for the message
     var nonce: UUID? { get }
         
-    /// The user who sent the message
+    /// The user who sent the message (internal)
+    @available(iOS, unavailable, message: "Use `senderUser` instead")
     var sender: ZMUser? { get }
 
-    /// Wrapper for UI mocking ZMConversationMessage without creating ZMUser
+    /// The user who sent the message
     var senderUser: UserType? { get }
 
     /// The timestamp as received by the server
