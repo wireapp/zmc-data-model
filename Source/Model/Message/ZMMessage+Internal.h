@@ -48,6 +48,7 @@ extern NSString * _Nonnull const ZMMessageConversationKey;
 extern NSString * _Nonnull const ZMMessageHiddenInConversationKey;
 extern NSString * _Nonnull const ZMMessageExpirationDateKey;
 extern NSString * _Nonnull const ZMMessageNameKey;
+extern NSString * _Nonnull const ZMMessageSenderClientIDKey;
 extern NSString * _Nonnull const ZMMessageNeedsToBeUpdatedFromBackendKey;
 extern NSString * _Nonnull const ZMMessageNonceDataKey;
 extern NSString * _Nonnull const ZMMessageSenderKey;
