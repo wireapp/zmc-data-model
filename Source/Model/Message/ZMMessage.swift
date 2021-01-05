@@ -27,19 +27,34 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
     
     @NSManaged
     public var systemMessageType: ZMSystemMessageType
-    public var users: Set<ZMUser> = []
-    public var clients: Set<AnyHashable> = []
-    public var addedUsers: Set<ZMUser> = [] // Only filled for ZMSystemMessageTypePotentialGap and ZMSystemMessageTypeIgnoredClient
-    public var removedUsers: Set<ZMUser> = [] // Only filled for ZMSystemMessageTypePotentialGap
+
+    @NSManaged
+    public var users: Set<ZMUser>
+
+    @NSManaged
+    public var clients: Set<AnyHashable>
+
+    @NSManaged
+    public var addedUsers: Set<ZMUser> // Only filled for ZMSystemMessageTypePotentialGap and ZMSystemMessageTypeIgnoredClient
+    @NSManaged
+    public var removedUsers: Set<ZMUser> // Only filled for ZMSystemMessageTypePotentialGap
     public var text: String?
-    public var needsUpdatingUsers = false
-    public var duration: TimeInterval = 0.0 // Only filled for .performedCall
+
+    @NSManaged
+    public var needsUpdatingUsers: Bool
+
+    @NSManaged
+    public var duration: TimeInterval // Only filled for .performedCall
+
+    @NSManaged
     weak public var parentMessage: ZMSystemMessageData? // Only filled for .performedCall & .missedCall
     private(set) public var userIsTheSender = false // Set to true if sender is the only user in users array. E.g. when a wireless user joins conversation
+
+    @NSManaged
     public var messageTimer: NSNumber? // Only filled for .messageTimerUpdate
     
-    @objc
-    var relevantForConversationStatus = false // If true (default), the message is considered to be shown inside the conversation list
+    @NSManaged
+    var relevantForConversationStatus: Bool // If true (default), the message is considered to be shown inside the conversation list
 
     class func fetchLatestPotentialGapSystemMessage(in conversation: ZMConversation) -> ZMSystemMessage? {
         return nil
