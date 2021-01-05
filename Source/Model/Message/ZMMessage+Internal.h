@@ -35,7 +35,7 @@
 @class ZMClientMessage;
 
 @protocol UserClientType;
-@protocol ZMSystemMessageData;
+//@protocol ZMSystemMessageData;
 
 extern NSString * _Nonnull const ZMMessageIsExpiredKey;
 extern NSString * _Nonnull const ZMMessageMissingRecipientsKey;
@@ -126,27 +126,27 @@ extern NSString * _Nonnull const ZMMessageNeedsLinkAttachmentsUpdateKey;
 
 
 
-@interface ZMSystemMessage : ZMMessage <ZMSystemMessageData>
-
-@property (nonatomic) ZMSystemMessageType systemMessageType;
-@property (nonatomic) NSSet<ZMUser *> * _Nonnull users;
-@property (nonatomic) NSSet <id<UserClientType>>* _Nonnull clients;
-@property (nonatomic) NSSet<ZMUser *> * _Nonnull addedUsers; // Only filled for ZMSystemMessageTypePotentialGap and ZMSystemMessageTypeIgnoredClient
-@property (nonatomic) NSSet<ZMUser *> * _Nonnull removedUsers; // Only filled for ZMSystemMessageTypePotentialGap
-@property (nonatomic, copy) NSString * _Nullable text;
-@property (nonatomic) BOOL needsUpdatingUsers;
-
-@property (nonatomic) NSTimeInterval duration; // Only filled for .performedCall
-@property (nonatomic) id <ZMSystemMessageData> _Nullable parentMessage; // Only filled for .performedCall & .missedCall
-
-@property (nonatomic, readonly) BOOL userIsTheSender; // Set to true if sender is the only user in users array. E.g. when a wireless user joins conversation
-@property (nonatomic) NSNumber * _Nullable messageTimer; // Only filled for .messageTimerUpdate
-@property (nonatomic) BOOL relevantForConversationStatus; // If true (default), the message is considered to be shown inside the conversation list
-
-+ (ZMSystemMessage * _Nullable)fetchLatestPotentialGapSystemMessageInConversation:(ZMConversation * _Nonnull)conversation;
-- (void)updateNeedsUpdatingUsersIfNeeded;
-
-@end
+//@interface ZMSystemMessage : ZMMessage <ZMSystemMessageData>
+//
+//@property (nonatomic) ZMSystemMessageType systemMessageType;
+//@property (nonatomic) NSSet<ZMUser *> * _Nonnull users;
+//@property (nonatomic) NSSet <id<UserClientType>>* _Nonnull clients;
+//@property (nonatomic) NSSet<ZMUser *> * _Nonnull addedUsers; // Only filled for ZMSystemMessageTypePotentialGap and ZMSystemMessageTypeIgnoredClient
+//@property (nonatomic) NSSet<ZMUser *> * _Nonnull removedUsers; // Only filled for ZMSystemMessageTypePotentialGap
+//@property (nonatomic, copy) NSString * _Nullable text;
+//@property (nonatomic) BOOL needsUpdatingUsers;
+//
+//@property (nonatomic) NSTimeInterval duration; // Only filled for .performedCall
+//@property (nonatomic) id <ZMSystemMessageData> _Nullable parentMessage; // Only filled for .performedCall & .missedCall
+//
+//@property (nonatomic, readonly) BOOL userIsTheSender; // Set to true if sender is the only user in users array. E.g. when a wireless user joins conversation
+//@property (nonatomic) NSNumber * _Nullable messageTimer; // Only filled for .messageTimerUpdate
+//@property (nonatomic) BOOL relevantForConversationStatus; // If true (default), the message is considered to be shown inside the conversation list
+//
+//+ (ZMSystemMessage * _Nullable)fetchLatestPotentialGapSystemMessageInConversation:(ZMConversation * _Nonnull)conversation;
+//- (void)updateNeedsUpdatingUsersIfNeeded;
+//
+//@end
 
 
 
@@ -254,13 +254,13 @@ extern NSString *  _Nonnull const ZMMessageServerTimestampKey;
 @end
 
 
-@interface ZMSystemMessage (Internal)
+//@interface ZMSystemMessage (Internal)
 
-+ (BOOL)doesEventTypeGenerateSystemMessage:(ZMUpdateEventType)type;
-+ (instancetype _Nullable)createOrUpdateMessageFromUpdateEvent:(ZMUpdateEvent * _Nonnull)updateEvent inManagedObjectContext:(NSManagedObjectContext * _Nonnull)moc;
-+ (NSPredicate * _Nonnull)predicateForSystemMessagesInsertedLocally;
+//+ (BOOL)doesEventTypeGenerateSystemMessage:(ZMUpdateEventType)type;
+//+ (instancetype _Nullable)createOrUpdateMessageFromUpdateEvent:(ZMUpdateEvent * _Nonnull)updateEvent inManagedObjectContext:(NSManagedObjectContext * _Nonnull)moc;
+//+ (NSPredicate * _Nonnull)predicateForSystemMessagesInsertedLocally;
 
-@end
+//@end
 
 
 

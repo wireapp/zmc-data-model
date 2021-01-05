@@ -740,6 +740,7 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
 
 # pragma mark - System message
 
+/*
 @implementation ZMSystemMessage
 
 @dynamic text;
@@ -749,17 +750,17 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
     return @"SystemMessage";
 }
 
-@dynamic systemMessageType;
-@dynamic users;
-@dynamic clients;
-@dynamic addedUsers;
-@dynamic removedUsers;
-@dynamic needsUpdatingUsers;
-@dynamic duration;
-@dynamic childMessages;
-@dynamic parentMessage;
-@dynamic messageTimer;
-@dynamic relevantForConversationStatus;
+//@dynamic systemMessageType;
+//@dynamic users;
+//@dynamic clients;
+//@dynamic addedUsers;
+//@dynamic removedUsers;
+//@dynamic needsUpdatingUsers;
+//@dynamic duration;
+//@dynamic childMessages;
+//@dynamic parentMessage;
+//@dynamic messageTimer;
+//@dynamic relevantForConversationStatus;
 
 - (instancetype)initWithNonce:(NSUUID *)nonce managedObjectContext:(NSManagedObjectContext *)managedObjectContext
 {
@@ -1084,3 +1085,4 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
 
 @end
 
+*/
