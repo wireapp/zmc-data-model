@@ -743,37 +743,6 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
 /*
 @implementation ZMSystemMessage
 
-@dynamic text;
-
-+ (NSString *)entityName;
-{
-    return @"SystemMessage";
-}
-
-//@dynamic systemMessageType;
-//@dynamic users;
-//@dynamic clients;
-//@dynamic addedUsers;
-//@dynamic removedUsers;
-//@dynamic needsUpdatingUsers;
-//@dynamic duration;
-//@dynamic childMessages;
-//@dynamic parentMessage;
-//@dynamic messageTimer;
-//@dynamic relevantForConversationStatus;
-
-- (instancetype)initWithNonce:(NSUUID *)nonce managedObjectContext:(NSManagedObjectContext *)managedObjectContext
-{
-    NSEntityDescription *entity = [NSEntityDescription entityForName:[self.class entityName] inManagedObjectContext:managedObjectContext];
-    self = [super initWithEntity:entity insertIntoManagedObjectContext:managedObjectContext];
-    
-    if (self != nil) {
-        self.nonce = nonce;
-        self.relevantForConversationStatus = YES; //default value
-    }
-    
-    return self;
-}
 
 + (instancetype)createOrUpdateMessageFromUpdateEvent:(ZMUpdateEvent *)updateEvent
                               inManagedObjectContext:(NSManagedObjectContext *)moc
