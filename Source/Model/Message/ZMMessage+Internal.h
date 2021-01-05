@@ -24,6 +24,7 @@
 #import "ZMMessage.h"
 #import "ZMManagedObject+Internal.h"
 #import "ZMFetchRequestBatch.h"
+//#import <WireDataModel/WireDataModel-Swift.h>
 
 @class ZMUser;
 @class Reaction;
@@ -34,6 +35,7 @@
 @class ZMClientMessage;
 
 @protocol UserClientType;
+@protocol ZMSystemMessageData;
 
 extern NSString * _Nonnull const ZMMessageIsExpiredKey;
 extern NSString * _Nonnull const ZMMessageMissingRecipientsKey;
