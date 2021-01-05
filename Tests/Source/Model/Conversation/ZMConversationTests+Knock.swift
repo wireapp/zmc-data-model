@@ -34,7 +34,7 @@ final class ZMConversationTests_Knock: ZMConversationTestsBase {
             // then
             XCTAssertEqual(knock as? ZMMessage, msg)
             XCTAssertNotNil(knock?.knockMessageData)
-            XCTAssertEqual(knock?.senderUser as? ZMUser, selfUser)
+            XCTAssert(knock!.isUserSender(selfUser))
         })
     
     }
