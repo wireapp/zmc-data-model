@@ -55,7 +55,8 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
     
     @NSManaged
     var relevantForConversationStatus: Bool // If true (default), the message is considered to be shown inside the conversation list
-
+    
+    @objc(fetchLatestPotentialGapSystemMessageInConversation:)
     class func fetchLatestPotentialGapSystemMessage(in conversation: ZMConversation) -> ZMSystemMessage? {
         return nil
     }
