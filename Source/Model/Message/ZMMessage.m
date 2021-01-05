@@ -744,54 +744,6 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
 @implementation ZMSystemMessage
 
 
-+ (instancetype)createOrUpdateMessageFromUpdateEvent:(ZMUpdateEvent *)updateEvent
-                              inManagedObjectContext:(NSManagedObjectContext *)moc
-                                      prefetchResult:(ZMFetchRequestBatchResult *)prefetchResult
-{
-    ZMSystemMessageType type = [self.class systemMessageTypeFromEventType:updateEvent.type];
-    if (type == ZMSystemMessageTypeInvalid) {
-        return nil;
-    }
-    
-    ZMConversation *conversation = [self conversationForUpdateEvent:updateEvent inContext:moc prefetchResult:prefetchResult];
-    VerifyReturnNil(conversation != nil);
-    
-    // Only create connection request system message if conversation type is valid.
-    // Note: if type is not connection request, then it relates to group conversations (see first line of this method).
-    // We don't explicitly check for group conversation type b/c if this is the first time we were added to the conversation,
-    // then the default conversation type is `invalid` (b/c we haven't fetched from BE yet), so we assume BE sent the
-    // update event for a group conversation.
-    if (conversation.conversationType == ZMConversationTypeConnection && type != ZMSystemMessageTypeConnectionRequest) {
-        return nil;
-    }
-    
-    NSString *messageText = [[[updateEvent.payload dictionaryForKey:@"data"] optionalStringForKey:@"message"] stringByRemovingExtremeCombiningCharacters];
-    NSString *name = [[[updateEvent.payload dictionaryForKey:@"data"] optionalStringForKey:@"name"] stringByRemovingExtremeCombiningCharacters];
-    
-    NSMutableSet *usersSet = [NSMutableSet set];
-    for(NSString *userId in [[updateEvent.payload dictionaryForKey:@"data"] optionalArrayForKey:@"user_ids"]) {
-        ZMUser *user = [ZMUser userWithRemoteID:[NSUUID uuidWithTransportString:userId] createIfNeeded:YES inContext:moc];
-        [usersSet addObject:user];
-    }
-    
-    ZMSystemMessage *message = [[ZMSystemMessage alloc] initWithNonce:NSUUID.UUID managedObjectContext:moc];
-    message.systemMessageType = type;
-    message.visibleInConversation = conversation;
-    message.serverTimestamp = updateEvent.timestamp;
-    
-    [message updateWithUpdateEvent:updateEvent forConversation:conversation];
-    
-    if (![usersSet isEqual:[NSSet setWithObject:message.sender]]) {
-        [usersSet removeObject:message.sender];
-    }
-    
-    message.users = usersSet;
-    message.text = messageText != nil ? messageText : name;
-    
-    [conversation updateTimestampsAfterUpdatingMessage:message];
-    
-    return message;
-}
 
 - (NSDictionary<NSString *,NSArray<ZMUser *> *> *)usersReaction
 {
@@ -866,29 +818,9 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
     }
 }
 
-+ (ZMSystemMessageType)systemMessageTypeFromEventType:(ZMUpdateEventType)type
-{
-    NSNumber *number = self.eventTypeToSystemMessageTypeMap[@(type)];
-    if(number == nil) {
-        return ZMSystemMessageTypeInvalid;
-    }
-    else {
-        return (ZMSystemMessageType) number.integerValue;
-    }
-}
-
 + (BOOL)doesEventTypeGenerateSystemMessage:(ZMUpdateEventType)type;
 {
     return [self.eventTypeToSystemMessageTypeMap.allKeys containsObject:@(type)];
-}
-
-+ (NSDictionary *)eventTypeToSystemMessageTypeMap   
-{
-    return @{
-             @(ZMUpdateEventTypeConversationMemberJoin) : @(ZMSystemMessageTypeParticipantsAdded),
-             @(ZMUpdateEventTypeConversationMemberLeave) : @(ZMSystemMessageTypeParticipantsRemoved),
-             @(ZMUpdateEventTypeConversationRename) : @(ZMSystemMessageTypeConversationNameChanged)
-             };
 }
 
 - (id<ZMSystemMessageData>)systemMessageData
