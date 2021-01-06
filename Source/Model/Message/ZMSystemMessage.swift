@@ -57,13 +57,13 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
         return "SystemMessage"
     }
 
-    override init(nonce: UUID?, managedObjectContext: NSManagedObjectContext?) {
-        var entity: NSEntityDescription?
-        entity = NSEntityDescription.entity(forEntityName: ZMSystemMessage.entityName(), in: managedObjectContext!)
+    override init(nonce: UUID?, managedObjectContext: NSManagedObjectContext) {
+        let entity: NSEntityDescription? = NSEntityDescription.entity(forEntityName: ZMSystemMessage.entityName(), in: managedObjectContext)
         super.init(entity: entity!, insertInto: managedObjectContext)
 
         self.nonce = nonce
-        relevantForConversationStatus = true //default value
+        //TODO: crash when init
+//        relevantForConversationStatus = true //default value
     }
 
     static let eventTypeToSystemMessageTypeMap: [ZMUpdateEventType: ZMSystemMessageType] = [
