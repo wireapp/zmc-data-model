@@ -69,13 +69,15 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
         relevantForConversationStatus = true //default value
     }
     
-        open override class func createOrUpdate(from updateEvent: ZMUpdateEvent, in moc: NSManagedObjectContext, prefetchResult: ZMFetchRequestBatchResult?) -> Self? {
-        let type = systemMessageType(from: updateEvent.type)
+    open override class func createOrUpdate(from updateEvent: ZMUpdateEvent,
+                                            in moc: NSManagedObjectContext,
+                                            prefetchResult: ZMFetchRequestBatchResult?) -> Self? {
+        let type = ZMSystemMessage.systemMessageType(from: updateEvent.type)
         if type == .invalid {
             return nil
         }
 
-        let conversation = self.conversation(for: updateEvent, in: moc, prefetchResult: prefetchResult)
+        let conversation = ZMMessage.conversation(for: updateEvent, in: moc, prefetchResult: prefetchResult)
 
         //TODO:
 
