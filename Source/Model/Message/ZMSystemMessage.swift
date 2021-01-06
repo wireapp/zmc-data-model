@@ -48,8 +48,7 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
     @NSManaged
     public var duration: TimeInterval // Only filled for .performedCall
 
-    @NSManaged
-    weak public var parentMessage: ZMSystemMessageData? // Only filled for .performedCall & .missedCall
+    public var parentMessage: ZMSystemMessageData? // Only filled for .performedCall & .missedCall
 
     @NSManaged
     public var messageTimer: NSNumber? // Only filled for .messageTimerUpdate
@@ -92,7 +91,7 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
             return nil
         }
 
-        let conversation = ZMMessage.conversation(for: updateEvent, in: moc, prefetchResult: prefetchResult)
+        let conversation = ZMSystemMessage.conversation(for: updateEvent, in: moc, prefetchResult: prefetchResult)
 
         //TODO:
 
