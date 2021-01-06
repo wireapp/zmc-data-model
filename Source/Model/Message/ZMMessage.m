@@ -745,28 +745,6 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
 
 
 
-- (NSDictionary<NSString *,NSArray<ZMUser *> *> *)usersReaction
-{
-    return [NSDictionary dictionary];
-}
-
-+ (ZMSystemMessage *)fetchLatestPotentialGapSystemMessageInConversation:(ZMConversation *)conversation
-{
-    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:[self entityName]];
-    request.sortDescriptors = @[[NSSortDescriptor sortDescriptorWithKey:ZMMessageServerTimestampKey ascending:NO]];
-    request.fetchBatchSize = 1;
-    request.predicate = [self predicateForPotentialGapSystemMessagesNeedingUpdatingUsersInConversation:conversation];
-    NSArray *result = [conversation.managedObjectContext executeFetchRequestOrAssert:request];
-    return result.firstObject;
-}
-
-+ (NSPredicate *)predicateForPotentialGapSystemMessagesNeedingUpdatingUsersInConversation:(ZMConversation *)conversation
-{
-    NSPredicate *conversationPredicate = [NSPredicate predicateWithFormat:@"%K == %@", ZMMessageConversationKey, conversation];
-    NSPredicate *missingMessagesTypePredicate = [NSPredicate predicateWithFormat:@"%K == %@", ZMMessageSystemMessageTypeKey, @(ZMSystemMessageTypePotentialGap)];
-    NSPredicate *needsUpdatingUsersPredicate = [NSPredicate predicateWithFormat:@"%K == YES", ZMMessageNeedsUpdatingUsersKey];
-    return [NSCompoundPredicate andPredicateWithSubpredicates:@[conversationPredicate, missingMessagesTypePredicate, needsUpdatingUsersPredicate]];
-}
 
 + (NSPredicate *)predicateForSystemMessagesInsertedLocally
 {

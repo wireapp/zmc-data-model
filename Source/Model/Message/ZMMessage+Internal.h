@@ -35,6 +35,7 @@
 
 @protocol UserClientType;
 
+extern NSString * _Nonnull const ZMMessageNeedsUpdatingUsersKey;
 extern NSString * _Nonnull const ZMMessageIsExpiredKey;
 extern NSString * _Nonnull const ZMMessageMissingRecipientsKey;
 extern NSString * _Nonnull const ZMMessageImageTypeKey;

@@ -10,17 +10,6 @@ import Foundation
 
 @objc
 public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
-//    @dynamic systemMessageType;
-//    @dynamic users;
-//    @dynamic clients;
-//    @dynamic addedUsers;
-//    @dynamic removedUsers;
-//    @dynamic needsUpdatingUsers;
-//    @dynamic duration;
-//    @dynamic childMessages;
-//    @dynamic parentMessage;
-//    @dynamic messageTimer;
-//    @dynamic relevantForConversationStatus;
 
     @NSManaged
     public var childMessages: Set<AnyHashable>
@@ -58,11 +47,6 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
     @NSManaged
     var relevantForConversationStatus: Bool // If true (default), the message is considered to be shown inside the conversation list
     
-    @objc(fetchLatestPotentialGapSystemMessageInConversation:)
-    class func fetchLatestPotentialGapSystemMessage(in conversation: ZMConversation) -> ZMSystemMessage? {
-        return nil
-    }
-
     @objc
     func updateNeedsUpdatingUsersIfNeeded() {
     }
@@ -173,4 +157,32 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
         
         return message
     }
+    
+    func usersReaction() -> [String : [ZMUser]]? {
+        return [:]
+    }
+    
+    @objc(fetchLatestPotentialGapSystemMessageInConversation:)
+    class func fetchLatestPotentialGapSystemMessage(in conversation: ZMConversation) -> ZMSystemMessage? {
+        let request = NSFetchRequest<NSFetchRequestResult>(entityName: self.entityName())
+        request.sortDescriptors = [
+            NSSortDescriptor(key: ZMMessageServerTimestampKey, ascending: false)
+        ]
+        request.fetchBatchSize = 1
+        request.predicate = self.predicateForPotentialGapSystemMessagesNeedingUpdatingUsers(in: conversation)
+        let result = conversation.managedObjectContext!.executeFetchRequestOrAssert(request)
+        return result.first as? ZMSystemMessage
+    }
+    
+    class func predicateForPotentialGapSystemMessagesNeedingUpdatingUsers(in conversation: ZMConversation) -> NSPredicate {
+        let conversationPredicate = NSPredicate(format: "%K == %@", ZMMessageConversationKey, conversation)
+        let missingMessagesTypePredicate = NSPredicate(format: "%K == %@", ZMMessageSystemMessageTypeKey, ZMSystemMessageType.potentialGap.rawValue)
+        let needsUpdatingUsersPredicate = NSPredicate(format: "%K == YES", ZMMessageNeedsUpdatingUsersKey)
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [
+            conversationPredicate,
+            missingMessagesTypePredicate,
+            needsUpdatingUsersPredicate
+        ])
+    }
+
 }
