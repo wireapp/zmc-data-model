@@ -32,7 +32,7 @@
 @protocol ZMKnockMessageData;
 @protocol ZMFileMessageData;
 @protocol UserClientType;
-
+@protocol UserType;
 
 #pragma mark - ZMImageMessageData
 
@@ -124,7 +124,10 @@ typedef NS_ENUM(int16_t, ZMSystemMessageType) {
 @protocol ZMSystemMessageData <NSObject>
 
 @property (nonatomic, readonly) ZMSystemMessageType systemMessageType;
+
 @property (nonatomic, readonly, nonnull) NSSet <ZMUser *>*users;
+@property (nonatomic, readonly, nonnull) NSSet <id<UserType>>*userTypes;
+
 @property (nonatomic, readonly, nonnull) NSSet <id<UserClientType>>*clients;
 @property (nonatomic, nonnull) NSSet<ZMUser *> *addedUsers; // Only filled for ZMSystemMessageTypePotentialGap
 @property (nonatomic, nonnull) NSSet<ZMUser *> *removedUsers; // Only filled for ZMSystemMessageTypePotentialGap

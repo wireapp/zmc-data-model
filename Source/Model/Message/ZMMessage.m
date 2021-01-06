@@ -956,6 +956,11 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
     // System messages don't support quotes at the moment
 }
 
+-(NSSet <id<UserType>>*)userTypes
+{
+    return [self users];
+}
+
 @end
 
 
