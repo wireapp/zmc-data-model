@@ -7,7 +7,7 @@
 
 import Foundation
 
-@objc
+@objcMembers
 public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
 
     @NSManaged
@@ -47,10 +47,6 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
 
     class func createOrUpdateMessage(from updateEvent: ZMUpdateEvent, in moc: NSManagedObjectContext) -> Self? {
         return nil
-    }
-
-    class func predicateForSystemMessagesInsertedLocally() -> NSPredicate {
-        return NSPredicate()
     }
 
     public override static func entityName() -> String {
@@ -172,7 +168,7 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
         ])
     }
 
-    class func predicateForSystemMessagesInsertedLocally() -> NSPredicate? {
+    class func predicateForSystemMessagesInsertedLocally() -> NSPredicate {
         return NSPredicate(block: { msg, _ in
             guard let msg = msg as? ZMSystemMessage else {
                 return false
@@ -206,7 +202,8 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
         return eventTypeToSystemMessageTypeMap.keys.contains(type)
     }
 
-    func systemMessageData() -> ZMSystemMessageData? {
+    @objc
+    override public var systemMessageData : ZMSystemMessageData? {
         return self
     }
 
