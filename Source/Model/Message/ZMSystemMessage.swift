@@ -1,13 +1,25 @@
-//  ZMMessage.swift
-//  WireDataModel
 //
-//  Created by bill on 05.01.21.
-//  Copyright © 2021 Wire Swiss GmbH. All rights reserved.
+// Wire
+// Copyright (C) 2021 Wire Swiss GmbH
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program. If not, see http://www.gnu.org/licenses/.
 //
 
 import Foundation
+import WireTransport
 
-@objc(ZMSystemMessage) @objcMembers
+@objc(ZMSystemMessage)
 public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
 
     @NSManaged
@@ -69,10 +81,13 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
         relevantForConversationStatus = true //default value
     }
     
-    open override class func createOrUpdate(from updateEvent: ZMUpdateEvent,
+    @objc(createOrUpdateMessageFromUpdateEvent:inManagedObjectContext:prefetchResult:)
+    public override static func createOrUpdate(from updateEvent: ZMUpdateEvent,
                                             in moc: NSManagedObjectContext,
                                             prefetchResult: ZMFetchRequestBatchResult?) -> Self? {
-        let type = ZMSystemMessage.systemMessageType(from: updateEvent.type)
+        let updateEventType = updateEvent.type
+        let type = updateEventType.systemMessageType
+        
         if type == .invalid {
             return nil
         }
@@ -225,9 +240,11 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
             }
         })
     }
-    
-    class func systemMessageType(from type: ZMUpdateEventType) -> ZMSystemMessageType {
-        guard let systemMessageType = eventTypeToSystemMessageTypeMap[type] else {
+}
+
+private extension ZMUpdateEventType {
+    var systemMessageType: ZMSystemMessageType {
+        guard let systemMessageType = ZMSystemMessage.eventTypeToSystemMessageTypeMap[self] else {
             return .invalid
         }
         
