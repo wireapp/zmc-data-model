@@ -1,4 +1,3 @@
-
 //  ZMMessage.swift
 //  WireDataModel
 //
@@ -13,7 +12,7 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
 
     @NSManaged
     public var childMessages: Set<AnyHashable>
-    
+
     @NSManaged
     public var systemMessageType: ZMSystemMessageType
 
@@ -42,14 +41,14 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
 
     @NSManaged
     public var messageTimer: NSNumber? // Only filled for .messageTimerUpdate
-    
+
     @NSManaged
     var relevantForConversationStatus: Bool // If true (default), the message is considered to be shown inside the conversation list
-            
+
     class func createOrUpdateMessage(from updateEvent: ZMUpdateEvent, in moc: NSManagedObjectContext) -> Self? {
         return nil
     }
-    
+
     class func predicateForSystemMessagesInsertedLocally() -> NSPredicate {
         return NSPredicate()
     }
@@ -59,20 +58,20 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
     }
 
     override init(nonce: UUID?, managedObjectContext: NSManagedObjectContext?) {
-        var entity: NSEntityDescription? = nil
+        var entity: NSEntityDescription?
         entity = NSEntityDescription.entity(forEntityName: ZMSystemMessage.entityName(), in: managedObjectContext!)
         super.init(entity: entity!, insertInto: managedObjectContext)
-        
+
         self.nonce = nonce
         relevantForConversationStatus = true //default value
     }
 
-    static let eventTypeToSystemMessageTypeMap: [ZMUpdateEventType : ZMSystemMessageType] = [
+    static let eventTypeToSystemMessageTypeMap: [ZMUpdateEventType: ZMSystemMessageType] = [
             .conversationMemberJoin: .participantsAdded,
             .conversationMemberLeave: .participantsRemoved,
             .conversationRename: .conversationNameChanged
         ]
-    
+
     class func systemMessageType(from type: ZMUpdateEventType) -> ZMSystemMessageType {
         guard let systemMessageType = eventTypeToSystemMessageTypeMap[type] else {
             return .invalid
@@ -80,7 +79,7 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
 
         return systemMessageType
     }
-    
+
     class func createOrUpdateMessage(
         from updateEvent: ZMUpdateEvent,
         in moc: NSManagedObjectContext,
@@ -90,13 +89,13 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
         if type == .invalid {
             return nil
         }
-        
+
         let conversation = self.conversation(for: updateEvent, in: moc, prefetchResult: prefetchResult)
-        
+
         //TODO:
 
 //        VerifyAction(conversation != nil, return nil)
-        
+
 //        #define VerifyAction(assertion, action) \
 //        do { \
 //            if ( __builtin_expect(!(assertion), 0) ) { \
@@ -112,10 +111,10 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
         if conversation?.conversationType == .connection && type != .connectionRequest {
             return nil
         }
-        
+
         let messageText = updateEvent.payload.dictionary(forKey: "data")?.optionalString(forKey: "message")?.removingExtremeCombiningCharacters
         let name = updateEvent.payload.dictionary(forKey: "data")?.optionalString(forKey: "name")?.removingExtremeCombiningCharacters
-        
+
         var usersSet: Set<AnyHashable> = []
         if let payload = (updateEvent.payload.dictionary(forKey: "data") as NSDictionary?)?.optionalArray(forKey: "user_ids") {
             for userId in payload {
@@ -126,30 +125,30 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
                 _ = usersSet.insert(user)
             }
         }
-        
+
         let message = ZMSystemMessage(nonce: UUID(), managedObjectContext: moc)
         message.systemMessageType = type
         message.visibleInConversation = conversation
         message.serverTimestamp = updateEvent.timestamp
-        
+
         message.update(with: updateEvent, for: conversation!)
-        
+
         if usersSet != Set<AnyHashable>([message.sender]) {
             usersSet.remove(message.sender)
         }
-        
+
         message.users = usersSet as! Set<ZMUser>
         message.text = messageText ?? name
-        
+
         conversation?.updateTimestampsAfterInsertingMessage( message)
-        
+
         return message
     }
-    
+
 //    func usersReaction() -> [String : [ZMUser]]? {
 //        return [:]
 //    }
-    
+
     @objc(fetchLatestPotentialGapSystemMessageInConversation:)
     class func fetchLatestPotentialGapSystemMessage(in conversation: ZMConversation) -> ZMSystemMessage? {
         let request = NSFetchRequest<NSFetchRequestResult>(entityName: self.entityName())
@@ -161,7 +160,7 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
         let result = conversation.managedObjectContext!.executeFetchRequestOrAssert(request)
         return result.first as? ZMSystemMessage
     }
-    
+
     class func predicateForPotentialGapSystemMessagesNeedingUpdatingUsers(in conversation: ZMConversation) -> NSPredicate {
         let conversationPredicate = NSPredicate(format: "%K == %@", ZMMessageConversationKey, conversation)
         let missingMessagesTypePredicate = NSPredicate(format: "%K == %@", ZMMessageSystemMessageTypeKey, ZMSystemMessageType.potentialGap.rawValue)
@@ -174,11 +173,11 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
     }
 
     class func predicateForSystemMessagesInsertedLocally() -> NSPredicate? {
-        return NSPredicate(block: { msg,_ in
+        return NSPredicate(block: { msg, _ in
             guard let msg = msg as? ZMSystemMessage else {
                 return false
             }
-            
+
             switch msg.systemMessageType {
             case .newClient, .potentialGap, .ignoredClient, .performedCall, .usingNewDevice, .decryptionFailed, .reactivatedDevice, .conversationIsSecure, .messageDeletedForEveryone, .decryptionFailed_RemoteIdentityChanged, .teamMemberLeave, .missedCall, .readReceiptsEnabled, .readReceiptsDisabled, .readReceiptsOn, .legalHoldEnabled, .legalHoldDisabled:
                 return true
@@ -196,22 +195,21 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
             let matchUnfetchedUserBlock: (ZMUser?) -> Bool = { user in
                 return user?.name == nil
             }
-    
+
             needsUpdatingUsers = addedUsers.any(matchUnfetchedUserBlock) || removedUsers.any(matchUnfetchedUserBlock)
         }
     }
-    
-    //MARK: - internal
+
+    // MARK: - internal
     @objc
     class func doesEventTypeGenerateSystemMessage(_ type: ZMUpdateEventType) -> Bool {
         return eventTypeToSystemMessageTypeMap.keys.contains(type)
     }
-    
+
     func systemMessageData() -> ZMSystemMessageData? {
         return self
     }
 
-    
     public override func shouldGenerateUnreadCount() -> Bool {
         switch systemMessageType {
         case .participantsRemoved, .participantsAdded:
@@ -225,7 +223,7 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
             return false
         }
     }
-    
+
     /// Set to true if sender is the only user in users array. E.g. when a wireless user joins conversation
     public var userIsTheSender: Bool {
         let onlyOneUser = users.count == 1
@@ -237,7 +235,7 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
         }
         return onlyOneUser && isSender
     }
-    
+
     override func updateQuoteRelationships() {
         // System messages don't support quotes at the moment
     }
