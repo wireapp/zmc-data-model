@@ -85,7 +85,7 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
     public override static func createOrUpdate(from updateEvent: ZMUpdateEvent,
                                             in moc: NSManagedObjectContext,
                                             prefetchResult: ZMFetchRequestBatchResult?) -> Self? {
-        let updateEventType = updateEvent.type
+        let updateEventType: ZMUpdateEventType = updateEvent.type
         let type = updateEventType.systemMessageType
         
         if type == .invalid {
