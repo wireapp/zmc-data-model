@@ -458,12 +458,7 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     XCTAssertFalse(systemMessage.needsUpdatingUsers);
 }
 
-@end
-
-
-
-@implementation ZMMessageTests (TextMessage)
-
+#pragma mark - TextMessage
 
 - (void)testThatATextMessageHasTextMessageData
 {
@@ -477,11 +472,7 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     XCTAssertNil(message.knockMessageData);
 }
 
-@end
-
-
-
-@implementation ZMMessageTests (ImageMessages)
+#pragma mark - ImageMessages
 
 - (void)testThatSettingTheOriginalDataRecognizesAGif
 {
@@ -653,11 +644,7 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     XCTAssertTrue([self waitForCustomExpectationsWithTimeout:0.5]);
 }
 
-@end
-
-
-
-@implementation ZMMessageTests (ImageIdentifiersForCaching)
+#pragma mark - ImageIdentifiersForCaching
 
 - (void)testThatItDoesNotReturnAnIdentifierWhenTheImageDataIsNil
 {
@@ -743,11 +730,7 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     XCTAssertNil(identifier);
 }
 
-@end
-
-
-
-@implementation ZMMessageTests (ImageMessageUploadAttributes)
+#pragma mark - ImageMessageUploadAttributes
 
 - (void)testThatItRequiresPreviewAndMediumData
 {
@@ -759,12 +742,8 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     XCTAssertEqualObjects(message.requiredImageFormats,  expectedFormats);
 }
 
-@end
 
-
-
-
-@implementation ZMMessageTests (CreateSystemMessageFromUpdateEvent)
+#pragma mark - CreateSystemMessageFromUpdateEvent
 
 - (void)testThat_isEventTypeGeneratingSystemMessage_returnsNo
 {
@@ -811,7 +790,7 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
                           @"reason" : @"missed"
                           };
     ZMUpdateEvent *updateEvent = [self mockEventOfType:updateEventType forConversation:conversation sender:senderID data:data];
-    ZMSystemMessage *systemMessage = [ZMSystemMessage createOrUpdateMessageFromUpdateEvent:updateEvent inManagedObjectContext:self.uiMOC prefetchResult:nil];
+    ZMSystemMessage *systemMessage = [ZMSystemMessage createOrUpdateMessageFromUpdateEvent:updateEvent inManagedObjectContext:self.uiMOC prefetchResult:nil];///TODO
     return systemMessage;
 }
 

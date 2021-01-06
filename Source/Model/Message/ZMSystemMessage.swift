@@ -68,17 +68,14 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
         //TODO: crash when init
         relevantForConversationStatus = true //default value
     }
-
-    public override class func createOrUpdate(from event: ZMUpdateEvent,
-                                       in moc: NSManagedObjectContext,
-        prefetchResult: ZMFetchRequestBatchResult?
-    ) -> Self? {
-        let type = systemMessageType(from: event.type)
+    
+        open override class func createOrUpdate(from updateEvent: ZMUpdateEvent, in moc: NSManagedObjectContext, prefetchResult: ZMFetchRequestBatchResult?) -> Self? {
+        let type = systemMessageType(from: updateEvent.type)
         if type == .invalid {
             return nil
         }
 
-        let conversation = self.conversation(for: event, in: moc, prefetchResult: prefetchResult)
+        let conversation = self.conversation(for: updateEvent, in: moc, prefetchResult: prefetchResult)
 
         //TODO:
 
@@ -102,11 +99,11 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
             return nil
         }
 
-        let messageText = event.payload.dictionary(forKey: "data")?.optionalString(forKey: "message")?.removingExtremeCombiningCharacters
-        let name = event.payload.dictionary(forKey: "data")?.optionalString(forKey: "name")?.removingExtremeCombiningCharacters
+        let messageText = updateEvent.payload.dictionary(forKey: "data")?.optionalString(forKey: "message")?.removingExtremeCombiningCharacters
+        let name = updateEvent.payload.dictionary(forKey: "data")?.optionalString(forKey: "name")?.removingExtremeCombiningCharacters
 
         var usersSet: Set<AnyHashable> = []
-        if let payload = (event.payload.dictionary(forKey: "data") as NSDictionary?)?.optionalArray(forKey: "user_ids") {
+        if let payload = (updateEvent.payload.dictionary(forKey: "data") as NSDictionary?)?.optionalArray(forKey: "user_ids") {
             for userId in payload {
                 guard let userId = userId as? String else {
                     continue
@@ -119,9 +116,9 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
         let message = ZMSystemMessage(nonce: UUID(), managedObjectContext: moc)
         message.systemMessageType = type
         message.visibleInConversation = conversation
-        message.serverTimestamp = event.timestamp
+        message.serverTimestamp = updateEvent.timestamp
 
-        message.update(with: event, for: conversation!)
+        message.update(with: updateEvent, for: conversation!)
 
         if usersSet != Set<AnyHashable>([message.sender]) {
             usersSet.remove(message.sender)
