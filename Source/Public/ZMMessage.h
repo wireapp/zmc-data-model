@@ -134,6 +134,7 @@ typedef NS_ENUM(int16_t, ZMSystemMessageType) {
 @property (nonatomic) BOOL needsUpdatingUsers;
 @property (nonatomic) NSTimeInterval duration;
 @property (nonatomic) NSNumber * _Nullable decryptionErrorCode; // Only filled for ZMSystemMessageTypeDecryptionFailed
+@property (nonatomic) NSString * _Nullable senderClientID; // Only filled for ZMSystemMessageTypeDecryptionFailed
 /**
   Only filled for .performedCall & .missedCall
  */
