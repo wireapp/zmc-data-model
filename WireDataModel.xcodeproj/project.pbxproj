@@ -296,6 +296,7 @@
 		A96524BA23CDE07700303C60 /* String+WordTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A96524B823CDE07200303C60 /* String+WordTests.swift */; };
 		A9676D7623A30BEF001CD41D /* ZMTestSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9676D7323A30ABA001CD41D /* ZMTestSession.swift */; };
 		A96E7A9925A35D36004FAADC /* ZMConversationTests+Knock.swift in Sources */ = {isa = PBXBuildFile; fileRef = A96E7A9725A35CEF004FAADC /* ZMConversationTests+Knock.swift */; };
+		A978B0F925A6075A00BA24AA /* ZMSystemMessageData.swift in Sources */ = {isa = PBXBuildFile; fileRef = A978B0F825A6075A00BA24AA /* ZMSystemMessageData.swift */; };
 		A982B46623BE1B86001828A6 /* ConversationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A982B46523BE1B86001828A6 /* ConversationTests.swift */; };
 		A995F05C23968D8500FAC3CF /* ParticipantRoleChangeInfo.swift in Sources */ = {isa = PBXBuildFile; fileRef = A995F05B23968D8500FAC3CF /* ParticipantRoleChangeInfo.swift */; };
 		A995F05E239690B300FAC3CF /* ParticipantRoleObserverTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A995F05D239690B300FAC3CF /* ParticipantRoleObserverTests.swift */; };
@@ -990,6 +991,7 @@
 		A96524B823CDE07200303C60 /* String+WordTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+WordTests.swift"; sourceTree = "<group>"; };
 		A9676D7323A30ABA001CD41D /* ZMTestSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMTestSession.swift; sourceTree = "<group>"; };
 		A96E7A9725A35CEF004FAADC /* ZMConversationTests+Knock.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZMConversationTests+Knock.swift"; sourceTree = "<group>"; };
+		A978B0F825A6075A00BA24AA /* ZMSystemMessageData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMSystemMessageData.swift; sourceTree = "<group>"; };
 		A982B46523BE1B86001828A6 /* ConversationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ConversationTests.swift; sourceTree = "<group>"; };
 		A995F05B23968D8500FAC3CF /* ParticipantRoleChangeInfo.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParticipantRoleChangeInfo.swift; sourceTree = "<group>"; };
 		A995F05D239690B300FAC3CF /* ParticipantRoleObserverTests.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ParticipantRoleObserverTests.swift; sourceTree = "<group>"; };
@@ -1577,6 +1579,16 @@
 			path = ConversationRole;
 			sourceTree = "<group>";
 		};
+		A9E2F6C825A60EAD003B12AB /* SystemMessage */ = {
+			isa = PBXGroup;
+			children = (
+				A978B0F825A6075A00BA24AA /* ZMSystemMessageData.swift */,
+				EF1F4F532301634500E4872C /* ZMSystemMessage+ChildMessages.swift */,
+				BF5DF5CC20F4EB3E002BCB67 /* ZMSystemMessage+NewConversation.swift */,
+			);
+			path = SystemMessage;
+			sourceTree = "<group>";
+		};
 		A9FA524623A14E00003AD4C6 /* ConversationRole */ = {
 			isa = PBXGroup;
 			children = (
@@ -1845,6 +1857,7 @@
 		F9A705F01CAEE01D00C2F5FE /* Message */ = {
 			isa = PBXGroup;
 			children = (
+				A9E2F6C825A60EAD003B12AB /* SystemMessage */,
 				06E8AAB2242BAA1B008929B1 /* File */,
 				63370CB9242CB8310072C37F /* Composite */,
 				F963E97D1D9C09DA00098AD3 /* Ephemeral */,
@@ -1894,8 +1907,6 @@
 				F9A705FE1CAEE01D00C2F5FE /* ZMImageMessage.m */,
 				F9A705FF1CAEE01D00C2F5FE /* ZMMessage+Internal.h */,
 				F9A706001CAEE01D00C2F5FE /* ZMMessage.m */,
-				EF1F4F532301634500E4872C /* ZMSystemMessage+ChildMessages.swift */,
-				BF5DF5CC20F4EB3E002BCB67 /* ZMSystemMessage+NewConversation.swift */,
 				BF10B58A1E6432ED00E7036E /* Message.swift */,
 				63370CC8242E3B990072C37F /* ZMMessage+Conversation.swift */,
 				54563B751E0161730089B1D7 /* ZMMessage+Categorization.swift */,
@@ -3070,6 +3081,7 @@
 				547E664B1F750E4A008CB1FA /* ZMConnection+Notification.swift in Sources */,
 				BF10B59D1E645A3300E7036E /* Analytics+UnknownMessage.swift in Sources */,
 				D5D10DA9203B161700145497 /* ZMConversation+AccessMode.swift in Sources */,
+				A978B0F925A6075A00BA24AA /* ZMSystemMessageData.swift in Sources */,
 				EF1F850422FD71BB0020F6DC /* ZMOTRMessage+VerifySender.swift in Sources */,
 				165DC523214A614100090B7B /* ZMConversation+Message.swift in Sources */,
 				F9A706811CAEE01D00C2F5FE /* ZMMessage.m in Sources */,

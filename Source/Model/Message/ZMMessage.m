@@ -756,7 +756,6 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
 @dynamic removedUsers;
 @dynamic needsUpdatingUsers;
 @dynamic duration;
-@dynamic childMessages;
 @dynamic parentMessage;
 @dynamic messageTimer;
 @dynamic relevantForConversationStatus;

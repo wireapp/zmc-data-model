@@ -34,6 +34,7 @@
 @class ZMClientMessage;
 
 @protocol UserClientType;
+@protocol ZMSystemMessageData;
 
 extern NSString * _Nonnull const ZMMessageIsExpiredKey;
 extern NSString * _Nonnull const ZMMessageMissingRecipientsKey;
@@ -124,8 +125,13 @@ extern NSString * _Nonnull const ZMMessageNeedsLinkAttachmentsUpdateKey;
 
 
 
+#pragma clang diagnostic push
+// To get rid of 'No protocol definition found' warnings which are not accurate
+#pragma clang diagnostic ignored "-Weverything"
 @interface ZMSystemMessage : ZMMessage <ZMSystemMessageData>
+#pragma clang diagnostic pop
 
+//@property (nonatomic, nonnull) NSSet<id <ZMSystemMessageData>>  *childMessages;
 @property (nonatomic) ZMSystemMessageType systemMessageType;
 @property (nonatomic) NSSet<ZMUser *> * _Nonnull users;
 @property (nonatomic) NSSet <id<UserClientType>>* _Nonnull clients;
