@@ -131,7 +131,6 @@ extern NSString * _Nonnull const ZMMessageNeedsLinkAttachmentsUpdateKey;
 @interface ZMSystemMessage : ZMMessage <ZMSystemMessageData>
 #pragma clang diagnostic pop
 
-//@property (nonatomic, nonnull) NSSet<id <ZMSystemMessageData>>  *childMessages;
 @property (nonatomic) ZMSystemMessageType systemMessageType;
 @property (nonatomic) NSSet<ZMUser *> * _Nonnull users;
 @property (nonatomic) NSSet <id<UserClientType>>* _Nonnull clients;
