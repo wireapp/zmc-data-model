@@ -746,43 +746,6 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
 
 
 
-+ (NSPredicate *)predicateForSystemMessagesInsertedLocally
-{
-    return [NSPredicate predicateWithBlock:^BOOL(ZMSystemMessage *msg, id ZM_UNUSED bindings) {
-        if (![msg isKindOfClass:[ZMSystemMessage class]]){
-            return NO;
-        }
-        switch (msg.systemMessageType) {
-            case ZMSystemMessageTypeNewClient:
-            case ZMSystemMessageTypePotentialGap:
-            case ZMSystemMessageTypeIgnoredClient:
-            case ZMSystemMessageTypePerformedCall:
-            case ZMSystemMessageTypeUsingNewDevice:
-            case ZMSystemMessageTypeDecryptionFailed:
-            case ZMSystemMessageTypeReactivatedDevice:
-            case ZMSystemMessageTypeConversationIsSecure:
-            case ZMSystemMessageTypeMessageDeletedForEveryone:
-            case ZMSystemMessageTypeDecryptionFailed_RemoteIdentityChanged:
-            case ZMSystemMessageTypeTeamMemberLeave:
-            case ZMSystemMessageTypeMissedCall:
-            case ZMSystemMessageTypeReadReceiptsEnabled:
-            case ZMSystemMessageTypeReadReceiptsDisabled:
-            case ZMSystemMessageTypeReadReceiptsOn:
-            case ZMSystemMessageTypeLegalHoldEnabled:
-            case ZMSystemMessageTypeLegalHoldDisabled:
-                return YES;
-            case ZMSystemMessageTypeInvalid:
-            case ZMSystemMessageTypeConversationNameChanged:
-            case ZMSystemMessageTypeConnectionRequest:
-            case ZMSystemMessageTypeConnectionUpdate:
-            case ZMSystemMessageTypeNewConversation:
-            case ZMSystemMessageTypeParticipantsAdded:
-            case ZMSystemMessageTypeParticipantsRemoved:
-            case ZMSystemMessageTypeMessageTimerUpdate:
-                return NO;
-        }
-    }];
-}
 
 - (void)updateNeedsUpdatingUsersIfNeeded
 {
@@ -837,7 +800,7 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
 }
 
 @end
-
+*/
 
 
 
@@ -964,4 +927,4 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
 
 @end
 
-*/
+

@@ -158,9 +158,9 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
         return message
     }
     
-    func usersReaction() -> [String : [ZMUser]]? {
-        return [:]
-    }
+//    func usersReaction() -> [String : [ZMUser]]? {
+//        return [:]
+//    }
     
     @objc(fetchLatestPotentialGapSystemMessageInConversation:)
     class func fetchLatestPotentialGapSystemMessage(in conversation: ZMConversation) -> ZMSystemMessage? {
@@ -183,6 +183,23 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
             missingMessagesTypePredicate,
             needsUpdatingUsersPredicate
         ])
+    }
+
+    class func predicateForSystemMessagesInsertedLocally() -> NSPredicate? {
+        return NSPredicate(block: { msg,_ in
+            guard let msg = msg as? ZMSystemMessage else {
+                return false
+            }
+            
+            switch msg.systemMessageType {
+            case .newClient, .potentialGap, .ignoredClient, .performedCall, .usingNewDevice, .decryptionFailed, .reactivatedDevice, .conversationIsSecure, .messageDeletedForEveryone, .decryptionFailed_RemoteIdentityChanged, .teamMemberLeave, .missedCall, .readReceiptsEnabled, .readReceiptsDisabled, .readReceiptsOn, .legalHoldEnabled, .legalHoldDisabled:
+                return true
+            case .invalid, .conversationNameChanged, .connectionRequest, .connectionUpdate, .newConversation, .participantsAdded, .participantsRemoved, .messageTimerUpdate:
+                return false
+            @unknown default:
+                return false
+            }
+        })
     }
 
 }
