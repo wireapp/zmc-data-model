@@ -7,7 +7,7 @@
 
 import Foundation
 
-@objcMembers
+@objc(ZMSystemMessage) @objcMembers
 public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
 
     @NSManaged
@@ -53,13 +53,20 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
         return "SystemMessage"
     }
 
+    
+    /// fix for "use of unimplemented initializer"
+    @objc
+    private override init(entity: NSEntityDescription, insertInto context: NSManagedObjectContext?) {
+        super.init(entity: entity, insertInto: context)
+    }
+
     override init(nonce: UUID?, managedObjectContext: NSManagedObjectContext) {
         let entity: NSEntityDescription? = NSEntityDescription.entity(forEntityName: ZMSystemMessage.entityName(), in: managedObjectContext)
         super.init(entity: entity!, insertInto: managedObjectContext)
 
         self.nonce = nonce
         //TODO: crash when init
-//        relevantForConversationStatus = true //default value
+        relevantForConversationStatus = true //default value
     }
 
     static let eventTypeToSystemMessageTypeMap: [ZMUpdateEventType: ZMSystemMessageType] = [
