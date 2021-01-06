@@ -45,10 +45,6 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
     @NSManaged
     var relevantForConversationStatus: Bool // If true (default), the message is considered to be shown inside the conversation list
 
-    class func createOrUpdateMessage(from updateEvent: ZMUpdateEvent, in moc: NSManagedObjectContext) -> Self? {
-        return nil
-    }
-
     public override static func entityName() -> String {
         return "SystemMessage"
     }
@@ -83,17 +79,16 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
         return systemMessageType
     }
 
-    class func createOrUpdateMessage(
-        from updateEvent: ZMUpdateEvent,
-        in moc: NSManagedObjectContext,
+    public override class func createOrUpdate(from event: ZMUpdateEvent,
+                                       in moc: NSManagedObjectContext,
         prefetchResult: ZMFetchRequestBatchResult?
-    ) -> ZMSystemMessage? {
-        let type = systemMessageType(from: updateEvent.type)
+    ) -> Self? {
+        let type = systemMessageType(from: event.type)
         if type == .invalid {
             return nil
         }
 
-        let conversation = self.conversation(for: updateEvent, in: moc, prefetchResult: prefetchResult)
+        let conversation = self.conversation(for: event, in: moc, prefetchResult: prefetchResult)
 
         //TODO:
 
@@ -106,6 +101,8 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
 //                    action; \
 //            } \
 //        } while (0)
+        
+        
         // Only create connection request system message if conversation type is valid.
         // Note: if type is not connection request, then it relates to group conversations (see first line of this method).
         // We don't explicitly check for group conversation type b/c if this is the first time we were added to the conversation,
@@ -115,11 +112,11 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
             return nil
         }
 
-        let messageText = updateEvent.payload.dictionary(forKey: "data")?.optionalString(forKey: "message")?.removingExtremeCombiningCharacters
-        let name = updateEvent.payload.dictionary(forKey: "data")?.optionalString(forKey: "name")?.removingExtremeCombiningCharacters
+        let messageText = event.payload.dictionary(forKey: "data")?.optionalString(forKey: "message")?.removingExtremeCombiningCharacters
+        let name = event.payload.dictionary(forKey: "data")?.optionalString(forKey: "name")?.removingExtremeCombiningCharacters
 
         var usersSet: Set<AnyHashable> = []
-        if let payload = (updateEvent.payload.dictionary(forKey: "data") as NSDictionary?)?.optionalArray(forKey: "user_ids") {
+        if let payload = (event.payload.dictionary(forKey: "data") as NSDictionary?)?.optionalArray(forKey: "user_ids") {
             for userId in payload {
                 guard let userId = userId as? String else {
                     continue
@@ -132,9 +129,9 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
         let message = ZMSystemMessage(nonce: UUID(), managedObjectContext: moc)
         message.systemMessageType = type
         message.visibleInConversation = conversation
-        message.serverTimestamp = updateEvent.timestamp
+        message.serverTimestamp = event.timestamp
 
-        message.update(with: updateEvent, for: conversation!)
+        message.update(with: event, for: conversation!)
 
         if usersSet != Set<AnyHashable>([message.sender]) {
             usersSet.remove(message.sender)
@@ -145,7 +142,7 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
 
         conversation?.updateTimestampsAfterInsertingMessage( message)
 
-        return message
+        return message as! Self
     }
 
     @objc(fetchLatestPotentialGapSystemMessageInConversation:)
