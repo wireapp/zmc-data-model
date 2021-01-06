@@ -325,6 +325,19 @@ public class UserClient: ZMManagedObject, UserClientType {
             syncMOC.saveOrRollback()
         }
     }
+    
+    public func resolveDecryptionFailedSystemMessages() {
+        let request = NSBatchUpdateRequest(entityName: ZMSystemMessage.entityName())
+        
+        request.predicate = NSPredicate(format: "%K = %d AND %K = %@",
+                                        ZMMessageSystemMessageTypeKey,
+                                        ZMSystemMessageType.decryptionFailed.rawValue,
+                                        ZMMessageSenderClientIDKey,
+                                        remoteIdentifier!)
+        request.propertiesToUpdate = [ZMMessageSystemMessageTypeKey:  ZMSystemMessageType.decryptionFailedResolved.rawValue]
+        request.resultType = .updatedObjectIDsResultType
+        managedObjectContext?.executeBatchUpdateRequestOrAssert(request)
+    }
 
     private func conversation(for user: ZMUser) -> ZMConversation? {
         if user.isSelfUser {

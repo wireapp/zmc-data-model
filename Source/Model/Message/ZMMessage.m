@@ -862,6 +862,7 @@ NSString * const ZMMessageDecryptionErrorCodeKey = @"decryptionErrorCode";
             case ZMSystemMessageTypePerformedCall:
             case ZMSystemMessageTypeUsingNewDevice:
             case ZMSystemMessageTypeDecryptionFailed:
+            case ZMSystemMessageTypeDecryptionFailedResolved:
             case ZMSystemMessageTypeReactivatedDevice:
             case ZMSystemMessageTypeConversationIsSecure:
             case ZMSystemMessageTypeMessageDeletedForEveryone:

@@ -312,6 +312,7 @@ extension ZMConversation {
                                                clients: clients,
                                                timestamp: serverTimestamp)
         
+        systemMessage.senderClientID = client?.remoteIdentifier
         systemMessage.decryptionErrorCode = NSNumber(integerLiteral: errorCode)
     }
 
