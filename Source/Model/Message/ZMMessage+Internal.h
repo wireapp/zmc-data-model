@@ -227,17 +227,6 @@ extern NSString *  _Nonnull const ZMMessageServerTimestampKey;
 @end
 
 
-//@interface ZMSystemMessage (Internal)
-
-//+ (BOOL)doesEventTypeGenerateSystemMessage:(ZMUpdateEventType)type;
-//+ (instancetype _Nullable)createOrUpdateMessageFromUpdateEvent:(ZMUpdateEvent * _Nonnull)updateEvent inManagedObjectContext:(NSManagedObjectContext * _Nonnull)moc;
-//+ (NSPredicate * _Nonnull)predicateForSystemMessagesInsertedLocally;
-
-//@end
-
-
-
-
 @interface ZMMessage (Ephemeral)
 
 

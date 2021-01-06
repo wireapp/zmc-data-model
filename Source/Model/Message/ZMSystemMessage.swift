@@ -39,24 +39,13 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
 
     @NSManaged
     weak public var parentMessage: ZMSystemMessageData? // Only filled for .performedCall & .missedCall
-    private(set) public var userIsTheSender = false // Set to true if sender is the only user in users array. E.g. when a wireless user joins conversation
 
     @NSManaged
     public var messageTimer: NSNumber? // Only filled for .messageTimerUpdate
     
     @NSManaged
     var relevantForConversationStatus: Bool // If true (default), the message is considered to be shown inside the conversation list
-    
-    @objc
-    func updateNeedsUpdatingUsersIfNeeded() {
-    }
-    
-    //MARK: - internal
-    @objc
-    class func doesEventTypeGenerateSystemMessage(_ type: ZMUpdateEventType) -> Bool {
-        return true
-    }
-    
+            
     class func createOrUpdateMessage(from updateEvent: ZMUpdateEvent, in moc: NSManagedObjectContext) -> Self? {
         return nil
     }
@@ -78,7 +67,6 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
         relevantForConversationStatus = true //default value
     }
 
-    ///TODO: var
     static let eventTypeToSystemMessageTypeMap: [ZMUpdateEventType : ZMSystemMessageType] = [
             .conversationMemberJoin: .participantsAdded,
             .conversationMemberLeave: .participantsRemoved,
@@ -202,4 +190,55 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
         })
     }
 
+    @objc
+    func updateNeedsUpdatingUsersIfNeeded() {
+        if systemMessageType == .potentialGap && needsUpdatingUsers {
+            let matchUnfetchedUserBlock: (ZMUser?) -> Bool = { user in
+                return user?.name == nil
+            }
+    
+            needsUpdatingUsers = addedUsers.any(matchUnfetchedUserBlock) || removedUsers.any(matchUnfetchedUserBlock)
+        }
+    }
+    
+    //MARK: - internal
+    @objc
+    class func doesEventTypeGenerateSystemMessage(_ type: ZMUpdateEventType) -> Bool {
+        return eventTypeToSystemMessageTypeMap.keys.contains(type)
+    }
+    
+    func systemMessageData() -> ZMSystemMessageData? {
+        return self
+    }
+
+    
+    public override func shouldGenerateUnreadCount() -> Bool {
+        switch systemMessageType {
+        case .participantsRemoved, .participantsAdded:
+            let selfUser = ZMUser.selfUser(in: managedObjectContext!)
+                return users.contains(selfUser) && false == sender?.isSelfUser
+        case .newConversation:
+            return sender?.isSelfUser == false
+        case .missedCall:
+            return relevantForConversationStatus
+        default:
+            return false
+        }
+    }
+    
+    /// Set to true if sender is the only user in users array. E.g. when a wireless user joins conversation
+    public var userIsTheSender: Bool {
+        let onlyOneUser = users.count == 1
+        let isSender: Bool
+        if let sender = sender {
+            isSender = users.contains(sender)
+        } else {
+            isSender = false
+        }
+        return onlyOneUser && isSender
+    }
+    
+    override func updateQuoteRelationships() {
+        // System messages don't support quotes at the moment
+    }
 }
