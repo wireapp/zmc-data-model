@@ -148,10 +148,6 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
         return message
     }
 
-//    func usersReaction() -> [String : [ZMUser]]? {
-//        return [:]
-//    }
-
     @objc(fetchLatestPotentialGapSystemMessageInConversation:)
     class func fetchLatestPotentialGapSystemMessage(in conversation: ZMConversation) -> ZMSystemMessage? {
         let request = NSFetchRequest<NSFetchRequestResult>(entityName: self.entityName())
@@ -159,14 +155,14 @@ public class ZMSystemMessage: ZMMessage, ZMSystemMessageData {
             NSSortDescriptor(key: ZMMessageServerTimestampKey, ascending: false)
         ]
         request.fetchBatchSize = 1
-        request.predicate = self.predicateForPotentialGapSystemMessagesNeedingUpdatingUsers(in: conversation)
+        request.predicate = predicateForPotentialGapSystemMessagesNeedingUpdatingUsers(in: conversation)
         let result = conversation.managedObjectContext!.executeFetchRequestOrAssert(request)
         return result.first as? ZMSystemMessage
     }
 
     class func predicateForPotentialGapSystemMessagesNeedingUpdatingUsers(in conversation: ZMConversation) -> NSPredicate {
         let conversationPredicate = NSPredicate(format: "%K == %@", ZMMessageConversationKey, conversation)
-        let missingMessagesTypePredicate = NSPredicate(format: "%K == %@", ZMMessageSystemMessageTypeKey, ZMSystemMessageType.potentialGap.rawValue)
+        let missingMessagesTypePredicate = NSPredicate(format: "%K == %d", ZMMessageSystemMessageTypeKey, ZMSystemMessageType.potentialGap.rawValue)
         let needsUpdatingUsersPredicate = NSPredicate(format: "%K == YES", ZMMessageNeedsUpdatingUsersKey)
         return NSCompoundPredicate(andPredicateWithSubpredicates: [
             conversationPredicate,

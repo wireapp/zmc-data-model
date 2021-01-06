@@ -298,8 +298,7 @@ class ZMConversationTests_SecurityLevel: ZMConversationTestsBase {
         }
     }
     
-    func testThatItCorrectlySetsNeedUpdatingUsersFlagOnPotentialGapSystemMessage()
-    {
+    func testThatItCorrectlySetsNeedUpdatingUsersFlagOnPotentialGapSystemMessage() {///TODO: crash
         // given
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.remoteIdentifier = UUID.create()
