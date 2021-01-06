@@ -17,8 +17,9 @@
 //
 
 import XCTest
+@testable import WireDataModel
 
-class ZMMessageTests_ShouldGenerateUnreadCount: BaseZMClientMessageTests {
+final class ZMMessageTests_ShouldGenerateUnreadCount: BaseZMClientMessageTests {
     
     // MARK: New Conversation
     
