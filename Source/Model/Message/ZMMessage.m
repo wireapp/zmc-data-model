@@ -961,6 +961,16 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
     return [self users];
 }
 
+-(NSSet <id<UserType>>*)addedUserTypes
+{
+    return [self addedUsers];
+}
+
+-(NSSet <id<UserType>>*)removedUserTypes
+{
+    return [self removedUsers];
+}
+
 @end
 
 

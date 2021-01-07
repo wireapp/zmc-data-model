@@ -129,8 +129,14 @@ typedef NS_ENUM(int16_t, ZMSystemMessageType) {
 @property (nonatomic, readonly, nonnull) NSSet <id<UserType>>*userTypes;
 
 @property (nonatomic, readonly, nonnull) NSSet <id<UserClientType>>*clients;
+
 @property (nonatomic, nonnull) NSSet<ZMUser *> *addedUsers; // Only filled for ZMSystemMessageTypePotentialGap
+@property (nonatomic, nonnull) NSSet<id<UserClientType>> *addedUserTypes;
+
 @property (nonatomic, nonnull) NSSet<ZMUser *> *removedUsers; // Only filled for ZMSystemMessageTypePotentialGap
+@property (nonatomic, nonnull) NSSet<id<UserClientType>> *removedUserTypes;
+
+
 @property (nonatomic, readonly, copy, nullable) NSString *text;
 @property (nonatomic) BOOL needsUpdatingUsers;
 @property (nonatomic) NSTimeInterval duration;
