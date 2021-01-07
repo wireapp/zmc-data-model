@@ -246,7 +246,7 @@ extension AppLockControllerTest {
         sut.evaluateAuthentication(scenario: scenario, description: "evaluate authentication") { (result, context) in
             
             //then
-            XCTAssertNotEqual(result, .needCustomPasscode)
+            XCTAssertNotEqual(result, .denied)
         }
     }
 }
