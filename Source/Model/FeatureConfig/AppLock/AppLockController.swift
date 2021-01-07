@@ -52,7 +52,9 @@ public final class AppLockController: AppLockType {
     
     private let selfUser: ZMUser
     private let baseConfig: Config
-    
+
+    public weak var delegate: AppLockControllerDelegate?
+
     public var config: Config {
         guard let team = selfUser.team else {
             return baseConfig
