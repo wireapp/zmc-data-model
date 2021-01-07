@@ -233,7 +233,6 @@ extension AppLockControllerTest {
         let scenario = AppLockController.AuthenticationScenario.screenLock(requireBiometrics: false)
         XCTAssertEqual(scenario.policy, .deviceOwnerAuthentication)
         XCTAssertTrue(scenario.supportsUserFallback)
-        XCTAssertFalse(sut.config.useBiometricsOrCustomPasscode)
         
         UserDefaults.standard.set(Data(), forKey: "DomainStateKey")
         
@@ -242,6 +241,7 @@ extension AppLockControllerTest {
         var error: NSError?
         XCTAssertTrue(context.canEvaluatePolicy(scenario.policy, error: &error))
         XCTAssertTrue(BiometricsState.biometricsChanged(in: context))
+        XCTAssertFalse(sut.config.useBiometricsOrCustomPasscode)
         
         sut.evaluateAuthentication(scenario: scenario, description: "evaluate authentication") { (result, context) in
             
