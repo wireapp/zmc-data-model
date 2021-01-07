@@ -125,16 +125,17 @@ typedef NS_ENUM(int16_t, ZMSystemMessageType) {
 
 @property (nonatomic, readonly) ZMSystemMessageType systemMessageType;
 
-/**
- additional properties with types NSSet <id<UserType>>* for mocking
- */
-@property (nonatomic, readonly, nonnull) NSSet <ZMUser *>*users;
+
+
+@property (nonatomic, readonly, nonnull) NSSet <ZMUser *>*users __attribute__((deprecated("Use `userTypes` instead")));
 @property (nonatomic, readonly, nonnull) NSSet <id<UserType>>*userTypes;
 
-@property (nonatomic, nonnull) NSSet<ZMUser *> *addedUsers; // Only filled for ZMSystemMessageTypePotentialGap
+/// Only filled for ZMSystemMessageTypePotentialGap
+@property (nonatomic, nonnull) NSSet<ZMUser *> *addedUsers __attribute__((deprecated("Use `addedUserTypes` instead")));
 @property (nonatomic, nonnull) NSSet<id<UserClientType>> *addedUserTypes;
 
-@property (nonatomic, nonnull) NSSet<ZMUser *> *removedUsers; // Only filled for ZMSystemMessageTypePotentialGap
+/// Only filled for ZMSystemMessageTypePotentialGap
+@property (nonatomic, nonnull) NSSet<ZMUser *> *removedUsers __attribute__((deprecated("Use `removedUserTypes` instead")));;
 @property (nonatomic, nonnull) NSSet<id<UserClientType>> *removedUserTypes;
 
 @property (nonatomic, readonly, nonnull) NSSet <id<UserClientType>>*clients;
