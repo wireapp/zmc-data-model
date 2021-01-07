@@ -23,15 +23,27 @@ import LocalAuthentication
 final class AppLockControllerTest: ZMBaseManagedObjectTest {
     
     let decoder = JSONDecoder()
+    var selfUser: ZMUser!
+    var sut: AppLockController!
+    
+    override func setUp() {
+        super.setUp()
+        
+        selfUser = ZMUser.selfUser(in: uiMOC)
+        sut = createAppLockController()
+    }
+    
+    override func tearDown() {
+        selfUser = nil
+        sut = nil
+        
+        super.tearDown()
+    }
 
     func testThatForcedAppLockDoesntAffectSettings() {
         
         //given
-        let selfUser = ZMUser.selfUser(in: uiMOC)
-        let config = AppLockController.Config(useBiometricsOrCustomPasscode: false,
-                                              forceAppLock: true,
-                                              timeOut: 900)
-        let sut = AppLockController(config: config, selfUser: selfUser)
+        sut = createAppLockController(forceAppLock: true)
         XCTAssertTrue(sut.config.forceAppLock)
         
         //when
@@ -45,11 +57,6 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
     func testThatAppLockAffectsSettings() {
 
         //given
-        let selfUser = ZMUser.selfUser(in: uiMOC)
-        let config = AppLockController.Config(useBiometricsOrCustomPasscode: false,
-                                              forceAppLock: false,
-                                              timeOut: 10)
-        let sut = AppLockController(config: config, selfUser: selfUser)
         XCTAssertFalse(sut.config.forceAppLock)
         sut.isActive = true
 
@@ -102,14 +109,9 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
     func testThatItHonorsTheTeamConfiguration_WhenSelfUserIsATeamUser() {
         
         //given
-        let selfUser = ZMUser.selfUser(in: self.uiMOC)
-        let configFromBundle = AppLockController.Config(useBiometricsOrCustomPasscode: false,
-                                                        forceAppLock: false,
-                                                        timeOut: 10)
-        let sut = AppLockController(config: configFromBundle, selfUser: selfUser)
         XCTAssertFalse(sut.config.forceAppLock)
         XCTAssertTrue(sut.config.isAvailable)
-        XCTAssertEqual(sut.config.appLockTimeout, 10)
+        XCTAssertEqual(sut.config.appLockTimeout, 900)
         
         //when
         let team = createTeam(in: uiMOC)
@@ -134,11 +136,7 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
     func testThatItHonorsForcedAppLockFromTheBaseConfiguration() {
         
         //given
-        let selfUser = ZMUser.selfUser(in: self.uiMOC)
-        let configFromBundle = AppLockController.Config(useBiometricsOrCustomPasscode: false,
-                                                        forceAppLock: true,
-                                                        timeOut: 10)
-        let sut = AppLockController(config: configFromBundle, selfUser: selfUser)
+        sut = createAppLockController(forceAppLock: true)
         XCTAssertTrue(sut.config.forceAppLock)
         
         //when
@@ -162,14 +160,9 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
     func testThatItDoesNotHonorTheTeamConfiguration_WhenSelfUserIsNotATeamUser() {
         
         //given
-        let selfUser = ZMUser.selfUser(in: self.uiMOC)
-        let configFromBundle = AppLockController.Config(useBiometricsOrCustomPasscode: false,
-                                                        forceAppLock: false,
-                                                        timeOut: 10)
-        let sut = AppLockController(config: configFromBundle, selfUser: selfUser)
         XCTAssertFalse(sut.config.forceAppLock)
         XCTAssertTrue(sut.config.isAvailable)
-        XCTAssertEqual(sut.config.appLockTimeout, 10)
+        XCTAssertEqual(sut.config.appLockTimeout, 900)
         
         //when
         let team = createTeam(in: uiMOC)
@@ -192,3 +185,79 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
     }
 }
 
+// MARK : Evaluate Authentication
+
+extension AppLockControllerTest {
+    
+    func testThatCustomPasscodeIsRequested_IfThePolicyCanNotBeEvaluated() {
+        //given
+        let scenario = AppLockController.AuthenticationScenario.screenLock(requireBiometrics: true)
+        XCTAssertEqual(scenario.policy, .deviceOwnerAuthenticationWithBiometrics)
+        XCTAssertTrue(scenario.supportsUserFallback)
+        
+        //when
+        sut.evaluateAuthentication(scenario: scenario, description: "evaluate authentication") { (result, context) in
+            var error: NSError?
+            XCTAssertFalse(context.canEvaluatePolicy(scenario.policy, error: &error))
+            
+            //then
+            XCTAssertEqual(result, .needCustomPasscode)
+        }
+    }
+    
+    func testThatCustomPasscodeIsRequested_IfThePolicyCanBeEvaluated_ButBiometricsHaveChanged() {
+        //given
+        sut = createAppLockController(useBiometricsOrCustomPasscode: true)
+        
+        let scenario = AppLockController.AuthenticationScenario.screenLock(requireBiometrics: false)
+        XCTAssertEqual(scenario.policy, .deviceOwnerAuthentication)
+        XCTAssertTrue(scenario.supportsUserFallback)
+        
+        UserDefaults.standard.set(Data(), forKey: "DomainStateKey")
+               
+        //when
+        let context = LAContext()
+        var error: NSError?
+        XCTAssertTrue(context.canEvaluatePolicy(scenario.policy, error: &error))
+        XCTAssertTrue(BiometricsState.biometricsChanged(in: context))
+        XCTAssertTrue(sut.config.useBiometricsOrCustomPasscode)
+        
+        sut.evaluateAuthentication(scenario: scenario, description: "evaluate authentication") { (result, context) in
+            //then
+            XCTAssertEqual(result, .needCustomPasscode)
+        }
+    }
+    
+    func testThatCustomPasscodeIsNotRequested_IfThePolicyCanBeEvaluatedAndBiometricsHaveChanged_ButConfigValueIsFalse() {
+        //given
+        let scenario = AppLockController.AuthenticationScenario.screenLock(requireBiometrics: false)
+        XCTAssertEqual(scenario.policy, .deviceOwnerAuthentication)
+        XCTAssertTrue(scenario.supportsUserFallback)
+        XCTAssertFalse(sut.config.useBiometricsOrCustomPasscode)
+        
+        UserDefaults.standard.set(Data(), forKey: "DomainStateKey")
+        
+        //when
+        let context = LAContext()
+        var error: NSError?
+        XCTAssertTrue(context.canEvaluatePolicy(scenario.policy, error: &error))
+        XCTAssertTrue(BiometricsState.biometricsChanged(in: context))
+        
+        sut.evaluateAuthentication(scenario: scenario, description: "evaluate authentication") { (result, context) in
+            
+            //then
+            XCTAssertNotEqual(result, .needCustomPasscode)
+        }
+    }
+}
+
+// MARK : Private
+
+extension AppLockControllerTest {
+    private func createAppLockController(useBiometricsOrCustomPasscode: Bool = false, forceAppLock: Bool = false, timeOut: UInt = 900) -> AppLockController {
+        let config = AppLockController.Config(useBiometricsOrCustomPasscode: useBiometricsOrCustomPasscode,
+                                              forceAppLock: forceAppLock,
+                                              timeOut: timeOut)
+        return AppLockController(config: config, selfUser: selfUser)
+    }
+}
