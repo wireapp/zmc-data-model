@@ -140,10 +140,6 @@ public final class AppLockController: AppLockType {
             callback(.needCustomPasscode, context)
             return
         }
-        if scenario.supportsUserFallback && (BiometricsState.biometricsChanged(in: context) || !canEvaluatePolicy) {
-            callback(.needCustomPasscode, context)
-            return
-        }
         
         if canEvaluatePolicy {
             context.evaluatePolicy(scenario.policy, localizedReason: description, reply: { (success, error) -> Void in
