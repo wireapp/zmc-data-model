@@ -133,6 +133,13 @@ public final class AppLockController: AppLockType {
         
         let canEvaluatePolicy = context.canEvaluatePolicy(scenario.policy, error: &error)
         
+        let biometricsChanged = BiometricsState.biometricsChanged(in: context) && config.useBiometricsOrCustomPasscode
+        let shouldUseFallback = biometricsChanged || !canEvaluatePolicy
+        
+        if scenario.supportsUserFallback && shouldUseFallback {
+            callback(.needCustomPasscode, context)
+            return
+        }
         if scenario.supportsUserFallback && (BiometricsState.biometricsChanged(in: context) || !canEvaluatePolicy) {
             callback(.needCustomPasscode, context)
             return
