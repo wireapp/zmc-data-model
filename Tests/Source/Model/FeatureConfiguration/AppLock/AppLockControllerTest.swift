@@ -74,11 +74,11 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
         UserDefaults.standard.set(Data(), forKey: "DomainStateKey")
         
         let context = LAContext()
-        var error: NSError?
-        context.canEvaluatePolicy(LAPolicy.deviceOwnerAuthentication, error: &error)
+//        var error: NSError?
+//        context.canEvaluatePolicy(LAPolicy.deviceOwnerAuthentication, error: &error)
         
         //when/then
-        XCTAssertTrue(BiometricsState.biometricsChanged(in: context))
+        XCTAssertTrue(sut.biometricsState.biometricsChanged(in: context))
     }
     
     func testThatBiometricsChangedIsFalseIfDomainStatesDontDiffer() {
@@ -89,18 +89,21 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
         UserDefaults.standard.set(context.evaluatedPolicyDomainState, forKey: "DomainStateKey")
         
         //when/then
-        XCTAssertFalse(BiometricsState.biometricsChanged(in: context))
+        XCTAssertFalse(sut.biometricsState.biometricsChanged(in: context))
     }
     
     func testThatBiometricsStatePersistsState() {
         //given
-        let context = LAContext()
-        var error: NSError?
-        context.canEvaluatePolicy(LAPolicy.deviceOwnerAuthentication, error: &error)
-        _ = BiometricsState.biometricsChanged(in: context)
+        UserDefaults.standard.set(Data(), forKey: "DomainStateKey")
+        var context = MockLAContext(canEvaluate: true)
+        context.evaluatedPolicyDomainState = Data()
+        //        let context = LAContext()
+        //        var error: NSError?
+        //        context.canEvaluatePolicy(LAPolicy.deviceOwnerAuthentication, error: &error)
+        //        _ = BiometricsState.biometricsChanged(in: context)
         
         //when
-        BiometricsState.persist()
+        sut.biometricsState.persistState()
         
         //then
         XCTAssertEqual(context.evaluatedPolicyDomainState, UserDefaults.standard.object(forKey: "DomainStateKey") as? Data)
@@ -189,75 +192,91 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
 
 extension AppLockControllerTest {
     
-    func testThatCustomPasscodeIsRequested_IfThePolicyCanNotBeEvaluated() {
-        //given
-        let scenario = AppLockController.AuthenticationScenario.screenLock(requireBiometrics: true)
-        XCTAssertEqual(scenario.policy, .deviceOwnerAuthenticationWithBiometrics)
-        XCTAssertTrue(scenario.supportsUserFallback)
+    func testEvaluateScenario() {
+        assert(
+            input: (scenario: .screenLock(requireBiometrics: true), canEvaluate: true,  biometricsChanged: true),
+            output: .needCustomPasscode
+        )
+
+        assert(
+            input: (scenario: .screenLock(requireBiometrics: true), canEvaluate: false,  biometricsChanged: true),
+            output: .needCustomPasscode
+        )
         
-        //when
-        sut.evaluateAuthentication(scenario: scenario, description: "evaluate authentication") { (result, context) in
-            var error: NSError?
-            XCTAssertFalse(context.canEvaluatePolicy(scenario.policy, error: &error))
-            
-            //then
-            XCTAssertEqual(result, .needCustomPasscode)
-        }
-    }
-    
-    func testThatCustomPasscodeIsRequested_IfThePolicyCanBeEvaluated_ButBiometricsHaveChanged() {
-        //given
-        sut = createAppLockController(useBiometricsOrCustomPasscode: true)
+        assert(
+            input: (scenario: .screenLock(requireBiometrics: true), canEvaluate: false,  biometricsChanged: false),
+            output: .needCustomPasscode
+        )
+
+        assert(
+            input: (scenario: .screenLock(requireBiometrics: false), canEvaluate: true,  biometricsChanged: false),
+            output: .granted
+        )
         
-        let scenario = AppLockController.AuthenticationScenario.screenLock(requireBiometrics: false)
-        XCTAssertEqual(scenario.policy, .deviceOwnerAuthentication)
-        XCTAssertTrue(scenario.supportsUserFallback)
-        
-        UserDefaults.standard.set(Data(), forKey: "DomainStateKey")
-               
-        //when
-        let context = LAContext()
-        var error: NSError?
-        XCTAssertTrue(context.canEvaluatePolicy(scenario.policy, error: &error))
-        XCTAssertTrue(BiometricsState.biometricsChanged(in: context))
-        XCTAssertTrue(sut.config.useBiometricsOrCustomPasscode)
-        
-        sut.evaluateAuthentication(scenario: scenario, description: "evaluate authentication") { (result, context) in
-            //then
-            XCTAssertEqual(result, .needCustomPasscode)
-        }
-    }
-    
-    func testThatCustomPasscodeIsNotRequested_IfThePolicyCanBeEvaluatedAndBiometricsHaveChanged_ButConfigValueIsFalse() {
-        //given
-        let scenario = AppLockController.AuthenticationScenario.screenLock(requireBiometrics: false)
-        XCTAssertEqual(scenario.policy, .deviceOwnerAuthentication)
-        XCTAssertTrue(scenario.supportsUserFallback)
-        
-        UserDefaults.standard.set(Data(), forKey: "DomainStateKey")
-        
-        //when
-        let context = LAContext()
-        var error: NSError?
-        XCTAssertTrue(context.canEvaluatePolicy(scenario.policy, error: &error))
-        XCTAssertTrue(BiometricsState.biometricsChanged(in: context))
-        XCTAssertFalse(sut.config.useBiometricsOrCustomPasscode)
-        
-        sut.evaluateAuthentication(scenario: scenario, description: "evaluate authentication") { (result, context) in
-            
-            //then
-            XCTAssertNotEqual(result, .denied)
-        }
+        assert(
+            input: (scenario: .screenLock(requireBiometrics: false), canEvaluate: false,  biometricsChanged: false),
+            output: .needCustomPasscode
+        )
     }
 }
 
-// MARK : Private
+// MARK: - Helper
 
 extension AppLockControllerTest {
+    typealias Input = (scenario: AppLockController.AuthenticationScenario, canEvaluate: Bool, biometricsChanged: Bool)
+    
+    private func assert(input: Input, output: AppLockController.AuthenticationResult, file: StaticString = #file, line: UInt = #line) {
+        
+        let context = MockLAContext(canEvaluate: input.canEvaluate)
+        sut.biometricsState = MockBiometricsState(didChange: input.biometricsChanged)
+        
+        sut.evaluateAuthentication(scenario: input.scenario,
+                                   description: "evaluate authentication",
+                                   context: context) { (result, context) in
+            
+            XCTAssertEqual(result, output, file: file, line: line)
+        }
+        
+    }
+    
     private func createAppLockController(useBiometricsOrCustomPasscode: Bool = false, forceAppLock: Bool = false, timeOut: UInt = 900) -> AppLockController {
         let config = AppLockController.Config(useBiometricsOrCustomPasscode: useBiometricsOrCustomPasscode,
                                               forceAppLock: forceAppLock,
                                               timeOut: timeOut)
         return AppLockController(config: config, selfUser: selfUser)
+    }
+}
+
+// MARK: - LAContextProtocol
+
+extension AppLockControllerTest {
+    
+    private struct MockLAContext: LAContextProtocol {
+        var evaluatedPolicyDomainState: Data?
+        let canEvaluate: Bool
+        
+        func canEvaluatePolicy(_ policy: LAPolicy, error: NSErrorPointer) -> Bool {
+            return canEvaluate
+        }
+        
+        func evaluatePolicy(_ policy: LAPolicy, localizedReason: String, reply: @escaping (Bool, Error?) -> Void) {
+            reply(true, nil)
+        }
+    }
+    
+}
+
+// MARK: - BiometricsStateProtocol
+
+extension AppLockControllerTest {
+    
+    private struct MockBiometricsState: BiometricsStateProtocol {
+        let didChange: Bool
+    
+        func biometricsChanged(in context: LAContextProtocol) -> Bool {
+            return didChange
+        }
+        
+        func persistState() {}
     }
 }
