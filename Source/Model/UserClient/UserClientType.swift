@@ -24,8 +24,11 @@ import Foundation
     var label: String? { get }
     /// Remote identifier of the client
     var remoteIdentifier: String? { get }
-    /// Owner of the client
+    /// internal owner of the client
     var user: ZMUser? { get }
+    /// Owner of the client
+    var userType: UserType? { get }
+
     /// Date of when the client was activated, this information is only available for your own clients
     var activationDate: Date? { get }
     /// Type of client

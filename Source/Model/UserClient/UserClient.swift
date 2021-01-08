@@ -84,6 +84,10 @@ public class UserClient: ZMManagedObject, UserClientType {
     @NSManaged public var needsToUploadSignalingKeys: Bool
     @NSManaged public var discoveredByMessage: ZMOTRMessage?
 
+    public var userType: UserType? {
+        return user
+    }
+
     private enum Keys {
         static let PushToken = "pushToken"
         static let DeviceClass = "deviceClass"
