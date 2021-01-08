@@ -24,7 +24,8 @@ import Foundation
     var label: String? { get }
     /// Remote identifier of the client
     var remoteIdentifier: String? { get }
-    /// internal owner of the client
+
+    @available(*, deprecated, message: "Use `userType` instead")
     var user: ZMUser? { get }
     /// Owner of the client
     var userType: UserType? { get }
