@@ -962,6 +962,21 @@ NSString * const ZMMessageDecryptionErrorCodeKey = @"decryptionErrorCode";
     // System messages don't support quotes at the moment
 }
 
+-(NSSet <id<UserType>>*)userTypes
+{
+    return [self users];
+}
+
+-(NSSet <id<UserType>>*)addedUserTypes
+{
+    return [self addedUsers];
+}
+
+-(NSSet <id<UserType>>*)removedUserTypes
+{
+    return [self removedUsers];
+}
+
 @end
 
 
