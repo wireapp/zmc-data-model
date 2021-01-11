@@ -74,8 +74,8 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
         UserDefaults.standard.set(Data(), forKey: "DomainStateKey")
         
         let context = LAContext()
-//        var error: NSError?
-//        context.canEvaluatePolicy(LAPolicy.deviceOwnerAuthentication, error: &error)
+        var error: NSError?
+        context.canEvaluatePolicy(LAPolicy.deviceOwnerAuthentication, error: &error)
         
         //when/then
         XCTAssertTrue(sut.biometricsState.biometricsChanged(in: context))
@@ -97,10 +97,7 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
         UserDefaults.standard.set(Data(), forKey: "DomainStateKey")
         var context = MockLAContext(canEvaluate: true)
         context.evaluatedPolicyDomainState = Data()
-        //        let context = LAContext()
-        //        var error: NSError?
-        //        context.canEvaluatePolicy(LAPolicy.deviceOwnerAuthentication, error: &error)
-        //        _ = BiometricsState.biometricsChanged(in: context)
+        _ = sut.biometricsState.biometricsChanged(in: context)
         
         //when
         sut.biometricsState.persistState()
