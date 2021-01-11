@@ -37,6 +37,11 @@ public protocol AppLockType {
     var isCustomPasscodeNotSet: Bool { get }
     var needsToNotifyUser: Bool { get set }
     var config: AppLockController.Config { get }
+    
+    func evaluateAuthentication(scenario: AppLockController.AuthenticationScenario,
+                                description: String,
+                                context: LAContextProtocol,
+                                with callback: @escaping (AppLockController.AuthenticationResult, LAContextProtocol) -> Void)
 
     func persistBiometrics()
 
@@ -48,9 +53,8 @@ public protocol AppLockType {
 public extension AppLockType {
     func evaluateAuthentication(scenario: AppLockController.AuthenticationScenario,
                                 description: String,
-                                context: LAContextProtocol = LAContext(),
                                 with callback: @escaping (AppLockController.AuthenticationResult, LAContextProtocol) -> Void) {
-        evaluateAuthentication(scenario: scenario, description: description, context: context, with: callback)
+        evaluateAuthentication(scenario: scenario, description: description, context: LAContext(), with: callback)
     }
 }
 
