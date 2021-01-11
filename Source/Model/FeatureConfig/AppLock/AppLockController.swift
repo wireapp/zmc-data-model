@@ -145,7 +145,7 @@ public final class AppLockController: AppLockType {
 //        self.weakLAContext = context
         
         let canEvaluatePolicy = context.canEvaluatePolicy(scenario.policy, error: &error)
-        let shouldUseCustomPasscodeAsFallback = biometricsState.biometricsChanged(in: context) && (scenario.supportedUserFallback == .customPasscode)
+        let biometricsChanged = biometricsState.biometricsChanged(in: context) && (scenario.supportedUserFallback == .customPasscode)
         let canNotEvaluatePolicy = !canEvaluatePolicy && (scenario.supportedUserFallback != .devicePasscode)
         
         if shouldUseCustomPasscodeAsFallback || canNotEvaluatePolicy {
