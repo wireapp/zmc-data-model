@@ -213,6 +213,11 @@ extension AppLockControllerTest {
             input: (scenario: .screenLock(requireBiometrics: false), canEvaluate: true,  biometricsChanged: false),
             output: .granted
         )
+        
+        assert(
+            input: (scenario: .screenLock(requireBiometrics: false), canEvaluate: false,  biometricsChanged: false),
+            output: .unavailable
+        )
     }
 }
 
@@ -232,7 +237,6 @@ extension AppLockControllerTest {
             
             XCTAssertEqual(result, output, file: file, line: line)
         }
-        
     }
     
     private func createAppLockController(useBiometricsOrCustomPasscode: Bool = false, forceAppLock: Bool = false, timeOut: UInt = 900) -> AppLockController {
