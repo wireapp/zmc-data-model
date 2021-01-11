@@ -22,17 +22,22 @@ import LocalAuthentication
 private let zmLog = ZMSLog(tag: "AppLockController")
 
 public protocol AppLockType {
+
     var isActive: Bool { get set }
-    var lastUnlockedDate: Date { get set }
+    var isLocked: Bool { get }
+    var requiresBiometrics: Bool { get }
+    var needsToSetCustomPasscode: Bool { get }
     var isCustomPasscodeNotSet: Bool { get }
     var needsToNotifyUser: Bool { get set }
-    var config: AppLockController.Config { get }
+    var timeout: UInt { get }
+    var isForced: Bool { get }
+    var isAvailable: Bool { get }
 
     func evaluateAuthentication(scenario: AppLockController.AuthenticationScenario,
                                 description: String,
                                 with callback: @escaping (AppLockController.AuthenticationResult, LAContext) -> Void)
-    func persistBiometrics()
 
+    func persistBiometrics()
     func deletePasscode() throws
     func storePasscode(_ passcode: String) throws
     func fetchPasscode() -> Data?
@@ -49,16 +54,73 @@ public extension AppLockType {
 }
 
 public final class AppLockController: AppLockType {
+
+    // MARK: - Properties
+
+    public weak var delegate: AppLockControllerDelegate?
+
+    public var isActive: Bool {
+        get {
+            return config.forceAppLock || selfUser.isAppLockActive
+        }
+
+        set {
+            guard !config.forceAppLock else { return }
+            selfUser.isAppLockActive = newValue
+        }
+    }
+
+    public var isLocked: Bool {
+        guard isActive else { return false }
+        let timeSinceAuth = -lastUnlockedDate.timeIntervalSinceNow
+        let timeoutWindow = 0..<Double(config.appLockTimeout)
+        return !timeoutWindow.contains(timeSinceAuth)
+    }
+
+    public var isCustomPasscodeNotSet: Bool {
+        return fetchPasscode() == nil
+    }
+
+    public var requiresBiometrics: Bool {
+        return config.useBiometricsOrCustomPasscode
+    }
+
+    public var needsToSetCustomPasscode: Bool {
+        return isActive && requiresBiometrics && isCustomPasscodeNotSet
+    }
+
+    public var needsToNotifyUser: Bool {
+        get {
+            guard let feature = selfUser.team?.feature(for: .appLock) else { return false }
+            return feature.needsToNotifyUser
+        }
+
+        set {
+            guard let feature = selfUser.team?.feature(for: .appLock) else { return }
+            feature.needsToNotifyUser =  newValue
+        }
+    }
+
+    public var timeout: UInt {
+        return config.appLockTimeout
+    }
+
+    public var isForced: Bool {
+        return config.forceAppLock
+    }
+
+    public var isAvailable: Bool {
+        return config.isAvailable
+    }
+
+
+    // MARK: - Private properties
     
     private let selfUser: ZMUser
     private let baseConfig: Config
 
-    public weak var delegate: AppLockControllerDelegate?
-
-    public var config: Config {
-        guard let team = selfUser.team else {
-            return baseConfig
-        }
+    private var config: Config {
+        guard let team = selfUser.team else { return baseConfig }
         
         let feature = team.feature(for: Feature.AppLock.self)
         
@@ -69,42 +131,9 @@ public final class AppLockController: AppLockType {
         
         return result
     }
-    
-    // Returns true if user enabled the app lock feature or it has been forced by the team manager.
-    public var isActive: Bool {
-        get {
-            return config.forceAppLock || selfUser.isAppLockActive
-        }
-        set {
-            guard !config.forceAppLock else { return }
-            selfUser.isAppLockActive = newValue
-        }
-    }
-    
-    // Returns the time since last lock happened.
-    public var lastUnlockedDate: Date = Date(timeIntervalSince1970: 0)
-    
-    public var isCustomPasscodeNotSet: Bool {
-        return fetchPasscode() == nil
-    }
-    
-    public var needsToNotifyUser: Bool {
-        get {
-            guard let team = selfUser.team,
-                let feature = team.feature(for: .appLock) else {
-                    return false
-            }
-            return feature.needsToNotifyUser
-        }
-        set {
-            guard let team = selfUser.team,
-                let feature = team.feature(for: .appLock) else {
-                    return
-            }
-            feature.needsToNotifyUser =  newValue
-        }
-    }
-    
+
+    private var lastUnlockedDate = Date.distantPast
+
     /// a weak reference to LAContext, it should be nil when evaluatePolicy is done.
     private weak var weakLAContext: LAContext? = nil 
 
@@ -178,7 +207,7 @@ public final class AppLockController: AppLockType {
             self.isAvailable = true
         }
     }
-    
+
     public enum AuthenticationResult {
         /// User sucessfully authenticated
         case granted
