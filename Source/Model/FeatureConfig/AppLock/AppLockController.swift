@@ -23,6 +23,8 @@ private let zmLog = ZMSLog(tag: "AppLockController")
 
 public protocol AppLockType {
 
+    var delegate: AppLockDelegate? { get set }
+
     var isActive: Bool { get set }
     var isLocked: Bool { get }
     var requiresBiometrics: Bool { get }
@@ -57,7 +59,7 @@ public final class AppLockController: AppLockType {
 
     // MARK: - Properties
 
-    public weak var delegate: AppLockControllerDelegate?
+    public weak var delegate: AppLockDelegate?
 
     public var isActive: Bool {
         get {

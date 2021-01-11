@@ -18,8 +18,8 @@
 
 import Foundation
 
-public protocol AppLockControllerDelegate: class {
+public protocol AppLockDelegate: class {
 
-    func appLockControllerDidUnlock(_ controller: AppLockController)
+    func appLockDidUnlock(_ appLock: AppLockType)
 
 }
