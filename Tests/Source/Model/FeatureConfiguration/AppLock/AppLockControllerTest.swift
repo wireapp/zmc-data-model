@@ -90,14 +90,16 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
         
         //when/then
         XCTAssertFalse(sut.biometricsState.biometricsChanged(in: context))
+        UserDefaults.standard.set(nil, forKey: "DomainStateKey")
     }
     
     func testThatBiometricsStatePersistsState() {
         //given
-        UserDefaults.standard.set(Data(), forKey: "DomainStateKey")
-        var context = MockLAContext(canEvaluate: true)
-        context.evaluatedPolicyDomainState = Data()
-        _ = sut.biometricsState.biometricsChanged(in: context)
+        let evaluatedPolicyDomainStateData = "test".data(using: .utf8)
+        UserDefaults.standard.set(evaluatedPolicyDomainStateData, forKey: "DomainStateKey")
+        
+        let context = LAContext()
+        XCTAssertTrue(sut.biometricsState.biometricsChanged(in: context))
         
         //when
         sut.biometricsState.persistState()
@@ -208,11 +210,6 @@ extension AppLockControllerTest {
         assert(
             input: (scenario: .screenLock(requireBiometrics: false), canEvaluate: true,  biometricsChanged: false),
             output: .granted
-        )
-        
-        assert(
-            input: (scenario: .screenLock(requireBiometrics: false), canEvaluate: false,  biometricsChanged: false),
-            output: .needCustomPasscode
         )
     }
 }

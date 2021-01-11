@@ -113,10 +113,7 @@ public final class AppLockController: AppLockType {
             feature.needsToNotifyUser =  newValue
         }
     }
-    
-//    /// a weak reference to LAContext, it should be nil when evaluatePolicy is done.
-//    private weak var weakLAContext: LAContextProtocol? = nil
-    
+        
     lazy var biometricsState: BiometricsStateProtocol =  BiometricsState()
 
     lazy var keychainItem: PasscodeKeychainItem = .init(user: selfUser)
@@ -138,17 +135,13 @@ public final class AppLockController: AppLockType {
                                        context: LAContextProtocol = LAContext(),
                                        with callback: @escaping (AuthenticationResult, LAContextProtocol) -> Void) {
         
-//        guard self.weakLAContext == nil else { return }
         
         var error: NSError?
-        
-//        self.weakLAContext = context
-        
+                
         let canEvaluatePolicy = context.canEvaluatePolicy(scenario.policy, error: &error)
-        let biometricsChanged = biometricsState.biometricsChanged(in: context) && (scenario.supportedUserFallback == .customPasscode)
-        let canNotEvaluatePolicy = !canEvaluatePolicy && (scenario.supportedUserFallback != .devicePasscode)
+        let biometricsChanged = biometricsState.biometricsChanged(in: context)
         
-        if shouldUseCustomPasscodeAsFallback || canNotEvaluatePolicy {
+        if (biometricsChanged || !canEvaluatePolicy) && scenario.usesCustomPasscodeAsUserFallback {
             callback(.needCustomPasscode, context)
             return
         }
@@ -157,7 +150,7 @@ public final class AppLockController: AppLockType {
             context.evaluatePolicy(scenario.policy, localizedReason: description, reply: { (success, error) -> Void in
                 var authResult: AuthenticationResult = success ? .granted : .denied
                 
-                if scenario.supportedUserFallback != .devicePasscode, let laError = error as? LAError, laError.code == .userFallback {
+                if scenario.usesCustomPasscodeAsUserFallback, let laError = error as? LAError, laError.code == .userFallback {
                     authResult = .needCustomPasscode
                 }
                 
@@ -203,15 +196,6 @@ public final class AppLockController: AppLockType {
         case needCustomPasscode
     }
     
-    enum UserFallback {
-        /// User is allowed to use only a custom passcode as a fallback
-        case customPasscode
-        /// User is allowed to use only a device passcode as a fallback
-        case devicePasscode
-        /// User is allowed to use any fallback
-        case all
-    }
-    
     public enum AuthenticationScenario {
         case screenLock(requireBiometrics: Bool)
         case databaseLock
@@ -225,12 +209,12 @@ public final class AppLockController: AppLockType {
             }
         }
         
-        var supportedUserFallback: UserFallback {
+        var usesCustomPasscodeAsUserFallback: Bool {
             switch self {
             case .screenLock(requireBiometrics: let requireBiometrics):
-                return requireBiometrics ? .customPasscode : .all
+                return requireBiometrics
             case .databaseLock:
-                return .devicePasscode
+                return false
             }
         }
     }
