@@ -141,7 +141,7 @@ public final class AppLockController: AppLockType {
         let canEvaluatePolicy = context.canEvaluatePolicy(scenario.policy, error: &error)
         let biometricsChanged = biometricsState.biometricsChanged(in: context)
         
-        if (biometricsChanged || !canEvaluatePolicy) && scenario.usesCustomPasscodeAsUserFallback {
+        if (biometricsChanged || !canEvaluatePolicy) && scenario.usesCustomPasscodeAsFallback {
             callback(.needCustomPasscode, context)
             return
         }
@@ -150,7 +150,7 @@ public final class AppLockController: AppLockType {
             context.evaluatePolicy(scenario.policy, localizedReason: description, reply: { (success, error) -> Void in
                 var authResult: AuthenticationResult = success ? .granted : .denied
                 
-                if scenario.usesCustomPasscodeAsUserFallback, let laError = error as? LAError, laError.code == .userFallback {
+                if scenario.usesCustomPasscodeAsFallback, let laError = error as? LAError, laError.code == .userFallback {
                     authResult = .needCustomPasscode
                 }
                 
@@ -209,7 +209,7 @@ public final class AppLockController: AppLockType {
             }
         }
         
-        var usesCustomPasscodeAsUserFallback: Bool {
+        var usesCustomPasscodeAsFallback: Bool {
             switch self {
             case .screenLock(requireBiometrics: let requireBiometrics):
                 return requireBiometrics

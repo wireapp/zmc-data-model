@@ -79,6 +79,7 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
         
         //when/then
         XCTAssertTrue(sut.biometricsState.biometricsChanged(in: context))
+        UserDefaults.standard.set(nil, forKey: "DomainStateKey")
     }
     
     func testThatBiometricsChangedIsFalseIfDomainStatesDontDiffer() {
@@ -106,6 +107,7 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
         
         //then
         XCTAssertEqual(context.evaluatedPolicyDomainState, UserDefaults.standard.object(forKey: "DomainStateKey") as? Data)
+        UserDefaults.standard.set(nil, forKey: "DomainStateKey")
     }
 
     func testThatItHonorsTheTeamConfiguration_WhenSelfUserIsATeamUser() {
