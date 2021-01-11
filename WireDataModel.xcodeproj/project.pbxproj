@@ -63,6 +63,7 @@
 		1637729C22B3F1F700510B7B /* store2-74-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 1637729B22B3F1F700510B7B /* store2-74-0.wiredatabase */; };
 		1639A8132260916E00868AB9 /* AlertAvailabilityBehaviourChange.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1639A8122260916E00868AB9 /* AlertAvailabilityBehaviourChange.swift */; };
 		1639A8512264B91E00868AB9 /* AvailabilityBehaviourChangeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1639A8502264B91E00868AB9 /* AvailabilityBehaviourChangeTests.swift */; };
+		163CE64E25ACE5DB0013C12D /* store2-89-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 163CE64D25ACE57B0013C12D /* store2-89-0.wiredatabase */; };
 		163D01E02472DE6200984999 /* InvalidConnectionRemoval.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163D01DF2472DE6200984999 /* InvalidConnectionRemoval.swift */; };
 		163D01E22472E44000984999 /* InvalidConnectionRemovalTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 163D01E12472E44000984999 /* InvalidConnectionRemovalTests.swift */; };
 		1645ECC2243B643B007A82D6 /* ZMSearchUserTests+TeamUser.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1645ECC1243B643B007A82D6 /* ZMSearchUserTests+TeamUser.swift */; };
@@ -746,6 +747,7 @@
 		1637729B22B3F1F700510B7B /* store2-74-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; path = "store2-74-0.wiredatabase"; sourceTree = "<group>"; };
 		1639A8122260916E00868AB9 /* AlertAvailabilityBehaviourChange.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertAvailabilityBehaviourChange.swift; sourceTree = "<group>"; };
 		1639A8502264B91E00868AB9 /* AvailabilityBehaviourChangeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AvailabilityBehaviourChangeTests.swift; sourceTree = "<group>"; };
+		163CE64D25ACE57B0013C12D /* store2-89-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; path = "store2-89-0.wiredatabase"; sourceTree = "<group>"; };
 		163D01DF2472DE6200984999 /* InvalidConnectionRemoval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvalidConnectionRemoval.swift; sourceTree = "<group>"; };
 		163D01E12472E44000984999 /* InvalidConnectionRemovalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvalidConnectionRemovalTests.swift; sourceTree = "<group>"; };
 		1645ECC1243B643B007A82D6 /* ZMSearchUserTests+TeamUser.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMSearchUserTests+TeamUser.swift"; sourceTree = "<group>"; };
@@ -2621,6 +2623,7 @@
 		F9C9A83D1CAEDBC40039E10C /* Resources */ = {
 			isa = PBXGroup;
 			children = (
+				163CE64D25ACE57B0013C12D /* store2-89-0.wiredatabase */,
 				0630E4C0257FC41300C75BFB /* store2-88-0.wiredatabase */,
 				06EED73E2525D5B80014FE1E /* store2-87-0.wiredatabase */,
 				06D33FCE2525D368004B9BC1 /* store2-86-0.wiredatabase */,
@@ -2892,6 +2895,7 @@
 				54BAB40B24A4FA0800EBC400 /* store2-82-0.wiredatabase in Resources */,
 				06392CF923BF9DA9003186E6 /* store2-79-0.wiredatabase in Resources */,
 				BF5AF287215156EE00449D43 /* store2-52-0.wiredatabase in Resources */,
+				163CE64E25ACE5DB0013C12D /* store2-89-0.wiredatabase in Resources */,
 				54829DB31DE6F7BA009100D3 /* store2-5.wiredatabase in Resources */,
 				16E7DA281FD9973B0065B6A6 /* store2-39-0.wiredatabase in Resources */,
 				F9A706FD1CAEE32A00C2F5FE /* medium.jpg in Resources */,
