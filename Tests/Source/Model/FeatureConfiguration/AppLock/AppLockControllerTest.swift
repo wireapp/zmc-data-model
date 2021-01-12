@@ -214,10 +214,12 @@ extension AppLockControllerTest {
             output: .granted
         )
         
-//        assert(
-//            input: (scenario: .screenLock(requireBiometrics: false), canEvaluate: false,  biometricsChanged: false),
-//            output: .unavailable
-//        )
+        performIgnoringZMLogError {
+            self.assert(
+                input: (scenario: .screenLock(requireBiometrics: false), canEvaluate: false,  biometricsChanged: false),
+                output: .unavailable
+            )
+        }
     }
 }
 
