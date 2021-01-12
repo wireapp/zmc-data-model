@@ -1656,7 +1656,7 @@
     
     // when
     [conversation markMessagesAsReadUntil:messageToBeMarkedAsRead];
-    [conversation savePendingLastRead];
+    [conversation savePendingLastReadWithPreviousLastReadServerTimestamp:conversation.lastReadServerTimeStamp];
     WaitForAllGroupsToBeEmpty(0.5);
     
     // then
