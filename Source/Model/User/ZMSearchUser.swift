@@ -379,7 +379,7 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         return user?.canDeleteConversation(conversation) == true
     }
     
-    public func canModifyTitle(in conversation: ZMConversation) -> Bool {
+    public func canModifyTitle(in conversation: ZMConversation?) -> Bool {
         return user?.canModifyTitle(in: conversation) == true
     }
 
@@ -387,7 +387,7 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         return user?.canModifyOtherMember(in: conversation) == true
     }
     
-    public func canModifyEphemeralSettings(in conversation: ZMConversation) -> Bool {
+    public func canModifyEphemeralSettings(in conversation: ZMConversation?) -> Bool {
         return user?.canModifyEphemeralSettings(in: conversation) == true
     }
     
@@ -395,11 +395,11 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         return user?.canModifyReadReceiptSettings(in: conversation) == true
     }
     
-    public func canModifyNotificationSettings(in conversation: ZMConversation) -> Bool {
+    public func canModifyNotificationSettings(in conversation: ZMConversation?) -> Bool {
         return user?.canModifyNotificationSettings(in: conversation) == true
     }
     
-    public func canModifyAccessControlSettings(in conversation: ZMConversation) -> Bool {
+    public func canModifyAccessControlSettings(in conversation: ZMConversation?) -> Bool {
         return user?.canModifyAccessControlSettings(in: conversation) == true
     }
 
@@ -407,7 +407,7 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         return user?.canLeave(conversation) == true
     }
 
-    public func isGroupAdmin(in conversation: ZMConversation) -> Bool {
+    public func isGroupAdmin(in conversation: ZMConversation?) -> Bool {
         return user?.isGroupAdmin(in: conversation) == true
     }
     

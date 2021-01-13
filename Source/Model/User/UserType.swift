@@ -208,19 +208,19 @@ public protocol UserType: NSObjectProtocol {
     
     /// Whether the user can toggle the emphemeral setting in the conversation.
     @objc(canModifyEphemeralSettingsInConversation:)
-    func canModifyEphemeralSettings(in conversation: ZMConversation) -> Bool
+    func canModifyEphemeralSettings(in conversation: ZMConversation?) -> Bool
     
     /// Whether the user can change the notification level setting in the conversation.
     @objc(canModifyNotificationSettingsInConversation:)
-    func canModifyNotificationSettings(in conversation: ZMConversation) -> Bool
+    func canModifyNotificationSettings(in conversation: ZMConversation?) -> Bool
     
     /// Whether the user can toggle the access level setting in the conversation.
     @objc(canModifyAccessControlSettingsInConversation:)
-    func canModifyAccessControlSettings(in conversation: ZMConversation) -> Bool
+    func canModifyAccessControlSettings(in conversation: ZMConversation?) -> Bool
     
     /// Whether the user can update the title of the conversation.
     @objc(canModifyTitleInConversation:)
-    func canModifyTitle(in conversation: ZMConversation) -> Bool
+    func canModifyTitle(in conversation: ZMConversation?) -> Bool
 
     /// Whether the user can leave the conversation.
     @objc(canLeave:)
@@ -228,7 +228,7 @@ public protocol UserType: NSObjectProtocol {
 
     /// Whether the user is group admin in the conversation.
     @objc(isGroupAdminInConversation:)
-    func isGroupAdmin(in conversation: ZMConversation) -> Bool
+    func isGroupAdmin(in conversation: ZMConversation?) -> Bool
         
     /// Whether all user's devices are verified by the selfUser
     var isTrusted: Bool { get }

@@ -106,7 +106,9 @@ public extension ZMUser {
     }
     
     @objc(canModifyEphemeralSettingsInConversation:)
-    func canModifyEphemeralSettings(in conversation: ZMConversation) -> Bool {
+    func canModifyEphemeralSettings(in conversation: ZMConversation?) -> Bool {
+        guard let conversation = conversation else { return false }
+        
         if conversation.conversationType == .group {
             return hasRoleWithAction(actionName: ConversationAction.modifyConversationMessageTimer.name, conversation: conversation)
         } else {
@@ -116,13 +118,17 @@ public extension ZMUser {
     }
 
     @objc(canModifyNotificationSettingsInConversation:)
-    func canModifyNotificationSettings(in conversation: ZMConversation) -> Bool {
+    func canModifyNotificationSettings(in conversation: ZMConversation?) -> Bool {
+        guard let conversation = conversation else { return false }
         guard conversation.isSelfAnActiveMember else { return false }
+
         return isTeamMember
     }
     
     @objc(canModifyAccessControlSettingsInConversation:)
-    func canModifyAccessControlSettings(in conversation: ZMConversation) -> Bool {
+    func canModifyAccessControlSettings(in conversation: ZMConversation?) -> Bool {
+        guard let conversation = conversation else { return false }
+
         guard conversation.conversationType == .group,
             conversation.teamRemoteIdentifier != nil
             else { return false }
@@ -131,8 +137,9 @@ public extension ZMUser {
     }
     
     @objc(canModifyTitleInConversation:)
-    func canModifyTitle(in conversation: ZMConversation) -> Bool {
-        guard conversation.conversationType == .group else { return false }
+    func canModifyTitle(in conversation: ZMConversation?) -> Bool {
+        guard let conversation = conversation,
+              conversation.conversationType == .group else { return false }
         return hasRoleWithAction(actionName: ConversationAction.modifyConversationName.name, conversation: conversation)
     }
 
