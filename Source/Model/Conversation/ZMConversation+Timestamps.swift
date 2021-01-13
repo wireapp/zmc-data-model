@@ -51,6 +51,10 @@ extension ZMConversation {
         if timestamp > pendingLastReadServerTimestamp {
             pendingLastReadServerTimestamp = timestamp
         }
+
+        if previousLastReadServerTimestamp == nil {
+            previousLastReadServerTimestamp = lastReadServerTimeStamp
+        }
     }
     
     @objc
@@ -276,20 +280,10 @@ extension ZMConversation {
         lastReadTimestampUpdateCounter += 1
         let currentCount: Int64 = lastReadTimestampUpdateCounter
         let groups = managedObjectContext.enterAllGroups()
-
-        // Because we will only send read receipts after an artificial delay, we must
-        // "freeze" the value of the last read server timestamp to ensure that when
-        // we eventually fetch unread messages they are "unread" with respect to this
-        // frozen value.
-        let lastReadServerTimestamp = self.lastReadServerTimeStamp ?? .distantPast
         
         DispatchQueue.main.asyncAfter(deadline: .now() + lastReadTimestampSaveDelay) { [weak self] in
-            // Only allow the first dispatched block to execute because it has the oldest value
-            // for `currentLastReadTimestamp`. If we use a later block where the timestamp is newer
-            // (e.g a new message is appended by the self user which update the timestamp), then we would
-            // likely not send read receipts for any messages before that updated timestamp.
-            guard currentCount == 1 else { return managedObjectContext.leaveAllGroups(groups) }
-            self?.savePendingLastRead(previousLastReadServerTimestamp: lastReadServerTimestamp)
+            guard currentCount == self?.lastReadTimestampUpdateCounter else { return managedObjectContext.leaveAllGroups(groups) }
+            self?.savePendingLastRead()
             managedObjectContext.leaveAllGroups(groups)
         }
     }
@@ -322,16 +316,14 @@ extension ZMConversation {
     }
 
     /// Triggers the mark-as-read update.
-    ///
-    /// - Parameter previousLastReadServerTimestamp:
-    ///     The last read sever timestamp if provided, else the `lastReadServerTimeStamp` will be used.
 
     @objc
-    public func savePendingLastRead(previousLastReadServerTimestamp: Date? = nil) {
+    public func savePendingLastRead() {
         guard let upperBound = pendingLastReadServerTimestamp else { return }
         let lowerBound = previousLastReadServerTimestamp ?? lastReadServerTimeStamp ?? .distantPast
         performMarkAsReadUpdate(in: lowerBound...upperBound)
         pendingLastReadServerTimestamp = nil
+        previousLastReadServerTimestamp = nil
         lastReadTimestampUpdateCounter = 0
     }
         
