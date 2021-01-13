@@ -232,4 +232,8 @@ public protocol UserType: NSObjectProtocol {
         
     /// Whether all user's devices are verified by the selfUser
     var isTrusted: Bool { get }
+    
+    /// the user has team or not
+    @objc
+    var hasTeam: Bool { get }
 }

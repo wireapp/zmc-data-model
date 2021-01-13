@@ -23,6 +23,11 @@ import WireSystem
 extension ZMUser: UserConnectionType { }
 
 extension ZMUser: UserType {
+    @objc
+    public var hasTeam: Bool {
+        /// Other users won't have a team object, but a teamIdentifier.
+        return nil != team || nil != teamIdentifier
+    }
 
     /// Whether all user's devices are verified by the selfUser
     public var isTrusted: Bool {
