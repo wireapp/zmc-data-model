@@ -100,8 +100,9 @@ public extension ZMUser {
     }
     
     @objc(canModifyReadReceiptSettingsInConversation:)
-    func canModifyReadReceiptSettings(in conversation: ZMConversation) -> Bool {
-        guard conversation.conversationType == .group else { return false }
+    func canModifyReadReceiptSettings(in conversation: ZMConversation?) -> Bool {
+        guard let conversation = conversation,
+            conversation.conversationType == .group else { return false }
         return hasRoleWithAction(actionName: ConversationAction.modifyConversationReceiptMode.name,
                                  conversation: conversation)
     }

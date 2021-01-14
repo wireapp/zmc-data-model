@@ -204,7 +204,7 @@ public protocol UserType: NSObjectProtocol {
     
     /// Whether the user can toggle the read receipts setting in the conversation.
     @objc(canModifyReadReceiptSettingsInConversation:)
-    func canModifyReadReceiptSettings(in conversation: ZMConversation) -> Bool
+    func canModifyReadReceiptSettings(in conversation: ZMConversation?) -> Bool
     
     /// Whether the user can toggle the emphemeral setting in the conversation.
     @objc(canModifyEphemeralSettingsInConversation:)

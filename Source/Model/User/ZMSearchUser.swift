@@ -391,7 +391,7 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         return user?.canModifyEphemeralSettings(in: conversation) == true
     }
     
-    public func canModifyReadReceiptSettings(in conversation: ZMConversation) -> Bool {
+    public func canModifyReadReceiptSettings(in conversation: ZMConversation?) -> Bool {
         return user?.canModifyReadReceiptSettings(in: conversation) == true
     }
     
