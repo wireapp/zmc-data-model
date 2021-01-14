@@ -188,7 +188,7 @@ public protocol UserType: NSObjectProtocol {
 
     /// Whether the user can add another user to the conversation.
     @objc(canAddUserToConversation:)
-    func canAddUser(to conversation: ZMConversation) -> Bool
+    func canAddUser(to conversation: ZMConversation?) -> Bool
 
     /// Whether the user can remove another user from the conversation.
     @objc(canRemoveUserFromConversation:)
