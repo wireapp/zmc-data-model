@@ -71,10 +71,10 @@ final class MessageDetailsActionTests: ZMConversationTestsBase {
     }
     
     // MARK: - Messages Sent by Other User
-/*
+
     func testThatDetailsAreNotAvailableInGroup_OtherUserMesaage() {
         withGroupMessage(belongsToTeam: false, teamGroup: false) { message in
-            message.senderUser = MockUserType.createUser(name: "Bob")
+            message.senderUser = self.otherUser
             XCTAssertTrue(message.areMessageDetailsAvailable(selfUser: self.selfUser))
             XCTAssertFalse(message.areReadReceiptsDetailsAvailable(selfUser: self.selfUser))
         }
@@ -82,7 +82,7 @@ final class MessageDetailsActionTests: ZMConversationTestsBase {
 
     func testThatDetailsAreAvailableInTeamGroup_WithoutReceipts_OtherUserMessage() {
         withGroupMessage(belongsToTeam: true, teamGroup: true) { message in
-            message.senderUser = MockUserType.createUser(name: "Bob")
+            message.senderUser = self.otherUser
             XCTAssertTrue(message.areMessageDetailsAvailable(selfUser: self.selfUser))
             XCTAssertFalse(message.areReadReceiptsDetailsAvailable(selfUser: self.selfUser))
         }
@@ -106,28 +106,23 @@ final class MessageDetailsActionTests: ZMConversationTestsBase {
             XCTAssertTrue(message.areMessageDetailsAvailable(selfUser: self.selfUser))
             XCTAssertTrue(message.areReadReceiptsDetailsAvailable(selfUser: self.selfUser))
         }
-    }*/
+    }
 
     // MARK: - Helpers
 
     private func withGroupMessage(belongsToTeam: Bool,
                                   teamGroup: Bool,
-                                  _ block: @escaping (ZMConversationMessage) -> Void) {
+                                  _ block: @escaping (MockConversationMessage) -> Void) {
         let context = belongsToTeam ? teamTest : nonTeamTest
 
         context {
-//            let message = MockMessageFactory.textMessage(withText: "Message")!
-//            let conversation = ZMConversation.insertNewObject(in: uiMOC)
-//                    let message = try! conversation.appendText(content: "This is the first message in the conversation") as! ZMMessage
-            
             let message = MockConversationMessage()
             
-            message.senderUser = self.selfUser//MockUserType.createSelfUser(name: "Alice")
+            message.senderUser = self.selfUser
             message.conversation = teamGroup ? self.createTeamGroupConversation() : self.createGroupConversation()
             let textMessageData = MockTextMessageData()
             textMessageData.messageText = "blah"
             message.backingTextMessageData = textMessageData
-//            message.textMessageData = Data()
             block(message)
         }
     }
@@ -157,10 +152,6 @@ final class MessageDetailsActionTests: ZMConversationTestsBase {
     }
 
     func createGroupConversation() -> ZMConversation {
-//        otherUser.name = "Bruno"
-//        otherUser.setHandle("bruno")
-//        otherUser.accentColorValue = .brightOrange
-        
         return createGroupConversation(moc: uiMOC, otherUser: otherUser, selfUser: selfUser)
     }
     
@@ -230,10 +221,6 @@ extension ZMConversation {
     func add(participants: Set<ZMUser>) {
         addParticipantsAndUpdateConversationState(users: participants, role: nil)
     }
-
-//    func add(participants: [ZMUser]) {
-//        add(participants: Set(participants))
-//    }
     
     func add(participants: ZMUser...) {
         add(participants: Set(participants))
