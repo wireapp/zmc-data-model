@@ -56,14 +56,8 @@ struct TransferApplockKeychain {
             return
         }
 
-        do {
-            let item = AppLockController.PasscodeKeychainItem(userId: selfUserId)
-            try Keychain.storeItem(item, value: passcode)
-            try Keychain.deleteItem(legacyKeychainItem)
-
-        } catch {
-            fatalError("Failed to migrate app lock passcode. Reason: \(error.localizedDescription)")
-        }
+        let item = AppLockController.PasscodeKeychainItem(userId: selfUserId)
+        try? Keychain.storeItem(item, value: passcode)
     }
 
 }

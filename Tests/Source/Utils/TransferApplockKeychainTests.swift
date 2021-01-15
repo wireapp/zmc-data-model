@@ -78,13 +78,15 @@ class TransferAppLockKeychainTests: DiskDatabaseTest {
         TransferApplockKeychain.migrateAppLockPasscode(in: moc)
 
         // Then
-        XCTAssertNil(try? Keychain.fetchItem(legacyItem))
-
         let item = AppLockController.PasscodeKeychainItem(user: ZMUser.selfUser(in: moc))
         XCTAssertEqual(try Keychain.fetchItem(item), passcode)
 
+        // We shouldn't delete the legacy item because it's shared between all accounts.
+        XCTAssertEqual(try? Keychain.fetchItem(legacyItem), passcode)
+
         // Clean up
         try Keychain.deleteItem(item)
+        try Keychain.deleteItem(legacyItem)
     }
 
 }
