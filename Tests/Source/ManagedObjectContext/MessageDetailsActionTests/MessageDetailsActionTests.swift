@@ -118,7 +118,10 @@ final class MessageDetailsActionTests: ZMConversationTestsBase {
             message.senderUser = self.selfUser//MockUserType.createSelfUser(name: "Alice")
 //            message.conversation = teamGroup ? self.createTeamGroupConversation() : self.createGroupConversation()
             message.conversation = self.createGroupConversation()
-            message.textMessageData = Data()
+            let textMessageData = MockTextMessageData()
+            textMessageData.messageText = "blah"
+            message.backingTextMessageData = textMessageData
+//            message.textMessageData = Data()
             block(message)
         }
     }
@@ -319,7 +322,7 @@ final class MockMessage: NSObject, ZMConversationMessage {
     
     var isSilenced: Bool = false
 
-}
+}*/
 
 extension ZMConversation {
     
@@ -335,4 +338,5 @@ extension ZMConversation {
         add(participants: Set(participants))
     }
 }
-*/
+
+
