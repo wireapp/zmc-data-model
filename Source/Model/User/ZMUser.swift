@@ -76,8 +76,8 @@ extension ZMUser: UserType {
         return !user.isSelfUser && (user.isConnected || isOnSameTeam(otherUser: user))
     }
 
-    public func isGroupAdmin(in conversation: ZMConversation?) -> Bool {
-        return role(in: conversation)?.name == ZMConversation.defaultAdminRoleName
+    public func isGroupAdmin(in conversation: ConversationType) -> Bool {
+        return role(in: conversation as? ZMConversation)?.name == ZMConversation.defaultAdminRoleName
     }
 
     public func role(in conversation: ZMConversation?) -> Role? {

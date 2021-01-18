@@ -69,8 +69,8 @@ public extension ZMUser {
     }
     
     @objc(canAddUserToConversation:)
-    func canAddUser(to conversation: ZMConversation?) -> Bool {
-        guard let conversation = conversation,
+    func canAddUser(to conversation: ConversationType) -> Bool {
+        guard let conversation = conversation as? ZMConversation,
               conversation.conversationType == .group else { return false }
         return hasRoleWithAction(actionName: ConversationAction.addConversationMember.name,
                                  conversation: conversation)
@@ -100,16 +100,16 @@ public extension ZMUser {
     }
     
     @objc(canModifyReadReceiptSettingsInConversation:)
-    func canModifyReadReceiptSettings(in conversation: ZMConversation?) -> Bool {
-        guard let conversation = conversation,
+    func canModifyReadReceiptSettings(in conversation: ConversationType) -> Bool {
+        guard let conversation = conversation as? ZMConversation,
             conversation.conversationType == .group else { return false }
         return hasRoleWithAction(actionName: ConversationAction.modifyConversationReceiptMode.name,
                                  conversation: conversation)
     }
     
     @objc(canModifyEphemeralSettingsInConversation:)
-    func canModifyEphemeralSettings(in conversation: ZMConversation?) -> Bool {
-        guard let conversation = conversation else { return false }
+    func canModifyEphemeralSettings(in conversation: ConversationType) -> Bool {
+        guard let conversation = conversation as? ZMConversation else { return false }
         
         if conversation.conversationType == .group {
             return hasRoleWithAction(actionName: ConversationAction.modifyConversationMessageTimer.name, conversation: conversation)
@@ -120,16 +120,15 @@ public extension ZMUser {
     }
 
     @objc(canModifyNotificationSettingsInConversation:)
-    func canModifyNotificationSettings(in conversation: ZMConversation?) -> Bool {
-        guard let conversation = conversation else { return false }
+    func canModifyNotificationSettings(in conversation: ConversationType) -> Bool {
         guard conversation.isSelfAnActiveMember else { return false }
 
         return isTeamMember
     }
     
     @objc(canModifyAccessControlSettingsInConversation:)
-    func canModifyAccessControlSettings(in conversation: ZMConversation?) -> Bool {
-        guard let conversation = conversation else { return false }
+    func canModifyAccessControlSettings(in conversation: ConversationType) -> Bool {
+        guard let conversation = conversation as? ZMConversation else { return false }
 
         guard conversation.conversationType == .group,
             conversation.teamRemoteIdentifier != nil
@@ -139,9 +138,10 @@ public extension ZMUser {
     }
     
     @objc(canModifyTitleInConversation:)
-    func canModifyTitle(in conversation: ZMConversation?) -> Bool {
-        guard let conversation = conversation,
-              conversation.conversationType == .group else { return false }
+    func canModifyTitle(in conversation: ConversationType) -> Bool {
+        guard let conversation = conversation as? ZMConversation else { return false }
+        guard conversation.conversationType == .group else { return false }
+        
         return hasRoleWithAction(actionName: ConversationAction.modifyConversationName.name, conversation: conversation)
     }
 
