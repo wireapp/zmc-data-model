@@ -134,6 +134,8 @@ public final class AppLockController: AppLockType {
         return result
     }
 
+    /// TODO: [John] We need to update this whenever we go to BG or change sessions.
+
     private var lastUnlockedDate = Date.distantPast
 
     /// a weak reference to LAContext, it should be nil when evaluatePolicy is done.
