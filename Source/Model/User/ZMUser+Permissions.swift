@@ -193,7 +193,7 @@ public extension ZMUser {
         } else {
             return !isServiceUser // Bots are never guests
                 && ZMUser.selfUser(in: managedObjectContext!).hasTeam // There can't be guests in a team that doesn't exist
-                && true == (conversation as? ZMConversation)?.localParticipants.contains(self)
+                && conversation.localParticipantsContain(user: self)
                 && membership == nil
         }
     }

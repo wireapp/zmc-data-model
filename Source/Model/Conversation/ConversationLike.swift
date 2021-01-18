@@ -24,6 +24,13 @@ public protocol ConversationLike: NSObjectProtocol {
     var conversationType: ZMConversationType { get }
     var isSelfAnActiveMember: Bool { get }
     var teamRemoteIdentifier: UUID? { get }
+    
+    func localParticipantsContain(user: UserType) -> Bool
 }
 
-extension ZMConversation: ConversationLike {}
+extension ZMConversation: ConversationLike {
+    public func localParticipantsContain(user: UserType) -> Bool {
+        guard let user = user as? ZMUser else { return false }
+        return localParticipants.contains(user)
+    }
+}
