@@ -25,14 +25,14 @@ final class MessageDetailsActionTests: ZMConversationTestsBase {
     var team: Team?
     var teamMember: Member?
     var otherUser: ZMUser!
-    
+
     override func setUp() {
         super.setUp()
 
         otherUser = ZMUser.insertNewObject(in: uiMOC)
         otherUser.remoteIdentifier = UUID()
     }
-    
+
     override func tearDown() {
         otherUser = nil
         super.tearDown()
@@ -62,14 +62,14 @@ final class MessageDetailsActionTests: ZMConversationTestsBase {
             XCTAssertFalse(message.areReadReceiptsDetailsAvailable(selfUser: self.selfUser))
         }
     }
-    
+
     func testThatDetailsAreAvailableInTeamGroup_Receipts() {
         withGroupMessage(belongsToTeam: false, teamGroup: true) { message in
             XCTAssertTrue(message.areMessageDetailsAvailable(selfUser: self.selfUser))
             XCTAssertTrue(message.areReadReceiptsDetailsAvailable(selfUser: self.selfUser))
         }
     }
-    
+
     // MARK: - Messages Sent by Other User
 
     func testThatDetailsAreNotAvailableInGroup_OtherUserMesaage() {
@@ -117,7 +117,7 @@ final class MessageDetailsActionTests: ZMConversationTestsBase {
 
         context {
             let message = MockConversationMessage()
-            
+
             message.senderUser = self.selfUser
             message.conversation = teamGroup ? self.createTeamGroupConversation() : self.createGroupConversation()
             let textMessageData = MockTextMessageData()
@@ -137,7 +137,7 @@ final class MessageDetailsActionTests: ZMConversationTestsBase {
             block(message)
         }
     }
-    
+
     func createTeamGroupConversation() -> ZMConversation {
         return createTeamGroupConversation(moc: uiMOC, otherUser: otherUser, selfUser: selfUser)
     }
@@ -154,7 +154,7 @@ final class MessageDetailsActionTests: ZMConversationTestsBase {
     func createGroupConversation() -> ZMConversation {
         return createGroupConversation(moc: uiMOC, otherUser: otherUser, selfUser: selfUser)
     }
-    
+
     func createGroupConversation(moc: NSManagedObjectContext,
                                         otherUser: ZMUser,
                                         selfUser: ZMUser) -> ZMConversation {
@@ -162,16 +162,16 @@ final class MessageDetailsActionTests: ZMConversationTestsBase {
         conversation.add(participants: otherUser)
         return conversation
     }
-    
+
     func createGroupConversationOnlyAdmin(moc: NSManagedObjectContext, selfUser: ZMUser) -> ZMConversation {
         let conversation = ZMConversation.insertNewObject(in: moc)
         conversation.remoteIdentifier = UUID.create()
         conversation.conversationType = .group
-        
+
         let role = Role(context: moc)
         role.name = ZMConversation.defaultAdminRoleName
         conversation.addParticipantsAndUpdateConversationState(users: [selfUser], role: role)
-        
+
         return conversation
     }
 
@@ -181,19 +181,19 @@ final class MessageDetailsActionTests: ZMConversationTestsBase {
         updateTeamStatus(wasInTeam: wasInTeam)
         block()
     }
-    
+
     func teamTest(_ block: () -> Void) {
         let wasInTeam = selfUserInTeam
         selfUserInTeam = true
         updateTeamStatus(wasInTeam: wasInTeam)
         block()
     }
-    
+
     private func updateTeamStatus(wasInTeam: Bool) {
         guard wasInTeam != selfUserInTeam else {
             return
         }
-        
+
         if selfUserInTeam {
             setupMember()
         } else {
@@ -201,14 +201,13 @@ final class MessageDetailsActionTests: ZMConversationTestsBase {
             team = nil
         }
     }
-    
+
     private func setupMember() {
         let selfUser = ZMUser.selfUser(in: self.uiMOC)
-        
+
         team = Team.insertNewObject(in: uiMOC)
         team!.remoteIdentifier = UUID()
-        
-        
+
         teamMember = Member.insertNewObject(in: uiMOC)
         teamMember!.user = selfUser
         teamMember!.team = team
@@ -217,14 +216,12 @@ final class MessageDetailsActionTests: ZMConversationTestsBase {
 }
 
 extension ZMConversation {
-    
+
     func add(participants: Set<ZMUser>) {
         addParticipantsAndUpdateConversationState(users: participants, role: nil)
     }
-    
+
     func add(participants: ZMUser...) {
         add(participants: Set(participants))
     }
 }
-
-

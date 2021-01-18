@@ -175,7 +175,6 @@ final class MockFileMessageData: NSObject, ZMFileMessageData {
     }
 }
 
-
 final class MockLocationMessageData: NSObject, LocationMessageData {
     var longitude: Float = 0
     var latitude: Float = 0
@@ -196,10 +195,10 @@ final class MockConversationMessage: NSObject, ZMConversationMessage, Conversati
     var sender: ZMUser? {
         get {
             XCTFail("This property should not be used in tests")
-            
+
             return nil
         }
-        
+
         set {
             XCTFail("This property should not be used in tests")
         }

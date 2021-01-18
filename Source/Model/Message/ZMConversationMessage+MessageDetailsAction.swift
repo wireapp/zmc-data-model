@@ -24,7 +24,7 @@ public extension ZMConversationMessage {
               let selfUser = selfUser as? ZMUser else {
             return false
         }
-        
+
         let participatesInConversation = conversation.localParticipants.contains(selfUser)
         let sentOrDelivered = deliveryState.isOne(of: .sent, .delivered, .read)
         let likableType = isNormal && !isKnock
@@ -34,23 +34,23 @@ public extension ZMConversationMessage {
     var isSentBySelfUser: Bool {
         return senderUser?.isSelfUser ?? false
     }
-    
+
     /// Whether message details are available for this message.
     func areMessageDetailsAvailable(selfUser: UserType) -> Bool {
         guard let conversation = conversation else {
             return false
         }
-        
+
         // Do not show the details of the message if it was not sent
         guard isSent else {
             return false
         }
-        
+
         // There is no message details view in 1:1s.
         guard conversation.conversationType == .group else {
             return false
         }
-        
+
         // Show the message details in Team groups.
         if conversation.teamRemoteIdentifier != nil {
             return canBeLiked(selfUser: selfUser) || isSentBySelfUser
@@ -65,15 +65,14 @@ public extension ZMConversationMessage {
         guard areMessageDetailsAvailable(selfUser: selfUser) else {
             return false
         }
-        
+
         // Read receipts are only available in team groups
         guard conversation?.teamRemoteIdentifier != nil else {
             return false
         }
-        
+
         // Only the sender of a message can see read receipts for their messages.
         return isSentBySelfUser
     }
 
 }
-
