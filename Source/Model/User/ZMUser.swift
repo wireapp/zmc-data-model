@@ -80,8 +80,8 @@ extension ZMUser: UserType {
         return role(in: conversation as? ZMConversation)?.name == ZMConversation.defaultAdminRoleName
     }
 
-    public func role(in conversation: ZMConversation?) -> Role? {
-        return participantRoles.first(where: { $0.conversation == conversation })?.role
+    public func role(in conversation: ConversationType?) -> Role? {
+        return participantRoles.first(where: { $0.conversation === conversation })?.role
     }
 
     // MARK: Legal Hold

@@ -70,8 +70,7 @@ public extension ZMUser {
     
     @objc(canAddUserToConversation:)
     func canAddUser(to conversation: ConversationType) -> Bool {
-        guard let conversation = conversation as? ZMConversation,
-              conversation.conversationType == .group else { return false }
+        guard conversation.conversationType == .group else { return false }
         return hasRoleWithAction(actionName: ConversationAction.addConversationMember.name,
                                  conversation: conversation)
     }
@@ -205,7 +204,7 @@ public extension ZMUser {
         }
     }
     
-    private func hasRoleWithAction(actionName: String, conversation: ZMConversation) -> Bool {
+    private func hasRoleWithAction(actionName: String, conversation: ConversationType) -> Bool {
         guard conversation.isSelfAnActiveMember,
             let role = self.role(in: conversation)
         else { return false }
