@@ -20,10 +20,6 @@ import Foundation
 import WireLinkPreview
 import XCTest
 
-final class MockCompositeMessageData: NSObject, CompositeMessageData {
-    var items: [CompositeMessageItem] = []
-}
-
 final class MockTextMessageData: NSObject, ZMTextMessageData {
 
     var messageText: String? = ""
@@ -117,78 +113,7 @@ protocol MockFileMessageDataType: ZMFileMessageData {
     var downloadState: AssetDownloadState { get set }
 }
 
-extension MockPassFileMessageData: MockFileMessageDataType { }
 extension MockFileMessageData: MockFileMessageDataType { }
-
-final class MockPassFileMessageData: NSObject, ZMFileMessageData {
-
-    var mimeType: String? = "application/vnd.apple.pkpass"
-    var size: UInt64 = 1024 * 1024 * 2
-    var transferState: AssetTransferState = .uploaded
-    var downloadState: AssetDownloadState = .remote
-    var filename: String? = "ticket.pkpass"
-    var progress: Float = 0
-    var fileURL: URL? {
-        get {
-            let path = Bundle(for: type(of: self)).path(forResource: "sample", ofType: "pkpass")!
-            return URL(fileURLWithPath: path)
-        }
-
-        set {
-
-        }
-    }
-    var thumbnailAssetID: String? = ""
-    var imagePreviewDataIdentifier: String? = "preview-identifier-123"
-    var durationMilliseconds: UInt64 = 0
-    var videoDimensions: CGSize = CGSize.zero
-    var normalizedLoudness: [Float]? = []
-    var previewData: Data?
-
-    var isPass: Bool {
-        return mimeType == "application/vnd.apple.pkpass"
-    }
-
-    var isVideo: Bool {
-        return mimeType == "video/mp4"
-    }
-
-    var isAudio: Bool {
-        return mimeType == "audio/x-m4a"
-    }
-
-    var isPDF: Bool {
-        return mimeType == "application/pdf"
-    }
-
-    var v3_isImage: Bool {
-        return false
-    }
-
-    func requestFileDownload() {
-        // no-op
-    }
-
-    func cancelTransfer() {
-        // no-op
-    }
-
-    func fetchImagePreviewData(queue: DispatchQueue, completionHandler: @escaping (Data?) -> Void) {
-        completionHandler(previewData)
-    }
-
-    func requestImagePreviewDownload() {
-        // no-op
-    }
-
-    func signPDFDocument(observer: SignatureObserver) -> Any? {
-        return nil
-    }
-
-    func retrievePDFSignature() {
-        // no-op
-    }
-}
 
 final class MockFileMessageData: NSObject, ZMFileMessageData {
     var mimeType: String? = "application/pdf"
@@ -250,36 +175,6 @@ final class MockFileMessageData: NSObject, ZMFileMessageData {
     }
 }
 
-final class MockKnockMessageData: NSObject, ZMKnockMessageData {
-
-}
-
-final class MockImageMessageData: NSObject, ZMImageMessageData {
-
-    var mockOriginalSize: CGSize = .zero
-    var mockImageData = Data()
-    var mockImageDataIdentifier = String()
-
-    var mediumData: Data! = Data()
-    var previewData: Data! = Data()
-    var imagePreviewDataIdentifier: String! = String()
-
-    var isDownloaded: Bool = true
-    var isAnimatedGIF: Bool = false
-    var imageType: String? = String()
-
-    var imageData: Data? { return mockImageData }
-    var imageDataIdentifier: String? { return mockImageDataIdentifier }
-    var originalSize: CGSize { return mockOriginalSize }
-
-    func fetchImageData(with queue: DispatchQueue, completionHandler: @escaping ((Data?) -> Void)) {
-        completionHandler(imageData)
-    }
-
-    func requestFileDownload() {
-        // no-op
-    }
-}
 
 final class MockLocationMessageData: NSObject, LocationMessageData {
     var longitude: Float = 0
