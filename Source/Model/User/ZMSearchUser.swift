@@ -624,8 +624,8 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         }
     }
     
-    public func isGuest(in conversation: ZMConversation) -> Bool {
-        guard let user = self.user else { return false }
+    public func isGuest(in conversation: ConversationLike) -> Bool {
+        guard let user = user else { return false }
         
         return user.isGuest(in: conversation)
     }

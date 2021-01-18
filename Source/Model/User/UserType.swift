@@ -130,7 +130,7 @@ public protocol UserType: NSObjectProtocol {
     func requestCompleteProfileImage()
     
     /// Whether this user is a guest in a conversation
-    func isGuest(in conversation: ZMConversation) -> Bool
+    func isGuest(in conversation: ConversationLike) -> Bool
     
     /// Fetch a profile image with the given size on the given queue
     func imageData(for size: ProfileImageSize, queue: DispatchQueue, completion: @escaping (_ imageData: Data?) -> Void)

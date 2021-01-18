@@ -38,7 +38,7 @@ extension ZMUser: UserType {
         return !hasUntrustedClients
     }
     
-    public func isGuest(in conversation: ZMConversation) -> Bool {
+    public func isGuest(in conversation: ConversationLike) -> Bool {
         return _isGuest(in: conversation)
     }
     

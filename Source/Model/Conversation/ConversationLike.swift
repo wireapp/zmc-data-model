@@ -23,6 +23,7 @@ import Foundation
 public protocol ConversationLike: NSObjectProtocol {
     var conversationType: ZMConversationType { get }
     var isSelfAnActiveMember: Bool { get }
+    var teamRemoteIdentifier: UUID? { get }
 }
 
 extension ZMConversation: ConversationLike {}

@@ -107,8 +107,6 @@ public extension ZMUser {
     
     @objc(canModifyEphemeralSettingsInConversation:)
     func canModifyEphemeralSettings(in conversation: ConversationLike) -> Bool {
-        guard let conversation = conversation as? ZMConversation else { return false }
-        
         if conversation.conversationType == .group {
             return hasRoleWithAction(actionName: ConversationAction.modifyConversationMessageTimer.name, conversation: conversation)
         } else {
@@ -126,8 +124,6 @@ public extension ZMUser {
     
     @objc(canModifyAccessControlSettingsInConversation:)
     func canModifyAccessControlSettings(in conversation: ConversationLike) -> Bool {
-        guard let conversation = conversation as? ZMConversation else { return false }
-
         guard conversation.conversationType == .group,
             conversation.teamRemoteIdentifier != nil
             else { return false }
@@ -137,7 +133,6 @@ public extension ZMUser {
     
     @objc(canModifyTitleInConversation:)
     func canModifyTitle(in conversation: ConversationLike) -> Bool {
-        guard let conversation = conversation as? ZMConversation else { return false }
         guard conversation.conversationType == .group else { return false }
         
         return hasRoleWithAction(actionName: ConversationAction.modifyConversationName.name, conversation: conversation)
@@ -181,7 +176,7 @@ public extension ZMUser {
         return selfUserTeamID == otherUserTeamID
     }
     
-    @objc func _isGuest(in conversation: ZMConversation) -> Bool {
+    @objc func _isGuest(in conversation: ConversationLike) -> Bool {
         if isSelfUser {
             // In case the self user is a guest in a team conversation, the backend will
             // return a 404 when fetching said team and we will delete the team.
@@ -198,7 +193,7 @@ public extension ZMUser {
         } else {
             return !isServiceUser // Bots are never guests
                 && ZMUser.selfUser(in: managedObjectContext!).hasTeam // There can't be guests in a team that doesn't exist
-                && conversation.localParticipants.contains(self)
+                && true == (conversation as? ZMConversation)?.localParticipants.contains(self)
                 && membership == nil
         }
     }
