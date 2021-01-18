@@ -178,6 +178,11 @@ public final class AppLockController: AppLockType {
                 if scenario.supportsUserFallback, let laError = error as? LAError, laError.code == .userFallback {
                     authResult = .needCustomPasscode
                 }
+
+                if authResult == .granted {
+                    self.lastUnlockedDate = Date()
+                    self.delegate?.appLockDidUnlock(self)
+                }
                 
                 callback(authResult, context)
             })
