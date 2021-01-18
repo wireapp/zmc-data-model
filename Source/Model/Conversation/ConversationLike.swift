@@ -20,9 +20,9 @@
 import Foundation
 
 @objc
-public protocol ConversationType: NSObjectProtocol {
+public protocol ConversationLike: NSObjectProtocol {
     var conversationType: ZMConversationType { get }
     var isSelfAnActiveMember: Bool { get }
 }
 
-extension ZMConversation: ConversationType {}
+extension ZMConversation: ConversationLike {}

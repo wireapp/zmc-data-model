@@ -188,7 +188,7 @@ public protocol UserType: NSObjectProtocol {
 
     /// Whether the user can add another user to the conversation.
     @objc(canAddUserToConversation:)
-    func canAddUser(to conversation: ConversationType) -> Bool
+    func canAddUser(to conversation: ConversationLike) -> Bool
 
     /// Whether the user can remove another user from the conversation.
     @objc(canRemoveUserFromConversation:)
@@ -204,23 +204,23 @@ public protocol UserType: NSObjectProtocol {
     
     /// Whether the user can toggle the read receipts setting in the conversation.
     @objc(canModifyReadReceiptSettingsInConversation:)
-    func canModifyReadReceiptSettings(in conversation: ConversationType) -> Bool
+    func canModifyReadReceiptSettings(in conversation: ConversationLike) -> Bool
     
     /// Whether the user can toggle the emphemeral setting in the conversation.
     @objc(canModifyEphemeralSettingsInConversation:)
-    func canModifyEphemeralSettings(in conversation: ConversationType) -> Bool
+    func canModifyEphemeralSettings(in conversation: ConversationLike) -> Bool
     
     /// Whether the user can change the notification level setting in the conversation.
     @objc(canModifyNotificationSettingsInConversation:)
-    func canModifyNotificationSettings(in conversation: ConversationType) -> Bool
+    func canModifyNotificationSettings(in conversation: ConversationLike) -> Bool
     
     /// Whether the user can toggle the access level setting in the conversation.
     @objc(canModifyAccessControlSettingsInConversation:)
-    func canModifyAccessControlSettings(in conversation: ConversationType) -> Bool
+    func canModifyAccessControlSettings(in conversation: ConversationLike) -> Bool
     
     /// Whether the user can update the title of the conversation.
     @objc(canModifyTitleInConversation:)
-    func canModifyTitle(in conversation: ConversationType) -> Bool
+    func canModifyTitle(in conversation: ConversationLike) -> Bool
 
     /// Whether the user can leave the conversation.
     @objc(canLeave:)
@@ -228,7 +228,7 @@ public protocol UserType: NSObjectProtocol {
 
     /// Whether the user is group admin in the conversation.
     @objc(isGroupAdminInConversation:)
-    func isGroupAdmin(in conversation: ConversationType) -> Bool
+    func isGroupAdmin(in conversation: ConversationLike) -> Bool
         
     /// Whether all user's devices are verified by the selfUser
     var isTrusted: Bool { get }

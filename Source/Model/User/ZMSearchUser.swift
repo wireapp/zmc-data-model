@@ -367,7 +367,7 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         return user?.canRemoveService(from: conversation) == true
     }
 
-    public func canAddUser(to conversation: ConversationType) -> Bool {
+    public func canAddUser(to conversation: ConversationLike) -> Bool {
         return user?.canAddUser(to: conversation) == true
     }
 
@@ -379,7 +379,7 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         return user?.canDeleteConversation(conversation) == true
     }
     
-    public func canModifyTitle(in conversation: ConversationType) -> Bool {
+    public func canModifyTitle(in conversation: ConversationLike) -> Bool {
         return user?.canModifyTitle(in: conversation) == true
     }
 
@@ -387,19 +387,19 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         return user?.canModifyOtherMember(in: conversation) == true
     }
     
-    public func canModifyEphemeralSettings(in conversation: ConversationType) -> Bool {
+    public func canModifyEphemeralSettings(in conversation: ConversationLike) -> Bool {
         return user?.canModifyEphemeralSettings(in: conversation) == true
     }
     
-    public func canModifyReadReceiptSettings(in conversation: ConversationType) -> Bool {
+    public func canModifyReadReceiptSettings(in conversation: ConversationLike) -> Bool {
         return user?.canModifyReadReceiptSettings(in: conversation) == true
     }
     
-    public func canModifyNotificationSettings(in conversation: ConversationType) -> Bool {
+    public func canModifyNotificationSettings(in conversation: ConversationLike) -> Bool {
         return user?.canModifyNotificationSettings(in: conversation) == true
     }
     
-    public func canModifyAccessControlSettings(in conversation: ConversationType) -> Bool {
+    public func canModifyAccessControlSettings(in conversation: ConversationLike) -> Bool {
         return user?.canModifyAccessControlSettings(in: conversation) == true
     }
 
@@ -407,7 +407,7 @@ public class ZMSearchUser: NSObject, UserType, UserConnectionType {
         return user?.canLeave(conversation) == true
     }
 
-    public func isGroupAdmin(in conversation: ConversationType) -> Bool {
+    public func isGroupAdmin(in conversation: ConversationLike) -> Bool {
         return user?.isGroupAdmin(in: conversation) == true
     }
     
