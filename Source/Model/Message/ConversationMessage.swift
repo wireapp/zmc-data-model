@@ -56,9 +56,12 @@ public protocol ZMConversationMessage : NSObjectProtocol {
     /// The timestamp as received by the server
     var serverTimestamp: Date? { get }
     
-    /// The conversation this message belongs to
+    /// For internal use only. The conversation this message belongs to
     var conversation: ZMConversation? { get }
-    
+
+    /// The conversation this message belongs to
+    var conversationLike: ConversationLike? { get }
+
     /// The current delivery state of this message. It makes sense only for
     /// messages sent from this device. In any other case, it will be
     /// ZMDeliveryStateDelivered
@@ -200,6 +203,10 @@ extension ZMMessage {
 // MARK:- Conversation Message protocol implementation
 
 extension ZMMessage : ZMConversationMessage {
+    public var conversationLike: ConversationLike? {
+        return conversation
+    }
+
     public var senderUser: UserType? {
         return sender
     }
