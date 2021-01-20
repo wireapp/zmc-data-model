@@ -52,6 +52,11 @@ public protocol AppLockType {
                                 context: LAContextProtocol,
                                 with callback: @escaping (AppLockController.AuthenticationResult, LAContextProtocol) -> Void)
 
+    func evaluateAuthentication(passcodePreference: AppLockPasscodePreference,
+                                description: String,
+                                context: LAContextProtocol,
+                                callback: @escaping (AppLockController.AuthenticationResult, LAContextProtocol) -> Void)
+
     func persistBiometrics()
     func deletePasscode() throws
     func storePasscode(_ passcode: String) throws
@@ -63,6 +68,16 @@ public extension AppLockType {
                                 description: String,
                                 with callback: @escaping (AppLockController.AuthenticationResult, LAContextProtocol) -> Void) {
         evaluateAuthentication(scenario: scenario, description: description, context: LAContext(), with: callback)
+    }
+
+    func evaluateAuthentication(passcodePreference: AppLockPasscodePreference,
+                                description: String,
+                                callback: @escaping (AppLockController.AuthenticationResult, LAContextProtocol) -> Void) {
+
+        evaluateAuthentication(passcodePreference: passcodePreference,
+                               description: description,
+                               context: LAContext(),
+                               callback: callback)
     }
 }
 
@@ -190,7 +205,9 @@ public final class AppLockController: AppLockType {
         lastUnlockedDate = Date()
         delegate?.appLockDidOpen(self)
     }
-    
+
+    // TODO: Delete
+
     // Creates a new LAContext and evaluates the authentication settings of the user.
     public func evaluateAuthentication(scenario: AuthenticationScenario,
                                        description: String,
@@ -232,6 +249,49 @@ public final class AppLockController: AppLockType {
             zmLog.error("Local authentication error: \(String(describing: error?.localizedDescription))")
         }
     }
+
+    public func evaluateAuthentication(passcodePreference: AppLockPasscodePreference,
+                                       description: String,
+                                       context: LAContextProtocol = LAContext(),
+                                       callback: @escaping (AuthenticationResult, LAContextProtocol) -> Void) {
+        let policy = passcodePreference.policy
+        var error: NSError?
+        let canEvaluatePolicy = context.canEvaluatePolicy(policy, error: &error)
+
+        // Changing biometrics in device settings is protected by the device passcode, but if
+        // the device passcode isn't considered secure enough, then ask for the custon passcode
+        // to accept the new biometrics state.
+        if biometricsState.biometricsChanged(in: context) && !passcodePreference.allowsDevicePasscode {
+            callback(.needCustomPasscode, context)
+            return
+        }
+
+        // No device authentication possible, but can fall back to the custom passcode.
+        if !canEvaluatePolicy && passcodePreference.allowsCustomPasscode {
+            callback(.needCustomPasscode, context)
+            return
+        }
+
+        guard canEvaluatePolicy else {
+            callback(.unavailable, context)
+            zmLog.error("Local authentication error: \(String(describing: error?.localizedDescription))")
+            return
+        }
+
+        context.evaluatePolicy(policy, localizedReason: description) { success, error in
+            var result: AuthenticationResult = success ? .granted : .denied
+
+            if let laError = error as? LAError, laError.code == .userFallback, passcodePreference.allowsCustomPasscode {
+                result = .needCustomPasscode
+            }
+
+            if result == .granted {
+                self.lastUnlockedDate = Date()
+            }
+
+            callback(result, context)
+        }
+    }
     
     public func persistBiometrics() {
         biometricsState.persistState()
@@ -266,11 +326,13 @@ public final class AppLockController: AppLockType {
         /// Biometrics failed and custom passcode is needed
         case needCustomPasscode
     }
-    
+
+    // TODO: Delete
+
     public enum AuthenticationScenario {
         case screenLock(requireBiometrics: Bool)
         case databaseLock
-        
+
         var policy: LAPolicy {
             switch self {
             case .screenLock(requireBiometrics: let requireBiometrics):
@@ -279,7 +341,7 @@ public final class AppLockController: AppLockType {
                 return .deviceOwnerAuthentication
             }
         }
-        
+
         var usesCustomPasscodeAsFallback: Bool {
             switch self {
             case .screenLock(requireBiometrics: let requireBiometrics):
@@ -290,3 +352,4 @@ public final class AppLockController: AppLockType {
         }
     }
 }
+
