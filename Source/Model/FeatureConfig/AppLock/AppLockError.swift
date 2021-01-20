@@ -1,6 +1,6 @@
 //
 // Wire
-// Copyright (C) 2020 Wire Swiss GmbH
+// Copyright (C) 2021 Wire Swiss GmbH
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -18,8 +18,12 @@
 
 import Foundation
 
-public protocol AppLockDelegate: class {
+/// Errors related to the app lock.
 
-    func appLockDidOpen(_ appLock: AppLockType)
+public enum AppLockError: Error {
+
+    /// Authentication is needed to unlock the app lock.
+
+    case authenticationNeeded
 
 }

@@ -403,6 +403,7 @@
 		EE6CB3DE24E2D24F00B0EADD /* ZMGenericMessageDataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE6CB3DD24E2D24F00B0EADD /* ZMGenericMessageDataTests.swift */; };
 		EE715B7D256D153E00087A22 /* FeatureLikeTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE715B7C256D153E00087A22 /* FeatureLikeTests.swift */; };
 		EE770DAF25344B4F00163C4A /* NotificationDispatcher.OperationMode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE770DAE25344B4F00163C4A /* NotificationDispatcher.OperationMode.swift */; };
+		EE8B09AD25B86AB10057E85C /* AppLockError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE8B09AC25B86AB10057E85C /* AppLockError.swift */; };
 		EE997A1425062295008336D2 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE997A1325062295008336D2 /* Logging.swift */; };
 		EE997A16250629DC008336D2 /* ZMMessage+ProcessingError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE997A15250629DC008336D2 /* ZMMessage+ProcessingError.swift */; };
 		EEA2B84624DA943200C6659E /* ManagedObjectContextDirectoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA2B84524DA943100C6659E /* ManagedObjectContextDirectoryTests.swift */; };
@@ -1123,6 +1124,7 @@
 		EE6CB3DD24E2D24F00B0EADD /* ZMGenericMessageDataTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ZMGenericMessageDataTests.swift; sourceTree = "<group>"; };
 		EE715B7C256D153E00087A22 /* FeatureLikeTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureLikeTests.swift; sourceTree = "<group>"; };
 		EE770DAE25344B4F00163C4A /* NotificationDispatcher.OperationMode.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = NotificationDispatcher.OperationMode.swift; sourceTree = "<group>"; };
+		EE8B09AC25B86AB10057E85C /* AppLockError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLockError.swift; sourceTree = "<group>"; };
 		EE997A1325062295008336D2 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 		EE997A15250629DC008336D2 /* ZMMessage+ProcessingError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMMessage+ProcessingError.swift"; sourceTree = "<group>"; };
 		EEA2B84524DA943100C6659E /* ManagedObjectContextDirectoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ManagedObjectContextDirectoryTests.swift; path = Tests/Source/ManagedObjectContext/ManagedObjectContextDirectoryTests.swift; sourceTree = SOURCE_ROOT; };
@@ -1476,8 +1478,9 @@
 			isa = PBXGroup;
 			children = (
 				EE4CCA94256C558400848212 /* Feature.AppLock.swift */,
-				0686649E256FB0CA001C8747 /* AppLockController.swift */,
+				EE8B09AC25B86AB10057E85C /* AppLockError.swift */,
 				EEE186B1259CC7CC008707CA /* AppLockDelegate.swift */,
+				0686649E256FB0CA001C8747 /* AppLockController.swift */,
 				EE30F4582592423F000FC69C /* AppLockController+Passcode.swift */,
 				EE30F45A2592A357000FC69C /* AppLockController.PasscodeKeychainItem.swift */,
 				066A96FE25A88E510083E317 /* BiometricsState.swift */,
@@ -3163,6 +3166,7 @@
 				541D1B331F1F8D660078C1F2 /* StorageStack.swift in Sources */,
 				BF491CCF1F02A6CF0055EE44 /* Member+Patches.swift in Sources */,
 				16E6F26424B614DC0015B249 /* EncryptionKeys.swift in Sources */,
+				EE8B09AD25B86AB10057E85C /* AppLockError.swift in Sources */,
 				1687ABAE20ECD51E0007C240 /* ZMSearchUser.swift in Sources */,
 				63298D9E24374489006B6018 /* Dictionary+ObjectForKey.swift in Sources */,
 				BF3493F21EC3623200B0C314 /* ZMUser+Teams.swift in Sources */,

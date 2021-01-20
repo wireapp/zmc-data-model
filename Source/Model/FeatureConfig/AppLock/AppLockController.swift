@@ -45,6 +45,8 @@ public protocol AppLockType {
     var isForced: Bool { get }
     var isAvailable: Bool { get }
 
+    func open() throws
+
     func evaluateAuthentication(scenario: AppLockController.AuthenticationScenario,
                                 description: String,
                                 context: LAContextProtocol,
@@ -173,6 +175,21 @@ public final class AppLockController: AppLockType {
     }
     
     // MARK: - Methods
+
+    /// Open the app lock.
+    ///
+    /// This method informs the delegate that the app lock opened. The delegate should
+    /// then react appropriately by transitioning away from the app lock UI.
+    ///
+    /// - Throws: AppLockError
+
+    public func open() throws {
+        guard !isLocked else { throw AppLockError.authenticationNeeded }
+
+        // TODO: Probably this shouldn't be here.
+        lastUnlockedDate = Date()
+        delegate?.appLockDidOpen(self)
+    }
     
     // Creates a new LAContext and evaluates the authentication settings of the user.
     public func evaluateAuthentication(scenario: AuthenticationScenario,
@@ -206,7 +223,6 @@ public final class AppLockController: AppLockType {
 
                 if authResult == .granted {
                     self.lastUnlockedDate = Date()
-                    self.delegate?.appLockDidUnlock(self)
                 }
                 
                 callback(authResult, context)
