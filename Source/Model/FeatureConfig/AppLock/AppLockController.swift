@@ -57,9 +57,13 @@ public protocol AppLockType {
                                 context: LAContextProtocol,
                                 callback: @escaping (AppLockController.AuthenticationResult, LAContextProtocol) -> Void)
 
+    func evaluateAuthentication(customPasscode: String) -> AppLockController.AuthenticationResult
+
     func persistBiometrics()
     func deletePasscode() throws
     func storePasscode(_ passcode: String) throws
+
+    // TODO: Delete this.
     func fetchPasscode() -> Data?
 }
 
@@ -200,9 +204,6 @@ public final class AppLockController: AppLockType {
 
     public func open() throws {
         guard !isLocked else { throw AppLockError.authenticationNeeded }
-
-        // TODO: Probably this shouldn't be here.
-        lastUnlockedDate = Date()
         delegate?.appLockDidOpen(self)
     }
 
@@ -292,7 +293,22 @@ public final class AppLockController: AppLockType {
             callback(result, context)
         }
     }
-    
+
+    public func evaluateAuthentication(customPasscode: String) -> AuthenticationResult {
+        guard
+            let storedPasscode = fetchPasscode(),
+            let passcode = customPasscode.data(using: .utf8),
+            passcode == storedPasscode
+        else {
+            return .denied
+        }
+
+        lastUnlockedDate = Date()
+        biometricsState.persistState()
+        return .granted
+    }
+
+    // TODO: Delete this.
     public func persistBiometrics() {
         biometricsState.persistState()
     }
