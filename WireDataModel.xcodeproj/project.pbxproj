@@ -384,7 +384,6 @@
 		EE09EEB1255959F000919A6B /* ZMUserTests+AnalyticsIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE09EEB0255959F000919A6B /* ZMUserTests+AnalyticsIdentifier.swift */; };
 		EE174FCE2522756700482A70 /* ZMConversationPerformanceTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE174FCD2522756700482A70 /* ZMConversationPerformanceTests.swift */; };
 		EE2B874624D9A11A00936A4E /* ManagedObjectContextDirectory+EncryptionAtRest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE2B874524D9A11A00936A4E /* ManagedObjectContextDirectory+EncryptionAtRest.swift */; };
-		EE30F4592592423F000FC69C /* AppLockController+Passcode.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE30F4582592423F000FC69C /* AppLockController+Passcode.swift */; };
 		EE30F45B2592A357000FC69C /* AppLockController.PasscodeKeychainItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE30F45A2592A357000FC69C /* AppLockController.PasscodeKeychainItem.swift */; };
 		EE3EFE95253053B1009499E5 /* PotentialChangeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3EFE94253053B1009499E5 /* PotentialChangeDetector.swift */; };
 		EE3EFE9725305A84009499E5 /* ModifiedObjects+Mergeable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3EFE9625305A84009499E5 /* ModifiedObjects+Mergeable.swift */; };
@@ -1106,7 +1105,6 @@
 		EE09EEB0255959F000919A6B /* ZMUserTests+AnalyticsIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMUserTests+AnalyticsIdentifier.swift"; sourceTree = "<group>"; };
 		EE174FCD2522756700482A70 /* ZMConversationPerformanceTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ZMConversationPerformanceTests.swift; path = Conversation/ZMConversationPerformanceTests.swift; sourceTree = "<group>"; };
 		EE2B874524D9A11A00936A4E /* ManagedObjectContextDirectory+EncryptionAtRest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ManagedObjectContextDirectory+EncryptionAtRest.swift"; sourceTree = "<group>"; };
-		EE30F4582592423F000FC69C /* AppLockController+Passcode.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "AppLockController+Passcode.swift"; sourceTree = "<group>"; };
 		EE30F45A2592A357000FC69C /* AppLockController.PasscodeKeychainItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLockController.PasscodeKeychainItem.swift; sourceTree = "<group>"; };
 		EE3EFE94253053B1009499E5 /* PotentialChangeDetector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PotentialChangeDetector.swift; sourceTree = "<group>"; };
 		EE3EFE9625305A84009499E5 /* ModifiedObjects+Mergeable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ModifiedObjects+Mergeable.swift"; sourceTree = "<group>"; };
@@ -1484,7 +1482,6 @@
 				EEE186B1259CC7CC008707CA /* AppLockDelegate.swift */,
 				EE8B09AE25B86BB20057E85C /* AppLockPasscodePreference.swift */,
 				0686649E256FB0CA001C8747 /* AppLockController.swift */,
-				EE30F4582592423F000FC69C /* AppLockController+Passcode.swift */,
 				EE30F45A2592A357000FC69C /* AppLockController.PasscodeKeychainItem.swift */,
 				066A96FE25A88E510083E317 /* BiometricsState.swift */,
 			);
@@ -3157,7 +3154,6 @@
 				16D68E971CEF2EC4003AB9E0 /* ZMFileMetadata.swift in Sources */,
 				BF421B2D1EF3F91D0079533A /* Team+Patches.swift in Sources */,
 				547E664B1F750E4A008CB1FA /* ZMConnection+Notification.swift in Sources */,
-				EE30F4592592423F000FC69C /* AppLockController+Passcode.swift in Sources */,
 				BF10B59D1E645A3300E7036E /* Analytics+UnknownMessage.swift in Sources */,
 				D5D10DA9203B161700145497 /* ZMConversation+AccessMode.swift in Sources */,
 				0660FEBD2580E4A900F4C19F /* TransferApplockKeychain.swift in Sources */,
