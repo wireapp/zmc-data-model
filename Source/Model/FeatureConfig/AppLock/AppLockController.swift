@@ -35,17 +35,51 @@ public protocol AppLockType {
 
     var delegate: AppLockDelegate? { get set }
 
-    var isActive: Bool { get set }
-    var isLocked: Bool { get }
-    var requiresBiometrics: Bool { get }
-    var needsToSetCustomPasscode: Bool { get }
-    var isCustomPasscodeNotSet: Bool { get }
-    var needsToNotifyUser: Bool { get set }
-    var timeout: UInt { get }
-    var isForced: Bool { get }
+    /// Whether the app lock feature is availble to the user.
+
     var isAvailable: Bool { get }
 
+    /// Whether the app lock on.
+
+    var isActive: Bool { get set }
+
+    /// Whether the app lock is mandatorily active.
+
+    var isForced: Bool { get }
+
+    /// The maximum number of seconds allowed in the background before the
+    /// authentication is required.
+
+    var timeout: UInt { get }
+
+    /// Whether the app lock is currently locked.
+
+    var isLocked: Bool { get }
+
+
+    // TODO: revisit this. It's purpose is to communicate that
+    // the preferred passcode is custom not device.
+
+    var requiresBiometrics: Bool { get }
+
+    // TODO: Delete
+
+    var needsToSetCustomPasscode: Bool { get }
+
+    // TODO: Rename to "isCustomPasscodeSet"
+    /// Whether a custom passcode has been set.
+
+    var isCustomPasscodeNotSet: Bool { get }
+
+    /// Whether the user needs to be informed about configuration changes.
+
+    var needsToNotifyUser: Bool { get set }
+
+    /// Open the app lock.
+
     func open() throws
+
+    // TODO: Delete
 
     func evaluateAuthentication(scenario: AppLockController.AuthenticationScenario,
                                 description: String,
@@ -59,15 +93,20 @@ public protocol AppLockType {
 
     func evaluateAuthentication(customPasscode: String) -> AppLockController.AuthenticationResult
 
+    // TODO: Delete
+
     func persistBiometrics()
     func deletePasscode() throws
     func storePasscode(_ passcode: String) throws
 
-    // TODO: Delete this.
+    // TODO: Delete
     func fetchPasscode() -> Data?
 }
 
 public extension AppLockType {
+
+    // TODO: Delete
+
     func evaluateAuthentication(scenario: AppLockController.AuthenticationScenario,
                                 description: String,
                                 with callback: @escaping (AppLockController.AuthenticationResult, LAContextProtocol) -> Void) {
