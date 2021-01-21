@@ -21,16 +21,6 @@ import LocalAuthentication
 
 private let zmLog = ZMSLog(tag: "AppLockController")
 
-public protocol LAContextProtocol {
-
-    var evaluatedPolicyDomainState: Data? { get }
-
-    func canEvaluatePolicy(_ policy: LAPolicy, error: NSErrorPointer) -> Bool
-    func evaluatePolicy(_ policy: LAPolicy, localizedReason: String, reply: @escaping (Bool, Error?) -> Void)
-}
-
-extension LAContext: LAContextProtocol {}
-
 public protocol AppLockType {
 
     var delegate: AppLockDelegate? { get set }
