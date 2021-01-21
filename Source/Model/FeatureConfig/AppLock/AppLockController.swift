@@ -27,6 +27,10 @@ public final class AppLockController: AppLockType {
 
     public weak var delegate: AppLockDelegate?
 
+    public var isAvailable: Bool {
+        return config.isAvailable
+    }
+
     public var isActive: Bool {
         get {
             return config.forceAppLock || selfUser.isAppLockActive
@@ -38,6 +42,14 @@ public final class AppLockController: AppLockType {
         }
     }
 
+    public var isForced: Bool {
+        return config.forceAppLock
+    }
+
+    public var timeout: UInt {
+        return config.appLockTimeout
+    }
+
     public var isLocked: Bool {
         guard isActive else { return false }
         let timeSinceAuth = -lastUnlockedDate.timeIntervalSinceNow
@@ -45,12 +57,12 @@ public final class AppLockController: AppLockType {
         return !timeoutWindow.contains(timeSinceAuth)
     }
 
-    public var isCustomPasscodeNotSet: Bool {
-        return fetchPasscode() == nil
-    }
-
     public var requiresBiometrics: Bool {
         return config.useBiometricsOrCustomPasscode
+    }
+
+    public var isCustomPasscodeNotSet: Bool {
+        return fetchPasscode() == nil
     }
 
     public var needsToNotifyUser: Bool {
@@ -65,22 +77,18 @@ public final class AppLockController: AppLockType {
         }
     }
 
-    public var timeout: UInt {
-        return config.appLockTimeout
-    }
-
-    public var isForced: Bool {
-        return config.forceAppLock
-    }
-
-    public var isAvailable: Bool {
-        return config.isAvailable
-    }
-
-
     // MARK: - Private properties
 
     private let selfUser: ZMUser
+
+    /// TODO: [John] We need to update this whenever we go to BG or change sessions.
+
+    private var lastUnlockedDate = Date.distantPast
+
+    let keychainItem: PasscodeKeychainItem
+
+    let biometricsState: BiometricsStateProtocol = BiometricsState()
+
     private let baseConfig: Config
 
     private var config: Config {
@@ -96,17 +104,6 @@ public final class AppLockController: AppLockType {
         return result
     }
 
-    let biometricsState: BiometricsStateProtocol = BiometricsState()
-
-    /// TODO: [John] We need to update this whenever we go to BG or change sessions.
-
-    private var lastUnlockedDate = Date.distantPast
-
-    /// a weak reference to LAContext, it should be nil when evaluatePolicy is done.
-    private weak var weakLAContext: LAContext? = nil 
-
-    let keychainItem: PasscodeKeychainItem
-    
     // MARK: - Life cycle
     
     public init(userId: UUID, config: Config, selfUser: ZMUser) {
@@ -206,34 +203,5 @@ public final class AppLockController: AppLockType {
         return try? Keychain.fetchItem(keychainItem)
     }
     
-    // MARK: - Types
-    
-    public struct Config {
-        public let useBiometricsOrCustomPasscode: Bool
-        public var forceAppLock: Bool
-        public var appLockTimeout: UInt
-        public var isAvailable: Bool
-        
-        public init(useBiometricsOrCustomPasscode: Bool,
-                    forceAppLock: Bool,
-                    timeOut: UInt) {
-            self.useBiometricsOrCustomPasscode = useBiometricsOrCustomPasscode
-            self.forceAppLock = forceAppLock
-            self.appLockTimeout = timeOut
-            self.isAvailable = true
-        }
-    }
-
-    public enum AuthenticationResult {
-        /// User sucessfully authenticated
-        case granted
-        /// User failed to authenticate or cancelled the request
-        case denied
-        /// There's no authenticated method available (no passcode is set)
-        case unavailable
-        /// Biometrics failed and custom passcode is needed
-        case needCustomPasscode
-    }
-
 }
 

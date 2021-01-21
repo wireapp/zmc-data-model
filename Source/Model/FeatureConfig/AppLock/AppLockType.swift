@@ -46,7 +46,6 @@ public protocol AppLockType {
 
     var isLocked: Bool { get }
 
-
     // TODO: revisit this. It's purpose is to communicate that
     // the preferred passcode is custom not device.
 
@@ -61,6 +60,14 @@ public protocol AppLockType {
 
     var needsToNotifyUser: Bool { get set }
 
+    /// Delete the stored passcode.
+
+    func deletePasscode() throws
+
+    /// Update the stored passcode.
+
+    func updatePasscode(_ passcode: String) throws
+
     /// Open the app lock.
 
     func open() throws
@@ -71,14 +78,6 @@ public protocol AppLockType {
                                 description: String,
                                 context: LAContextProtocol,
                                 callback: @escaping (AppLockController.AuthenticationResult, LAContextProtocol) -> Void)
-
-    /// Delete the stored passcode.
-
-    func deletePasscode() throws
-
-    /// Update the stored passcode.
-
-    func updatePasscode(_ passcode: String) throws
 
     // TODO: Document
 

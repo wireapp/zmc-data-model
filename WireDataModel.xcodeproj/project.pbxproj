@@ -415,6 +415,8 @@
 		EEAAD760252C713E00E6A44E /* ClassIdentifier.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEAAD75F252C713E00E6A44E /* ClassIdentifier.swift */; };
 		EEBACDA525B9C243000210AC /* LAContextProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBACDA425B9C243000210AC /* LAContextProtocol.swift */; };
 		EEBACDA725B9C2C6000210AC /* AppLockType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBACDA625B9C2C6000210AC /* AppLockType.swift */; };
+		EEBACDA925B9C47E000210AC /* AppLockController.Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBACDA825B9C47E000210AC /* AppLockController.Config.swift */; };
+		EEBACDAB25B9C4B0000210AC /* AppLockController.AuthenticationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBACDAA25B9C4B0000210AC /* AppLockController.AuthenticationResult.swift */; };
 		EEDA9C0E2510F3D5003A5B27 /* ZMConversation+EncryptionAtRest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEDA9C0D2510F3D5003A5B27 /* ZMConversation+EncryptionAtRest.swift */; };
 		EEDA9C1225121277003A5B27 /* NSManagedObjectContextTests+EncryptionAtRest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEDA9C1125121277003A5B27 /* NSManagedObjectContextTests+EncryptionAtRest.swift */; };
 		EEDA9C152513A1DA003A5B27 /* ZMClientMessage+EncryptionAtRest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEDA9C132513A0A5003A5B27 /* ZMClientMessage+EncryptionAtRest.swift */; };
@@ -1139,6 +1141,8 @@
 		EEAAD75F252C713E00E6A44E /* ClassIdentifier.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ClassIdentifier.swift; sourceTree = "<group>"; };
 		EEBACDA425B9C243000210AC /* LAContextProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LAContextProtocol.swift; sourceTree = "<group>"; };
 		EEBACDA625B9C2C6000210AC /* AppLockType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLockType.swift; sourceTree = "<group>"; };
+		EEBACDA825B9C47E000210AC /* AppLockController.Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLockController.Config.swift; sourceTree = "<group>"; };
+		EEBACDAA25B9C4B0000210AC /* AppLockController.AuthenticationResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLockController.AuthenticationResult.swift; sourceTree = "<group>"; };
 		EEDA9C0D2510F3D5003A5B27 /* ZMConversation+EncryptionAtRest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMConversation+EncryptionAtRest.swift"; sourceTree = "<group>"; };
 		EEDA9C1125121277003A5B27 /* NSManagedObjectContextTests+EncryptionAtRest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSManagedObjectContextTests+EncryptionAtRest.swift"; sourceTree = "<group>"; };
 		EEDA9C132513A0A5003A5B27 /* ZMClientMessage+EncryptionAtRest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMClientMessage+EncryptionAtRest.swift"; sourceTree = "<group>"; };
@@ -1485,10 +1489,12 @@
 				EE8B09AC25B86AB10057E85C /* AppLockError.swift */,
 				EEE186B1259CC7CC008707CA /* AppLockDelegate.swift */,
 				EE8B09AE25B86BB20057E85C /* AppLockPasscodePreference.swift */,
-				0686649E256FB0CA001C8747 /* AppLockController.swift */,
 				EEBACDA625B9C2C6000210AC /* AppLockType.swift */,
-				EEBACDA425B9C243000210AC /* LAContextProtocol.swift */,
+				0686649E256FB0CA001C8747 /* AppLockController.swift */,
+				EEBACDA825B9C47E000210AC /* AppLockController.Config.swift */,
+				EEBACDAA25B9C4B0000210AC /* AppLockController.AuthenticationResult.swift */,
 				EE30F45A2592A357000FC69C /* AppLockController.PasscodeKeychainItem.swift */,
+				EEBACDA425B9C243000210AC /* LAContextProtocol.swift */,
 				066A96FE25A88E510083E317 /* BiometricsState.swift */,
 			);
 			path = AppLock;
@@ -3005,6 +3011,7 @@
 				1639A8132260916E00868AB9 /* AlertAvailabilityBehaviourChange.swift in Sources */,
 				F9A706AE1CAEE01D00C2F5FE /* SetSnapshot.swift in Sources */,
 				162A81DD202DA4BC00F6200C /* AssetCache.swift in Sources */,
+				EEBACDAB25B9C4B0000210AC /* AppLockController.AuthenticationResult.swift in Sources */,
 				638805652410FE920043B641 /* ButtonState.swift in Sources */,
 				16460A46206544B00096B616 /* PersistentMetadataKeys.swift in Sources */,
 				5E67168E2174B9AF00522E61 /* LoginCredentials.swift in Sources */,
@@ -3210,6 +3217,7 @@
 				F9A706B41CAEE01D00C2F5FE /* ObjectChangeInfo.swift in Sources */,
 				F9A706AA1CAEE01D00C2F5FE /* KeySet.swift in Sources */,
 				16460A44206515370096B616 /* NSManagedObjectContext+BackupImport.swift in Sources */,
+				EEBACDA925B9C47E000210AC /* AppLockController.Config.swift in Sources */,
 				16E6F24824B36D550015B249 /* NSManagedObjectContext+EncryptionAtRest.swift in Sources */,
 				F90D99A51E02DC6B00034070 /* AssetCollectionBatched.swift in Sources */,
 				54FB03AF1E41FC86000E13DC /* NSManagedObjectContext+Patches.swift in Sources */,
