@@ -32,7 +32,8 @@ class TransferAppLockKeychainTests: DiskDatabaseTest {
             timeOut: 900
         )
 
-        appLock = AppLockController(config: config, selfUser: ZMUser.selfUser(in: moc))
+        let selfUser = ZMUser.selfUser(in: moc)
+        appLock = AppLockController(userId: selfUser.remoteIdentifier!, config: config, selfUser: selfUser)
     }
     
     override func tearDown() {
@@ -78,7 +79,7 @@ class TransferAppLockKeychainTests: DiskDatabaseTest {
         TransferApplockKeychain.migrateAppLockPasscode(in: moc)
 
         // Then
-        let item = AppLockController.PasscodeKeychainItem(user: ZMUser.selfUser(in: moc))
+        let item = AppLockController.PasscodeKeychainItem(userId: ZMUser.selfUser(in: moc).remoteIdentifier)
         XCTAssertEqual(try Keychain.fetchItem(item), passcode)
 
         // We shouldn't delete the legacy item because it's shared between all accounts.

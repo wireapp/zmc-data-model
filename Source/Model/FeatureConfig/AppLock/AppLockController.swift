@@ -87,7 +87,7 @@ public final class AppLockController: AppLockType {
 
     let keychainItem: PasscodeKeychainItem
 
-    let biometricsState: BiometricsStateProtocol = BiometricsState()
+    var biometricsState: BiometricsStateProtocol = BiometricsState()
 
     private let baseConfig: Config
 
