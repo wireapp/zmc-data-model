@@ -182,13 +182,15 @@ public final class AppLockController: AppLockType {
     /// a weak reference to LAContext, it should be nil when evaluatePolicy is done.
     private weak var weakLAContext: LAContext? = nil 
 
-    lazy var keychainItem: PasscodeKeychainItem = .init(user: selfUser)
+    let keychainItem: PasscodeKeychainItem
     
     // MARK: - Life cycle
     
-    public init(config: Config, selfUser: ZMUser) {
+    public init(userId: UUID, config: Config, selfUser: ZMUser) {
         precondition(selfUser.isSelfUser, "AppLockController initialized with non-self user")
-        
+
+        // It's safer use userId rather than selfUser.remoteIdentifier!
+        self.keychainItem = PasscodeKeychainItem(userId: userId)
         self.baseConfig = config
         self.selfUser = selfUser
     }
