@@ -25,13 +25,13 @@ public extension AppLockController {
         public var isAvailable: Bool
         public var isForced: Bool
         public var timeout: UInt
-        public let useBiometricsOrCustomPasscode: Bool
+        public let requireCustomPasscode: Bool
 
-        public init(isAvailable: Bool, isForced: Bool, timeout: UInt, useBiometricsOrCustomPasscode: Bool) {
+        public init(isAvailable: Bool, isForced: Bool, timeout: UInt, requireCustomPasscode: Bool) {
             self.isAvailable = isAvailable
             self.isForced = isForced
             self.timeout = timeout
-            self.useBiometricsOrCustomPasscode = useBiometricsOrCustomPasscode
+            self.requireCustomPasscode = requireCustomPasscode
         }
     }
 

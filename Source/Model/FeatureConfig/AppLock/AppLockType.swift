@@ -46,15 +46,13 @@ public protocol AppLockType {
 
     var isLocked: Bool { get }
 
-    // TODO: revisit this. It's purpose is to communicate that
-    // the preferred passcode is custom not device.
+    /// Whether a custom passcode (rather a device passcode) should be used.
 
-    var requiresBiometrics: Bool { get }
+    var requireCustomPasscode: Bool { get }
 
-    // TODO: Rename to "isCustomPasscodeSet"
     /// Whether a custom passcode has been set.
 
-    var isCustomPasscodeNotSet: Bool { get }
+    var isCustomPasscodeSet: Bool { get }
 
     /// Whether the user needs to be informed about configuration changes.
 

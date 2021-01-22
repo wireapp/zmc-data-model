@@ -30,7 +30,7 @@ class TransferAppLockKeychainTests: DiskDatabaseTest {
             isAvailable: true,
             isForced: false,
             timeout: 900,
-            useBiometricsOrCustomPasscode: false
+            requireCustomPasscode: false
         )
 
         let selfUser = ZMUser.selfUser(in: moc)

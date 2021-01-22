@@ -44,7 +44,7 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
     func testThatForcedAppLockDoesntAffectSettings() {
         
         //given
-        sut = createAppLockController(forceAppLock: true)
+        sut = createAppLockController(isForced: true)
         XCTAssertTrue(sut.isForced)
         
         //when
@@ -141,7 +141,7 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
     func testThatItHonorsForcedAppLockFromTheBaseConfiguration() {
         
         //given
-        sut = createAppLockController(forceAppLock: true)
+        sut = createAppLockController(isForced: true)
         XCTAssertTrue(sut.isForced)
         
         //when
@@ -250,12 +250,12 @@ extension AppLockControllerTest {
         }
     }
     
-    private func createAppLockController(useBiometricsOrCustomPasscode: Bool = false, forceAppLock: Bool = false, timeOut: UInt = 900) -> AppLockController {
+    private func createAppLockController(isForced: Bool = false, timeout: UInt = 900, requireCustomPasscode: Bool = false) -> AppLockController {
         let config = AppLockController.Config(
             isAvailable: true,
-            isForced: forceAppLock,
-            timeout: timeOut,
-            useBiometricsOrCustomPasscode: useBiometricsOrCustomPasscode
+            isForced: isForced,
+            timeout: timeout,
+            requireCustomPasscode: requireCustomPasscode
         )
 
         return AppLockController(userId: selfUser.remoteIdentifier, config: config, selfUser: selfUser)

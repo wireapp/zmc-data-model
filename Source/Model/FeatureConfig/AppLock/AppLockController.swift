@@ -57,12 +57,12 @@ public final class AppLockController: AppLockType {
         return !timeoutWindow.contains(timeSinceAuth)
     }
 
-    public var requiresBiometrics: Bool {
-        return config.useBiometricsOrCustomPasscode
+    public var requireCustomPasscode: Bool {
+        return config.requireCustomPasscode
     }
 
-    public var isCustomPasscodeNotSet: Bool {
-        return fetchPasscode() == nil
+    public var isCustomPasscodeSet: Bool {
+        return fetchPasscode() != nil
     }
 
     public var needsToNotifyUser: Bool {
