@@ -52,9 +52,18 @@ public final class AppLockController: AppLockType {
 
     public var isLocked: Bool {
         guard isActive else { return false }
-        let timeSinceAuth = -lastUnlockedDate.timeIntervalSinceNow
-        let timeoutWindow = 0..<Double(timeout)
-        return !timeoutWindow.contains(timeSinceAuth)
+
+        switch state {
+        case .unlocked:
+            return false
+
+        case .locked:
+            return true
+
+        case .needsChecking:
+            state = isTimeoutExceeded ? .locked : .unlocked
+            return state == .locked
+        }
     }
 
     public var requireCustomPasscode: Bool {
@@ -81,9 +90,15 @@ public final class AppLockController: AppLockType {
 
     private let selfUser: ZMUser
 
-    /// TODO: [John] We need to update this whenever we go to BG or change sessions.
+    private(set) var state = State.locked
 
-    var lastUnlockedDate = Date.distantPast
+    private(set) var lastCheckpoint = Date.distantPast
+
+    private var isTimeoutExceeded: Bool {
+        let timeSinceAuth = -lastCheckpoint.timeIntervalSinceNow
+        let timeoutWindow = 0..<Double(timeout)
+        return !timeoutWindow.contains(timeSinceAuth)
+    }
 
     let keychainItem: PasscodeKeychainItem
 
@@ -116,6 +131,11 @@ public final class AppLockController: AppLockType {
     }
     
     // MARK: - Methods
+
+    public func beginTimer() {
+        state = .needsChecking
+        lastCheckpoint = Date()
+    }
 
     /// Open the app lock.
     ///
@@ -167,7 +187,7 @@ public final class AppLockController: AppLockType {
             }
 
             if result == .granted {
-                self.lastUnlockedDate = Date()
+                self.state = .unlocked
             }
 
             callback(result, context)
@@ -183,7 +203,7 @@ public final class AppLockController: AppLockType {
             return .denied
         }
 
-        lastUnlockedDate = Date()
+        state = .unlocked
         biometricsState.persistState()
         return .granted
     }
@@ -207,4 +227,18 @@ public final class AppLockController: AppLockType {
         return try? Keychain.fetchItem(keychainItem)
     }
     
+}
+
+// MARK: - TEST ONLY!
+
+extension AppLockController {
+
+    func _setState(_ state: State) {
+        self.state = state
+    }
+
+    func _setLastCheckpoint(_ checkpoint: Date) {
+        lastCheckpoint = checkpoint
+    }
+
 }

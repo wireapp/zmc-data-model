@@ -28,6 +28,7 @@ final class AppLockControllerTests: ZMBaseManagedObjectTest {
         super.setUp()
         selfUser = ZMUser.selfUser(in: uiMOC)
         selfUser.remoteIdentifier = .create()
+        selfUser.isAppLockActive = true
     }
     
     override func tearDown() {
@@ -85,11 +86,29 @@ final class AppLockControllerTests: ZMBaseManagedObjectTest {
 
     // MARK: - Is locked
 
+    func test_ItIsLocked_IfStateIsAlreadyLocked() {
+        // Given
+        let sut = createAppLockController(timeout: 10)
+        sut._setState(.locked)
+
+        // Then
+        XCTAssertTrue(sut.isLocked)
+    }
+
+    func test_ItIsNotLocked_IfStateIsAlreadyUnlocked() {
+        // Given
+        let sut = createAppLockController(timeout: 10)
+        sut._setState(.unlocked)
+
+        // Then
+        XCTAssertFalse(sut.isLocked)
+    }
+
     func test_ItIsLocked_WhenTimeoutIsExceeded() {
         // Given
         let sut = createAppLockController(timeout: 10)
-        sut.lastUnlockedDate = Date(timeIntervalSinceNow: -15)
-        selfUser.isAppLockActive = true
+        sut._setState(.needsChecking)
+        sut._setLastCheckpoint(Date(timeIntervalSinceNow: -15))
 
         // Then
         XCTAssertTrue(sut.isLocked)
@@ -98,8 +117,9 @@ final class AppLockControllerTests: ZMBaseManagedObjectTest {
     func test_ItIsNotLocked_WhenTimeoutIsExceeded_ButNotActive() {
         // Given
         let sut = createAppLockController(timeout: 10)
-        sut.lastUnlockedDate = Date(timeIntervalSinceNow: -15)
-        selfUser.isAppLockActive = false
+        sut._setState(.needsChecking)
+        sut._setLastCheckpoint(Date(timeIntervalSinceNow: -15))
+        sut.isActive = false
 
         // Then
         XCTAssertFalse(sut.isLocked)
@@ -108,11 +128,25 @@ final class AppLockControllerTests: ZMBaseManagedObjectTest {
     func test_ItIsNotLocked_WhenTimeoutIsNotExceeded() {
         // Given
         let sut = createAppLockController(timeout: 10)
-        sut.lastUnlockedDate = Date(timeIntervalSinceNow: -5)
-        selfUser.isAppLockActive = true
+        sut._setState(.needsChecking)
+        sut._setLastCheckpoint(Date(timeIntervalSinceNow: -5))
 
         // Then
         XCTAssertFalse(sut.isLocked)
+    }
+
+    // MARK: - Begin timer
+
+    func test_ItBeginsTheTimer() {
+        // Given
+        let sut = createAppLockController(timeout: 10)
+
+        // When
+        sut.beginTimer()
+
+        // Then
+        XCTAssertEqual(sut.state, .needsChecking)
+        XCTAssertEqual(sut.lastCheckpoint.timeIntervalSinceNow, 0, accuracy: 0.1)
     }
 
     // MARK: - Open
@@ -120,9 +154,7 @@ final class AppLockControllerTests: ZMBaseManagedObjectTest {
     func test_ItOpens_IfNotLocked() {
         // Given
         let sut = createAppLockController(timeout: 10)
-        sut.lastUnlockedDate = Date()
-        selfUser.isAppLockActive = true
-        XCTAssertFalse(sut.isLocked)
+        sut._setState(.unlocked)
 
         let delegate = Delegate()
         sut.delegate = delegate
@@ -137,9 +169,7 @@ final class AppLockControllerTests: ZMBaseManagedObjectTest {
     func test_ItDoesNotOpen_IfLocked() {
         // Given
         let sut = createAppLockController(timeout: 10)
-        sut.lastUnlockedDate = Date(timeIntervalSinceNow:  -15)
-        selfUser.isAppLockActive = true
-        XCTAssertTrue(sut.isLocked)
+        sut._setState(.locked)
 
         let delegate = Delegate()
         sut.delegate = delegate
@@ -157,6 +187,7 @@ final class AppLockControllerTests: ZMBaseManagedObjectTest {
         // Then
         XCTAssertFalse(delegate.didCallAppLockDidOpen)
     }
+    
 
     // MARK: - Evaluate Authentication
 
@@ -252,8 +283,28 @@ final class AppLockControllerTests: ZMBaseManagedObjectTest {
 
         // Then
         XCTAssertEqual(result, .granted)
-        XCTAssertEqual(sut.lastUnlockedDate.timeIntervalSinceNow, 0, accuracy: 0.1)
+        XCTAssertFalse(sut.isLocked)
         XCTAssertTrue(mockBiometricsState.didCallPersistState)
+
+        // Clean up
+        try sut.deletePasscode()
+    }
+
+    func test_ItEvaluatesAuthentication_WithInCorrectCustomPasscode() throws {
+        // Given
+        let sut = createAppLockController()
+        try sut.updatePasscode("boo!")
+
+        let mockBiometricsState = MockBiometricsState()
+        sut.biometricsState = mockBiometricsState
+
+        // When
+        let result = sut.evaluateAuthentication(customPasscode: "ahh!")
+
+        // Then
+        XCTAssertEqual(result, .denied)
+        XCTAssertTrue(sut.isLocked)
+        XCTAssertFalse(mockBiometricsState.didCallPersistState)
 
         // Clean up
         try sut.deletePasscode()
@@ -300,6 +351,9 @@ final class AppLockControllerTests: ZMBaseManagedObjectTest {
 
         // Then
         XCTAssertTrue(sut.isCustomPasscodeSet)
+
+        // Clean up
+        try sut.deletePasscode()
     }
 
 }
@@ -313,7 +367,6 @@ extension AppLockControllerTests {
     
     private func assert(input: Input, output: Output, file: StaticString = #file, line: UInt = #line) {
         let sut = createAppLockController()
-        sut.lastUnlockedDate = .distantPast
 
         let mockBiometricsState = MockBiometricsState()
         mockBiometricsState._biometricsChanged = input.biometricsChanged
@@ -325,9 +378,9 @@ extension AppLockControllerTests {
             XCTAssertEqual(result, output, file: file, line: line)
 
             if output == .granted {
-                XCTAssertEqual(sut.lastUnlockedDate.timeIntervalSinceNow, 0, accuracy: 0.1, file: file, line: line)
+                XCTAssertFalse(sut.isLocked, "isLocked should be false", file: file, line: line)
             } else {
-                XCTAssertEqual(sut.lastUnlockedDate, .distantPast, file: file, line: line)
+                XCTAssertTrue(sut.isLocked, "isLocked should be true", file: file, line: line)
             }
         }
         

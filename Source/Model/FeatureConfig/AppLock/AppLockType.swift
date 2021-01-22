@@ -66,6 +66,13 @@ public protocol AppLockType {
 
     func updatePasscode(_ passcode: String) throws
 
+    /// Begin the "inactivity" timer.
+    ///
+    /// This should be called when the user has left the private space being
+    /// protected by the app lock, e.g when switching accounts or leaving the app.
+
+    func beginTimer()
+
     /// Open the app lock.
 
     func open() throws
