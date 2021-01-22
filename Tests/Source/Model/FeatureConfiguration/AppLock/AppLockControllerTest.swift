@@ -251,9 +251,13 @@ extension AppLockControllerTest {
     }
     
     private func createAppLockController(useBiometricsOrCustomPasscode: Bool = false, forceAppLock: Bool = false, timeOut: UInt = 900) -> AppLockController {
-        let config = AppLockController.Config(useBiometricsOrCustomPasscode: useBiometricsOrCustomPasscode,
-                                              forceAppLock: forceAppLock,
-                                              timeOut: timeOut)
+        let config = AppLockController.Config(
+            isAvailable: true,
+            isForced: forceAppLock,
+            timeout: timeOut,
+            useBiometricsOrCustomPasscode: useBiometricsOrCustomPasscode
+        )
+
         return AppLockController(userId: selfUser.remoteIdentifier, config: config, selfUser: selfUser)
     }
 }

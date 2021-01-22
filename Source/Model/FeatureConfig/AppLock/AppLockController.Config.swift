@@ -22,19 +22,16 @@ public extension AppLockController {
 
     struct Config {
 
-        public let useBiometricsOrCustomPasscode: Bool
-        public var forceAppLock: Bool
-        public var appLockTimeout: UInt
         public var isAvailable: Bool
+        public var isForced: Bool
+        public var timeout: UInt
+        public let useBiometricsOrCustomPasscode: Bool
 
-        public init(useBiometricsOrCustomPasscode: Bool,
-                    forceAppLock: Bool,
-                    timeOut: UInt) {
-
+        public init(isAvailable: Bool, isForced: Bool, timeout: UInt, useBiometricsOrCustomPasscode: Bool) {
+            self.isAvailable = isAvailable
+            self.isForced = isForced
+            self.timeout = timeout
             self.useBiometricsOrCustomPasscode = useBiometricsOrCustomPasscode
-            self.forceAppLock = forceAppLock
-            self.appLockTimeout = timeOut
-            self.isAvailable = true
         }
     }
 

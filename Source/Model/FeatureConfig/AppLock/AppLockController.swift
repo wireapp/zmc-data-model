@@ -19,9 +19,9 @@
 import Foundation
 import LocalAuthentication
 
-private let zmLog = ZMSLog(tag: "AppLockController")
-
 public final class AppLockController: AppLockType {
+
+    static let log = ZMSLog(tag: "AppLockController")
 
     // MARK: - Properties
 
@@ -33,27 +33,27 @@ public final class AppLockController: AppLockType {
 
     public var isActive: Bool {
         get {
-            return config.forceAppLock || selfUser.isAppLockActive
+            return isForced || selfUser.isAppLockActive
         }
 
         set {
-            guard !config.forceAppLock else { return }
+            guard !isForced else { return }
             selfUser.isAppLockActive = newValue
         }
     }
 
     public var isForced: Bool {
-        return config.forceAppLock
+        return config.isForced
     }
 
     public var timeout: UInt {
-        return config.appLockTimeout
+        return config.timeout
     }
 
     public var isLocked: Bool {
         guard isActive else { return false }
         let timeSinceAuth = -lastUnlockedDate.timeIntervalSinceNow
-        let timeoutWindow = 0..<Double(config.appLockTimeout)
+        let timeoutWindow = 0..<Double(timeout)
         return !timeoutWindow.contains(timeSinceAuth)
     }
 
@@ -93,14 +93,14 @@ public final class AppLockController: AppLockType {
 
     private var config: Config {
         guard let team = selfUser.team else { return baseConfig }
-        
+
         let feature = team.feature(for: Feature.AppLock.self)
-        
+
         var result = baseConfig
-        result.forceAppLock = baseConfig.forceAppLock || feature.config.enforceAppLock
-        result.appLockTimeout = feature.config.inactivityTimeoutSecs
+        result.isForced = baseConfig.isForced || feature.config.enforceAppLock
+        result.timeout = feature.config.inactivityTimeoutSecs
         result.isAvailable = (feature.status == .enabled)
-        
+
         return result
     }
 
@@ -129,6 +129,8 @@ public final class AppLockController: AppLockType {
         delegate?.appLockDidOpen(self)
     }
 
+    // MARK: - Authentication
+
     public func evaluateAuthentication(passcodePreference: AppLockPasscodePreference,
                                        description: String,
                                        context: LAContextProtocol = LAContext(),
@@ -153,7 +155,7 @@ public final class AppLockController: AppLockType {
 
         guard canEvaluatePolicy else {
             callback(.unavailable, context)
-            zmLog.error("Local authentication error: \(String(describing: error?.localizedDescription))")
+            Self.log.error("Local authentication error: \(String(describing: error?.localizedDescription))")
             return
         }
 
@@ -185,6 +187,8 @@ public final class AppLockController: AppLockType {
         biometricsState.persistState()
         return .granted
     }
+
+    // MARK: - Passcode management
 
     public func updatePasscode(_ passcode: String) throws {
         try deletePasscode()
