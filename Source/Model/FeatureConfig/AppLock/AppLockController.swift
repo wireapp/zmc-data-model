@@ -134,7 +134,7 @@ public final class AppLockController: AppLockType {
     public func evaluateAuthentication(passcodePreference: AppLockPasscodePreference,
                                        description: String,
                                        context: LAContextProtocol = LAContext(),
-                                       callback: @escaping (AuthenticationResult, LAContextProtocol) -> Void) {
+                                       callback: @escaping (AppLockAuthenticationResult, LAContextProtocol) -> Void) {
         let policy = passcodePreference.policy
         var error: NSError?
         let canEvaluatePolicy = context.canEvaluatePolicy(policy, error: &error)
@@ -160,7 +160,7 @@ public final class AppLockController: AppLockType {
         }
 
         context.evaluatePolicy(policy, localizedReason: description) { success, error in
-            var result: AuthenticationResult = success ? .granted : .denied
+            var result: AppLockAuthenticationResult = success ? .granted : .denied
 
             if let laError = error as? LAError, laError.code == .userFallback, passcodePreference.allowsCustomPasscode {
                 result = .needCustomPasscode
@@ -174,7 +174,7 @@ public final class AppLockController: AppLockType {
         }
     }
 
-    public func evaluateAuthentication(customPasscode: String) -> AuthenticationResult {
+    public func evaluateAuthentication(customPasscode: String) -> AppLockAuthenticationResult {
         guard
             let storedPasscode = fetchPasscode(),
             let passcode = customPasscode.data(using: .utf8),

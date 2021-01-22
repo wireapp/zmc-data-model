@@ -70,16 +70,25 @@ public protocol AppLockType {
 
     func open() throws
 
-    // TODO: document
+    /// Authenticate with device owner credentials (biometrics or passcode).
+    ///
+    /// - Parameters:
+    ///     - passcodePreference: Used to determine which type of passcode is used.
+    ///     - description: The message to dispaly in the authentication UI.
+    ///     - context: The context in which authentication happens.
+    ///     - callback: Invoked with the authentication result.
 
     func evaluateAuthentication(passcodePreference: AppLockPasscodePreference,
                                 description: String,
                                 context: LAContextProtocol,
-                                callback: @escaping (AppLockController.AuthenticationResult, LAContextProtocol) -> Void)
+                                callback: @escaping (AppLockAuthenticationResult, LAContextProtocol) -> Void)
 
-    // TODO: Document
+    /// Authenticate with a custom passcode.
+    ///
+    /// - Parameter customPasscode: The user inputted passcode.
+    /// - Returns: The authentication result, which should be either `granted` or `denied`.
 
-    func evaluateAuthentication(customPasscode: String) -> AppLockController.AuthenticationResult
+    func evaluateAuthentication(customPasscode: String) -> AppLockAuthenticationResult
 
 }
 
@@ -87,7 +96,7 @@ public extension AppLockType {
 
     func evaluateAuthentication(passcodePreference: AppLockPasscodePreference,
                                 description: String,
-                                callback: @escaping (AppLockController.AuthenticationResult, LAContextProtocol) -> Void) {
+                                callback: @escaping (AppLockAuthenticationResult, LAContextProtocol) -> Void) {
 
         evaluateAuthentication(passcodePreference: passcodePreference,
                                description: description,

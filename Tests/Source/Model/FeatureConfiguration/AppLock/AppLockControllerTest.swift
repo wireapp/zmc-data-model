@@ -238,7 +238,7 @@ extension AppLockControllerTest {
 
     typealias Input = (passcodePreference: AppLockPasscodePreference, canEvaluate: Bool, biometricsChanged: Bool)
     
-    private func assert(input: Input, output: AppLockController.AuthenticationResult, file: StaticString = #file, line: UInt = #line) {
+    private func assert(input: Input, output: AppLockAuthenticationResult, file: StaticString = #file, line: UInt = #line) {
         let context = MockLAContext(canEvaluate: input.canEvaluate)
         sut.biometricsState = MockBiometricsState(didChange: input.biometricsChanged)
         

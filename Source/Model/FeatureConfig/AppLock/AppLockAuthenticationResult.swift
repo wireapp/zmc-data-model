@@ -18,24 +18,20 @@
 
 import Foundation
 
-public extension AppLockController {
+public enum AppLockAuthenticationResult {
 
-    enum AuthenticationResult {
+    /// User sucessfully authenticated.
+    case granted
 
-        /// User sucessfully authenticated.
-        case granted
+    /// User failed to authenticate or cancelled the request.
 
-        /// User failed to authenticate or cancelled the request.
+    case denied
 
-        case denied
+    /// There's no authenticated method available (no device passcode is set).
 
-        /// There's no authenticated method available (no device passcode is set).
+    case unavailable
 
-        case unavailable
+    /// The custom passcode is needed.
 
-        /// The custom passcode is needed.
-
-        case needCustomPasscode
-    }
-
+    case needCustomPasscode
 }

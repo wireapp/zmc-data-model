@@ -416,7 +416,7 @@
 		EEBACDA525B9C243000210AC /* LAContextProtocol.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBACDA425B9C243000210AC /* LAContextProtocol.swift */; };
 		EEBACDA725B9C2C6000210AC /* AppLockType.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBACDA625B9C2C6000210AC /* AppLockType.swift */; };
 		EEBACDA925B9C47E000210AC /* AppLockController.Config.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBACDA825B9C47E000210AC /* AppLockController.Config.swift */; };
-		EEBACDAB25B9C4B0000210AC /* AppLockController.AuthenticationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBACDAA25B9C4B0000210AC /* AppLockController.AuthenticationResult.swift */; };
+		EEBACDAB25B9C4B0000210AC /* AppLockAuthenticationResult.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEBACDAA25B9C4B0000210AC /* AppLockAuthenticationResult.swift */; };
 		EEDA9C0E2510F3D5003A5B27 /* ZMConversation+EncryptionAtRest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEDA9C0D2510F3D5003A5B27 /* ZMConversation+EncryptionAtRest.swift */; };
 		EEDA9C1225121277003A5B27 /* NSManagedObjectContextTests+EncryptionAtRest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEDA9C1125121277003A5B27 /* NSManagedObjectContextTests+EncryptionAtRest.swift */; };
 		EEDA9C152513A1DA003A5B27 /* ZMClientMessage+EncryptionAtRest.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEDA9C132513A0A5003A5B27 /* ZMClientMessage+EncryptionAtRest.swift */; };
@@ -1142,7 +1142,7 @@
 		EEBACDA425B9C243000210AC /* LAContextProtocol.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LAContextProtocol.swift; sourceTree = "<group>"; };
 		EEBACDA625B9C2C6000210AC /* AppLockType.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLockType.swift; sourceTree = "<group>"; };
 		EEBACDA825B9C47E000210AC /* AppLockController.Config.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLockController.Config.swift; sourceTree = "<group>"; };
-		EEBACDAA25B9C4B0000210AC /* AppLockController.AuthenticationResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLockController.AuthenticationResult.swift; sourceTree = "<group>"; };
+		EEBACDAA25B9C4B0000210AC /* AppLockAuthenticationResult.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLockAuthenticationResult.swift; sourceTree = "<group>"; };
 		EEDA9C0D2510F3D5003A5B27 /* ZMConversation+EncryptionAtRest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMConversation+EncryptionAtRest.swift"; sourceTree = "<group>"; };
 		EEDA9C1125121277003A5B27 /* NSManagedObjectContextTests+EncryptionAtRest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "NSManagedObjectContextTests+EncryptionAtRest.swift"; sourceTree = "<group>"; };
 		EEDA9C132513A0A5003A5B27 /* ZMClientMessage+EncryptionAtRest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMClientMessage+EncryptionAtRest.swift"; sourceTree = "<group>"; };
@@ -1486,14 +1486,14 @@
 			isa = PBXGroup;
 			children = (
 				EE4CCA94256C558400848212 /* Feature.AppLock.swift */,
-				EE8B09AC25B86AB10057E85C /* AppLockError.swift */,
-				EEE186B1259CC7CC008707CA /* AppLockDelegate.swift */,
-				EE8B09AE25B86BB20057E85C /* AppLockPasscodePreference.swift */,
 				EEBACDA625B9C2C6000210AC /* AppLockType.swift */,
+				EEE186B1259CC7CC008707CA /* AppLockDelegate.swift */,
 				0686649E256FB0CA001C8747 /* AppLockController.swift */,
 				EEBACDA825B9C47E000210AC /* AppLockController.Config.swift */,
-				EEBACDAA25B9C4B0000210AC /* AppLockController.AuthenticationResult.swift */,
 				EE30F45A2592A357000FC69C /* AppLockController.PasscodeKeychainItem.swift */,
+				EE8B09AE25B86BB20057E85C /* AppLockPasscodePreference.swift */,
+				EEBACDAA25B9C4B0000210AC /* AppLockAuthenticationResult.swift */,
+				EE8B09AC25B86AB10057E85C /* AppLockError.swift */,
 				EEBACDA425B9C243000210AC /* LAContextProtocol.swift */,
 				066A96FE25A88E510083E317 /* BiometricsState.swift */,
 			);
@@ -3011,7 +3011,7 @@
 				1639A8132260916E00868AB9 /* AlertAvailabilityBehaviourChange.swift in Sources */,
 				F9A706AE1CAEE01D00C2F5FE /* SetSnapshot.swift in Sources */,
 				162A81DD202DA4BC00F6200C /* AssetCache.swift in Sources */,
-				EEBACDAB25B9C4B0000210AC /* AppLockController.AuthenticationResult.swift in Sources */,
+				EEBACDAB25B9C4B0000210AC /* AppLockAuthenticationResult.swift in Sources */,
 				638805652410FE920043B641 /* ButtonState.swift in Sources */,
 				16460A46206544B00096B616 /* PersistentMetadataKeys.swift in Sources */,
 				5E67168E2174B9AF00522E61 /* LoginCredentials.swift in Sources */,
