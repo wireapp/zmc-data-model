@@ -1,6 +1,6 @@
 //
 // Wire
-// Copyright (C) 2020 Wire Swiss GmbH
+// Copyright (C) 2021 Wire Swiss GmbH
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -83,7 +83,7 @@ public final class AppLockController: AppLockType {
 
     /// TODO: [John] We need to update this whenever we go to BG or change sessions.
 
-    private var lastUnlockedDate = Date.distantPast
+    var lastUnlockedDate = Date.distantPast
 
     let keychainItem: PasscodeKeychainItem
 
@@ -203,9 +203,8 @@ public final class AppLockController: AppLockType {
         try Keychain.storeItem(keychainItem, value: passcode.data(using: .utf8)!)
     }
 
-    private func fetchPasscode() -> Data? {
+    func fetchPasscode() -> Data? {
         return try? Keychain.fetchItem(keychainItem)
     }
     
 }
-

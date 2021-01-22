@@ -19,14 +19,18 @@
 import Foundation
 @testable import WireDataModel
 
-struct MockBiometricsState: BiometricsStateProtocol {
+class MockBiometricsState: BiometricsStateProtocol {
 
-    let didChange: Bool
+    var _biometricsChanged = false
+    var didCallPersistState = false
+
 
     func biometricsChanged(in context: LAContextProtocol) -> Bool {
-        return didChange
+        return _biometricsChanged
     }
 
-    func persistState() {}
+    func persistState() {
+        didCallPersistState = true
+    }
 
 }
