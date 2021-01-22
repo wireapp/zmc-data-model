@@ -94,7 +94,7 @@ public protocol ZMConversationMessage : NSObjectProtocol {
     /// The location message data associated with the message. If the message is not a location message, it will be nil
     var locationMessageData: LocationMessageData? { get }
 
-    var usersReaction : Dictionary<String, [ZMUser]> { get }
+    var usersReaction : Dictionary<String, [UserType]> { get }
     
     /// In case this message failed to deliver, this will resend it
     func resend()
@@ -307,9 +307,9 @@ extension ZMMessage {
         return .delivered
     }
     
-    @objc public var usersReaction : Dictionary<String, [ZMUser]> {
+    @objc public var usersReaction : Dictionary<String, [UserType]> {
         var result = Dictionary<String, [ZMUser]>()
-        for reaction in self.reactions {
+        for reaction in reactions {
             if reaction.users.count > 0 {
                 result[reaction.unicodeValue!] = Array<ZMUser>(reaction.users)
             }
