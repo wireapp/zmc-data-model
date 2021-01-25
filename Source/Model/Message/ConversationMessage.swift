@@ -203,6 +203,10 @@ extension ZMMessage {
 // MARK:- Conversation Message protocol implementation
 
 extension ZMMessage : ZMConversationMessage {
+    public var conversationLike: ConversationLike? {
+        return conversation
+    }
+    
     public var senderUser: UserType? {
         return sender
     }
