@@ -56,9 +56,12 @@ public protocol ZMConversationMessage : NSObjectProtocol {
     /// The timestamp as received by the server
     var serverTimestamp: Date? { get }
     
-    /// The conversation this message belongs to
+    @available(*, deprecated, message: "Use `conversationLike` instead")
     var conversation: ZMConversation? { get }
     
+    /// The conversation this message belongs to
+    var conversationLike: ConversationLike? { get }
+
     /// The current delivery state of this message. It makes sense only for
     /// messages sent from this device. In any other case, it will be
     /// ZMDeliveryStateDelivered
