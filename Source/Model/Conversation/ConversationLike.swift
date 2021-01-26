@@ -19,7 +19,7 @@
 
 import Foundation
 
-typealias Conversation = ConversationLike & SwiftConversationLike
+public typealias Conversation = ConversationLike & SwiftConversationLike
 
 @objc
 public protocol ConversationLike: NSObjectProtocol {
