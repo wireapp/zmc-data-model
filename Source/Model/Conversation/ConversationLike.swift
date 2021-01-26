@@ -19,6 +19,8 @@
 
 import Foundation
 
+typealias Conversation = ConversationLike & SwiftConversationLike
+
 @objc
 public protocol ConversationLike: NSObjectProtocol {
     var conversationType: ZMConversationType { get }
@@ -32,6 +34,8 @@ public protocol ConversationLike: NSObjectProtocol {
     var allowGuests: Bool { get }
     var team: Team? { get }
 
+    var isUnderLegalHold: Bool { get }
+    var securityLevel: ZMConversationSecurityLevel { get }
 }
 
 // Since ConversationLike must have @objc signature(@objc UserType has a ConversationLike property), create another protocol to abstract Swift only properties
