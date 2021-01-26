@@ -26,11 +26,28 @@ public protocol ConversationLike: NSObjectProtocol {
     var teamRemoteIdentifier: UUID? { get }
     
     func localParticipantsContain(user: UserType) -> Bool
+
+    var displayName: String { get }
+    var connectedUserType: UserType? { get }
+    var allowGuests: Bool { get }
+    var team: Team? { get }
+
+}
+
+public protocol SwiftConversationLike {
+        var accessMode: ConversationAccessMode? { get }
+        var accessRole: ConversationAccessRole? { get }
+    
+        var messageDestructionTimeout: WireDataModel.MessageDestructionTimeout? { get }
 }
 
 extension ZMConversation: ConversationLike {
     public func localParticipantsContain(user: UserType) -> Bool {
         guard let user = user as? ZMUser else { return false }
         return localParticipants.contains(user)
+    }
+    
+    public var connectedUserType: UserType? {
+        return connectedUser
     }
 }
