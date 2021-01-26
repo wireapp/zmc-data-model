@@ -33,6 +33,7 @@
 #import "ZMUpdateEvent+WireDataModel.h"
 
 #import <WireDataModel/WireDataModel-Swift.h>
+#import <WireCryptobox/cbox.h>
 
 
 static NSString *ZMLogTag ZM_UNUSED = @"ephemeral";
@@ -900,6 +901,22 @@ NSString * const ZMMessageDecryptionErrorCodeKey = @"decryptionErrorCode";
         self.needsUpdatingUsers = [self.addedUsers anyObjectMatchingWithBlock:matchUnfetchedUserBlock] ||
                                   [self.removedUsers anyObjectMatchingWithBlock:matchUnfetchedUserBlock];
     }
+}
+
+- (BOOL)isDecryptionErrorRecoverable {
+    if (self.decryptionErrorCode == nil) {
+        return NO;
+    }
+    
+    NSInteger errorCode = self.decryptionErrorCode.integerValue;
+    
+    if (errorCode == CBOX_TOO_DISTANT_FUTURE ||
+        errorCode == CBOX_DEGENERATED_KEY ||
+        errorCode == CBOX_PREKEY_NOT_FOUND) {
+        return YES;
+    }
+    
+    return NO;
 }
 
 + (ZMSystemMessageType)systemMessageTypeFromEventType:(ZMUpdateEventType)type
