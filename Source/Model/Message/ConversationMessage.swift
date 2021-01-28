@@ -56,9 +56,12 @@ public protocol ZMConversationMessage : NSObjectProtocol {
     /// The timestamp as received by the server
     var serverTimestamp: Date? { get }
     
-    /// The conversation this message belongs to
+    /// For internal use only. The conversation this message belongs to
     var conversation: ZMConversation? { get }
-    
+
+    /// The conversation this message belongs to
+    var conversationLike: ConversationLike? { get }
+
     /// The current delivery state of this message. It makes sense only for
     /// messages sent from this device. In any other case, it will be
     /// ZMDeliveryStateDelivered
@@ -91,7 +94,7 @@ public protocol ZMConversationMessage : NSObjectProtocol {
     /// The location message data associated with the message. If the message is not a location message, it will be nil
     var locationMessageData: LocationMessageData? { get }
 
-    var usersReaction : Dictionary<String, [ZMUser]> { get }
+    var usersReaction : Dictionary<String, [UserType]> { get }
     
     /// In case this message failed to deliver, this will resend it
     func resend()
@@ -200,6 +203,10 @@ extension ZMMessage {
 // MARK:- Conversation Message protocol implementation
 
 extension ZMMessage : ZMConversationMessage {
+    public var conversationLike: ConversationLike? {
+        return conversation
+    }
+
     public var senderUser: UserType? {
         return sender
     }
@@ -300,9 +307,9 @@ extension ZMMessage {
         return .delivered
     }
     
-    @objc public var usersReaction : Dictionary<String, [ZMUser]> {
+    @objc public var usersReaction : Dictionary<String, [UserType]> {
         var result = Dictionary<String, [ZMUser]>()
-        for reaction in self.reactions {
+        for reaction in reactions {
             if reaction.users.count > 0 {
                 result[reaction.unicodeValue!] = Array<ZMUser>(reaction.users)
             }
