@@ -92,6 +92,10 @@ extension ZMConversation: SwiftConversationLike {
     @NSManaged @objc dynamic internal var accessModeStrings: [String]?
     @NSManaged @objc dynamic internal var accessRoleString: String?
     
+    public var teamType: TeamType? {
+        return team
+    }
+
     /// If set to false, only team member can join the conversation.
     /// True means that a regular guest OR wireless guests could join
     /// Controls the values of `accessMode` and `accessRole`.
