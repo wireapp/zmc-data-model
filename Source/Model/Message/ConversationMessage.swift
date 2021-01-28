@@ -56,9 +56,9 @@ public protocol ZMConversationMessage : NSObjectProtocol {
     /// The timestamp as received by the server
     var serverTimestamp: Date? { get }
     
-    /// For internal use only. The conversation this message belongs to
+    @available(*, deprecated, message: "Use `conversationLike` instead")
     var conversation: ZMConversation? { get }
-
+    
     /// The conversation this message belongs to
     var conversationLike: ConversationLike? { get }
 
