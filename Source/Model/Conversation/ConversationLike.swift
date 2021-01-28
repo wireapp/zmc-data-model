@@ -19,6 +19,8 @@
 
 import Foundation
 
+public typealias Conversation = ConversationLike & SwiftConversationLike
+
 @objc
 public protocol ConversationLike: NSObjectProtocol {
     var conversationType: ZMConversationType { get }
@@ -26,11 +28,31 @@ public protocol ConversationLike: NSObjectProtocol {
     var teamRemoteIdentifier: UUID? { get }
     
     func localParticipantsContain(user: UserType) -> Bool
+
+    var displayName: String { get }
+    var connectedUserType: UserType? { get }
+    var allowGuests: Bool { get }
+    var team: Team? { get }
+
+    var isUnderLegalHold: Bool { get }
+    var securityLevel: ZMConversationSecurityLevel { get }
+}
+
+// Since ConversationLike must have @objc signature(@objc UserType has a ConversationLike property), create another protocol to abstract Swift only properties
+public protocol SwiftConversationLike {
+        var accessMode: ConversationAccessMode? { get }
+        var accessRole: ConversationAccessRole? { get }
+    
+        var messageDestructionTimeout: WireDataModel.MessageDestructionTimeout? { get }
 }
 
 extension ZMConversation: ConversationLike {
     public func localParticipantsContain(user: UserType) -> Bool {
         guard let user = user as? ZMUser else { return false }
         return localParticipants.contains(user)
+    }
+    
+    public var connectedUserType: UserType? {
+        return connectedUser
     }
 }
