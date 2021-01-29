@@ -133,6 +133,7 @@ public final class AppLockController: AppLockType {
     // MARK: - Methods
 
     public func beginTimer() {
+        guard state == .unlocked else { return }
         state = .needsChecking
         lastCheckpoint = Date()
     }

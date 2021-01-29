@@ -137,9 +137,10 @@ final class AppLockControllerTests: ZMBaseManagedObjectTest {
 
     // MARK: - Begin timer
 
-    func test_ItBeginsTheTimer() {
+    func test_ItBeginsTheTimer_IfUnlocked() {
         // Given
         let sut = createAppLockController(timeout: 10)
+        sut._setState(.unlocked)
 
         // When
         sut.beginTimer()
@@ -147,6 +148,36 @@ final class AppLockControllerTests: ZMBaseManagedObjectTest {
         // Then
         XCTAssertEqual(sut.state, .needsChecking)
         XCTAssertEqual(sut.lastCheckpoint.timeIntervalSinceNow, 0, accuracy: 0.1)
+    }
+
+    func test_ItDoesNotBeginTheTimer_IfNotLocked() {
+        // Given
+        let sut = createAppLockController(timeout: 10)
+        sut._setState(.locked)
+
+        let lastCheckpoint = sut.lastCheckpoint
+
+        // When
+        sut.beginTimer()
+
+        // Then
+        XCTAssertEqual(sut.state, .locked)
+        XCTAssertEqual(sut.lastCheckpoint, lastCheckpoint)
+    }
+
+    func test_ItDoesNotBeginTheTimer_IfAlreadyBegan() {
+        // Given
+        let sut = createAppLockController(timeout: 10)
+        sut._setState(.needsChecking)
+
+        let lastCheckpoint = sut.lastCheckpoint
+
+        // When
+        sut.beginTimer()
+
+        // Then
+        XCTAssertEqual(sut.state, .needsChecking)
+        XCTAssertEqual(sut.lastCheckpoint, lastCheckpoint)
     }
 
     // MARK: - Open
