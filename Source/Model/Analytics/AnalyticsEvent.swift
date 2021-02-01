@@ -18,12 +18,23 @@
 
 import Foundation
 
-/// A type able to record analytic events.
+/// An event to be recorded for analytical purposes.
 
-public protocol AnalyticsLike {
+public struct AnalyticsEvent {
 
-    /// Record the given event.
+    /// The unique name of the event.
 
-    func tagEvent(_ event: AnalyticsEvent)
+    public let name: String
+
+    /// Additional data associated with the event.
+
+    public var attributes: AnalyticsAttributes
+
+    /// Create an event with the given name and attributes.
+
+    public init(name: String, attributes: AnalyticsAttributes = [:]) {
+        self.name = name
+        self.attributes = attributes
+    }
 
 }

@@ -18,12 +18,18 @@
 
 import Foundation
 
-/// A type able to record analytic events.
+/// A key denoting a particular analytics attribute.
 
-public protocol AnalyticsLike {
+public struct AnalyticsAttributeKey: Hashable, RawRepresentable {
 
-    /// Record the given event.
+    /// The unique string describing the key.
 
-    func tagEvent(_ event: AnalyticsEvent)
+    public let rawValue: String
+
+    /// Create a key with the given raw value.
+
+    public init(rawValue: String) {
+        self.rawValue = rawValue
+    }
 
 }
