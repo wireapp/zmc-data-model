@@ -51,17 +51,9 @@ public struct AnalyticsEvent {
 
 public typealias AnalyticsAttributes = [AnalyticsAttributeKey: AnalyticsAttributeValue]
 
-public extension AnalyticsAttributes {
-
-    var rawValue: [String: String] {
-        return mapKeys(\.rawValue).mapValues(\.rawValue)
-    }
-
-}
-
 /// A key denoting a particular analytics attribute.
 
-public struct AnalyticsAttributeKey: Hashable {
+public struct AnalyticsAttributeKey: Hashable, RawRepresentable {
 
     /// The unique string describing the key.
 
@@ -81,6 +73,55 @@ public protocol AnalyticsAttributeValue {
 
     /// The string representation of the value.
 
-    var rawValue: String { get }
+    var analyticsValue: String { get }
+
+}
+
+public extension Dictionary where Key: RawRepresentable, Key.RawValue == String, Value == AnalyticsAttributeValue {
+
+    /// A dictionary of raw values used to send to the analytics server.
+
+    var rawValue: [String: String] {
+        return mapKeys(\.rawValue).mapValues(\.analyticsValue)
+    }
+
+}
+
+extension UUID: AnalyticsAttributeValue {
+
+    public var analyticsValue: String {
+        return transportString()
+    }
+
+}
+
+extension Int: AnalyticsAttributeValue {
+
+    public var analyticsValue: String {
+        return String(describing: self)
+    }
+
+}
+
+extension String: AnalyticsAttributeValue {
+
+    public var analyticsValue: String {
+        return self
+    }
+
+}
+
+extension TeamRole: AnalyticsAttributeValue {
+
+    public var analyticsValue: String {
+        switch self {
+            case .member, .admin, .owner:
+                return "member"
+            case .partner:
+                return "external"
+            case .none:
+                return "wireless"
+        }
+    }
 
 }
