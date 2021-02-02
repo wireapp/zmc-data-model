@@ -113,7 +113,11 @@ extension ZMOTRMessage {
             }
             
             let messageClass: AnyClass = GenericMessage.entityClass(for: message)
-            var clientMessage = messageClass.fetch(withNonce: nonce, for: conversation, in: moc, prefetchResult: prefetchResult) as? ZMOTRMessage
+            var clientMessage = messageClass.fetch(withNonce: nonce,
+                                                   for: conversation,
+                                                   in: moc,
+                                                   prefetchResult: prefetchResult,
+                                                   assumeMissingIfNotPrefetched: true) as? ZMOTRMessage
             
             guard !isZombieObject(clientMessage) else {
                 return nil
