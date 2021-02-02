@@ -45,6 +45,8 @@ public protocol SwiftConversationLike {
     var teamType: TeamType? { get }
 
     var messageDestructionTimeout: WireDataModel.MessageDestructionTimeout? { get }
+
+    var mutedMessageTypes: MutedMessageTypes { get }
 }
 
 extension ZMConversation: ConversationLike {
