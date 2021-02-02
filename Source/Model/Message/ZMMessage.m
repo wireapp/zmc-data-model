@@ -443,7 +443,7 @@ NSString * const ZMMessageDecryptionErrorCodeKey = @"decryptionErrorCode";
         }
     }
 
-    if (assumeMissingIfNotPrefetched) {
+    if (prefetchResult != nil && assumeMissingIfNotPrefetched) {
         return nil;
     }
     
