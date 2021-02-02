@@ -433,20 +433,18 @@ NSString * const ZMMessageDecryptionErrorCodeKey = @"decryptionErrorCode";
                        prefetchResult:(ZMFetchRequestBatchResult *)prefetchResult
          assumeMissingIfNotPrefetched:(BOOL)assumeMissingIfNotPrefetched
 {
-    if (prefetchResult != nil) {
-        NSSet <ZMMessage *>* prefetchedMessages = prefetchResult.messagesByNonce[nonce];
-        
-        if (nil != prefetchedMessages) {
-            for (ZMMessage *prefetchedMessage in prefetchedMessages) {
-                if ([prefetchedMessage isKindOfClass:[self class]]) {
-                    return prefetchedMessage;
-                }
+    NSSet <ZMMessage *>* prefetchedMessages = prefetchResult.messagesByNonce[nonce];
+    
+    if (nil != prefetchedMessages) {
+        for (ZMMessage *prefetchedMessage in prefetchedMessages) {
+            if ([prefetchedMessage isKindOfClass:[self class]]) {
+                return prefetchedMessage;
             }
         }
-        
-        if (assumeMissingIfNotPrefetched) {
-            return nil;
-        }
+    }
+
+    if (assumeMissingIfNotPrefetched) {
+        return nil;
     }
     
     NSEntityDescription *entity = moc.persistentStoreCoordinator.managedObjectModel.entitiesByName[self.entityName];
