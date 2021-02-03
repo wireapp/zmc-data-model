@@ -182,3 +182,21 @@ extension FeatureTests {
         }()
     }
 }
+
+extension Feature {
+
+    static func insert(name: Name,
+                       status: Status,
+                       config: Data?,
+                       team: Team,
+                       context: NSManagedObjectContext) -> Feature {
+
+        let feature = Feature.insertNewObject(in: context)
+        feature.name = name
+        feature.status = status
+        feature.config = config
+        feature.team = team
+        return feature
+    }
+
+}
