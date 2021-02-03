@@ -138,11 +138,11 @@ public class Feature: ZMManagedObject {
     }
     
     @discardableResult
-    public static func insert(name: Name,
-                              status: Status,
-                              config: Data?,
-                              team: Team,
-                              context: NSManagedObjectContext) -> Feature {
+    static func insert(name: Name,
+                       status: Status,
+                       config: Data?,
+                       team: Team,
+                       context: NSManagedObjectContext) -> Feature {
 
         // There should be at most one instance per feature, so only allow inserting
         // on a single context to avoid race conditions.
