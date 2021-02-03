@@ -95,10 +95,20 @@ public class Feature: ZMManagedObject {
         return #keyPath(Feature.nameValue)
     }
 
-    @discardableResult
+
+    /// Fetch the instance for the given name.
+    ///
+    /// If more than one instance is found, this method will crash.
+    ///
+    /// - Parameters:
+    ///     - name: The name of the feature to fetch.
+    ///     - context: The context in which to fetch the instance.
+    ///
+    /// - Returns: An instance, if it exists, otherwise `nil`.
+
     public static func fetch(name: Name,
                              context: NSManagedObjectContext) -> Feature? {
-        
+
         let fetchRequest = NSFetchRequest<Feature>(entityName: Feature.entityName())
         fetchRequest.predicate = NSPredicate(format: "nameValue == %@", name.rawValue)
         fetchRequest.fetchLimit = 2
@@ -107,8 +117,31 @@ public class Feature: ZMManagedObject {
         require(results.count <= 1, "More than instance for feature: \(name.rawValue)")
         return results.first
     }
+
+    /// Update the feature instance with the given name.
+    ///
+    /// - Parameters:
+    ///     - name: The name of the feature to update.
+    ///     - context: The context in which to fetch the instance.
+    ///     - changes: A closure to mutate the fetched instance.
+
+    public static func update(havingName name: Name,
+                              in context: NSManagedObjectContext,
+                              changes: (Feature) -> Void) {
+
+        guard let existing = fetch(name: name, context: context) else { return }
+        changes(existing)
+    }
     
-    /// Creates the default instance for the given feature name none already exists.
+    /// Creates the default instance for the given feature name, if none already exists.
+    ///
+    /// The **context is expected to be the sync context**, otherwise the method will
+    /// crash.
+    ///
+    /// - Parameters:
+    ///     - name: The name of the feature to create.
+    ///     - team: The team which the feature is associated to.
+    ///     - context: The context in which to create the instance.
 
     public static func createDefaultInstanceIfNeeded(name: Name,
                                                      team: Team,
@@ -132,18 +165,13 @@ public class Feature: ZMManagedObject {
         }
     }
 
-    public static func update(havingName name: Name, in context: NSManagedObjectContext, changes: (Feature) -> Void) {
-        guard let existing = fetch(name: name, context: context) else { return }
-        changes(existing)
-    }
-    
     @discardableResult
     static func insert(name: Name,
                        status: Status,
                        config: Data?,
                        team: Team,
                        context: NSManagedObjectContext) -> Feature {
-
+        
         // There should be at most one instance per feature, so only allow inserting
         // on a single context to avoid race conditions.
         assert(context.zm_isSyncContext, "Can only insert `Feature` instance on the sync context")
