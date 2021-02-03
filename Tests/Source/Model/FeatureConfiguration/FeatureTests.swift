@@ -185,6 +185,7 @@ extension FeatureTests {
 
 extension Feature {
 
+    @discardableResult
     static func insert(name: Name,
                        status: Status,
                        config: Data?,
