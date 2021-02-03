@@ -34,9 +34,9 @@ extension Team {
     
     public func enqueueBackendRefresh(for name: Feature.Name) {
         guard let context = managedObjectContext else { return }
-        
-        let feature = Feature.fetchOrCreate(name: name, team: self, context: context)
-        feature.needsToBeUpdatedFromBackend = true
+
+        let feature = Feature.fetch(name: name, context: context)
+        feature?.needsToBeUpdatedFromBackend = true
     }
 
 }
