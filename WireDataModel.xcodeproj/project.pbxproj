@@ -395,6 +395,11 @@
 		EE3EFE95253053B1009499E5 /* PotentialChangeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3EFE94253053B1009499E5 /* PotentialChangeDetector.swift */; };
 		EE3EFE9725305A84009499E5 /* ModifiedObjects+Mergeable.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3EFE9625305A84009499E5 /* ModifiedObjects+Mergeable.swift */; };
 		EE3EFEA1253090E0009499E5 /* PotentialChangeDetectorTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE3EFEA0253090E0009499E5 /* PotentialChangeDetectorTests.swift */; };
+		EE41468825C8B22500E750E8 /* AnalyticsEvent.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE41468725C8B22500E750E8 /* AnalyticsEvent.swift */; };
+		EE41468A25C8B24300E750E8 /* AnalyticsAttributes.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE41468925C8B24300E750E8 /* AnalyticsAttributes.swift */; };
+		EE41468C25C8B25700E750E8 /* AnalyticsAttributeKey.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE41468B25C8B25700E750E8 /* AnalyticsAttributeKey.swift */; };
+		EE41468E25C8B26D00E750E8 /* AnalyticsAttributeValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE41468D25C8B26D00E750E8 /* AnalyticsAttributeValue.swift */; };
+		EE41469025C8B29400E750E8 /* Dictionary+AnalyticsRawValue.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE41468F25C8B29400E750E8 /* Dictionary+AnalyticsRawValue.swift */; };
 		EE42938A252C437900E70670 /* Notification.Name+ManagedObjectObservation.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE429389252C437900E70670 /* Notification.Name+ManagedObjectObservation.swift */; };
 		EE42938C252C443000E70670 /* ManagedObjectObserverToken.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE42938B252C443000E70670 /* ManagedObjectObserverToken.swift */; };
 		EE42938E252C460000E70670 /* Changes.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE42938D252C460000E70670 /* Changes.swift */; };
@@ -1122,6 +1127,11 @@
 		EE3EFE94253053B1009499E5 /* PotentialChangeDetector.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PotentialChangeDetector.swift; sourceTree = "<group>"; };
 		EE3EFE9625305A84009499E5 /* ModifiedObjects+Mergeable.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ModifiedObjects+Mergeable.swift"; sourceTree = "<group>"; };
 		EE3EFEA0253090E0009499E5 /* PotentialChangeDetectorTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PotentialChangeDetectorTests.swift; sourceTree = "<group>"; };
+		EE41468725C8B22500E750E8 /* AnalyticsEvent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsEvent.swift; sourceTree = "<group>"; };
+		EE41468925C8B24300E750E8 /* AnalyticsAttributes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsAttributes.swift; sourceTree = "<group>"; };
+		EE41468B25C8B25700E750E8 /* AnalyticsAttributeKey.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsAttributeKey.swift; sourceTree = "<group>"; };
+		EE41468D25C8B26D00E750E8 /* AnalyticsAttributeValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnalyticsAttributeValue.swift; sourceTree = "<group>"; };
+		EE41468F25C8B29400E750E8 /* Dictionary+AnalyticsRawValue.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Dictionary+AnalyticsRawValue.swift"; sourceTree = "<group>"; };
 		EE429389252C437900E70670 /* Notification.Name+ManagedObjectObservation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Notification.Name+ManagedObjectObservation.swift"; sourceTree = "<group>"; };
 		EE42938B252C443000E70670 /* ManagedObjectObserverToken.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ManagedObjectObserverToken.swift; sourceTree = "<group>"; };
 		EE42938D252C460000E70670 /* Changes.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Changes.swift; sourceTree = "<group>"; };
@@ -1678,6 +1688,11 @@
 			children = (
 				BF10B59E1E645A3A00E7036E /* Events */,
 				EE92C73725C608A700C4F13E /* AnalyticsLike.swift */,
+				EE41468725C8B22500E750E8 /* AnalyticsEvent.swift */,
+				EE41468925C8B24300E750E8 /* AnalyticsAttributes.swift */,
+				EE41468B25C8B25700E750E8 /* AnalyticsAttributeKey.swift */,
+				EE41468D25C8B26D00E750E8 /* AnalyticsAttributeValue.swift */,
+				EE41468F25C8B29400E750E8 /* Dictionary+AnalyticsRawValue.swift */,
 				BF10B5951E64591600E7036E /* AnalyticsType.swift */,
 				BF10B5961E64591600E7036E /* NSManagedObjectContext+Analytics.swift */,
 			);
@@ -3128,6 +3143,7 @@
 				165DC51F21491C0400090B7B /* Mention.swift in Sources */,
 				F9A706531CAEE01D00C2F5FE /* NSManagedObjectContext+zmessaging.m in Sources */,
 				F110503D2220439900F3EB62 /* ZMUser+RichProfile.swift in Sources */,
+				EE41468C25C8B25700E750E8 /* AnalyticsAttributeKey.swift in Sources */,
 				5EFE9C0F2126D3FA007932A6 /* NormalizationResult.swift in Sources */,
 				F9A706571CAEE01D00C2F5FE /* NSNotification+ManagedObjectContextSave.m in Sources */,
 				BF491CE61F063EE50055EE44 /* AccountStore.swift in Sources */,
@@ -3242,12 +3258,14 @@
 				54E3EE411F616BA600A261E3 /* ZMAssetClientMessage.swift in Sources */,
 				EE429390252C466500E70670 /* ChangeInfoConsumer.swift in Sources */,
 				EE770DAF25344B4F00163C4A /* NotificationDispatcher.OperationMode.swift in Sources */,
+				EE41468E25C8B26D00E750E8 /* AnalyticsAttributeValue.swift in Sources */,
 				16F6BB3A1EDEC2D6009EA803 /* ZMConversation+ObserverHelper.swift in Sources */,
 				16E0FBC923326B72000E3235 /* ConversationDirectory.swift in Sources */,
 				F99C5B8A1ED460E20049CCD7 /* TeamChangeInfo.swift in Sources */,
 				165124D221886EDB006A3C75 /* ZMOTRMessage+Quotes.swift in Sources */,
 				87D9CCE91F27606200AA4388 /* NSManagedObjectContext+TearDown.swift in Sources */,
 				F963E9711D9ADD5A00098AD3 /* ZMImageAssetEncryptionKeys.m in Sources */,
+				EE41468825C8B22500E750E8 /* AnalyticsEvent.swift in Sources */,
 				F11F3E891FA32463007B6D3D /* InvalidClientsRemoval.swift in Sources */,
 				F9FD75781E2F9A0600B4558B /* SearchUserObserverCenter.swift in Sources */,
 				54F6CEAB1CE2972200A1276D /* ZMAssetClientMessage+Download.swift in Sources */,
@@ -3273,6 +3291,7 @@
 				EEAAD75C252C6DAE00E6A44E /* ModifiedObjects.swift in Sources */,
 				F991CE1B1CB561B0004D8465 /* ZMAddressBookContact.m in Sources */,
 				87EFA3AC210F52C6004DFA53 /* ZMConversation+LastMessages.swift in Sources */,
+				EE41469025C8B29400E750E8 /* Dictionary+AnalyticsRawValue.swift in Sources */,
 				541D1B351F1FAE3C0078C1F2 /* ManagedObjectContextDirectory.swift in Sources */,
 				EEA9C5071F3C9F3500DC39EC /* PersistentStorageInitialization.swift in Sources */,
 				F9C877091E000C9D00792613 /* AssetCollection.swift in Sources */,
@@ -3288,6 +3307,7 @@
 				F9A706901CAEE01D00C2F5FE /* ZMUser.m in Sources */,
 				F14B7AFF2220302B00458624 /* ZMUser+Predicates.swift in Sources */,
 				066A96FF25A88E510083E317 /* BiometricsState.swift in Sources */,
+				EE41468A25C8B24300E750E8 /* AnalyticsAttributes.swift in Sources */,
 				EEFC3EE72208311200D3091A /* ZMConversation+HasMessages.swift in Sources */,
 				16DF3B5D2285B13100D09365 /* UserClientType.swift in Sources */,
 				54E3EE431F6194A400A261E3 /* ZMAssetClientMessage+GenericMessage.swift in Sources */,

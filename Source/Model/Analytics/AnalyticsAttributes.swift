@@ -18,12 +18,4 @@
 
 import Foundation
 
-/// A type able to record analytic events.
-
-public protocol AnalyticsLike {
-
-    /// Record the given event.
-
-    func tagEvent(_ event: AnalyticsEvent)
-
-}
+public typealias AnalyticsAttributes = [AnalyticsAttributeKey: AnalyticsAttributeValue]

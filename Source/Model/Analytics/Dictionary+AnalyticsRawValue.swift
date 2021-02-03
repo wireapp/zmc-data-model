@@ -18,12 +18,12 @@
 
 import Foundation
 
-/// A type able to record analytic events.
+public extension Dictionary where Key: RawRepresentable, Key.RawValue == String, Value == AnalyticsAttributeValue {
 
-public protocol AnalyticsLike {
+    /// A dictionary of raw values used to send to the analytics server.
 
-    /// Record the given event.
-
-    func tagEvent(_ event: AnalyticsEvent)
+    var rawValue: [String: String] {
+        return mapKeys(\.rawValue).mapValues(\.analyticsValue)
+    }
 
 }
