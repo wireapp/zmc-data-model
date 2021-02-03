@@ -82,6 +82,21 @@ final class FeatureTests: ZMBaseManagedObjectTest {
             XCTAssertNotNil(fetchedFeature)
         }
     }
+
+    func testItCreatesADefaultInstance() {
+        syncMOC.performGroupedAndWait { context in
+            // Given
+            let team = self.createTeam(in: context)
+
+            XCTAssertNil(Feature.fetch(name: .appLock, context: context))
+
+            // When
+            Feature.createDefaultInstanceIfNeeded(name: .appLock, team: team, context: context)
+
+            // Then
+            XCTAssertNotNil(Feature.fetch(name: .appLock, context: context))
+        }
+    }
     
     func testThatItUpdatesNeedsToNotifyUserFlag_IfAppLockBecameForced() {
         syncMOC.performGroupedAndWait { context in
