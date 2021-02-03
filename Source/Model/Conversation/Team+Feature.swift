@@ -33,13 +33,10 @@ extension Team {
     /// - Parameter name: The name of the feature to refresh.
     
     public func enqueueBackendRefresh(for name: Feature.Name) {
-        guard let syncContext = managedObjectContext?.zm_sync else { return }
-
-        syncContext.performGroupedAndWait {
-            let feature = Feature.fetchOrCreate(name: name, team: self, context: $0)
-            feature.needsToBeUpdatedFromBackend = true
-        }
-
+        guard let context = managedObjectContext else { return }
+        
+        let feature = Feature.fetchOrCreate(name: name, team: self, context: context)
+        feature.needsToBeUpdatedFromBackend = true
     }
 
 }
