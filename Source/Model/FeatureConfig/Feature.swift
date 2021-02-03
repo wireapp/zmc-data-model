@@ -166,6 +166,11 @@ public class Feature: ZMManagedObject {
                               config: Data?,
                               team: Team,
                               context: NSManagedObjectContext) -> Feature {
+
+        // There should be at most one instance per feature, so only allow inserting
+        // on a single context to avoid race conditions.
+        assert(context.zm_isSyncContext, "Can only insert `Feature` instance on the sync context")
+
         let feature = Feature.insertNewObject(in: context)
         feature.name = name
         feature.status = status
