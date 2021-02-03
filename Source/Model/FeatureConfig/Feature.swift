@@ -165,13 +165,12 @@ public class Feature: ZMManagedObject {
         }
     }
 
-    @discardableResult
-    static func insert(name: Name,
-                       status: Status,
-                       config: Data?,
-                       team: Team,
-                       context: NSManagedObjectContext) -> Feature {
-        
+    private static func insert(name: Name,
+                               status: Status,
+                               config: Data?,
+                               team: Team,
+                               context: NSManagedObjectContext) {
+
         // There should be at most one instance per feature, so only allow inserting
         // on a single context to avoid race conditions.
         assert(context.zm_isSyncContext, "Can only insert `Feature` instance on the sync context")
@@ -181,7 +180,6 @@ public class Feature: ZMManagedObject {
         feature.status = status
         feature.config = config
         feature.team = team
-        return feature
     }
 
     public func updateNeedsToNotifyUser(oldData: Data?, newData: Data?) {
