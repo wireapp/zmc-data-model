@@ -108,34 +108,28 @@ public class Feature: ZMManagedObject {
         return results.first
     }
     
-    // Fetch or create the default feature
-    static func fetchOrCreate(name: Name,
-                              team: Team,
-                              context: NSManagedObjectContext) -> Feature {
-        
-        let fetchRequest = NSFetchRequest<Feature>(entityName: Feature.entityName())
-        fetchRequest.predicate = NSPredicate(format: "nameValue == %@", name.rawValue)
-        fetchRequest.fetchLimit = 2
-        
-        let results = context.fetchOrAssert(request: fetchRequest)
-        require(results.count <= 1, "More than one instance for feature: \(name.rawValue)")
-        guard let feature = results.first else {
-            switch name {
-            case .appLock:
-                let defaultInstance = Feature.AppLock()
-                guard let defaultConfigData = try? JSONEncoder().encode(defaultInstance.config) else {
-                    fatalError("Failed to encode default config for: \(name)")
-                }
+    /// Creates the default instance for the given feature name none already exists.
 
-                let feature = insert(name: name,
-                                     status: defaultInstance.status,
-                                     config: defaultConfigData,
-                                     team: team,
-                                     context: context)
-                return feature
+    public static func createDefaultInstanceIfNeeded(name: Name,
+                                                     team: Team,
+                                                     context: NSManagedObjectContext) {
+
+        guard fetch(name: name, context: context) == nil else { return }
+
+        switch name {
+        case .appLock:
+            let defaultInstance = Feature.AppLock()
+
+            guard let defaultConfigData = try? JSONEncoder().encode(defaultInstance.config) else {
+                fatalError("Failed to encode default config for: \(name)")
             }
+
+            insert(name: name,
+                   status: defaultInstance.status,
+                   config: defaultConfigData,
+                   team: team,
+                   context: context)
         }
-        return feature
     }
 
     public static func update(havingName name: Name, in context: NSManagedObjectContext, changes: (Feature) -> Void) {
