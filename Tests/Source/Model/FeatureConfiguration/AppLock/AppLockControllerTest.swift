@@ -112,7 +112,8 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
 
             let config = Feature.AppLock.Config.init(enforceAppLock: true, inactivityTimeoutSecs: 30)
             let configData = try? JSONEncoder().encode(config)
-            _ = Feature.createOrUpdate(
+
+            _ = Feature.insert(
                 name: .appLock,
                 status: .disabled,
                 config: configData,
@@ -141,7 +142,8 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
 
             let config = Feature.AppLock.Config.init(enforceAppLock: false, inactivityTimeoutSecs: 30)
             let configData = try? JSONEncoder().encode(config)
-            _ = Feature.createOrUpdate(
+
+            _ = Feature.insert(
                 name: .appLock,
                 status: .disabled,
                 config: configData,
@@ -170,7 +172,8 @@ final class AppLockControllerTest: ZMBaseManagedObjectTest {
 
             let config = Feature.AppLock.Config.init(enforceAppLock: true, inactivityTimeoutSecs: 30)
             let configData = try? JSONEncoder().encode(config)
-            _ = Feature.createOrUpdate(
+
+            _ = Feature.insert(
                 name: .appLock,
                 status: .disabled,
                 config: configData,

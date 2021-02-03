@@ -22,22 +22,27 @@ import XCTest
 class FeatureLikeTests: ZMBaseManagedObjectTest {
 
     func testThatItStoresAFeatureLikeObject() throws {
-        // Given
-        let appLock = Feature.AppLock(status: .enabled, config: .init(enforceAppLock: true, inactivityTimeoutSecs: 10))
+        try syncMOC.performGroupedAndWait { context in
+            // Given
+            let appLock = Feature.AppLock(status: .enabled, config: .init(enforceAppLock: true, inactivityTimeoutSecs: 10))
 
-        let team = Team.insertNewObject(in: uiMOC)
-        team.remoteIdentifier = .create()
+            let team = Team.insertNewObject(in: context)
+            team.remoteIdentifier = .create()
 
-        // When
-        try appLock.store(for: team, in: uiMOC)
+            Feature.insert(name: .appLock, status: .disabled, config: nil, team: team, context: context)
 
-        // Then
-        guard let result = Feature.fetch(name: .appLock, context: uiMOC) else { return XCTFail() }
-        XCTAssertEqual(result.name, .appLock)
-        XCTAssertEqual(result.status, .enabled)
-        XCTAssertEqual(result.config, appLock.configData)
-        XCTAssertEqual(result.team?.remoteIdentifier, team.remoteIdentifier!)
+            // When
+            try appLock.store(for: team, in: context)
 
+            // Then
+            guard let result = Feature.fetch(name: .appLock, context: context) else { return XCTFail() }
+
+            XCTAssertEqual(result.name, .appLock)
+            XCTAssertEqual(result.status, .enabled)
+            XCTAssertEqual(result.config, appLock.configData)
+            XCTAssertEqual(result.team?.remoteIdentifier, team.remoteIdentifier!)
+            return
+        }
     }
 }
 

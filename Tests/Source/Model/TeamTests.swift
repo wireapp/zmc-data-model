@@ -220,7 +220,7 @@ final class TeamTests: ZMConversationTestsBase {
             // Given
             let sut = self.createTeam(in: context)
 
-            let feature = Feature.createOrUpdate(
+            let feature = Feature.insert(
                 name: .appLock,
                 status: .enabled,
                 config: nil,

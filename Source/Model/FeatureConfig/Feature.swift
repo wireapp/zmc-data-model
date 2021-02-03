@@ -138,26 +138,9 @@ public class Feature: ZMManagedObject {
         return feature
     }
 
-    @discardableResult
-    public static func createOrUpdate(name: Name,
-                                      status: Status,
-                                      config: Data?,
-                                      team: Team,
-                                      context: NSManagedObjectContext) -> Feature {
-        if let existing = fetch(name: name, context: context) {
-            existing.status = status
-            existing.config = config
-            existing.team = team
-            existing.needsToBeUpdatedFromBackend = false
-            return existing
-        }
-        
-        let feature = insert(name: name,
-                             status: status,
-                             config: config,
-                             team: team,
-                             context: context)
-        return feature
+    public static func update(havingName name: Name, in context: NSManagedObjectContext, changes: (Feature) -> Void) {
+        guard let existing = fetch(name: name, context: context) else { return }
+        changes(existing)
     }
     
     @discardableResult

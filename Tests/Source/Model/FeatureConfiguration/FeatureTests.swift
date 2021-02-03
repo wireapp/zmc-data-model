@@ -29,11 +29,11 @@ final class FeatureTests: ZMBaseManagedObjectTest {
             let team = self.createTeam(in: context)
 
             // when
-            let feature = Feature.createOrUpdate(name: .appLock,
-                                                 status: .enabled,
-                                                 config: self.configData(enforced: false),
-                                                 team: team,
-                                                 context: context)
+            let feature = Feature.insert(name: .appLock,
+                                         status: .enabled,
+                                         config: self.configData(enforced: false),
+                                         team: team,
+                                         context: context)
             // then
             let fetchedFeature = Feature.fetch(name: .appLock, context: context)
             XCTAssertEqual(feature, fetchedFeature)
@@ -54,11 +54,9 @@ final class FeatureTests: ZMBaseManagedObjectTest {
             XCTAssertEqual(feature.status, .enabled)
 
             // when
-            let _ = Feature.createOrUpdate(name: .appLock,
-                                           status: .disabled,
-                                           config: self.configData(enforced: false),
-                                           team: team,
-                                           context: context)
+            Feature.update(havingName: .appLock, in: context) {
+                $0.status = .disabled
+            }
 
             // then
             XCTAssertEqual(feature.status, .disabled)
@@ -70,11 +68,11 @@ final class FeatureTests: ZMBaseManagedObjectTest {
             // given
             let team = self.createTeam(in: context)
 
-            let _ = Feature.createOrUpdate(name: .appLock,
-                                           status: .enabled,
-                                           config: self.configData(enforced: false),
-                                           team: team,
-                                           context: context)
+            let _ = Feature.insert(name: .appLock,
+                                   status: .enabled,
+                                   config: self.configData(enforced: false),
+                                   team: team,
+                                   context: context)
 
 
             // when
@@ -104,11 +102,10 @@ final class FeatureTests: ZMBaseManagedObjectTest {
 
             // when
             let newConfigData = self.configData(enforced: true)
-            let _ = Feature.createOrUpdate(name: .appLock,
-                                           status: .enabled,
-                                           config: newConfigData,
-                                           team: team,
-                                           context: context)
+
+            Feature.update(havingName: .appLock, in: context) {
+                $0.config = newConfigData
+            }
 
             let newConfig = try? decoder.decode(Feature.AppLock.Config.self, from: newConfigData)
             XCTAssertTrue(newConfig!.enforceAppLock)
@@ -139,11 +136,10 @@ final class FeatureTests: ZMBaseManagedObjectTest {
 
             // when
             let newConfigData = self.configData(enforced: false)
-            let _ = Feature.createOrUpdate(name: .appLock,
-                                           status: .enabled,
-                                           config: newConfigData,
-                                           team: team,
-                                           context: context)
+
+            Feature.update(havingName: .appLock, in: context) {
+                $0.config = newConfigData
+            }
 
             let newConfig = try? decoder.decode(Feature.AppLock.Config.self, from: newConfigData)
             XCTAssertFalse(newConfig!.enforceAppLock)
