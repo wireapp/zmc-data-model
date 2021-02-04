@@ -142,6 +142,10 @@ extension ZMOTRMessage {
                     let isComposite = (message as? ConversationCompositeMessage)?.isComposite ?? false
                     clientMessage?.expectsReadConfirmation = conversation.hasReadReceiptsEnabled || isComposite
                 }
+                
+                if let message = clientMessage {
+                    prefetchResult.add([message])
+                }
             } else if clientMessage?.senderClientID == nil || clientMessage?.senderClientID != updateEvent.senderClientID {
                 return nil
             }
