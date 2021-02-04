@@ -35,6 +35,8 @@ public protocol ConversationLike: NSObjectProtocol {
 
     var isUnderLegalHold: Bool { get }
     var securityLevel: ZMConversationSecurityLevel { get }
+    
+    func verifyLegalHoldSubjects()
 }
 
 // Since ConversationLike must have @objc signature(@objc UserType has a ConversationLike property), create another protocol to abstract Swift only properties
@@ -47,6 +49,8 @@ public protocol SwiftConversationLike {
     var messageDestructionTimeout: WireDataModel.MessageDestructionTimeout? { get }
 
     var mutedMessageTypes: MutedMessageTypes { get }
+
+    var sortedActiveParticipantsUserTypes: [UserType] { get }
 }
 
 extension ZMConversation: ConversationLike {
