@@ -36,6 +36,7 @@ public enum ZMDeliveryState : UInt {
 public protocol ReadReceipt {
     
     var user: ZMUser { get }
+    var userType: UserType { get }
     var serverTimestamp: Date? { get }
     
 }
