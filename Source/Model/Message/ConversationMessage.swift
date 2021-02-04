@@ -35,8 +35,10 @@ public enum ZMDeliveryState : UInt {
 @objc
 public protocol ReadReceipt {
     
+    @available(*, deprecated, message: "Use `userType` instead")
     var user: ZMUser { get }
     var userType: UserType { get }
+
     var serverTimestamp: Date? { get }
     
 }
