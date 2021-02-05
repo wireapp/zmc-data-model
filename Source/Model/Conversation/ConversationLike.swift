@@ -50,7 +50,7 @@ public protocol SwiftConversationLike {
 
     var messageDestructionTimeout: WireDataModel.MessageDestructionTimeout? { get }
 
-    var mutedMessageTypes: MutedMessageTypes { get }
+    var mutedMessageTypes: MutedMessageTypes { get set }
 }
 
 extension ZMConversation: ConversationLike {
