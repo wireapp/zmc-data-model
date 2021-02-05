@@ -92,6 +92,10 @@ extension ZMConversation: SwiftConversationLike {
     @NSManaged @objc dynamic internal var accessModeStrings: [String]?
     @NSManaged @objc dynamic internal var accessRoleString: String?
     
+    public var sortedActiveParticipantsUserTypes: [UserType] {
+        return sortedActiveParticipants
+    }
+
     public var teamType: TeamType? {
         return team
     }
