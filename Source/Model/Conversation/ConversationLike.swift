@@ -37,8 +37,8 @@ extension ZMConversation: ConversationLike {
         return localParticipants.contains(user)
     }
 
-    private static let userNameSorter: (UserType, UserType) -> Bool = { user0, user1 in
-        user0.name < user1.name
+    private static let userNameSorter: (UserType, UserType) -> Bool = {
+        $0.name < $1.name
     }
 
     public var sortedOtherParticipants: [UserType] {
