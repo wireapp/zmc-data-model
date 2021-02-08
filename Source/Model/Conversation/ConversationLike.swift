@@ -51,6 +51,8 @@ public protocol SwiftConversationLike {
     var messageDestructionTimeout: WireDataModel.MessageDestructionTimeout? { get }
 
     var mutedMessageTypes: MutedMessageTypes { get set }
+    var sortedOtherParticipants: [UserType] { get }
+    var sortedServiceUsers: [UserType] { get }
 }
 
 extension ZMConversation: ConversationLike {
@@ -61,5 +63,17 @@ extension ZMConversation: ConversationLike {
     
     public var connectedUserType: UserType? {
         return connectedUser
+	}
+	
+	private static let userNameSorter: (UserType, UserType) -> Bool = {
+		$0.name < $1.name
+	}
+	
+	public var sortedOtherParticipants: [UserType] {
+		return localParticipants.filter { !$0.isServiceUser }.sorted(by: ZMConversation.userNameSorter)
+	}
+	
+	public var sortedServiceUsers: [UserType] {
+		return localParticipants.filter { $0.isServiceUser }.sorted(by: ZMConversation.userNameSorter)
     }
 }
