@@ -442,11 +442,11 @@ extension AppLockControllerTests {
         let config = Feature.AppLock.Config.init(enforceAppLock: isForced, inactivityTimeoutSecs: timeout)
         let configData = try? JSONEncoder().encode(config)
 
-        _ = Feature.createOrUpdate(name: .appLock,
-                                   status: isAvailable ? .enabled : .disabled,
-                                   config: configData,
-                                   team: team,
-                                   context: uiMOC)
+        _ = Feature.insert(name: .appLock,
+                           status: isAvailable ? .enabled : .disabled,
+                           config: configData,
+                           team: team,
+                           context: uiMOC)
     }
 
     class Delegate: AppLockDelegate {
