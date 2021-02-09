@@ -740,6 +740,7 @@
 		160B3BB024EFD64E0026D355 /* ExtendedSecureUnarchiveFromData.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExtendedSecureUnarchiveFromData.swift; sourceTree = "<group>"; };
 		16127CF2220058160020E65C /* InvalidConversationRemoval.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvalidConversationRemoval.swift; sourceTree = "<group>"; };
 		16127CF422005AAA0020E65C /* InvalidConversationRemovalTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = InvalidConversationRemovalTests.swift; sourceTree = "<group>"; };
+		1614CFC625D2AADA00B415D9 /* zmessaging2.90.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = zmessaging2.90.0.xcdatamodel; sourceTree = "<group>"; };
 		161541B91E27EBD400AC2FFB /* ZMConversation+Calling.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZMConversation+Calling.swift"; sourceTree = "<group>"; };
 		1615F2D7234D027B005E4E20 /* store2-76-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; path = "store2-76-0.wiredatabase"; sourceTree = "<group>"; };
 		16168139207B982800BCF33A /* zmessaging2.46.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = zmessaging2.46.0.xcdatamodel; sourceTree = "<group>"; };
@@ -3695,6 +3696,7 @@
 		F189988C1E7BE03800E579A2 /* zmessaging.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				1614CFC625D2AADA00B415D9 /* zmessaging2.90.0.xcdatamodel */,
 				169315DD25A76E4600709F15 /* zmessaging2.89.0.xcdatamodel */,
 				064F8E06255E014B0040371D /* zmessaging2.88.0.xcdatamodel */,
 				06D33FD12525D4E8004B9BC1 /* zmessaging2.87.0.xcdatamodel */,
@@ -3774,7 +3776,7 @@
 				F18998A41E7BE03800E579A2 /* zmessaging2.8.xcdatamodel */,
 				F18998A51E7BE03800E579A2 /* zmessaging2.9.xcdatamodel */,
 			);
-			currentVersion = 169315DD25A76E4600709F15 /* zmessaging2.89.0.xcdatamodel */;
+			currentVersion = 1614CFC625D2AADA00B415D9 /* zmessaging2.90.0.xcdatamodel */;
 			path = zmessaging.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
