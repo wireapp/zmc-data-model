@@ -69,16 +69,14 @@ typedef NS_ENUM(int16_t, ZMSystemMessageType) {
     ZMSystemMessageTypeConnectionUpdate,
     ZMSystemMessageTypeMissedCall,
     ZMSystemMessageTypeNewClient,
-    ZMSystemMessageTypeSessionReset,
     ZMSystemMessageTypeIgnoredClient,
     ZMSystemMessageTypeConversationIsSecure,
     ZMSystemMessageTypePotentialGap,
     ZMSystemMessageTypeDecryptionFailed,
-    ZMSystemMessageTypeDecryptionFailedResolved,
     ZMSystemMessageTypeDecryptionFailed_RemoteIdentityChanged,
     ZMSystemMessageTypeNewConversation,
-    ZMSystemMessageTypeReactivatedDevice,
-    ZMSystemMessageTypeUsingNewDevice,
+    ZMSystemMessageTypeReactivatedDevice __deprecated_enum_msg("Devices can't be reactivated any longer"),
+    ZMSystemMessageTypeUsingNewDevice __deprecated_enum_msg("We don't need inform users about new devices any longer"),
     ZMSystemMessageTypeMessageDeletedForEveryone,
     ZMSystemMessageTypePerformedCall,
     ZMSystemMessageTypeTeamMemberLeave,
@@ -87,7 +85,9 @@ typedef NS_ENUM(int16_t, ZMSystemMessageType) {
     ZMSystemMessageTypeReadReceiptsDisabled,
     ZMSystemMessageTypeReadReceiptsOn,
     ZMSystemMessageTypeLegalHoldEnabled,
-    ZMSystemMessageTypeLegalHoldDisabled
+    ZMSystemMessageTypeLegalHoldDisabled,
+    ZMSystemMessageTypeSessionReset,
+    ZMSystemMessageTypeDecryptionFailedResolved,
 };
 
 

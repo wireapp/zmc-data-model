@@ -107,14 +107,18 @@ public final class AppLockController: AppLockType {
     private let baseConfig: Config
 
     private var config: Config {
-        guard let team = selfUser.team else { return baseConfig }
-
-        let feature = team.feature(for: Feature.AppLock.self)
+        guard
+            let team = selfUser.team,
+            let feature = team.feature(for: .appLock),
+            let appLock = Feature.AppLock(feature: feature)
+        else {
+            return baseConfig
+        }
 
         var result = baseConfig
-        result.isForced = baseConfig.isForced || feature.config.enforceAppLock
-        result.timeout = feature.config.inactivityTimeoutSecs
-        result.isAvailable = (feature.status == .enabled)
+        result.isForced = baseConfig.isForced || appLock.config.enforceAppLock
+        result.timeout = appLock.config.inactivityTimeoutSecs
+        result.isAvailable = (appLock.status == .enabled)
 
         return result
     }
