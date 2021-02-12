@@ -482,26 +482,6 @@ class ZMConversationTests_SecurityLevel: ZMConversationTestsBase {
         XCTAssertFalse(hasUntrustedClients)
     }
     
-    func testThatSystemMessageAppendedToAEmptyConversationStillHasATimestamp()
-    {
-        // given
-        self.createSelfClient()
-        self.uiMOC.refreshAllObjects()
-        
-        let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
-        conversation.conversationType = .group
-        conversation.lastModifiedDate = Date()
-        
-        // when
-        conversation.appendStartedUsingThisDeviceMessage()
-        
-        // then
-        guard let message = conversation.lastMessage as? ZMSystemMessage else {
-            return XCTFail()
-        }
-        XCTAssertNotNil(message.serverTimestamp)
-    }
-    
     func testThatItAppendsASystemMessageOfTypeRemoteIDChangedForCBErrorCodeRemoteIdentityChanged()
     {
         // given
@@ -509,15 +489,17 @@ class ZMConversationTests_SecurityLevel: ZMConversationTestsBase {
         conversation.conversationType = .group
         let user = ZMUser.insertNewObject(in: self.uiMOC)
         user.name = "Fancy One"
+        let decryptionError = CBOX_REMOTE_IDENTITY_CHANGED
         
         // when
-        conversation.appendDecryptionFailedSystemMessage(at: Date(), sender: user, client: nil, errorCode: Int(CBOX_REMOTE_IDENTITY_CHANGED.rawValue))
+        conversation.appendDecryptionFailedSystemMessage(at: Date(), sender: user, client: nil, errorCode: Int(decryptionError.rawValue))
         
         // then
         guard let lastMessage = conversation.lastMessage as? ZMSystemMessage else {
             return XCTFail()
         }
         XCTAssertEqual(lastMessage.systemMessageType, ZMSystemMessageType.decryptionFailed_RemoteIdentityChanged)
+        XCTAssertEqual(lastMessage.decryptionErrorCode?.intValue, Int(decryptionError.rawValue))
     }
     
     func testThatItAppendsASystemMessageOfGeneralTypeForCBErrorCodeInvalidMessage()
@@ -527,47 +509,19 @@ class ZMConversationTests_SecurityLevel: ZMConversationTestsBase {
         conversation.conversationType = .group
         let user = ZMUser.insertNewObject(in: self.uiMOC)
         user.name = "Fancy One"
+        let decryptionError = CBOX_INVALID_MESSAGE
         
         // when
-        conversation.appendDecryptionFailedSystemMessage(at: Date(), sender: user, client: nil, errorCode: Int(CBOX_INVALID_MESSAGE.rawValue))
+        conversation.appendDecryptionFailedSystemMessage(at: Date(), sender: user, client: nil, errorCode: Int(decryptionError.rawValue))
         
         // then
         guard let lastMessage = conversation.lastMessage as? ZMSystemMessage else {
             return XCTFail()
         }
         XCTAssertEqual(lastMessage.systemMessageType, ZMSystemMessageType.decryptionFailed)
+        XCTAssertEqual(lastMessage.decryptionErrorCode?.intValue, Int(decryptionError.rawValue))
     }
-    
-    func testThatContinuedUsingDeviceSystemMessageAppendedAfterLastMessage()
-    {
-        // given
-        self.createSelfClient()
-        self.uiMOC.refreshAllObjects()
         
-        let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
-        conversation.conversationType = .group
-        conversation.lastModifiedDate = Date()
-        let previousMessage = try! conversation.appendText(content: "test")
-        
-        // when
-        conversation.appendContinuedUsingThisDeviceMessage()
-        
-        // then
-        guard let message = conversation.lastMessage as? ZMSystemMessage else {
-            return XCTFail()
-        }
-        XCTAssertNotNil(message.serverTimestamp)
-        XCTAssertLessThan(
-            previousMessage.serverTimestamp!.timeIntervalSince1970,
-            message.serverTimestamp!.timeIntervalSince1970
-        )
-        XCTAssertEqual(
-            Date().timeIntervalSince1970,
-            message.serverTimestamp!.timeIntervalSince1970,
-            accuracy: 1.0
-        )
-    }
-    
     func testThatAConversationIsNotTrustedIfItHasNoOtherParticipants()
     {
         // GIVEN

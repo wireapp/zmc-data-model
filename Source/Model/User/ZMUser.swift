@@ -20,9 +20,12 @@ import Foundation
 import WireUtilities
 import WireSystem
 
-extension ZMUser: UserConnectionType { }
-
 extension ZMUser: UserType {
+    @objc
+    public var hasTeam: Bool {
+        /// Other users won't have a team object, but a teamIdentifier.
+        return nil != team || nil != teamIdentifier
+    }
 
     /// Whether all user's devices are verified by the selfUser
     public var isTrusted: Bool {
@@ -33,7 +36,7 @@ extension ZMUser: UserType {
         return !hasUntrustedClients
     }
     
-    public func isGuest(in conversation: ZMConversation) -> Bool {
+    public func isGuest(in conversation: ConversationLike) -> Bool {
         return _isGuest(in: conversation)
     }
     
@@ -71,12 +74,12 @@ extension ZMUser: UserType {
         return !user.isSelfUser && (user.isConnected || isOnSameTeam(otherUser: user))
     }
 
-    public func isGroupAdmin(in conversation: ZMConversation) -> Bool {
+    public func isGroupAdmin(in conversation: ConversationLike) -> Bool {
         return role(in: conversation)?.name == ZMConversation.defaultAdminRoleName
     }
 
-    public func role(in conversation: ZMConversation) -> Role? {
-        return participantRoles.first(where: { $0.conversation == conversation })?.role
+    public func role(in conversation: ConversationLike?) -> Role? {
+        return participantRoles.first(where: { $0.conversation === conversation })?.role
     }
 
     // MARK: Legal Hold

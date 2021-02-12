@@ -33,6 +33,7 @@
 #import "ZMUpdateEvent+WireDataModel.h"
 
 #import <WireDataModel/WireDataModel-Swift.h>
+#import <WireCryptobox/cbox.h>
 
 
 static NSString *ZMLogTag ZM_UNUSED = @"ephemeral";
@@ -89,6 +90,7 @@ NSString * const ZMMessageLinkAttachmentsKey = @"linkAttachments";
 NSString * const ZMMessageNeedsLinkAttachmentsUpdateKey = @"needsLinkAttachmentsUpdate";
 NSString * const ZMMessageDiscoveredClientsKey = @"discoveredClients";
 NSString * const ZMMessageButtonStatesKey = @"buttonStates";
+NSString * const ZMMessageDecryptionErrorCodeKey = @"decryptionErrorCode";
 
 
 @interface ZMMessage ()
@@ -408,7 +410,20 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
     return [self fetchMessageWithNonce:nonce
                        forConversation:conversation
                 inManagedObjectContext:moc
-                        prefetchResult:nil];
+                        prefetchResult:nil
+          assumeMissingIfNotPrefetched:NO];
+}
+
++ (instancetype)fetchMessageWithNonce:(NSUUID *)nonce
+                      forConversation:(ZMConversation *)conversation
+               inManagedObjectContext:(NSManagedObjectContext *)moc
+                       prefetchResult:(ZMFetchRequestBatchResult *)prefetchResult
+{
+    return [self fetchMessageWithNonce:nonce
+                       forConversation:conversation
+                inManagedObjectContext:moc
+                        prefetchResult:prefetchResult
+          assumeMissingIfNotPrefetched:NO];
 }
 
 
@@ -416,6 +431,7 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
                       forConversation:(ZMConversation *)conversation
                inManagedObjectContext:(NSManagedObjectContext *)moc
                        prefetchResult:(ZMFetchRequestBatchResult *)prefetchResult
+         assumeMissingIfNotPrefetched:(BOOL)assumeMissingIfNotPrefetched
 {
     NSSet <ZMMessage *>* prefetchedMessages = prefetchResult.messagesByNonce[nonce];
     
@@ -425,6 +441,10 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
                 return prefetchedMessage;
             }
         }
+    }
+
+    if (prefetchResult != nil && assumeMissingIfNotPrefetched) {
+        return nil;
     }
     
     NSEntityDescription *entity = moc.persistentStoreCoordinator.managedObjectModel.entitiesByName[self.entityName];
@@ -594,7 +614,8 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
                              ZMMessageLinkAttachmentsKey,
                              ZMMessageNeedsLinkAttachmentsUpdateKey,
                              ZMMessageDiscoveredClientsKey,
-                             ZMMessageButtonStatesKey
+                             ZMMessageButtonStatesKey,
+                             ZMMessageDecryptionErrorCodeKey
                              ];
         ignoredKeys = [keys setByAddingObjectsFromArray:newKeys];
     });
@@ -760,6 +781,7 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
 @dynamic parentMessage;
 @dynamic messageTimer;
 @dynamic relevantForConversationStatus;
+@dynamic decryptionErrorCode;
 
 - (instancetype)initWithNonce:(NSUUID *)nonce managedObjectContext:(NSManagedObjectContext *)managedObjectContext
 {
@@ -859,6 +881,7 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
             case ZMSystemMessageTypePerformedCall:
             case ZMSystemMessageTypeUsingNewDevice:
             case ZMSystemMessageTypeDecryptionFailed:
+            case ZMSystemMessageTypeDecryptionFailedResolved:
             case ZMSystemMessageTypeReactivatedDevice:
             case ZMSystemMessageTypeConversationIsSecure:
             case ZMSystemMessageTypeMessageDeletedForEveryone:
@@ -870,6 +893,8 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
             case ZMSystemMessageTypeReadReceiptsOn:
             case ZMSystemMessageTypeLegalHoldEnabled:
             case ZMSystemMessageTypeLegalHoldDisabled:
+            case ZMSystemMessageTypeSessionReset:
+                
                 return YES;
             case ZMSystemMessageTypeInvalid:
             case ZMSystemMessageTypeConversationNameChanged:
@@ -894,6 +919,22 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
         self.needsUpdatingUsers = [self.addedUsers anyObjectMatchingWithBlock:matchUnfetchedUserBlock] ||
                                   [self.removedUsers anyObjectMatchingWithBlock:matchUnfetchedUserBlock];
     }
+}
+
+- (BOOL)isDecryptionErrorRecoverable {
+    if (self.decryptionErrorCode == nil) {
+        return NO;
+    }
+    
+    NSInteger errorCode = self.decryptionErrorCode.integerValue;
+    
+    if (errorCode == CBOX_TOO_DISTANT_FUTURE ||
+        errorCode == CBOX_DEGENERATED_KEY ||
+        errorCode == CBOX_PREKEY_NOT_FOUND) {
+        return YES;
+    }
+    
+    return NO;
 }
 
 + (ZMSystemMessageType)systemMessageTypeFromEventType:(ZMUpdateEventType)type
@@ -954,6 +995,21 @@ NSString * const ZMMessageButtonStatesKey = @"buttonStates";
 - (void)updateQuoteRelationships
 {
     // System messages don't support quotes at the moment
+}
+
+-(NSSet <id<UserType>>*)userTypes
+{
+    return [self users];
+}
+
+-(NSSet <id<UserType>>*)addedUserTypes
+{
+    return [self addedUsers];
+}
+
+-(NSSet <id<UserType>>*)removedUserTypes
+{
+    return [self removedUsers];
 }
 
 @end

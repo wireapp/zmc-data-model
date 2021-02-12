@@ -122,6 +122,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @property (nonatomic) BOOL internalIsArchived;
 
 @property (nonatomic) NSDate *pendingLastReadServerTimestamp;
+@property (nonatomic) NSDate *previousLastReadServerTimestamp;
 @property (nonatomic) NSDate *lastReadServerTimeStamp;
 @property (nonatomic) NSDate *lastServerTimeStamp;
 @property (nonatomic) NSDate *clearedTimeStamp;
@@ -163,6 +164,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @dynamic nonTeamRoles;
 
 @synthesize pendingLastReadServerTimestamp;
+@synthesize previousLastReadServerTimestamp;
 @synthesize lastReadTimestampSaveDelay;
 @synthesize lastReadTimestampUpdateCounter;
 
@@ -448,7 +450,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     // 1. Belongs to the team.
     // 2. Has no name given.
     // 3. Conversation has only one other participant.
-    // 4. This participant is not a service user (bot).
 
     // Performance note: localParticipantsExcludingSelf will enumerate over all
     // local participant roles, so check its count first to avoid unncessary iterations.
@@ -457,8 +458,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
         self.teamRemoteIdentifier != nil &&
         self.userDefinedName.length == 0 &&
         self.localParticipantRoles.count == 2 &&
-        self.localParticipantsExcludingSelf.count == 1 &&
-        !self.localParticipantsExcludingSelf.anyObject.isServiceUser)
+        self.localParticipantsExcludingSelf.count == 1)
     {
         conversationType = ZMConversationTypeOneOnOne;
     }

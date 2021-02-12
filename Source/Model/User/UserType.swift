@@ -1,6 +1,6 @@
 //
 // Wire
-// Copyright (C) 2018 Wire Swiss GmbH
+// Copyright (C) 2021 Wire Swiss GmbH
 //
 // This program is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -19,14 +19,7 @@
 import Foundation
 
 @objc
-public protocol UserConnectionType: NSObjectProtocol {
- 
-    var isPendingApprovalByOtherUser: Bool { get }
-    
-}
-
-@objc
-public protocol UserType: NSObjectProtocol {
+public protocol UserType: NSObjectProtocol, UserConnections {
     
     /// The full name
     var name: String? { get }
@@ -67,26 +60,11 @@ public protocol UserType: NSObjectProtocol {
     /// Whether this uses uses SSO.
     var usesCompanyLogin: Bool { get }
     
-    /// Is YES if we can send a connection request to this user.
-    var isConnected: Bool { get }
-
     /// The one-to-one conversation with this user.
     var oneToOneConversation: ZMConversation? { get }
 
-    /// Whether the user is blocked.
-    var isBlocked: Bool { get }
-
     /// Whether the user is expired.
     var isExpired: Bool { get }
-
-    /// Whether the user is pending connection approval from the self user.
-    var isPendingApprovalBySelfUser: Bool { get }
-
-    /// Whether the user is pending connection approval from another user.
-    var isPendingApprovalByOtherUser: Bool { get }
-
-    /// Whether the user can be connected by the self user.
-    var canBeConnected: Bool { get }
     
     /// Whether the account of the user is deleted
     var isAccountDeleted: Bool { get }
@@ -101,9 +79,6 @@ public protocol UserType: NSObjectProtocol {
     
     /// The time remaining before the user expires.
     var expiresAfter: TimeInterval { get }
-    
-    /// Message text if there's a pending connection request
-    var connectionRequestMessage: String? { get }
     
     var smallProfileImageCacheKey: String? { get }
     var mediumProfileImageCacheKey: String? { get }
@@ -130,7 +105,7 @@ public protocol UserType: NSObjectProtocol {
     func requestCompleteProfileImage()
     
     /// Whether this user is a guest in a conversation
-    func isGuest(in conversation: ZMConversation) -> Bool
+    func isGuest(in conversation: ConversationLike) -> Bool
     
     /// Fetch a profile image with the given size on the given queue
     func imageData(for size: ProfileImageSize, queue: DispatchQueue, completion: @escaping (_ imageData: Data?) -> Void)
@@ -154,12 +129,7 @@ public protocol UserType: NSObjectProtocol {
     ///
     /// This is useful to discover changes such as team name and logo.
     func refreshTeamData()
-    
-    /// Sends a connection request to the given user. May be a no-op, eg. if we're already connected.
-    /// A ZMUserChangeNotification with the searchUser as object will be sent notifiying about the connection status change
-    /// You should stop from observing the searchUser and start observing the user from there on
-    func connect(message: String)
-    
+        
     /// Determines whether the user profile is managed by Wire or other services (SCIM)
     var managedByWire: Bool { get }
     
@@ -188,7 +158,7 @@ public protocol UserType: NSObjectProtocol {
 
     /// Whether the user can add another user to the conversation.
     @objc(canAddUserToConversation:)
-    func canAddUser(to conversation: ZMConversation) -> Bool
+    func canAddUser(to conversation: ConversationLike) -> Bool
 
     /// Whether the user can remove another user from the conversation.
     @objc(canRemoveUserFromConversation:)
@@ -204,23 +174,23 @@ public protocol UserType: NSObjectProtocol {
     
     /// Whether the user can toggle the read receipts setting in the conversation.
     @objc(canModifyReadReceiptSettingsInConversation:)
-    func canModifyReadReceiptSettings(in conversation: ZMConversation) -> Bool
+    func canModifyReadReceiptSettings(in conversation: ConversationLike) -> Bool
     
     /// Whether the user can toggle the emphemeral setting in the conversation.
     @objc(canModifyEphemeralSettingsInConversation:)
-    func canModifyEphemeralSettings(in conversation: ZMConversation) -> Bool
+    func canModifyEphemeralSettings(in conversation: ConversationLike) -> Bool
     
     /// Whether the user can change the notification level setting in the conversation.
     @objc(canModifyNotificationSettingsInConversation:)
-    func canModifyNotificationSettings(in conversation: ZMConversation) -> Bool
+    func canModifyNotificationSettings(in conversation: ConversationLike) -> Bool
     
     /// Whether the user can toggle the access level setting in the conversation.
     @objc(canModifyAccessControlSettingsInConversation:)
-    func canModifyAccessControlSettings(in conversation: ZMConversation) -> Bool
+    func canModifyAccessControlSettings(in conversation: ConversationLike) -> Bool
     
     /// Whether the user can update the title of the conversation.
     @objc(canModifyTitleInConversation:)
-    func canModifyTitle(in conversation: ZMConversation) -> Bool
+    func canModifyTitle(in conversation: ConversationLike) -> Bool
 
     /// Whether the user can leave the conversation.
     @objc(canLeave:)
@@ -228,8 +198,57 @@ public protocol UserType: NSObjectProtocol {
 
     /// Whether the user is group admin in the conversation.
     @objc(isGroupAdminInConversation:)
-    func isGroupAdmin(in conversation: ZMConversation) -> Bool
+    func isGroupAdmin(in conversation: ConversationLike) -> Bool
         
     /// Whether all user's devices are verified by the selfUser
     var isTrusted: Bool { get }
+    
+    /// the user has team or not
+    @objc
+    var hasTeam: Bool { get }
+}
+
+/// Methods and properties related to managing 1:1 user connections.
+
+@objc
+public protocol UserConnections {
+    
+    ///  Whether the user has been blocked by the self user
+    var isBlocked: Bool { get }
+    
+    ///  Whether the user has ignored an incoming connection request from this user.
+    var isIgnored: Bool { get }
+    
+    /// Whether the user is pending connection approval from the self user.
+    var isPendingApprovalBySelfUser: Bool { get }
+    
+    /// Whether the user is pending connection approval from another user.
+    var isPendingApprovalByOtherUser: Bool { get }
+    
+    /// Is `false` if we can send a connection request to this user.
+    var isConnected: Bool { get }
+    
+    /// Whether the user can be connected by the self user.
+    var canBeConnected: Bool { get }
+    
+    /// Message text if there's a pending connection request
+    var connectionRequestMessage: String? { get }
+    
+    /// Sends a connection request to the given user. May be a no-op, eg. if we're already connected.
+    /// A ZMUserChangeNotification with the searchUser as object will be sent notifiying about the connection status change
+    /// You should stop from observing the searchUser and start observing the user from there on
+    func connect(message: String)
+    
+    /// Accept a pending connection request from this user
+    func accept()
+    
+    /// Ignore a pending connection request from this user
+    func ignore()
+    
+    /// Block this user from communicating with the self user
+    func block()
+        
+    /// Cancel a pending outgoing connection request to this user
+    func cancelConnectionRequest()
+    
 }

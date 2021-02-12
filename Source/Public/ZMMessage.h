@@ -32,7 +32,8 @@
 @protocol ZMKnockMessageData;
 @protocol ZMFileMessageData;
 @protocol UserClientType;
-
+@protocol UserType;
+@protocol ZMConversationMessage;
 
 #pragma mark - ZMImageMessageData
 
@@ -75,8 +76,8 @@ typedef NS_ENUM(int16_t, ZMSystemMessageType) {
     ZMSystemMessageTypeDecryptionFailed,
     ZMSystemMessageTypeDecryptionFailed_RemoteIdentityChanged,
     ZMSystemMessageTypeNewConversation,
-    ZMSystemMessageTypeReactivatedDevice,
-    ZMSystemMessageTypeUsingNewDevice,
+    ZMSystemMessageTypeReactivatedDevice __deprecated_enum_msg("Devices can't be reactivated any longer"),
+    ZMSystemMessageTypeUsingNewDevice __deprecated_enum_msg("We don't need inform users about new devices any longer"),
     ZMSystemMessageTypeMessageDeletedForEveryone,
     ZMSystemMessageTypePerformedCall,
     ZMSystemMessageTypeTeamMemberLeave,
@@ -85,7 +86,9 @@ typedef NS_ENUM(int16_t, ZMSystemMessageType) {
     ZMSystemMessageTypeReadReceiptsDisabled,
     ZMSystemMessageTypeReadReceiptsOn,
     ZMSystemMessageTypeLegalHoldEnabled,
-    ZMSystemMessageTypeLegalHoldDisabled
+    ZMSystemMessageTypeLegalHoldDisabled,
+    ZMSystemMessageTypeSessionReset,
+    ZMSystemMessageTypeDecryptionFailedResolved,
 };
 
 
@@ -95,7 +98,7 @@ typedef NS_ENUM(int16_t, ZMSystemMessageType) {
 @property (nonatomic, readonly, nullable) NSString *messageText;
 @property (nonatomic, readonly, nullable) LinkMetadata *linkPreview;
 @property (nonatomic, readonly, nonnull) NSArray<Mention *> *mentions;
-@property (nonatomic, readonly, nullable) ZMMessage *quote;
+@property (nonatomic, readonly, nullable) id<ZMConversationMessage> quoteMessage;
 
 /// Returns true if the link preview will have an image
 @property (nonatomic, readonly) BOOL linkPreviewHasImage;
@@ -124,13 +127,28 @@ typedef NS_ENUM(int16_t, ZMSystemMessageType) {
 @protocol ZMSystemMessageData <NSObject>
 
 @property (nonatomic, readonly) ZMSystemMessageType systemMessageType;
-@property (nonatomic, readonly, nonnull) NSSet <ZMUser *>*users;
+
+
+
+@property (nonatomic, readonly, nonnull) NSSet <ZMUser *>*users __attribute__((deprecated("Use `userTypes` instead")));
+@property (nonatomic, readonly, nonnull) NSSet <id<UserType>>*userTypes;
+
+/// Only filled for ZMSystemMessageTypePotentialGap
+@property (nonatomic, nonnull) NSSet<ZMUser *> *addedUsers __attribute__((deprecated("Use `addedUserTypes` instead")));
+@property (nonatomic, nonnull) NSSet<id<UserClientType>> *addedUserTypes;
+
+/// Only filled for ZMSystemMessageTypePotentialGap
+@property (nonatomic, nonnull) NSSet<ZMUser *> *removedUsers __attribute__((deprecated("Use `removedUserTypes` instead")));;
+@property (nonatomic, nonnull) NSSet<id<UserClientType>> *removedUserTypes;
+
 @property (nonatomic, readonly, nonnull) NSSet <id<UserClientType>>*clients;
-@property (nonatomic, nonnull) NSSet<ZMUser *> *addedUsers; // Only filled for ZMSystemMessageTypePotentialGap
-@property (nonatomic, nonnull) NSSet<ZMUser *> *removedUsers; // Only filled for ZMSystemMessageTypePotentialGap
+
 @property (nonatomic, readonly, copy, nullable) NSString *text;
 @property (nonatomic) BOOL needsUpdatingUsers;
+@property (nonatomic) BOOL isDecryptionErrorRecoverable;
 @property (nonatomic) NSTimeInterval duration;
+@property (nonatomic) NSNumber * _Nullable decryptionErrorCode; // Only filled for ZMSystemMessageTypeDecryptionFailed
+@property (nonatomic) NSString * _Nullable senderClientID; // Only filled for ZMSystemMessageTypeDecryptionFailed
 /**
   Only filled for .performedCall & .missedCall
  */

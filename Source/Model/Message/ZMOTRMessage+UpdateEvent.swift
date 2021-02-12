@@ -91,8 +91,17 @@ extension ZMOTRMessage {
 
         case .edited:
             return ZMClientMessage.editMessage(withEdit: message.edited, forConversation: conversation, updateEvent: updateEvent, inContext: moc, prefetchResult: prefetchResult)
-
-        case .clientAction, .calling, .availability:
+            
+        case .clientAction(.resetSession):
+            guard
+                let sender = ZMUser(remoteID: senderID, createIfNeeded: true, in: moc),
+                let senderClientID = updateEvent.senderClientID,
+                let senderClient = UserClient.fetchUserClient(withRemoteId: senderClientID, forUser: sender, createIfNeeded: true),
+                let timestamp = updateEvent.timestamp
+            else { return nil }
+            
+            conversation.appendSessionResetSystemMessage(user: sender, client: senderClient, at: timestamp)
+        case .calling, .availability:
             return nil
 
         default:
@@ -104,7 +113,11 @@ extension ZMOTRMessage {
             }
             
             let messageClass: AnyClass = GenericMessage.entityClass(for: message)
-            var clientMessage = messageClass.fetch(withNonce: nonce, for: conversation, in: moc, prefetchResult: prefetchResult) as? ZMOTRMessage
+            var clientMessage = messageClass.fetch(withNonce: nonce,
+                                                   for: conversation,
+                                                   in: moc,
+                                                   prefetchResult: prefetchResult,
+                                                   assumeMissingIfNotPrefetched: true) as? ZMOTRMessage
             
             guard !isZombieObject(clientMessage) else {
                 return nil
@@ -128,6 +141,10 @@ extension ZMOTRMessage {
                 if isGroup(conversation: conversation, andIsSenderID: senderID, differentFromSelfUserID: selfUser.remoteIdentifier) {
                     let isComposite = (message as? ConversationCompositeMessage)?.isComposite ?? false
                     clientMessage?.expectsReadConfirmation = conversation.hasReadReceiptsEnabled || isComposite
+                }
+                
+                if let message = clientMessage {
+                    prefetchResult.add([message])
                 }
             } else if clientMessage?.senderClientID == nil || clientMessage?.senderClientID != updateEvent.senderClientID {
                 return nil

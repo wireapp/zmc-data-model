@@ -255,29 +255,6 @@ extension ZMConversation {
 
     // MARK: - Messages
 
-    /// Creates system message that says that you started using this device, if you were not registered on this device
-    @objc public func appendStartedUsingThisDeviceMessage() {
-        guard ZMSystemMessage.fetchStartedUsingOnThisDeviceMessage(conversation: self) == nil else { return }
-        let selfUser = ZMUser.selfUser(in: self.managedObjectContext!)
-        guard let selfClient = selfUser.selfClient() else { return }
-        self.appendSystemMessage(type: .usingNewDevice,
-                                 sender: selfUser,
-                                 users: Set(arrayLiteral: selfUser),
-                                 clients: Set(arrayLiteral: selfClient),
-                                 timestamp: timestampAfterLastMessage())
-    }
-
-    /// Creates a system message when a device has previously been used before, but was logged out due to invalid cookie and/ or invalidated client
-    @objc public func appendContinuedUsingThisDeviceMessage() {
-        let selfUser = ZMUser.selfUser(in: self.managedObjectContext!)
-        guard let selfClient = selfUser.selfClient() else { return }
-        self.appendSystemMessage(type: .reactivatedDevice,
-                                 sender: selfUser,
-                                 users: Set(arrayLiteral: selfUser),
-                                 clients: Set(arrayLiteral: selfClient),
-                                 timestamp: Date())
-    }
-
     /// Creates a system message that inform that there are pontential lost messages, and that some users were added to the conversation
     @objc public func appendNewPotentialGapSystemMessage(users: Set<ZMUser>?, timestamp: Date) {
         
@@ -306,11 +283,14 @@ extension ZMConversation {
         let type = (UInt32(errorCode) == CBOX_REMOTE_IDENTITY_CHANGED.rawValue) ? ZMSystemMessageType.decryptionFailed_RemoteIdentityChanged : ZMSystemMessageType.decryptionFailed
         let clients = client.flatMap { Set(arrayLiteral: $0) } ?? Set<UserClient>()
         let serverTimestamp = date ?? timestampAfterLastMessage()
-        self.appendSystemMessage(type: type,
-                                 sender: sender,
-                                 users: nil,
-                                 clients: clients,
-                                 timestamp: serverTimestamp)
+        let systemMessage = appendSystemMessage(type: type,
+                                               sender: sender,
+                                               users: nil,
+                                               clients: clients,
+                                               timestamp: serverTimestamp)
+        
+        systemMessage.senderClientID = client?.remoteIdentifier
+        systemMessage.decryptionErrorCode = NSNumber(integerLiteral: errorCode)
     }
 
     /// Adds the user to the list of participants if not already present and inserts a .participantsAdded system message
@@ -321,7 +301,7 @@ extension ZMConversation {
     public func addParticipantAndSystemMessageIfMissing(_ user: ZMUser, date dateOptional: Date?) {
         let date = dateOptional ?? Date()
 
-        guard !localParticipants.contains(user) else { return }
+        guard !user.isSelfUser, !localParticipants.contains(user) else { return }
         
         zmLog.debug("Sender: \(user.remoteIdentifier?.transportString() ?? "n/a") missing from participant list: \(localParticipants.map{ $0.remoteIdentifier} )")
         
