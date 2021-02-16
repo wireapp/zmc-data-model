@@ -35,7 +35,10 @@ public enum ZMDeliveryState : UInt {
 @objc
 public protocol ReadReceipt {
     
+    @available(*, deprecated, message: "Use `userType` instead")
     var user: ZMUser { get }
+    var userType: UserType { get }
+
     var serverTimestamp: Date? { get }
     
 }
@@ -46,15 +49,22 @@ public protocol ZMConversationMessage : NSObjectProtocol {
     /// Unique identifier for the message
     var nonce: UUID? { get }
         
-    /// The user who sent the message
+    /// The user who sent the message (internal)
+    @available(*, deprecated, message: "Use `senderUser` instead")
     var sender: ZMUser? { get }
-    
+
+    /// The user who sent the message
+    var senderUser: UserType? { get }
+
     /// The timestamp as received by the server
     var serverTimestamp: Date? { get }
     
-    /// The conversation this message belongs to
+    @available(*, deprecated, message: "Use `conversationLike` instead")
     var conversation: ZMConversation? { get }
     
+    /// The conversation this message belongs to
+    var conversationLike: ConversationLike? { get }
+
     /// The current delivery state of this message. It makes sense only for
     /// messages sent from this device. In any other case, it will be
     /// ZMDeliveryStateDelivered
@@ -87,7 +97,7 @@ public protocol ZMConversationMessage : NSObjectProtocol {
     /// The location message data associated with the message. If the message is not a location message, it will be nil
     var locationMessageData: LocationMessageData? { get }
 
-    var usersReaction : Dictionary<String, [ZMUser]> { get }
+    var usersReaction : Dictionary<String, [UserType]> { get }
     
     /// In case this message failed to deliver, this will resend it
     func resend()
@@ -157,7 +167,8 @@ public extension ZMConversationMessage {
 
     func isUserSender(_ user: UserType) -> Bool {
         guard let zmUser = user as? ZMUser else { return false }
-        return zmUser == sender
+        
+        return zmUser == senderUser as? ZMUser
     }
 }
 
@@ -195,6 +206,14 @@ extension ZMMessage {
 // MARK:- Conversation Message protocol implementation
 
 extension ZMMessage : ZMConversationMessage {
+    public var conversationLike: ConversationLike? {
+        return conversation
+    }
+
+    public var senderUser: UserType? {
+        return sender
+    }
+    
     @NSManaged public var linkAttachments: [LinkAttachment]?
     @NSManaged public var needsLinkAttachmentsUpdate: Bool
     @NSManaged public var replies: Set<ZMMessage>
@@ -291,9 +310,9 @@ extension ZMMessage {
         return .delivered
     }
     
-    @objc public var usersReaction : Dictionary<String, [ZMUser]> {
+    @objc public var usersReaction : Dictionary<String, [UserType]> {
         var result = Dictionary<String, [ZMUser]>()
-        for reaction in self.reactions {
+        for reaction in reactions {
             if reaction.users.count > 0 {
                 result[reaction.unicodeValue!] = Array<ZMUser>(reaction.users)
             }
