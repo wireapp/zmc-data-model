@@ -18,25 +18,8 @@
 
 import Foundation
 
-extension Team {
+public protocol AppLockDelegate: class {
 
-    @NSManaged private var features: Set<Feature>
-
-    func feature(for name: Feature.Name) -> Feature? {
-        return features.first(where: { $0.name == name })
-    }
-
-    /// Enqueue a backend refresh for the feature with the given name.
-    ///
-    /// To trigger the request immediately, post a `RequestAvailableNotification`.
-    ///
-    /// - Parameter name: The name of the feature to refresh.
-    
-    public func enqueueBackendRefresh(for name: Feature.Name) {
-        guard let context = managedObjectContext else { return }
-
-        let feature = Feature.fetch(name: name, context: context)
-        feature?.needsToBeUpdatedFromBackend = true
-    }
+    func appLockDidOpen(_ appLock: AppLockType)
 
 }
