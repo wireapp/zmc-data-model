@@ -28,7 +28,7 @@ class AnalyticsAttributeValueTests: XCTestCase {
 
         // When 500 numbers are rounded.
         for exactValue in 0..<500 {
-            let roundedValue = RoundedInt(exactValue, factor: factor).analyticsValue
+            let roundedValue = exactValue.rounded(byFactor: factor).analyticsValue
             let existingCount = countByBucket[roundedValue] ?? 0
             countByBucket[roundedValue] = existingCount + 1
         }

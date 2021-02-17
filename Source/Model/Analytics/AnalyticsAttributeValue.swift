@@ -54,6 +54,14 @@ public struct RoundedInt: AnalyticsAttributeValue {
 
 }
 
+public extension Int {
+
+    func rounded(byFactor factor: Int) -> RoundedInt {
+        return RoundedInt(self, factor: factor)
+    }
+
+}
+
 extension UUID: AnalyticsAttributeValue {
 
     public var analyticsValue: String {
