@@ -28,18 +28,44 @@ public protocol AnalyticsAttributeValue {
 
 }
 
-extension UUID: AnalyticsAttributeValue {
+/// An numeric container used to protect the privacy of integer values.
+///
+/// This is achieved by rounding an exact value by a certain factor. The
+/// rounding is logarithmic, meaning that small numbers are only slighly
+/// rounded whereas larger numbers will be rounded more. This kind of
+/// rounding is roughly equivalent to having buckets of increasing size.
 
-    public var analyticsValue: String {
-        return transportString()
+public struct RoundedInt: AnalyticsAttributeValue {
+
+    public let analyticsValue: String
+
+    /// Create a rounded integer by a certain factor.
+    ///
+    /// - Parameters:
+    ///     - exactValue: The integer value to round.
+    ///     - factor: Determines how much the value is rounded.
+
+    public init(_ exactValue: Int, factor: Int) {
+        let exactValue = Double(exactValue)
+        let factor = Double(factor)
+        let roundedValue = Int(ceil(pow(2, (floor(factor * log2(exactValue)) / factor))))
+        analyticsValue = String(describing: roundedValue)
     }
 
 }
 
-extension Int: AnalyticsAttributeValue {
+public extension Int {
+
+    func rounded(byFactor factor: Int) -> RoundedInt {
+        return RoundedInt(self, factor: factor)
+    }
+
+}
+
+extension UUID: AnalyticsAttributeValue {
 
     public var analyticsValue: String {
-        return String(describing: self)
+        return transportString()
     }
 
 }
