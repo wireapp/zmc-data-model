@@ -62,6 +62,14 @@ public extension Int {
 
 }
 
+extension Bool: AnalyticsAttributeValue {
+
+    public var analyticsValue: String {
+        return self ? "True" : "False"
+    }
+
+}
+
 extension UUID: AnalyticsAttributeValue {
 
     public var analyticsValue: String {
