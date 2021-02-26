@@ -956,13 +956,3 @@ extension ZMUserTests_Swift {
     }
 
 }
-
-// MARK: - QualifiedID
-
-extension ZMUserTests_Swift {
-    
-    func testThatUserIsAssignedQualifiedID_WhenAvailable() {
-        
-    }
-    
-}
