@@ -85,12 +85,13 @@ import UIKit
     /// - parameter completionHandler: this callback is invoked on the main queue.
     /// - parameter accountIdentifier: user identifier that the store should be created for
     /// - parameter container: the shared container for the app
-    @objc(createManagedObjectContextDirectoryForAccountIdentifier:applicationContainer:dispatchGroup:startedMigrationCallback:completionHandler:)
+    @objc(createManagedObjectContextDirectoryForAccountIdentifier:applicationContainer:dispatchGroup:startedMigrationCallback:databaseLoadingFailureCallBack:completionHandler:)
     public func createManagedObjectContextDirectory(
         accountIdentifier: UUID,
         applicationContainer: URL,
         dispatchGroup: ZMSDispatchGroup? = nil,
         startedMigrationCallback: (() -> Void)? = nil,
+        databaseLoadingFailureCallBack: (() -> Void)? = nil,
         completionHandler: @escaping (ManagedObjectContextDirectory) -> Void
         )
     {
@@ -130,6 +131,11 @@ import UIKit
                             startedMigrationCallback?()
                         }
                     },
+                    databaseLoadingFailureCallBack: {
+                        DispatchQueue.main.async {
+                            databaseLoadingFailureCallBack?()
+                        }
+                    },
                     completionHandler: { [weak self] mocs in
                         self?.managedObjectContextDirectory = mocs
                         DispatchQueue.main.async {
@@ -161,6 +167,7 @@ import UIKit
         migrateIfNeeded: Bool,
         dispatchGroup: ZMSDispatchGroup? = nil,
         startedMigrationCallback: (() -> Void)? = nil,
+        databaseLoadingFailureCallBack: (() -> Void)? = nil,
         completionHandler: @escaping (ManagedObjectContextDirectory) -> Void
         )
     {
@@ -169,7 +176,8 @@ import UIKit
             accountIdentifier: accountIdentifier,
             accountDirectory: accountDirectory,
             applicationContainer: applicationContainer,
-            startedMigrationCallback: startedMigrationCallback)
+            startedMigrationCallback: startedMigrationCallback,
+            databaseLoadingFailureCallBack: databaseLoadingFailureCallBack)
         { psc in
             let directory = ManagedObjectContextDirectory(
                 persistentStoreCoordinator: psc,

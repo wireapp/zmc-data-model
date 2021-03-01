@@ -36,7 +36,8 @@ extension NSPersistentStoreCoordinator {
                 accountIdentifier: nil,
                 applicationContainer: applicationContainer,
                 model: model,
-                startedMigrationCallback: nil
+                startedMigrationCallback: nil,
+                databaseLoadingFailureCallBack: nil
             ))
         }
     }
@@ -49,6 +50,7 @@ extension NSPersistentStoreCoordinator {
         accountDirectory: URL,
         applicationContainer: URL,
         startedMigrationCallback: (() -> Void)?,
+        databaseLoadingFailureCallBack: (() -> Void)?,
         completionHandler: @escaping (NSPersistentStoreCoordinator) -> Void
         ) {
         
@@ -61,7 +63,8 @@ extension NSPersistentStoreCoordinator {
                 accountIdentifier: accountIdentifier,
                 applicationContainer: applicationContainer,
                 model: model,
-                startedMigrationCallback: startedMigrationCallback
+                startedMigrationCallback: startedMigrationCallback,
+                databaseLoadingFailureCallBack: databaseLoadingFailureCallBack
             ))
         }
     }
