@@ -94,7 +94,7 @@ extension NSPersistentStoreCoordinator {
     }
     
     /// Deleted persistent store and related files
-    fileprivate func removePersistentStoreFromDisk(at url: URL) {
+    public static func removePersistentStoreFromDisk(at url: URL, completion: () -> Void) {
         // Enumerate all files in the store directory and find the ones that match the store name.
         // We need to do this, because the store consists of several files.
         let storeName = url.lastPathComponent
@@ -111,6 +111,8 @@ extension NSPersistentStoreCoordinator {
                 try? fm.removeItem(at: url)
             }
         }
+
+        completion()
     }
     
 }
