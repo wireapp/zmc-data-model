@@ -189,15 +189,6 @@ import UIKit
         }
     }
 
-    public func removeDatabaseFromDisk(accountIdentifier: UUID,
-                                       applicationContainer: URL,
-                                       completion: () -> Void) {
-        let accountDirectory = StorageStack.accountFolder(accountIdentifier: accountIdentifier,
-                                                          applicationContainer: applicationContainer)
-        let storeFile = accountDirectory.appendingPersistentStoreLocation()
-        NSPersistentStoreCoordinator.removePersistentStoreFromDisk(at: storeFile, completion: completion)
-    }
-
     /// Resets the stack. After calling this, the stack is ready to be reinitialized.
     /// Using a ManagedObjectContextDirectory created by a stack after the stack has been
     /// reset will cause a crash

@@ -91,30 +91,7 @@ extension NSPersistentStoreCoordinator {
         } catch {
             databaseLoadingFailureCallBack?()
         }
-    }
-    
-    /// Deleted persistent store and related files
-    public static func removePersistentStoreFromDisk(at url: URL, completion: () -> Void) {
-        // Enumerate all files in the store directory and find the ones that match the store name.
-        // We need to do this, because the store consists of several files.
-        let storeName = url.lastPathComponent
-        guard let values = try? url.resourceValues(forKeys: [.parentDirectoryURLKey]) else { return }
-        guard let storeFolder = values.parentDirectory else { return }
-        let fm = FileManager.default
-        guard let fileURLs = fm.enumerator(at: storeFolder, includingPropertiesForKeys: [.nameKey], options: .skipsSubdirectoryDescendants, errorHandler: nil) else { return }
-        
-        for file in fileURLs {
-            guard let url = file as? URL else { continue }
-            guard let values = try? url.resourceValues(forKeys: [.nameKey]) else { continue }
-            guard let name = values.name else { continue }
-            if name.hasPrefix(storeName) || name.hasPrefix(".\(storeName)_") {
-                try? fm.removeItem(at: url)
-            }
-        }
-
-        completion()
-    }
-    
+    }    
 }
 
 extension NSPersistentStoreCoordinator {
