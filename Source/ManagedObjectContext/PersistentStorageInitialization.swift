@@ -31,14 +31,18 @@ extension NSPersistentStoreCoordinator {
         
         PersistentStorageInitialization.executeWhenFileIsAccessible(storeFile) {
             let model = NSManagedObjectModel.loadModel()
-            completionHandler(NSPersistentStoreCoordinator(
+            guard let persistentStoreCoordinator = NSPersistentStoreCoordinator(
                 storeFile: storeFile,
                 accountIdentifier: nil,
                 applicationContainer: applicationContainer,
                 model: model,
                 startedMigrationCallback: nil,
                 databaseLoadingFailureCallBack: nil
-            ))
+            ) else {
+                return
+            }
+
+            completionHandler(persistentStoreCoordinator)
         }
     }
     
@@ -57,15 +61,19 @@ extension NSPersistentStoreCoordinator {
         PersistentStorageInitialization.executeWhenFileIsAccessible(storeFile) {
             let model = NSManagedObjectModel.loadModel()
             UserClientKeysStore.migrateIfNeeded(accountIdentifier: accountIdentifier, accountDirectory: accountDirectory, applicationContainer: applicationContainer)
-            
-            completionHandler(NSPersistentStoreCoordinator(
+
+            guard let persistentStoreCoordinator = NSPersistentStoreCoordinator(
                 storeFile: storeFile,
-                accountIdentifier: accountIdentifier,
+                accountIdentifier: nil,
                 applicationContainer: applicationContainer,
                 model: model,
-                startedMigrationCallback: startedMigrationCallback,
+                startedMigrationCallback: nil,
                 databaseLoadingFailureCallBack: databaseLoadingFailureCallBack
-            ))
+            ) else {
+                return
+            }
+
+            completionHandler(persistentStoreCoordinator)
         }
     }
 }
