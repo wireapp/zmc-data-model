@@ -45,29 +45,22 @@ import WireTesting
         self.clearStorageFolder()
         super.tearDown()
     }
-    
+
     /// Create storage stack
-    func createStorageStackAndWaitForCompletion(
-        userID: UUID = UUID()
-        ) -> ManagedObjectContextDirectory
-    {
-        var contextDirectory: ManagedObjectContextDirectory? = nil
-        
-        StorageStack.shared.createManagedObjectContextDirectory(
-            accountIdentifier: userID,
-            applicationContainer: self.applicationContainer,
-            dispatchGroup: dispatchGroup
-        ) { directory in
-            contextDirectory = directory
+    func createStorageStackAndWaitForCompletion(userID: UUID = UUID()) -> CoreDataStack {
+        let account = Account(userName: "", userIdentifier: userID)
+        let stack = CoreDataStack(account: account,
+                                  applicationContainer: applicationContainer,
+                                  inMemoryStore: false,
+                                  dispatchGroup: dispatchGroup)
+
+        stack.loadStore { (error) in
+            XCTAssertNil(error)
         }
-        
-        guard self.waitOnMainLoop(until: { contextDirectory != nil }, timeout: 5) else {
-            XCTFail()
-            fatalError()
-        }
-        return contextDirectory!
+
+        return stack
     }
-    
+
     /// Create storage stack at a legacy location
     @objc public func createLegacyStore(searchPath: FileManager.SearchPathDirectory) {
         let directory = FileManager.default.urls(for: searchPath, in: .userDomainMask).first!

@@ -63,7 +63,7 @@ public class CoreDataStack: NSObject, ContextProvider {
 
         self.accountContainer = accountDirectory
 
-        let storeURL = accountDirectory.appendingStoreFile()
+        let storeURL = accountDirectory.appendingPersistentStoreLocation()
         let container = PersistentContainer(name: "zmessaging")
         let description: NSPersistentStoreDescription
 
