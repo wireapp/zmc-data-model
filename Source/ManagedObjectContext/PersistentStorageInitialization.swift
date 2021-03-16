@@ -19,6 +19,8 @@
 import Foundation
 import WireSystem
 
+private let log = ZMSLog(tag: "NSPersistentStoreCoordinator")
+
 extension NSPersistentStoreCoordinator {
     
     /// Creates a filesystem-backed persistent store coordinator with the model contained in this bundle
@@ -26,23 +28,19 @@ extension NSPersistentStoreCoordinator {
     static func create(
         storeFile: URL,
         applicationContainer: URL,
-        completionHandler: @escaping (NSPersistentStoreCoordinator) -> Void
-        ) {
-        
-        PersistentStorageInitialization.executeWhenFileIsAccessible(storeFile) {
+        completionHandler: @escaping (NSPersistentStoreCoordinator) -> Void) {
+
+        do {
             let model = NSManagedObjectModel.loadModel()
-            guard let persistentStoreCoordinator = NSPersistentStoreCoordinator(
+            let persistentStoreCoordinator = try NSPersistentStoreCoordinator(
                 storeFile: storeFile,
                 accountIdentifier: nil,
                 applicationContainer: applicationContainer,
                 model: model,
-                startedMigrationCallback: nil,
-                databaseLoadingFailureCallBack: nil
-            ) else {
-                return
-            }
-
+                startedMigrationCallback: nil)
             completionHandler(persistentStoreCoordinator)
+        } catch let error {
+            log.debug("Error to create the NSPersistentStoreCoordinator: \(error)")
         }
     }
     
@@ -55,45 +53,24 @@ extension NSPersistentStoreCoordinator {
         applicationContainer: URL,
         startedMigrationCallback: (() -> Void)?,
         databaseLoadingFailureCallBack: (() -> Void)?,
-        completionHandler: @escaping (NSPersistentStoreCoordinator) -> Void
-        ) {
-        
-        PersistentStorageInitialization.executeWhenFileIsAccessible(storeFile) {
-            let model = NSManagedObjectModel.loadModel()
-            UserClientKeysStore.migrateIfNeeded(accountIdentifier: accountIdentifier, accountDirectory: accountDirectory, applicationContainer: applicationContainer)
+        completionHandler: @escaping (NSPersistentStoreCoordinator) -> Void) {
 
-            guard let persistentStoreCoordinator = NSPersistentStoreCoordinator(
+        do {
+            let model = NSManagedObjectModel.loadModel()
+            UserClientKeysStore.migrateIfNeeded(accountIdentifier: accountIdentifier,
+                                                accountDirectory: accountDirectory,
+                                                applicationContainer: applicationContainer)
+
+            let persistentStoreCoordinator = try NSPersistentStoreCoordinator(
                 storeFile: storeFile,
-                accountIdentifier: nil,
+                accountIdentifier: accountIdentifier,
                 applicationContainer: applicationContainer,
                 model: model,
-                startedMigrationCallback: nil,
-                databaseLoadingFailureCallBack: databaseLoadingFailureCallBack
-            ) else {
-                return
-            }
-
+                startedMigrationCallback: startedMigrationCallback)
             completionHandler(persistentStoreCoordinator)
-        }
-    }
-}
-
-/// Creates a persistent store CoreData stack
-class PersistentStorageInitialization {
-    
-    fileprivate init() {}
-    
-    /// Observer token for application becoming available
-    fileprivate var applicationProtectedDataDidBecomeAvailableObserver: Any! = nil
-    
-    fileprivate static func executeWhenFileIsAccessible(_ file: URL, usingBlock block: @escaping () -> Void) {
-        // We need to handle the case when the database file is encrypted by iOS and user never entered the passcode
-        // We use default core data protection mode NSFileProtectionCompleteUntilFirstUserAuthentication
-        let storageInitialization = PersistentStorageInitialization()
-        
-        storageInitialization.applicationProtectedDataDidBecomeAvailableObserver = FileManager.default.executeWhenFileSystemIsAccessible { 
-            storageInitialization.applicationProtectedDataDidBecomeAvailableObserver = nil
-            block()
+        } catch {
+            databaseLoadingFailureCallBack?()
+            log.debug("Error to create the NSPersistentStoreCoordinator: \(error)")
         }
     }
 }

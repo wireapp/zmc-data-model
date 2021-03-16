@@ -21,14 +21,13 @@ import Foundation
 extension NSPersistentStoreCoordinator {
     
     /// Creates a filesystem-based persistent store at the given url with the given model
-    convenience init?(
+    convenience init (
         storeFile: URL,
         accountIdentifier: UUID?,
         applicationContainer: URL,
         model: NSManagedObjectModel,
-        startedMigrationCallback: (() -> Void)?,
-        databaseLoadingFailureCallBack: (() -> Void)?)
-    {
+        startedMigrationCallback: (() -> Void)?) throws {
+
         self.init(managedObjectModel: model)
         var migrationStarted = false
         func notifyMigrationStarted() -> () {
@@ -47,19 +46,19 @@ extension NSPersistentStoreCoordinator {
         
         let containingFolder = storeFile.deletingLastPathComponent()
         FileManager.default.createAndProtectDirectory(at: containingFolder)
-        let isAdded = self.addPersistentStore(at: storeFile,
-                                              model: model,
-                                              startedMigrationCallback: notifyMigrationStarted,
-                                              databaseLoadingFailureCallBack: databaseLoadingFailureCallBack)
-        if !isAdded {
-            return nil
+
+        do {
+            try self.addPersistentStore(at: storeFile,
+                                        model: model,
+                                        startedMigrationCallback: notifyMigrationStarted)
+        } catch let error {
+            throw error
         }
     }
-    
+
     private func addPersistentStore(at storeURL: URL,
                                     model: NSManagedObjectModel,
-                                    startedMigrationCallback: () -> Void,
-                                    databaseLoadingFailureCallBack: (() -> Void)?) -> Bool {
+                                    startedMigrationCallback: () -> Void) throws {
 
         do {
             if NSPersistentStoreCoordinator.shouldMigrateStoreToNewModelVersion(at: storeURL,
@@ -69,10 +68,8 @@ extension NSPersistentStoreCoordinator {
             } else {
                 try self.addPersistentStoreWithNoMigration(at: storeURL)
             }
-            return true
-        } catch {
-            databaseLoadingFailureCallBack?()
-            return false
+        } catch let error {
+            throw error
         }
     }
     
@@ -93,8 +90,10 @@ extension NSPersistentStoreCoordinator {
     /// Adds the persistent store
     fileprivate func addPersistentStoreWithNoMigration(at url: URL) throws {
         let options = NSPersistentStoreCoordinator.persistentStoreOptions(supportsMigration: false)
-        let addStore = { _ = try self.addPersistentStore(ofType: NSSQLiteStoreType, configurationName: nil, at: url, options: options) }
-        try addStore()
+        try self.addPersistentStore(ofType: NSSQLiteStoreType,
+                                    configurationName: nil,
+                                    at: url,
+                                    options: options)
     }    
 }
 
