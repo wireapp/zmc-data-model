@@ -90,6 +90,12 @@ public class CoreDataStack: NSObject, ContextProvider {
         searchContext = container.newBackgroundContext()
 
         super.init()
+
+        #if DEBUG
+        MemoryReferenceDebugger.register(viewContext)
+        MemoryReferenceDebugger.register(syncContext)
+        MemoryReferenceDebugger.register(searchContext)
+        #endif
     }
 
     public func loadStore(completionHandler: @escaping (Error?) -> Void) {
