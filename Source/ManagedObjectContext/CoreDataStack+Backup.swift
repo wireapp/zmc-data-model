@@ -21,7 +21,7 @@ import WireUtilities
 
 private let log = ZMSLog(tag: "Backup")
 
-extension StorageStack {
+extension CoreDataStack {
 
     private static let metadataFilename = "export.json"
     private static let databaseDirectoryName = "data"
@@ -101,7 +101,7 @@ extension StorageStack {
             }
         }
         
-        let accountDirectory = StorageStack.accountFolder(accountIdentifier: accountIdentifier, applicationContainer: applicationContainer)
+        let accountDirectory = Self.accountFolder(accountIdentifier: accountIdentifier, applicationContainer: applicationContainer)
         let storeFile = accountDirectory.appendingPersistentStoreLocation()
 
         guard fileManager.fileExists(atPath: accountDirectory.path) else { return fail(.failedToRead) }

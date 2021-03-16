@@ -18,7 +18,7 @@
 
 import Foundation
 
-extension StorageStack {
+extension CoreDataStack {
     
     public enum MigrationError: Error {
         case missingLocalStore
@@ -40,6 +40,15 @@ extension StorageStack {
     public static func clearMigrationDirectory(dispatchGroup: ZMSDispatchGroup? = nil) {
         workQueue.async(group: dispatchGroup) {
             removeDirectory(at: migrationDirectory)
+        }
+    }
+
+    static func removeDirectory(at url: URL) {
+        do {
+            guard Self.fileManager.fileExists(atPath: url.path) else { return }
+            try Self.fileManager.removeItem(at: url)
+        } catch {
+            Logging.localStorage.debug("error removing directory: \(error)")
         }
     }
         
@@ -66,14 +75,14 @@ extension StorageStack {
             Logging.localStorage.error("Migrating local store failed: \(error)")
             
             // Clean up temporary migration store
-            removeDirectory(at: StorageStack.migrationDirectory)
+            removeDirectory(at: Self.migrationDirectory)
             
             DispatchQueue.main.async(group: dispatchGroup) {
                 completion(.failure(error))
             }
         }
         
-        let accountDirectory = StorageStack.accountFolder(accountIdentifier: accountIdentifier, applicationContainer: applicationContainer)
+        let accountDirectory = Self.accountFolder(accountIdentifier: accountIdentifier, applicationContainer: applicationContainer)
         let storeFile = accountDirectory.appendingPersistentStoreLocation()
 
         guard fileManager.fileExists(atPath: accountDirectory.path) else { return fail(.missingLocalStore) }
@@ -114,7 +123,7 @@ extension StorageStack {
                 )
                 
                 // Clean up temporary migration store
-                removeDirectory(at: StorageStack.migrationDirectory)
+                removeDirectory(at: Self.migrationDirectory)
                 
                 DispatchQueue.main.async(group: dispatchGroup) {
                     completion(.success(()))
