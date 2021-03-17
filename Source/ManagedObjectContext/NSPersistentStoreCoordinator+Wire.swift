@@ -47,29 +47,20 @@ extension NSPersistentStoreCoordinator {
         let containingFolder = storeFile.deletingLastPathComponent()
         FileManager.default.createAndProtectDirectory(at: containingFolder)
 
-        do {
-            try self.addPersistentStore(at: storeFile,
-                                        model: model,
-                                        startedMigrationCallback: notifyMigrationStarted)
-        } catch let error {
-            throw error
-        }
+        try self.addPersistentStore(at: storeFile,
+                                    model: model,
+                                    startedMigrationCallback: notifyMigrationStarted)
     }
 
     private func addPersistentStore(at storeURL: URL,
                                     model: NSManagedObjectModel,
                                     startedMigrationCallback: () -> Void) throws {
-
-        do {
-            if NSPersistentStoreCoordinator.shouldMigrateStoreToNewModelVersion(at: storeURL,
-                                                                                model: model) {
-                startedMigrationCallback()
-                try self.migrateAndAddPersistentStore(url: storeURL)
-            } else {
-                try self.addPersistentStoreWithNoMigration(at: storeURL)
-            }
-        } catch let error {
-            throw error
+        if NSPersistentStoreCoordinator.shouldMigrateStoreToNewModelVersion(at: storeURL,
+                                                                            model: model) {
+            startedMigrationCallback()
+            try self.migrateAndAddPersistentStore(url: storeURL)
+        } else {
+            try self.addPersistentStoreWithNoMigration(at: storeURL)
         }
     }
     

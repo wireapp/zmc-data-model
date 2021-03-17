@@ -25,35 +25,35 @@ extension NSPersistentStoreCoordinator {
     
     /// Creates a filesystem-backed persistent store coordinator with the model contained in this bundle
     /// The callback will be invoked on an arbitrary queue.
-    static func create(
-        storeFile: URL,
-        applicationContainer: URL,
-        completionHandler: @escaping (NSPersistentStoreCoordinator) -> Void) {
+    static func create(storeFile: URL,
+                       applicationContainer: URL) throws -> NSPersistentStoreCoordinator? {
+
+        var persistentStoreCoordinator: NSPersistentStoreCoordinator?
 
         do {
             let model = NSManagedObjectModel.loadModel()
-            let persistentStoreCoordinator = try NSPersistentStoreCoordinator(
-                storeFile: storeFile,
-                accountIdentifier: nil,
-                applicationContainer: applicationContainer,
-                model: model,
-                startedMigrationCallback: nil)
-            completionHandler(persistentStoreCoordinator)
+            persistentStoreCoordinator = try NSPersistentStoreCoordinator(storeFile: storeFile,
+                                                                          accountIdentifier: nil,
+                                                                          applicationContainer: applicationContainer,
+                                                                          model: model,
+                                                                          startedMigrationCallback: nil)
         } catch let error {
             log.debug("Error to create the NSPersistentStoreCoordinator: \(error)")
         }
+
+        return persistentStoreCoordinator
     }
     
     /// Creates a filesystem-backed persistent store coordinator with the model contained in this bundle and migrates
     /// the legacy store and keystore if they exist. The callback will be invoked on an arbitrary queue.
-    static func createAndMigrate(
-        storeFile: URL,
-        accountIdentifier: UUID,
-        accountDirectory: URL,
-        applicationContainer: URL,
-        startedMigrationCallback: (() -> Void)?,
-        databaseLoadingFailureCallBack: (() -> Void)?,
-        completionHandler: @escaping (NSPersistentStoreCoordinator) -> Void) {
+    static func createAndMigrate(storeFile: URL,
+                                 accountIdentifier: UUID,
+                                 accountDirectory: URL,
+                                 applicationContainer: URL,
+                                 startedMigrationCallback: (() -> Void)?,
+                                 databaseLoadingFailureCallBack: (() -> Void)?)  throws -> NSPersistentStoreCoordinator? {
+
+        var persistentStoreCoordinator: NSPersistentStoreCoordinator?
 
         do {
             let model = NSManagedObjectModel.loadModel()
@@ -61,17 +61,17 @@ extension NSPersistentStoreCoordinator {
                                                 accountDirectory: accountDirectory,
                                                 applicationContainer: applicationContainer)
 
-            let persistentStoreCoordinator = try NSPersistentStoreCoordinator(
-                storeFile: storeFile,
-                accountIdentifier: accountIdentifier,
-                applicationContainer: applicationContainer,
-                model: model,
-                startedMigrationCallback: startedMigrationCallback)
-            completionHandler(persistentStoreCoordinator)
+            persistentStoreCoordinator = try NSPersistentStoreCoordinator(storeFile: storeFile,
+                                                                          accountIdentifier: accountIdentifier,
+                                                                          applicationContainer: applicationContainer,
+                                                                          model: model,
+                                                                          startedMigrationCallback: startedMigrationCallback)
         } catch {
             databaseLoadingFailureCallBack?()
             log.debug("Error to create the NSPersistentStoreCoordinator: \(error)")
         }
+
+        return persistentStoreCoordinator
     }
 }
 

@@ -54,26 +54,25 @@ import UIKit
     
     /// Attempts to access the legacy store and fetch the user ID of the self user.
     /// - parameter completionHandler: this callback is invoked with the user ID, if it exists, else nil.
-    @objc public func fetchUserIDFromLegacyStore(
-        applicationContainer: URL,
-        startedMigrationCallback: (() -> Void)? = nil,
-        completionHandler: @escaping (UUID?) -> Void
-        )
-    {
+    @objc public func fetchUserIDFromLegacyStore(applicationContainer: URL,
+                                                 startedMigrationCallback: (() -> Void)? = nil,
+                                                 completionHandler: @escaping (UUID?) -> Void) {
+
         guard let oldLocation = MainPersistentStoreRelocator.exisingLegacyStore(applicationContainer: applicationContainer, accountIdentifier: nil) else {
             completionHandler(nil)
             return
         }
         
         isolationQueue.async {
-            
-            NSPersistentStoreCoordinator.create(storeFile: oldLocation, applicationContainer: applicationContainer)
-            { psc in
-                DispatchQueue.main.async {
-                    let context = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
-                    context.persistentStoreCoordinator = psc
-                    completionHandler(ZMUser.selfUser(in: context).remoteIdentifier)
-                }
+            guard let persistentStoreCoordinator = try? NSPersistentStoreCoordinator.create(storeFile: oldLocation,
+                                                                                            applicationContainer: applicationContainer) else {
+                return
+            }
+
+            DispatchQueue.main.async {
+                let context = NSManagedObjectContext(concurrencyType: .mainQueueConcurrencyType)
+                context.persistentStoreCoordinator = persistentStoreCoordinator
+                completionHandler(ZMUser.selfUser(in: context).remoteIdentifier)
             }
         }
     }
@@ -167,26 +166,24 @@ import UIKit
         dispatchGroup: ZMSDispatchGroup? = nil,
         startedMigrationCallback: (() -> Void)? = nil,
         databaseLoadingFailureCallBack: (() -> Void)? = nil,
-        completionHandler: @escaping (ManagedObjectContextDirectory) -> Void
-        )
-    {
-        NSPersistentStoreCoordinator.createAndMigrate(
-            storeFile: storeFile,
-            accountIdentifier: accountIdentifier,
-            accountDirectory: accountDirectory,
-            applicationContainer: applicationContainer,
-            startedMigrationCallback: startedMigrationCallback,
-            databaseLoadingFailureCallBack: databaseLoadingFailureCallBack)
-        { psc in
-            let directory = ManagedObjectContextDirectory(
-                persistentStoreCoordinator: psc,
+        completionHandler: @escaping (ManagedObjectContextDirectory) -> Void) {
+
+        guard let persistentStoreCoordinator = try? NSPersistentStoreCoordinator.createAndMigrate(
+                storeFile: storeFile,
+                accountIdentifier: accountIdentifier,
                 accountDirectory: accountDirectory,
                 applicationContainer: applicationContainer,
-                dispatchGroup: dispatchGroup)
-            MemoryReferenceDebugger.register(directory)
-
-            completionHandler(directory)
+                startedMigrationCallback: startedMigrationCallback,
+                databaseLoadingFailureCallBack: databaseLoadingFailureCallBack) else {
+            return
         }
+
+        let directory = ManagedObjectContextDirectory(persistentStoreCoordinator: persistentStoreCoordinator,
+                                                      accountDirectory: accountDirectory,
+                                                      applicationContainer: applicationContainer,
+                                                      dispatchGroup: dispatchGroup)
+        MemoryReferenceDebugger.register(directory)
+        completionHandler(directory)
     }
 
     /// Resets the stack. After calling this, the stack is ready to be reinitialized.
