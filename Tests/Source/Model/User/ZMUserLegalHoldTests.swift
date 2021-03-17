@@ -21,6 +21,18 @@ import WireDataModel
 
 class ZMUserLegalHoldTests: ModelObjectsTests {
 
+    // MARK: - Legal hold consent
+
+    func test_LegalHoldConsent_IsNotGiven_ByDefault() {
+        // Given
+        let selfUser = ZMUser.selfUser(in: uiMOC)
+
+        // Then
+        XCTAssertEqual(selfUser.legalHoldConsent, .notGiven)
+    }
+
+    // MARK: - Legal hold status
+
     func testThatLegalHoldStatusIsDisabled_ByDefault() {
         // GIVEN
         let selfUser = ZMUser.selfUser(in: uiMOC)
@@ -108,19 +120,6 @@ class ZMUserLegalHoldTests: ModelObjectsTests {
         XCTAssertTrue(selfUser.needsToAcknowledgeLegalHoldStatus)
     }
 
-    func testThatItDoesntClearNotificationFlag_AfterAddingNormalClient() {
-        // GIVEN
-        let selfUser = ZMUser.selfUser(in: uiMOC)
-
-        // WHEN
-        UserClient.createMockLegalHoldSelfUserClient(in: uiMOC)
-        UserClient.createMockPhoneUserClient(in: uiMOC)
-
-        // THEN
-        XCTAssertEqual(selfUser.legalHoldStatus, .enabled)
-        XCTAssertTrue(selfUser.needsToAcknowledgeLegalHoldStatus)
-    }
-
     func testThatLegalHoldStatusIsDisabled_AfterRemovingClient() {
         // GIVEN
         let selfUser = ZMUser.selfUser(in: uiMOC)
@@ -138,6 +137,21 @@ class ZMUserLegalHoldTests: ModelObjectsTests {
 
         // THEN
         XCTAssertEqual(selfUser.legalHoldStatus, .disabled)
+        XCTAssertTrue(selfUser.needsToAcknowledgeLegalHoldStatus)
+    }
+
+    // MARK: - Notification flag
+
+    func testThatItDoesntClearNotificationFlag_AfterAddingNormalClient() {
+        // GIVEN
+        let selfUser = ZMUser.selfUser(in: uiMOC)
+
+        // WHEN
+        UserClient.createMockLegalHoldSelfUserClient(in: uiMOC)
+        UserClient.createMockPhoneUserClient(in: uiMOC)
+
+        // THEN
+        XCTAssertEqual(selfUser.legalHoldStatus, .enabled)
         XCTAssertTrue(selfUser.needsToAcknowledgeLegalHoldStatus)
     }
 
@@ -161,6 +175,7 @@ class ZMUserLegalHoldTests: ModelObjectsTests {
 
 }
 
+// MARK: - Mocks
 
 extension LegalHoldRequest {
 
