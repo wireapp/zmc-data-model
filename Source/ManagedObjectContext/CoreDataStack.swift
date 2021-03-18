@@ -91,11 +91,30 @@ public class CoreDataStack: NSObject, ContextProvider {
 
         super.init()
 
+        configureContextReferences()
+
         #if DEBUG
         MemoryReferenceDebugger.register(viewContext)
         MemoryReferenceDebugger.register(syncContext)
         MemoryReferenceDebugger.register(searchContext)
         #endif
+    }
+
+    deinit {
+        viewContext.tearDown()
+        syncContext.tearDown()
+        searchContext.tearDown()
+        closeStore()
+    }
+
+    func closeStore() {
+        do {
+            try container.persistentStoreCoordinator.persistentStores.forEach({
+                try self.container.persistentStoreCoordinator.remove($0)
+            })
+        } catch let error {
+            Logging.localStorage.error("Error while closing persistent store: \(error)")
+        }
     }
 
     public func loadStore(completionHandler: @escaping (Error?) -> Void) {
@@ -121,6 +140,15 @@ public class CoreDataStack: NSObject, ContextProvider {
         Label.fetchOrCreateFavoriteLabel(in: context, create: true)
     }
 
+    func configureContextReferences() {
+        viewContext.performAndWait {
+            viewContext.zm_sync = syncContext
+        }
+        syncContext.performAndWait {
+            syncContext.zm_userInterface = viewContext
+        }
+    }
+
     func configureSyncContext(_ context: NSManagedObjectContext) {
         context.markAsSyncContext()
         context.performAndWait {
@@ -132,6 +160,13 @@ public class CoreDataStack: NSObject, ContextProvider {
             context.undoManager = nil
             context.mergePolicy = NSMergePolicy(merge: .mergeByPropertyObjectTrumpMergePolicyType)
 
+        }
+
+        // this will be done async, not to block the UI thread, but
+        // enqueued on the syncMOC anyway, so it will execute before
+        // any other block of code has a chance to use it
+        context.performGroupedBlock {
+            context.applyPersistedDataPatchesForCurrentVersion()
         }
     }
 
