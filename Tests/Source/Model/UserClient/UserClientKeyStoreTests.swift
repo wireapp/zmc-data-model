@@ -31,7 +31,7 @@ class UserClientKeysStoreTests: OtrBaseTest {
     override func setUp() {
         super.setUp()
         self.accountID = UUID()
-        self.accountFolder = StorageStack.accountFolder(accountIdentifier: accountID, applicationContainer: OtrBaseTest.sharedContainerURL)
+        self.accountFolder = CoreDataStack.accountFolder(accountIdentifier: accountID, applicationContainer: OtrBaseTest.sharedContainerURL)
         self.cleanOTRFolder()
         self.sut = UserClientKeysStore(accountDirectory: accountFolder, applicationContainer: OtrBaseTest.sharedContainerURL)
     }
@@ -137,7 +137,7 @@ class UserClientKeysStoreTests: OtrBaseTest {
             // given
             self.sut = nil
             self.cleanOTRFolder()
-            let accountFolder = StorageStack.accountFolder(accountIdentifier: self.accountID, applicationContainer: OtrBaseTest.sharedContainerURL)
+            let accountFolder = CoreDataStack.accountFolder(accountIdentifier: self.accountID, applicationContainer: OtrBaseTest.sharedContainerURL)
             let data = "foo".data(using: String.Encoding.utf8)!
             _ = self.createLegacyOTRFolderWithDummyFile(fileName: "dummy.txt", data: data, folder: legacyKeyStoreLocation)
             
@@ -163,7 +163,7 @@ class UserClientKeysStoreTests: OtrBaseTest {
         self.cleanOTRFolder()
         let fileName = "dummy.txt"
         let data = "foo".data(using: String.Encoding.utf8)!
-        let accountFolder = StorageStack.accountFolder(accountIdentifier: self.accountID, applicationContainer: OtrBaseTest.sharedContainerURL)
+        let accountFolder = CoreDataStack.accountFolder(accountIdentifier: self.accountID, applicationContainer: OtrBaseTest.sharedContainerURL)
         
         // first migration
         _ = self.createLegacyOTRFolderWithDummyFile(fileName: "whatever.dat", data: data)

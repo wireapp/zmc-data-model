@@ -86,7 +86,6 @@ class CoreDataStackTests_Migration: DatabaseBaseTest {
         // then
         guard case .failure(CoreDataStack.MigrationError.migrationFailed(TestError.somethingWentWrong)) = result else { return XCTFail() }
         
-        StorageStack.reset()
         let directory = createStorageStackAndWaitForCompletion(userID: uuid)
         let storedValue = directory.viewContext.persistentStoreMetadata(forKey: metadataKey) as? Int
         XCTAssertNil(storedValue)

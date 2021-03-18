@@ -22,11 +22,6 @@ import XCTest
 
 class CoreDataStackTests_Backup: DatabaseBaseTest {
 
-    override func setUp() {
-        super.setUp()
-        StorageStack.shared.createStorageAsInMemory = false
-    }
-
     override func tearDown() {
         CoreDataStack.clearBackupDirectory(dispatchGroup: dispatchGroup)
         XCTAssert(waitForAllGroupsToBeEmpty(withTimeout: 0.1))
@@ -73,7 +68,6 @@ class CoreDataStackTests_Backup: DatabaseBaseTest {
         guard case .success(let url) = result else { return nil }
         
         // Delete account
-        StorageStack.reset()
         clearStorageFolder()
         
         return url
@@ -215,7 +209,6 @@ class CoreDataStackTests_Backup: DatabaseBaseTest {
         let directory = createStorageStackAndWaitForCompletion(userID: uuid)
         _ = ZMConversation.insertGroupConversation(moc: directory.viewContext, participants: [])
         directory.viewContext.saveOrRollback()
-        StorageStack.reset()
 
         // when
         guard let result = createBackup(accountIdentifier: uuid) else { return XCTFail() }
@@ -259,7 +252,6 @@ class CoreDataStackTests_Backup: DatabaseBaseTest {
         guard let backup = createBackup(accountIdentifier: uuid)?.value else { return XCTFail() }
         
         // Delete account
-        StorageStack.reset()
         clearStorageFolder()
         
         // when

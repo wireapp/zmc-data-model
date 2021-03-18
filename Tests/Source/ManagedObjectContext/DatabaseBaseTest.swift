@@ -41,7 +41,6 @@ import WireTesting
     }
     
     override public func tearDown() {
-        StorageStack.reset()
         self.clearStorageFolder()
         super.tearDown()
     }
@@ -76,15 +75,7 @@ import WireTesting
                 applicationContainer: applicationContainer) else {
             return
         }
-
-        let directory = ManagedObjectContextDirectory(
-            persistentStoreCoordinator: persistentStoreCoordinator,
-            accountDirectory: filePath.deletingLastPathComponent(),
-            applicationContainer: self.applicationContainer)
-        MemoryReferenceDebugger.register(directory)
-        customization?(directory)
-
-        StorageStack.reset()
+        
         self.createDummyExternalSupportFileForDatabase(storeFile: filePath)
     }
     

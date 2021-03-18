@@ -303,7 +303,6 @@ final class DatabaseMigrationTests: DatabaseBaseTest {
             XCTAssertEqual(Array(userDictionaries[0..<3]) as NSArray, DatabaseMigrationTests.userDictionaryFixture2_7 as NSArray)
             
             directory = nil // need to release
-            StorageStack.reset()
             self.clearStorageFolder()
         }
     }
@@ -457,7 +456,7 @@ extension DatabaseMigrationTests {
     }
     
     func createDatabaseWithOlderModelVersion(versionName: String, file: StaticString = #file, line: UInt = #line) {
-        let storeFile = StorageStack.accountFolder(accountIdentifier: DatabaseMigrationTests.testUUID, applicationContainer: self.applicationContainer).appendingPersistentStoreLocation()
+        let storeFile = CoreDataStack.accountFolder(accountIdentifier: DatabaseMigrationTests.testUUID, applicationContainer: self.applicationContainer).appendingPersistentStoreLocation()
         try! FileManager.default.createDirectory(at: storeFile.deletingLastPathComponent(), withIntermediateDirectories: true)
         
         // copy old version database into the expected location
