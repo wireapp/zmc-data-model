@@ -818,10 +818,10 @@ static NSString *const DomainKey = @"domain";
 
 @implementation  ZMUser (Utilities)
 
-+ (ZMUser<ZMEditableUser> *)selfUserInUserSession:(id<ZMManagedObjectContextProvider>)session
++ (ZMUser<ZMEditableUser> *)selfUserInUserSession:(id<ContextProvider>)session
 {
     VerifyReturnNil(session != nil);
-    return [self selfUserInContext:session.managedObjectContext];
+    return [self selfUserInContext:session.viewContext];
 }
 
 @end

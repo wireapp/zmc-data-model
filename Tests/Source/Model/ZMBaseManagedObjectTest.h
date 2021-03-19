@@ -43,6 +43,7 @@
 
 @property (nonatomic, readonly, nonnull) NSUUID* userIdentifier;
 
+@property (nonatomic, readonly, nonnull) CoreDataStack *coreDataStack;
 @property (nonatomic, readonly, nonnull) NSManagedObjectContext *uiMOC;
 @property (nonatomic, readonly, nonnull) NSManagedObjectContext *syncMOC;
 @property (nonatomic, readonly, nonnull) NSManagedObjectContext *searchMOC;

@@ -459,12 +459,9 @@
         entity2 = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
         entity3 = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
     }];
-    
-    id mockUserSession = [OCMockObject mockForProtocol:@protocol(ZMManagedObjectContextProvider)];
-    [[[(id)mockUserSession stub] andReturn:self.testMOC] managedObjectContext];
-    
+
     // when
-    NSManagedObjectID *fetchedID = [MockEntity objectIDForURIRepresentation:entity2.objectID.URIRepresentation inUserSession:mockUserSession];
+    NSManagedObjectID *fetchedID = [MockEntity objectIDForURIRepresentation:entity2.objectID.URIRepresentation inUserSession:self.coreDataStack];
     
     // then
     XCTAssertNotEqualObjects(entity1.objectID, fetchedID);
@@ -484,12 +481,9 @@
         entity2 = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
         entity3 = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
     }];
-    
-    id mockUserSession = [OCMockObject mockForProtocol:@protocol(ZMManagedObjectContextProvider)];
-    [[[(id)mockUserSession stub] andReturn:self.testMOC] managedObjectContext];
-    
+
     // when
-    MockEntity *fetchedEntity = [MockEntity existingObjectWithID:entity2.objectID inUserSession:mockUserSession];
+    MockEntity *fetchedEntity = [MockEntity existingObjectWithID:entity2.objectID inUserSession:self.coreDataStack];
     
     // then
     XCTAssertNotEqualObjects(entity1, fetchedEntity);
@@ -562,14 +556,11 @@
 - (void)testThatItReturnsAnObjectForANonpersistedObjectIdentifier
 {
     // given
-    id mockUserSession = [OCMockObject mockForProtocol:@protocol(ZMManagedObjectContextProvider)];
-    [[[(id)mockUserSession stub] andReturn:self.uiMOC] managedObjectContext];
-    
     ZMConversation *mo = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     NSString *identifier = [[mo nonpersistedObjectIdentifer] copy];
     
     // when
-    ZMConversation *mo2 = (id)[ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:identifier inUserSession:mockUserSession];
+    ZMConversation *mo2 = (id)[ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:identifier inUserSession:self.coreDataStack];
     
     // then
     XCTAssertEqual(mo, mo2);
@@ -578,15 +569,12 @@
 - (void)testThatItReturnsAnObjectForANonpersistedObjectIdentifierAfterASave
 {
     // given
-    id mockUserSession = [OCMockObject mockForProtocol:@protocol(ZMManagedObjectContextProvider)];
-    [[[(id)mockUserSession stub] andReturn:self.uiMOC] managedObjectContext];
-    
     ZMConversation *mo = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     NSString *identifier = [[mo nonpersistedObjectIdentifer] copy];
     
     // when
     XCTAssert([self.uiMOC saveOrRollback]);
-    ZMConversation *mo2 = (id)[ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:identifier inUserSession:mockUserSession];
+    ZMConversation *mo2 = (id)[ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:identifier inUserSession:self.coreDataStack];
     
     // then
     XCTAssertEqual(mo, mo2);
@@ -595,21 +583,17 @@
 - (void)testThatItReturnsNilForANilIdentifier;
 {
     // given
-    id mockUserSession = [OCMockObject mockForProtocol:@protocol(ZMManagedObjectContextProvider)];
-    [[[(id)mockUserSession stub] andReturn:self.uiMOC] managedObjectContext];
     id objectIdentifier = nil;
     
     // then
     [self performIgnoringZMLogError:^{
-        XCTAssertNil([ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:objectIdentifier inUserSession:mockUserSession]);
+        XCTAssertNil([ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:objectIdentifier inUserSession:self.coreDataStack]);
     }];
 }
 
 - (void)testThatItReturnsNilForANonExistingIdentifier;
 {
     // given
-    id mockUserSession = [OCMockObject mockForProtocol:@protocol(ZMManagedObjectContextProvider)];
-    [[[(id)mockUserSession stub] andReturn:self.uiMOC] managedObjectContext];
     __block NSString *identifier;
     [self.syncMOC performGroupedBlockAndWait:^{
         ZMConversation *mo = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
@@ -617,18 +601,13 @@
     }];
     
     // then
-    XCTAssertNil([ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:identifier inUserSession:mockUserSession]);
+    XCTAssertNil([ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:identifier inUserSession:self.coreDataStack]);
 }
 
 - (void)testThatItReturnsNilForAnInvalidExistingIdentifier;
 {
-    // given
-    id mockUserSession = [OCMockObject mockForProtocol:@protocol(ZMManagedObjectContextProvider)];
-    [[[(id)mockUserSession stub] andReturn:self.uiMOC] managedObjectContext];
-    
-    // then
-    XCTAssertNil([ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:@"foo" inUserSession:mockUserSession]);
-    XCTAssertNil([ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:@"Zfoo" inUserSession:mockUserSession]);
+    XCTAssertNil([ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:@"foo" inUserSession:self.coreDataStack]);
+    XCTAssertNil([ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:@"Zfoo" inUserSession:self.coreDataStack]);
 }
 
 - (void)testPerformanceRetrievingLocallyModifiedKeys;
