@@ -24,7 +24,11 @@ extension ZMUser {
 
     public var legalHoldConsent: LegalHoldConsent {
         get {
-            guard let value = LegalHoldConsent(rawValue: legalHoldConsentValue) else {
+            willAccessValue(forKey: ZMUserKeys.legalHoldConsent)
+            let rawValue = primitiveLegalHoldConsent.int16Value
+            didAccessValue(forKey: ZMUserKeys.legalHoldConsent)
+
+            guard let value = LegalHoldConsent(rawValue: rawValue) else {
                 fatalError("Failed to decode legalHoldConsentValue")
             }
 
@@ -32,11 +36,13 @@ extension ZMUser {
         }
 
         set {
-            legalHoldConsentValue = newValue.rawValue
+            willChangeValue(forKey: ZMUserKeys.legalHoldConsent)
+            primitiveLegalHoldConsent = NSNumber(value: newValue.rawValue)
+            didChangeValue(forKey: ZMUserKeys.legalHoldConsent)
         }
     }
 
-    @NSManaged private var legalHoldConsentValue: Int16
+    @NSManaged private var primitiveLegalHoldConsent: NSNumber
 
 }
 
@@ -55,4 +61,10 @@ public enum LegalHoldConsent: Int16 {
     /// The user consents to being exposed to legal hold devices.
 
     case given = 2
+}
+
+extension ZMUserKeys {
+
+    static let legalHoldConsent = "legalHoldConsent"
+
 }
