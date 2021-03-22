@@ -405,6 +405,7 @@
 		EE4CCA91256BF63A00848212 /* Team+Feature.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE4CCA90256BF63A00848212 /* Team+Feature.swift */; };
 		EE4CCA95256C558400848212 /* Feature.AppLock.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE4CCA94256C558400848212 /* Feature.AppLock.swift */; };
 		EE4CCA97256C563900848212 /* FeatureLike.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE4CCA96256C563900848212 /* FeatureLike.swift */; };
+		EE5CBB332608911B00E36818 /* store2-91-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = EE5CBB322608911B00E36818 /* store2-91-0.wiredatabase */; };
 		EE5F54CC259B22C400F11F3C /* Account+Keychain.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE5F54CB259B22C400F11F3C /* Account+Keychain.swift */; };
 		EE68EEC9252DC4450013B242 /* ChangeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE68EEC8252DC4450013B242 /* ChangeDetector.swift */; };
 		EE68EECB252DC4730013B242 /* ExplicitChangeDetector.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE68EECA252DC4720013B242 /* ExplicitChangeDetector.swift */; };
@@ -419,7 +420,6 @@
 		EE8B09AD25B86AB10057E85C /* AppLockError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE8B09AC25B86AB10057E85C /* AppLockError.swift */; };
 		EE8B09AF25B86BB20057E85C /* AppLockPasscodePreference.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE8B09AE25B86BB20057E85C /* AppLockPasscodePreference.swift */; };
 		EE8D210F260235BA00104D52 /* ZMUser+LegalHoldConsent.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE8D210E260235BA00104D52 /* ZMUser+LegalHoldConsent.swift */; };
-		EE8D212826024B1900104D52 /* store2-91-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = EE8D212726024B1900104D52 /* store2-91-0.wiredatabase */; };
 		EE997A1425062295008336D2 /* Logging.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE997A1325062295008336D2 /* Logging.swift */; };
 		EE997A16250629DC008336D2 /* ZMMessage+ProcessingError.swift in Sources */ = {isa = PBXBuildFile; fileRef = EE997A15250629DC008336D2 /* ZMMessage+ProcessingError.swift */; };
 		EEA2B84624DA943200C6659E /* ManagedObjectContextDirectoryTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = EEA2B84524DA943100C6659E /* ManagedObjectContextDirectoryTests.swift */; };
@@ -1148,6 +1148,7 @@
 		EE4CCA90256BF63A00848212 /* Team+Feature.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Team+Feature.swift"; sourceTree = "<group>"; };
 		EE4CCA94256C558400848212 /* Feature.AppLock.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Feature.AppLock.swift; sourceTree = "<group>"; };
 		EE4CCA96256C563900848212 /* FeatureLike.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeatureLike.swift; sourceTree = "<group>"; };
+		EE5CBB322608911B00E36818 /* store2-91-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; path = "store2-91-0.wiredatabase"; sourceTree = "<group>"; };
 		EE5F54CB259B22C400F11F3C /* Account+Keychain.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Account+Keychain.swift"; sourceTree = "<group>"; };
 		EE68EEC8252DC4450013B242 /* ChangeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ChangeDetector.swift; sourceTree = "<group>"; };
 		EE68EECA252DC4720013B242 /* ExplicitChangeDetector.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExplicitChangeDetector.swift; sourceTree = "<group>"; };
@@ -1163,7 +1164,6 @@
 		EE8B09AE25B86BB20057E85C /* AppLockPasscodePreference.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppLockPasscodePreference.swift; sourceTree = "<group>"; };
 		EE8D210E260235BA00104D52 /* ZMUser+LegalHoldConsent.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMUser+LegalHoldConsent.swift"; sourceTree = "<group>"; };
 		EE8D21122602455C00104D52 /* zmessaging2.91.0.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = zmessaging2.91.0.xcdatamodel; sourceTree = "<group>"; };
-		EE8D212726024B1900104D52 /* store2-91-0.wiredatabase */ = {isa = PBXFileReference; lastKnownFileType = file; path = "store2-91-0.wiredatabase"; sourceTree = "<group>"; };
 		EE997A1325062295008336D2 /* Logging.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Logging.swift; sourceTree = "<group>"; };
 		EE997A15250629DC008336D2 /* ZMMessage+ProcessingError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ZMMessage+ProcessingError.swift"; sourceTree = "<group>"; };
 		EEA2B84524DA943100C6659E /* ManagedObjectContextDirectoryTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = ManagedObjectContextDirectoryTests.swift; path = Tests/Source/ManagedObjectContext/ManagedObjectContextDirectoryTests.swift; sourceTree = SOURCE_ROOT; };
@@ -2677,7 +2677,7 @@
 		F9C9A83D1CAEDBC40039E10C /* Resources */ = {
 			isa = PBXGroup;
 			children = (
-				EE8D212726024B1900104D52 /* store2-91-0.wiredatabase */,
+				EE5CBB322608911B00E36818 /* store2-91-0.wiredatabase */,
 				16500C0225E3A7520021B3AE /* store2-90-0.wiredatabase */,
 				163CE64D25ACE57B0013C12D /* store2-89-0.wiredatabase */,
 				0630E4C0257FC41300C75BFB /* store2-88-0.wiredatabase */,
@@ -2950,7 +2950,7 @@
 				55C40BDD22B24AA600EFD8BD /* store2-73-0.wiredatabase in Resources */,
 				54BAB40B24A4FA0800EBC400 /* store2-82-0.wiredatabase in Resources */,
 				06392CF923BF9DA9003186E6 /* store2-79-0.wiredatabase in Resources */,
-				EE8D212826024B1900104D52 /* store2-91-0.wiredatabase in Resources */,
+				EE5CBB332608911B00E36818 /* store2-91-0.wiredatabase in Resources */,
 				BF5AF287215156EE00449D43 /* store2-52-0.wiredatabase in Resources */,
 				163CE64E25ACE5DB0013C12D /* store2-89-0.wiredatabase in Resources */,
 				54829DB31DE6F7BA009100D3 /* store2-5.wiredatabase in Resources */,
