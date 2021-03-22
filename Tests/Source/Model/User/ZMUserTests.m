@@ -1236,7 +1236,8 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
                                             @"name",
                                             @"phoneNumber",
                                             @"availability",
-                                            @"readReceiptsEnabled"]];
+                                            @"readReceiptsEnabled",
+                                            @"legalHoldConsent"]];
     
     // when
     ZMUser *user = [ZMUser selfUserInContext:self.uiMOC];

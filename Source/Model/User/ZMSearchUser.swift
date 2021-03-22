@@ -304,6 +304,10 @@ public class ZMSearchUser: NSObject, UserType {
     public var isUnderLegalHold: Bool {
         return user?.isUnderLegalHold == true
     }
+
+    public var consentsToLegalHoldExposure: Bool {
+        return user?.consentsToLegalHoldExposure == true
+    }
     
     public var accentColorValue: ZMAccentColor {
         get {

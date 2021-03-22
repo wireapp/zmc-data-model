@@ -72,8 +72,11 @@ public protocol UserType: NSObjectProtocol, UserConnections {
     /// Whether the account of the user is deleted
     var isAccountDeleted: Bool { get }
     
-    /// Wheater the user is under legal hold
+    /// Whether the user is under legal hold.
     var isUnderLegalHold: Bool { get }
+
+    /// Whether the user consents to being exposed to a legal hold device.
+    var consentsToLegalHoldExposure: Bool { get }
 
     var accentColorValue: ZMAccentColor { get }
 

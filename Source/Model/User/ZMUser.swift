@@ -88,6 +88,10 @@ extension ZMUser: UserType {
         return clients.any(\.isLegalHoldDevice)
     }
 
+    public var consentsToLegalHoldExposure: Bool {
+        return legalHoldConsent == .given
+    }
+
     @objc class func keyPathsForValuesAffectingIsUnderLegalHold() -> Set<String> {
         return [UserClientsKey, "clients.deviceClass"]
     }
