@@ -30,6 +30,11 @@ extension URL {
     func appendingStoreFile() -> URL {
         return self.appendingPathComponent("store.wiredatabase")
     }
+
+    func appendingEventStoreFile() -> URL {
+        return self.appendingPathComponent("ZMEventModel.sqlite")
+
+    }
 }
 
 public struct MainPersistentStoreRelocator {

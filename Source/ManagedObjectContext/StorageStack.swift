@@ -221,6 +221,11 @@ public extension URL {
     func appendingPersistentStoreLocation() -> URL {
         return self.appendingPathComponent("store").appendingStoreFile()
     }
+
+    /// Returns the location of the persistent store file in the given account folder
+    func appendingEventStoreLocation() -> URL {
+        return self.appendingPathComponent("events").appendingEventStoreFile()
+    }
 }
 
 public extension NSURL {

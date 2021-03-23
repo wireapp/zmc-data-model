@@ -27,6 +27,7 @@ public protocol ContextProvider {
     var viewContext: NSManagedObjectContext { get }
     var syncContext: NSManagedObjectContext { get }
     var searchContext: NSManagedObjectContext { get }
+    var eventContext: NSManagedObjectContext { get }
 
 }
 
@@ -36,21 +37,26 @@ public class CoreDataStack: NSObject, ContextProvider {
     public let account: Account
 
     public var viewContext: NSManagedObjectContext {
-        container.viewContext
+        messagesContainer.viewContext
     }
 
     public lazy var syncContext: NSManagedObjectContext = {
-        return container.newBackgroundContext()
+        return messagesContainer.newBackgroundContext()
     }()
 
     public lazy var searchContext: NSManagedObjectContext = {
-        return container.newBackgroundContext()
+        return messagesContainer.newBackgroundContext()
+    }()
+
+    public lazy var eventContext: NSManagedObjectContext = {
+        return eventContainer.newBackgroundContext()
     }()
 
     public let accountContainer: URL
     public let applicationContainer: URL
 
-    let container: PersistentContainer
+    let messagesContainer: PersistentContainer
+    let eventContainer: PersistentContainer
     let dispatchGroup: ZMSDispatchGroup?
 
     public init(account: Account,
@@ -71,14 +77,21 @@ public class CoreDataStack: NSObject, ContextProvider {
 
         self.accountContainer = accountDirectory
 
-        let storeURL = accountDirectory.appendingPersistentStoreLocation()
-        let container = PersistentContainer(name: "zmessaging")
+
+        let eventContainer = PersistentContainer(name: "ZMEventModel")
+        let messagesContainer = PersistentContainer(name: "zmessaging")
+
         let description: NSPersistentStoreDescription
+        let eventStoreDescription: NSPersistentStoreDescription
 
         if inMemoryStore {
             description = NSPersistentStoreDescription()
             description.type = NSInMemoryStoreType
+
+            eventStoreDescription = NSPersistentStoreDescription()
+            eventStoreDescription.type = NSInMemoryStoreType
         } else {
+            let storeURL = accountDirectory.appendingPersistentStoreLocation()
             description = NSPersistentStoreDescription(url: storeURL)
 
             // https://www.sqlite.org/pragma.html
@@ -88,11 +101,16 @@ public class CoreDataStack: NSObject, ContextProvider {
                                  forPragmaNamed: "synchronous")
             description.setValue("TRUE" as NSObject,
                                  forPragmaNamed: "secure_delete")
+
+            let eventStoreURL = accountDirectory.appendingEventStoreLocation()
+            eventStoreDescription = NSPersistentStoreDescription(url: eventStoreURL)
         }
 
-        container.persistentStoreDescriptions = [description]
+        messagesContainer.persistentStoreDescriptions = [description]
+        eventContainer.persistentStoreDescriptions = [eventStoreDescription]
 
-        self.container = container
+        self.messagesContainer = messagesContainer
+        self.eventContainer = eventContainer
 
         super.init()
     }
@@ -101,23 +119,51 @@ public class CoreDataStack: NSObject, ContextProvider {
         viewContext.tearDown()
         syncContext.tearDown()
         searchContext.tearDown()
-        closeStore()
+        closeStores()
     }
 
-    func closeStore() {
+    func closeStores() {
         do {
-            try container.persistentStoreCoordinator.persistentStores.forEach({
-                try self.container.persistentStoreCoordinator.remove($0)
-            })
+            try closeStores(in: messagesContainer)
+            try closeStores(in: eventContainer)
         } catch let error {
             Logging.localStorage.error("Error while closing persistent store: \(error)")
         }
     }
 
+    func closeStores(in container: PersistentContainer) throws {
+        try container.persistentStoreCoordinator.persistentStores.forEach({
+            try container.persistentStoreCoordinator.remove($0)
+        })
+    }
+
     public func loadStore(completionHandler: @escaping (Error?) -> Void) {
-        container.loadPersistentStores { (store, error) in
+        let dispatchGroup = DispatchGroup()
+        var loadingStoreError: Error? = nil
+
+        dispatchGroup.enter()
+        loadMessagesStore { (error) in
+            loadingStoreError = loadingStoreError ?? error
+            dispatchGroup.leave()
+        }
+
+        dispatchGroup.enter()
+        loadEventStore { (error) in
+            loadingStoreError = loadingStoreError ?? error
+            dispatchGroup.leave()
+        }
+
+        dispatchGroup.notify(queue: .main) {
+            completionHandler(loadingStoreError)
+        }
+    }
+
+    func loadMessagesStore(completionHandler: @escaping (Error?) -> Void) {
+        messagesContainer.loadPersistentStores { (store, error) in
+
             guard error == nil else {
-                return completionHandler(error)
+                completionHandler(error)
+                return
             }
 
             self.configureContextReferences()
@@ -129,6 +175,24 @@ public class CoreDataStack: NSObject, ContextProvider {
             MemoryReferenceDebugger.register(self.viewContext)
             MemoryReferenceDebugger.register(self.syncContext)
             MemoryReferenceDebugger.register(self.searchContext)
+            #endif
+
+            completionHandler(nil)
+        }
+    }
+
+    func loadEventStore(completionHandler: @escaping (Error?) -> Void) {
+        eventContainer.loadPersistentStores { (store, error) in
+
+            guard error == nil else {
+                completionHandler(error)
+                return
+            }
+
+            self.configureEventContext(self.eventContext)
+
+            #if DEBUG
+            MemoryReferenceDebugger.register(self.eventContext)
             #endif
 
             completionHandler(nil)
@@ -183,6 +247,13 @@ public class CoreDataStack: NSObject, ContextProvider {
             context.undoManager = nil
             context.mergePolicy = NSMergePolicy(merge: .rollbackMergePolicyType)
 
+        }
+    }
+
+    func configureEventContext(_ context: NSManagedObjectContext) {
+        context.performAndWait {
+            context.createDispatchGroups()
+            dispatchGroup.apply(context.add)
         }
     }
 
