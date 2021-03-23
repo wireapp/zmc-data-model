@@ -35,9 +35,17 @@ public class CoreDataStack: NSObject, ContextProvider {
 
     public let account: Account
 
-    public let viewContext: NSManagedObjectContext
-    public let syncContext: NSManagedObjectContext
-    public let searchContext: NSManagedObjectContext
+    public var viewContext: NSManagedObjectContext {
+        container.viewContext
+    }
+
+    public lazy var syncContext: NSManagedObjectContext = {
+        return container.newBackgroundContext()
+    }()
+
+    public lazy var searchContext: NSManagedObjectContext = {
+        return container.newBackgroundContext()
+    }()
 
     public let accountContainer: URL
     public let applicationContainer: URL
@@ -85,19 +93,8 @@ public class CoreDataStack: NSObject, ContextProvider {
         container.persistentStoreDescriptions = [description]
 
         self.container = container
-        viewContext = container.viewContext
-        syncContext = container.newBackgroundContext()
-        searchContext = container.newBackgroundContext()
 
         super.init()
-
-        configureContextReferences()
-
-        #if DEBUG
-        MemoryReferenceDebugger.register(viewContext)
-        MemoryReferenceDebugger.register(syncContext)
-        MemoryReferenceDebugger.register(searchContext)
-        #endif
     }
 
     deinit {
@@ -123,9 +120,16 @@ public class CoreDataStack: NSObject, ContextProvider {
                 return completionHandler(error)
             }
 
+            self.configureContextReferences()
             self.configureViewContext(self.viewContext)
             self.configureSyncContext(self.syncContext)
             self.configureSearchContext(self.searchContext)
+
+            #if DEBUG
+            MemoryReferenceDebugger.register(self.viewContext)
+            MemoryReferenceDebugger.register(self.syncContext)
+            MemoryReferenceDebugger.register(self.searchContext)
+            #endif
 
             completionHandler(nil)
         }
@@ -182,7 +186,7 @@ public class CoreDataStack: NSObject, ContextProvider {
         }
     }
 
-    static func accountFolder(accountIdentifier: UUID, applicationContainer: URL) -> URL {
+    public static func accountFolder(accountIdentifier: UUID, applicationContainer: URL) -> URL {
         return applicationContainer
             .appendingPathComponent("AccountData")
             .appendingPathComponent(accountIdentifier.uuidString)
