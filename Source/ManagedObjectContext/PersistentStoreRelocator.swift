@@ -18,25 +18,6 @@
 
 import Foundation
 
-extension URL {
-
-    /// Appends a suffix to the last path (e.g. from `/foo/bar` to `/foo/bar_1`)
-    func appendingSuffixToLastPathComponent(suffix: String) -> URL {
-        let modifiedComponent = lastPathComponent + suffix
-        return deletingLastPathComponent().appendingPathComponent(modifiedComponent)
-    }
-    
-    /// Appends the name of the store to the path
-    func appendingStoreFile() -> URL {
-        return self.appendingPathComponent("store.wiredatabase")
-    }
-
-    func appendingEventStoreFile() -> URL {
-        return self.appendingPathComponent("ZMEventModel.sqlite")
-
-    }
-}
-
 public struct MainPersistentStoreRelocator {
     /// Returns the list of possible locations for legacy stores. If accountIdentifier is supplied it also 
     /// includes account directories used after multiple account support was added.

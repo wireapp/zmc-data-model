@@ -31,6 +31,35 @@ public protocol ContextProvider {
 
 }
 
+extension URL {
+
+    /// Appends a suffix to the last path (e.g. from `/foo/bar` to `/foo/bar_1`)
+    func appendingSuffixToLastPathComponent(suffix: String) -> URL {
+        let modifiedComponent = lastPathComponent + suffix
+        return deletingLastPathComponent().appendingPathComponent(modifiedComponent)
+    }
+
+    /// Appends the name of the store to the path
+    func appendingStoreFile() -> URL {
+        return self.appendingPathComponent("store.wiredatabase")
+    }
+
+    func appendingEventStoreFile() -> URL {
+        return self.appendingPathComponent("ZMEventModel.sqlite")
+
+    }
+
+    /// Returns the location of the persistent store file in the given account folder
+    func appendingPersistentStoreLocation() -> URL {
+        return self.appendingPathComponent("store").appendingStoreFile()
+    }
+
+    /// Returns the location of the persistent store file in the given account folder
+    func appendingEventStoreLocation() -> URL {
+        return self.appendingPathComponent("events").appendingEventStoreFile()
+    }
+}
+
 @objcMembers
 public class CoreDataStack: NSObject, ContextProvider {
 
