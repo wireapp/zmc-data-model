@@ -79,7 +79,7 @@ extension NSManagedObjectModel {
     /// Loads the CoreData model from the current bundle
     @objc public static func loadModel() -> NSManagedObjectModel {
         let modelBundle = Bundle(for: ZMManagedObject.self)
-        guard let result = NSManagedObjectModel.mergedModel(from: [modelBundle]) else {
+        guard let result = NSManagedObjectModel(contentsOf: modelBundle.bundleURL.appendingPathComponent("zmessaging.momd")) else {
             fatal("Can't load data model bundle")
         }
         return result
