@@ -40,12 +40,20 @@ static NSString * const KeysForCachedValuesKey = @"ZMKeysForCachedValues";
 
 @implementation ZMManagedObject
 
-+ (NSManagedObjectID *)objectIDForURIRepresentation:(NSURL *)url inUserSession:(id<ContextProvider>)userSession;
++ (NSManagedObjectID *)objectIDForURIRepresentation:(NSURL *)url inUserSession:(id<ContextProvider>)userSession
 {
     VerifyReturnNil(url != nil);
     VerifyReturnNil(userSession != nil);
-    NSManagedObjectContext *moc = userSession.viewContext;
-    NSPersistentStoreCoordinator *psc = moc.persistentStoreCoordinator;
+
+    return [self objectIDForURIRepresentation:url
+                       inManagedObjectContext:userSession.viewContext];
+}
+
++ (NSManagedObjectID *)objectIDForURIRepresentation:(NSURL *)url inManagedObjectContext:(NSManagedObjectContext *)context
+{
+    VerifyReturnNil(url != nil);
+    VerifyReturnNil(context != nil);
+    NSPersistentStoreCoordinator *psc = context.persistentStoreCoordinator;
     return [psc managedObjectIDForURIRepresentation:url];
 }
 

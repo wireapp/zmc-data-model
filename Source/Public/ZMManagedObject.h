@@ -28,6 +28,7 @@ extern NSString * _Nonnull const ZMDataPropertySuffix;
 @property (nonatomic, readonly) BOOL isZombieObject;
 
 + (nullable NSManagedObjectID *)objectIDForURIRepresentation:(nullable NSURL *)url inUserSession:(nullable id<ContextProvider>)userSession;
++ (nullable NSManagedObjectID *)objectIDForURIRepresentation:(nullable NSURL *)url inManagedObjectContext:(nullable NSManagedObjectContext *)context;
 + (nullable instancetype)existingObjectWithID:(nullable NSManagedObjectID *)identifier inUserSession:(nullable id<ContextProvider>)userSession;
 + (nullable instancetype)existingObjectWithObjectIdentifier:(nullable NSString *)identifier inManagedObjectContext:(nullable NSManagedObjectContext *)context;
 

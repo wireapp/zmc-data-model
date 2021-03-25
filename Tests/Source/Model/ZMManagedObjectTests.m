@@ -461,34 +461,13 @@
     }];
 
     // when
-    NSManagedObjectID *fetchedID = [MockEntity objectIDForURIRepresentation:entity2.objectID.URIRepresentation inUserSession:self.coreDataStack];
+    NSManagedObjectID *fetchedID = [MockEntity objectIDForURIRepresentation:entity2.objectID.URIRepresentation inManagedObjectContext:self.testMOC];
     
     // then
     XCTAssertNotEqualObjects(entity1.objectID, fetchedID);
     XCTAssertEqualObjects(entity2.objectID, fetchedID);
     XCTAssertNotEqualObjects(entity3.objectID, fetchedID);
     
-}
-
-- (void)testExistingObjectWithID
-{
-    // given
-    __block MockEntity *entity1;
-    __block MockEntity *entity2;
-    __block MockEntity *entity3;
-    [self.testMOC performGroupedBlockThenWaitForReasonableTimeout:^{
-        entity1 = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
-        entity2 = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
-        entity3 = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
-    }];
-
-    // when
-    MockEntity *fetchedEntity = [MockEntity existingObjectWithID:entity2.objectID inUserSession:self.coreDataStack];
-    
-    // then
-    XCTAssertNotEqualObjects(entity1, fetchedEntity);
-    XCTAssertEqualObjects(entity2, fetchedEntity);
-    XCTAssertNotEqualObjects(entity3, fetchedEntity);
 }
 
 - (MockEntity *)mockEntityWithUUID:(NSUUID *)UUID inMoc:(NSManagedObjectContext *)moc
