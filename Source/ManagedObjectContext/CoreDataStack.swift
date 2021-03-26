@@ -142,6 +142,8 @@ public class CoreDataStack: NSObject, ContextProvider {
         self.eventContainer = eventContainer
 
         super.init()
+
+        clearStorageIfNecessary()
     }
 
     deinit {
