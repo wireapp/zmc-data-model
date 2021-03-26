@@ -79,7 +79,7 @@ public class DiskDatabaseTest: ZMTBaseTest {
                                       inMemoryStore: false,
                                       dispatchGroup: dispatchGroup)
 
-        coreDataStack.loadStore { error in
+        coreDataStack.loadStores { error in
             XCTAssertNil(error)
         }
 

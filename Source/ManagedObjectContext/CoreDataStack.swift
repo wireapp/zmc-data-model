@@ -168,7 +168,8 @@ public class CoreDataStack: NSObject, ContextProvider {
         })
     }
 
-    public func loadStore(completionHandler: @escaping (Error?) -> Void) {
+    public func loadStores(completionHandler: @escaping (Error?) -> Void) {
+
         let dispatchGroup = DispatchGroup()
         var loadingStoreError: Error? = nil
 
@@ -228,6 +229,10 @@ public class CoreDataStack: NSObject, ContextProvider {
 
             completionHandler(nil)
         }
+    }
+
+    public var needsMigration: Bool {
+        return messagesContainer.needsMigration || eventContainer.needsMigration
     }
 
     func configureViewContext(_ context: NSManagedObjectContext) {
@@ -296,4 +301,26 @@ public class CoreDataStack: NSObject, ContextProvider {
 
 }
 
-class PersistentContainer: NSPersistentContainer { }
+class PersistentContainer: NSPersistentContainer {
+
+    var needsMigration: Bool {
+        guard let storeURL = persistentStoreDescriptions.first?.url else {
+            return false
+        }
+
+        return managedObjectModel.isConfiguration(
+            withName: nil,
+            compatibleWithStoreMetadata: metadataForStore(at: storeURL))
+    }
+
+    /// Retrieves the metadata for the store
+    func metadataForStore(at url: URL) -> [String: Any] {
+        guard FileManager.default.fileExists(atPath: url.path),
+              let metadata = try? NSPersistentStoreCoordinator.metadataForPersistentStore(ofType: NSSQLiteStoreType, at: url) else {
+            return [:]
+        }
+
+        return metadata
+    }
+
+}

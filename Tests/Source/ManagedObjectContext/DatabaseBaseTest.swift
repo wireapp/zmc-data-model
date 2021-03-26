@@ -53,7 +53,7 @@ import WireTesting
                                   inMemoryStore: false,
                                   dispatchGroup: dispatchGroup)
 
-        stack.loadStore { (error) in
+        stack.loadStores { (error) in
             XCTAssertNil(error)
         }
 
