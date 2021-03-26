@@ -78,14 +78,14 @@ public class CoreDataStack: NSObject, ContextProvider {
     }()
 
     public lazy var eventContext: NSManagedObjectContext = {
-        return eventContainer.newBackgroundContext()
+        return eventsContainer.newBackgroundContext()
     }()
 
     public let accountContainer: URL
     public let applicationContainer: URL
 
     let messagesContainer: PersistentContainer
-    let eventContainer: PersistentContainer
+    let eventsContainer: PersistentContainer
     let dispatchGroup: ZMSDispatchGroup?
 
     public init(account: Account,
@@ -139,7 +139,7 @@ public class CoreDataStack: NSObject, ContextProvider {
         eventContainer.persistentStoreDescriptions = [eventStoreDescription]
 
         self.messagesContainer = messagesContainer
-        self.eventContainer = eventContainer
+        self.eventsContainer = eventContainer
 
         super.init()
 
@@ -156,7 +156,7 @@ public class CoreDataStack: NSObject, ContextProvider {
     func closeStores() {
         do {
             try closeStores(in: messagesContainer)
-            try closeStores(in: eventContainer)
+            try closeStores(in: eventsContainer)
         } catch let error {
             Logging.localStorage.error("Error while closing persistent store: \(error)")
         }
@@ -214,7 +214,7 @@ public class CoreDataStack: NSObject, ContextProvider {
     }
 
     func loadEventStore(completionHandler: @escaping (Error?) -> Void) {
-        eventContainer.loadPersistentStores { (store, error) in
+        eventsContainer.loadPersistentStores { (store, error) in
 
             guard error == nil else {
                 completionHandler(error)
@@ -232,7 +232,7 @@ public class CoreDataStack: NSObject, ContextProvider {
     }
 
     public var needsMigration: Bool {
-        return messagesContainer.needsMigration || eventContainer.needsMigration
+        return messagesContainer.needsMigration || eventsContainer.needsMigration
     }
 
     func configureViewContext(_ context: NSManagedObjectContext) {
