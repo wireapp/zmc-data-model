@@ -166,25 +166,25 @@ public class ZMSearchUser: NSObject, UserType {
     
     public var domain: String? {
         get {
-            return user != nil ? user?.domain : internalDomain
+            return user?.domain ?? internalDomain
         }
     }
 
     public var name: String? {
         get {
-            return user != nil ? user?.name : internalName
+            return user?.name ?? internalName
         }
     }
         
     public var handle: String? {
         get {
-            return user != nil ? user?.handle : internalHandle
+            return user?.handle ?? internalHandle
         }
     }
     
     public var initials: String? {
         get {
-            return user != nil ? user?.initials : internalInitials
+            return user?.initials ?? internalInitials
         }
     }
     
@@ -333,29 +333,15 @@ public class ZMSearchUser: NSObject, UserType {
     }
     
     public var connectionRequestMessage: String? {
-        get {
-            if let user = user {
-                return user.connectionRequestMessage
-            } else {
-                return internalConnectionRequestMessage
-            }
-        }
+        user?.connectionRequestMessage ?? internalConnectionRequestMessage
     }
     
     public var previewImageData: Data? {
-        if let user = user {
-            return user.previewImageData
-        } else {
-            return internalPreviewImageData
-        }
+        user?.previewImageData ?? internalPreviewImageData
     }
     
     public var completeImageData: Data? {
-        if let user = user {
-            return user.completeImageData
-        } else {
-            return internalCompleteImageData
-        }
+        user?.completeImageData ?? internalCompleteImageData
     }
 
     public var richProfile: [UserRichProfileField] {
