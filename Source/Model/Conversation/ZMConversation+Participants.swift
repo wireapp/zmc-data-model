@@ -20,9 +20,16 @@ import Foundation
 import WireProtos
 
 extension ZMConversation {
+        
+    func sortedUsers(_ users: Set<ZMUser>) -> [ZMUser] {
+        let nameDescriptor = NSSortDescriptor(key: "normalizedName", ascending: true)
+        let sortedUser = (users as NSSet?)?.sortedArray(using: [nameDescriptor]) as? [ZMUser]
+
+        return sortedUser ?? []
+    }
     
     public var sortedActiveParticipants: [ZMUser] {
-        return sortedUsers(localParticipants) as! [ZMUser]
+        return sortedUsers(localParticipants)
     }
 
     

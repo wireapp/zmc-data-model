@@ -260,14 +260,6 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
 }
 
-- (NSArray *)sortedUsers:(NSSet *)users
-{
-    NSSortDescriptor *nameDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"normalizedName" ascending:YES];
-    NSArray *sortedUser = [users sortedArrayUsingDescriptors:@[nameDescriptor]];
-    
-    return sortedUser;
-}
-
 - (ZMUser *)connectedUser
 {
     ZMConversationType internalConversationType = self.internalConversationType;
