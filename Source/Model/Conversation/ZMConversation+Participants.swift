@@ -28,7 +28,7 @@ extension ZMConversation {
         return sortedUser ?? []
     }
     
-    public var sortedActiveParticipants: [ZMUser] {
+    @objc public var sortedActiveParticipants: [ZMUser] {
         return sortedUsers(localParticipants)
     }
 
