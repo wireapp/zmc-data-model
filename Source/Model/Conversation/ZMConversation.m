@@ -260,6 +260,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     }
 }
 
+///TODO: convert to Swift
 -(NSArray <ZMUser *> *)sortedActiveParticipants
 {
     return [self sortedUsers:[self localParticipants]];
