@@ -21,6 +21,11 @@ import WireProtos
 
 extension ZMConversation {
     
+    public var sortedActiveParticipants: [ZMUser] {
+        return sortedUsers(localParticipants) as! [ZMUser]
+    }
+
+    
     /// Whether the roles defined for this conversation should be re-downloaded
     @NSManaged public var needsToDownloadRoles: Bool
     

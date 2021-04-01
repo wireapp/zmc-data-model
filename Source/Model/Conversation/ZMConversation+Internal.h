@@ -99,7 +99,7 @@ NS_ASSUME_NONNULL_END
 + (nonnull NSPredicate *)predicateForSearchQuery:(nonnull NSString *)searchQuery team:(nullable Team *)team moc:(nonnull NSManagedObjectContext *)moc;
 + (nonnull NSPredicate *)userDefinedNamePredicateForSearchString:(nonnull NSString *)searchString;
 
--(NSArray <ZMUser *> *)sortedActiveParticipants;
+- (NSArray *)sortedUsers:(NSSet *)users;
 
 @property (nonatomic) BOOL internalIsArchived;
 
