@@ -41,7 +41,7 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
     
     private unowned var delegate : AssetCollectionDelegate
     private var assets : Dictionary<CategoryMatch, [ZMMessage]>?
-    private let conversation: ConversationLike
+    private let conversation: ZMConversation?
     private let matchingCategories : [CategoryMatch]
     private var assetMessageOffset : Int = 0
     private var clientMessageOffset : Int = 0
@@ -57,10 +57,10 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
     private var tornDown = false
     
     private var syncMOC: NSManagedObjectContext? {
-        return (conversation as? ZMConversation)?.managedObjectContext?.zm_sync
+        return conversation?.managedObjectContext?.zm_sync
     }
     private var uiMOC: NSManagedObjectContext? {
-        return (conversation as? ZMConversation)?.managedObjectContext
+        return conversation?.managedObjectContext
     }
     
     /// Returns true when there are no assets to fetch OR when all assets have been processed OR the collection has been tornDown
@@ -73,7 +73,7 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
     public init(conversation: ConversationLike,
                 matchingCategories: [CategoryMatch],
                 delegate: AssetCollectionDelegate){
-        self.conversation = conversation
+        self.conversation = conversation as? ZMConversation
         self.delegate = delegate
         self.matchingCategories = matchingCategories
         super.init()
@@ -83,7 +83,7 @@ public class AssetCollectionBatched : NSObject, ZMCollection {
         }
         syncMOC.performGroupedBlock { [weak self] in
             guard let `self` = self, !self.tornDown else { return }
-            guard let conversation = self.conversation as? ZMConversation,
+            guard let conversation = self.conversation,
                   let syncConversation = (try? syncMOC.existingObject(with: conversation.objectID)) as? ZMConversation else {
                 return
             }
