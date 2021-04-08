@@ -191,6 +191,13 @@ public class CoreDataStack: NSObject, ContextProvider {
     }
 
     func loadMessagesStore(completionHandler: @escaping (Error?) -> Void) {
+        do {
+            try createStoreDirectory(for: messagesContainer)
+        } catch let error {
+            completionHandler(error)
+            return
+        }
+
         messagesContainer.loadPersistentStores { (store, error) in
 
             guard error == nil else {
@@ -214,6 +221,13 @@ public class CoreDataStack: NSObject, ContextProvider {
     }
 
     func loadEventStore(completionHandler: @escaping (Error?) -> Void) {
+        do {
+            try createStoreDirectory(for: eventsContainer)
+        } catch let error {
+            completionHandler(error)
+            return
+        }
+
         eventsContainer.loadPersistentStores { (store, error) in
 
             guard error == nil else {
@@ -228,6 +242,15 @@ public class CoreDataStack: NSObject, ContextProvider {
             #endif
 
             completionHandler(nil)
+        }
+    }
+
+    func createStoreDirectory(for container: PersistentContainer) throws {
+        let storeURL = container.persistentStoreDescriptions.first?.url
+        if let url = storeURL?.deletingLastPathComponent() {
+            try FileManager.default.createDirectory(at: url,
+                                                    withIntermediateDirectories: true,
+                                                    attributes: nil)
         }
     }
 
