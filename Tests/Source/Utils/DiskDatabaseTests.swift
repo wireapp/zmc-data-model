@@ -32,7 +32,7 @@ public class DiskDatabaseTest: ZMTBaseTest {
     var coreDataStack: CoreDataStack!
     
     var storeURL : URL {
-        return CoreDataStack.accountFolder(
+        return CoreDataStack.accountDataFolder(
             accountIdentifier: accountId,
             applicationContainer: sharedContainerURL
             ).appendingPersistentStoreLocation()

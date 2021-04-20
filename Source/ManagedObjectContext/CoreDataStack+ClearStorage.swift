@@ -20,7 +20,9 @@ import Foundation
 
 extension CoreDataStack {
 
-    /// Locations where Wire is or hashistorically been storing data.
+    static let storeFileExtensions = ["", "-wal", "-shm"]
+
+    /// Locations where Wire is or has historically been storing data.
     private var storageLocations: [URL] {
         var locations = [.cachesDirectory,
                          .applicationSupportDirectory,
@@ -30,36 +32,62 @@ extension CoreDataStack {
 
         locations.append(applicationContainer)
 
+        if let bundleIdentifier = Bundle.main.bundleIdentifier {
+            locations.append(applicationContainer
+                                .appendingPathComponent(bundleIdentifier))
+            locations.append(applicationContainer
+                                .appendingPathComponent(bundleIdentifier)
+                                .appendingPathComponent(account.userIdentifier.uuidString))
+            locations.append(applicationContainer
+                                .appendingPathComponent(bundleIdentifier)
+                                .appendingPathComponent(account.userIdentifier.uuidString)
+                                .appendingPathComponent("store"))
+        }
+
         return locations
     }
 
     /// Delete all files in directories where Wire has historically
     /// been storing data.
     private func clearStorage() throws {
+        
         for location in storageLocations {
-            try clearDirectory(directory: location)
+            try clearStoreFiles(in: location)
+            try clearSessionStore(in: location)
         }
     }
 
-    private func clearDirectory(directory: URL) throws {
+    private func clearSessionStore(in directory: URL) throws {
+        let fileManager = FileManager.default
+
+        let sessionDirectory = directory.appendingSessionStoreFolder()
+
+        if fileManager.fileExists(atPath: sessionDirectory.path) {
+            try fileManager.removeItem(at: sessionDirectory)
+        }
+    }
+
+    private func clearStoreFiles(in directory: URL) throws {
         let fileManager = FileManager.default
 
         guard fileManager.fileExists(atPath: directory.path) else {
             return
         }
 
-        let directoryContents = try fileManager.contentsOfDirectory(
-            at: directory,
-            includingPropertiesForKeys: nil,
-            options: [])
+        var storeFiles = Self.storeFileExtensions.map { directory.appendingStoreFile().appendingSuffixToLastPathComponent(suffix: $0)
+        }
+        storeFiles.append(directory.appendingStoreSupportFolder())
 
-        for item in directoryContents {
-            try fileManager.removeItem(at: item)
+        try storeFiles.forEach { (storeFile) in
+            if fileManager.fileExists(atPath: storeFile.path) {
+                print("deleting: \(storeFile.path)")
+                try fileManager.removeItem(at: storeFile)
+            }
         }
     }
 
-    private func accountsFolderExists() -> Bool {
-        let accountsFolder = Self.accountFolder(
+    private func accountDataFolderExists() -> Bool {
+        let accountsFolder = Self.accountDataFolder(
             accountIdentifier: account.userIdentifier,
             applicationContainer: applicationContainer)
 
@@ -70,7 +98,7 @@ extension CoreDataStack {
     /// This either means we are running on a fresh install or the user has upgraded
     /// from a legacy installation which we no longer support.
     func clearStorageIfNecessary() {
-        if !accountsFolderExists() {
+        if !accountDataFolderExists() {
             Logging.localStorage.info("Clearing storage on upgrade from legacy installation")
             do {
                 try clearStorage()

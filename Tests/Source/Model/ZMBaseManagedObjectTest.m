@@ -117,7 +117,7 @@
 - (void)setupKeyStore
 {
     [self performPretendingUiMocIsSyncMoc:^{
-        NSURL *url = [CoreDataStack accountFolderWithAccountIdentifier:self.userIdentifier
+        NSURL *url = [CoreDataStack accountDataFolderWithAccountIdentifier:self.userIdentifier
                                                   applicationContainer:self.storageDirectory];
         [self.uiMOC setupUserKeyStoreInAccountDirectory:url
                                    applicationContainer:self.storageDirectory];

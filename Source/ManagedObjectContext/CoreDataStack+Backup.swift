@@ -101,7 +101,7 @@ extension CoreDataStack {
             }
         }
         
-        let accountDirectory = Self.accountFolder(accountIdentifier: accountIdentifier, applicationContainer: applicationContainer)
+        let accountDirectory = Self.accountDataFolder(accountIdentifier: accountIdentifier, applicationContainer: applicationContainer)
         let storeFile = accountDirectory.appendingPersistentStoreLocation()
 
         guard fileManager.fileExists(atPath: accountDirectory.path) else { return fail(.failedToRead) }
@@ -170,7 +170,7 @@ extension CoreDataStack {
             }
         }
         
-        let accountDirectory = accountFolder(accountIdentifier: accountIdentifier, applicationContainer: applicationContainer)
+        let accountDirectory = accountDataFolder(accountIdentifier: accountIdentifier, applicationContainer: applicationContainer)
         let accountStoreFile = accountDirectory.appendingPersistentStoreLocation()
         let backupStoreFile = backupDirectory.appendingPathComponent(databaseDirectoryName).appendingStoreFile()
         let metadataURL = backupDirectory.appendingPathComponent(metadataFilename)

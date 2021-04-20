@@ -17,6 +17,7 @@
 //
 
 import Foundation
+@testable import WireDataModel
 
 class CoreDataStackTests_ClearStorage: ZMTBaseTest {
 
@@ -29,9 +30,9 @@ class CoreDataStackTests_ClearStorage: ZMTBaseTest {
             .appendingPathComponent("CoreDataStackTests")
     }
 
-    func testThatStorageIsCleared_WhenUpgradingFromLegacyInstallation() {
+    func testThatPersistentStoreIsCleared_WhenUpgradingFromLegacyInstallation() {
         // given
-        let existingFiles = createFilesInLegacyLocations()
+        let existingFiles = createStoreFilesInLegacyLocations()
 
         // when
         _ = CoreDataStack(account: account,
@@ -46,10 +47,43 @@ class CoreDataStackTests_ClearStorage: ZMTBaseTest {
         }
     }
 
+    func testThatSessionDirectoryIsCleared_WhenUpgradingFromLegacyInstallation() {
+        // given
+        let existingFiles = createSessionFilesInLegacyLocations()
+
+        // when
+        _ = CoreDataStack(account: account,
+                          applicationContainer: applicationContainer,
+                          inMemoryStore: false,
+                          dispatchGroup: dispatchGroup)
+
+        // then
+        for file in existingFiles {
+            XCTAssertFalse(FileManager.default.fileExists(atPath: file.path),
+                           "\(file.path) should have been deleted")
+        }
+    }
+
+    func testThatAccountStorageIsNotCleared_WhenTheInitialStoreIsCreated() throws {
+        // given
+        createAccountDirectory()
+
+        // when
+        _ = CoreDataStack(account: account,
+                          applicationContainer: applicationContainer,
+                          inMemoryStore: false,
+                          dispatchGroup: dispatchGroup)
+
+        // then
+        let accountsDirectory = applicationContainer.appendingPathComponent("Accounts")
+        XCTAssertTrue(FileManager.default.fileExists(atPath: accountsDirectory.path),
+                       "\(accountsDirectory.path) should not have been deleted")
+    }
+
     func testThatStorageIsNotCleared_WhenUpgradingFromSupportedInstallation() throws {
         // given
-        let existingFiles = createFilesInLegacyLocations()
-        try createAccountFolder()
+        let existingFiles = createStoreFilesInLegacyLocations()
+        try createAccountDataDirectory()
 
         // when
         _ = CoreDataStack(account: account,
@@ -66,34 +100,52 @@ class CoreDataStackTests_ClearStorage: ZMTBaseTest {
 
     // MARK: Helpers
 
-    func createAccountFolder() throws {
-        let accountFolder = CoreDataStack.accountFolder(accountIdentifier: account.userIdentifier,
-                                                        applicationContainer: applicationContainer)
+    func createAccountDataDirectory() throws {
+        let accountFolder = CoreDataStack.accountDataFolder(accountIdentifier: account.userIdentifier,
+                                                            applicationContainer: applicationContainer)
 
         try FileManager.default.createDirectory(at: accountFolder,
                                                 withIntermediateDirectories: true,
                                                 attributes: nil)
     }
 
-    func createFilesInLegacyLocations() -> [URL] {
-        return previousStorageLocations.map { (location) -> URL in
+    func createAccountDirectory() {
+        let accountStore = AccountStore(root: applicationContainer)
+        accountStore.add(Account(userName: "", userIdentifier: UUID()))
+    }
+
+    func createStoreFilesInLegacyLocations() -> [URL] {
+        return previousStorageLocations.flatMap { (location) -> [URL] in
             let fileManager = FileManager.default
             try? fileManager.createDirectory(at: location,
                                             withIntermediateDirectories: true,
                                             attributes: nil)
 
+            let storeFiles = CoreDataStack.storeFileExtensions.map { location.appendingStoreFile().appendingSuffixToLastPathComponent(suffix: $0)
+            }
 
-            let file = location.appendingPathComponent("file.bin", isDirectory: false)
+            for storeFile in storeFiles {
+                let success = fileManager.createFile(atPath: storeFile.path,
+                                                     contents: "hello".data(using: .utf8)!,
+                                                     attributes: nil)
 
-            let success = fileManager.createFile(atPath: file.path,
-                                                 contents: "hello".data(using: .utf8)!,
-                                                 attributes: nil)
+                XCTAssertTrue(success)
 
-            XCTAssertTrue(success)
+            }
 
-            return file
+            return storeFiles
         }
-        
+    }
+
+    func createSessionFilesInLegacyLocations() -> [URL] {
+        return previousStorageLocations.map { (location) -> URL in
+            let fileManager = FileManager.default
+            let sessionDirectory = location.appendingPathComponent("otr")
+            try! fileManager.createDirectory(at: sessionDirectory,
+                                            withIntermediateDirectories: true,
+                                            attributes: nil)
+            return sessionDirectory
+        }
     }
 
     /// Previous storage locations for the persistent store or key store

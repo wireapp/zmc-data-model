@@ -58,6 +58,18 @@ extension URL {
     func appendingEventStoreLocation() -> URL {
         return self.appendingPathComponent("events").appendingEventStoreFile()
     }
+
+    func appendingSessionStoreFolder() -> URL {
+        return self.appendingPathComponent("otr")
+    }
+
+    func appendingStoreSupportFolder() -> URL {
+        let storeFile = self.appendingStoreFile()
+        let storeName = storeFile.deletingPathExtension().lastPathComponent
+        let storeDirectory = self.deletingLastPathComponent()
+        let supportFile = ".\(storeName)_SUPPORT"
+        return storeDirectory.appendingPathComponent(supportFile)
+    }
 }
 
 @objcMembers
@@ -101,7 +113,7 @@ public class CoreDataStack: NSObject, ContextProvider {
         self.account = account
         self.dispatchGroup = dispatchGroup
 
-        let accountDirectory = Self.accountFolder(accountIdentifier: account.userIdentifier,
+        let accountDirectory = Self.accountDataFolder(accountIdentifier: account.userIdentifier,
                                                   applicationContainer: applicationContainer)
 
         self.accountContainer = accountDirectory
@@ -316,7 +328,7 @@ public class CoreDataStack: NSObject, ContextProvider {
         }
     }
 
-    public static func accountFolder(accountIdentifier: UUID, applicationContainer: URL) -> URL {
+    public static func accountDataFolder(accountIdentifier: UUID, applicationContainer: URL) -> URL {
         return applicationContainer
             .appendingPathComponent("AccountData")
             .appendingPathComponent(accountIdentifier.uuidString)
