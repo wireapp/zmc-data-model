@@ -334,6 +334,16 @@ public class CoreDataStack: NSObject, ContextProvider {
             .appendingPathComponent(accountIdentifier.uuidString)
     }
 
+    public static func loadMessagingModel() -> NSManagedObjectModel {
+        let modelBundle = Bundle(for: ZMManagedObject.self)
+
+        guard let result = NSManagedObjectModel(contentsOf: modelBundle.bundleURL.appendingPathComponent("zmessaging.momd")) else {
+            fatal("Can't load data model bundle")
+        }
+
+        return result
+    }
+
 }
 
 class PersistentContainer: NSPersistentContainer {
@@ -358,4 +368,22 @@ class PersistentContainer: NSPersistentContainer {
         return metadata
     }
 
+}
+
+extension NSPersistentStoreCoordinator {
+
+    /// Returns the set of options that need to be passed to the persistent sotre
+    static func persistentStoreOptions(supportsMigration: Bool) -> [String: Any] {
+        return [
+            // https://www.sqlite.org/pragma.html
+            NSSQLitePragmasOption: [
+                "journal_mode" : "WAL",
+                "synchronous": "FULL",
+                "secure_delete" : "TRUE"
+            ],
+            NSMigratePersistentStoresAutomaticallyOption: supportsMigration,
+            NSInferMappingModelAutomaticallyOption: supportsMigration
+        ]
+    }
+    
 }

@@ -92,7 +92,8 @@ extension CoreDataStack {
 
         workQueue.async(group: dispatchGroup) {
             do {
-                let coordinator = NSPersistentStoreCoordinator(managedObjectModel: .loadModel())
+                let model = CoreDataStack.loadMessagingModel()
+                let coordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
 
                 // Create target directory
                 try fileManager.createDirectory(at: databaseDirectory, withIntermediateDirectories: true, attributes: nil)

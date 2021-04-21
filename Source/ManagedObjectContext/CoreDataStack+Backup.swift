@@ -112,7 +112,8 @@ extension CoreDataStack {
 
         workQueue.async(group: dispatchGroup) {
             do {
-                let coordinator = NSPersistentStoreCoordinator(managedObjectModel: .loadModel())
+                let model = CoreDataStack.loadMessagingModel()
+                let coordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
 
                 // Create target directory
                 try fileManager.createDirectory(at: databaseDirectory, withIntermediateDirectories: true, attributes: nil)
@@ -179,7 +180,7 @@ extension CoreDataStack {
             do {
                 let metadata = try BackupMetadata(url: metadataURL)
                 
-                let model = NSManagedObjectModel.loadModel()
+                let model = CoreDataStack.loadMessagingModel()
                 if let verificationError = metadata.verify(using: accountIdentifier, modelVersionProvider: model) {
                     return fail(.incompatibleBackup(verificationError))
                 }

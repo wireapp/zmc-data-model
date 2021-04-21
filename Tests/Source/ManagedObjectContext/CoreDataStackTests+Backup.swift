@@ -148,7 +148,7 @@ class CoreDataStackTests_Backup: DatabaseBaseTest {
         // then
         switch result {
         case let .success(backup):
-            let model = NSManagedObjectModel.loadModel()
+            let model = CoreDataStack.loadMessagingModel()
             let coordinator = NSPersistentStoreCoordinator(managedObjectModel: model)
             let storeFile = backup.appendingPathComponent("data").appendingStoreFile()
             XCTAssert(FileManager.default.fileExists(atPath: storeFile.path))

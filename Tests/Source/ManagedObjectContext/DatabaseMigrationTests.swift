@@ -314,7 +314,7 @@ final class DatabaseMigrationTests: DatabaseBaseTest {
              (39...57),
              (59...90)].joined().map { "2-\($0)-0" }
         
-        let modelVersion = NSManagedObjectModel.loadModel().version
+        let modelVersion = CoreDataStack.loadMessagingModel().version
         let fixtureVersion = String(databaseFixtureFileName(for: modelVersion).dropFirst("store".count))
 
         
