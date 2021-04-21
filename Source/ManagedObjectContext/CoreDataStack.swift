@@ -72,6 +72,15 @@ extension URL {
     }
 }
 
+public extension NSURL {
+
+    /// Returns the location of the persistent store file in the given account folder
+    @objc func URLByAppendingPersistentStoreLocation() -> URL {
+        return (self as URL).appendingPersistentStoreLocation()
+    }
+
+}
+
 @objcMembers
 public class CoreDataStack: NSObject, ContextProvider {
 
