@@ -279,6 +279,10 @@ public class CoreDataStack: NSObject, ContextProvider {
         return messagesContainer.needsMigration || eventsContainer.needsMigration
     }
 
+    public var storesExists: Bool {
+        return messagesContainer.storeExists && eventsContainer.storeExists
+    }
+
     func configureViewContext(_ context: NSManagedObjectContext) {
         context.markAsUIContext()
         context.createDispatchGroups()
@@ -356,6 +360,14 @@ public class CoreDataStack: NSObject, ContextProvider {
 }
 
 class PersistentContainer: NSPersistentContainer {
+
+    var storeExists: Bool {
+        guard let storeURL = persistentStoreDescriptions.first?.url else {
+            return false
+        }
+
+        return FileManager.default.fileExists(atPath: storeURL.path)
+    }
 
     var needsMigration: Bool {
         guard let storeURL = persistentStoreDescriptions.first?.url else {
