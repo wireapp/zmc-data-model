@@ -374,7 +374,7 @@ class PersistentContainer: NSPersistentContainer {
             return false
         }
 
-        return managedObjectModel.isConfiguration(
+        return !managedObjectModel.isConfiguration(
             withName: nil,
             compatibleWithStoreMetadata: metadataForStore(at: storeURL))
     }
