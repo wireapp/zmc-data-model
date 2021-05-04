@@ -81,7 +81,6 @@ extension CoreDataStack {
 
         try storeFiles.forEach { (storeFile) in
             if fileManager.fileExists(atPath: storeFile.path) {
-                print("deleting: \(storeFile.path)")
                 try fileManager.removeItem(at: storeFile)
             }
         }
