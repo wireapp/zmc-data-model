@@ -74,10 +74,16 @@ extension CoreDataStack {
             return
         }
 
-        var storeFiles = Self.storeFileExtensions.map {
+        var messageStoreFiles = Self.storeFileExtensions.map {
             directory.appendingStoreFile().appendingSuffixToLastPathComponent(suffix: $0)
         }
-        storeFiles.append(directory.appendingStoreSupportFolder())
+        messageStoreFiles.append(directory.appendingStoreSupportFolder())
+
+        let eventStoreFiles = Self.storeFileExtensions.map {
+            directory.appendingEventStoreFile().appendingSuffixToLastPathComponent(suffix: $0)
+        }
+
+        let storeFiles = messageStoreFiles + eventStoreFiles
 
         try storeFiles.forEach { (storeFile) in
             if fileManager.fileExists(atPath: storeFile.path) {

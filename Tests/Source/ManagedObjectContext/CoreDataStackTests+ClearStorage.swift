@@ -121,8 +121,14 @@ class CoreDataStackTests_ClearStorage: ZMTBaseTest {
                                             withIntermediateDirectories: true,
                                             attributes: nil)
 
-            let storeFiles = CoreDataStack.storeFileExtensions.map { location.appendingStoreFile().appendingSuffixToLastPathComponent(suffix: $0)
+            let messageStoreFiles = CoreDataStack.storeFileExtensions.map { location.appendingStoreFile().appendingSuffixToLastPathComponent(suffix: $0)
             }
+
+            let eventStoreFiles = CoreDataStack.storeFileExtensions.map {
+                location.appendingEventStoreFile().appendingSuffixToLastPathComponent(suffix: $0)
+            }
+
+            let storeFiles = messageStoreFiles + eventStoreFiles
 
             for storeFile in storeFiles {
                 let success = fileManager.createFile(atPath: storeFile.path,
