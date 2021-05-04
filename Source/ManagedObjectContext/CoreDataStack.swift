@@ -171,6 +171,7 @@ public class CoreDataStack: NSObject, ContextProvider {
         viewContext.tearDown()
         syncContext.tearDown()
         searchContext.tearDown()
+        eventContext.tearDown()
         closeStores()
     }
 
