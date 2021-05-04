@@ -74,7 +74,8 @@ extension CoreDataStack {
             return
         }
 
-        var storeFiles = Self.storeFileExtensions.map { directory.appendingStoreFile().appendingSuffixToLastPathComponent(suffix: $0)
+        var storeFiles = Self.storeFileExtensions.map {
+            directory.appendingStoreFile().appendingSuffixToLastPathComponent(suffix: $0)
         }
         storeFiles.append(directory.appendingStoreSupportFolder())
 
