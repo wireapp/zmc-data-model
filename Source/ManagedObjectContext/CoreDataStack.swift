@@ -123,7 +123,7 @@ public class CoreDataStack: NSObject, ContextProvider {
         self.dispatchGroup = dispatchGroup
 
         let accountDirectory = Self.accountDataFolder(accountIdentifier: account.userIdentifier,
-                                                  applicationContainer: applicationContainer)
+                                                      applicationContainer: applicationContainer)
 
         self.accountContainer = accountDirectory
 
