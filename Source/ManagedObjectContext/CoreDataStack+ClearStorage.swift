@@ -98,14 +98,14 @@ extension CoreDataStack {
     /// This either means we are running on a fresh install or the user has upgraded
     /// from a legacy installation which we no longer support.
     func clearStorageIfNecessary() {
-        if !accountDataFolderExists() {
-            Logging.localStorage.info("Clearing storage on upgrade from legacy installation")
-            do {
-                try clearStorage()
-            } catch let error {
-                Logging.localStorage.error("Failed to clear storage: \(error)")
-            }
+        guard !accountDataFolderExists() else { return }
 
+        Logging.localStorage.info("Clearing storage on upgrade from legacy installation")
+            
+        do {
+            try clearStorage()
+        } catch let error {
+            Logging.localStorage.error("Failed to clear storage: \(error)")
         }
     }
 
