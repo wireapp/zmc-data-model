@@ -362,8 +362,12 @@ public class CoreDataStack: NSObject, ContextProvider {
 
 class PersistentContainer: NSPersistentContainer {
 
+    var storeURL: URL? {
+        return persistentStoreDescriptions.first?.url
+    }
+
     var storeExists: Bool {
-        guard let storeURL = persistentStoreDescriptions.first?.url else {
+        guard let storeURL = storeURL else {
             return false
         }
 
@@ -371,7 +375,7 @@ class PersistentContainer: NSPersistentContainer {
     }
 
     var needsMigration: Bool {
-        guard let storeURL = persistentStoreDescriptions.first?.url else {
+        guard let storeURL = storeURL, storeExists else {
             return false
         }
 
