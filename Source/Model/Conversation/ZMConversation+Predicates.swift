@@ -28,7 +28,7 @@ extension ZMConversation {
 
     @objc
     public class func predicate(forSearchQuery searchQuery: String, selfUser: ZMUser) -> NSPredicate! {
-        //
+
         let convoNameMatching = userDefinedNamePredicate(forSearch: searchQuery)
         
         let selfUserIsMember = NSPredicate(format: "%K == NULL OR (ANY %K.user == %@)", ZMConversationClearedTimeStampKey, ZMConversationParticipantRolesKey, selfUser)
