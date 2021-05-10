@@ -92,6 +92,9 @@ static NSString *const NeedsToAcknowledgeLegalHoldStatusKey = @"needsToAcknowled
 static NSString *const NeedsToRefetchLabelsKey = @"needsToRefetchLabels";
 static NSString *const ParticipantRolesKey = @"participantRoles";
 
+static NSString *const AnalyticsIdentifierKey = @"analyticsIdentifier";
+
+static NSString *const DomainKey = @"domain";
 
 @interface ZMBoxedSelfUser : NSObject
 
@@ -373,6 +376,7 @@ static NSString *const ParticipantRolesKey = @"participantRoles";
     dispatch_once(&onceToken, ^{
         NSMutableSet *ignoredKeys = [[super ignoredKeys] mutableCopy];
         [ignoredKeys addObjectsFromArray:@[
+                                           AnalyticsIdentifierKey,
                                            NormalizedNameKey,
                                            ConversationsCreatedKey,
                                            ActiveCallConversationsKey,
@@ -404,7 +408,8 @@ static NSString *const ParticipantRolesKey = @"participantRoles";
                                            LegalHoldRequestKey,
                                            NeedsToAcknowledgeLegalHoldStatusKey,
                                            NeedsToRefetchLabelsKey,
-                                           @"lastServerSyncedActiveConversations" // OBSOLETE
+                                           @"lastServerSyncedActiveConversations", // OBSOLETE
+                                           DomainKey
                                            ]];
         keys = [ignoredKeys copy];
     });
@@ -513,7 +518,7 @@ static NSString *const ParticipantRolesKey = @"participantRoles";
 // is received from the notification stream.
 - (void)updateWithTransportData:(NSDictionary *)transportData authoritative:(BOOL)authoritative
 {
-    NSDictionary *serviceData = transportData[@"service"];
+    NSDictionary *serviceData = [transportData optionalDictionaryForKey:@"service"];
     if (serviceData != nil) {
         NSString *serviceIdentifier = [serviceData optionalStringForKey:@"id"];
         if (serviceIdentifier != nil) {
@@ -536,15 +541,39 @@ static NSString *const ParticipantRolesKey = @"participantRoles";
         self.usesCompanyLogin = nil != ssoData;
     }
     
-    NSUUID *remoteID = [transportData[@"id"] UUID];
-    if (self.remoteIdentifier == nil) {
-        self.remoteIdentifier = remoteID;
+    
+    NSDictionary *qualifiedID = [transportData optionalDictionaryForKey:@"qualified_id"];
+    if (qualifiedID != nil) {
+        NSString *domain = [qualifiedID stringForKey:@"domain"];
+        NSUUID *remoteIdentifier = [qualifiedID[@"id"] UUID];
+        
+        if (self.domain == nil) {
+            self.domain = domain;
+        } else {
+            RequireString([self.domain isEqual:domain], "User domain do not match in update: %s vs. %s",
+                          domain.UTF8String,
+                          self.domain.UTF8String);
+        }
+        
+        if (self.remoteIdentifier == nil) {
+            self.remoteIdentifier = remoteIdentifier;
+        } else {
+            RequireString([self.remoteIdentifier isEqual:remoteIdentifier], "User ids do not match in update: %s vs. %s",
+                          remoteIdentifier.transportString.UTF8String,
+                          self.remoteIdentifier.transportString.UTF8String);
+        }
+        
     } else {
-        RequireString([self.remoteIdentifier isEqual:remoteID], "User ids do not match in update: %s vs. %s",
-                      remoteID.transportString.UTF8String,
-                      self.remoteIdentifier.transportString.UTF8String);
+        NSUUID *remoteID = [transportData[@"id"] UUID];
+        if (self.remoteIdentifier == nil) {
+            self.remoteIdentifier = remoteID;
+        } else {
+            RequireString([self.remoteIdentifier isEqual:remoteID], "User ids do not match in update: %s vs. %s",
+                          remoteID.transportString.UTF8String,
+                          self.remoteIdentifier.transportString.UTF8String);
+        }
     }
-
+                                 
     NSString *name = [transportData optionalStringForKey:@"name"];
     if (!self.isAccountDeleted && (name != nil || authoritative)) {
         self.name = name;
@@ -714,6 +743,7 @@ static NSString *const ParticipantRolesKey = @"participantRoles";
     //store session object id in persistent metadata, so we can retrieve it from other context
     moc.userInfo[SessionObjectIDKey] = session.objectID;
     [moc setPersistentStoreMetadata:session.objectID.URIRepresentation.absoluteString forKey:SessionObjectIDAsStringKey];
+    NOT_USED([moc makeMetadataPersistent]);
     // This needs to be a 'real' save, to make sure we push the metadata:
     RequireString([moc save:&error], "Failed to save self user: %lu", (long) error.code);
 
@@ -788,10 +818,10 @@ static NSString *const ParticipantRolesKey = @"participantRoles";
 
 @implementation  ZMUser (Utilities)
 
-+ (ZMUser<ZMEditableUser> *)selfUserInUserSession:(id<ZMManagedObjectContextProvider>)session
++ (ZMUser<ZMEditableUser> *)selfUserInUserSession:(id<ContextProvider>)session
 {
     VerifyReturnNil(session != nil);
-    return [self selfUserInContext:session.managedObjectContext];
+    return [self selfUserInContext:session.viewContext];
 }
 
 @end

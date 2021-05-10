@@ -20,11 +20,23 @@ import Foundation
 import WireUtilities
 import WireSystem
 
-extension ZMUser: UserConnectionType { }
-
 extension ZMUser: UserType {
+    @objc
+    public var hasTeam: Bool {
+        /// Other users won't have a team object, but a teamIdentifier.
+        return nil != team || nil != teamIdentifier
+    }
 
-    public func isGuest(in conversation: ZMConversation) -> Bool {
+    /// Whether all user's devices are verified by the selfUser
+    public var isTrusted: Bool {
+        let selfUser = managedObjectContext.map(ZMUser.selfUser)
+        let selfClient = selfUser?.selfClient()
+        let hasUntrustedClients = self.clients.contains(where: { ($0 != selfClient) && !(selfClient?.trustedClients.contains($0) ?? false) })
+        
+        return !hasUntrustedClients
+    }
+    
+    public func isGuest(in conversation: ConversationLike) -> Bool {
         return _isGuest(in: conversation)
     }
     
@@ -55,6 +67,14 @@ extension ZMUser: UserType {
         return isTrusted && selfUser.isTrusted && !clients.isEmpty
     }
 
+    public var isFederated: Bool {
+        guard let selfUser = managedObjectContext.map(ZMUser.selfUser) else {
+            return false
+        }
+
+        return selfUser.isFederating(with: self)
+    }
+
     // MARK: - Conversation Roles
 
     public func canManagedGroupRole(of user: UserType, conversation: ZMConversation) -> Bool {
@@ -62,12 +82,12 @@ extension ZMUser: UserType {
         return !user.isSelfUser && (user.isConnected || isOnSameTeam(otherUser: user))
     }
 
-    public func isGroupAdmin(in conversation: ZMConversation) -> Bool {
+    public func isGroupAdmin(in conversation: ConversationLike) -> Bool {
         return role(in: conversation)?.name == ZMConversation.defaultAdminRoleName
     }
 
-    public func role(in conversation: ZMConversation) -> Role? {
-        return participantRoles.first(where: { $0.conversation == conversation })?.role
+    public func role(in conversation: ConversationLike?) -> Role? {
+        return participantRoles.first(where: { $0.conversation === conversation })?.role
     }
 
     // MARK: Legal Hold
@@ -177,7 +197,7 @@ extension ZMUser {
     
     @objc static let previewProfileAssetIdentifierKey = #keyPath(ZMUser.previewProfileAssetIdentifier)
     @objc static let completeProfileAssetIdentifierKey = #keyPath(ZMUser.completeProfileAssetIdentifier)
-    
+
     @NSManaged public var previewProfileAssetIdentifier: String?
     @NSManaged public var completeProfileAssetIdentifier: String?
     
@@ -202,6 +222,8 @@ extension ZMUser {
     
     /// If `needsToRefetchLabels` is true we need to refetch the conversation labels (favorites & folders)
     @NSManaged public var needsToRefetchLabels: Bool
+    
+    @NSManaged public var domain: String?
     
     @objc(setImageData:size:)
     public func setImage(data: Data?, size: ProfileImageSize) {
@@ -228,20 +250,28 @@ extension ZMUser {
     
     public static var previewImageDownloadFilter: NSPredicate {
         let assetIdExists = NSPredicate(format: "(%K != nil)", ZMUser.previewProfileAssetIdentifierKey)
+        let assetIdIsValid = NSPredicate { (user, _) -> Bool in
+            guard let user = user as? ZMUser else { return false }
+            return user.previewProfileAssetIdentifier?.isValidAssetID ?? false
+        }
         let notCached = NSPredicate() { (user, _) -> Bool in
             guard let user = user as? ZMUser else { return false }
             return user.imageSmallProfileData == nil
         }
-        return NSCompoundPredicate(andPredicateWithSubpredicates: [assetIdExists, notCached])
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [assetIdExists, assetIdIsValid, notCached])
     }
-    
+
     public static var completeImageDownloadFilter: NSPredicate {
         let assetIdExists = NSPredicate(format: "(%K != nil)", ZMUser.completeProfileAssetIdentifierKey)
+        let assetIdIsValid = NSPredicate { (user, _) -> Bool in
+            guard let user = user as? ZMUser else { return false }
+            return user.completeProfileAssetIdentifier?.isValidAssetID ?? false
+        }
         let notCached = NSPredicate() { (user, _) -> Bool in
             guard let user = user as? ZMUser else { return false }
             return user.imageMediumData == nil
         }
-        return NSCompoundPredicate(andPredicateWithSubpredicates: [assetIdExists, notCached])
+        return NSCompoundPredicate(andPredicateWithSubpredicates: [assetIdExists, assetIdIsValid, notCached])
     }
     
     public func updateAndSyncProfileAssetIdentifiers(previewIdentifier: String, completeIdentifier: String) {
@@ -332,18 +362,6 @@ extension NSManagedObject: SafeForLoggingStringConvertible {
         let moc: String = self.managedObjectContext?.description ?? "nil"
         
         return "\(type(of: self)) \(Unmanaged.passUnretained(self).toOpaque()): moc=\(moc) objectID=\(self.objectID)"
-    }
-}
-
-extension ZMUser {
-    
-    /// Whether all user's devices are verified by the selfUser
-    @objc public var isTrusted: Bool {
-        let selfUser = managedObjectContext.map(ZMUser.selfUser)
-        let selfClient = selfUser?.selfClient()
-        let hasUntrustedClients = self.clients.contains(where: { ($0 != selfClient) && !(selfClient?.trustedClients.contains($0) ?? false) })
-        
-        return !hasUntrustedClients
     }
 }
 

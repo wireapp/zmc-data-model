@@ -47,6 +47,7 @@ static NSString* ZMLogTag ZM_UNUSED = @"Conversations";
 NSString *const ZMConversationConnectionKey = @"connection";
 NSString *const ZMConversationHasUnreadMissedCallKey = @"hasUnreadMissedCall";
 NSString *const ZMConversationHasUnreadUnsentMessageKey = @"hasUnreadUnsentMessage";
+NSString *const ZMConversationNeedsToCalculateUnreadMessagesKey = @"needsToCalculateUnreadMessages";
 NSString *const ZMConversationIsArchivedKey = @"internalIsArchived";
 NSString *const ZMConversationMutedStatusKey = @"mutedStatus";
 NSString *const ZMConversationAllMessagesKey = @"allMessages";
@@ -121,6 +122,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @property (nonatomic) BOOL internalIsArchived;
 
 @property (nonatomic) NSDate *pendingLastReadServerTimestamp;
+@property (nonatomic) NSDate *previousLastReadServerTimestamp;
 @property (nonatomic) NSDate *lastReadServerTimeStamp;
 @property (nonatomic) NSDate *lastServerTimeStamp;
 @property (nonatomic) NSDate *clearedTimeStamp;
@@ -162,6 +164,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 @dynamic nonTeamRoles;
 
 @synthesize pendingLastReadServerTimestamp;
+@synthesize previousLastReadServerTimestamp;
 @synthesize lastReadTimestampSaveDelay;
 @synthesize lastReadTimestampUpdateCounter;
 
@@ -233,7 +236,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 {
     [super awakeFromFetch];
     self.lastReadTimestampSaveDelay = ZMConversationDefaultLastReadTimestampSaveDelay;
-    if (self.managedObjectContext.zm_isSyncContext) {
+    if (self.managedObjectContext.zm_isSyncContext && self.needsToCalculateUnreadMessages) {
         // From the documentation: The managed object context’s change processing is explicitly disabled around this method so that you can use public setters to establish transient values and other caches without dirtying the object or its context.
         // Therefore we need to do a dispatch async  here in a performGroupedBlock to update the unread properties outside of awakeFromFetch
         ZM_WEAK(self);
@@ -248,25 +251,13 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
 {
     [super awakeFromInsert];
     self.lastReadTimestampSaveDelay = ZMConversationDefaultLastReadTimestampSaveDelay;
-    if (self.managedObjectContext.zm_isSyncContext) {
+    
+    if (self.managedObjectContext.zm_isSyncContext && self.needsToCalculateUnreadMessages) {
         // From the documentation: You are typically discouraged from performing fetches within an implementation of awakeFromInsert. Although it is allowed, execution of the fetch request can trigger the sending of internal Core Data notifications which may have unwanted side-effects. Since we fetch the unread messages here, we should do a dispatch async
         [self.managedObjectContext performGroupedBlock:^{
             [self calculateLastUnreadMessages];
         }];
     }
-}
-
--(NSArray <ZMUser *> *)sortedActiveParticipants
-{
-    return [self sortedUsers:[self localParticipants]];
-}
-
-- (NSArray *)sortedUsers:(NSSet *)users
-{
-    NSSortDescriptor *nameDescriptor = [NSSortDescriptor sortDescriptorWithKey:@"normalizedName" ascending:YES];
-    NSArray *sortedUser = [users sortedArrayUsingDescriptors:@[nameDescriptor]];
-    
-    return sortedUser;
 }
 
 - (ZMUser *)connectedUser
@@ -321,6 +312,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
             VoiceChannelKey,
             ZMConversationHasUnreadMissedCallKey,
             ZMConversationHasUnreadUnsentMessageKey,
+            ZMConversationNeedsToCalculateUnreadMessagesKey,
             ZMConversationAllMessagesKey,
             ZMConversationHiddenMessagesKey,
             ZMConversationLastServerTimeStampKey,
@@ -375,7 +367,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     return [NSSet setWithObjects:ZMConversationConversationTypeKey, ZMConversationParticipantRolesKey, nil];
 }
 
-+ (instancetype)existingOneOnOneConversationWithUser:(ZMUser *)otherUser inUserSession:(id<ZMManagedObjectContextProvider>)session;
++ (instancetype)existingOneOnOneConversationWithUser:(ZMUser *)otherUser inUserSession:(id<ContextProvider>)session;
 {
     NOT_USED(session);
     return otherUser.connection.conversation;
@@ -445,12 +437,16 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
     // 1. Belongs to the team.
     // 2. Has no name given.
     // 3. Conversation has only one other participant.
-    // 4. This participant is not a service user (bot).
+
+    // Performance note: localParticipantsExcludingSelf will enumerate over all
+    // local participant roles, so check its count first to avoid unncessary iterations.
+
     if (conversationType == ZMConversationTypeGroup &&
         self.teamRemoteIdentifier != nil &&
-        self.localParticipantsExcludingSelf.count == 1 &&
-        !self.localParticipantsExcludingSelf.anyObject.isServiceUser &&
-        self.userDefinedName.length == 0) {
+        self.userDefinedName.length == 0 &&
+        self.localParticipantRoles.count == 2 &&
+        self.localParticipantsExcludingSelf.count == 1)
+    {
         conversationType = ZMConversationTypeOneOnOne;
     }
     
@@ -793,7 +789,7 @@ const NSUInteger ZMConversationMaxTextMessageLength = ZMConversationMaxEncodedTe
                 
                 if(conversation.shouldNotBeRefreshed) {
                     [conversationsToKeep addObject:conversation];
-                    [usersToKeep unionSet:conversation.participantRoles];
+                    [usersToKeep unionSet:conversation.localParticipants];
                 }
             } else if ([obj isKindOfClass:ZMOTRMessage.class]) {
                 ZMOTRMessage *message = (ZMOTRMessage *)obj;

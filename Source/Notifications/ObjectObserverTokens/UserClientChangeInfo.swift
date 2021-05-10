@@ -34,7 +34,8 @@ extension UserClient: ObjectInSnapshot {
         return Set([#keyPath(UserClient.trustedByClients),
                     #keyPath(UserClient.ignoredByClients),
                     #keyPath(UserClient.needsToNotifyUser),
-                    #keyPath(UserClient.fingerprint)])
+                    #keyPath(UserClient.fingerprint),
+                    #keyPath(UserClient.needsToNotifyOtherUserAboutSessionReset)])
     }
     
     public var notificationName : Notification.Name {
@@ -55,31 +56,32 @@ public enum UserClientChangeInfoKey: String {
         super.init(object: object)
     }
 
-    open var trustedByClientsChanged : Bool {
+    open var trustedByClientsChanged: Bool {
         return changedKeysContain(keys: #keyPath(UserClient.trustedByClients))
     }
     
-    open var ignoredByClientsChanged : Bool {
+    open var ignoredByClientsChanged: Bool {
         return changedKeysContain(keys: #keyPath(UserClient.ignoredByClients))
     }
 
-    open var fingerprintChanged : Bool {
+    open var fingerprintChanged: Bool {
         return changedKeysContain(keys: #keyPath(UserClient.fingerprint))
     }
 
-    open var needsToNotifyUserChanged : Bool {
+    open var needsToNotifyUserChanged: Bool {
         return changedKeysContain(keys: #keyPath(UserClient.needsToNotifyUser))
+    }
+    
+    open var sessionHasBeenReset: Bool {
+        return changedKeysContain(keys: #keyPath(UserClient.needsToNotifyOtherUserAboutSessionReset)) &&
+               userClient.needsToNotifyOtherUserAboutSessionReset == false
     }
 
     public let userClient: UserClient
     
     
     static func changeInfo(for client: UserClient, changes: Changes) -> UserClientChangeInfo? {
-        guard changes.changedKeys.count > 0 || changes.originalChanges.count > 0 else { return nil }
-        let changeInfo = UserClientChangeInfo(object: client)
-        changeInfo.changeInfos = changes.originalChanges
-        changeInfo.changedKeys = changes.changedKeys
-        return changeInfo
+        return UserClientChangeInfo(object: client, changes: changes)
     }
     
 }

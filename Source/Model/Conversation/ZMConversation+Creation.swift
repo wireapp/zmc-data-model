@@ -31,7 +31,7 @@ extension ZMConversation {
     /// Insert a new group conversation with name into the user session
 
     @objc
-    static public func insertGroupConversation(session: ZMManagedObjectContextProvider,
+    static public func insertGroupConversation(session: ContextProvider,
                                                participants: [UserType],
                                                name: String? = nil,
                                                team: Team? = nil,
@@ -39,8 +39,8 @@ extension ZMConversation {
                                                readReceipts: Bool = false,
                                                participantsRole: Role? = nil) -> ZMConversation?
     {
-        return self.insertGroupConversation(moc: session.managedObjectContext!,
-                                            participants: participants.materialize(in: session.managedObjectContext),
+        return self.insertGroupConversation(moc: session.viewContext,
+                                            participants: participants.materialize(in: session.viewContext),
                                             name: name,
                                             team: team,
                                             allowGuests: allowGuests,
@@ -175,7 +175,9 @@ extension ZMConversation {
             noUserDefinedName,
             sameParticipant
         ])
+        
         let request = self.sortedFetchRequest(with: compoundPredicate)
-        return moc.executeFetchRequestOrAssert(request)?.first as? ZMConversation
+
+        return moc.fetchOrAssert(request: request).first as? ZMConversation
     }
 }

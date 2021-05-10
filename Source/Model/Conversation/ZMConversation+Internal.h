@@ -41,6 +41,7 @@ NS_ASSUME_NONNULL_BEGIN
 extern NSString *const ZMConversationConnectionKey;
 extern NSString *const ZMConversationHasUnreadMissedCallKey;
 extern NSString *const ZMConversationHasUnreadUnsentMessageKey;
+extern NSString *const ZMConversationNeedsToCalculateUnreadMessagesKey;
 extern NSString *const ZMConversationIsArchivedKey;
 extern NSString *const ZMConversationMutedStatusKey;
 extern NSString *const ZMConversationAllMessagesKey;
@@ -101,6 +102,7 @@ NS_ASSUME_NONNULL_END
 @property (nonatomic) BOOL internalIsArchived;
 
 @property (nonatomic, nullable) NSDate *pendingLastReadServerTimestamp;
+@property (nonatomic, nullable) NSDate *previousLastReadServerTimestamp;
 @property (nonatomic, nullable) NSDate *lastServerTimeStamp;
 @property (nonatomic, nullable) NSDate *lastReadServerTimeStamp;
 @property (nonatomic, nullable) NSDate *clearedTimeStamp;
@@ -116,7 +118,7 @@ NS_ASSUME_NONNULL_END
 @property (nonatomic, nonnull) ZMUser *creator;
 @property (nonatomic, nullable) NSDate *lastModifiedDate;
 @property (nonatomic) ZMConversationType conversationType;
-@property (nonatomic) BOOL isSelfConversation;
+@property (nonatomic, readonly) BOOL isSelfConversation;
 @property (nonatomic, copy, nullable) NSString *normalizedUserDefinedName;
 @property (nonatomic) NSTimeInterval lastReadTimestampSaveDelay;
 @property (nonatomic) int64_t lastReadTimestampUpdateCounter;
@@ -134,8 +136,6 @@ NS_ASSUME_NONNULL_END
 
 + (nonnull NSUUID *)selfConversationIdentifierInContext:(nonnull NSManagedObjectContext *)context;
 + (nonnull ZMConversation *)selfConversationInContext:(nonnull NSManagedObjectContext *)managedObjectContext;
-
-- (nullable ZMAssetClientMessage *)appendAssetClientMessageWithNonce:(nonnull NSUUID *)nonce imageData:(nonnull NSData *)imageData;
 
 - (void)unarchiveIfNeeded;
 

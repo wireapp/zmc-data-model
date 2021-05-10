@@ -272,7 +272,7 @@
     
     // when
     __block NSSet *keysWithLocalModifications;
-    [self.testMOC performGroupedBlockAndWaitWithReasonableTimeout:^{
+    [self.testMOC performGroupedBlockThenWaitForReasonableTimeout:^{
         MockEntity *mockEntity = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
 
         // when
@@ -295,7 +295,7 @@
     // given
     [self.testMOC markAsUIContext];
     __block MockEntity *mockEntity;
-    [self.testMOC performGroupedBlockAndWaitWithReasonableTimeout:^{
+    [self.testMOC performGroupedBlockThenWaitForReasonableTimeout:^{
         mockEntity = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
         
         // when
@@ -307,7 +307,7 @@
     }];
 
     __block NSSet *keysThatHaveLocalModifications;
-    [self.testMOC performGroupedBlockAndWaitWithReasonableTimeout:^{
+    [self.testMOC performGroupedBlockThenWaitForReasonableTimeout:^{
         keysThatHaveLocalModifications = mockEntity.keysThatHaveLocalModifications;
     }];
     
@@ -327,7 +327,7 @@
     // given
     NSUUID *entityUUID = [NSUUID createUUID];
     [self.testMOC markAsUIContext];
-    [self.testMOC performGroupedBlockAndWaitWithReasonableTimeout:^{
+    [self.testMOC performGroupedBlockThenWaitForReasonableTimeout:^{
         MockEntity *mockEntity = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
         mockEntity.testUUID = entityUUID;
         mockEntity.field = 99;
@@ -338,7 +338,7 @@
 
     // when
     __block NSSet *keysWithLocalModifications;
-    [self.alternativeTestMOC performGroupedBlockAndWaitWithReasonableTimeout:^{
+    [self.alternativeTestMOC performGroupedBlockThenWaitForReasonableTimeout:^{
         MockEntity *fetchedEntity = [self mockEntityWithUUID:entityUUID inMoc:self.alternativeTestMOC];
         keysWithLocalModifications = fetchedEntity.keysThatHaveLocalModifications;
     }];
@@ -396,7 +396,7 @@
     // given
     [self.testMOC markAsUIContext];
     __block MockEntity *mockEntity;
-    [self.testMOC performGroupedBlockAndWaitWithReasonableTimeout:^{
+    [self.testMOC performGroupedBlockThenWaitForReasonableTimeout:^{
         mockEntity = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
         mockEntity.testUUID = [NSUUID createUUID];
         mockEntity.field = 5;
@@ -409,7 +409,7 @@
     // when
     NSSet *keysToReset = [NSSet setWithObjects:@"field2", @"testUUID_data", @"bogus_unknown_attr", nil];
     __block NSSet *keysWithLocalModifications;
-    [self.testMOC performGroupedBlockAndWaitWithReasonableTimeout:^{
+    [self.testMOC performGroupedBlockThenWaitForReasonableTimeout:^{
         [mockEntity resetLocallyModifiedKeys:keysToReset];
         keysWithLocalModifications = mockEntity.keysThatHaveLocalModifications;
     }];
@@ -427,7 +427,7 @@
     __block MockEntity *mockEntity;
     __block MockEntity *otherMockEntity1;
     __block MockEntity *otherMockEntity2;
-    [self.testMOC performGroupedBlockAndWaitWithReasonableTimeout:^{
+    [self.testMOC performGroupedBlockThenWaitForReasonableTimeout:^{
         mockEntity = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
         otherMockEntity1 = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
         otherMockEntity2 = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
@@ -435,7 +435,7 @@
     
     // when
     __block NSSet *keysWithLocalModifications;
-    [self.testMOC performGroupedBlockAndWaitWithReasonableTimeout:^{
+    [self.testMOC performGroupedBlockThenWaitForReasonableTimeout:^{
         mockEntity.field = 2;
         mockEntity.field2 = @"Joe Doe";
         [mockEntity.mockEntities addObjectsFromArray:@[otherMockEntity1, otherMockEntity2]];
@@ -454,47 +454,20 @@
     __block MockEntity *entity1;
     __block MockEntity *entity2;
     __block MockEntity *entity3;
-    [self.testMOC performGroupedBlockAndWaitWithReasonableTimeout:^{
+    [self.testMOC performGroupedBlockThenWaitForReasonableTimeout:^{
         entity1 = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
         entity2 = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
         entity3 = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
     }];
-    
-    id mockUserSession = [OCMockObject mockForProtocol:@protocol(ZMManagedObjectContextProvider)];
-    [[[(id)mockUserSession stub] andReturn:self.testMOC] managedObjectContext];
-    
+
     // when
-    NSManagedObjectID *fetchedID = [MockEntity objectIDForURIRepresentation:entity2.objectID.URIRepresentation inUserSession:mockUserSession];
+    NSManagedObjectID *fetchedID = [MockEntity objectIDForURIRepresentation:entity2.objectID.URIRepresentation inManagedObjectContext:self.testMOC];
     
     // then
     XCTAssertNotEqualObjects(entity1.objectID, fetchedID);
     XCTAssertEqualObjects(entity2.objectID, fetchedID);
     XCTAssertNotEqualObjects(entity3.objectID, fetchedID);
     
-}
-
-- (void)testExistingObjectWithID
-{
-    // given
-    __block MockEntity *entity1;
-    __block MockEntity *entity2;
-    __block MockEntity *entity3;
-    [self.testMOC performGroupedBlockAndWaitWithReasonableTimeout:^{
-        entity1 = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
-        entity2 = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
-        entity3 = [MockEntity insertNewObjectInManagedObjectContext:self.testMOC];
-    }];
-    
-    id mockUserSession = [OCMockObject mockForProtocol:@protocol(ZMManagedObjectContextProvider)];
-    [[[(id)mockUserSession stub] andReturn:self.testMOC] managedObjectContext];
-    
-    // when
-    MockEntity *fetchedEntity = [MockEntity existingObjectWithID:entity2.objectID inUserSession:mockUserSession];
-    
-    // then
-    XCTAssertNotEqualObjects(entity1, fetchedEntity);
-    XCTAssertEqualObjects(entity2, fetchedEntity);
-    XCTAssertNotEqualObjects(entity3, fetchedEntity);
 }
 
 - (MockEntity *)mockEntityWithUUID:(NSUUID *)UUID inMoc:(NSManagedObjectContext *)moc
@@ -562,14 +535,11 @@
 - (void)testThatItReturnsAnObjectForANonpersistedObjectIdentifier
 {
     // given
-    id mockUserSession = [OCMockObject mockForProtocol:@protocol(ZMManagedObjectContextProvider)];
-    [[[(id)mockUserSession stub] andReturn:self.uiMOC] managedObjectContext];
-    
     ZMConversation *mo = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     NSString *identifier = [[mo nonpersistedObjectIdentifer] copy];
     
     // when
-    ZMConversation *mo2 = (id)[ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:identifier inUserSession:mockUserSession];
+    ZMConversation *mo2 = (id)[ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:identifier inUserSession:self.coreDataStack];
     
     // then
     XCTAssertEqual(mo, mo2);
@@ -578,15 +548,12 @@
 - (void)testThatItReturnsAnObjectForANonpersistedObjectIdentifierAfterASave
 {
     // given
-    id mockUserSession = [OCMockObject mockForProtocol:@protocol(ZMManagedObjectContextProvider)];
-    [[[(id)mockUserSession stub] andReturn:self.uiMOC] managedObjectContext];
-    
     ZMConversation *mo = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     NSString *identifier = [[mo nonpersistedObjectIdentifer] copy];
     
     // when
     XCTAssert([self.uiMOC saveOrRollback]);
-    ZMConversation *mo2 = (id)[ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:identifier inUserSession:mockUserSession];
+    ZMConversation *mo2 = (id)[ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:identifier inUserSession:self.coreDataStack];
     
     // then
     XCTAssertEqual(mo, mo2);
@@ -595,21 +562,17 @@
 - (void)testThatItReturnsNilForANilIdentifier;
 {
     // given
-    id mockUserSession = [OCMockObject mockForProtocol:@protocol(ZMManagedObjectContextProvider)];
-    [[[(id)mockUserSession stub] andReturn:self.uiMOC] managedObjectContext];
     id objectIdentifier = nil;
     
     // then
     [self performIgnoringZMLogError:^{
-        XCTAssertNil([ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:objectIdentifier inUserSession:mockUserSession]);
+        XCTAssertNil([ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:objectIdentifier inUserSession:self.coreDataStack]);
     }];
 }
 
 - (void)testThatItReturnsNilForANonExistingIdentifier;
 {
     // given
-    id mockUserSession = [OCMockObject mockForProtocol:@protocol(ZMManagedObjectContextProvider)];
-    [[[(id)mockUserSession stub] andReturn:self.uiMOC] managedObjectContext];
     __block NSString *identifier;
     [self.syncMOC performGroupedBlockAndWait:^{
         ZMConversation *mo = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
@@ -617,18 +580,13 @@
     }];
     
     // then
-    XCTAssertNil([ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:identifier inUserSession:mockUserSession]);
+    XCTAssertNil([ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:identifier inUserSession:self.coreDataStack]);
 }
 
 - (void)testThatItReturnsNilForAnInvalidExistingIdentifier;
 {
-    // given
-    id mockUserSession = [OCMockObject mockForProtocol:@protocol(ZMManagedObjectContextProvider)];
-    [[[(id)mockUserSession stub] andReturn:self.uiMOC] managedObjectContext];
-    
-    // then
-    XCTAssertNil([ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:@"foo" inUserSession:mockUserSession]);
-    XCTAssertNil([ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:@"Zfoo" inUserSession:mockUserSession]);
+    XCTAssertNil([ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:@"foo" inUserSession:self.coreDataStack]);
+    XCTAssertNil([ZMManagedObject existingObjectWithNonpersistedObjectIdentifer:@"Zfoo" inUserSession:self.coreDataStack]);
 }
 
 - (void)testPerformanceRetrievingLocallyModifiedKeys;

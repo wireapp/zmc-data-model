@@ -56,13 +56,6 @@
     self.lastReceivedNotification = notification;
 }
 
-- (id)mockUserSessionWithUIMOC;
-{
-    id userSession = [OCMockObject mockForProtocol:@protocol(ZMManagedObjectContextProvider)];
-    [[[userSession stub] andReturn:self.uiMOC] managedObjectContext];
-    return userSession;
-}
-
 - (ZMUser *)createUser
 {
     return [self createUserOnMoc:self.uiMOC];
@@ -896,11 +889,17 @@
 - (void)testThatGroupConversationInTeamWithOnlyTwoParticipantsIsConsideredOneToOne
 {
     // given
-    ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.conversationType = ZMConversationTypeGroup;
     conversation.teamRemoteIdentifier = [NSUUID createUUID];
+
+    ZMUser *selfUser = [ZMUser selfUserInContext:self.uiMOC];
+    [conversation addParticipantAndUpdateConversationStateWithUser:selfUser role:nil];
+
+    ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     [conversation addParticipantAndUpdateConversationStateWithUser:user1 role:nil];
+
+    XCTAssertEqual(conversation.localParticipants.count, 2);
     
     // then
     XCTAssertEqual(conversation.conversationType, ZMConversationTypeOneOnOne);
@@ -909,27 +908,39 @@
 - (void)testThatGroupConversationInTeamWithOnlyBotIsConsideredGroup
 {
     // given
-    ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    user1.providerIdentifier = [[NSUUID createUUID] transportString];
-    user1.serviceIdentifier = [[NSUUID createUUID] transportString];
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.conversationType = ZMConversationTypeGroup;
     conversation.teamRemoteIdentifier = [NSUUID createUUID];
+
+    ZMUser *selfUser = [ZMUser selfUserInContext:self.uiMOC];
+    [conversation addParticipantAndUpdateConversationStateWithUser:selfUser role:nil];
+
+    ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
+    user1.providerIdentifier = [[NSUUID createUUID] transportString];
+    user1.serviceIdentifier = [[NSUUID createUUID] transportString];
     [conversation addParticipantAndUpdateConversationStateWithUser:user1 role:nil];
+
+    XCTAssertEqual(conversation.localParticipants.count, 2);
     
     // then
-    XCTAssertEqual(conversation.conversationType, ZMConversationTypeGroup);
+    XCTAssertEqual(conversation.conversationType, ZMConversationTypeOneOnOne);
 }
 
 - (void)testThatGroupConversationWithNameInTeamWithOnlyTwoParticipantsIsNotConsideredOneToOne
 {
     // given
-    ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.conversationType = ZMConversationTypeGroup;
     conversation.userDefinedName = @"Some conversation";
     conversation.teamRemoteIdentifier = [NSUUID createUUID];
+
+    ZMUser *selfUser = [ZMUser selfUserInContext:self.uiMOC];
+    [conversation addParticipantAndUpdateConversationStateWithUser:selfUser role:nil];
+
+    ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     [conversation addParticipantAndUpdateConversationStateWithUser:user1 role:nil];
+
+    XCTAssertEqual(conversation.localParticipants.count, 2);
     
     // then
     XCTAssertEqual(conversation.conversationType, ZMConversationTypeGroup);
@@ -938,12 +949,18 @@
 - (void)testThatGroupConversationInTeamWithMoreThanTwoParticipantsIsNotConsideredOneToOne
 {
     // given
-    ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
-    ZMUser *user2 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.conversationType = ZMConversationTypeGroup;
     conversation.teamRemoteIdentifier = [NSUUID createUUID];
+
+    ZMUser *selfUser = [ZMUser selfUserInContext:self.uiMOC];
+    [conversation addParticipantAndUpdateConversationStateWithUser:selfUser role:nil];
+
+    ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMUser *user2 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     [conversation addParticipantsAndUpdateConversationStateWithUsers:[NSSet setWithObjects:user1, user2, nil] role:nil];
+
+    XCTAssertTrue(conversation.localParticipants.count > 2);
     
     // then
     XCTAssertEqual(conversation.conversationType, ZMConversationTypeGroup);
@@ -952,10 +969,16 @@
 - (void)testThatGroupConversationInPersonalSpaceWithOnlyTwoParticipantsIsNotConsideredOneToOne
 {
     // given
-    ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.conversationType = ZMConversationTypeGroup;
+
+    ZMUser *selfUser = [ZMUser selfUserInContext:self.uiMOC];
+    [conversation addParticipantAndUpdateConversationStateWithUser:selfUser role:nil];
+
+    ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     [conversation addParticipantAndUpdateConversationStateWithUser:user1 role:nil];
+
+    XCTAssertEqual(conversation.localParticipants.count, 2);
     
     // then
     XCTAssertEqual(conversation.conversationType, ZMConversationTypeGroup);
@@ -964,24 +987,37 @@
 - (void)testThatOneToOneConversationInTeamReturnsAConnectedUser
 {
     // given
-    ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.conversationType = ZMConversationTypeGroup;
     conversation.teamRemoteIdentifier = [NSUUID createUUID];
+
+    ZMUser *selfUser = [ZMUser selfUserInContext:self.uiMOC];
+    [conversation addParticipantAndUpdateConversationStateWithUser:selfUser role:nil];
+
+    ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     [conversation addParticipantAndUpdateConversationStateWithUser:user1 role:nil];
-    
+
+    XCTAssertEqual(conversation.conversationType, ZMConversationTypeOneOnOne);
+
     // then
+    XCTAssertNotNil(conversation.connectedUser);
     XCTAssertEqual(conversation.connectedUser, user1);
 }
 
 - (void)testThatGroupConversationWithOnlyTwoParticipantsDoesNotReturnAConnectedUser
 {
     // given
-    ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
     conversation.conversationType = ZMConversationTypeGroup;
+
+    ZMUser *selfUser = [ZMUser selfUserInContext:self.uiMOC];
+    [conversation addParticipantAndUpdateConversationStateWithUser:selfUser role:nil];
+
+    ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
     [conversation addParticipantAndUpdateConversationStateWithUser:user1 role:nil];
-    
+
+    XCTAssertEqual(conversation.localParticipants.count, 2);
+
     // then
     XCTAssertNil(conversation.connectedUser);
 }
@@ -1166,7 +1202,7 @@
     NOT_USED(SomeOtherConversation);
     
     // when
-    ZMConversation *fetchedConversation = [ZMConversation existingOneOnOneConversationWithUser:user inUserSession:self.mockUserSessionWithUIMOC];
+    ZMConversation *fetchedConversation = [ZMConversation existingOneOnOneConversationWithUser:user inUserSession:self.coreDataStack];
     
     // then
     XCTAssertNil(fetchedConversation);
@@ -1184,7 +1220,7 @@
     connection.conversation = connectionConversation;
     
     // when
-    ZMConversation *fetchedConversation = [ZMConversation existingOneOnOneConversationWithUser:user inUserSession:self.mockUserSessionWithUIMOC];
+    ZMConversation *fetchedConversation = [ZMConversation existingOneOnOneConversationWithUser:user inUserSession:self.coreDataStack];
 
     // then
     XCTAssertEqual(fetchedConversation, connectionConversation);
@@ -2028,9 +2064,9 @@
     ZMConversation *conversation = [self insertConversationWithParticipants:users];
     [conversation appendMessageWithText:@"0"];
     
-    ZMConversationList *activeList = [ZMConversationList conversationsInUserSession:self.mockUserSessionWithUIMOC];
-    ZMConversationList *archivedList = [ZMConversationList archivedConversationsInUserSession:self.mockUserSessionWithUIMOC];
-    ZMConversationList *clearedList = [ZMConversationList clearedConversationsInUserSession:self.mockUserSessionWithUIMOC];
+    ZMConversationList *activeList = [ZMConversationList conversationsInUserSession:self.coreDataStack];
+    ZMConversationList *archivedList = [ZMConversationList archivedConversationsInUserSession:self.coreDataStack];
+    ZMConversationList *clearedList = [ZMConversationList clearedConversationsInUserSession:self.coreDataStack];
     
     // when
     [conversation removeParticipantAndUpdateConversationStateWithUser:selfUser initiatingUser:nil];
@@ -2279,37 +2315,6 @@
 }
 
 #pragma mark - Knocking
-
-- (ZMConversation *)createConversationWithMessages;
-{
-    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
-    conversation.remoteIdentifier = NSUUID.createUUID;
-    for (NSString *text in @[@"A", @"B", @"C", @"D", @"E"]) {
-        [conversation appendMessageWithText:text];
-    }
-    XCTAssert([self.syncMOC saveOrRollback]);
-    return conversation;
-}
-
-- (void)testThatItCanInsertAKnock;
-{
-    [self.syncMOC performGroupedBlockAndWait:^{
-        
-        // given
-        ZMConversation *conversation = [self createConversationWithMessages];
-        ZMUser *selfUser = [ZMUser selfUserInContext:self.syncMOC];
-        
-        // when
-        id<ZMConversationMessage> knock = [conversation appendKnock];
-        id<ZMConversationMessage> msg = conversation.lastMessage;
-        
-        // then
-        XCTAssertEqual(knock, msg);
-        XCTAssertNotNil(knock.knockMessageData);
-        XCTAssertEqual(knock.sender, selfUser);
-    }];
-
-}
 
 - (void)waitForInterval:(NSTimeInterval)interval {
     [self spinMainQueueWithTimeout:interval];

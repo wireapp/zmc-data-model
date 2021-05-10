@@ -90,7 +90,8 @@ extension ZMSystemMessage {
 
     public class override var observableKeys : Set<String> {
         let keys = super.observableKeys
-        let additionalKeys = [#keyPath(ZMSystemMessage.childMessages)]
+        let additionalKeys = [#keyPath(ZMSystemMessage.childMessages),
+                              #keyPath(ZMSystemMessage.systemMessageType)]
         return keys.union(additionalKeys)
     }
 
@@ -103,14 +104,7 @@ extension ZMSystemMessage {
     static let ButtonStateChangeInfoKey = "buttonStateChanges"
     
     static func changeInfo(for message: ZMMessage, changes: Changes) -> MessageChangeInfo? {
-        let originalChanges = changes.originalChanges
-        
-        guard originalChanges.count > 0 || changes.changedKeys.count > 0 else { return nil }
-        
-        let changeInfo = MessageChangeInfo(object: message)
-        changeInfo.changeInfos = originalChanges
-        changeInfo.changedKeys = changes.changedKeys
-        return changeInfo
+        return MessageChangeInfo(object: message, changes: changes)
     }
     
     

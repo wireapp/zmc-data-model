@@ -191,7 +191,7 @@ extension ZMUserTests_Swift {
             // GIVEN
             let predicate = ZMUser.previewImageDownloadFilter
             let user = ZMUser(remoteID: UUID.create(), createIfNeeded: true, in: self.syncMOC)
-            user?.previewProfileAssetIdentifier = "some identifier"
+            user?.previewProfileAssetIdentifier = "some-identifier"
             
             // THEN
             XCTAssert(predicate.evaluate(with: user))
@@ -203,7 +203,7 @@ extension ZMUserTests_Swift {
             // GIVEN
             let predicate = ZMUser.completeImageDownloadFilter
             let user = ZMUser(remoteID: UUID.create(), createIfNeeded: true, in: self.syncMOC)
-            user?.completeProfileAssetIdentifier = "some identifier"
+            user?.completeProfileAssetIdentifier = "some-identifier"
             user?.setImage(data: nil, size: .complete)
             
             // THEN
@@ -219,6 +219,19 @@ extension ZMUserTests_Swift {
             user?.completeProfileAssetIdentifier = nil
             user?.setImage(data: "foo".data(using: .utf8), size: .complete)
             
+            // THEN
+            XCTAssertFalse(predicate.evaluate(with: user))
+        }
+    }
+
+    func testThatCompleteImageDownloadFilterDoesNotPickUpUsersWithInvalidAssetId() {
+        syncMOC.performGroupedBlockAndWait {
+            // GIVEN
+            let predicate = ZMUser.completeImageDownloadFilter
+            let user = ZMUser(remoteID: UUID.create(), createIfNeeded: true, in: self.syncMOC)
+            user?.completeProfileAssetIdentifier = "not+valid+id"
+            user?.setImage(data: "foo".data(using: .utf8), size: .complete)
+
             // THEN
             XCTAssertFalse(predicate.evaluate(with: user))
         }

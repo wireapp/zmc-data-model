@@ -20,6 +20,18 @@ import Foundation
 import WireProtos
 
 extension ZMConversation {
+        
+    func sortedUsers(_ users: Set<ZMUser>) -> [ZMUser] {
+        let nameDescriptor = NSSortDescriptor(key: "normalizedName", ascending: true)
+        let sortedUser = (users as NSSet?)?.sortedArray(using: [nameDescriptor]) as? [ZMUser]
+
+        return sortedUser ?? []
+    }
+    
+    @objc public var sortedActiveParticipants: [ZMUser] {
+        return sortedUsers(localParticipants)
+    }
+
     
     /// Whether the roles defined for this conversation should be re-downloaded
     @NSManaged public var needsToDownloadRoles: Bool
@@ -161,7 +173,7 @@ extension ZMConversation {
         
         if !addedRoles.isEmpty {
             self.checkIfArchivedStatusChanged(addedSelfUser: addedSelfUser)
-            self.checkIfVerificationLevelChanged(addedUsers: Set(addedRoles.map { $0.user}))
+            self.checkIfVerificationLevelChanged(addedUsers: Set(addedRoles.map { $0.user}),  addedSelfUser: addedSelfUser)
         }
     }
 
@@ -204,8 +216,13 @@ extension ZMConversation {
         }
     }
     
-    private func checkIfVerificationLevelChanged(addedUsers: Set<ZMUser>) {
-        self.decreaseSecurityLevelIfNeededAfterDiscovering(clients: Set(addedUsers.flatMap { $0.clients }), causedBy: addedUsers)
+    private func checkIfVerificationLevelChanged(addedUsers: Set<ZMUser>, addedSelfUser: Bool) {
+        let clients = Set(addedUsers.flatMap { $0.clients })
+        self.decreaseSecurityLevelIfNeededAfterDiscovering(clients: clients, causedBy: addedUsers)
+
+        if addedSelfUser {
+            self.increaseSecurityLevelIfNeededAfterTrusting(clients: clients)
+        }
     }
     
     /// Remove participants to the conversation. The method will decide on its own whether
