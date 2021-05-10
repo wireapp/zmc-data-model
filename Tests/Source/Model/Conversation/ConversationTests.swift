@@ -61,7 +61,7 @@ final class ConversationTests: ZMConversationTestsBase {
         XCTAssertEqual(result.first as? ZMConversation, conversation)
     }
 
-    func testThatItFindsConversationByUserDefinedNameWithpunctuationCharacter() {
+    func testThatItFindsConversationByUserDefinedNameWithPunctuationCharacter() {
         // given
         let conversation = insertMockGroupConversation(userDefinedName: "[Feature] [9:30]")
 
