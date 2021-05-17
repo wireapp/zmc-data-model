@@ -117,12 +117,7 @@ extension ZMMessageTests_SystemMessages {
         // given
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
         conversation.remoteIdentifier = UUID()
-        if (updateEventType != ZMUpdateEventType.conversationConnectRequest) {
-            conversation.conversationType = ZMConversationType.group
-        }
-        else {
-            conversation.conversationType = ZMConversationType.connection
-        }
+       conversation.conversationType = updateEventType == .conversationConnectRequest ? .connection : .group
 
         conversation.remoteIdentifier = NSUUID.create()
         let userID1 = UUID()
