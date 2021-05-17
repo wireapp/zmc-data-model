@@ -90,7 +90,7 @@ extension ZMMessageTests_SystemMessages {
                                                        reason: nil)
     }
 
-    private func createSystemMessageFrom(updateEventType: ZMUpdateEventType, in conversation:ZMConversation, with usersIDs:[UUID], senderID: UUID?, reason: ZMParticipantsRemovedReason?) -> ZMSystemMessage? {
+    private func createSystemMessageFrom(updateEventType: ZMUpdateEventType, in conversation:ZMConversation, with usersIDs:[UUID], senderID: UUID?, reason: ParticipantsRemovedReason?) -> ZMSystemMessage? {
 
         var data = ["user_ids": usersIDs.map { $0.transportString() }] as [String : Any]
         if reason != nil {
@@ -111,7 +111,7 @@ extension ZMMessageTests_SystemMessages {
 
     private func checkThatUpdateEventTypeGeneratesSystemMessage(updateEventType: ZMUpdateEventType,
                                                                 systemMessageType:ZMSystemMessageType,
-                                                                reason: ZMParticipantsRemovedReason?) {
+                                                                reason: ParticipantsRemovedReason?) {
 
         // given
         let conversation = ZMConversation.insertNewObject(in: uiMOC)
