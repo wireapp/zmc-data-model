@@ -51,6 +51,6 @@ extension ZMUpdateEvent {
               let reasonString = dataPayload["reason"] as? String else {
             return ParticipantsRemovedReason.none
         }
-        return ParticipantsRemovedReason(string: reasonString)
+        return ParticipantsRemovedReason(reasonString)
     }
 }
