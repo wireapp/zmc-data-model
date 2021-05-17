@@ -34,7 +34,7 @@ extension ZMSystemMessage {
             self.willAccessValue(forKey: key)
             let raw = (self.primitiveValue(forKey: key) as? NSNumber) ?? 0
             self.didAccessValue(forKey: key)
-            return ParticipantsRemovedReason(rawValue: raw.int16Value)!
+            return ParticipantsRemovedReason(rawValue: raw.int16Value) ?? .none
         }
     }
 
