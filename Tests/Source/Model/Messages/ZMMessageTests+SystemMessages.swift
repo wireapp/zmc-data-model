@@ -93,9 +93,8 @@ extension ZMMessageTests_SystemMessages {
     private func createSystemMessageFrom(updateEventType: ZMUpdateEventType, in conversation:ZMConversation, with usersIDs:[UUID], senderID: UUID?, reason: ZMParticipantsRemovedReason?) -> ZMSystemMessage? {
 
         var data = ["user_ids": usersIDs.map { $0.transportString() }] as [String : Any]
-        if reason != nil,
-           let string = reason?.stringValue {
-            data["reason"] = string
+        if reason != nil {
+            data["reason"] = reason?.stringValue
         }
         let payload = self.payloadForMessage(
             in: conversation,
@@ -103,7 +102,7 @@ extension ZMMessageTests_SystemMessages {
             data: data
         )
         let event = ZMUpdateEvent(fromEventStreamPayload: payload, uuid: nil)!
-        var result: ZMSystemMessage! = nil
+        var result: ZMSystemMessage?
         self.performPretendingUiMocIsSyncMoc() {
             result = ZMSystemMessage.createOrUpdate(from: event, in: self.uiMOC, prefetchResult: nil)
         }
@@ -151,9 +150,7 @@ extension ZMMessageTests_SystemMessages {
 
         XCTAssertNotNil(user1)
         XCTAssertNotNil(user2)
-        guard let _ = conversation.lastMessage as? ZMSystemMessage else {
-            return XCTFail()
-        }
+        XCTAssertTrue(conversation.lastMessage is ZMSystemMessage)
     }
 
 }
