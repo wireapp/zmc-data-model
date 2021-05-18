@@ -46,7 +46,7 @@ extension ZMUpdateEvent {
         return userIds.compactMap({ UUID.init(uuidString: $0)})
     }
 
-    var participantsRemovedReason: ParticipantsRemovedReason {
+    public var participantsRemovedReason: ParticipantsRemovedReason {
         guard let dataPayload = (payload as NSDictionary).dictionary(forKey: "data"),
               let reasonString = dataPayload["reason"] as? String else {
             return ParticipantsRemovedReason.none
