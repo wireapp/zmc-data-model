@@ -19,7 +19,7 @@
 import Foundation
 
 extension ZMParticipantsRemovedReason {
-    var stringValue: String? {
+    public var stringValue: String? {
         switch self {
         case .none:
             return nil
