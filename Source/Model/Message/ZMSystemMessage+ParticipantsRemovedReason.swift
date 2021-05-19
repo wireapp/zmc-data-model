@@ -18,11 +18,29 @@
 
 import Foundation
 
+extension ZMParticipantsRemovedReason {
+    var stringValue: String? {
+        switch self {
+        case .none:
+            return nil
+        case .legalHoldPolicyConflict:
+            return "legalhold-policy-conflict"
+        @unknown default:
+            return nil
+        }
+    }
+
+    init(_ string: String) {
+        let allCases: [ZMParticipantsRemovedReason] = [.none, .legalHoldPolicyConflict]
+        self = allCases.first(where: { $0.stringValue == string }) ?? .none
+    }
+}
+
 extension ZMSystemMessage {
 
     @objc public static let participantsRemovedReasonKey = "participantsRemovedReason"
 
-    @objc public var participantsRemovedReason: ParticipantsRemovedReason {
+    @objc public var participantsRemovedReason: ZMParticipantsRemovedReason {
         set {
             let key = #keyPath(ZMSystemMessage.participantsRemovedReasonKey)
             self.willChangeValue(forKey: key)
@@ -34,7 +52,7 @@ extension ZMSystemMessage {
             self.willAccessValue(forKey: key)
             let raw = (self.primitiveValue(forKey: key) as? NSNumber) ?? 0
             self.didAccessValue(forKey: key)
-            return ParticipantsRemovedReason(rawValue: raw.int16Value) ?? .none
+            return ZMParticipantsRemovedReason(rawValue: raw.int16Value) ?? .none
         }
     }
 

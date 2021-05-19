@@ -92,7 +92,11 @@ typedef NS_ENUM(int16_t, ZMSystemMessageType) {
     ZMSystemMessageTypeDecryptionFailedResolved,
 };
 
-
+typedef NS_ENUM(int16_t, ZMParticipantsRemovedReason) {
+    ZMParticipantsRemovedReasonNone = 0,
+    /// Users don't want / support LH
+    ZMParticipantsRemovedReasonLegalHoldPolicyConflict = 1,
+};
 
 @protocol ZMTextMessageData <NSObject>
 
