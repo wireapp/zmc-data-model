@@ -525,7 +525,7 @@ extension UserClientTests {
         let selfClient = createSelfClient()
 
         // when
-        UserClient.updateCapabilities(self.uiMOC)
+        UserClient.triggerSelfClientCapabilityUpdate(self.uiMOC)
 
         // then
         XCTAssertTrue(selfClient.needsToUpdateCapabilities)

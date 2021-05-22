@@ -755,10 +755,10 @@ extension UserClient {
 
 }
 
-// MARK: - Capabilities
+// MARK: - Update SelfClient Capability
 extension UserClient {
 
-    public static func updateCapabilities(_ context: NSManagedObjectContext) {
+    public static func triggerSelfClientCapabilityUpdate(_ context: NSManagedObjectContext) {
         guard let selfClient = ZMUser.selfUser(in: context).selfClient() else { return }
 
         selfClient.needsToUpdateCapabilities = true
