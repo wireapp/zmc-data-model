@@ -221,6 +221,9 @@ public protocol UserConnections {
     
     ///  Whether the user has been blocked by the self user
     var isBlocked: Bool { get }
+
+    ///  Whether the user has been forced blocked due to missing legal hold consent
+    var isMissingLegalholdConsent: Bool { get }
     
     ///  Whether the user has ignored an incoming connection request from this user.
     var isIgnored: Bool { get }

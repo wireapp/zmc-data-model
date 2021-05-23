@@ -98,6 +98,7 @@ extern NSString * _Nonnull const ZMPersistedClientIdKey;
 @interface ZMUser (Connections)
 
 @property (nonatomic, readonly) BOOL isBlocked;
+@property (nonatomic, readonly) BOOL isMissingLegalholdConsent;
 @property (nonatomic, readonly) BOOL isIgnored;
 @property (nonatomic, readonly) BOOL isPendingApprovalBySelfUser;
 @property (nonatomic, readonly) BOOL isPendingApprovalByOtherUser;
