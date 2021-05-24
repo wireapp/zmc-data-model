@@ -1319,6 +1319,7 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     XCTAssertTrue(user.isConnected);
     
     XCTAssertFalse(user.isBlocked);
+    XCTAssertFalse(user.isMissingLegalholdConsent);
     XCTAssertFalse(user.isIgnored);
     XCTAssertFalse(user.isPendingApprovalByOtherUser);
     XCTAssertFalse(user.isPendingApprovalBySelfUser);
@@ -1338,6 +1339,7 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     
     XCTAssertFalse(user.isConnected);
     XCTAssertFalse(user.isBlocked);
+    XCTAssertFalse(user.isMissingLegalholdConsent);
     XCTAssertFalse(user.isPendingApprovalByOtherUser);
     XCTAssertTrue(user.isPendingApprovalBySelfUser);
     XCTAssertTrue(user.canBeConnected);
@@ -1362,6 +1364,24 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     XCTAssertTrue(user.canBeConnected);
 }
 
+- (void)testThatIsMissingLegalholdConsentIsTrue_WhenThereIsABlockedConnectionDueToMissingLegalholdConsent
+{
+    // given
+    ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMConnection *connection = [ZMConnection insertNewObjectInManagedObjectContext:self.uiMOC];
+    connection.status = ZMConnectionStatusBlockedMissingLegalholdConsent;
+    connection.to = user;
+
+    // then
+    XCTAssertTrue(user.isMissingLegalholdConsent);
+    XCTAssertTrue(user.isBlocked);
+
+    XCTAssertFalse(user.isConnected);
+    XCTAssertFalse(user.isIgnored);
+    XCTAssertFalse(user.isPendingApprovalByOtherUser);
+    XCTAssertFalse(user.isPendingApprovalBySelfUser);
+    XCTAssertTrue(user.canBeConnected);
+}
 
 - (void)testThatIsPendingBySelfUserIsTrueWhenThereIsAPendingConnection
 {
@@ -1376,6 +1396,7 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     
     XCTAssertFalse(user.isConnected);
     XCTAssertFalse(user.isBlocked);
+    XCTAssertFalse(user.isMissingLegalholdConsent);
     XCTAssertFalse(user.isIgnored);
     XCTAssertFalse(user.isPendingApprovalByOtherUser);
     XCTAssertTrue(user.canBeConnected);
@@ -1395,6 +1416,7 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     
     XCTAssertFalse(user.isConnected);
     XCTAssertFalse(user.isBlocked);
+    XCTAssertFalse(user.isMissingLegalholdConsent);
     XCTAssertFalse(user.isIgnored);
     XCTAssertFalse(user.isPendingApprovalBySelfUser);
     XCTAssertFalse(user.canBeConnected);
@@ -1410,6 +1432,7 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     XCTAssertFalse(user.isPendingApprovalBySelfUser);
     XCTAssertFalse(user.isConnected);
     XCTAssertFalse(user.isBlocked);
+    XCTAssertFalse(user.isMissingLegalholdConsent);
     XCTAssertFalse(user.isIgnored);
     XCTAssertFalse(user.isPendingApprovalByOtherUser);
     
@@ -1425,6 +1448,7 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     // then
     XCTAssertFalse(user.isConnected);
     XCTAssertFalse(user.isBlocked);
+    XCTAssertFalse(user.isMissingLegalholdConsent);
     XCTAssertFalse(user.isIgnored);
     XCTAssertFalse(user.isPendingApprovalByOtherUser);
     XCTAssertFalse(user.isPendingApprovalBySelfUser);
@@ -2384,6 +2408,28 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     connection.status = ZMConnectionStatusBlocked;
 
     // then
+    XCTAssertTrue(user1.isBlocked);
+    XCTAssert([self waitForCustomExpectationsWithTimeout:0.5]);
+}
+
+- (void)testThatItRecalculatesisMissingLegalholdConsentWhenConnectionChanges
+{
+    // given
+    ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMConnection *connection = [ZMConnection insertNewObjectInManagedObjectContext:self.uiMOC];
+    connection.status = ZMConnectionStatusAccepted;
+    connection.to = user1;
+
+    XCTAssertFalse(user1.isMissingLegalholdConsent);
+    // expect
+
+    [self keyValueObservingExpectationForObject:user1 keyPath:@"isMissingLegalholdConsent" expectedValue:nil];
+
+    // when
+    connection.status = ZMConnectionStatusBlockedMissingLegalholdConsent;
+
+    // then
+    XCTAssertTrue(user1.isMissingLegalholdConsent);
     XCTAssertTrue(user1.isBlocked);
     XCTAssert([self waitForCustomExpectationsWithTimeout:0.5]);
 }
