@@ -879,12 +879,12 @@ static NSString *const DomainKey = @"domain";
     return [NSSet setWithObjects:ConnectionKey, @"connection.status", nil];
 }
 
-- (BOOL)isMissingLegalholdConsent
+- (BOOL)consentsToLegalHoldExposure
 {
-    return self.connection != nil && self.connection.status == ZMConnectionStatusBlockedMissingLegalholdConsent;
+    return !(self.connection != nil && self.connection.status == ZMConnectionStatusBlockedMissingLegalholdConsent);
 }
 
-+ (NSSet *)keyPathsForValuesAffectingIsMissingLegalholdConsent
++ (NSSet *)keyPathsForValuesAffectingConsentsToLegalHoldExposure
 {
     return [NSSet setWithObjects:ConnectionKey, @"connection.status", nil];
 }
