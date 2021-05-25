@@ -292,11 +292,8 @@ public class ZMSearchUser: NSObject, UserType {
         return user?.isBlocked == true
     }
 
-    public var consentsToLegalHoldExposure: Bool {
-        guard let user = user else {
-            return false
-        }
-        return user.consentsToLegalHoldExposure
+    public var blockStateReason: ZMBlockStateReason {
+        user?.blockStateReason ?? .none
     }
 
     public var isExpired: Bool {

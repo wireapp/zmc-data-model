@@ -1300,12 +1300,12 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     return user.managedByWire ? ManagedByWire : ManagedByScim;
 }
 
-@end
-
-
-
-
-@implementation ZMUserTests (Connections)
+//@end
+//
+//
+//
+//
+//@implementation ZMUserTests (Connections)
 
 - (void)testThatIsConnectedIsTrueWhenThereIsAnAcceptedConnection
 {
@@ -1362,7 +1362,8 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     XCTAssertTrue(user.canBeConnected);
 }
 
-- (void)testThatConsentsToLegalHoldExposureIsFalse_WhenAConnectionStatusIsMissingLegalholdConsent
+//
+- (void)testBlockStateReasonValue_WhenAConnectionStatusIsMissingLegalholdConsent
 {
     // given
     ZMUser *user = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
@@ -1371,7 +1372,7 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     connection.to = user;
 
     // then
-    XCTAssertFalse(user.consentsToLegalHoldExposure);
+    XCTAssertEqual(user.blockStateReason, ZMBlockStateReasonBlockedMissingLegalholdConsent);
     XCTAssertTrue(user.isBlocked);
 
     XCTAssertFalse(user.isConnected);
@@ -1843,11 +1844,11 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     XCTAssertEqual(connection.status, ZMConnectionStatusIgnored);
 }
 
-@end
-
-
-
-@implementation ZMUserTests (Validation)
+//@end
+//
+//
+//
+//@implementation ZMUserTests (Validation)
 
 - (void)testThatItRejectsANameThatIsOnly1CharacterLong
 {
@@ -2379,11 +2380,11 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
 }
 
 
-@end
-
-
-
-@implementation ZMUserTests (KeyValueObserving)
+//@end
+//
+//
+//
+//@implementation ZMUserTests (KeyValueObserving)
 
 - (void)testThatItRecalculatesIsBlockedWhenConnectionChanges
 {
@@ -2406,7 +2407,7 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     XCTAssert([self waitForCustomExpectationsWithTimeout:0.5]);
 }
 
-- (void)testThatItRecalculatesConsentsToLegalHoldExposureWhenConnectionChanges
+- (void)testThatItRecalculatesBlockStateReasonExposureWhenConnectionChanges
 {
     // given
     ZMUser *user1 = [ZMUser insertNewObjectInManagedObjectContext:self.uiMOC];
@@ -2414,16 +2415,17 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     connection.status = ZMConnectionStatusAccepted;
     connection.to = user1;
 
-    XCTAssertTrue(user1.consentsToLegalHoldExposure);
+    XCTAssertEqual(user1.blockStateReason, ZMBlockStateReasonNone);
+
     // expect
 
-    [self keyValueObservingExpectationForObject:user1 keyPath:@"consentsToLegalHoldExposure" expectedValue:nil];
+    [self keyValueObservingExpectationForObject:user1 keyPath:@"blockStateReason" expectedValue:nil];
 
     // when
     connection.status = ZMConnectionStatusBlockedMissingLegalholdConsent;
 
     // then
-    XCTAssertFalse(user1.consentsToLegalHoldExposure);
+    XCTAssertEqual(user1.blockStateReason, ZMBlockStateReasonBlockedMissingLegalholdConsent);
     XCTAssertTrue(user1.isBlocked);
     XCTAssert([self waitForCustomExpectationsWithTimeout:0.5]);
 }
