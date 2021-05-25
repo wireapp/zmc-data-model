@@ -1300,12 +1300,12 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     return user.managedByWire ? ManagedByWire : ManagedByScim;
 }
 
-//@end
-//
-//
-//
-//
-//@implementation ZMUserTests (Connections)
+@end
+
+
+
+
+@implementation ZMUserTests (Connections)
 
 - (void)testThatIsConnectedIsTrueWhenThereIsAnAcceptedConnection
 {
@@ -1844,11 +1844,11 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     XCTAssertEqual(connection.status, ZMConnectionStatusIgnored);
 }
 
-//@end
-//
-//
-//
-//@implementation ZMUserTests (Validation)
+@end
+
+
+
+@implementation ZMUserTests (Validation)
 
 - (void)testThatItRejectsANameThatIsOnly1CharacterLong
 {
@@ -2380,11 +2380,11 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
 }
 
 
-//@end
-//
-//
-//
-//@implementation ZMUserTests (KeyValueObserving)
+@end
+
+
+
+@implementation ZMUserTests (KeyValueObserving)
 
 - (void)testThatItRecalculatesIsBlockedWhenConnectionChanges
 {
