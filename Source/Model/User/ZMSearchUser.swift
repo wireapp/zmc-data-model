@@ -292,8 +292,8 @@ public class ZMSearchUser: NSObject, UserType {
         return user?.isBlocked == true
     }
 
-    public var blockStateReason: ZMBlockStateReason {
-        user?.blockStateReason ?? .none
+    public var blockState: ZMBlockState {
+        user?.blockState ?? .none
     }
 
     public var isExpired: Bool {

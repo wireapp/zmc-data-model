@@ -1372,7 +1372,7 @@ static NSString *const ImageSmallProfileDataKey = @"imageSmallProfileData";
     connection.to = user;
 
     // then
-    XCTAssertEqual(user.blockStateReason, ZMBlockStateReasonBlockedMissingLegalholdConsent);
+    XCTAssertEqual(user.blockState, ZMBlockStateBlockedMissingLegalholdConsent);
     XCTAssertTrue(user.isBlocked);
 
     XCTAssertFalse(user.isConnected);
@@ -2415,7 +2415,7 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     connection.status = ZMConnectionStatusAccepted;
     connection.to = user1;
 
-    XCTAssertEqual(user1.blockStateReason, ZMBlockStateReasonNone);
+    XCTAssertEqual(user1.blockState, ZMBlockStateNone);
 
     // expect
 
@@ -2425,7 +2425,7 @@ static NSString * const domainValidCharactersLowercased = @"abcdefghijklmnopqrst
     connection.status = ZMConnectionStatusBlockedMissingLegalholdConsent;
 
     // then
-    XCTAssertEqual(user1.blockStateReason, ZMBlockStateReasonBlockedMissingLegalholdConsent);
+    XCTAssertEqual(user1.blockState, ZMBlockStateBlockedMissingLegalholdConsent);
     XCTAssertTrue(user1.isBlocked);
     XCTAssert([self waitForCustomExpectationsWithTimeout:0.5]);
 }

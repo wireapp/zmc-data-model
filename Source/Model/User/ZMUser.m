@@ -871,13 +871,7 @@ static NSString *const DomainKey = @"domain";
 
 - (BOOL)isBlocked
 {
-    switch (self.blockStateReason) {
-        case ZMBlockStateReasonBlocked:
-        case ZMBlockStateReasonBlockedMissingLegalholdConsent:
-            return YES;
-        case ZMBlockStateReasonNone:
-            return NO;
-    }
+    return self.blockState != ZMBlockStateNone;
 }
 
 + (NSSet *)keyPathsForValuesAffectingIsBlocked
@@ -885,18 +879,18 @@ static NSString *const DomainKey = @"domain";
     return [NSSet setWithObjects:ConnectionKey, @"connection.status", nil];
 }
 
-- (ZMBlockStateReason)blockStateReason
+- (ZMBlockState)blockState
 {
     if (self.connection == nil) {
-        return ZMBlockStateReasonNone;
+        return ZMBlockStateNone;
     }
     switch (self.connection.status) {
         case ZMConnectionStatusBlocked:
-            return ZMBlockStateReasonBlocked;
+            return ZMBlockStateBlocked;
         case ZMConnectionStatusBlockedMissingLegalholdConsent:
-            return ZMBlockStateReasonBlockedMissingLegalholdConsent;
+            return ZMBlockStateBlockedMissingLegalholdConsent;
         default:
-            return ZMBlockStateReasonNone;
+            return ZMBlockStateNone;
     }
 }
 
