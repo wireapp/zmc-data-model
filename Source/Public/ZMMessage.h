@@ -16,7 +16,6 @@
 // along with this program. If not, see http://www.gnu.org/licenses/.
 // 
 
-@import WireTransport;
 
 #import "ZMManagedObject.h"
 #import <CoreGraphics/CoreGraphics.h>
