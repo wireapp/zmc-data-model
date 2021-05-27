@@ -23,6 +23,8 @@
 #import "ZMMessage+Internal.h"
 #import "ZMConnection+Internal.h"
 
+@class ZMAssetClientMessage;
+
 @interface ZMConversationTestsBase : ModelObjectsTests
 
 @property(nonatomic) NSNotification * _Nullable lastReceivedNotification;
