@@ -318,7 +318,7 @@
 		A94A9A39266048D10049F3F6 /* WireTesting.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = A94A9A32266048880049F3F6 /* WireTesting.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		A94A9A43266049270049F3F6 /* OCMock.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = A94A9A3C266048F10049F3F6 /* OCMock.xcframework */; };
 		A94A9A44266049270049F3F6 /* OCMock.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = A94A9A3C266048F10049F3F6 /* OCMock.xcframework */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
-		A94A9A71266054920049F3F6 /* ZMMessageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F9B71F611CB2BC85001DB03F /* ZMMessageTests.m */; };
+		A94A9A7826605B7E0049F3F6 /* ZMMessageTests.m in Sources */ = {isa = PBXBuildFile; fileRef = F9B71F611CB2BC85001DB03F /* ZMMessageTests.m */; };
 		A9536FD323ACD23100CFD528 /* ConversationTests+gapsAndWindows.swift in Sources */ = {isa = PBXBuildFile; fileRef = A9536FD223ACD23100CFD528 /* ConversationTests+gapsAndWindows.swift */; };
 		A95E7BF5239134E600935B88 /* ZMConversation+Participants.swift in Sources */ = {isa = PBXBuildFile; fileRef = A95E7BF4239134E600935B88 /* ZMConversation+Participants.swift */; };
 		A96524BA23CDE07700303C60 /* String+WordTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A96524B823CDE07200303C60 /* String+WordTests.swift */; };
@@ -3480,6 +3480,7 @@
 				F9B71FA31CB2BF37001DB03F /* ZMConversationTests+gapsAndWindows.m in Sources */,
 				EE6A57DE25BAE40700F848DD /* MockBiometricsState.swift in Sources */,
 				F1517922212DAE2E00BA3EBD /* ZMConversationTests+Services.swift in Sources */,
+				A94A9A7826605B7E0049F3F6 /* ZMMessageTests.m in Sources */,
 				BFCF31DB1DA50C650039B3DC /* GenericMessageTests+NativePush.swift in Sources */,
 				F9B71FF21CB2C4C6001DB03F /* AnyClassTupleTests.swift in Sources */,
 				F9A7083A1CAEEB7500C2F5FE /* MockEntity.m in Sources */,
@@ -3545,7 +3546,6 @@
 				1672A6162344A14E00380537 /* LabelObserverTests.swift in Sources */,
 				BF1B980B1EC31D6100DE033B /* TeamDeletionRuleTests.swift in Sources */,
 				BF735CFD1E7050D5003BC61F /* ZMConversationTests+CallSystemMessages.swift in Sources */,
-				A94A9A71266054920049F3F6 /* ZMMessageTests.m in Sources */,
 				6388054A240EA8990043B641 /* ZMClientMessageTests+Composite.swift in Sources */,
 				F11F3E8B1FA32AA0007B6D3D /* InvalidClientsRemovalTests.swift in Sources */,
 				060D194F2462A9EC00623376 /* ZMMessageTests+GenericMessage.swift in Sources */,
