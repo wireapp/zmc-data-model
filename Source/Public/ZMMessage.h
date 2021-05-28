@@ -53,7 +53,7 @@
 /// Request the download of the image if not already present.
 /// The download will be executed asynchronously. The caller can be notified by observing the message window.
 /// This method can safely be called multiple times, even if the content is already available locally
-//- (void)requestFileDownload;
+- (void)requestFileDownload;
 
 @end
 

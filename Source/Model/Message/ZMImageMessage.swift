@@ -9,7 +9,7 @@
 import Foundation
 
 extension ZMImageMessage {
-    func requestFileDownload() {
+    public func requestFileDownload() {
         // V2
 
         // objects with temp ID on the UI must just have been inserted so no need to download
