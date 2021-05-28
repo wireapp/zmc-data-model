@@ -196,7 +196,6 @@
 		54829DB81DE6F7BA009100D3 /* store2-21-2.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 54829DA01DE6F782009100D3 /* store2-21-2.wiredatabase */; };
 		54929FAE1E12AC8B0010186B /* NSPersistentStoreMetadataTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54929FAD1E12AC8B0010186B /* NSPersistentStoreMetadataTests.swift */; };
 		5495BC431E019F1B004253ED /* audio.m4a in Resources */ = {isa = PBXBuildFile; fileRef = 5495BC421E019F1B004253ED /* audio.m4a */; };
-		54A885A81F62EEB600AFBA95 /* ZMConversationTests+Messages.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54A885A71F62EEB600AFBA95 /* ZMConversationTests+Messages.swift */; };
 		54AA3C9924ED2CE700FE1F94 /* store2-84-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 54AA3C9824ED2CE600FE1F94 /* store2-84-0.wiredatabase */; };
 		54BAB40B24A4FA0800EBC400 /* store2-82-0.wiredatabase in Resources */ = {isa = PBXBuildFile; fileRef = 54BAB40A24A4FA0800EBC400 /* store2-82-0.wiredatabase */; };
 		54CB3FEA24A3994400BA86DD /* FeatureFlag.swift in Sources */ = {isa = PBXBuildFile; fileRef = 54CB3FE924A3994400BA86DD /* FeatureFlag.swift */; };
@@ -3407,7 +3406,6 @@
 				54F84D041F995B0700ABD7D5 /* DiskDatabaseTests.swift in Sources */,
 				A9F21506266101D800134B07 /* ZMMessageTests.swift in Sources */,
 				D5FA30D12063FD3A00716618 /* VersionTests.swift in Sources */,
-				54A885A81F62EEB600AFBA95 /* ZMConversationTests+Messages.swift in Sources */,
 				54ED3A9D1F38CB6A0066AD47 /* DatabaseMigrationTests.swift in Sources */,
 				0680A9C624606288000F80F3 /* ZMMessage+Reaction.swift in Sources */,
 				1670D02023183209003A143B /* ModelObjectsTests+Helpers.swift in Sources */,
