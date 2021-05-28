@@ -1050,15 +1050,6 @@
 		A9536FD223ACD23100CFD528 /* ConversationTests+gapsAndWindows.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ConversationTests+gapsAndWindows.swift"; sourceTree = "<group>"; };
 		A95E7BF4239134E600935B88 /* ZMConversation+Participants.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "ZMConversation+Participants.swift"; sourceTree = "<group>"; };
 		A96524B823CDE07200303C60 /* String+WordTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "String+WordTests.swift"; sourceTree = "<group>"; };
-		A96E01302660008B0034A057 /* PINCache.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = PINCache.framework; path = Carthage/Build/iOS/PINCache.framework; sourceTree = "<group>"; };
-		A96E01312660008B0034A057 /* HTMLString.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = HTMLString.framework; path = Carthage/Build/iOS/HTMLString.framework; sourceTree = "<group>"; };
-		A96E01322660008B0034A057 /* WireLinkPreview.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WireLinkPreview.framework; path = Carthage/Build/iOS/WireLinkPreview.framework; sourceTree = "<group>"; };
-		A96E01332660008B0034A057 /* WireSystem.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WireSystem.framework; path = Carthage/Build/iOS/WireSystem.framework; sourceTree = "<group>"; };
-		A96E01342660008B0034A057 /* WireUtilities.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WireUtilities.framework; path = Carthage/Build/iOS/WireUtilities.framework; sourceTree = "<group>"; };
-		A96E01352660008B0034A057 /* WireImages.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WireImages.framework; path = Carthage/Build/iOS/WireImages.framework; sourceTree = "<group>"; };
-		A96E01362660008B0034A057 /* WireProtos.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WireProtos.framework; path = Carthage/Build/iOS/WireProtos.framework; sourceTree = "<group>"; };
-		A96E01372660008B0034A057 /* WireCryptobox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WireCryptobox.framework; path = Carthage/Build/iOS/WireCryptobox.framework; sourceTree = "<group>"; };
-		A96E01382660008B0034A057 /* WireTransport.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WireTransport.framework; path = Carthage/Build/iOS/WireTransport.framework; sourceTree = "<group>"; };
 		A96E014E266000B60034A057 /* SwiftProtobuf.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = SwiftProtobuf.xcframework; path = Carthage/Build/SwiftProtobuf.xcframework; sourceTree = "<group>"; };
 		A96E015B266001700034A057 /* WireTransport.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = WireTransport.xcframework; path = Carthage/Build/WireTransport.xcframework; sourceTree = "<group>"; };
 		A96E015C266001700034A057 /* WireUtilities.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = WireUtilities.xcframework; path = Carthage/Build/WireUtilities.xcframework; sourceTree = "<group>"; };
@@ -2573,15 +2564,6 @@
 				A96E015B266001700034A057 /* WireTransport.xcframework */,
 				A96E015C266001700034A057 /* WireUtilities.xcframework */,
 				A96E014E266000B60034A057 /* SwiftProtobuf.xcframework */,
-				A96E01312660008B0034A057 /* HTMLString.framework */,
-				A96E01302660008B0034A057 /* PINCache.framework */,
-				A96E01372660008B0034A057 /* WireCryptobox.framework */,
-				A96E01352660008B0034A057 /* WireImages.framework */,
-				A96E01322660008B0034A057 /* WireLinkPreview.framework */,
-				A96E01362660008B0034A057 /* WireProtos.framework */,
-				A96E01332660008B0034A057 /* WireSystem.framework */,
-				A96E01382660008B0034A057 /* WireTransport.framework */,
-				A96E01342660008B0034A057 /* WireUtilities.framework */,
 				F9C9A66E1CAD77930039E10C /* CoreData.framework */,
 				F9C9A66C1CAD778C0039E10C /* Foundation.framework */,
 			);
