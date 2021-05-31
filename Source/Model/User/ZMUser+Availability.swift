@@ -20,7 +20,7 @@
 import Foundation
 
 @objc
-public enum Availability : Int, CaseIterable {
+public enum AvailabilityKind : Int, CaseIterable {
     case none, available, busy, away
     
     public init(proto: WireProtos.Availability) {
@@ -125,13 +125,13 @@ extension ZMUser {
         return Set(result)
     }
 
-    @objc public var availability : Availability {
+    @objc public var availability : AvailabilityKind {
         get {
             self.willAccessValue(forKey: AvailabilityKey)
             let value = (self.primitiveValue(forKey: AvailabilityKey) as? NSNumber) ?? NSNumber(value: 0)
             self.didAccessValue(forKey: AvailabilityKey)
             
-            return Availability(rawValue: value.intValue) ?? .none
+            return AvailabilityKind(rawValue: value.intValue) ?? .none
         }
         
         set {
@@ -141,14 +141,14 @@ extension ZMUser {
         }
     }
         
-    internal func updateAvailability(_ newValue : Availability) {
+    internal func updateAvailability(_ newValue : AvailabilityKind) {
         self.willChangeValue(forKey: AvailabilityKey)
         self.setPrimitiveValue(NSNumber(value: newValue.rawValue), forKey: AvailabilityKey)
         self.didChangeValue(forKey: AvailabilityKey)
     }
     
     public func updateAvailability(from genericMessage : GenericMessage) {
-        updateAvailability(Availability(proto: genericMessage.availability))
+        updateAvailability(AvailabilityKind(proto: genericMessage.availability))
     }
     
     private static let needsToNotifyAvailabilityBehaviourChangeKey = "needsToNotifyAvailabilityBehaviourChange"
