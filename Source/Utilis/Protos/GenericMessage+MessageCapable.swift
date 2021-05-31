@@ -18,6 +18,8 @@
 
 import Foundation
 
+typealias WireProtosAsset = WireProtos.Asset
+
 public protocol MessageCapable {
     func setContent(on message: inout GenericMessage)
     var expectsReadConfirmation: Bool { get set }
@@ -68,8 +70,8 @@ extension Text: EphemeralMessageCapable {
     }
 }
 
-
-extension WireProtos.Asset: EphemeralMessageCapable {
+///TODO: no longer allowed?
+extension WireProtosAsset: EphemeralMessageCapable {
     public func setEphemeralContent(on ephemeral: inout Ephemeral) {
         ephemeral.asset = self
     }
