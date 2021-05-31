@@ -74,7 +74,7 @@ open class UserImageLocalCache : NSObject {
     /// Create UserImageLocalCache
     /// - parameter location: where cache is persisted on disk. Defaults to caches directory if nil.
     @objc
-    public init(location: URL? = nil) {
+    public init(location: URL?) {
         
         let largeUserImageCacheName = "largeUserImages"
         let smallUserImageCacheName = "smallUserImages"
