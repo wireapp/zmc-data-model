@@ -19,11 +19,9 @@
 
 import Foundation
 
-@objc public enum Availability : Int, CaseIterable {
+@objc
+public enum Availability : Int, CaseIterable {
     case none, available, busy, away
-}
-
-extension Availability {
     
     public init(_ proto : WireProtos.Availability) {
         ///TODO: change ZMAvailabilityType to NS_CLOSED_ENUM

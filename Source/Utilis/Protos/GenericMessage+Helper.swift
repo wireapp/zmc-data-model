@@ -358,7 +358,7 @@ extension Text {
     public init(content: String, mentions: [Mention] = [], linkPreviews: [LinkMetadata] = [], replyingTo: ZMOTRMessage? = nil) {
         self = Text.with {
             $0.content = content
-            $0.mentions = mentions.compactMap { WireProtos.Mention.createMention($0) }
+            $0.mentions = mentions.compactMap { MentionFactory.createMention(mention: $0) }
             $0.linkPreview = linkPreviews.map { WireProtos.LinkPreview($0) }
             
             if let quotedMessage = replyingTo,
@@ -516,8 +516,8 @@ extension External {
 
 // MARK: - Mention
 
-public extension WireProtos.Mention {
-    static func createMention(_ mention: WireDataModel.Mention) -> WireProtos.Mention? {
+public enum MentionFactory {
+    public static func createMention(mention: WireDataModel.Mention) -> WireProtos.Mention? {
         guard let userID = (mention.user as? ZMUser)?.remoteIdentifier.transportString() else { return nil }
         
         return WireProtos.Mention.with {
@@ -531,7 +531,7 @@ public extension WireProtos.Mention {
 // MARK: - Availability
 
 extension WireProtos.Availability {
-    public static func createAvailability(_ availability: Availability) -> WireProtos.Availability {
+    public static func createAvailability(availability: Availability) -> WireProtos.Availability {
         return WireProtos.Availability.with {
             switch availability {
             case .none:
