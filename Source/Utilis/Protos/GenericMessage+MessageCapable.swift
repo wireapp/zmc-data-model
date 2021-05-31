@@ -18,7 +18,7 @@
 
 import Foundation
 
-typealias WireProtosAsset = WireProtos.Asset
+public typealias WireProtosAsset = WireProtos.Asset
 
 public protocol MessageCapable {
     func setContent(on message: inout GenericMessage)
