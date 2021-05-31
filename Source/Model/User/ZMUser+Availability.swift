@@ -23,7 +23,7 @@ import Foundation
 public enum Availability : Int, CaseIterable {
     case none, available, busy, away
     
-    public init(proto : WireProtos.Availability) {
+    public init(proto: WireProtos.Availability) {
         ///TODO: change ZMAvailabilityType to NS_CLOSED_ENUM
         switch proto.type {
         case .none:
@@ -148,7 +148,7 @@ extension ZMUser {
     }
     
     public func updateAvailability(from genericMessage : GenericMessage) {
-        updateAvailability(Availability(genericMessage.availability))
+        updateAvailability(Availability(proto: genericMessage.availability))
     }
     
     private static let needsToNotifyAvailabilityBehaviourChangeKey = "needsToNotifyAvailabilityBehaviourChange"
