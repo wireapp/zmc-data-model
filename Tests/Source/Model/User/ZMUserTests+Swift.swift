@@ -65,125 +65,6 @@ final class ZMUserTests_Swift: ModelObjectsTests {
     
 }
 
-// MARK: - AssetV3 response parsing
-
-extension ZMUserTests_Swift {
-    
-    func assetPayload(previewId: String , completeId: String) -> NSArray {
-        return [
-            ["size" : "preview", "type" : "image", "key" : previewId],
-            ["size" : "complete", "type" : "image", "key" : completeId],
-        ] as NSArray
-    }
-    
-    func testThatItDoesNotUpdateAssetsWhenThereAreLocalModifications() {
-        syncMOC.performGroupedBlockAndWait {
-
-            // GIVEN
-            let user = ZMUser.selfUser(in: self.syncMOC)
-            let previewId = "some"
-            let completeId = "other"
-            let payload = self.assetPayload(previewId: "foo", completeId: "bar")
-            
-            // WHEN
-            user.updateAndSyncProfileAssetIdentifiers(previewIdentifier: previewId, completeIdentifier: completeId)
-            user.updateAssetData(with: payload, authoritative: true)
-            
-            // THEN
-            XCTAssertEqual(user.previewProfileAssetIdentifier, previewId)
-            XCTAssertEqual(user.completeProfileAssetIdentifier, completeId)
-        }
-    }
-    
-    func testThatItIgnoreAssetsWithIllegalCharacters() {
-        syncMOC.performGroupedBlockAndWait {
-            
-            // GIVEN
-            let user = ZMUser.selfUser(in: self.syncMOC)
-            let previewId = "some"
-            let completeId = "other"
-            let payload = self.assetPayload(previewId: "Aa\\u0000\r\n", completeId: "Aa\\u0000\r\n")
-            
-            // WHEN
-            user.updateAndSyncProfileAssetIdentifiers(previewIdentifier: previewId, completeIdentifier: completeId)
-            user.updateAssetData(with: payload, authoritative: true)
-            
-            // THEN
-            XCTAssertEqual(user.previewProfileAssetIdentifier, previewId)
-            XCTAssertEqual(user.completeProfileAssetIdentifier, completeId)
-        }
-    }
-    
-    func testThatItRemovesRemoteIdentifiersWhenWeGetEmptyAssets() {
-        syncMOC.performGroupedBlockAndWait {
-            // GIVEN
-            let user = ZMUser(remoteID: UUID.create(), createIfNeeded: true, in: self.syncMOC)
-            user?.previewProfileAssetIdentifier = "some"
-            user?.completeProfileAssetIdentifier = "other"
-            
-            // WHEN
-            user?.updateAssetData(with: NSArray(), authoritative: true)
-            
-            // THEN
-            XCTAssertNil(user?.previewProfileAssetIdentifier)
-            XCTAssertNil(user?.completeProfileAssetIdentifier)
-        }
-    }
-    
-    func testThatItUpdatesIdentifiersAndRemovesCachedImagesWhenWeGetRemoteIdentifiers() {
-        syncMOC.performGroupedBlockAndWait {
-            // GIVEN
-            let user = ZMUser(remoteID: UUID.create(), createIfNeeded: true, in: self.syncMOC)
-            user?.previewProfileAssetIdentifier = "123"
-            user?.completeProfileAssetIdentifier = "456"
-            user?.setImage(data: "some".data(using: .utf8), size: .preview)
-            user?.setImage(data: "other".data(using: .utf8), size: .complete)
-            XCTAssertNotNil(user?.imageData(for: .preview))
-            XCTAssertNotNil(user?.imageData(for: .complete))
-            let previewId = "some"
-            let completeId = "other"
-            let payload = self.assetPayload(previewId: previewId, completeId: completeId)
-            
-            // WHEN
-            user?.updateAssetData(with: payload, authoritative: true)
-            
-            // THEN
-            XCTAssertEqual(user?.previewProfileAssetIdentifier, previewId)
-            XCTAssertNil(user?.imageData(for: .preview))
-            XCTAssertEqual(user?.completeProfileAssetIdentifier, completeId)
-            XCTAssertNil(user?.imageData(for: .complete))
-        }
-    }
-    
-    func testThatItDoesNotRemoveLocalImagesIfRemoteIdentifiersHaveNotChanged() {
-        syncMOC.performGroupedBlockAndWait {
-            // GIVEN
-            let previewId = "some"
-            let previewData = "some".data(using: .utf8)
-            let completeId = "other"
-            let completeData = "other".data(using: .utf8)
-            let user = ZMUser(remoteID: UUID.create(), createIfNeeded: true, in: self.syncMOC)
-            user?.previewProfileAssetIdentifier = previewId
-            user?.completeProfileAssetIdentifier = completeId
-            user?.setImage(data: previewData, size: .preview)
-            user?.setImage(data: completeData, size: .complete)
-            XCTAssertNotNil(user?.imageData(for: .preview))
-            XCTAssertNotNil(user?.imageData(for: .complete))
-            let payload = self.assetPayload(previewId: previewId, completeId: completeId)
-            
-            // WHEN
-            user?.updateAssetData(with: payload, authoritative: true)
-            
-            // THEN
-            XCTAssertEqual(user?.previewProfileAssetIdentifier, previewId)
-            XCTAssertEqual(user?.completeProfileAssetIdentifier, completeId)
-            XCTAssertEqual(user?.imageData(for: .preview), previewData)
-            XCTAssertEqual(user?.imageData(for: .complete), completeData)
-        }
-    }
-
-}
-
 // MARK: - AssetV3 filter predicates
 extension ZMUserTests_Swift {
     func testThatPreviewImageDownloadFilterPicksUpUser() {
@@ -323,7 +204,7 @@ extension ZMUser {
         let user = ZMUser.insertNewObject(in: moc)
         user.remoteIdentifier = id
         user.name = name
-        user.setHandle(handle)
+        user.handle = handle
         let connection = ZMConnection.insertNewSentConnection(to: user)
         connection?.status = connectionStatus
 
