@@ -514,6 +514,121 @@ static NSString *const DomainKey = @"domain";
     return color;
 }
 
+// NB: This method is called with **partial** user info and @c authoritative set to false, when the update payload
+// is received from the notification stream.
+- (void)updateWithTransportData:(NSDictionary *)transportData authoritative:(BOOL)authoritative
+{
+    NSDictionary *serviceData = [transportData optionalDictionaryForKey:@"service"];
+    if (serviceData != nil) {
+        NSString *serviceIdentifier = [serviceData optionalStringForKey:@"id"];
+        if (serviceIdentifier != nil) {
+            self.serviceIdentifier = serviceIdentifier;
+        }
+
+        NSString *providerIdentifier = [serviceData optionalStringForKey:@"provider"];
+        if (providerIdentifier != nil) {
+            self.providerIdentifier = providerIdentifier;
+        }
+    }
+    
+    NSNumber *deleted = [transportData optionalNumberForKey:@"deleted"];
+    if (deleted != nil && deleted.boolValue && !self.isAccountDeleted) {
+        [self markAccountAsDeletedAt:[NSDate date]];
+    }
+    
+    if ([transportData optionalDictionaryForKey:@"sso_id"] || authoritative) {
+        NSDictionary *ssoData = [transportData optionalDictionaryForKey:@"sso_id"];
+        self.usesCompanyLogin = nil != ssoData;
+    }
+    
+    
+    NSDictionary *qualifiedID = [transportData optionalDictionaryForKey:@"qualified_id"];
+    if (qualifiedID != nil) {
+        NSString *domain = [qualifiedID stringForKey:@"domain"];
+        NSUUID *remoteIdentifier = [qualifiedID[@"id"] UUID];
+        
+        if (self.domain == nil) {
+            self.domain = domain;
+        } else {
+            RequireString([self.domain isEqual:domain], "User domain do not match in update: %s vs. %s",
+                          domain.UTF8String,
+                          self.domain.UTF8String);
+        }
+        
+        if (self.remoteIdentifier == nil) {
+            self.remoteIdentifier = remoteIdentifier;
+        } else {
+            RequireString([self.remoteIdentifier isEqual:remoteIdentifier], "User ids do not match in update: %s vs. %s",
+                          remoteIdentifier.transportString.UTF8String,
+                          self.remoteIdentifier.transportString.UTF8String);
+        }
+        
+    } else {
+        NSUUID *remoteID = [transportData[@"id"] UUID];
+        if (self.remoteIdentifier == nil) {
+            self.remoteIdentifier = remoteID;
+        } else {
+            RequireString([self.remoteIdentifier isEqual:remoteID], "User ids do not match in update: %s vs. %s",
+                          remoteID.transportString.UTF8String,
+                          self.remoteIdentifier.transportString.UTF8String);
+        }
+    }
+                                 
+    NSString *name = [transportData optionalStringForKey:@"name"];
+    if (!self.isAccountDeleted && (name != nil || authoritative)) {
+        self.name = name;
+    }
+    
+    NSString *managedBy = [transportData optionalStringForKey:@"managed_by"];
+    if (managedBy != nil || authoritative) {
+        self.managedBy = managedBy;
+    }
+    
+    NSString *handle = [transportData optionalStringForKey:@"handle"];
+    if (handle != nil || authoritative) {
+        self.handle = handle;
+    }
+    
+    if ([transportData objectForKey:@"team"] || authoritative) {
+        self.teamIdentifier = [transportData optionalUuidForKey:@"team"];
+        [self createOrDeleteMembershipIfBelongingToTeam];
+    }
+    
+    NSString *email = [transportData optionalStringForKey:@"email"];
+    if ([transportData objectForKey:@"email"] || authoritative) {
+        self.emailAddress = email.stringByRemovingExtremeCombiningCharacters;
+    }
+    
+    NSString *phone = [transportData optionalStringForKey:@"phone"];
+    if ([transportData objectForKey:@"phone"] || authoritative) {
+        self.phoneNumber = phone.stringByRemovingExtremeCombiningCharacters;
+    }
+    
+    NSNumber *accentId = [transportData optionalNumberForKey:@"accent_id"];
+    if (accentId != nil || authoritative) {
+        self.accentColorValue = [ZMUser accentColorFromPayloadValue:accentId];
+    }
+    
+    NSDate *expiryDate = [transportData optionalDateForKey:@"expires_at"];
+    if (nil != expiryDate) {
+        self.expiresAt = expiryDate;
+    }
+    
+    NSArray *assets = [transportData optionalArrayForKey:@"assets"];
+    [self updateAssetDataWith:assets authoritative:authoritative];
+    
+    // We intentionally ignore the preview data.
+    //
+    // Need to see if we're changing the resolution, but it's currently way too small
+    // to be of any use.
+    
+    if (authoritative) {
+        self.needsToBeUpdatedFromBackend = NO;
+    }
+    
+    [self updatePotentialGapSystemMessagesIfNeeded];
+}
+
 - (void)updatePotentialGapSystemMessagesIfNeeded
 {
     for (ZMSystemMessage *systemMessage in self.showingUserAdded) {

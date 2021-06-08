@@ -120,6 +120,25 @@ extension ZMUser: UserType {
     
 }
 
+public struct AssetKey {
+    
+    static let legalCharacterSet = CharacterSet.alphanumerics.union(CharacterSet.punctuationCharacters)
+    
+    public init?(_ string: String) {
+        if AssetKey.validate(string: string) {
+            stringValue = string
+        } else {
+            return nil
+        }
+    }
+    
+    let stringValue : String
+    
+    fileprivate static func validate(string : String) -> Bool {
+        return CharacterSet(charactersIn: string).isSubset(of: legalCharacterSet)
+    }
+}
+
 @objc public enum ProfileImageSize: Int {
     case preview
     case complete
@@ -261,7 +280,32 @@ extension ZMUser {
         completeProfileAssetIdentifier = completeIdentifier
         setLocallyModifiedKeys([ZMUser.previewProfileAssetIdentifierKey, ZMUser.completeProfileAssetIdentifierKey])
     }
-
+    
+    @objc public func updateAssetData(with assets: NSArray?, authoritative: Bool) {
+        guard !hasLocalModifications(forKeys: [ZMUser.previewProfileAssetIdentifierKey, ZMUser.completeProfileAssetIdentifierKey]) else { return }
+        guard let assets = assets as? [[String : String]], !assets.isEmpty else {
+            if authoritative {
+                previewProfileAssetIdentifier = nil
+                completeProfileAssetIdentifier = nil
+            }
+            return
+        }
+        for data in assets {
+            if let size = data["size"].flatMap(ProfileImageSize.init), let key = data["key"].flatMap(AssetKey.init) {
+                switch size {
+                case .preview:
+                    if key.stringValue != previewProfileAssetIdentifier {
+                        previewProfileAssetIdentifier = key.stringValue
+                    }
+                case .complete:
+                    if key.stringValue != completeProfileAssetIdentifier {
+                        completeProfileAssetIdentifier = key.stringValue
+                    }
+                }
+            }
+        }
+    }
+    
     @objc public func requestPreviewProfileImage() {
         guard let moc = self.managedObjectContext, moc.zm_isUserInterfaceContext, !moc.zm_userImageCache.hasUserImage(self, size: .preview) else { return }
         
