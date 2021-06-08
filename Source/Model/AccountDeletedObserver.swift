@@ -24,7 +24,7 @@ public protocol AccountDeletedObserver: class {
 
 public struct AccountDeletedNotification {
     public static let notificationName = Notification.Name("AccountDeletedNotification")
-    static var userInfoKey : String { return notificationName.rawValue }
+    public static var userInfoKey : String { return notificationName.rawValue }
 
     weak var context : NSManagedObjectContext?
 
