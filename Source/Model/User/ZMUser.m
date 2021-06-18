@@ -149,7 +149,7 @@ static NSString *const DomainKey = @"domain";
 @property (nonatomic, copy) NSString *emailAddress;
 @property (nonatomic, copy) NSString *phoneNumber;
 @property (nonatomic, copy) NSString *normalizedEmailAddress;
-@property (nullable, nonatomic) NSString *managedBy;
+@property (nonatomic, copy) NSString *managedBy;
 @property (nonatomic, readonly) UserClient *selfClient;
 
 @end

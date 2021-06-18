@@ -38,6 +38,7 @@ extern NSString * __nonnull const ReadReceiptsEnabledKey;
 @property (nullable, nonatomic) ZMConnection *connection;
 
 @property (nullable, nonatomic) NSUUID *teamIdentifier;
+@property (nullable, nonatomic, copy) NSString *managedBy;
 
 @property (nonnull, nonatomic) NSSet *showingUserAdded;
 @property (nonnull, nonatomic) NSSet *showingUserRemoved;
@@ -64,6 +65,8 @@ extern NSString * __nonnull const ReadReceiptsEnabledKey;
 /// Should be called when creating a @c ZMSearchUser to ensure it's underlying user is updated.
 - (void)updateWithSearchResultName:(nullable NSString *)name handle:(nullable NSString *)handle;
 
+- (void)updatePotentialGapSystemMessagesIfNeeded;
+
 
 @end
 
@@ -81,6 +84,7 @@ extern NSString * __nonnull const ReadReceiptsEnabledKey;
 @property (nullable, nonatomic, copy) NSString *emailAddress;
 @property (nullable, nonatomic, copy) NSString *phoneNumber;
 @property (nullable, nonatomic, copy) NSString *name;
+@property (nullable, nonatomic, copy) NSString *handle;
 @property (nonatomic) ZMAccentColor accentColorValue;
 
 - (void)setHandle:(NSString * __nullable)handle;

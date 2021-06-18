@@ -323,7 +323,7 @@ extension ZMUser {
         let user = ZMUser.insertNewObject(in: moc)
         user.remoteIdentifier = id
         user.name = name
-        user.setHandle(handle)
+        user.handle = handle
         let connection = ZMConnection.insertNewSentConnection(to: user)
         connection?.status = connectionStatus
 
