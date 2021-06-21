@@ -47,7 +47,6 @@ extension ZMUpdateEvent {
     }
 
     public var participantsRemovedReason: ZMParticipantsRemovedReason {
-        ///TODO: crash after mockEventOfType
         guard let dataPayload = (payload as NSDictionary).dictionary(forKey: "data"),
               let reasonString = dataPayload["reason"] as? String else {
             return ZMParticipantsRemovedReason.none
