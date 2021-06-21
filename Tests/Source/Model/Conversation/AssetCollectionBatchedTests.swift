@@ -95,7 +95,6 @@ class AssetColletionBatchedTests : ModelObjectsTests {
         
         // then
         let receivedMessages = delegate.allMessages(for: defaultMatchPair)
-        ///TODO: crash
         XCTAssertTrue(receivedMessages.first!.compare(receivedMessages.last!) == .orderedDescending)
         XCTAssertEqual(messages.first, receivedMessages.last)
         XCTAssertEqual(messages.last, receivedMessages.first)
