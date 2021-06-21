@@ -144,21 +144,6 @@
     return systemMessage;
 }
 
-//- (ZMConversation *)insertConversationWithUnread:(BOOL)hasUnread
-//{
-//    NSDate *messageDate = [NSDate dateWithTimeIntervalSince1970:230000000];
-//    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
-//    conversation.conversationType = ZMConversationTypeOneOnOne;
-//    conversation.lastServerTimeStamp = messageDate;
-//    if(hasUnread) {
-//        ZMClientMessage *message = [[ZMClientMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.syncMOC];
-//        conversation.lastReadServerTimeStamp = [messageDate dateByAddingTimeInterval:-1000];
-//        [conversation appendMessage:message];
-//    }
-//    [self.syncMOC saveOrRollback];
-//    return conversation;
-//}
-
 @end
 
 
