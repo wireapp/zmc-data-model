@@ -33,92 +33,92 @@
 @end
 
 @implementation ZMClientMessageTests
-//- (void)testThatItStoresClientAsMissing
-//{
-//    UserClient *client = [self createSelfClient];
-//    ZMClientMessage *message = [self createClientTextMessage];
-//    [message missesRecipient:client];
-//
-//    XCTAssertEqualObjects(message.missingRecipients, [NSSet setWithObject:client]);
-//}
+- (void)testThatItStoresClientAsMissing
+{
+    UserClient *client = [self createSelfClient];
+    ZMClientMessage *message = [self createClientTextMessage];
+    [message missesRecipient:client];
 
-//- (void)testThatItRemovesMissingClient
-//{
-//    UserClient *client = [self createSelfClient];
-//    ZMClientMessage *message = [self createClientTextMessage];
-//    [message missesRecipient:client];
-//
-//    XCTAssertEqualObjects(message.missingRecipients, [NSSet setWithObject:client]);
-//
-//    [message doesNotMissRecipient:client];
-//
-//    XCTAssertEqual(message.missingRecipients.count, 0u);
-//}
+    XCTAssertEqualObjects(message.missingRecipients, [NSSet setWithObject:client]);
+}
+
+- (void)testThatItRemovesMissingClient
+{
+    UserClient *client = [self createSelfClient];
+    ZMClientMessage *message = [self createClientTextMessage];
+    [message missesRecipient:client];
+
+    XCTAssertEqualObjects(message.missingRecipients, [NSSet setWithObject:client]);
+
+    [message doesNotMissRecipient:client];
+
+    XCTAssertEqual(message.missingRecipients.count, 0u);
+}
 
 
-//- (void)testThatClientMessageIsMarkedAsDelivered
-//{
-//    ZMClientMessage *message = [self createClientTextMessage];
-//    [message setExpirationDate];
-//
-//    [message markAsSent];
-//    XCTAssertTrue(message.delivered);
-//    XCTAssertFalse(message.isExpired);
-//}
-//
-//- (void)testThatResendingClientMessageResetsExpirationDate
-//{
-//    ZMClientMessage *message = [self createClientTextMessage];
-//
-//    [message resend];
-//    XCTAssertNotNil(message.expirationDate);
-//}
+- (void)testThatClientMessageIsMarkedAsDelivered
+{
+    ZMClientMessage *message = [self createClientTextMessage];
+    [message setExpirationDate];
 
-//- (void)testThatItSetsLocallyModifiedKeysWhenLinkPreviewStateIsSet
-//{
-//    int16_t states[] = {
-//        ZMLinkPreviewStateWaitingToBeProcessed,
-//        ZMLinkPreviewStateDownloaded,
-//        ZMLinkPreviewStateProcessed ,
-//        ZMLinkPreviewStateUploaded,
-//        ZMLinkPreviewStateDone
-//    };
-//    
-//    for (unsigned long i = 0; i < sizeof(states) / sizeof(ZMLinkPreviewState); i++) {
-//        [self assertThatItSetsLocallyModifiedKeysWhenLinkPreviewStateIsSet:states[i] shouldSet:states[i] != ZMLinkPreviewStateDone];
-//    }
-//}
+    [message markAsSent];
+    XCTAssertTrue(message.delivered);
+    XCTAssertFalse(message.isExpired);
+}
 
-//- (void)assertThatItSetsLocallyModifiedKeysWhenLinkPreviewStateIsSet:(ZMLinkPreviewState)state shouldSet:(BOOL)shouldSet
-//{
-//    // given
-//    ZMClientMessage *message = [self createClientTextMessage];
-//    XCTAssertFalse([message.keysThatHaveLocalModifications containsObject:ZMClientMessage.linkPreviewStateKey]);
-//
-//    // when
-//    message.linkPreviewState = state;
-//
-//    // then
-//    XCTAssertEqual([message.keysThatHaveLocalModifications containsObject:ZMClientMessage.linkPreviewStateKey], shouldSet);
-//}
+- (void)testThatResendingClientMessageResetsExpirationDate
+{
+    ZMClientMessage *message = [self createClientTextMessage];
 
-//- (void)testThatAInsertedClientMessageHasADefaultLinkPreviewStateDone
-//{
-//    ZMClientMessage *message = [[ZMClientMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
-//    XCTAssertEqual(message.linkPreviewState, ZMLinkPreviewStateDone);
-//}
-//
-//- (void)testThatAAppendedClientMessageHasLinkPreviewStateWaitingToBeProcessed
-//{
-//    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-//    ZMClientMessage *message = (ZMClientMessage *)[conversation appendMessageWithText:self.name];
-//    XCTAssertEqual(message.linkPreviewState, ZMLinkPreviewStateWaitingToBeProcessed);
-//}
+    [message resend];
+    XCTAssertNotNil(message.expirationDate);
+}
 
-//- (void)testThatAAppendedClientMessageWithFlagToNotFetchPreviewSetHasLinkPreviewStateDone
-//{
-//    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-//    ZMClientMessage *message = (ZMClientMessage *)[conversation appendMessageWithText:self.name fetchLinkPreview:NO];
-//    XCTAssertEqual(message.linkPreviewState, ZMLinkPreviewStateDone);
-//}
+- (void)testThatItSetsLocallyModifiedKeysWhenLinkPreviewStateIsSet
+{
+    int16_t states[] = {
+        ZMLinkPreviewStateWaitingToBeProcessed,
+        ZMLinkPreviewStateDownloaded,
+        ZMLinkPreviewStateProcessed ,
+        ZMLinkPreviewStateUploaded,
+        ZMLinkPreviewStateDone
+    };
+    
+    for (unsigned long i = 0; i < sizeof(states) / sizeof(ZMLinkPreviewState); i++) {
+        [self assertThatItSetsLocallyModifiedKeysWhenLinkPreviewStateIsSet:states[i] shouldSet:states[i] != ZMLinkPreviewStateDone];
+    }
+}
+
+- (void)assertThatItSetsLocallyModifiedKeysWhenLinkPreviewStateIsSet:(ZMLinkPreviewState)state shouldSet:(BOOL)shouldSet
+{
+    // given
+    ZMClientMessage *message = [self createClientTextMessage];
+    XCTAssertFalse([message.keysThatHaveLocalModifications containsObject:ZMClientMessage.linkPreviewStateKey]);
+
+    // when
+    message.linkPreviewState = state;
+
+    // then
+    XCTAssertEqual([message.keysThatHaveLocalModifications containsObject:ZMClientMessage.linkPreviewStateKey], shouldSet);
+}
+
+- (void)testThatAInsertedClientMessageHasADefaultLinkPreviewStateDone
+{
+    ZMClientMessage *message = [[ZMClientMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
+    XCTAssertEqual(message.linkPreviewState, ZMLinkPreviewStateDone);
+}
+
+- (void)testThatAAppendedClientMessageHasLinkPreviewStateWaitingToBeProcessed
+{
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMClientMessage *message = (ZMClientMessage *)[conversation appendMessageWithText:self.name];
+    XCTAssertEqual(message.linkPreviewState, ZMLinkPreviewStateWaitingToBeProcessed);
+}
+
+- (void)testThatAAppendedClientMessageWithFlagToNotFetchPreviewSetHasLinkPreviewStateDone
+{
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    ZMClientMessage *message = (ZMClientMessage *)[conversation appendMessageWithText:self.name fetchLinkPreview:NO];
+    XCTAssertEqual(message.linkPreviewState, ZMLinkPreviewStateDone);
+}
 @end
