@@ -152,7 +152,6 @@
 //    conversation.lastServerTimeStamp = messageDate;
 //    if(hasUnread) {
 //        ZMClientMessage *message = [[ZMClientMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.syncMOC];
-//        message.serverTimestamp = messageDate;
 //        conversation.lastReadServerTimeStamp = [messageDate dateByAddingTimeInterval:-1000];
 //        [conversation appendMessage:message];
 //    }
