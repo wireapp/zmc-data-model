@@ -19,7 +19,36 @@
 import XCTest
 @testable import WireDataModel
 
-class ClientMessageTests: BaseZMClientMessageTests {
+final class ClientMessageTests: BaseZMClientMessageTests {
+    func testThatItDoesNotCreateTextMessagesFromUpdateEventIfThereIsAlreadyAClientMessageWithTheSameNonce() {
+        // given
+        let nonce = UUID.create()
+
+        let conversation = ZMConversation.insertNewObject(in: uiMOC)
+        conversation.remoteIdentifier = UUID.create()
+        let clientMessage = ZMClientMessage(nonce: nonce, managedObjectContext: uiMOC)
+        clientMessage.visibleInConversation = conversation
+
+        let data = [
+                "content": name,
+                "nonce": nonce.transportString()
+            ]
+
+        let payload = payloadForMessage(in: conversation, type: EventConversationAdd, data: data)
+
+        let event = ZMUpdateEvent(fromEventStreamPayload: payload, uuid: nil)
+        XCTAssertNotNil(event)
+
+        // when
+        var sut: ZMTextMessage?
+        performPretendingUiMocIsSyncMoc({ [self] in
+            sut = ZMTextMessage.createOrUpdate(from: event!, in: uiMOC, prefetchResult: nil)
+        })
+
+        // then
+        XCTAssertNil(sut)
+        XCTAssert(conversation.lastMessage == clientMessage)
+    }
     
     func testThatItCreatesClientMessagesFromUpdateEvent() {
         // given

@@ -33,7 +33,6 @@
 @end
 
 @implementation ZMClientMessageTests
-
 //- (void)testThatItStoresClientAsMissing
 //{
 //    UserClient *client = [self createSelfClient];
