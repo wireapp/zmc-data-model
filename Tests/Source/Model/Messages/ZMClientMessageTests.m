@@ -34,37 +34,6 @@
 
 @implementation ZMClientMessageTests
 
-//- (void)testThatItDoesNotCreateTextMessagesFromUpdateEventIfThereIsAlreadyAClientMessageWithTheSameNonce
-//{
-//    // given
-//    NSUUID *nonce = [NSUUID createUUID];
-//
-//    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-//    conversation.remoteIdentifier = [NSUUID createUUID];
-//    ZMClientMessage *clientMessage = [[ZMClientMessage alloc] initWithNonce:nonce managedObjectContext:self.uiMOC];
-//    clientMessage.visibleInConversation = conversation;
-//
-//    NSDictionary *data = @{
-//                           @"content" : self.name,
-//                           @"nonce" : nonce.transportString
-//                           };
-//
-//    NSDictionary *payload = [self payloadForMessageInConversation:conversation type:EventConversationAdd data:data];
-//
-//    ZMUpdateEvent *event = [ZMUpdateEvent eventFromEventStreamPayload:payload uuid:nil];
-//    XCTAssertNotNil(event);
-//
-//    // when
-//    __block ZMTextMessage *sut;
-//    [self performPretendingUiMocIsSyncMoc:^{
-//        sut = [ZMTextMessage createOrUpdateMessageFromUpdateEvent:event inManagedObjectContext:self.uiMOC prefetchResult:nil];
-//    }];
-//
-//    // then
-//    XCTAssertNil(sut);
-//    XCTAssertEqual(conversation.lastMessage, clientMessage);
-//}
-
 //- (void)testThatItStoresClientAsMissing
 //{
 //    UserClient *client = [self createSelfClient];
