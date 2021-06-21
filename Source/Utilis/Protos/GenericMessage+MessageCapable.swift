@@ -70,7 +70,6 @@ extension Text: EphemeralMessageCapable {
     }
 }
 
-///TODO: no longer allowed?
 extension WireProtosAsset: EphemeralMessageCapable {
     public func setEphemeralContent(on ephemeral: inout Ephemeral) {
         ephemeral.asset = self

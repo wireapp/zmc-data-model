@@ -22,7 +22,6 @@ import WireLinkPreview
 
 @testable import WireDataModel
 
-///TODO:
 class ZMClientMessageTests_TextMessage: BaseZMMessageTests {
     
     override func tearDown() {

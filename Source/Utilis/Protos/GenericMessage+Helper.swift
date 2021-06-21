@@ -402,8 +402,6 @@ extension Text {
 // MARK: - Reaction
 
 extension WireProtos.Reaction {
-    //designated initializer cannot be declared in an extension of 'Reaction'; did you mean this to be a convenience initializer?
-    ///TODO: mv to proto, or a factory method?
     public static func createReaction(emoji: String, messageID: UUID) -> WireProtos.Reaction {
         return WireProtos.Reaction.with({
             $0.emoji = emoji
