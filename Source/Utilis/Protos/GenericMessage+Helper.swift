@@ -358,7 +358,7 @@ extension Text {
     public init(content: String, mentions: [Mention] = [], linkPreviews: [LinkMetadata] = [], replyingTo: ZMOTRMessage? = nil) {
         self = Text.with {
             $0.content = content
-            $0.mentions = mentions.compactMap { WireProtos.Mention($0) }
+            $0.mentions = mentions.compactMap { MentionFactory.createMention(mention: $0) }
             $0.linkPreview = linkPreviews.map { WireProtos.LinkPreview($0) }
             
             if let quotedMessage = replyingTo,
@@ -402,8 +402,10 @@ extension Text {
 // MARK: - Reaction
 
 extension WireProtos.Reaction {
-    public init(emoji: String, messageID: UUID) {
-        self = WireProtos.Reaction.with({
+    //designated initializer cannot be declared in an extension of 'Reaction'; did you mean this to be a convenience initializer?
+    ///TODO: mv to proto, or a factory method?
+    public static func createReaction(emoji: String, messageID: UUID) -> WireProtos.Reaction {
+        return WireProtos.Reaction.with({
             $0.emoji = emoji
             $0.messageID = messageID.transportString()
         })
@@ -514,11 +516,11 @@ extension External {
 
 // MARK: - Mention
 
-public extension WireProtos.Mention {
-    init?(_ mention: WireDataModel.Mention) {
+public enum MentionFactory {
+    public static func createMention(mention: WireDataModel.Mention) -> WireProtos.Mention? {
         guard let userID = (mention.user as? ZMUser)?.remoteIdentifier.transportString() else { return nil }
         
-        self = WireProtos.Mention.with {
+        return WireProtos.Mention.with {
             $0.start = Int32(mention.range.location)
             $0.length = Int32(mention.range.length)
             $0.userID = userID
@@ -529,8 +531,8 @@ public extension WireProtos.Mention {
 // MARK: - Availability
 
 extension WireProtos.Availability {
-    public init(_ availability: Availability) {
-        self = WireProtos.Availability.with {
+    public static func createAvailability(availability: Availability) -> WireProtos.Availability {
+        return WireProtos.Availability.with {
             switch availability {
             case .none:
                 $0.type = .none
