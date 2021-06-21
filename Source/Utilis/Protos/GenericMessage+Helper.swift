@@ -530,8 +530,8 @@ public enum MentionFactory {
 
 // MARK: - Availability
 
-extension WireProtos.Availability {
-    public static func createAvailability(availability: Availability) -> WireProtos.Availability {
+public enum AvailabilityFactory {
+    public static func createAvailability(availability: AvailabilityKind) -> WireProtos.Availability {
         return WireProtos.Availability.with {
             switch availability {
             case .none:

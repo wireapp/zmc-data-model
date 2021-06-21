@@ -144,22 +144,6 @@
     return systemMessage;
 }
 
-//- (ZMConversation *)insertConversationWithUnread:(BOOL)hasUnread
-//{
-//    NSDate *messageDate = [NSDate dateWithTimeIntervalSince1970:230000000];
-//    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.syncMOC];
-//    conversation.conversationType = ZMConversationTypeOneOnOne;
-//    conversation.lastServerTimeStamp = messageDate;
-//    if(hasUnread) {
-//        ZMClientMessage *message = [[ZMClientMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.syncMOC];
-//        message.serverTimestamp = messageDate;
-//        conversation.lastReadServerTimeStamp = [messageDate dateByAddingTimeInterval:-1000];
-//        [conversation appendMessage:message];
-//    }
-//    [self.syncMOC saveOrRollback];
-//    return conversation;
-//}
-
 @end
 
 
@@ -770,45 +754,45 @@
     XCTAssertEqual(conversation.allMessages.count, 2lu);
 }
 
-//- (void)testThatItUpdatesLastModifiedDateWithMessageServerTimestamp_ClientMessage
-//{
-//    // given
-//    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-//    conversation.lastModifiedDate = [NSDate.date dateByAddingTimeInterval:-100];
-//    ZMClientMessage *clientMessage = (id)[conversation appendText:@"TestMessage" mentions:@[] replyingToMessage:nil fetchLinkPreview:YES nonce:NSUUID.createUUID];
-//
-//    // then
-//    XCTAssertEqualObjects(conversation.lastModifiedDate, clientMessage.serverTimestamp);
-//
-//    NSDate *serverDate = [clientMessage.serverTimestamp dateByAddingTimeInterval:0.2];
-//    // when
-//    [clientMessage updateWithPostPayload:@{@"time": serverDate} updatedKeys:[NSSet set]];
-//
-//    // then
-//    XCTAssertEqualObjects(conversation.lastModifiedDate, serverDate);
-//    XCTAssertEqualObjects(clientMessage.serverTimestamp, serverDate);
-//
-//    // cleanup
-//}
+- (void)testThatItUpdatesLastModifiedDateWithMessageServerTimestamp_ClientMessage
+{
+    // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    conversation.lastModifiedDate = [NSDate.date dateByAddingTimeInterval:-100];
+    ZMClientMessage *clientMessage = (id)[conversation appendText:@"TestMessage" mentions:@[] replyingToMessage:nil fetchLinkPreview:YES nonce:NSUUID.createUUID];
 
-//- (void)testThatItDoesNotUpdatesLastModifiedDateWithMessageServerTimestampIfNotNeeded_ClientMessage
-//{
-//    // given
-//    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-//    conversation.lastModifiedDate = [NSDate.date dateByAddingTimeInterval:-100];
-//    ZMClientMessage *clientMessage = (id)[conversation appendText:@"TestMessage" mentions:@[] replyingToMessage:nil fetchLinkPreview:YES nonce:NSUUID.createUUID];
-//    NSDate *postingDate = clientMessage.serverTimestamp;
-//    // then
-//    XCTAssertEqualObjects(conversation.lastModifiedDate, clientMessage.serverTimestamp);
-//
-//    NSDate *serverDate = [clientMessage.serverTimestamp dateByAddingTimeInterval:-0.2];
-//    // when
-//    [clientMessage updateWithPostPayload:@{@"time": serverDate} updatedKeys:[NSSet set]];
-//
-//    // then
-//    XCTAssertEqualObjects(conversation.lastModifiedDate, postingDate);
-//    XCTAssertEqualObjects(clientMessage.serverTimestamp, serverDate);
-//}
+    // then
+    XCTAssertEqualObjects(conversation.lastModifiedDate, clientMessage.serverTimestamp);
+
+    NSDate *serverDate = [clientMessage.serverTimestamp dateByAddingTimeInterval:0.2];
+    // when
+    [clientMessage updateWithPostPayload:@{@"time": serverDate} updatedKeys:[NSSet set]];
+
+    // then
+    XCTAssertEqualObjects(conversation.lastModifiedDate, serverDate);
+    XCTAssertEqualObjects(clientMessage.serverTimestamp, serverDate);
+
+    // cleanup
+}
+
+- (void)testThatItDoesNotUpdatesLastModifiedDateWithMessageServerTimestampIfNotNeeded_ClientMessage
+{
+    // given
+    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
+    conversation.lastModifiedDate = [NSDate.date dateByAddingTimeInterval:-100];
+    ZMClientMessage *clientMessage = (id)[conversation appendText:@"TestMessage" mentions:@[] replyingToMessage:nil fetchLinkPreview:YES nonce:NSUUID.createUUID];
+    NSDate *postingDate = clientMessage.serverTimestamp;
+    // then
+    XCTAssertEqualObjects(conversation.lastModifiedDate, clientMessage.serverTimestamp);
+
+    NSDate *serverDate = [clientMessage.serverTimestamp dateByAddingTimeInterval:-0.2];
+    // when
+    [clientMessage updateWithPostPayload:@{@"time": serverDate} updatedKeys:[NSSet set]];
+
+    // then
+    XCTAssertEqualObjects(conversation.lastModifiedDate, postingDate);
+    XCTAssertEqualObjects(clientMessage.serverTimestamp, serverDate);
+}
 
 - (void)testThatItUpdatesLastModifiedDateWithMessageServerTimestamp_PlaintextMessage
 {
@@ -2079,31 +2063,6 @@
 }
 
 
-//- (void)testThatClearingMessageHistorySetsLastReadServerTimeStampToLastServerTimeStamp
-//{
-//    // given
-//    NSDate *clearedTimeStamp = [NSDate date];
-//
-//    ZMUser *otherUser = [self createUser];
-//    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-//    conversation.lastServerTimeStamp = clearedTimeStamp;
-//
-//    ZMClientMessage *message1 = [[ZMClientMessage alloc] initWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
-//    message1.serverTimestamp = clearedTimeStamp;
-//    message1.sender = otherUser;
-//    message1.visibleInConversation = conversation;
-//
-//    XCTAssertNil(conversation.lastReadServerTimeStamp);
-//
-//    // when
-//    [conversation clearMessageHistory];
-//    [self.uiMOC saveOrRollback];
-//    WaitForAllGroupsToBeEmpty(0.5);
-//
-//    // then
-//    XCTAssertEqualObjects(conversation.lastReadServerTimeStamp, clearedTimeStamp);
-//}
-
 - (void)testThatSettingClearedTimeStampDueToRemoteChangeDoesNotDeleteUnsentMessages
 {
     // given
@@ -3092,59 +3051,6 @@
     XCTAssertTrue([sut evaluateWithObject:conversation]);
 }
 
-
-#pragma mark - SendOnlyEncryptedMessages
-
-//- (void)testThatItInsertsEncryptedTextMessages
-//{
-//    // given
-//    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-//
-//    // when
-//    [conversation appendMessageWithText:@"hello"];
-//
-//    // then
-//    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:[ZMMessage entityName]];
-//    NSArray *result = [self.uiMOC executeFetchRequestOrAssert:request];
-//
-//    XCTAssertEqual(result.count, 1u);
-//    XCTAssertTrue([result.firstObject isKindOfClass:[ZMClientMessage class]]);
-//}
-
-
-
-- (void)testThatItInsertsEncryptedImageMessages
-{
-    // given
-    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    
-    // when
-    [conversation appendMessageWithImageData:self.verySmallJPEGData];
-    
-    // then
-    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:[ZMMessage entityName]];
-    NSArray *result = [self.uiMOC executeFetchRequestOrAssert:request];
-    
-    XCTAssertEqual(result.count, 1u);
-    ///TODO
-//    XCTAssertTrue([result.firstObject isKindOfClass:[ZMAssetClientMessage class]]);
-}
-
-/*- (void)testThatItInsertsEncryptedKnockMessages
-{
-    // given
-    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    
-    // when
-    [conversation appendKnock];
-    
-    // then
-    NSFetchRequest *request = [NSFetchRequest fetchRequestWithEntityName:[ZMMessage entityName]];
-    NSArray *result = [self.uiMOC executeFetchRequestOrAssert:request];
-    
-    XCTAssertEqual(result.count, 1u);
-    XCTAssertTrue([result.firstObject isKindOfClass:[ZMClientMessage class]]);
-}*/
 
 #pragma mark - SystemMessags
 
