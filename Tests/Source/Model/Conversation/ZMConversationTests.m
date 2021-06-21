@@ -2063,36 +2063,6 @@
 }
 
 
-///TODO: Undefined symbols for architecture x86_64:
-//"_OBJC_CLASS_$__TtC13WireDataModel15ZMClientMessage", referenced from:
-//    objc-class-ref in ZMConversationTests.o
-- (void)testThatClearingMessageHistorySetsLastReadServerTimeStampToLastServerTimeStamp
-{
-    // given
-    NSDate *clearedTimeStamp = [NSDate date];
-
-//    ZMUser *otherUser = [self createUser];
-    ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
-    conversation.lastServerTimeStamp = clearedTimeStamp;
-
-//    ZMClientMessage *message1 = [ZMClientMessage createZMClientMessageWithNonce:NSUUID.createUUID managedObjectContext:self.uiMOC];
-    
-    
-//    message1.serverTimestamp = clearedTimeStamp;
-//    message1.sender = otherUser;
-//    message1.visibleInConversation = conversation;
-
-    XCTAssertNil(conversation.lastReadServerTimeStamp);
-
-    // when
-    [conversation clearMessageHistory];
-    [self.uiMOC saveOrRollback];
-    WaitForAllGroupsToBeEmpty(0.5);
-
-    // then
-    XCTAssertEqualObjects(conversation.lastReadServerTimeStamp, clearedTimeStamp);
-}
-
 - (void)testThatSettingClearedTimeStampDueToRemoteChangeDoesNotDeleteUnsentMessages
 {
     // given
