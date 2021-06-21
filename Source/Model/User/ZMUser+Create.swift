@@ -19,6 +19,34 @@
 
 public extension ZMUser {
 
+    @objc static func fetchOrCreate(with remoteIdentifier: UUID,
+                                    domain: String?,
+                                    in context: NSManagedObjectContext) -> ZMUser {
+        var created: Bool = false
+        return fetchOrCreate(with: remoteIdentifier, domain: domain, in: context, created: &created)
+    }
+
+    @objc static func fetchOrCreate(with remoteIdentifier: UUID,
+                                    domain: String?,
+                                    in context: NSManagedObjectContext,
+                                    created: UnsafeMutablePointer<Bool>) -> ZMUser {
+        // We must only ever call this on the sync context. Otherwise, there's a race condition
+        // where the UI and sync contexts could both insert the same user (same UUID) and we'd end up
+        // having two duplicates of that user, and we'd have a really hard time recovering from that.
+        require(context.zm_isSyncContext, "Users are only allowed to be created on sync context")
+
+        if let user = fetch(with: remoteIdentifier, domain: domain, in: context) {
+            return user
+        } else {
+            created.pointee = true
+            let user = ZMUser.insertNewObject(in: context)
+            user.remoteIdentifier = remoteIdentifier
+            user.domain = domain
+            return user
+        }
+    }
+
+    // TODO jacob either we delete the duplicate merging or we update it to handle domains
     @objc static func fetchAndMerge(with remoteIdentifier: UUID, createIfNeeded: Bool, in context: NSManagedObjectContext) -> ZMUser? {
         // We must only ever call this on the sync context. Otherwise, there's a race condition
         // where the UI and sync contexts could both insert the same user (same UUID) and we'd end up

@@ -121,7 +121,7 @@ extension ZMConversation {
         }
     
         if let creatorId = transportData.UUID(fromKey: PayloadKeys.creatorKey) {
-            self.creator = ZMUser(remoteID: creatorId, createIfNeeded: true, in: moc)!
+            self.creator = ZMUser.fetchOrCreate(with: creatorId, domain: nil, in: moc)
         }
         
         if let members = transportData[PayloadKeys.membersKey] as? [String: Any] {
@@ -306,7 +306,7 @@ extension ZMConversation {
                 users.map { $0.remoteIdentifier! }
             )
             users.formUnion(missingUsers.map {
-                ZMUser(remoteID: $0, createIfNeeded: true, in: self.managedObjectContext!)!
+                ZMUser.fetchOrCreate(with: $0, domain: nil, in: self.managedObjectContext!)
             })
         }
         return Set(users)

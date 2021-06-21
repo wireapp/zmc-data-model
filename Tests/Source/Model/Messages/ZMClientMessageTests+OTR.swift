@@ -495,10 +495,9 @@ extension DatabaseBaseTest {
     func createSelfUser(in moc: NSManagedObjectContext) -> (ZMUser, ZMConversation) {
         let selfUser = ZMUser.selfUser(in: moc)
         selfUser.remoteIdentifier = UUID()
-
-        let conversation = ZMConversation(remoteID: selfUser.remoteIdentifier,
-                                          createIfNeeded: true,
-                                          in: moc)!
+        let conversation = ZMConversation.fetchOrCreate(with: selfUser.remoteIdentifier,
+                                                        domain: nil,
+                                                        in: moc)
         moc.saveOrRollback()
         return (selfUser, conversation)
     }

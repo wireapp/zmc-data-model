@@ -22,6 +22,7 @@
 #import "ZMConversation+Internal.h"
 #import "ZMMessage+Internal.h"
 #import "ZMUser+Internal.h"
+#import <WireDataModel/WireDataModel-Swift.h>
 
 @implementation ZMUpdateEvent (WireDataModel)
 
@@ -81,7 +82,14 @@
         VerifyAction([uuidString isKindOfClass:[NSString class]], return [NSMutableSet set]);
         NSUUID *uuid = uuidString.UUID;
         VerifyAction(uuid != nil, return [NSMutableSet set]);
-        ZMUser *user = [ZMUser userWithRemoteID:uuid createIfNeeded:createIfNeeded inContext:context];
+
+        ZMUser *user = nil;
+        if (createIfNeeded) {
+            user = [ZMUser fetchOrCreateWith:uuid domain:nil in:context];
+        } else {
+            user = [ZMUser fetchWith:uuid in:context];
+        }
+
         if (user != nil) {
             [users addObject:user];
         }
