@@ -84,6 +84,11 @@ public class ZMClientMessage: ZMOTRMessage {
             return false
         }
     }
+    
+    @objc
+    static public func createZMClientMessage(nonce: UUID, managedObjectContext: NSManagedObjectContext) -> ZMClientMessage {
+        return ZMClientMessage(nonce: nonce, managedObjectContext: managedObjectContext)
+    }
 
     public static func keyPathsForValuesAffectingUnderlyingMessage() -> Set<String> {
         return Set([#keyPath(ZMClientMessage.dataSet),
