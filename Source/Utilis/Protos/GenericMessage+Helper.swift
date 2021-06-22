@@ -515,7 +515,7 @@ extension External {
 // MARK: - Mention
 
 public enum MentionFactory {
-    public static func createMention(mention: WireDataModel.Mention) -> WireProtos.Mention? {
+    public static func createMention(_ mention: WireDataModel.Mention) -> WireProtos.Mention? {
         guard let userID = (mention.user as? ZMUser)?.remoteIdentifier.transportString() else { return nil }
         
         return WireProtos.Mention.with {
