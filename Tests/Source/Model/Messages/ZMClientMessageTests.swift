@@ -407,7 +407,7 @@ extension ClientMessageTests {
         let senderClientID = NSString.createAlphanumerical()
         let conversation = ZMConversation.insertNewObject(in: self.uiMOC)
         conversation.remoteIdentifier = UUID.create()
-        let availability = AvailabilityFactory.createAvailability(availability: .away)
+        let availability = AvailabilityFactory.createAvailability(.away)
         let contentData = try? GenericMessage(content: availability, nonce: UUID.create()).serializedData()
         let data: NSDictionary = [
             "sender": senderClientID,

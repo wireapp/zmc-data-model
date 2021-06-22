@@ -358,7 +358,7 @@ extension Text {
     public init(content: String, mentions: [Mention] = [], linkPreviews: [LinkMetadata] = [], replyingTo: ZMOTRMessage? = nil) {
         self = Text.with {
             $0.content = content
-            $0.mentions = mentions.compactMap { MentionFactory.createMention(mention: $0) }
+            $0.mentions = mentions.compactMap { MentionFactory.createMention($0) }
             $0.linkPreview = linkPreviews.map { WireProtos.LinkPreview($0) }
             
             if let quotedMessage = replyingTo,

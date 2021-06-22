@@ -466,7 +466,7 @@ extension ZMUserTests_Swift {
         // given
         let user = ZMUser.insert(in: self.uiMOC, name: "Foo")
         XCTAssertEqual(user.availability, .none)
-        let availability = AvailabilityFactory.createAvailability(availability: .away)
+        let availability = AvailabilityFactory.createAvailability(.away)
         // when
         user.updateAvailability(from: GenericMessage(content: availability))
         
