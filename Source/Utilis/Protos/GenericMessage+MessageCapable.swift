@@ -68,7 +68,8 @@ extension Text: EphemeralMessageCapable {
     }
 }
 
-extension WireProtosAsset: EphemeralMessageCapable {
+
+extension WireProtos.Asset: EphemeralMessageCapable {
     public func setEphemeralContent(on ephemeral: inout Ephemeral) {
         ephemeral.asset = self
     }
