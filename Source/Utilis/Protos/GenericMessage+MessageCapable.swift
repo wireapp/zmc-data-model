@@ -18,8 +18,6 @@
 
 import Foundation
 
-public typealias WireProtosAsset = WireProtos.Asset
-
 public protocol MessageCapable {
     func setContent(on message: inout GenericMessage)
     var expectsReadConfirmation: Bool { get set }
