@@ -295,9 +295,9 @@ extension Ephemeral {
 
 // MARK: - ClientEntry
 
-public extension ClientEntry {
+public extension Proteus_ClientEntry {
     init(withClient client: UserClient, data: Data) {
-        self = ClientEntry.with {
+        self = Proteus_ClientEntry.with {
             $0.client = client.clientId
             $0.text = data
         }
@@ -306,9 +306,9 @@ public extension ClientEntry {
 
 // MARK: - UserEntry
 
-public extension UserEntry {
-    init(withUser user: ZMUser, clientEntries: [ClientEntry]) {
-        self = UserEntry.with {
+public extension Proteus_UserEntry {
+    init(withUser user: ZMUser, clientEntries: [Proteus_ClientEntry]) {
+        self = Proteus_UserEntry.with {
             $0.user = user.userId
             $0.clients = clientEntries
         }
@@ -317,9 +317,9 @@ public extension UserEntry {
 
 // MARK: - NewOtrMessage
 
-public extension NewOtrMessage {
-    init(withSender sender: UserClient, nativePush: Bool, recipients: [UserEntry], blob: Data? = nil) {
-        self = NewOtrMessage.with {
+public extension Proteus_NewOtrMessage {
+    init(withSender sender: UserClient, nativePush: Bool, recipients: [Proteus_UserEntry], blob: Data? = nil) {
+        self = Proteus_NewOtrMessage.with {
             $0.nativePush = nativePush
             $0.sender = sender.clientId
             $0.recipients = recipients
