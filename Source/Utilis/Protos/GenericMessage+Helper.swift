@@ -293,6 +293,15 @@ extension Ephemeral {
     }
 }
 
+public extension Proteus_QualifiedUserId {
+    init(with uuid: UUID, domain: String) {
+        self = Proteus_QualifiedUserId.with {
+            $0.id = uuid.transportString()
+            $0.domain = domain
+        }
+    }
+}
+
 // MARK: - ClientEntry
 
 public extension Proteus_ClientEntry {
@@ -304,6 +313,17 @@ public extension Proteus_ClientEntry {
     }
 }
 
+// MARK: - QualifiedUserEntry
+
+public extension Proteus_QualifiedUserEntry {
+    init(withDomain domain: String, userEntries: [Proteus_UserEntry]) {
+        self = Proteus_QualifiedUserEntry.with {
+            $0.domain = domain
+            $0.entries = userEntries
+        }
+    }
+}
+
 // MARK: - UserEntry
 
 public extension Proteus_UserEntry {
@@ -311,6 +331,47 @@ public extension Proteus_UserEntry {
         self = Proteus_UserEntry.with {
             $0.user = user.userId
             $0.clients = clientEntries
+        }
+    }
+}
+
+// MARK: - QualifiedNewOtrMessage
+
+public extension Proteus_QualifiedNewOtrMessage {
+    init(withSender sender: UserClient,
+         nativePush: Bool,
+         recipients: [Proteus_QualifiedUserEntry],
+         missingClientsStrategy: MissingClientsStrategy,
+         blob: Data? = nil ) {
+
+        self = Proteus_QualifiedNewOtrMessage.with {
+            $0.nativePush = nativePush
+            $0.sender = sender.clientId
+            $0.recipients = recipients
+
+            if let blob = blob {
+                $0.blob = blob
+            }
+
+            switch missingClientsStrategy {
+            case .doNotIgnoreAnyMissingClient:
+                $0.clientMismatchStrategy = .reportAll(.init())
+            case .ignoreAllMissingClients:
+                $0.clientMismatchStrategy = .ignoreAll(.init())
+            case .ignoreAllMissingClientsNotFromUsers(users: let users):
+                $0.clientMismatchStrategy = .reportOnly(.with({
+                    $0.userIds = users.compactMap({
+                        guard
+                            let uuid = $0.remoteIdentifier,
+                            let domain = $0.domain
+                        else {
+                            return nil
+                        }
+
+                        return Proteus_QualifiedUserId(with: uuid, domain: domain)
+                    })
+                }))
+            }
         }
     }
 }

@@ -96,9 +96,22 @@ extension ZMAssetClientMessage: EncryptedPayloadGenerator {
 
 extension GenericMessage {
 
+
+    public func encryptForProteus(for recipients: [ZMUser: Set<UserClient>],
+                                  with missingClientsStrategy: MissingClientsStrategy,
+                                  externalData: Data? = nil,
+                                  in context: NSManagedObjectContext) {
+
+    }
+
+}
+
+extension GenericMessage {
+
     /// Attempts to generate an encrypted payload for recipients in the given conversation.
 
     public func encryptForTransport(for conversation: ZMConversation,
+                                    useQualifiedIdentifiers: Bool = false,
                                     externalData: Data? = nil) -> EncryptedPayloadGenerator.Payload? {
 
         guard let context = conversation.managedObjectContext else { return nil }
@@ -107,7 +120,11 @@ extension GenericMessage {
         let (users, missingClientsStrategy) = recipientUsersForMessage(in: conversation, selfUser: selfUser)
         let recipients = users.mapToDictionary { $0.clients }
 
-        guard let data = encrypt(for: recipients, with: missingClientsStrategy, externalData: externalData, in: context) else {
+        guard let data = encrypt(for: recipients,
+                                 with: missingClientsStrategy,
+                                 externalData: externalData,
+                                 useQualifiedIdentifiers: useQualifiedIdentifiers,
+                                 in: context) else {
             return nil
         }
 
@@ -118,6 +135,7 @@ extension GenericMessage {
     /// Attempts to generate an encrypted payload for the given set of users.
     
     public func encryptForTransport(forBroadcastRecipients recipients: Set<ZMUser>,
+                                    useQualifiedIdentifiers: Bool = false,
                                     in context: NSManagedObjectContext) -> EncryptedPayloadGenerator.Payload? {
 
         // It's important to ignore all irrelevant missing clients, because otherwise the backend will enforce that
@@ -126,7 +144,10 @@ extension GenericMessage {
 
         let messageRecipients = recipients.mapToDictionary { $0.clients }
 
-        guard let data = encrypt(for: messageRecipients, with: missingClientsStrategy, in: context) else { return nil }
+        guard let data = encrypt(for: messageRecipients,
+                                 with: missingClientsStrategy,
+                                 useQualifiedIdentifiers: useQualifiedIdentifiers,
+                                 in: context) else { return nil }
 
         return (data, missingClientsStrategy)
     }
@@ -134,12 +155,16 @@ extension GenericMessage {
     /// Attempts to generate an encrypted payload for the given collection of user clients.
 
     public func encryptForTransport(for recipients: [ZMUser: Set<UserClient>],
+                                    useQualifiedIdentifiers: Bool = false,
                                     in context: NSManagedObjectContext) -> EncryptedPayloadGenerator.Payload? {
 
         // We're targeting a specific client so we want to ignore all missing clients.
         let missingClientsStrategy = MissingClientsStrategy.ignoreAllMissingClients
 
-        guard let data = encrypt(for: recipients, with: missingClientsStrategy, in: context) else { return nil }
+        guard let data = encrypt(for: recipients,
+                                 with: missingClientsStrategy,
+                                 useQualifiedIdentifiers: useQualifiedIdentifiers,
+                                 in: context) else { return nil }
 
         return (data, missingClientsStrategy)
     }
@@ -148,6 +173,7 @@ extension GenericMessage {
     private func encrypt(for recipients: [ZMUser: Set<UserClient>],
                          with missingClientsStrategy: MissingClientsStrategy,
                          externalData: Data? = nil,
+                         useQualifiedIdentifiers: Bool = false,
                          in context: NSManagedObjectContext) -> Data? {
 
         guard
@@ -161,14 +187,23 @@ extension GenericMessage {
         var messageData: Data?
         
         encryptionContext.perform { sessionsDirectory in
-            let message = otrMessage(selfClient,
-                                     recipients: recipients,
-                                     missingClientsStrategy: missingClientsStrategy,
-                                     externalData: externalData,
-                                     sessionDirectory: sessionsDirectory)
-            
-            messageData = try? message.serializedData()
-            
+            if useQualifiedIdentifiers, let selfDomain = ZMUser.selfUser(in: context).domain {
+                let message = proteusMessage(selfClient,
+                                             selfDomain: selfDomain,
+                                             recipients: recipients,
+                                             missingClientsStrategy: missingClientsStrategy,
+                                             externalData: externalData,
+                                             sessionDirectory: sessionsDirectory)
+                messageData = try? message.serializedData()
+            } else {
+                let message = otrMessage(selfClient,
+                                         recipients: recipients,
+                                         missingClientsStrategy: missingClientsStrategy,
+                                         externalData: externalData,
+                                         sessionDirectory: sessionsDirectory)
+                messageData = try? message.serializedData()
+            }
+
             // Message too big?
             if let data = messageData, UInt(data.count) > ZMClientMessage.byteSizeExternalThreshold && externalData == nil {
                 // The payload is too big, we therefore rollback the session since we won't use the message we just encrypted.
@@ -176,6 +211,7 @@ extension GenericMessage {
                 sessionsDirectory.discardCache()
                 messageData = self.encryptForTransportWithExternalDataBlob(for: recipients,
                                                                            with: missingClientsStrategy,
+                                                                           useQualifiedIdentifiers: useQualifiedIdentifiers,
                                                                            in: context)
             }
         }
@@ -186,6 +222,29 @@ extension GenericMessage {
             .forEach { $0.failedToEstablishSession = false }
 
         return messageData
+    }
+
+    private func proteusMessage(_ selfClient: UserClient,
+                                selfDomain: String,
+                                recipients: [ZMUser: Set<UserClient>],
+                                missingClientsStrategy: MissingClientsStrategy,
+                                externalData: Data?,
+                                sessionDirectory: EncryptionSessionsDirectory) -> Proteus_QualifiedNewOtrMessage {
+
+        let qualifiedUserEntries = qualifiedUserEntriesWithEncryptedData(
+            selfClient,
+            selfDomain: selfDomain,
+            recipients: recipients,
+            sessionDirectory: sessionDirectory)
+
+        // We do not want to send pushes for delivery receipts.
+        let nativePush = !hasConfirmation
+
+        return Proteus_QualifiedNewOtrMessage(withSender: selfClient,
+                                              nativePush: nativePush,
+                                              recipients: qualifiedUserEntries,
+                                              missingClientsStrategy: missingClientsStrategy,
+                                              blob: externalData)
     }
     
     /// Returns a message for the given recipients.
@@ -213,6 +272,33 @@ extension GenericMessage {
         }
 
         return message
+    }
+
+    private func qualifiedUserEntriesWithEncryptedData(_ selfClient: UserClient,
+                                                       selfDomain: String,
+                                                       recipients: [ZMUser: Set<UserClient>],
+                                                       sessionDirectory: EncryptionSessionsDirectory) -> [Proteus_QualifiedUserEntry] {
+
+        let recipientsByDomain = Dictionary(grouping: recipients) { (element) -> String in
+            element.key.domain ?? selfDomain
+        }
+
+        return recipientsByDomain.compactMap { domain, recipients in
+
+            let userEntries: [Proteus_UserEntry] = recipients.compactMap { (user, clients) in
+
+                guard !user.isAccountDeleted else { return nil }
+
+                let clientEntries = clientEntriesWithEncryptedData(selfClient,
+                                                                   userClients: clients,
+                                                                   sessionDirectory: sessionDirectory)
+
+                guard !clientEntries.isEmpty else { return nil }
+                return Proteus_UserEntry(withUser: user, clientEntries: clientEntries)
+            }
+
+            return Proteus_QualifiedUserEntry(withDomain: domain, userEntries: userEntries)
+        }
     }
 
     private func userEntriesWithEncryptedData(_ selfClient: UserClient,
@@ -386,6 +472,7 @@ extension GenericMessage {
     
     private func encryptForTransportWithExternalDataBlob(for recipients: [ZMUser: Set<UserClient>],
                                                          with missingClientsStrategy: MissingClientsStrategy,
+                                                         useQualifiedIdentifiers: Bool = false,
                                                          in context: NSManagedObjectContext) -> Data? {
 
         guard
@@ -397,7 +484,11 @@ extension GenericMessage {
         }
 
         let externalGenericMessage = GenericMessage(content: External(withKeyWithChecksum: keys))
-        return externalGenericMessage.encrypt(for: recipients, with: missingClientsStrategy, externalData: data, in: context)
+        return externalGenericMessage.encrypt(for: recipients,
+                                              with: missingClientsStrategy,
+                                              externalData: data,
+                                              useQualifiedIdentifiers: useQualifiedIdentifiers,
+                                              in: context)
     }
 }
 
