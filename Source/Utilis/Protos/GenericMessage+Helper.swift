@@ -513,6 +513,7 @@ extension External {
 }
 
 // MARK: - Mention
+///When other frameworks links to data modal XCFramework, the generated swift interface file omit the namespace and gives linker error. Added this typealias solves the issue.
 public typealias WireProtosMention = WireProtos.Mention
 public extension WireProtosMention {
     static func createMention(_ mention: WireDataModel.Mention) -> WireProtos.Mention? {
