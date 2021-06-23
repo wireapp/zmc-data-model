@@ -21,12 +21,30 @@ import Foundation
 
 extension ZMConversation {
 
+    /// Fetch an existing conversation or create a new one if it doesn't already exist.
+    ///
+    /// - Parameters:
+    ///     - remoteIdentifier: UUID assigned to the conversation.
+    ///     - domain: domain assigned to the conversation.
+    ///     - context: `NSManagedObjectContext` on which to fetch or create the conversation.
+    ///                NOTE that this **must** be the sync context.
+
     @objc public static func fetchOrCreate(with remoteIdentifier: UUID,
                                            domain: String?,
                                            in context: NSManagedObjectContext) -> ZMConversation {
         var created: Bool = false
         return fetchOrCreate(with: remoteIdentifier, domain: domain, in: context, created: &created)
     }
+
+
+    /// Fetch an existing conversation or create a new one if it doesn't already exist.
+    ///
+    /// - Parameters:
+    ///     - remoteIdentifier: UUID assigned to the conversation.
+    ///     - domain: domain assigned to the conversation.
+    ///     - context: `NSManagedObjectContext` on which to fetch or create the conversation.
+    ///                NOTE that this **must** be the sync context.
+    ///     - created: Will be set `true` if a new user was created.
 
     @objc public static func fetchOrCreate(with remoteIdentifier: UUID,
                                            domain: String?,

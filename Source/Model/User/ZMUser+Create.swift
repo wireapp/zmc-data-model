@@ -19,12 +19,29 @@
 
 public extension ZMUser {
 
+    /// Fetch an existing user or create a new one if it doesn't already exist.
+    ///
+    /// - Parameters:
+    ///     - remoteIdentifier: UUID assigned to the user.
+    ///     - domain: domain assigned to the user.
+    ///     - context: `NSManagedObjectContext` on which to fetch or create the user.
+    ///                NOTE that this **must** be the sync context.
+
     @objc static func fetchOrCreate(with remoteIdentifier: UUID,
                                     domain: String?,
                                     in context: NSManagedObjectContext) -> ZMUser {
         var created: Bool = false
         return fetchOrCreate(with: remoteIdentifier, domain: domain, in: context, created: &created)
     }
+
+    /// Fetch an existing user or create a new one if it doesn't already exist.
+    ///
+    /// - Parameters:
+    ///     - remoteIdentifier: UUID assigned to the user.
+    ///     - domain: domain assigned to the user.
+    ///     - context: `NSManagedObjectContext` on which to fetch or create the user.
+    ///                NOTE that this **must** be the sync context.
+    ///     - created: Will be set `true` if a new user was created.
 
     @objc static func fetchOrCreate(with remoteIdentifier: UUID,
                                     domain: String?,
