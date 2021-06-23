@@ -513,8 +513,8 @@ extension External {
 }
 
 // MARK: - Mention
-
-public extension WireProtos.Mention {
+public typealias WireProtosMention = WireProtos.Mention
+public extension WireProtosMention {
     static func createMention(_ mention: WireDataModel.Mention) -> WireProtos.Mention? {
         guard let userID = (mention.user as? ZMUser)?.remoteIdentifier.transportString() else { return nil }
         
