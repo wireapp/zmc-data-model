@@ -112,6 +112,18 @@ extension ZMAssetClientMessage: EncryptedPayloadGenerator {
 
 extension GenericMessage {
 
+
+    public func encryptForProteus(for recipients: [ZMUser: Set<UserClient>],
+                                  with missingClientsStrategy: MissingClientsStrategy,
+                                  externalData: Data? = nil,
+                                  in context: NSManagedObjectContext) {
+
+    }
+
+}
+
+extension GenericMessage {
+
     /// Attempts to generate an encrypted payload for recipients in the given conversation.
 
     public func encryptForTransport(for conversation: ZMConversation,
