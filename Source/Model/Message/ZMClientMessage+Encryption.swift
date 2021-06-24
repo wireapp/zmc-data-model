@@ -33,6 +33,11 @@ public protocol EncryptedPayloadGenerator {
 
     func encryptForTransport() -> Payload?
 
+    /// Produces a payload with encrypted data and the strategy to use to handle missing clients.
+    /// This variant creates a payload with qualified idenitifier suitable for federated requests.
+
+    func encryptForTransportQualified() -> Payload?
+
     var debugInfo: String { get }
 
 }
@@ -68,6 +73,11 @@ extension ZMClientMessage: EncryptedPayloadGenerator {
         return underlyingMessage?.encryptForTransport(for: conversation)
     }
 
+    public func encryptForTransportQualified() -> Payload? {
+        guard let conversation = conversation else { return nil }
+        return underlyingMessage?.encryptForTransport(for: conversation, useQualifiedIdentifiers: true)
+    }
+
     public var debugInfo: String {
         var info = "\(String(describing: underlyingMessage))"
 
@@ -86,6 +96,11 @@ extension ZMAssetClientMessage: EncryptedPayloadGenerator {
     public func encryptForTransport() -> Payload? {
         guard let conversation = conversation else { return nil }
         return underlyingMessage?.encryptForTransport(for: conversation)
+    }
+
+    public func encryptForTransportQualified() -> Payload? {
+        guard let conversation = conversation else { return nil }
+        return underlyingMessage?.encryptForTransport(for: conversation, useQualifiedIdentifiers: true)
     }
 
     public var debugInfo: String {
