@@ -329,7 +329,7 @@ static NSString * const KeysForCachedValuesKey = @"ZMKeysForCachedValues";
 + (instancetype)internalFetchObjectWithRemoteIdentifier:(NSUUID *)uuid inManagedObjectContext:(NSManagedObjectContext *)moc;
 {
     // Executing a fetch request is quite expensive, because it will _always_ (1) round trip through
-    // (1) the persistent store coordinator and the SQLite engine, and (2) touch the file system.
+    // the persistent store coordinator and the SQLite engine, and (2) touch the file system.
     // Looping through all objects in the context is way cheaper, because it does not involve (1)
     // taking any locks, nor (2) touching the file system.
     
@@ -356,7 +356,7 @@ static NSString * const KeysForCachedValuesKey = @"ZMKeysForCachedValues";
                          inManagedObjectContext:(NSManagedObjectContext *)moc;
 {
     // Executing a fetch request is quite expensive, because it will _always_ (1) round trip through
-    // (1) the persistent store coordinator and the SQLite engine, and (2) touch the file system.
+    // the persistent store coordinator and the SQLite engine, and (2) touch the file system.
     // Looping through all objects in the context is way cheaper, because it does not involve (1)
     // taking any locks, nor (2) touching the file system.
 
