@@ -53,7 +53,6 @@ extern NSString * __nonnull const ReadReceiptsEnabledKey;
 
 - (void)updateWithTransportData:(nonnull NSDictionary *)transportData authoritative:(BOOL)authoritative;
 
-+ (nullable instancetype)userWithRemoteID:(nonnull NSUUID *)UUID createIfNeeded:(BOOL)create inContext:(nonnull NSManagedObjectContext *)moc;
 + (nullable instancetype)userWithEmailAddress:(nonnull NSString *)emailAddress inContext:(nonnull NSManagedObjectContext *)context;
 + (nullable instancetype)userWithPhoneNumber:(nonnull NSString *)phoneNumber inContext:(nonnull NSManagedObjectContext *)context;
 
