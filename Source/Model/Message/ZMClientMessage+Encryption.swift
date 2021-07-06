@@ -65,7 +65,7 @@ public enum MissingClientsStrategy: Equatable {
 
 }
 
-
+// FUTUREWORK: remove this code duplication (it's duplicated on ZMAssetClientMessage)
 extension ZMClientMessage: EncryptedPayloadGenerator {
 
     public func encryptForTransport() -> Payload? {
@@ -91,7 +91,6 @@ extension ZMClientMessage: EncryptedPayloadGenerator {
         updateUnderlayingMessageBeforeSending(in: context)
         return underlyingMessage?.encryptForTransport(for: conversation, useQualifiedIdentifiers: true)
     }
-
 
     func updateUnderlayingMessageBeforeSending(in context: NSManagedObjectContext) {
         if conversation?.conversationType == .oneOnOne {
@@ -131,17 +130,56 @@ extension ZMClientMessage: EncryptedPayloadGenerator {
 
 }
 
-
 extension ZMAssetClientMessage: EncryptedPayloadGenerator {
 
     public func encryptForTransport() -> Payload? {
-        guard let conversation = conversation else { return nil }
+        guard
+            let conversation = conversation,
+            let context = managedObjectContext
+        else {
+            return nil
+        }
+
+        updateUnderlayingMessageBeforeSending(in: context)
         return underlyingMessage?.encryptForTransport(for: conversation)
     }
 
     public func encryptForTransportQualified() -> Payload? {
-        guard let conversation = conversation else { return nil }
+        guard
+            let conversation = conversation,
+            let context = managedObjectContext
+        else {
+            return nil
+        }
+
+        updateUnderlayingMessageBeforeSending(in: context)
         return underlyingMessage?.encryptForTransport(for: conversation, useQualifiedIdentifiers: true)
+    }
+
+    func updateUnderlayingMessageBeforeSending(in context: NSManagedObjectContext) {
+        if conversation?.conversationType == .oneOnOne {
+            // Update expectsReadReceipt flag to reflect the current user setting
+            if var updatedGenericMessage = underlyingMessage {
+                updatedGenericMessage.setExpectsReadConfirmation(ZMUser.selfUser(in: context).readReceiptsEnabled)
+                do {
+                    try setUnderlyingMessage(updatedGenericMessage)
+                } catch {
+                    Logging.messageProcessing.warn("Failed to update generic message. Reason: \(error.localizedDescription)")
+                }
+            }
+        }
+
+        if let legalHoldStatus = conversation?.legalHoldStatus {
+            // Update the legalHoldStatus flag to reflect the current known legal hold status
+            if var updatedGenericMessage = underlyingMessage {
+                updatedGenericMessage.setLegalHoldStatus(legalHoldStatus.denotesEnabledComplianceDevice ? .enabled : .disabled)
+                do {
+                    try setUnderlyingMessage(updatedGenericMessage)
+                } catch {
+                    Logging.messageProcessing.warn("Failed to update generic message. Reason: \(error.localizedDescription)")
+                }
+            }
+        }
     }
 
     public var debugInfo: String {
