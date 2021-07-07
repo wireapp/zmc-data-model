@@ -438,7 +438,7 @@ static NSString * const KeysForCachedValuesKey = @"ZMKeysForCachedValues";
 
 + (NSPredicate *)predicateForObjectsThatNeedToBeInsertedUpstream;
 {
-    return [NSPredicate predicateWithFormat:@"%K == NULL", RemoteIdentifierDataKey];
+    return [NSPredicate predicateWithFormat:@"%K == NULL", self.remoteIdentifierDataKey];
 }
 
 - (NSSet *)ignoredKeys;
