@@ -19,20 +19,56 @@
 import Foundation
 
 public struct PushToken: Equatable, Codable {
+    
+    public enum TokenType: Int, Codable {
+        case standard, voip
+        
+        public var transportType: String {
+            switch self {
+            case .standard: return "APNS"
+            case .voip: return "APNS_VOIP"
+            }
+        }
+    }
+    
     public let deviceToken: Data
     public let appIdentifier: String
     public let transportType: String
+    public let type: TokenType
     public var isRegistered: Bool
     public var isMarkedForDeletion: Bool = false
     public var isMarkedForDownload: Bool = false
+    
+    public init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        deviceToken = try container.decode(Data.self, forKey: .deviceToken)
+        appIdentifier = try container.decode(String.self, forKey: .appIdentifier)
+        transportType = try container.decode(String.self, forKey: .transportType)
+        
+        // Property 'type' was added to use two token types: voip (old) and apns (new). All old clients with voip token did not have this property, so we need to set it by default as .voip.
+        type = try container.decodeIfPresent(TokenType.self, forKey: .type) ?? .voip
+        isRegistered = try container.decode(Bool.self, forKey: .isRegistered)
+        isMarkedForDeletion = try container.decode(Bool.self, forKey: .isMarkedForDeletion)
+        isMarkedForDownload = try container.decode(Bool.self, forKey: .isMarkedForDownload)
+    }
+
+    enum CodingKeys: String, CodingKey {
+        case deviceToken, appIdentifier, transportType, type, isRegistered, isMarkedForDeletion, isMarkedForDownload
+    }
 }
 
 extension PushToken {
-
-    public init(deviceToken: Data, appIdentifier: String, transportType: String, isRegistered: Bool) {
-        self.init(deviceToken: deviceToken, appIdentifier: appIdentifier, transportType: transportType, isRegistered: isRegistered, isMarkedForDeletion: false, isMarkedForDownload: false)
+    
+    public init(deviceToken: Data, appIdentifier: String, transportType: String, type: TokenType, isRegistered: Bool) {
+        self.deviceToken = deviceToken
+        self.appIdentifier = appIdentifier
+        self.transportType = transportType
+        self.type = type
+        self.isRegistered = isRegistered
+        self.isMarkedForDeletion = false
+        self.isMarkedForDownload = false
     }
-
+    
     public var deviceTokenString: String {
         return deviceToken.zmHexEncodedString()
     }
