@@ -30,7 +30,7 @@ class InvalidFeatureRemovalTests: DiskDatabaseTest {
             Feature.insert(name: .appLock, status: .enabled, config: nil, team: team, context: context)
             Feature.insert(name: .appLock, status: .disabled, config: nil, team: team, context: context)
 
-            XCTAssertEqual(self.fetchInstances(in: context).count, 2)
+            XCTAssertTrue(self.fetchInstances(in: context).count > 1)
 
             // When
             InvalidFeatureRemoval.removeInvalid(in: context)
