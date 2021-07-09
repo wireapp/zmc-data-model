@@ -27,8 +27,8 @@ class InvalidFeatureRemovalTests: DiskDatabaseTest {
             let team = Team.insertNewObject(in: context)
             team.remoteIdentifier = UUID()
 
-            Feature.insert(name: .appLock, status: .enabled, config: nil, team: team, context: context)
-            Feature.insert(name: .appLock, status: .disabled, config: nil, team: team, context: context)
+            Feature.insert(name: .appLock, status: .enabled, config: nil, context: context)
+            Feature.insert(name: .appLock, status: .disabled, config: nil, context: context)
 
             XCTAssertTrue(self.fetchInstances(in: context).count > 1)
 

@@ -83,4 +83,22 @@ public class FeatureService {
         }
     }
 
+    func needsToNotifyUser(for featureName: Feature.Name) -> Bool {
+        var result = false
+
+        context.performGroupedAndWait {
+            let feature = Feature.fetch(name: featureName, context: $0)
+            result = feature?.needsToNotifyUser ?? false
+        }
+
+        return result
+    }
+
+    func setNeedsToNotifyUser(_ notifyUser: Bool, for featureName: Feature.Name) {
+        context.performGroupedAndWait {
+            let feature = Feature.fetch(name: featureName, context: $0)
+            feature?.needsToNotifyUser = notifyUser
+        }
+    }
+
 }

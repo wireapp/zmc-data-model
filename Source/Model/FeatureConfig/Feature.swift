@@ -45,8 +45,6 @@ public class Feature: ZMManagedObject {
     @NSManaged private var statusValue: String
     @NSManaged private var configData: Data?
     @NSManaged public var needsToNotifyUser: Bool
-
-    @NSManaged public var team: Team?
     
     public var config: Data? {
         get {
