@@ -22,6 +22,7 @@ public extension WireProtos.Asset.Original {
             return false
         }
         
+        // FUTUREWORK remove once arm64 simulator support have been added JIRA ticket: SQPIT-583
         #if targetEnvironment(simulator)
         if let utType = UTType(mimeType: mimeType) {
             return utType.isSVG == false
