@@ -781,8 +781,9 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
                               };
     (void)[(ZMUpdateEvent *)[[(id)updateEvent stub] andReturn:payload] payload];
     
-    NSUUID *nonce = [NSUUID UUID];
-    (void)[(ZMUpdateEvent *)[[(id)updateEvent stub] andReturn:nonce] messageNonce];
+    ///TODO: messageNonce can not be marked @objc since it is extended in DM, and it can not be stubed
+//    NSUUID *nonce = [NSUUID UUID];
+//    (void)[(ZMUpdateEvent *)[[(id)updateEvent stub] andReturn:nonce] messageNonce];
     (void)[(ZMUpdateEvent *)[[(id)updateEvent stub] andReturn:serverTimeStamp] timestamp];
     (void)[(ZMUpdateEvent *)[[(id)updateEvent stub] andReturn:conversation.remoteIdentifier] conversationUUID];
     (void)[(ZMUpdateEvent *)[[(id)updateEvent stub] andReturn:from] senderUUID];
