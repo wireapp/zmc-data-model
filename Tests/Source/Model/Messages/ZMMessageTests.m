@@ -445,12 +445,7 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     XCTAssertFalse(systemMessage.needsUpdatingUsers);
 }
 
-@end
-
-
-
-@implementation ZMMessageTests (TextMessage)
-
+#pragma mark - TextMessage
 
 - (void)testThatATextMessageHasTextMessageData
 {
@@ -464,11 +459,8 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     XCTAssertNil(message.knockMessageData);
 }
 
-@end
 
-
-
-@implementation ZMMessageTests (ImageMessages)
+#pragma mark - ImageMessages
 
 - (void)testThatSettingTheOriginalDataRecognizesAGif
 {
@@ -640,11 +632,7 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     XCTAssertTrue([self waitForCustomExpectationsWithTimeout:0.5]);
 }
 
-@end
-
-
-
-@implementation ZMMessageTests (ImageIdentifiersForCaching)
+#pragma mark - ImageIdentifiersForCaching
 
 - (void)testThatItDoesNotReturnAnIdentifierWhenTheImageDataIsNil
 {
@@ -730,11 +718,7 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     XCTAssertNil(identifier);
 }
 
-@end
-
-
-
-@implementation ZMMessageTests (ImageMessageUploadAttributes)
+#pragma mark - ImageMessageUploadAttributes
 
 - (void)testThatItRequiresPreviewAndMediumData
 {
@@ -746,12 +730,8 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     XCTAssertEqualObjects(message.requiredImageFormats,  expectedFormats);
 }
 
-@end
+#pragma mark - CreateSystemMessageFromUpdateEvent
 
-
-
-
-@implementation ZMMessageTests (CreateSystemMessageFromUpdateEvent)
 
 - (void)testThat_isEventTypeGeneratingSystemMessage_returnsNo
 {
