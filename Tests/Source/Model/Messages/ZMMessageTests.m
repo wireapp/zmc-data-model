@@ -203,7 +203,6 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     XCTAssertEqual(message.deliveryState, ZMDeliveryStateDelivered);
 }
 
-///TODO: this test fails after XCFramework is used
 - (void)testThatItResetsTheExpirationDateWhenResending
 {
     // given
@@ -852,7 +851,6 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     XCTAssertEqual(users.count, 2u);
 }
 
-///TODO: this test fails after XCFramework is used
 - (void)testThatItSavesTheConversationTitleInConversationNameChangeSystemMessage
 {
     [self.syncMOC performGroupedBlockAndWait:^{
@@ -903,7 +901,6 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     XCTAssertEqualObjects(text2, @"Conversation Name2");
 }
 
-///TODO: this test fails after XCFramework is used
 - (void)testThatItReturnsSenderIFItsTheOnlyUserContainedInUserIDs
 {
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
@@ -939,7 +936,6 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     XCTAssertEqualObjects(userSet, [NSSet setWithObject:message.sender]);
 }
 
-///TODO: this test fails after XCFramework is used
 - (void)testThatItReturnsOnlyOtherUsersIfTheSenderIsNotTheOnlyUserContainedInUserIDs
 {
     ZMConversation *conversation = [ZMConversation insertNewObjectInManagedObjectContext:self.uiMOC];
@@ -979,7 +975,6 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     XCTAssertEqualObjects(userSet, [NSSet setWithObject:otherUser]);
 }
 
-///TODO: this test fails after XCFramework is used
 - (void)testThatItCreatesASystemMessageForAddingTheSelfUserToAGroupConversation
 {
     // given
@@ -1083,7 +1078,6 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     }
 }
 
-///TODO: this test fails after XCFramework is used
 - (void)testThatFlagIsSetWhenSenderIsTheOnlyUser
 {
     // given
@@ -1108,7 +1102,6 @@ NSUInteger const ZMClientMessageByteSizeExternalThreshold = 128000;
     XCTAssertTrue(message.userIsTheSender);
 }
 
-///TODO: this test does not access the stub payload after XCFramework is used
 - (void)testThatFlagIsNotSetWhenSenderIsNotTheOnlyUser
 {
     // given
