@@ -1,1 +1,1 @@
-github "wireapp/wire-ios-testing" "feature/xcframework"
+github "wireapp/wire-ios-testing" ~> 25.0.1
