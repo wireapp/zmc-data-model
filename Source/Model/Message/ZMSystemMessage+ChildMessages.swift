@@ -23,10 +23,12 @@ extension ZMSystemMessage {
     @objc
     static func updateEventParticipantsRemovedReason(_ updateEvent: ZMUpdateEvent) -> ZMParticipantsRemovedReason {
         
-        ///TODO: only for sim
+        // fix: OCMock no longer work after XCFramework is used
+        #if targetEnvironment(simulator)
         guard updateEvent.description != "OCMockObject(WireTransport.ZMUpdateEvent)" else {
             return .none
         }
+        #endif
         
         return updateEvent.participantsRemovedReason
     }
