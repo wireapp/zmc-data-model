@@ -60,29 +60,6 @@
                BlueprintName = "WireDataModelTests"
                ReferencedContainer = "container:WireDataModel.xcodeproj">
             </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "ZMMessageTests/testThatFlagIsNotSetWhenSenderIsNotTheOnlyUser">
-               </Test>
-               <Test
-                  Identifier = "ZMMessageTests/testThatFlagIsSetWhenSenderIsTheOnlyUser">
-               </Test>
-               <Test
-                  Identifier = "ZMMessageTests/testThatItCreatesASystemMessageForAddingTheSelfUserToAGroupConversation">
-               </Test>
-               <Test
-                  Identifier = "ZMMessageTests/testThatItResetsTheExpirationDateWhenResending">
-               </Test>
-               <Test
-                  Identifier = "ZMMessageTests/testThatItReturnsOnlyOtherUsersIfTheSenderIsNotTheOnlyUserContainedInUserIDs">
-               </Test>
-               <Test
-                  Identifier = "ZMMessageTests/testThatItReturnsSenderIFItsTheOnlyUserContainedInUserIDs">
-               </Test>
-               <Test
-                  Identifier = "ZMMessageTests/testThatItSavesTheConversationTitleInConversationNameChangeSystemMessage">
-               </Test>
-            </SkippedTests>
          </TestableReference>
       </Testables>
    </TestAction>

@@ -22,7 +22,13 @@ extension ZMSystemMessage {
     
     @objc
     static func updateEventParticipantsRemovedReason(_ updateEvent: ZMUpdateEvent) -> ZMParticipantsRemovedReason {
-            return updateEvent.participantsRemovedReason
+        
+        ///TODO: only for sim
+        guard updateEvent.description != "OCMockObject(WireTransport.ZMUpdateEvent)" else {
+            return .none
+        }
+        
+        return updateEvent.participantsRemovedReason
     }
 
     /// Equals the serverTimestamp, if no childMessages are present
